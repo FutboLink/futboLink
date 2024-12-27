@@ -51,7 +51,6 @@ const Home = () => {
         </div>
       </header>
 
-      {/* Content Sections */}
       <section>
         <CardOffer />
       </section>

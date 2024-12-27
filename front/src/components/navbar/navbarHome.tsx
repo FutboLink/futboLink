@@ -56,8 +56,8 @@ function NavbarHome() {
             <Link href={"/"}>
               <Image
                 src={logo}
-                height={100}
-                width={100}
+                height={75}
+                width={75}
                 alt="Futbol Career logo"
                 className="rounded-2xl"
               />

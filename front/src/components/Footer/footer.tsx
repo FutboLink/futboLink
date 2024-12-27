@@ -1,6 +1,6 @@
-// components/Footer/Footer.tsx
 import React from "react";
 import { FaTwitter, FaFacebook, FaLinkedin, FaInstagram } from "react-icons/fa"; // Iconos de redes sociales
+import Link from "next/link"; // Importar Link de Next.js
 
 function Footer() {
   return (
@@ -19,19 +19,19 @@ function Footer() {
             <h3 className="text-lg font-semibold">Enlaces</h3>
             <ul className="mt-2 space-y-2">
               <li>
-                <a href="#about" className="hover:text-green-600">
+                <Link href="#about" className="hover:text-green-600">
                   Sobre nosotros
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#offers" className="hover:text-green-600">
+                <Link href="/Offer" className="hover:text-green-600">
                   Ofertas
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#contact" className="hover:text-green-600">
+                <Link href="#contact" className="hover:text-green-600">
                   Contacto
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

@@ -3,7 +3,7 @@
 
 import React, { useState, useMemo } from "react";
 import newsArticles from "../../helpers/helperNotices"; // Usamos helpersNotices para las noticias
-import CardOffer from "@/components/Card/card"; // Lo puedes renombrar a algo más adecuado, como CardNews, si prefieres
+import CardNews from "@/components/Card/cardNotices"; // Lo puedes renombrar a algo más adecuado, como CardNews, si prefieres
 import Link from "next/link";
 
 const NewsPage = () => {
@@ -58,7 +58,7 @@ const NewsPage = () => {
           {filteredArticles.length > 0 ? (
             filteredArticles.map((article) => (
               <div key={article.id}>
-                <CardOffer offer={article} />{" "}
+                <CardNews article={article} />{" "}
                 {/* Puedes renombrar CardOffer a CardNews si prefieres */}
               </div>
             ))

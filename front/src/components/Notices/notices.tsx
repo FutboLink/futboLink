@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import CardOffer from "../Card/card";
+import CardOffer from "../Card/cardOffer";
 import offers from "@/helpers/helperNotices"; // Helper de ofertas
 
 const NoticeSection = () => {

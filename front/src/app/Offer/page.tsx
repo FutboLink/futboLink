@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import helpersOffers from "@/helpers/helpersOffers";
-import CardOffer from "@/components/Card/card";
+import CardOffer from "@/components/Card/cardOffer";
 import Filters from "@/components/filter/filter"; // Importar los filtros
 
 const OffersPage = () => {

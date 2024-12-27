@@ -1,7 +1,7 @@
 "use client";
 
 import newsArticles from "../../helpers/helperNotices"; // Importar las noticias
-import CardOffer from "@/components/Card/card"; // Usar el componente CardOffer para mostrar las noticias
+import CardOffer from "@/components/Card/cardOffer"; // Usar el componente CardOffer para mostrar las noticias
 
 const NoticesPage = () => {
   const articles = newsArticles;

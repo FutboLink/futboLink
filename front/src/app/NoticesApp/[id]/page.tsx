@@ -1,48 +1,47 @@
 import { Metadata } from "next";
 import Link from "next/link"; // Importar Link de Next.js
-import newsArticles from "../../../helpers/helperNotices"; // Asegúrate de que helpersNotices sea el archivo correcto para las noticias
+import helpersOffers from "@/helpers/helperNotices";
+import { News, NewsPageProps } from "../../../Interfaces/news"; // Importar las interfaces necesarias
 import Image from "next/image";
 
-// Obtener noticia por ID
-const getNewsById = (id: number) => {
-  return newsArticles.find((article) => article.id === id) || null;
+// Obtener oferta por ID (ya no es necesario hacerla asincrónica si es local)
+const getOfferById = (id: number): News | null => {
+  return helpersOffers.find((offer: News) => offer.id === id) || null;
 };
 
 // Generar Metadata para SEO dinámico
 export async function generateMetadata({
   params,
-}: {
-  params: { id: string };
-}): Promise<Metadata> {
-  const { id } = params; // Obtener el valor de params.id
-  const news = getNewsById(Number(id));
-  if (news) {
+}: NewsPageProps): Promise<Metadata> {
+  const { id } = params; // Obtener el ID desde los parámetros
+  const offer = getOfferById(Number(id));
+  if (offer) {
     return {
-      title: news.title,
-      description: news.description,
+      title: offer.title,
+      description: offer.description,
     };
   }
   return {
     title: "Noticia no encontrada",
-    description: "No se encontró la noticia solicitada.",
+    description: "No se encontró la Noticia solicitada.",
   };
 }
 
 // Componente de la página
-export default async function NewsPage({ params }: { params: { id: string } }) {
-  const { id } = params; // Obtener el valor de params.id
+export default async function OfferPage({ params }: NewsPageProps) {
+  const { id } = params; // Obtener el ID desde los parámetros
 
-  // Obtener la noticia de manera síncrona
-  const news = getNewsById(Number(id));
+  // Obtener la oferta de manera síncrona, ya que helpersOffers está disponible localmente
+  const offer = getOfferById(Number(id));
 
-  if (!news) {
+  if (!offer) {
     return (
       <main className="p-6 text-center">
         <h1 className="text-2xl font-bold text-red-600">
-          Noticia no encontrada
+          Oferta no encontrada
         </h1>
-        <p>Lo sentimos, no pudimos encontrar la noticia que buscabas.</p>
-        <Link href="/Notices">
+        <p>Lo sentimos, no pudimos encontrar la oferta que buscabas.</p>
+        <Link href="/Offer">
           <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg">
             Volver
           </button>
@@ -53,29 +52,24 @@ export default async function NewsPage({ params }: { params: { id: string } }) {
 
   return (
     <main className="p-6 mt-36 text-black max-w-3xl mx-auto">
-      <h1 className="text-3xl font-bold mb-4">{news.title}</h1>
+      <h1 className="text-3xl font-bold mb-4">{offer.title}</h1>
       <Image
-        src={news.imageUrl}
-        alt={news.title}
-        width={200}
-        height={200}
-        className="mb-4"
+        src={offer.imageUrl}
+        alt={offer.imageAlt}
+        width={360}
+        height={240}
+        className="mb-4 rounded-lg"
       />
-      <p className="mb-4">{news.description}</p>
-
-      <h2 className="text-2xl font-semibold mb-2">Más detalles</h2>
-      <p className="mb-4">
-        Aquí podrías poner más detalles o contenido relacionado con la noticia.
-      </p>
+      <p className="mb-4">{offer.description}</p>
 
       {/* Botones en línea con espacio entre ellos */}
       <div className="flex justify-between mt-20">
-        <Link href={`/apply/${news.id}`}>
+        <Link href={`/NoticesApp/${offer.id}`}>
           <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
-            Aplicar a esta oferta (si aplica)
+            Aplicar a esta oferta
           </button>
         </Link>
-        <Link href="/Notices">
+        <Link href="/Offer">
           <button className="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded-lg">
             Volver
           </button>

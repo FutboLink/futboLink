@@ -7,7 +7,7 @@ import offers from "@/helpers/helpersOffers"; // Helper de ofertas
 const OffersSection = () => {
   // Página actual, comenzando desde la 1
   const [currentPage, setCurrentPage] = useState(1);
-  const offersPerPage = 8; // Mostrar 8 ofertas por página
+  const offersPerPage = 4; // Mostrar 8 ofertas por página
 
   // Calcular el índice de las ofertas que se mostrarán en la página actual
   const indexOfLastOffer = currentPage * offersPerPage;

@@ -1,7 +1,7 @@
 // app/page.tsx
 import React from "react";
 import { FaWhatsapp, FaTelegramPlane } from "react-icons/fa"; // Importando los íconos de react-icons
-import CardOffer from "@/components/Offer/Offer";
+import CardOffer from "@/components/OfferComponents/Offer";
 import About from "@/components/AboutUs/about";
 import Notices from "@/components/Notices/notices";
 import Subs from "@/components/Subs/subs";

@@ -38,6 +38,8 @@ function Rol() {
             <Image
               src={role.image}
               alt={role.title}
+              width={100}
+              height={100}
               className="w-full h-64 object-cover rounded-lg mb-4"
             />
             <h3 className="text-2xl font-bold mb-2">{role.title}</h3>

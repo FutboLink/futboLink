@@ -78,7 +78,7 @@ function NavbarHome() {
                 Cursos y Formación
               </li>
               <li
-                onClick={() => navigateTo("/Notices")}
+                onClick={() => navigateTo("/NoticesApp")}
                 className="px-4 hover:bg-green-200 hover:text-black hover:rounded-md transition-all cursor-pointer"
                 aria-label="Noticias relacionadas con futbol"
               >

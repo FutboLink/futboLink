@@ -67,7 +67,7 @@ function AgencyForm() {
       className="space-y-6 text-black p-6 mt-28 max-w-4xl mx-auto bg-white shadow-md rounded-md"
     >
       <h2 className="text-2xl font-semibold text-center">
-        Formulario para Reclutador
+        Formulario para Agencia
       </h2>
 
       {/* Foto de perfil */}
@@ -86,7 +86,7 @@ function AgencyForm() {
       {/* Nombre y Apellido */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="flex flex-col">
-          <label className="text-lg font-semibold text-gray-700">Nombre</label>
+          <label className="text-lg font-semibold text-gray-700">Nombre del Titular de la cuenta</label>
           <input
             type="text"
             name="firstName"
@@ -98,7 +98,7 @@ function AgencyForm() {
         </div>
         <div className="flex flex-col">
           <label className="text-lg font-semibold text-gray-700">
-            Apellido
+            Apellido del Titular de la cuenta
           </label>
           <input
             type="text"

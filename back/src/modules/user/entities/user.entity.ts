@@ -6,8 +6,10 @@ import {
   UpdateDateColumn,
   OneToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { UserType } from '../roles.enum';
+import { Job } from 'src/modules/Jobs/entities/jobs.entity';
 
 @Entity('users')
 export class User {
@@ -68,4 +70,7 @@ export class User {
   @OneToOne(() => Profile)
   @JoinColumn()
   profile: Profile; */
+  
+  @OneToMany(() => Job, (jobs) => jobs.recruiter)
+  jobs: Job[];
 }

@@ -1,5 +1,7 @@
 import { IsEmail, IsNotEmpty, MinLength, IsOptional, IsEnum, IsString, IsDate, IsNumber, IsArray } from 'class-validator';
 import { UserType } from '../roles.enum';
+import { OneToMany } from 'typeorm';
+import { Job } from 'src/modules/Jobs/entities/jobs.entity';
 
 export class RegisterUserDto {
     @IsNotEmpty()
@@ -54,6 +56,8 @@ export class RegisterUserDto {
     @IsArray()
     @IsString({ each: true })
     abilities?: string[];
+
+    
   
 
 }

@@ -47,7 +47,9 @@ import {
   
     @Column()
     type: string;
-  
+
     @ManyToOne(() => User, (user) => user.jobs)
     recruiter: User;
+
+    
   }

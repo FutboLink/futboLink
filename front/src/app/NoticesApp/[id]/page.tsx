@@ -1,12 +1,12 @@
 import { Metadata } from "next";
-import Link from "next/link"; // Importar Link de Next.js
-import helpersOffers from "@/helpers/helperNotices";
+import Link from "next/link";
+import helpersNotices from "@/helpers/helperNotices";
 import { News, NewsPageProps } from "../../../Interfaces/news"; // Importar las interfaces necesarias
 import Image from "next/image";
 
-// Obtener oferta por ID (ya no es necesario hacerla asincrónica si es local)
-const getOfferById = (id: number): News | null => {
-  return helpersOffers.find((offer: News) => offer.id === id) || null;
+// Obtener noticia por ID
+const getNewsById = (id: number): News | null => {
+  return helpersNotices.find((article: News) => article.id === id) || null;
 };
 
 // Generar Metadata para SEO dinámico
@@ -14,11 +14,11 @@ export async function generateMetadata({
   params,
 }: NewsPageProps): Promise<Metadata> {
   const { id } = params; // Obtener el ID desde los parámetros
-  const offer = getOfferById(Number(id));
-  if (offer) {
+  const news = getNewsById(Number(id));
+  if (news) {
     return {
-      title: offer.title,
-      description: offer.description,
+      title: news.title,
+      description: news.description,
     };
   }
   return {
@@ -28,52 +28,61 @@ export async function generateMetadata({
 }
 
 // Componente de la página
-export default async function OfferPage({ params }: NewsPageProps) {
+export default async function NewsPage({ params }: NewsPageProps) {
   const { id } = params; // Obtener el ID desde los parámetros
 
-  // Obtener la oferta de manera síncrona, ya que helpersOffers está disponible localmente
-  const offer = getOfferById(Number(id));
+  // Obtener la noticia de manera síncrona, ya que helpersNotices está disponible localmente
+  const news = getNewsById(Number(id));
 
-  if (!offer) {
+  if (!news) {
     return (
-      <main className="p-6 text-center">
-        <h1 className="text-2xl font-bold text-red-600">
-          Oferta no encontrada
-        </h1>
-        <p>Lo sentimos, no pudimos encontrar la oferta que buscabas.</p>
-        <Link href="/Offer">
-          <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg">
+      <main className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+        <div className="bg-white shadow-lg rounded-lg p-8 text-center">
+          <h1 className="text-3xl font-bold text-red-600 mb-4">
+            Noticia no encontrada
+          </h1>
+          <p className="text-gray-600 mb-6">
+            Lo sentimos, no pudimos encontrar la noticia que buscabas.
+          </p>
+          <Link
+            href="/NoticesApp"
+            className="inline-block px-6 py-3 -500 text-green-600 hover:text-green-700 text-lg font-semibold rounded-lg hover:-600 transition"
+          >
             Volver
-          </button>
-        </Link>
+          </Link>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="p-6 mt-36 text-black max-w-3xl mx-auto">
-      <h1 className="text-3xl font-bold mb-4">{offer.title}</h1>
-      <Image
-        src={offer.imageUrl}
-        alt={offer.imageAlt}
-        width={360}
-        height={240}
-        className="mb-4 rounded-lg"
-      />
-      <p className="mb-4">{offer.description}</p>
-
-      {/* Botones en línea con espacio entre ellos */}
-      <div className="flex justify-between mt-20">
-        <Link href={`/NoticesApp/${offer.id}`}>
-          <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
-            Aplicar a esta oferta
-          </button>
-        </Link>
-        <Link href="/Offer">
-          <button className="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded-lg">
-            Volver
-          </button>
-        </Link>
+    <main className="min-h-screen mt-28 bg-gray-100 py-12 px-4">
+      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+        <div className="relative w-full h-64 md:h-80">
+          <Image
+            src={news.imageUrl}
+            alt={news.imageAlt}
+            layout="fill" // Usar layout para un tamaño responsivo
+            objectFit="cover" // Ajustar la imagen para que se adapte
+            className="rounded-t-lg"
+          />
+        </div>
+        <div className="p-8">
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+            {news.title}
+          </h1>
+          <p className="text-gray-700 text-lg leading-relaxed mb-6">
+            {news.description}
+          </p>
+          <div className="mt-10 flex justify-center">
+            <Link
+              href="/NoticesApp"
+              className="px-6 py-3 -500 text-green-600 hover:text-green-700 bg-white border-green-600 border-solid text-lg font-semibold rounded-lg hover:-600 transition"
+            >
+              Volver
+            </Link>
+          </div>
+        </div>
       </div>
     </main>
   );

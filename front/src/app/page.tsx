@@ -1,16 +1,16 @@
-// app/page.tsx
+
 import React from "react";
-import { FaWhatsapp, FaTelegramPlane } from "react-icons/fa"; // Importando los íconos de react-icons
+
 import CardOffer from "@/components/OfferComponents/Offer";
 import About from "@/components/AboutUs/about";
 import Notices from "@/components/Notices/notices";
 import Subs from "@/components/Subs/subs";
-import Navbar from "@/components/navbar/navbarHome";
+import NavbarHome from "@/components/navbar/navbarHome";
 
 const Home = () => {
   return (
     <main className="bg-green-600 text-white relative overflow-hidden">
-      <Navbar />
+      <NavbarHome />
       {/* Header Section */}
       <header className="relative flex flex-col items-center justify-center min-h-screen text-center">
         <div className="absolute top-0 left-0 w-full h-full">
@@ -66,29 +66,6 @@ const Home = () => {
       <section>
         <Subs />
       </section>
-
-      {/* Fixed Buttons */}
-      <div className="fixed bottom-4 right-4 flex flex-col gap-3 z-50">
-        {/* WhatsApp Button */}
-        <a
-          href="https://wa.me/your-phone-number"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="bg-green-700 text-white rounded-full p-4 shadow-lg hover:text-green-700 hover:bg-white transition duration-300"
-        >
-          <FaWhatsapp size={30} /> {/* WhatsApp icon from react-icons */}
-        </a>
-
-        {/* Telegram Button */}
-        <a
-          href="https://t.me/your-telegram-username"
-          target="_blank"
-          rel="noopener noreferrer"
-          className=" text-white bg-blue-700 p-4 rounded-full shadow-lg hover:bg-white hover:text-blue-700 transition duration-300"
-        >
-          <FaTelegramPlane size={30} /> {/* Telegram icon from react-icons */}
-        </a>
-      </div>
     </main>
   );
 };

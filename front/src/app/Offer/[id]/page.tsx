@@ -48,7 +48,7 @@ export default async function OfferPage({
         </h1>
         <p>Lo sentimos, no pudimos encontrar la oferta que buscabas.</p>
         <Link href="/Offer">
-          <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg">
+          <button className="mt-4 px-4 py-2 -500 text-white rounded-lg">
             Volver
           </button>
         </Link>
@@ -79,7 +79,7 @@ export default async function OfferPage({
           </button>
         </Link>
         <Link href="/Offer">
-          <button className="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded-lg">
+          <button className="px-4 py-2 -500 hover:-700 text-white rounded-lg">
             Volver
           </button>
         </Link>

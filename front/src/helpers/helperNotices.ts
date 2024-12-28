@@ -3,90 +3,81 @@ const newsArticles = [
     id: 1,
     title: "Nueva Oferta de Empleo en el Futbol",
     description:
-      "Un importante club de fútbol está buscando nuevos talentos para unirse a su equipo profesional. Si tienes lo que se necesita, esta podría ser tu oportunidad de brillar en el campo.",
+      "Un importante club de fútbol de primera división está en la búsqueda de jóvenes talentos para reforzar su equipo en la próxima temporada. Si eres un jugador apasionado, con habilidades destacadas y dispuesto a darlo todo en el campo, esta podría ser tu gran oportunidad. Además, se ofrecen instalaciones de entrenamiento de última generación y un equipo técnico altamente calificado para maximizar tu rendimiento.",
     imageUrl:
-      "https://img.freepik.com/foto-gratis/hombre-jugando-al-futbol-playa_23-2147803093.jpg?t=st=1735327909~exp=1735331509~hmac=d4983b2051d3c23bfac00246392036e9a028010e87d5f43be04a8b8bb7a37d43&w=360", // Imagen representativa de fútbol
+      "https://img.freepik.com/foto-gratis/hombre-jugando-al-futbol-playa_23-2147803093.jpg?w=360",
     imageAlt: "Jugador de fútbol pateando balón en el campo",
   },
   {
     id: 2,
-    title: "Curso de Formación para Jugadores",
+    title: "Noticias del Mercado de Transferencias",
     description:
-      "Nuestro curso intensivo de formación te brindará las habilidades necesarias para destacar en el mundo del fútbol. Aprende de los mejores entrenadores y mejora tu rendimiento en el campo.",
+      "El mercado de fichajes de esta temporada trae consigo movimientos sorprendentes. Desde transferencias multimillonarias hasta jóvenes promesas que buscan dejar su huella, los clubes de todo el mundo están redefiniendo sus plantillas. Descubre quiénes son los jugadores más buscados, los rumores más impactantes y cómo estos cambios podrían influir en el panorama futbolístico global.",
     imageUrl:
-      "https://img.freepik.com/foto-gratis/deportista-pelota-celebrando-victoria_23-2147817374.jpg?t=st=1735327921~exp=1735331521~hmac=5b1a35132ffb5b8316f5327017af9bae24db78bfe91740bbe35349bfe71d9835&w=360", // Jugador entrenando con balón
-    imageAlt: "Jugador de fútbol entrenando con balón",
+      "https://img.freepik.com/foto-gratis/cerca-hombres-emocionales-jugando-al-futbol-golpeando-pelota-cabeza-aislada-pared-blanca-futbol-deporte-expresion-facial-concepto-emociones-humanas-copyspace-lucha-gol_155003-33573.jpg?w=996",
+    imageAlt: "Noticias sobre el mercado de fichajes de fútbol",
   },
   {
     id: 3,
-    title: "Noticias del Mercado de Transferencias",
+    title: "Noticias del Futbol Argentino",
     description:
-      "Las últimas noticias sobre el mercado de fichajes: los movimientos más recientes y las posibles sorpresas que cambiarán la temporada de fútbol. Mantente informado sobre lo que sucede en los clubes de élite.",
+      "El fútbol argentino se encuentra en el centro de atención, con emocionantes partidos que están definiendo la temporada. Desde clásicos históricos hasta el ascenso de nuevos equipos, cada jornada trae historias llenas de pasión. Analizamos los rendimientos más destacados, las figuras emergentes y el impacto que estos eventos están teniendo en la liga local.",
     imageUrl:
-      "https://img.freepik.com/foto-gratis/cerca-hombres-emocionales-jugando-al-futbol-golpeando-pelota-cabeza-aislada-pared-blanca-futbol-deporte-expresion-facial-concepto-emociones-humanas-copyspace-lucha-gol_155003-33573.jpg?t=st=1735327932~exp=1735331532~hmac=368d369f6d6be176966b50691a3393ec93a390454952538208e3703efc7828d5&w=996", // Noticias sobre fútbol y mercado de fichajes
-    imageAlt: "Portada de noticias sobre el fútbol y mercado de fichajes",
+      "https://img.freepik.com/foto-gratis/hombre-jugando-al-futbol-playa_23-2147803093.jpg?w=360",
+    imageAlt: "Partido de fútbol en Argentina con jugadores en acción",
   },
   {
     id: 4,
-    title: "Noticias del Futbol Argentino",
+    title: "Fútbol Femenino: Aumento de Visibilidad en el Deporte",
     description:
-      "El fútbol argentino vive momentos de alta tensión. Conoce las últimas noticias sobre fichajes, partidos y todo lo relacionado con el fútbol en Argentina.",
+      "El fútbol femenino continúa ganando terreno en el mundo deportivo, con cifras récord de audiencia y torneos de alto nivel que capturan la atención global. Desde la profesionalización en ligas internacionales hasta las historias de superación de sus protagonistas, analizamos cómo este deporte está rompiendo barreras y marcando un antes y un después en la historia del fútbol.",
     imageUrl:
-      "https://img.freepik.com/foto-gratis/hombre-jugando-al-futbol-playa_23-2147803093.jpg?t=st=1735327909~exp=1735331509~hmac=d4983b2051d3c23bfac00246392036e9a028010e87d5f43be04a8b8bb7a37d43&w=360", // Bandera de Argentina con balón de fútbol
-    imageAlt: "Bandera de Argentina con balón de fútbol",
+      "https://img.freepik.com/foto-gratis/deportista-atractivo-bola-celebrando-victoria_23-2147817375.jpg?w=740",
+    imageAlt: "Jugadora de fútbol femenino celebrando un gol",
   },
   {
     id: 5,
-    title: "Fútbol Femenino: Aumento de Visibilidad en el Deporte",
+    title: "La Revolución de la Tecnología en el Fútbol",
     description:
-      "El fútbol femenino está ganando protagonismo en todo el mundo. Descubre cómo los equipos femeninos están rompiendo barreras y conquistando corazones.",
+      "La tecnología está transformando el fútbol de formas nunca antes vistas. Desde el uso del VAR en decisiones clave hasta el análisis de datos para mejorar el rendimiento de los jugadores, el deporte rey está adoptando herramientas innovadoras. Exploramos cómo estos avances están cambiando la dinámica de los partidos y ofreciendo nuevas perspectivas tanto a los técnicos como a los aficionados.",
     imageUrl:
-      "https://img.freepik.com/foto-gratis/deportista-atractivo-bola-celebrando-victoria_23-2147817375.jpg?t=st=1735327946~exp=1735331546~hmac=2249750309cf63c61a6e3b2e4f06c0fbfd660d46852c6cd00ee1522d0c99d13c&w=740", // Jugadora de fútbol femenino
-    imageAlt: "Jugadora de fútbol femenino en acción",
+      "https://img.freepik.com/foto-gratis/deportista-pelota-celebrando-victoria_23-2147817374.jpg?w=360",
+    imageAlt: "Tecnología aplicada al fútbol en el campo",
   },
   {
     id: 6,
-    title: "La Revolución de la Tecnología en el Fútbol",
+    title: "La Influencia de los Medios Sociales en el Fútbol",
     description:
-      "El uso de la tecnología en el fútbol está cambiando la forma en que se entrenan los equipos y se juegan los partidos. ¿Cómo influye el VAR y las estadísticas en tiempo real?",
+      "En la era digital, las redes sociales juegan un papel fundamental en la carrera de los futbolistas. Desde la creación de marcas personales hasta la interacción directa con los fanáticos, analizamos cómo plataformas como Instagram, Twitter y TikTok están moldeando el marketing deportivo. Además, descubrimos los casos de éxito más destacados y el impacto en los clubes.",
     imageUrl:
-      "https://img.freepik.com/foto-gratis/deportista-pelota-celebrando-victoria_23-2147817374.jpg?t=st=1735327921~exp=1735331521~hmac=5b1a35132ffb5b8316f5327017af9bae24db78bfe91740bbe35349bfe71d9835&w=360", // Tecnología aplicada al fútbol en el campo
-    imageAlt: "Tecnología aplicada al fútbol en el campo de juego",
+      "https://img.freepik.com/foto-gratis/deportista-atractivo-bola-celebrando-victoria_23-2147817375.jpg?w=740",
+    imageAlt: "Futbolista celebrando un gol con su equipo",
   },
   {
     id: 7,
-    title: "La Influencia de los Medios Sociales en el Fútbol",
+    title: "Cómo Prepararse para una Temporada Exigente",
     description:
-      "Las redes sociales juegan un papel fundamental en la carrera de los futbolistas. Conoce cómo influyen en su imagen y el marketing deportivo.",
+      "Los futbolistas profesionales enfrentan un intenso calendario lleno de partidos decisivos. Desde la planificación de la pretemporada hasta las estrategias de recuperación física, analizamos las claves para mantenerse en óptimas condiciones. Además, expertos comparten consejos sobre nutrición, entrenamiento y el manejo de la presión en el deporte de alto rendimiento.",
     imageUrl:
-      "https://img.freepik.com/foto-gratis/deportista-atractivo-bola-celebrando-victoria_23-2147817375.jpg?t=st=1735327946~exp=1735331546~hmac=2249750309cf63c61a6e3b2e4f06c0fbfd660d46852c6cd00ee1522d0c99d13c&w=740", // Futbolista en redes sociales
-    imageAlt: "Futbolista en redes sociales",
+      "https://img.freepik.com/foto-gratis/cerca-hombres-emocionales-jugando-al-futbol-golpeando-pelota-cabeza-aislada-pared-blanca-futbol-deporte-expresion-facial-concepto-emociones-humanas-copyspace-lucha-gol_155003-33573.jpg?w=996",
+    imageAlt: "Jugadores en entrenamiento intensivo de fútbol",
   },
   {
     id: 8,
-    title: "Cómo Prepararse para una Prueba de Fútbol Profesional",
-    description:
-      "Si sueñas con jugar en un equipo profesional, debes estar preparado para las pruebas. Aquí te damos algunos consejos clave para destacar en la selección.",
-    imageUrl:
-      "https://img.freepik.com/foto-gratis/cerca-hombres-emocionales-jugando-al-futbol-golpeando-pelota-cabeza-aislada-pared-blanca-futbol-deporte-expresion-facial-concepto-emociones-humanas-copyspace-lucha-gol_155003-33573.jpg?t=st=1735327932~exp=1735331532~hmac=368d369f6d6be176966b50691a3393ec93a390454952538208e3703efc7828d5&w=996", // Jugadores entrenando en el campo
-    imageAlt: "Jugadores entrenando en el campo",
-  },
-  {
-    id: 9,
     title: "Los Equipos Más Exitosos de la Historia del Fútbol",
     description:
-      "Repasamos los clubes que han dejado huella en el fútbol mundial, con victorias épicas y jugadores que son leyendas. ¿Cuál es tu favorito?",
+      "Desde los legendarios equipos de Brasil en los mundiales hasta los clubes europeos que han dominado la Champions League, repasamos las trayectorias de los equipos más exitosos. Descubre las estadísticas, los jugadores que marcaron época y los momentos icónicos que definieron la grandeza de estos conjuntos.",
     imageUrl:
-      "https://img.freepik.com/foto-gratis/deportista-pelota-celebrando-victoria_23-2147817374.jpg?t=st=1735327921~exp=1735331521~hmac=5b1a35132ffb5b8316f5327017af9bae24db78bfe91740bbe35349bfe71d9835&w=360", // Emblema de un club histórico
+      "https://img.freepik.com/foto-gratis/deportista-pelota-celebrando-victoria_23-2147817374.jpg?w=360",
     imageAlt: "Emblema de un club de fútbol histórico",
   },
   {
-    id: 10,
+    id: 9,
     title: "El Futuro del Fútbol: Tendencias y Novedades",
     description:
-      "El fútbol está en constante evolución. ¿Qué nos espera en los próximos años? Conoce las tendencias tecnológicas, tácticas y deportivas que marcarán el futuro.",
+      "El fútbol está en constante evolución y el futuro promete cambios emocionantes. Desde nuevas reglas hasta avances en inteligencia artificial para el análisis táctico, exploramos las tendencias que están moldeando el deporte. Conoce cómo estas innovaciones influirán en la experiencia de los jugadores y aficionados en los años venideros.",
     imageUrl:
-      "https://img.freepik.com/foto-gratis/deportista-atractivo-bola-celebrando-victoria_23-2147817375.jpg?t=st=1735327946~exp=1735331546~hmac=2249750309cf63c61a6e3b2e4f06c0fbfd660d46852c6cd00ee1522d0c99d13c&w=740", // Futbolistas en el campo bajo un cielo al atardecer
+      "https://img.freepik.com/foto-gratis/deportista-atractivo-bola-celebrando-victoria_23-2147817375.jpg?w=740",
     imageAlt: "Futbolistas en el campo bajo un cielo al atardecer",
   },
 ];

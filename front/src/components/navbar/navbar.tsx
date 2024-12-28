@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import logo from "../../../public/logoP1.png";
@@ -11,6 +11,7 @@ function Navbar() {
   const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -19,6 +20,23 @@ function Navbar() {
     router.push(path);
     setIsMobileMenuOpen(false); // Cierra el menú móvil después de la navegación
   };
+
+  // Cerrar el dropdown si se hace clic fuera de él
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <>
@@ -104,7 +122,10 @@ function Navbar() {
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white text-black shadow-lg rounded-md">
+              <div
+                ref={dropdownRef}
+                className="absolute right-0 mt-2 w-48 bg-white text-black shadow-lg rounded-md"
+              >
                 <div
                   onClick={() => navigateTo("/Login")}
                   className="block px-4 py-2 hover:bg-gray-200 cursor-pointer"

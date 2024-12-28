@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 import CardOffer from "../Card/cardOffer";
-import offers from "@/helpers/helperNotices"; // Helper de ofertas
+import offers from "@/helpers/helpersOffers"; // Helper de ofertas
 
-const NoticeSection = () => {
+const OffersSection = () => {
   // Página actual, comenzando desde la 1
   const [currentPage, setCurrentPage] = useState(1);
   const offersPerPage = 4; // Mostrar 8 ofertas por página
@@ -60,4 +60,4 @@ const NoticeSection = () => {
   );
 };
 
-export default NoticeSection;
+export default OffersSection;

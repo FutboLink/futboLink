@@ -33,13 +33,14 @@ function Navbar() {
         <section className="flex items-center justify-between p-4">
           {/* Sección izquierda con logo y links */}
           <div id="sectionOne" className="flex items-center gap-6">
+           
             <Link href={"/"}>
               <Image
                 src={logo}
-                height={200}
-                width={200}
+                height={75}
+                width={75}
                 alt="Futbol Career logo"
-                className="bg-white rounded-2xl"
+                className="rounded-2xl"
               />
             </Link>
             <ul className="flex gap-6 text-lg text-white">

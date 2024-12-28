@@ -206,6 +206,138 @@ const offers = [
     ],
     location: "Santiago, Chile",
   },
+
+  {
+    id: 9,
+    title:
+      "Gerente de Marketing Deportivo para Club de Fútbol en Buenos Aires, Argentina",
+    description:
+      "Estamos buscando un Gerente de Marketing Deportivo para liderar las estrategias de promoción y marketing de nuestro club en Buenos Aires.",
+    projectDescription:
+      "El gerente será responsable de diseñar y ejecutar estrategias de marketing para aumentar la visibilidad del club y generar mayores ingresos a través de la venta de entradas, mercancía y patrocinios.",
+    requirements: [
+      "Licenciatura en Marketing, Comunicación o afines.",
+      "Experiencia mínima de 4 años en marketing deportivo.",
+      "Conocimiento de las dinámicas del fútbol y el mercado local.",
+      "Capacidad para desarrollar campañas de marketing en redes sociales y otros medios.",
+    ],
+    responsibilities: [
+      "Desarrollar e implementar estrategias de marketing para mejorar la visibilidad y los ingresos del club.",
+      "Gestionar la relación con patrocinadores y medios de comunicación.",
+      "Liderar un equipo de trabajo para la ejecución de campañas promocionales.",
+      "Colaborar con otras áreas del club para crear sinergias y optimizar recursos.",
+    ],
+    skills: [
+      "Liderazgo y capacidad de trabajo en equipo.",
+      "Creatividad y habilidades de comunicación.",
+      "Conocimiento avanzado en redes sociales y marketing digital.",
+    ],
+    location: "Buenos Aires, Argentina",
+  },
+  {
+    id: 10,
+    title:
+      "Jefe de Nutrición Deportiva para Club de Fútbol en Sao Paulo, Brasil",
+    description:
+      "El Club de Fútbol de Sao Paulo busca un Jefe de Nutrición Deportiva para implementar un plan de alimentación y recuperación para sus jugadores.",
+    projectDescription:
+      "El jefe de nutrición será responsable de optimizar el rendimiento de los jugadores a través de un plan nutricional adecuado y personalizado según las necesidades del equipo.",
+    requirements: [
+      "Licenciatura en Nutrición o áreas relacionadas.",
+      "Experiencia trabajando con deportistas de alto rendimiento, preferentemente en fútbol.",
+      "Conocimiento en dietas de alto rendimiento y suplementación deportiva.",
+      "Capacidad para trabajar en equipo con entrenadores, médicos y fisioterapeutas.",
+    ],
+    responsibilities: [
+      "Diseñar planes nutricionales individualizados para los jugadores.",
+      "Monitorear la alimentación diaria de los jugadores.",
+      "Asesorar en la suplementación deportiva y la hidratación.",
+      "Realizar un seguimiento de la salud y el bienestar nutricional de los jugadores.",
+    ],
+    skills: [
+      "Capacidad para crear planes nutricionales efectivos.",
+      "Trabajo en equipo y habilidades de comunicación.",
+      "Conocimiento avanzado de nutrición deportiva.",
+    ],
+    location: "Sao Paulo, Brasil",
+  },
+  {
+    id: 11,
+    title: "Preparador de Arqueros para Club de Fútbol en Bogotá, Colombia",
+    description:
+      "El Club de Fútbol en Bogotá está buscando un preparador de arqueros para entrenar y mejorar las habilidades de nuestros porteros.",
+    projectDescription:
+      "El preparador de arqueros trabajará directamente con los porteros, enfocándose en mejorar sus habilidades técnicas, tácticas y psicológicas.",
+    requirements: [
+      "Experiencia mínima de 3 años como preparador de arqueros.",
+      "Conocimiento de técnicas de entrenamiento específicas para porteros.",
+      "Capacidad para trabajar en equipo y colaborar con el cuerpo técnico.",
+      "Disponibilidad para entrenamientos y partidos.",
+    ],
+    responsibilities: [
+      "Diseñar y ejecutar entrenamientos específicos para los porteros.",
+      "Monitorear el desempeño de los porteros en los entrenamientos y partidos.",
+      "Colaborar con el cuerpo técnico en la planificación de partidos y entrenamientos.",
+    ],
+    skills: [
+      "Conocimiento avanzado en técnicas de porteros.",
+      "Habilidad para trabajar con jugadores jóvenes y adultos.",
+      "Capacidad de análisis y corrección de errores técnicos.",
+    ],
+    location: "Bogotá, Colombia",
+  },
+  {
+    id: 12,
+    title: "Entrenador de Fútbol Femenino para Club en Montevideo, Uruguay",
+    description:
+      "Nuestro club en Montevideo está buscando un entrenador para nuestra categoría de fútbol femenino.",
+    projectDescription:
+      "El entrenador de fútbol femenino será responsable de dirigir y desarrollar el equipo femenino, promoviendo el crecimiento individual y colectivo de las jugadoras.",
+    requirements: [
+      "Experiencia mínima de 2 años como entrenador de fútbol femenino.",
+      "Conocimiento y pasión por el fútbol femenino.",
+      "Certificación en entrenamiento de fútbol.",
+      "Disponibilidad para entrenamientos y partidos.",
+    ],
+    responsibilities: [
+      "Planificar y dirigir los entrenamientos del equipo femenino.",
+      "Fomentar un ambiente positivo y competitivo.",
+      "Colaborar con el cuerpo técnico en el desarrollo de estrategias y tácticas.",
+      "Representar al club en competiciones oficiales y amistosos.",
+    ],
+    skills: [
+      "Liderazgo y habilidades de motivación.",
+      "Conocimiento técnico y táctico del fútbol.",
+      "Capacidad para gestionar y dirigir un equipo de fútbol femenino.",
+    ],
+    location: "Montevideo, Uruguay",
+  },
+  {
+    id: 13,
+    title: "Médico Deportivo para Club Profesional en Ciudad de México",
+    description:
+      "Estamos buscando un médico deportivo para el seguimiento y cuidado de la salud de nuestros jugadores profesionales.",
+    projectDescription:
+      "El médico deportivo será responsable de proporcionar atención médica preventiva, de emergencia y de rehabilitación a los jugadores.",
+    requirements: [
+      "Licenciatura en Medicina con especialización en Medicina Deportiva.",
+      "Experiencia trabajando con futbolistas profesionales.",
+      "Conocimiento de lesiones comunes en el fútbol y su tratamiento.",
+      "Disponibilidad para atender emergencias durante partidos y entrenamientos.",
+    ],
+    responsibilities: [
+      "Proveer atención médica preventiva y de emergencia durante los entrenamientos y partidos.",
+      "Desarrollar planes de rehabilitación para jugadores lesionados.",
+      "Colaborar con el equipo de fisioterapia y preparadores físicos.",
+      "Realizar chequeos médicos regulares y seguimiento de la salud de los jugadores.",
+    ],
+    skills: [
+      "Conocimiento profundo de la medicina deportiva.",
+      "Habilidad para trabajar bajo presión y en situaciones de emergencia.",
+      "Comunicación efectiva con jugadores y cuerpo técnico.",
+    ],
+    location: "Ciudad de México",
+  },
 ];
 
 export default offers;

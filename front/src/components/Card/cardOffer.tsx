@@ -1,5 +1,5 @@
-// components/CardOffer.tsx
 import React from "react";
+import Link from "next/link";
 
 interface Offer {
   id: number;
@@ -14,9 +14,12 @@ const CardOffer: React.FC<{ offer: Offer }> = ({ offer }) => {
         {offer.title}
       </h3>
       <p className="text-gray-600 mb-4">{offer.description}</p>
-      <a href="#" className="text-blue-500 hover:text-blue-700 font-semibold">
+      <Link
+        href={`/Offer/${offer.id}`}
+        className="text-blue-500 hover:text-blue-700 font-semibold"
+      >
         Ver más
-      </a>
+      </Link>
     </div>
   );
 };

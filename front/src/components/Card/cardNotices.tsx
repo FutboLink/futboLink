@@ -27,12 +27,9 @@ const CardNews: React.FC<{ article: NewsArticle }> = ({ article }) => {
         <h3 className="text-2xl font-semibold text-gray-800 mb-2">
           {article.title}
         </h3>
-        <p className="text-gray-600 mb-4">{article.description}</p>
-
-        {/* Enlace a la noticia completa */}
         <Link
           href={`/NoticesApp/${article.id}`}
-          className="text-blue-500 hover:text-blue-700 font-semibold text-sm"
+          className="text-green-600 hover:text-green-700 font-semibold text-sm"
         >
           Leer más
         </Link>

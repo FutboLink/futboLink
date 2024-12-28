@@ -16,7 +16,7 @@ const CardOffer: React.FC<{ offer: Offer }> = ({ offer }) => {
       <p className="text-gray-600 mb-4">{offer.description}</p>
       <Link
         href={`/Offer/${offer.id}`}
-        className="text-blue-500 hover:text-blue-700 font-semibold"
+        className=" text-green-600 hover:text-green-700 font-semibold"
       >
         Ver más
       </Link>

@@ -3,8 +3,11 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import logo from "../../../public/logoP1.png"; // Asegúrate de tener el logo en la carpeta public
+import logo from "../../../public/logoP1.png";
 import Head from "next/head";
+import AOS from "aos"; // Importamos AOS
+import "aos/dist/aos.css"; // Importamos los estilos de AOS
+import React from "react";
 
 function Page() {
   const router = useRouter();
@@ -12,6 +15,10 @@ function Page() {
   const navigateTo = (path: string) => {
     router.push(path);
   };
+
+  React.useEffect(() => {
+    AOS.init(); // Inicializamos AOS cuando el componente se monte
+  }, []);
 
   return (
     <div className="mt-24">
@@ -24,9 +31,17 @@ function Page() {
         <meta name="robots" content="index, follow" />
       </Head>
 
-      <section className="bg-gray-100 py-16">
+      <section
+        className="bg-gray-100 py-16"
+        data-aos="fade-up"
+        data-aos-duration="1000"
+      >
         <div className="container mx-auto px-4">
-          <div className="flex justify-center mb-12">
+          <div
+            className="flex justify-center mb-12"
+            data-aos="fade-down"
+            data-aos-duration="1000"
+          >
             <Image
               src={logo}
               alt="Futbol Career Logo"
@@ -36,7 +51,11 @@ function Page() {
             />
           </div>
 
-          <div className="text-center mb-12">
+          <div
+            className="text-center mb-12"
+            data-aos="fade-up"
+            data-aos-duration="1000"
+          >
             <h1 className="text-4xl font-semibold text-green-700">
               ¡Bienvenido a Futbol Career!
             </h1>
@@ -50,7 +69,11 @@ function Page() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div className="bg-white p-8 rounded-lg shadow-lg">
+            <div
+              className="bg-white p-8 rounded-lg shadow-lg"
+              data-aos="fade-right"
+              data-aos-duration="1000"
+            >
               <h2 className="text-3xl font-semibold text-green-600 mb-6">
                 Contáctanos
               </h2>
@@ -109,7 +132,11 @@ function Page() {
               </form>
             </div>
 
-            <div className="bg-white p-8 rounded-lg shadow-lg">
+            <div
+              className="bg-white p-8 rounded-lg shadow-lg"
+              data-aos="fade-left"
+              data-aos-duration="1000"
+            >
               <h2 className="text-3xl font-semibold text-green-600 mb-6">
                 Ubicación
               </h2>
@@ -154,7 +181,11 @@ function Page() {
         </div>
       </section>
 
-      <section className="bg-green-600 text-white py-8 text-center">
+      <section
+        className="bg-green-600 text-white py-8 text-center"
+        data-aos="fade-up"
+        data-aos-duration="1000"
+      >
         <p className="text-lg font-semibold">
           ¿Tienes alguna pregunta o quieres saber más? ¡No dudes en ponerte en
           contacto con nosotros!

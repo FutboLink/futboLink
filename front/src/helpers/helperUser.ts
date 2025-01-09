@@ -30,8 +30,9 @@ const userH = {
     videos: ["/path/to/video1.mp4", "/path/to/video2.mp4"],
   },
   skills: [
-    { skill: "Arquero", level: "Intermedio", frequency: "Habitual" },
+   
     { skill: "Defensa central", level: "Avanzado", frequency: "Principal" },
+    { skill: "Defensa Lateral", level: "Avanzado", frequency: "Secundario" },
   ],
   countriesAvailable: ["Argentina", "España", "México"],
   languages: ["Español", "Inglés"],
@@ -54,6 +55,18 @@ const userH = {
       startDate: "2013-03-01",
       endDate: "2017-11-30",
       description: "Formación académica en ciencias del deporte.",
+    },
+  ],
+  appliedOffers: [
+    {
+      title: "Oferta de delantero en España",
+      description: "Equipo de primera división busca delantero.",
+      date: "2025-01-01",
+    },
+    {
+      title: "Oferta de arquero en México",
+      description: "Club de segunda división busca arquero.",
+      date: "2025-01-05",
     },
   ],
 };

@@ -1,4 +1,4 @@
-import type { Config } from "tailwindcss";
+import { Config } from "tailwindcss";
 
 export default {
   content: [
@@ -8,9 +8,14 @@ export default {
   ],
   theme: {
     extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+      perspective: {
+        "1000": "1000px",
+      },
+      transformStyle: {
+        preserve: "preserve-3d",
+      },
+      backfaceVisibility: {
+        hidden: "hidden",
       },
     },
   },

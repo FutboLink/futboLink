@@ -21,5 +21,7 @@ const config: DataSourceOptions = {
   migrations: [__dirname + '/../migrations/*{.ts,.js}'],
 };
 
+
+
 export default registerAs('typeorm', () => config);
 export const connectionSource = new DataSource(config as DataSourceOptions);

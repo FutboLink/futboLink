@@ -1,4 +1,4 @@
-export interface News {
+export interface INews {
   id: number;
   title: string;
   description: string;
@@ -7,7 +7,7 @@ export interface News {
 }
 
 // Interfaz para las props de la página de noticia
-export interface NewsPageProps {
+export interface INewsPageProps {
   params: {
     id: string; // El ID de la noticia, que es un string
   };

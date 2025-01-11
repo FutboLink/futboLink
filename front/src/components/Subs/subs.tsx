@@ -1,104 +1,99 @@
+"use client";
+
+import React from "react";
+import { Subscription } from "../../helpers/helpersSubs";
+import AOS from "aos";
+import "aos/dist/aos.css";
+import FaqSection from "./faqSubs";
+import Line from "../HorizontalDiv/line";
+
+// Inicializar AOS
+AOS.init();
+
 function Subs() {
-  const subscriptionOptions = [
-    {
-      title: "GRATIS",
-      subtitle: "Inicio",
-      features: [
-        { text: "Crea tu perfil", available: true },
-        { text: "Explora ofertas básicas", available: true },
-        {
-          text: "Sin acceso a ofertas premium ni entrenamientos",
-          available: false,
-        },
-      ],
-      price: "Gratis",
-      buttonLabel: "Registrarse",
-      bgColor: "bg-white",
-      textColor: "text-gray-800",
-      borderColor: "border-gray-300",
-      buttonColor: "bg-green-600",
-    },
-    {
-      title: "BÁSICO",
-      subtitle: "Amateurs",
-      features: [
-        { text: "Crea tu perfil y accede a ofertas estándar", available: true },
-        { text: "Descuentos exclusivos en cursos", available: true },
-        { text: "Sin acceso a entrenamientos con descuento", available: false },
-      ],
-      price: "€3,95 / Mes | €37,95 / Año (-20% Descuento)",
-      buttonLabel: "Contratar",
-      bgColor: "bg-white",
-      textColor: "text-gray-800",
-      borderColor: "border-yellow-500",
-      buttonColor: "bg-yellow-500",
-    },
-    {
-      title: "PREMIUM",
-      subtitle: "El más contratado",
-      features: [
-        { text: "Accede a todas las ofertas", available: true },
-        { text: "Perfil premium y visibilidad", available: true },
-        { text: "Cursos y entrenamientos con descuento", available: true },
-      ],
-      price: "€8,95 / Mes | €85,95 / Año (-20% Descuento)",
-      buttonLabel: "Contratar",
-      bgColor: "bg-white",
-      textColor: "text-gray-800",
-      borderColor: "border-green-600",
-      buttonColor: "bg-green-600",
-    },
-  ];
+  const subscriptionOptions = Subscription();
 
   return (
-    <section className="p-12 bg-gray-100">
-      <h2 className="text-4xl font-semibold text-center text-gray-800 mb-10">
-        Elige tu Plan de Membresía
-      </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {subscriptionOptions.map((option, index) => {
-          // Determinar si todas las características están disponibles
-          const allAvailable = option.features.every(
-            (feature) => feature.available
-          );
+    <section className="bg-gray-100 py-16 px-6">
+      {/* Introducción */}
+      <div
+        className="text-center mb-12 bg-gradient-to-b from-green-500 to-green-700 text-white py-16 px-6"
+        data-aos="fade-up"
+        data-aos-duration="1000"
+      >
+        <h1 className="text-5xl font-bold mb-4">
+          Descubre tu Mejor Oportunidad
+        </h1>
+        <p className="text-lg">
+          Con nuestros planes de suscripción, accede a ofertas exclusivas y
+          herramientas profesionales para tu carrera.
+        </p>
+      </div>
 
-          return (
-            <div
-              key={index}
-              className={`rounded-lg shadow-lg p-6 border-2 ${option.borderColor} ${option.bgColor} ${option.textColor} transition-transform transform hover:scale-105`}
-            >
-              <h3
-                className={`text-2xl font-semibold mb-4 ${
-                  allAvailable ? "text-green-600" : "text-gray-800"
+      {/* Tarjetas */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {subscriptionOptions.map((option, index) => (
+          <div
+            key={index}
+            className="card-container relative w-full h-80 mx-auto"
+            data-aos="fade-up"
+            data-aos-duration="1000"
+          >
+            {/* Contenedor de la tarjeta */}
+            <div className="card relative w-full h-full rotate-0 transition-transform duration-500 transform-style-preserve-3d hover:rotate-y-180">
+              {/* Cara frontal */}
+              <div
+                className={`card-front p-6 flex flex-col items-center justify-center text-center border border-gray-300 rounded-lg shadow-lg ${
+                  option.title === "GRATIS"
+                    ? "bg-white text-gray-800"
+                    : option.title === "BÁSICO"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : "bg-green-100 text-green-800"
                 }`}
               >
-                {option.title}
-              </h3>
-              <h4 className="text-xl font-medium mb-6">{option.subtitle}</h4>
-              <ul className="space-y-3 mb-6 text-base">
-                {option.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-center">
-                    <span
-                      className={`mr-2 ${
-                        feature.available ? "text-green-600" : "text-red-600"
+                <h3 className="text-3xl font-semibold mb-4 text-gray-800">
+                  {option.title}
+                </h3>
+                <p className="text-lg text-gray-600 mb-6">{option.subtitle}</p>
+                <p className="text-2xl font-bold bg-green-500 rounded-xl text-white px-4 py-2">
+                  {option.price}
+                </p>
+              </div>
+
+              {/* Cara trasera */}
+              <div className="card-back bg-gradient-to-br from-green-600 to-green-400 text-white p-8 flex flex-col items-center justify-center text-center rounded-lg shadow-lg">
+                <h4 className="text-2xl font-bold mb-6">Incluye:</h4>
+                <ul className="space-y-3 text-lg">
+                  {option.features.map((feature, idx) => (
+                    <li
+                      key={idx}
+                      className={`text-lg ${
+                        feature.available
+                          ? "text-white"
+                          : "text-red-400 bg-white p-1 rounded-xl"
                       }`}
                     >
-                      {feature.available ? "✔" : "✘"}
-                    </span>
-                    {feature.text}
-                  </li>
-                ))}
-              </ul>
-              <p className="text-xl font-semibold mb-6">{option.price}</p>
-              <button
-                className={`w-full py-3 rounded-md ${option.buttonColor} text-white text-lg font-semibold transition-all hover:bg-green-700`}
-              >
-                {option.buttonLabel}
+                      {feature.available ? "✔ " : "✘ "}
+                      {feature.text}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Botón Contratar */}
+            <div className="flex justify-center mt-6">
+              <button className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-all duration-300">
+                Contratar
               </button>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
+      <div className="mt-20">
+        <Line />
+      </div>
+      <FaqSection />
     </section>
   );
 }

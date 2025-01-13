@@ -89,7 +89,7 @@ const Profile = () => {
 
   const handleLogOut = () => {
     logOut(); 
-    router.push('/login'); 
+    router.push('/'); 
   };
   
 

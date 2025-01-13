@@ -23,12 +23,12 @@ const OfferDescription = () => {
       </h2>
 
       <p className="text-lg mb-4" data-aos="fade-up">
-        En <strong>FutbolJobs</strong>, aprovechamos nuestro profundo
+        En <strong>Futbol Career</strong>, aprovechamos nuestro profundo
         conocimiento de este deporte para brindarte las mejores ofertas de
         trabajo en el fútbol. Sabemos que el deporte rey es un mercado altamente
         competitivo y lucrativo, por lo que encontrar el empleo adecuado puede
         resultar todo un desafío si no se sabe dónde buscar. Es por eso que en
-        FutbolJobs nos destacamos al ofrecer las mejores oportunidades de
+        Futbol Career nos destacamos al ofrecer las mejores oportunidades de
         trabajo para aquellos que desean adentrarse en el mundo del fútbol
         profesional.
       </p>
@@ -38,7 +38,7 @@ const OfferDescription = () => {
         clubes o equipos, es tu mejor aliado en esta búsqueda. Al igual que en
         cualquier otro mercado, estar informado y estar en el lugar adecuado en
         el momento oportuno es fundamental para aprovechar las mejores ofertas.
-        En FutbolJobs, te ofrecemos una amplia gama de posibilidades laborales
+        En Futbol Career, te ofrecemos una amplia gama de posibilidades laborales
         en diferentes roles dentro de un club o equipo de fútbol. Desde
         posiciones técnicas hasta administrativas, nuestra bolsa de trabajo
         cubre todas las áreas especializadas de trabajos relacionados con el
@@ -47,7 +47,7 @@ const OfferDescription = () => {
 
       <p className="text-lg mb-4" data-aos="fade-up">
         No importa si estás buscando trabajar en un club de renombre o en un
-        equipo en ascenso, en FutbolJobs tenemos lo que necesitas para encontrar
+        equipo en ascenso, en Futbol Career tenemos lo que necesitas para encontrar
         tu próxima oferta de trabajo en el mercado laboral del fútbol. ¡Descubre
         las mejores ofertas de empleo en nuestra bolsa de trabajo y da el primer
         paso hacia una carrera profesional exitosa en el mundo del fútbol!
@@ -57,7 +57,7 @@ const OfferDescription = () => {
         ¿Te dedicas al mundo del fútbol? Únete a nuestra bolsa de trabajo y abre
         nuevas puertas en tu carrera profesional. Ya seas jugador, entrenador,
         preparador físico, ojeador o tengas cualquier otro perfil relacionado
-        con este apasionante deporte, en Futboljobs te ofrecemos una amplia gama
+        con este apasionante deporte, en Futbol Career te ofrecemos una amplia gama
         de oportunidades laborales tanto en España como en el extranjero.
       </p>
 
@@ -84,7 +84,7 @@ const OfferDescription = () => {
         través de nuestra exclusiva Bolsa de Empleo. Estar al tanto de los
         movimientos del mercado es crucial para acceder a las mejores ofertas
         laborales, como suele decirse: estar en el lugar adecuado en el momento
-        oportuno. La bolsa de empleo de Futboljobs te ofrece una amplia gama de
+        oportuno. La bolsa de empleo de Futbol Career te ofrece una amplia gama de
         oportunidades en diversos roles relacionados con el fútbol. Desde
         trabajar en un club hasta formar parte de un equipo, cada posición
         demanda una especialización específica, especialmente en los clubes de

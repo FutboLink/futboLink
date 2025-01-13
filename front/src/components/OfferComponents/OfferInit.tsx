@@ -21,7 +21,7 @@ function OfferInit() {
         </h2>
         <p className="text-lg mb-4">
           ¿Te apasiona el fútbol y buscas avanzar en tu carrera profesional? En
-          FutbolJobs te ofrecemos una plataforma especializada para conectar con
+          Futbol Career te ofrecemos una plataforma especializada para conectar con
           las mejores oportunidades laborales dentro del mundo del fútbol.
         </p>
         <p className="text-lg mb-4">

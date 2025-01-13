@@ -1,4 +1,4 @@
-const offers = [
+const Offers = [
   {
     id: 1,
     title: "Entrenadores para AFA Internacional en South Florida, EEUU",
@@ -31,6 +31,8 @@ const offers = [
     country: "EEUU",
     category: "Entrenador",
     contract: "Full-time",
+    flagCode: "US",
+    salary: "Competitivo"
   },
   {
     id: 2,
@@ -59,6 +61,8 @@ const offers = [
     country: "Argentina",
     category: "Jugador",
     contract: "Full-time",
+    flagCode: "AR",
+    salary: "A convenir"
   },
   {
     id: 3,
@@ -87,6 +91,8 @@ const offers = [
     country: "México",
     category: "Preparador Físico",
     contract: "Full-time",
+    flagCode: "MX",
+    salary: "Competitivo"
   },
   {
     id: 4,
@@ -114,6 +120,8 @@ const offers = [
     country: "Colombia",
     category: "Director Deportivo",
     contract: "Full-time",
+    flagCode: "CO",
+    salary: "A convenir"
   },
   {
     id: 5,
@@ -141,113 +149,8 @@ const offers = [
     country: "Perú",
     category: "Analista de Rendimiento",
     contract: "Full-time",
-  },
-  {
-    id: 6,
-    title: "Portero para Club de Fútbol en Caracas, Venezuela",
-    description:
-      "El Club de Fútbol de Caracas está buscando un portero con experiencia para reforzar su plantel.",
-    projectDescription:
-      "El club busca un arquero con habilidades excepcionales y gran capacidad de liderazgo para cubrir la portería en competiciones nacionales e internacionales.",
-    requirements: [
-      "Experiencia mínima de 3 años como portero profesional.",
-      "Excelentes habilidades de reacción y reflejos.",
-      "Capacidad de liderazgo en el campo.",
-      "Disponibilidad para integrarse al club de inmediato.",
-    ],
-    responsibilities: [
-      "Proteger el arco en todos los partidos y entrenamientos.",
-      "Colaborar con el cuerpo técnico en la preparación de los partidos.",
-      "Liderar la defensa y organizar el equipo durante el juego.",
-    ],
-    skills: [
-      "Reflejos rápidos y habilidades técnicas en la portería.",
-      "Capacidad de comunicación con los defensores.",
-      "Liderazgo y actitud competitiva.",
-    ],
-    country: "Venezuela",
-    category: "Portero",
-    contract: "Full-time",
-  },
-  {
-    id: 7,
-    title: "Fisioterapeuta Deportivo para Fútbol en Quito, Ecuador",
-    description:
-      "El club necesita un fisioterapeuta deportivo para la recuperación y rehabilitación de nuestros jugadores.",
-    projectDescription:
-      "El fisioterapeuta trabajará directamente con el cuerpo médico para asegurar la recuperación óptima de los jugadores lesionados.",
-    requirements: [
-      "Licenciatura en Fisioterapia o similar.",
-      "Experiencia trabajando con deportistas de alto rendimiento.",
-      "Capacitación en rehabilitación de lesiones deportivas.",
-      "Disponibilidad para atender emergencias durante los partidos.",
-    ],
-    responsibilities: [
-      "Brindar atención fisioterapéutica a jugadores lesionados.",
-      "Desarrollar programas de prevención de lesiones.",
-      "Colaborar con el cuerpo médico en el seguimiento de la recuperación de los jugadores.",
-    ],
-    skills: [
-      "Conocimiento avanzado en rehabilitación deportiva.",
-      "Capacidad para trabajar bajo presión.",
-      "Comunicación eficaz con jugadores y cuerpo técnico.",
-    ],
-    country: "Ecuador",
-    category: "Fisioterapeuta Deportivo",
-    contract: "Full-time",
-  },
-  {
-    id: 8,
-    title: "Scouter para Club Profesional en Santiago, Chile",
-    description:
-      "Buscamos un scouter para identificar y evaluar nuevos talentos para nuestro club profesional.",
-    projectDescription:
-      "El scouter será responsable de asistir a partidos y entrenamientos para descubrir talentos que puedan unirse a nuestro club.",
-    requirements: [
-      "Experiencia en scouting deportivo.",
-      "Conocimiento profundo del fútbol nacional e internacional.",
-      "Capacidad para evaluar talentos técnicos y tácticos.",
-    ],
-    responsibilities: [
-      "Asistir a partidos y entrenamientos de diversas categorías.",
-      "Realizar informes sobre jugadores evaluados.",
-      "Colaborar con el cuerpo técnico en la toma de decisiones de fichajes.",
-    ],
-    skills: [
-      "Conocimiento amplio sobre el talento futbolístico.",
-      "Capacidad de análisis y observación.",
-      "Excelente red de contactos en el ámbito futbolístico.",
-    ],
-    country: "Chile",
-    category: "Scouter",
-    contract: "Full-time",
-  },
-  {
-    id: 9,
-    title:
-      "Gerente de Marketing Deportivo para Club de Fútbol en Buenos Aires, Argentina",
-    description:
-      "Estamos buscando un Gerente de Marketing Deportivo para liderar las estrategias de promoción y marketing de nuestro club en Buenos Aires.",
-    projectDescription:
-      "El gerente será responsable de diseñar y ejecutar campañas de marketing que mejoren la imagen y visibilidad del club.",
-    requirements: [
-      "Experiencia mínima de 3 años en marketing deportivo.",
-      "Conocimiento de estrategias de promoción en medios digitales y tradicionales.",
-      "Habilidades en análisis de mercado y tendencias deportivas.",
-    ],
-    responsibilities: [
-      "Diseñar estrategias de marketing para aumentar la visibilidad del club.",
-      "Gestionar relaciones con patrocinadores y marcas.",
-      "Crear contenido visual y digital para la promoción del club.",
-    ],
-    skills: [
-      "Conocimiento en gestión de redes sociales y campañas publicitarias.",
-      "Creatividad y habilidades comunicacionales.",
-      "Capacidad para trabajar en equipo.",
-    ],
-    country: "Argentina",
-    category: "Marketing Deportivo",
-    contract: "Full-time",
+    flagCode: "PE",
+    salary: "A convenir"
   },
   {
     id: 10,
@@ -276,6 +179,8 @@ const offers = [
     country: "Panamá",
     category: "Entrenador de Arqueros",
     contract: "Full-time",
+    flagCode: "PA",
+    salary: "A convenir"
   },
   {
     id: 11,
@@ -303,6 +208,8 @@ const offers = [
     country: "Colombia",
     category: "Médico Deportivo",
     contract: "Full-time",
+    flagCode: "CO",
+    salary: "Competitivo"
   },
   {
     id: 12,
@@ -330,6 +237,8 @@ const offers = [
     country: "Brasil",
     category: "Analista de Datos",
     contract: "Full-time",
+    flagCode: "BR",
+    salary: "Competitivo"
   },
   {
     id: 13,
@@ -357,6 +266,8 @@ const offers = [
     country: "Uruguay",
     category: "Preparador Físico",
     contract: "Full-time",
+    flagCode: "UR",
+    salary: "A convenir"
   },
   {
     id: 14,
@@ -384,6 +295,8 @@ const offers = [
     country: "Perú",
     category: "Director de Marketing",
     contract: "Full-time",
+    flagCode: "PE",
+    salary: "Competitivo"
   },
   {
     id: 15,
@@ -412,6 +325,8 @@ const offers = [
     country: "México",
     category: "Director de Comunicación",
     contract: "Full-time",
+    flagCode: "ME",
+    salary: "Competitivo"
   },
   {
     id: 16,
@@ -439,6 +354,8 @@ const offers = [
     country: "Argentina",
     category: "Nutricionista Deportivo",
     contract: "Full-time",
+    flagCode: "AR",
+    salary: "Competitivo"
   },
   {
     id: 17,
@@ -466,6 +383,8 @@ const offers = [
     country: "Perú",
     category: "Técnico de Análisis de Video",
     contract: "Full-time",
+    flagCode: "PE",
+    salary: "Competitivo"
   },
   {
     id: 18,
@@ -494,6 +413,8 @@ const offers = [
     country: "Ecuador",
     category: "Entrenador de Fuerza y Acondicionamiento",
     contract: "Full-time",
+    flagCode: "EC",
+    salary: "A convenir"
   },
   {
     id: 19,
@@ -521,6 +442,8 @@ const offers = [
     country: "Venezuela",
     category: "Psicólogo Deportivo",
     contract: "Full-time",
+    flagCode: "VE",
+    salary: "A convenir"
   },
   {
     id: 20,
@@ -549,6 +472,8 @@ const offers = [
     country: "Colombia",
     category: "Coordinador de Marketing Digital",
     contract: "Full-time",
+    flagCode: "CO",
+    salary: "A convenir"
   },
   {
     id: 21,
@@ -576,6 +501,8 @@ const offers = [
     country: "Chile",
     category: "Scout de Jugadores",
     contract: "Full-time",
+    flagCode: "CH",
+    salary: "A convenir"
   },
   {
     id: 22,
@@ -604,7 +531,9 @@ const offers = [
     country: "El Salvador",
     category: "Fisioterapeuta Deportivo",
     contract: "Full-time",
+    flagCode: "SV",
+    salary: "Competitivo"
   },
 ];
 
-export default offers;
+export default Offers;

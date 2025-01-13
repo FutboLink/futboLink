@@ -1,0 +1,36 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'front/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'front/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - name: Install dependencies
+      working-directory: front
+      run: npm ci
+    - name: Build
+      working-directory: front
+      run: npm run build
+    - name: Test
+      working-directory: front
+      run: npm test

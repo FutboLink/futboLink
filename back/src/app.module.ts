@@ -25,6 +25,7 @@ import { ContractsModule } from './modules/contracts/contracts.module';
     JobsModule,
     ApplicationsModule,
     ContractsModule,
+
   ],
   controllers: [AppController],
   providers: [AppService],

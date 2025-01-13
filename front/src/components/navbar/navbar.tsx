@@ -1,17 +1,19 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import logo from "../../../public/logoP1.png";
 import Head from "next/head";
 import Link from "next/link";
+import { UserContext } from "../Context/UserContext";
 
 function Navbar() {
   const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { isLogged } = useContext(UserContext); 
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -112,44 +114,25 @@ function Navbar() {
 
           {/* Sección derecha con los botones de Iniciar sesión y Registrarse (solo en escritorio) */}
           <div id="sectionTwo" className="relative hidden sm:flex">
+          {isLogged ? (
+            // Si está logueado, mostrar el enlace al perfil
             <button
-              onClick={toggleDropdown}
+              onClick={() => navigateTo("/profile")}
+              className="bg-yellow-500 text-black px-8 py-2 rounded-md hover:bg-yellow-600"
+            >
+              Perfil
+            </button>
+          ) : (
+            <>
+            <button
+             onClick={() => navigateTo("/Login")}
               className="bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
-              aria-haspopup="true"
-              aria-expanded={isDropdownOpen ? "true" : "false"}
+              aria-label="Iniciar sesión"
             >
               Iniciar sesión
             </button>
 
-            {isDropdownOpen && (
-              <div
-                ref={dropdownRef}
-                className="absolute right-0 mt-2 w-48 bg-white text-black shadow-lg rounded-md"
-              >
-                <div
-                  onClick={() => navigateTo("/Login")}
-                  className="block px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                  aria-label="Iniciar sesión como Jugador"
-                >
-                  Jugador
-                </div>
-                <div
-                  onClick={() => navigateTo("/Login")}
-                  className="block px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                  aria-label="Iniciar sesión como Representante"
-                >
-                  Representante
-                </div>
-                <div
-                  onClick={() => navigateTo("/Login")}
-                  className="block px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                  aria-label="Iniciar sesión como Agencia"
-                >
-                  Agencia
-                </div>
-              </div>
-            )}
-
+      
             <button
               onClick={() => navigateTo("/OptionUsers")}
               className="bg-white text-green-600 px-4 py-2 rounded-md ml-4 hover:bg-gray-200"
@@ -157,7 +140,9 @@ function Navbar() {
             >
               Registrarse
             </button>
-          </div>
+            </>
+          )}
+        </div>
 
           {/* Menú Hamburguesa en pantallas pequeñas */}
           <button
@@ -225,6 +210,16 @@ function Navbar() {
             </ul>
 
             <div className="mt-4">
+            {isLogged ? (
+            // Si está logueado, mostrar el enlace al perfil
+            <button
+              onClick={() => navigateTo("/profile")}
+              className="bg-yellow-500 text-black px-8 py-2 rounded-md hover:bg-yellow-600"
+            >
+              Perfil
+            </button>
+          ) : (
+            <>
               <Link href={"/Login"}>
                 <button
                   onClick={toggleDropdown}
@@ -239,7 +234,9 @@ function Navbar() {
               >
                 Registrarse
               </button>
-            </div>
+              </>
+          )}
+        </div>
           </div>
         )}
       </nav>

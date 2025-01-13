@@ -5,6 +5,12 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: 'http://localhost:3001', 
+    methods: 'GET,POST,PUT,DELETE',
+    credentials: true,
+  });
+
   const config = new DocumentBuilder()
     .setTitle('API Futbol Career')
     .setDescription('Documentación del back')
@@ -18,4 +24,3 @@ async function bootstrap() {
   await app.listen(3000);
 }
 bootstrap();
-

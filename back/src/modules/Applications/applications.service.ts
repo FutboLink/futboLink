@@ -3,9 +3,7 @@ import { ApplicationRepository } from './applications.repository';
 
 @Injectable()
 export class ApplicationsService {
-  constructor(
-    private readonly applicationRepository: ApplicationRepository,
-  ) {}
+  constructor(private readonly applicationRepository: ApplicationRepository) {}
 
   async apply(playerId: string, jobid: string, message: string) {
     return this.applicationRepository.apply(playerId, jobid, message);

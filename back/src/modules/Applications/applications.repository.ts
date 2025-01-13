@@ -19,18 +19,20 @@ export class ApplicationRepository {
     private readonly jobRepository: Repository<Job>,
   ) {}
 
-  async apply(playerId: string, jobid: string, message: string): Promise<Application> {
+  async apply(
+    playerId: string,
+    jobid: string,
+    message: string,
+  ): Promise<Application> {
     const player = await this.userRepository.findOne({
       where: { id: String(playerId), role: UserType.PLAYER },
     });
     if (!player) throw new Error('El usuario no es jugador');
 
-
     const job = await this.jobRepository.findOne({
       where: { id: String(jobid) },
     });
     if (!job) throw new Error('Trabajo no encontrado');
-
 
     const existingApplication = await this.repository.findOne({
       where: {
@@ -50,13 +52,16 @@ export class ApplicationRepository {
     });
   }
 
-  async updateStatus(applicationId: string, status: string): Promise<Application> {
-    const application = await this.repository.findOne({ where: { id: applicationId } });
+  async updateStatus(
+    applicationId: string,
+    status: string,
+  ): Promise<Application> {
+    const application = await this.repository.findOne({
+      where: { id: applicationId },
+    });
     if (!application) throw new Error('Aplicación no encontrada');
 
     application.status = status;
     return this.repository.save(application);
   }
 }
-
-

@@ -7,7 +7,7 @@ const RegistrationCards = () => {
     <div className="min-h-screen mt-28 text-black flex items-center justify-center bg-gray-100 py-10">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
         {/* Card Jugador */}
-        <Link href="OptionUsers/Player">
+        <Link href="/register">
           <div className="bg-white p-6 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition duration-300 h-[380px] flex flex-col items-center">
             <Image
               src={foto} // Cambia esta URL por la imagen adecuada
@@ -19,14 +19,14 @@ const RegistrationCards = () => {
             <h3 className="text-2xl font-semibold text-gray-800 mb-4 text-center">
               Jugadores y Profesionales
             </h3>
-            <p className="text-gray-600 text-center">
+            <p className="text-gray-600  text-center">
               Regístrate como jugador o profesional del mundo del deporte y comparte tus habilidades.
             </p>
           </div>
         </Link>
 
         {/* Card Representante */}
-        <Link href="OptionUsers/Manager">
+        <Link href="/register">
           <div className="bg-white p-6 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition duration-300 h-[380px] flex flex-col items-center">
             <Image
               src="https://img.freepik.com/foto-gratis/joven-apuesto-hombre-negocios-ordenador-portatil-oficina_1303-21060.jpg?t=st=1735402162~exp=1735405762~hmac=a9f53376cfd7059c1b7471743a8ec44c6afd61c7feabb2934b533ae785aa7a1b&w=1380" // Cambia esta URL por la imagen adecuada
@@ -45,7 +45,7 @@ const RegistrationCards = () => {
         </Link>
 
         {/* Card Agencia */}
-        <Link href="OptionUsers/Agency">
+        <Link href="/register">
           <div className="bg-white p-6 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition duration-300 h-[380px] flex flex-col items-center">
             <Image
               src="https://img.freepik.com/foto-gratis/concepto-negocio-copia-espacio-mesa-escritorio-oficina-enfoque-pluma-analisis-grafico-computadora-bloc-notas-taza-cafe-tablero-desk-vintage-retro-filtro-enfoque-selectivo_1418-536.jpg?t=st=1735402112~exp=1735405712~hmac=6350a14095065e89bb8a0417032b314661f087cf856a24727cdd9ffd7f8a3cf2&w=1380" // Cambia esta URL por la imagen adecuada

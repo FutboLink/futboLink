@@ -1,4 +1,9 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -15,7 +20,9 @@ export class UserService {
   async register(registerUserDto: RegisterUserDto): Promise<User> {
     const { email, password, ...otherDetails } = registerUserDto;
 
-    const existingUser = await this.userRepository.findOne({ where: { email } });
+    const existingUser = await this.userRepository.findOne({
+      where: { email },
+    });
     if (existingUser) {
       throw new ConflictException('Email already in use');
     }
@@ -66,4 +73,3 @@ export class UserService {
     return userNoSensitiveInfo;
   }
 }
-

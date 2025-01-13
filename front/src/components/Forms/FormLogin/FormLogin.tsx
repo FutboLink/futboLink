@@ -1,20 +1,64 @@
 "use client";
 
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { UserContext } from "@/components/Context/UserContext";
+import { NotificationsForms } from "@/components/Notifications/NotificationsForms";
+import { validationLogin } from "@/components/Validate/ValidationLogin";
 
 function LoginForm() {
+  
+  const { signIn } = useContext(UserContext);
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [userData, setUserData] = useState({
+    email: "",
+    password: "",
+  });
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [errors, setErrors] = useState({} as { [key: string]: string });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setUserData({ ...userData, [name]: value });
+
+    const { errors } = validationLogin({ ...userData, [name]: value });
+    setErrors(errors);
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const { formIsValid, errors } = validationLogin(userData);
 
-    // Lógica de autenticación aquí
+    if (formIsValid) {
+      const credentials = {
+        email: userData.email,
+        password: userData.password,
+      };
 
-    // Redirigir al home después de iniciar sesión
-    router.push("/");
+      try {
+        const success = await signIn(credentials);
+        console.log(success); 
+        if (success) {
+          setNotificationMessage("Has ingresado correctamente");
+          setShowNotification(true);
+          setTimeout(() => setShowNotification(false), 2000);
+          router.push("/");
+        } else {
+          setNotificationMessage("Usuario o contraseña incorrectos");
+          setShowNotification(true);
+          setTimeout(() => setShowNotification(false), 3000);
+        }
+        
+          } catch {
+        setNotificationMessage("Ocurrió un error, intenta de nuevo");
+        setShowNotification(true);
+        setTimeout(() => setShowNotification(false), 3000);
+      }
+    } else {
+      setErrors(errors);
+    }
   };
 
   return (
@@ -33,14 +77,18 @@ function LoginForm() {
               Correo electrónico
             </label>
             <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full mt-2 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                type="email"
+                name="email"
+                value={userData.email}
+                onChange={handleChange}
+                placeholder="Email"
+              className="w-full mt-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
+          {errors.email && (
+          <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+        )}
           </div>
+
 
           {/* Campo de contraseña */}
           <div className="mb-6">
@@ -51,13 +99,16 @@ function LoginForm() {
               Contraseña
             </label>
             <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full mt-2 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                type="password"
+                name="password"
+                value={userData.password}
+                onChange={handleChange}
+                 placeholder="Contraseña"
+              className="w-full mt-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
+          {errors.password && (
+          <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+        )}
           </div>
 
           {/* Botón de iniciar sesión */}
@@ -67,12 +118,17 @@ function LoginForm() {
           >
             Ingresar
           </button>
+          {showNotification && (
+            <div className="absolute top-12 left-0 right-0 mx-auto w-max">
+              <NotificationsForms message={notificationMessage} />
+            </div>
+          )}
         </form>
         <p className="mt-4 text-center text-sm text-gray-600">
           ¿No tienes cuenta?{" "}
-          <a href="/signup" className="text-green-600 hover:underline">
+          <Link href="/signup" className="text-green-600 hover:underline">
             Regístrate aquí
-          </a>
+          </Link>
         </p>
       </div>
     </div>

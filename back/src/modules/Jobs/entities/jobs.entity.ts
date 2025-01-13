@@ -20,7 +20,10 @@ export class Job {
   @Column()
   title: string;
 
-  @ApiProperty({ example: 'Se busca un delantero como Messi', description: 'Que juegue como Messi y que cobre como el Pulga Rodriguez' })
+  @ApiProperty({
+    example: 'Se busca un delantero como Messi',
+    description: 'Que juegue como Messi y que cobre como el Pulga Rodriguez',
+  })
   @Column()
   description: string;
 
@@ -32,7 +35,10 @@ export class Job {
   @Column('decimal')
   salary: number;
 
-  @ApiProperty({ example: '2024-12-01T12:34:56Z', description: 'Fecha de creación del trabajo' })
+  @ApiProperty({
+    example: '2024-12-01T12:34:56Z',
+    description: 'Fecha de creación del trabajo',
+  })
   @CreateDateColumn()
   createdAt: Date;
 
@@ -40,7 +46,10 @@ export class Job {
   @Column({ default: 'OPEN' })
   status: string;
 
-  @ApiProperty({ example: 'Tiempo completo', description: 'Tipo de oferta laboral' })
+  @ApiProperty({
+    example: 'Tiempo completo',
+    description: 'Tipo de oferta laboral',
+  })
   @Column()
   offerType: string;
 
@@ -48,15 +57,24 @@ export class Job {
   @Column()
   position: string;
 
-  @ApiProperty({ example: ['zurdo', 'definición'], description: 'Competencias requeridas' })
+  @ApiProperty({
+    example: ['zurdo', 'definición'],
+    description: 'Competencias requeridas',
+  })
   @Column('simple-array')
   competencies: string[];
 
-  @ApiProperty({ example: ['USA', 'Argentina'], description: 'Países disponibles' })
+  @ApiProperty({
+    example: ['USA', 'Argentina'],
+    description: 'Países disponibles',
+  })
   @Column('simple-array')
   countries: string[];
 
-  @ApiProperty({ example: 'https://example.com/job.png', description: 'URL de la imagen del trabajo' })
+  @ApiProperty({
+    example: 'https://example.com/job.png',
+    description: 'URL de la imagen del trabajo',
+  })
   @Column()
   imgUrl: string;
 
@@ -64,11 +82,17 @@ export class Job {
   @Column()
   type: string;
 
-  @ApiProperty({ type: () => User, description: 'Reclutador que creó la oferta' })
+  @ApiProperty({
+    type: () => User,
+    description: 'Reclutador que creó la oferta',
+  })
   @ManyToOne(() => User, (user) => user.jobs)
   recruiter: User;
 
-  @ApiProperty({ type: () => [Application], description: 'Aplicaciones al trabajo' })
+  @ApiProperty({
+    type: () => [Application],
+    description: 'Aplicaciones al trabajo',
+  })
   @OneToMany(() => Application, (application) => application.job)
   applications: Application[];
 }

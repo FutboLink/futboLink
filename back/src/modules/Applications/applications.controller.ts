@@ -1,5 +1,18 @@
-import { Controller, Post, Patch, Get, Param, Body, ParseIntPipe } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  Controller,
+  Post,
+  Patch,
+  Get,
+  Param,
+  Body,
+  ParseIntPipe,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { ApplicationsService } from './applications.service';
 import { CreateApplicationsDto } from './dto/applications.dto';
 
@@ -17,9 +30,9 @@ export class ApplicationsController {
     const playerId = userId;
     const jobid = jobId;
     console.log(playerId);
-    
+
     console.log(jobId);
-    
+
     return this.applicationsService.apply(playerId, jobid, message);
   }
 
@@ -40,6 +53,3 @@ export class ApplicationsController {
     return this.applicationsService.updateStatus(applicationId, status);
   }
 }
-
-
-

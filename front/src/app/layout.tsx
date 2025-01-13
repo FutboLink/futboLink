@@ -8,6 +8,7 @@ import Navbar from "@/components/navbar/navbar";
 import { usePathname } from "next/navigation"; // Importar usePathname
 import { metadata } from "../app/metada"; // Importar metadata desde el archivo separado
 import SocialButton from "@/components/SocialButton/SocialButton";
+import { UserProvider } from "@/components/Context/UserContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,10 +35,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <UserProvider>
         {showNavbar && <Navbar />}{" "}
         <div>{children}</div>
         <SocialButton />
         <Footer />
+        </UserProvider>
       </body>
     </html>
   );

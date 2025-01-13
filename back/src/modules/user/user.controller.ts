@@ -1,7 +1,23 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards, Put, ParseUUIDPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  UseGuards,
+  Put,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/create-user.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { User } from './entities/user.entity';
 
 @ApiTags('Users')
@@ -11,7 +27,11 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @ApiOperation({ summary: 'Registrar un nuevo usuario' })
-  @ApiResponse({ status: 201, description: 'Usuario creado exitosamente', type: User })
+  @ApiResponse({
+    status: 201,
+    description: 'Usuario creado exitosamente',
+    type: User,
+  })
   @Post('register')
   create(@Body() createUserDto: RegisterUserDto) {
     return this.userService.register(createUserDto);

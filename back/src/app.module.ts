@@ -15,14 +15,14 @@ import { ApplicationsModule } from './modules/Applications/applications.module';
       isGlobal: true,
       load: [typeormConfig],
     }),
-      TypeOrmModule.forRootAsync({
+    TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => config.get('typeorm'),
     }),
     UserModule,
     AuthModule,
     JobsModule,
-    ApplicationsModule
+    ApplicationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -8,9 +8,7 @@ import { Job } from '../Jobs/entities/jobs.entity';
 import { ApplicationRepository } from './applications.repository';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Application, User, Job])
-  ],
+  imports: [TypeOrmModule.forFeature([Application, User, Job])],
   controllers: [ApplicationsController],
   providers: [ApplicationsService, ApplicationRepository],
 })

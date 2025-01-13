@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Job } from './entities/jobs.entity';
@@ -24,7 +28,7 @@ export class JobRepository {
 
   async getJobById(id: string): Promise<Job> {
     const job = await this.repository.findOne({
-        where: {id},
+      where: { id },
     });
     if (!job) {
       throw new NotFoundException(`Trabajos con el id ${id} no se encontró`);
@@ -39,7 +43,9 @@ export class JobRepository {
   ): Promise<Job> {
     const job = await this.getJobById(id);
     if (job.recruiter.id !== recruiter.id) {
-      throw new UnauthorizedException('Solo puedes actualizar tus propios trabajos');
+      throw new UnauthorizedException(
+        'Solo puedes actualizar tus propios trabajos',
+      );
     }
 
     Object.assign(job, updateJobDto);
@@ -49,7 +55,9 @@ export class JobRepository {
   async deleteJob(id: string, recruiter: User): Promise<void> {
     const job = await this.getJobById(id);
     if (job.recruiter.id !== recruiter.id) {
-      throw new UnauthorizedException('Solo puedes eliminar tus propios trabajos');
+      throw new UnauthorizedException(
+        'Solo puedes eliminar tus propios trabajos',
+      );
     }
 
     await this.repository.remove(job);

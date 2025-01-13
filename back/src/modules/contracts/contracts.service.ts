@@ -40,7 +40,7 @@ export class ContractService {
     });
 
     return this.contractRepository.save(contract);
-  },
+  }
   async findAll(): Promise<Contract[]> {
     return this.contractRepository.find();
   }

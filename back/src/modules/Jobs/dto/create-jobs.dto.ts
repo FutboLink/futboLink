@@ -12,7 +12,8 @@ export class CreateJobDto {
 
   @ApiProperty({
     description: 'Descripción del trabajo o posición',
-    example: 'Se busca delantero con experiencia en ligas nacionales o internacionales.',
+    example:
+      'Se busca delantero con experiencia en ligas nacionales o internacionales.',
   })
   @IsNotEmpty()
   @IsString()
@@ -35,7 +36,8 @@ export class CreateJobDto {
   salary: number;
 
   @ApiProperty({
-    description: 'Tipo de oferta (e.g., contrato temporal, contrato permanente)',
+    description:
+      'Tipo de oferta (e.g., contrato temporal, contrato permanente)',
     example: 'Contrato permanente',
   })
   @IsString()
@@ -71,11 +73,10 @@ export class CreateJobDto {
   imgUrl: string;
 
   @ApiProperty({
-    description: 'Tipo de trabajo (e.g., profesional, semiprofesional, juvenil)',
+    description:
+      'Tipo de trabajo (e.g., profesional, semiprofesional, juvenil)',
     example: 'Profesional',
   })
   @IsString()
   type: string;
 }
-
-

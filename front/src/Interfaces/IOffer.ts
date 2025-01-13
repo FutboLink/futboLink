@@ -10,12 +10,16 @@ export interface IOffer {
   location?: string; // Cambiado a opcional
   category: string;
   contract: string;
-  position?: string; // Cambiado a opcional
+  position?: string;
+  flagCode?: string;
+  salary: string;
 }
-
 
 export interface IOfferCard {
   id: number;
   title: string;
   description: string;
+  country: string;
+  flagCode: string;
+  salary?: string;
 }

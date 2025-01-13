@@ -6,7 +6,7 @@ export interface IFilter {
   category: string;
 }
 
-interface IFiltersProps {
+export interface IFiltersProps {
   locations: string[];
   categories: string[];
   selectedLocation: string;

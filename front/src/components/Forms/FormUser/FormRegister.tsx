@@ -81,7 +81,7 @@ const RegistrationForm: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-10">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 mt-24 py-10">
       <form
         className="bg-white p-8 rounded-lg shadow-lg w-full max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-6"
         onSubmit={handleSubmit}
@@ -206,7 +206,7 @@ const RegistrationForm: React.FC = () => {
         </div>
 
         {showErrorNotification && (
-          <div className="absolute top-12 left-0 right-0 mx-auto w-max bg-red-600 text-white p-2 rounded-md">
+          <div className="absolute top-24 left-0 right-0 mx-auto w-max bg-red-600 text-white p-2 rounded-md">
             <p>{errorMessage}</p>
           </div>
         )}

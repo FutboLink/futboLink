@@ -4,7 +4,7 @@ import Link from "next/link"; // Importar Link de Next.js
 
 function Footer() {
   return (
-    <footer className="bg-black text-white py-8">
+    <footer className="bg-black text-white mt-10 py-8">
       <div className="container mx-auto px-6">
         {/* Footer Links */}
         <div className="flex flex-col md:flex-row justify-between items-center md:items-start mb-6">

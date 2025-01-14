@@ -1,4 +1,4 @@
-const offers = [
+const Offers = [
   {
     id: 1,
     title: "Entrenadores para AFA Internacional en South Florida, EEUU",
@@ -28,7 +28,11 @@ const offers = [
       "Pasión por el desarrollo deportivo y personal de los jóvenes.",
       "Adaptabilidad y creatividad para implementar dinámicas innovadoras en los entrenamientos.",
     ],
-    location: "Pembroke Pines, South Florida, EEUU",
+    country: "EEUU",
+    category: "Entrenador",
+    contract: "Full-time",
+    flagCode: "US",
+    salary: "Competitivo"
   },
   {
     id: 2,
@@ -54,7 +58,11 @@ const offers = [
       "Trabajo en equipo y respeto hacia compañeros y entrenadores.",
       "Deseo de crecer profesionalmente en el fútbol.",
     ],
-    location: "Buenos Aires, Argentina",
+    country: "Argentina",
+    category: "Jugador",
+    contract: "Full-time",
+    flagCode: "AR",
+    salary: "A convenir"
   },
   {
     id: 3,
@@ -80,7 +88,11 @@ const offers = [
       "Conocimientos avanzados en tecnología deportiva.",
       "Excelentes habilidades de comunicación y organización.",
     ],
-    location: "Monterrey, México",
+    country: "México",
+    category: "Preparador Físico",
+    contract: "Full-time",
+    flagCode: "MX",
+    salary: "Competitivo"
   },
   {
     id: 4,
@@ -105,7 +117,11 @@ const offers = [
       "Capacidad de análisis y toma de decisiones.",
       "Red de contactos en el ámbito futbolístico.",
     ],
-    location: "Medellín, Colombia",
+    country: "Colombia",
+    category: "Director Deportivo",
+    contract: "Full-time",
+    flagCode: "CO",
+    salary: "A convenir"
   },
   {
     id: 5,
@@ -130,214 +146,394 @@ const offers = [
       "Capacidad para trabajar bajo presión.",
       "Habilidades de comunicación efectiva.",
     ],
-    location: "Lima, Perú",
-  },
-  {
-    id: 6,
-    title: "Portero para Club de Fútbol en Caracas, Venezuela",
-    description:
-      "El Club de Fútbol de Caracas está buscando un portero con experiencia para reforzar su plantel.",
-    projectDescription:
-      "El club busca un arquero con habilidades excepcionales y gran capacidad de liderazgo para cubrir la portería en competiciones nacionales e internacionales.",
-    requirements: [
-      "Experiencia mínima de 3 años como portero profesional.",
-      "Excelentes habilidades de reacción y reflejos.",
-      "Capacidad de liderazgo en el campo.",
-      "Disponibilidad para integrarse al club de inmediato.",
-    ],
-    responsibilities: [
-      "Proteger el arco en todos los partidos y entrenamientos.",
-      "Colaborar con el cuerpo técnico en la preparación de los partidos.",
-      "Liderar la defensa y organizar el equipo durante el juego.",
-    ],
-    skills: [
-      "Reflejos rápidos y habilidades técnicas en la portería.",
-      "Capacidad de comunicación con los defensores.",
-      "Liderazgo y actitud competitiva.",
-    ],
-    location: "Caracas, Venezuela",
-  },
-  {
-    id: 7,
-    title: "Fisioterapeuta Deportivo para Fútbol en Quito, Ecuador",
-    description:
-      "El club necesita un fisioterapeuta deportivo para la recuperación y rehabilitación de nuestros jugadores.",
-    projectDescription:
-      "El fisioterapeuta trabajará directamente con el cuerpo médico para asegurar la recuperación óptima de los jugadores lesionados.",
-    requirements: [
-      "Licenciatura en Fisioterapia o similar.",
-      "Experiencia trabajando con deportistas de alto rendimiento.",
-      "Capacitación en rehabilitación de lesiones deportivas.",
-      "Disponibilidad para atender emergencias durante los partidos.",
-    ],
-    responsibilities: [
-      "Brindar atención fisioterapéutica a jugadores lesionados.",
-      "Desarrollar programas de prevención de lesiones.",
-      "Colaborar con el cuerpo médico en el seguimiento de la recuperación de los jugadores.",
-    ],
-    skills: [
-      "Conocimiento avanzado en rehabilitación deportiva.",
-      "Capacidad para trabajar bajo presión.",
-      "Comunicación eficaz con jugadores y cuerpo técnico.",
-    ],
-    location: "Quito, Ecuador",
-  },
-  {
-    id: 8,
-    title: "Scouter para Club Profesional en Santiago, Chile",
-    description:
-      "Buscamos un scouter para identificar y evaluar nuevos talentos para nuestro club profesional.",
-    projectDescription:
-      "El scouter será responsable de asistir a partidos y entrenamientos para descubrir talentos que puedan unirse a nuestro club.",
-    requirements: [
-      "Experiencia en scouting deportivo.",
-      "Conocimiento profundo del fútbol nacional e internacional.",
-      "Capacidad para evaluar talentos técnicos y tácticos.",
-    ],
-    responsibilities: [
-      "Asistir a partidos y entrenamientos de diversas categorías.",
-      "Realizar informes sobre jugadores evaluados.",
-      "Colaborar con el cuerpo técnico en la toma de decisiones de fichajes.",
-    ],
-    skills: [
-      "Conocimiento amplio sobre el talento futbolístico.",
-      "Capacidad de análisis y observación.",
-      "Excelente red de contactos en el ámbito futbolístico.",
-    ],
-    location: "Santiago, Chile",
-  },
-
-  {
-    id: 9,
-    title:
-      "Gerente de Marketing Deportivo para Club de Fútbol en Buenos Aires, Argentina",
-    description:
-      "Estamos buscando un Gerente de Marketing Deportivo para liderar las estrategias de promoción y marketing de nuestro club en Buenos Aires.",
-    projectDescription:
-      "El gerente será responsable de diseñar y ejecutar estrategias de marketing para aumentar la visibilidad del club y generar mayores ingresos a través de la venta de entradas, mercancía y patrocinios.",
-    requirements: [
-      "Licenciatura en Marketing, Comunicación o afines.",
-      "Experiencia mínima de 4 años en marketing deportivo.",
-      "Conocimiento de las dinámicas del fútbol y el mercado local.",
-      "Capacidad para desarrollar campañas de marketing en redes sociales y otros medios.",
-    ],
-    responsibilities: [
-      "Desarrollar e implementar estrategias de marketing para mejorar la visibilidad y los ingresos del club.",
-      "Gestionar la relación con patrocinadores y medios de comunicación.",
-      "Liderar un equipo de trabajo para la ejecución de campañas promocionales.",
-      "Colaborar con otras áreas del club para crear sinergias y optimizar recursos.",
-    ],
-    skills: [
-      "Liderazgo y capacidad de trabajo en equipo.",
-      "Creatividad y habilidades de comunicación.",
-      "Conocimiento avanzado en redes sociales y marketing digital.",
-    ],
-    location: "Buenos Aires, Argentina",
+    country: "Perú",
+    category: "Analista de Rendimiento",
+    contract: "Full-time",
+    flagCode: "PE",
+    salary: "A convenir"
   },
   {
     id: 10,
     title:
-      "Jefe de Nutrición Deportiva para Club de Fútbol en Sao Paulo, Brasil",
+      "Entrenador de Arqueros para Club Profesional en Ciudad de Panamá, Panamá",
     description:
-      "El Club de Fútbol de Sao Paulo busca un Jefe de Nutrición Deportiva para implementar un plan de alimentación y recuperación para sus jugadores.",
+      "Buscamos un entrenador de arqueros con experiencia para unirse a nuestro equipo técnico en Ciudad de Panamá.",
     projectDescription:
-      "El jefe de nutrición será responsable de optimizar el rendimiento de los jugadores a través de un plan nutricional adecuado y personalizado según las necesidades del equipo.",
+      "El entrenador de arqueros será responsable de entrenar y desarrollar las habilidades técnicas de nuestros arqueros en el primer equipo.",
     requirements: [
-      "Licenciatura en Nutrición o áreas relacionadas.",
-      "Experiencia trabajando con deportistas de alto rendimiento, preferentemente en fútbol.",
-      "Conocimiento en dietas de alto rendimiento y suplementación deportiva.",
-      "Capacidad para trabajar en equipo con entrenadores, médicos y fisioterapeutas.",
+      "Experiencia mínima de 3 años como entrenador de arqueros.",
+      "Certificación en Entrenamiento de Arqueros.",
+      "Capacidad de trabajar bajo presión.",
+      "Disponibilidad para viajes y trabajar en horarios flexibles.",
     ],
     responsibilities: [
-      "Diseñar planes nutricionales individualizados para los jugadores.",
-      "Monitorear la alimentación diaria de los jugadores.",
-      "Asesorar en la suplementación deportiva y la hidratación.",
-      "Realizar un seguimiento de la salud y el bienestar nutricional de los jugadores.",
+      "Diseñar sesiones de entrenamiento específicas para arqueros.",
+      "Monitorear el progreso de los arqueros y hacer ajustes en los programas de entrenamiento.",
+      "Trabajar estrechamente con el cuerpo técnico en la preparación táctica del equipo.",
     ],
     skills: [
-      "Capacidad para crear planes nutricionales efectivos.",
-      "Trabajo en equipo y habilidades de comunicación.",
-      "Conocimiento avanzado de nutrición deportiva.",
+      "Conocimiento avanzado en técnicas de entrenamiento de porteros.",
+      "Capacidad de motivar y desarrollar a los jugadores.",
+      "Excelente comunicación y habilidades interpersonales.",
     ],
-    location: "Sao Paulo, Brasil",
+    country: "Panamá",
+    category: "Entrenador de Arqueros",
+    contract: "Full-time",
+    flagCode: "PA",
+    salary: "A convenir"
   },
   {
     id: 11,
-    title: "Preparador de Arqueros para Club de Fútbol en Bogotá, Colombia",
+    title: "Médico Deportivo para Club de Fútbol en Bogotá, Colombia",
     description:
-      "El Club de Fútbol en Bogotá está buscando un preparador de arqueros para entrenar y mejorar las habilidades de nuestros porteros.",
+      "Buscamos un médico deportivo para unirse a nuestro equipo médico y asegurarse de que nuestros jugadores estén en condiciones óptimas.",
     projectDescription:
-      "El preparador de arqueros trabajará directamente con los porteros, enfocándose en mejorar sus habilidades técnicas, tácticas y psicológicas.",
+      "El médico deportivo será responsable de prevenir y tratar lesiones, así como de colaborar con otros profesionales de la salud para asegurar el bienestar de los jugadores.",
     requirements: [
-      "Experiencia mínima de 3 años como preparador de arqueros.",
-      "Conocimiento de técnicas de entrenamiento específicas para porteros.",
-      "Capacidad para trabajar en equipo y colaborar con el cuerpo técnico.",
-      "Disponibilidad para entrenamientos y partidos.",
+      "Titulación en Medicina con especialización en Medicina Deportiva.",
+      "Experiencia en el manejo de lesiones deportivas.",
+      "Capacitación en primeros auxilios y emergencias médicas.",
+      "Disponibilidad para trabajar en horarios flexibles y viajar con el equipo.",
     ],
     responsibilities: [
-      "Diseñar y ejecutar entrenamientos específicos para los porteros.",
-      "Monitorear el desempeño de los porteros en los entrenamientos y partidos.",
-      "Colaborar con el cuerpo técnico en la planificación de partidos y entrenamientos.",
+      "Realizar exámenes médicos a los jugadores y monitorear su salud física.",
+      "Atender a los jugadores durante los entrenamientos y partidos.",
+      "Colaborar con el cuerpo técnico para determinar la mejor manera de prevenir lesiones.",
     ],
     skills: [
-      "Conocimiento avanzado en técnicas de porteros.",
-      "Habilidad para trabajar con jugadores jóvenes y adultos.",
-      "Capacidad de análisis y corrección de errores técnicos.",
+      "Conocimiento avanzado en medicina deportiva y rehabilitación.",
+      "Capacidad para tomar decisiones rápidas bajo presión.",
+      "Excelente habilidad para comunicarse con jugadores y cuerpo técnico.",
     ],
-    location: "Bogotá, Colombia",
+    country: "Colombia",
+    category: "Médico Deportivo",
+    contract: "Full-time",
+    flagCode: "CO",
+    salary: "Competitivo"
   },
   {
     id: 12,
-    title: "Entrenador de Fútbol Femenino para Club en Montevideo, Uruguay",
+    title: "Analista de Datos para Club de Fútbol en São Paulo, Brasil",
     description:
-      "Nuestro club en Montevideo está buscando un entrenador para nuestra categoría de fútbol femenino.",
+      "Estamos buscando un analista de datos para trabajar con nuestro equipo de análisis en la recopilación y procesamiento de información durante los partidos.",
     projectDescription:
-      "El entrenador de fútbol femenino será responsable de dirigir y desarrollar el equipo femenino, promoviendo el crecimiento individual y colectivo de las jugadoras.",
+      "El analista de datos será responsable de extraer información valiosa de los partidos y entrenamientos para mejorar el rendimiento de los jugadores y la toma de decisiones del cuerpo técnico.",
     requirements: [
-      "Experiencia mínima de 2 años como entrenador de fútbol femenino.",
-      "Conocimiento y pasión por el fútbol femenino.",
-      "Certificación en entrenamiento de fútbol.",
-      "Disponibilidad para entrenamientos y partidos.",
+      "Titulación en Estadística, Ciencias del Deporte o afín.",
+      "Experiencia con herramientas de análisis de datos deportivos.",
+      "Conocimientos en programación y manejo de bases de datos.",
+      "Capacidad para trabajar en equipo y colaborar con el cuerpo técnico.",
     ],
     responsibilities: [
-      "Planificar y dirigir los entrenamientos del equipo femenino.",
-      "Fomentar un ambiente positivo y competitivo.",
-      "Colaborar con el cuerpo técnico en el desarrollo de estrategias y tácticas.",
-      "Representar al club en competiciones oficiales y amistosos.",
+      "Recopilar datos durante los partidos y entrenamientos.",
+      "Analizar los datos y generar informes detallados sobre el rendimiento de los jugadores.",
+      "Proponer recomendaciones tácticas basadas en el análisis de los datos.",
     ],
     skills: [
-      "Liderazgo y habilidades de motivación.",
-      "Conocimiento técnico y táctico del fútbol.",
-      "Capacidad para gestionar y dirigir un equipo de fútbol femenino.",
+      "Habilidades avanzadas en análisis de datos y uso de herramientas estadísticas.",
+      "Capacidad de trabajar bajo presión y en plazos ajustados.",
+      "Buena capacidad de comunicación y presentación de informes.",
     ],
-    location: "Montevideo, Uruguay",
+    country: "Brasil",
+    category: "Analista de Datos",
+    contract: "Full-time",
+    flagCode: "BR",
+    salary: "Competitivo"
   },
   {
     id: 13,
-    title: "Médico Deportivo para Club Profesional en Ciudad de México",
+    title: "Preparador de Fitness para Club de Fútbol en Montevideo, Uruguay",
     description:
-      "Estamos buscando un médico deportivo para el seguimiento y cuidado de la salud de nuestros jugadores profesionales.",
+      "Se busca un preparador físico para trabajar con el equipo profesional en Montevideo, Uruguay.",
     projectDescription:
-      "El médico deportivo será responsable de proporcionar atención médica preventiva, de emergencia y de rehabilitación a los jugadores.",
+      "El preparador físico será responsable de diseñar y aplicar los programas de entrenamiento físico para mejorar el rendimiento de los jugadores durante la temporada.",
     requirements: [
-      "Licenciatura en Medicina con especialización en Medicina Deportiva.",
-      "Experiencia trabajando con futbolistas profesionales.",
-      "Conocimiento de lesiones comunes en el fútbol y su tratamiento.",
-      "Disponibilidad para atender emergencias durante partidos y entrenamientos.",
+      "Licenciatura en Ciencias del Deporte, Educación Física o afín.",
+      "Experiencia previa en equipos profesionales de fútbol.",
+      "Conocimiento en la implementación de programas de entrenamiento físico.",
+      "Disponibilidad para horarios flexibles y viajes.",
     ],
     responsibilities: [
-      "Proveer atención médica preventiva y de emergencia durante los entrenamientos y partidos.",
-      "Desarrollar planes de rehabilitación para jugadores lesionados.",
-      "Colaborar con el equipo de fisioterapia y preparadores físicos.",
-      "Realizar chequeos médicos regulares y seguimiento de la salud de los jugadores.",
+      "Diseñar y ejecutar programas de entrenamiento físico para jugadores de fútbol.",
+      "Monitorear el progreso físico de los jugadores y realizar ajustes en el entrenamiento.",
+      "Colaborar con el cuerpo técnico para integrar aspectos físicos y tácticos en la preparación.",
     ],
     skills: [
-      "Conocimiento profundo de la medicina deportiva.",
-      "Habilidad para trabajar bajo presión y en situaciones de emergencia.",
-      "Comunicación efectiva con jugadores y cuerpo técnico.",
+      "Habilidades para motivar a los jugadores y mejorar su rendimiento.",
+      "Conocimientos en fisiología del ejercicio y preparación física.",
+      "Capacidad para trabajar en equipo y comunicarse de manera efectiva.",
     ],
-    location: "Ciudad de México",
+    country: "Uruguay",
+    category: "Preparador Físico",
+    contract: "Full-time",
+    flagCode: "UR",
+    salary: "A convenir"
+  },
+  {
+    id: 14,
+    title: "Director de Marketing para Club de Fútbol en Lima, Perú",
+    description:
+      "Estamos buscando un Director de Marketing para liderar las estrategias comerciales y promocionales de nuestro club en Lima, Perú.",
+    projectDescription:
+      "El Director de Marketing será responsable de planificar y ejecutar campañas de marketing que promuevan la imagen del club, así como la creación de contenido y gestión de redes sociales.",
+    requirements: [
+      "Experiencia en marketing deportivo o en industrias relacionadas.",
+      "Conocimiento de las tendencias digitales y de marketing en redes sociales.",
+      "Capacidad para desarrollar estrategias comerciales para promover el club.",
+      "Habilidades de liderazgo y capacidad para trabajar con equipos multidisciplinarios.",
+    ],
+    responsibilities: [
+      "Desarrollar y ejecutar estrategias de marketing y publicidad.",
+      "Gestionar las relaciones con patrocinadores y otros socios comerciales.",
+      "Crear campañas para aumentar la visibilidad y el reconocimiento del club.",
+    ],
+    skills: [
+      "Conocimiento en redes sociales y campañas publicitarias.",
+      "Capacidad de liderazgo y organización.",
+      "Creatividad y habilidades de comunicación.",
+    ],
+    country: "Perú",
+    category: "Director de Marketing",
+    contract: "Full-time",
+    flagCode: "PE",
+    salary: "Competitivo"
+  },
+  {
+    id: 15,
+    title:
+      "Director de Comunicación para Club de Fútbol en Ciudad de México, México",
+    description:
+      "Buscamos un Director de Comunicación para manejar las relaciones públicas y la imagen de nuestro club en Ciudad de México.",
+    projectDescription:
+      "El Director de Comunicación será responsable de gestionar las comunicaciones internas y externas del club, así como de promover nuestra imagen en medios y redes sociales.",
+    requirements: [
+      "Experiencia mínima de 5 años en comunicación o relaciones públicas en el ámbito deportivo.",
+      "Conocimiento de la industria futbolística y medios deportivos.",
+      "Capacidad para redactar notas de prensa y gestionar entrevistas.",
+      "Experiencia en manejo de crisis y comunicación en situaciones difíciles.",
+    ],
+    responsibilities: [
+      "Redactar comunicados oficiales y gestionar la relación con los medios.",
+      "Organizar conferencias de prensa y gestionar las entrevistas de los jugadores.",
+      "Desarrollar la estrategia de comunicación digital y en redes sociales.",
+    ],
+    skills: [
+      "Habilidades excepcionales de comunicación verbal y escrita.",
+      "Capacidad para gestionar la reputación del club en medios y redes.",
+      "Experiencia en gestión de crisis y comunicación externa.",
+    ],
+    country: "México",
+    category: "Director de Comunicación",
+    contract: "Full-time",
+    flagCode: "ME",
+    salary: "Competitivo"
+  },
+  {
+    id: 16,
+    title: "Nutricionista Deportivo para Club de Fútbol en Rosario, Argentina",
+    description:
+      "El Club Deportivo Rosario busca un nutricionista deportivo para optimizar la alimentación y salud de nuestros jugadores.",
+    projectDescription:
+      "El nutricionista será responsable de diseñar planes de alimentación específicos para cada jugador, basados en sus necesidades físicas y objetivos de rendimiento.",
+    requirements: [
+      "Licenciatura en Nutrición o afín.",
+      "Experiencia trabajando con atletas de alto rendimiento.",
+      "Conocimiento en nutrición deportiva y suplementación.",
+      "Capacidad de trabajo en equipo y en colaboración con el cuerpo médico y técnico.",
+    ],
+    responsibilities: [
+      "Elaborar planes de alimentación personalizados para los jugadores.",
+      "Monitorear la salud nutricional de los jugadores y realizar ajustes cuando sea necesario.",
+      "Brindar asesoramiento sobre nutrición antes, durante y después de los entrenamientos y partidos.",
+    ],
+    skills: [
+      "Conocimiento avanzado en nutrición deportiva.",
+      "Capacidad para realizar análisis nutricionales detallados.",
+      "Habilidad para trabajar con atletas y mejorar su rendimiento a través de la alimentación.",
+    ],
+    country: "Argentina",
+    category: "Nutricionista Deportivo",
+    contract: "Full-time",
+    flagCode: "AR",
+    salary: "Competitivo"
+  },
+  {
+    id: 17,
+    title: "Técnico de Análisis de Video para Club de Fútbol en Lima, Perú",
+    description:
+      "Estamos buscando un técnico de análisis de video para trabajar con el equipo técnico en la revisión y análisis de partidos y entrenamientos.",
+    projectDescription:
+      "El técnico de análisis de video será responsable de capturar y analizar el material audiovisual para apoyar el trabajo táctico del cuerpo técnico.",
+    requirements: [
+      "Experiencia en el análisis de video deportivo.",
+      "Conocimiento en el uso de software especializado de análisis de video.",
+      "Capacidad de trabajar bajo presión y plazos ajustados.",
+      "Experiencia en fútbol profesional es un plus.",
+    ],
+    responsibilities: [
+      "Capturar y editar videos de partidos y entrenamientos.",
+      "Realizar análisis táctico y técnico utilizando el material audiovisual.",
+      "Crear reportes detallados sobre el rendimiento individual y colectivo.",
+    ],
+    skills: [
+      "Conocimiento avanzado en edición de video y análisis táctico.",
+      "Capacidad para identificar detalles técnicos y estratégicos clave.",
+      "Habilidades organizativas y de presentación de informes.",
+    ],
+    country: "Perú",
+    category: "Técnico de Análisis de Video",
+    contract: "Full-time",
+    flagCode: "PE",
+    salary: "Competitivo"
+  },
+  {
+    id: 18,
+    title:
+      "Entrenador de Fuerza y Acondicionamiento para Club de Fútbol en Quito, Ecuador",
+    description:
+      "El club busca un entrenador especializado en fuerza y acondicionamiento físico para mejorar el rendimiento físico de los jugadores.",
+    projectDescription:
+      "El entrenador de fuerza y acondicionamiento será responsable de diseñar y aplicar programas de entrenamiento enfocados en mejorar la fuerza, velocidad y resistencia de los jugadores.",
+    requirements: [
+      "Licenciatura en Ciencias del Deporte, Educación Física o similar.",
+      "Experiencia previa trabajando con futbolistas profesionales.",
+      "Conocimiento en el diseño de programas de fuerza y acondicionamiento.",
+      "Certificaciones en entrenamiento de fuerza o acondicionamiento físico.",
+    ],
+    responsibilities: [
+      "Desarrollar y aplicar programas de entrenamiento físico para los jugadores.",
+      "Realizar seguimientos del progreso físico de cada jugador.",
+      "Colaborar con el cuerpo técnico para mejorar el rendimiento físico global.",
+    ],
+    skills: [
+      "Capacidad para diseñar planes de entrenamiento físico específicos.",
+      "Conocimiento avanzado en fisiología del ejercicio.",
+      "Habilidades de motivación y liderazgo.",
+    ],
+    country: "Ecuador",
+    category: "Entrenador de Fuerza y Acondicionamiento",
+    contract: "Full-time",
+    flagCode: "EC",
+    salary: "A convenir"
+  },
+  {
+    id: 19,
+    title: "Psicólogo Deportivo para Club de Fútbol en Caracas, Venezuela",
+    description:
+      "El club necesita un psicólogo deportivo para trabajar con los jugadores y mejorar su bienestar emocional y mental durante la temporada.",
+    projectDescription:
+      "El psicólogo deportivo será responsable de brindar apoyo psicológico a los jugadores, ayudando a manejar el estrés, la presión y mejorando el rendimiento mental.",
+    requirements: [
+      "Licenciatura en Psicología, preferiblemente con especialización en Psicología Deportiva.",
+      "Experiencia en trabajo con atletas de alto rendimiento.",
+      "Habilidades de escucha activa y comunicación efectiva.",
+      "Capacidad de trabajar con el cuerpo técnico para implementar programas de bienestar mental.",
+    ],
+    responsibilities: [
+      "Brindar apoyo psicológico a los jugadores durante la temporada.",
+      "Desarrollar programas de bienestar mental y manejo del estrés.",
+      "Trabajar en colaboración con entrenadores y médicos para mejorar la salud mental del equipo.",
+    ],
+    skills: [
+      "Conocimiento en psicología deportiva y manejo del rendimiento mental.",
+      "Capacidad para proporcionar terapia y apoyo emocional a los jugadores.",
+      "Empatía y habilidades interpersonales destacadas.",
+    ],
+    country: "Venezuela",
+    category: "Psicólogo Deportivo",
+    contract: "Full-time",
+    flagCode: "VE",
+    salary: "A convenir"
+  },
+  {
+    id: 20,
+    title:
+      "Coordinador de Marketing Digital para Club de Fútbol en Bogotá, Colombia",
+    description:
+      "El club busca un coordinador de marketing digital para gestionar nuestras campañas en línea y mejorar la presencia digital del club.",
+    projectDescription:
+      "El coordinador de marketing digital será responsable de desarrollar estrategias para promover el club a través de canales digitales, incluyendo redes sociales y sitios web.",
+    requirements: [
+      "Experiencia mínima de 2 años en marketing digital, preferiblemente en el sector deportivo.",
+      "Conocimiento en SEO, SEM y gestión de redes sociales.",
+      "Capacidad para crear contenido visual atractivo.",
+      "Conocimiento en herramientas de análisis digital y métricas de rendimiento.",
+    ],
+    responsibilities: [
+      "Gestionar y desarrollar las campañas de marketing digital del club.",
+      "Crear contenido visual para redes sociales y otros canales digitales.",
+      "Analizar el rendimiento de las campañas y generar informes detallados.",
+    ],
+    skills: [
+      "Dominio de redes sociales y herramientas de marketing digital.",
+      "Habilidades para crear contenido visual y atractivo.",
+      "Conocimiento de herramientas analíticas y métricas de rendimiento.",
+    ],
+    country: "Colombia",
+    category: "Coordinador de Marketing Digital",
+    contract: "Full-time",
+    flagCode: "CO",
+    salary: "A convenir"
+  },
+  {
+    id: 21,
+    title: "Scout de Jugadores para Club Profesional en Santiago, Chile",
+    description:
+      "Buscamos un scout de jugadores con experiencia en la búsqueda y evaluación de talentos para nuestro club profesional en Santiago.",
+    projectDescription:
+      "El scout de jugadores será responsable de identificar y evaluar talentos a nivel nacional e internacional, asistiendo a partidos y entrenamientos para analizar el potencial de los jugadores.",
+    requirements: [
+      "Experiencia en scouting deportivo, preferiblemente en fútbol.",
+      "Conocimiento profundo de las ligas locales e internacionales.",
+      "Capacidad para evaluar habilidades técnicas y tácticas de los jugadores.",
+      "Habilidades de comunicación y trabajo en equipo.",
+    ],
+    responsibilities: [
+      "Evaluar jugadores durante partidos y entrenamientos.",
+      "Generar informes detallados sobre el rendimiento y potencial de los jugadores.",
+      "Colaborar con el cuerpo técnico para ayudar en las decisiones de fichajes.",
+    ],
+    skills: [
+      "Conocimiento sobre el talento futbolístico y el mercado de jugadores.",
+      "Capacidad para observar y analizar el rendimiento de los jugadores.",
+      "Red de contactos en el ámbito futbolístico.",
+    ],
+    country: "Chile",
+    category: "Scout de Jugadores",
+    contract: "Full-time",
+    flagCode: "CH",
+    salary: "A convenir"
+  },
+  {
+    id: 22,
+    title:
+      "Fisioterapeuta Deportivo para Club de Fútbol en San Salvador, El Salvador",
+    description:
+      "El club busca un fisioterapeuta deportivo con experiencia en rehabilitación para ayudar a nuestros jugadores a recuperar su condición física.",
+    projectDescription:
+      "El fisioterapeuta será responsable de desarrollar y aplicar programas de rehabilitación para jugadores lesionados, así como prevenir futuras lesiones.",
+    requirements: [
+      "Licenciatura en Fisioterapia o afín.",
+      "Experiencia en rehabilitación deportiva y tratamiento de lesiones.",
+      "Capacitación en técnicas de fisioterapia avanzada.",
+      "Disponibilidad para trabajar en horarios flexibles.",
+    ],
+    responsibilities: [
+      "Brindar atención fisioterapéutica a jugadores lesionados.",
+      "Desarrollar programas de prevención de lesiones.",
+      "Colaborar con el cuerpo médico para asegurar la recuperación de los jugadores.",
+    ],
+    skills: [
+      "Conocimiento avanzado en técnicas de fisioterapia deportiva.",
+      "Habilidades de diagnóstico y tratamiento de lesiones deportivas.",
+      "Capacidad de trabajo en equipo y en colaboración con otros profesionales de la salud.",
+    ],
+    country: "El Salvador",
+    category: "Fisioterapeuta Deportivo",
+    contract: "Full-time",
+    flagCode: "SV",
+    salary: "Competitivo"
   },
 ];
 
-export default offers;
+export default Offers;

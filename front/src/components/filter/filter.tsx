@@ -1,36 +1,84 @@
-// components/Filters.tsx
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { IFiltersProps } from "@/Interfaces/IFilter";
+import { positionOptions as jobPositionOptions } from "@/helpers/jobs";
 
-interface FiltersProps {
-  locations: string[];
-  categories: string[];
-  selectedLocation: string;
-  selectedCategory: string;
-  onLocationChange: (location: string) => void;
-  onCategoryChange: (category: string) => void;
-}
-
-const Filters: React.FC<FiltersProps> = ({
+const Filters = ({
   locations,
-  categories,
   selectedLocation,
-  selectedCategory,
   onLocationChange,
-  onCategoryChange,
-}) => {
+  onFilterChange,
+}: IFiltersProps) => {
+  const [selectedContracts, setSelectedContracts] = useState<string>("");
+  const [selectedPositions, setSelectedPositions] = useState<string>("");
+
+  const contractOptions = [
+    "Contrato profesional",
+    "Otro tipo de contrato",
+    "Contrato de patrocinio",
+    "Contrato de cesión o préstamo",
+    "Contrato de representación",
+  ];
+
+  const positionOptions = jobPositionOptions;
+
+  const handleContractChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setSelectedContracts(event.target.value);
+  };
+
+  const handlePositionChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setSelectedPositions(event.target.value);
+  };
+
+  const handleLocationChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    onLocationChange(event.target.value);
+  };
+
+  useEffect(() => {
+    onFilterChange({
+      contracts: selectedContracts ? [selectedContracts] : [],
+      positions: selectedPositions ? [selectedPositions] : [],
+      location: selectedLocation,
+      country: "",
+      category: "",
+    });
+  }, [selectedContracts, selectedPositions, selectedLocation, onFilterChange]);
+
   return (
-    <div className="flex flex-col sm:flex-row gap-6 mb-8 justify-center">
+    <div className="p-6 bg-white text-black shadow-lg rounded-lg space-y-6">
+      {/* Tipo de contrato */}
       <div>
-        <label htmlFor="location" className="block font-semibold">
-          Ubicación
-        </label>
+        <h3 className="font-semibold text-lg text-gray-800 mb-4">
+          Tipo de contrato
+        </h3>
         <select
-          id="location"
-          value={selectedLocation}
-          onChange={(e) => onLocationChange(e.target.value)}
-          className="p-2 border rounded-md"
+          value={selectedContracts}
+          onChange={handleContractChange}
+          className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
         >
-          <option value="">Todas</option>
+          <option value="">Selecciona un tipo de contrato</option>
+          {contractOptions.map((option, index) => (
+            <option key={index} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Ubicación */}
+      <div>
+        <h3 className="font-semibold text-lg text-gray-800 mb-4">Ubicación</h3>
+        <select
+          value={selectedLocation}
+          onChange={handleLocationChange}
+          className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Selecciona una ubicación</option>
           {locations.map((location, index) => (
             <option key={index} value={location}>
               {location}
@@ -39,20 +87,18 @@ const Filters: React.FC<FiltersProps> = ({
         </select>
       </div>
 
+      {/* Puesto */}
       <div>
-        <label htmlFor="category" className="block font-semibold">
-          Categoría
-        </label>
+        <h3 className="font-semibold text-lg text-gray-800 mb-4">Puesto</h3>
         <select
-          id="category"
-          value={selectedCategory}
-          onChange={(e) => onCategoryChange(e.target.value)}
-          className="p-2 border rounded-md"
+          value={selectedPositions}
+          onChange={handlePositionChange}
+          className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
         >
-          <option value="">Todas</option>
-          {categories.map((category, index) => (
-            <option key={index} value={category}>
-              {category}
+          <option value="">Selecciona un puesto</option>
+          {positionOptions.map((option, index) => (
+            <option key={index} value={option}>
+              {option}
             </option>
           ))}
         </select>

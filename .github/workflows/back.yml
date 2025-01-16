@@ -27,7 +27,7 @@ jobs:
         cache: 'npm'
     - name: Install dependencies
       working-directory: back
-      run: npm install
+      run: npm ci
     - name: Build
       working-directory: back
       run: npm run build

@@ -8,22 +8,34 @@ export interface ILoginResponse {
   }
 
   export interface IProfileData {
-    name: string;
-    lastname: string;
-    email: string;
-    imgUrl?: string;
-    phone?: string;
-    nationality?: string;
-    role:UserType.PLAYER;
-    location?: string;
-    genre?: string;
-    birthday?: string;
-    height?: number;
-    weight?: number;
-    habilities?: string[];
-    skillfulFoot?: string;
-    bodyStructure?: string;
-      }
+      name: string;
+      lastname: string;
+      nameAgency: string;
+      email: string;
+      password?: string;
+      role: UserType.PLAYER;
+      imgUrl: string;
+      phone: string;
+      nationality: string;
+      location: string;
+      genre?: string;
+      birthday: string; 
+      height: number;
+      weight: number;
+      skillfulFoot: string;
+      bodyStructure: string;
+      habilities: string[]; 
+      videoUrl: string;
+      socialMedia: {
+        instagram: string;
+        twitter: string;
+      };
+      puesto: {
+        position: string;
+        experience: number;
+      }[];
+    }
+    
 
   
 export interface IRegisterUser {

@@ -2,20 +2,20 @@
 
 import Image from "next/image";
 import { useState, useEffect, useContext } from "react";
-import userH from "../../../helpers/helperUser"; // Aquí están los datos del usuario
+import userH from "../../../helpers/helperUser"; 
 import AOS from "aos";
-import "aos/dist/aos.css"; // Asegúrate de importar los estilos de AOS
-import { FaInstagram, FaFacebook, FaTwitter, FaYoutube } from "react-icons/fa"; // Iconos de redes sociales
-import { IRegisterUser } from "@/Interfaces/IUser";
+import "aos/dist/aos.css"; 
+import { FaInstagram, FaTwitter } from "react-icons/fa";
+import { IProfileData} from "@/Interfaces/IUser";
 import { UserContext } from "@/components/Context/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { IoDocumentTextOutline } from "react-icons/io5";
 
 const UserProfile = () => {
   const {token,logOut} = useContext(UserContext);
   const [activeSection, setActiveSection] = useState("profile");
-  const [userData, setUserData] = useState<IRegisterUser | null>(null);
-  const [formData, setFormData] = useState<IRegisterUser | null>(null);
+  const [userData, setUserData] = useState<IProfileData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
  const router = useRouter();
@@ -44,7 +44,6 @@ const UserProfile = () => {
             })
             .then((data) => {
               setUserData(data);
-              setFormData(data); // Inicializa formData con los datos obtenidos
             })
             .catch((error) => {
               console.error('Error fetching user data:', error);
@@ -104,7 +103,7 @@ const UserProfile = () => {
                 className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
               >
                 <span className="text-lg">⚡</span>
-                <span>Habilidades</span>
+                <span>Habilidades y Físico</span>
               </button>
             </li>
             <li>
@@ -149,26 +148,27 @@ const UserProfile = () => {
               <div>
                 <p className="text-lg text-gray-600 mb-4">
                   <span className="font-medium">Fecha de Nacimiento:</span>{" "}
-                  {userH.birthDate}
+                  {userData?.birthday  || undefined}
                 </p>
                 <p className="text-lg text-gray-600 mb-4">
-                  <span className="font-medium">Género:</span> {userH.gender}
+                  <span className="font-medium">Género:</span> {userData?.genre}
                 </p>
                 <p className="text-lg text-gray-600 mb-4">
-                  <span className="font-medium">WhatsApp:</span>{" "}
-                  {userH.phone}
+                  <span className="font-medium text-gray-700">WhatsApp:</span>{" "}
+                  {userData?.phone}
                 </p>
-                    <p className="text-lg text-gray-600 mb-4">
-                  <span className="font-medium">Documento Adicional:</span>
-                  <Link
-                    href={userH.additionalDocument}
-                    className="text-blue-500 hover:underline"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Ver Documento
-                  </Link>
-                </p>
+                <p className="flex items-center">
+                <span className="font-medium text-gray-700 mr-2">Documento Adicional:</span> 
+                <Link
+                  href={userH.additionalDocument}
+                  className="text-blue-500 hover:underline flex items-center"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Ver
+                  <IoDocumentTextOutline className="ml-2" />
+                </Link>
+              </p> 
                 
               </div>
 
@@ -189,9 +189,11 @@ const UserProfile = () => {
                 </div>
               </div>
             </div>
-            <div className="rounded border-2 w-1/6 text-center bg-blue-300 hover:bg-blue-400 hover:cursor-pointer p-2 text-gray-800">
-                <Link href={"/profile"}>Completar datos</Link>
+            <Link href={"/profile"}>
+            <div className="rounded border-2 md:w-1/4 sm:1/6 text-center bg-blue-300 hover:bg-blue-400 hover:cursor-pointer p-2 text-gray-800">
+                Completar datos
               </div>
+              </Link>
           </div>
         )}
 
@@ -201,19 +203,61 @@ const UserProfile = () => {
             className="bg-white p-6 rounded-lg shadow-lg mb-6"
             data-aos="fade-up"
           >
-            <h3 className="text-xl font-semibold mb-4">Habilidades</h3>
+            <h3 className="text-xl font-semibold mb-4">Experiencia en campo</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {userData?.puesto?.map((job, index) => (
+                  <div
+                    key={index}
+                    className="bg-gray-100 p-4 rounded-md shadow-sm"
+                  >
+                    <h4 className="font-semibold">{job.position}</h4>
+                    <p className="text-gray-500">Experiencia: {job.experience} años</p>
+                  </div>
+                ))}
+              </div>
+
+            <h3 className="text-xl font-semibold mt-4 mb-4">Habilidades</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {userH.skills.map((skill, index) => (
+              {userData?.habilities?.map((skill, index) => (
                 <div
                   key={index}
                   className="bg-gray-100 p-4 rounded-md shadow-sm"
                 >
-                  <h4 className="font-semibold">{skill.skill}</h4>
-                  <p className="text-gray-500">Nivel: {skill.level}</p>
-                  <p className="text-gray-500">Frecuencia: {skill.frequency}</p>
+                  <h4 className="font-semibold">{skill}</h4>
                 </div>
               ))}
             </div>
+           {/* Separador con fondo diferente */}
+<div className="bg-gray-300 m-4 p-2"></div>
+            <h3 className="text-xl font-semibold mt-4 mb-4">Datos Físicos</h3>
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  {userData?.height && (
+    <div className="bg-gray-100 p-4 rounded-md shadow-sm">
+      <h4 className="font-semibold">Altura</h4>
+      <p className="text-gray-500">{userData.height} cm</p>
+    </div>
+  )}
+  {userData?.weight && (
+    <div className="bg-gray-100 p-4 rounded-md shadow-sm">
+      <h4 className="font-semibold">Peso</h4>
+      <p className="text-gray-500">{userData.weight} kg</p>
+    </div>
+  )}
+  {userData?.skillfulFoot && (
+    <div className="bg-gray-100 p-4 rounded-md shadow-sm">
+      <h4 className="font-semibold">Pie Hábil</h4>
+      <p className="text-gray-500">{userData.skillfulFoot}</p>
+    </div>
+  )}
+  {userData?.bodyStructure && (
+    <div className="bg-gray-100 p-4 rounded-md shadow-sm">
+      <h4 className="font-semibold">Estructura Corporal</h4>
+      <p className="text-gray-500">{userData.bodyStructure}</p>
+    </div>
+  )}
+</div>
+
+
           </div>
         )}
 
@@ -245,53 +289,34 @@ const UserProfile = () => {
             className="bg-white p-6 rounded-lg shadow-lg mb-6"
             data-aos="fade-up"
           >
-            <h3 className="text-xl font-semibold mb-4">Redes Sociales</h3>
-            <div className="space-y-4">
-              {userH.socialLinks.instagram && (
-                <a
-                  href={userH.socialLinks.instagram}
-                  className="text-blue-500 hover:underline flex items-center space-x-2"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaInstagram className="text-xl" />
-                  <span>Instagram</span>
-                </a>
-              )}
-              {userH.socialLinks.facebook && (
-                <a
-                  href={userH.socialLinks.facebook}
-                  className="text-blue-500 hover:underline flex items-center space-x-2"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaFacebook className="text-xl" />
-                  <span>Facebook</span>
-                </a>
-              )}
-              {userH.socialLinks.twitter && (
-                <a
-                  href={userH.socialLinks.twitter}
-                  className="text-blue-500 hover:underline flex items-center space-x-2"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaTwitter className="text-xl" />
-                  <span>Twitter</span>
-                </a>
-              )}
-              {userH.socialLinks.youtube && (
-                <a
-                  href={userH.socialLinks.youtube}
-                  className="text-blue-500 hover:underline flex items-center space-x-2"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaYoutube className="text-xl" />
-                  <span>YouTube</span>
-                </a>
-              )}
-            </div>
+         <h3 className="text-xl font-semibold mb-4">Redes Sociales</h3>
+<div className="space-y-4">
+  {userData?.socialMedia.instagram && (
+    <Link
+      href={`https://www.instagram.com/${userData.socialMedia.instagram}`}
+      className="text-blue-500 hover:underline flex items-center space-x-2"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <FaInstagram className="text-xl" />
+      <span>Instagram</span>
+    </Link>
+  )}
+ 
+  {userData?.socialMedia.twitter && (
+    <Link
+      href={`https://twitter.com/${userData.socialMedia.twitter}`}
+      className="text-blue-500 hover:underline flex items-center space-x-2"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <FaTwitter className="text-xl" />
+      <span>Twitter</span>
+    </Link>
+  )}
+ 
+</div>
+
           </div>
         )}
       </div>

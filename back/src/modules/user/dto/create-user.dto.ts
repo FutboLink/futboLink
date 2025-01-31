@@ -8,9 +8,21 @@ import {
   IsDate,
   IsNumber,
   IsArray,
+  ValidateNested,
 } from 'class-validator';
 import { UserType } from '../roles.enum';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+
+class Puesto {
+  @ApiProperty({ description: 'Posición del usuario', example: 'Delantero' })
+  @IsString()
+  position: string;
+
+  @ApiProperty({ description: 'Años de experiencia', example: 5 })
+  @IsNumber()
+  experience: number;
+}
 
 export class RegisterUserDto {
   @ApiProperty({ description: 'Nombre del usuario', example: 'Juan' })
@@ -140,4 +152,24 @@ export class RegisterUserDto {
   @IsArray()
   @IsString({ each: true })
   habilities?: string[];
+
+  @ApiProperty({ description: 'URL de video del usuario (opcional)', example: 'https://example.com/video.mp4', required: false })
+  @IsOptional()
+  @IsString()
+  videoUrl?: string;
+
+  @ApiProperty({ description: 'Redes sociales del usuario (opcional)', example: { instagram: '@usuario', twitter: '@usuario' }, required: false })
+  @IsOptional()
+  @IsString()
+  socialMedia?: Record<string, string>;
+
+  @ApiProperty({
+    description: 'Puestos del usuario (opcional)',
+    example: [{ position: 'Delantero', experience: 5 }],
+    required: false,
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => Puesto)
+  puesto?: Puesto[];
 }

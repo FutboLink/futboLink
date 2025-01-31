@@ -1,18 +1,62 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import userH from "../../../helpers/helperUser"; // Aquí están los datos del usuario
 import AOS from "aos";
 import "aos/dist/aos.css"; // Asegúrate de importar los estilos de AOS
 import { FaInstagram, FaFacebook, FaTwitter, FaYoutube } from "react-icons/fa"; // Iconos de redes sociales
+import { IRegisterUser } from "@/Interfaces/IUser";
+import { UserContext } from "@/components/Context/UserContext";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const UserProfile = () => {
+  const {token,logOut} = useContext(UserContext);
   const [activeSection, setActiveSection] = useState("profile");
-
+  const [userData, setUserData] = useState<IRegisterUser | null>(null);
+  const [formData, setFormData] = useState<IRegisterUser | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+ const router = useRouter();
   const handleSectionChange = (section: string) => {
     setActiveSection(section);
   };
+
+  const handleLogOut = () => {
+    logOut(); 
+    router.push('/'); 
+  };
+  
+  
+  useEffect(() => {
+    if (token) {
+      try {
+        const userId = JSON.parse(atob(token.split('.')[1])).id;
+
+        if (userId) {
+          fetch(`${apiUrl}/user/${userId}`)
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error('Failed to fetch user data');
+              }
+              return response.json();
+            })
+            .then((data) => {
+              setUserData(data);
+              setFormData(data); // Inicializa formData con los datos obtenidos
+            })
+            .catch((error) => {
+              console.error('Error fetching user data:', error);
+              setError('Failed to load user data.');
+            });
+        }
+      } catch (error) {
+        setError('Error decoding token or fetching user data.');
+        console.error('Error:', error);
+      }
+    }
+  }, [token, apiUrl]);
 
   // Inicializamos AOS cuando el componente se monta
   useEffect(() => {
@@ -26,7 +70,7 @@ const UserProfile = () => {
         {/* Datos Básicos del Usuario */}
         <div className="mb-8 flex flex-col items-center space-y-4">
           <Image
-            src={userH.profilePicture}
+            src={userData?.imgUrl || "/default-avatar.webp"}
             alt="Foto de perfil"
             width={100}
             height={100}
@@ -34,11 +78,11 @@ const UserProfile = () => {
           />
           <div className="space-y-2 text-center">
             <h2 className="text-2xl font-semibold">
-              {userH.firstName} {userH.lastName}
+              {userData?.name} {userData?.lastname}
             </h2>
-            <p className="text-lg text-gray-200">{userH.role}</p>
-            <p className="text-sm">{userH.phone}</p>
-            <p className="text-sm">{userH.email}</p>
+            <p className="text-lg text-gray-200">{userData?.role}</p>
+            <p className="text-sm">{userData?.phone}</p>
+            <p className="text-sm">{userData?.email}</p>
           </div>
         </div>
 
@@ -83,6 +127,12 @@ const UserProfile = () => {
             </li>
           </ul>
         </nav>
+        <button
+        onClick={handleLogOut}
+        className="mt-4 p-2 text-white bg-green-800 rounded"
+      >
+        Cerrar sesión
+      </button>
       </div>
 
       <div className="flex-1 p-8">
@@ -106,30 +156,20 @@ const UserProfile = () => {
                 </p>
                 <p className="text-lg text-gray-600 mb-4">
                   <span className="font-medium">WhatsApp:</span>{" "}
-                  {userH.whatsapp}
+                  {userH.phone}
                 </p>
-                <p className="text-lg text-gray-600 mb-4">
-                  <span className="font-medium">CV:</span>
-                  <a
-                    href={userH.cv}
-                    className="text-blue-500 hover:underline"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Ver CV
-                  </a>
-                </p>
-                <p className="text-lg text-gray-600 mb-4">
+                    <p className="text-lg text-gray-600 mb-4">
                   <span className="font-medium">Documento Adicional:</span>
-                  <a
+                  <Link
                     href={userH.additionalDocument}
                     className="text-blue-500 hover:underline"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     Ver Documento
-                  </a>
+                  </Link>
                 </p>
+                
               </div>
 
               {/* Video de Presentación incrustado a la derecha */}
@@ -149,6 +189,9 @@ const UserProfile = () => {
                 </div>
               </div>
             </div>
+            <div className="rounded border-2 w-1/6 text-center bg-blue-300 hover:bg-blue-400 hover:cursor-pointer p-2 text-gray-800">
+                <Link href={"/profile"}>Completar datos</Link>
+              </div>
           </div>
         )}
 

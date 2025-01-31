@@ -7,6 +7,25 @@ export interface ILoginResponse {
     token: string;
   }
 
+  export interface IProfileData {
+    name: string;
+    lastname: string;
+    email: string;
+    imgUrl?: string;
+    phone?: string;
+    nationality?: string;
+    role:UserType.PLAYER;
+    location?: string;
+    genre?: string;
+    birthday?: string;
+    height?: number;
+    weight?: number;
+    habilities?: string[];
+    skillfulFoot?: string;
+    bodyStructure?: string;
+      }
+
+  
 export interface IRegisterUser {
     name: string;
     lastname: string;
@@ -90,5 +109,7 @@ export interface IRegisterUser {
     signUp: (user: IRegisterUser) => Promise<boolean>;
     logOut: () => void;
     token: string | null;
+    role:string | null;
     setToken: React.Dispatch<React.SetStateAction<string | null>>;
+    setRole: React.Dispatch<React.SetStateAction<string | null>>;
   }

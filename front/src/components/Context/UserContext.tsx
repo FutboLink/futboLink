@@ -16,6 +16,8 @@ export const UserContext = createContext<IUserContextType>({
   logOut: () => {},
   token: null,
   setToken: () => {},
+  role:null,
+  setRole: () => {}, 
 });
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -25,7 +27,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isLogged, setIsLogged] = useState<boolean>(false);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [token, setToken] = useState<string | null>(null);
-  
+  const [role, setRole] = useState<string | null>(null); 
+
   const signIn = async (credentials: ILoginUser): Promise<boolean> => {
     try {
       const data: ILoginResponse = await fetchLoginUser(credentials);
@@ -35,14 +38,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
         const userData = {
           token: data.token,
           role: payload.role,
-          id: payload.id // Asumiendo que el id del usuario está en el payload
+          id: payload.id 
         };
         
-        localStorage.setItem("user", JSON.stringify(userData)); // Guardamos el id en el localStorage
+        localStorage.setItem("user", JSON.stringify(userData));
     
         setToken(data.token);
         setIsLogged(true);
-        setIsAdmin(payload.role === "admin");
+        setIsAdmin(payload.role === "ADMIN");
     
         return true;
       }
@@ -70,24 +73,27 @@ const signUp = async (user: IRegisterUser): Promise<boolean> => {
   }
 };
 
+
 useEffect(() => {
-    const storedAuthData = localStorage.getItem("user");
-  
-    if (storedAuthData) {
-      const { token, role } = JSON.parse(storedAuthData);
-      const payload = JSON.parse(atob(token.split('.')[1]));
-  
-      const isTokenExpired = payload.exp * 1000 < Date.now();
-  
-      if (isTokenExpired) {
-        logOut();
-      } else {
-        setToken(token);
-        setIsLogged(true);
-        setIsAdmin(role === "admin");
-      }
+  const storedAuthData = localStorage.getItem("user");
+
+  if (storedAuthData) {
+    const { token, role } = JSON.parse(storedAuthData);
+    const payload = JSON.parse(atob(token.split('.')[1]));
+
+    const isTokenExpired = payload.exp * 1000 < Date.now();
+
+    if (isTokenExpired) {
+      logOut();
+    } else {
+      setToken(token);
+      setIsLogged(true);
+      setIsAdmin(role === "ADMIN");
+      setRole(role); // Guardar el rol en el estado
     }
-  }, []);
+  }
+}, []);
+
   
 
 
@@ -118,6 +124,8 @@ const logOut = () => {
         signIn,
         signUp,
         logOut,
+        role,
+        setRole,
       }}
     >
       {children}

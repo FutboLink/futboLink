@@ -7,13 +7,14 @@ import logo from "../../../public/logoP1.png";
 import Head from "next/head";
 import Link from "next/link";
 import { UserContext } from "../Context/UserContext";
+import { FaUser } from "react-icons/fa";
 
 function Navbar() {
   const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { isLogged } = useContext(UserContext); 
+  const { isLogged,role } = useContext(UserContext); 
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -114,14 +115,8 @@ function Navbar() {
 
           {/* Sección derecha con los botones de Iniciar sesión y Registrarse (solo en escritorio) */}
           <div id="sectionTwo" className="relative hidden sm:flex">
-          {isLogged ? (
-            // Si está logueado, mostrar el enlace al perfil
-            <button
-              onClick={() => navigateTo("/profile")}
-              className="bg-yellow-500 text-black px-8 py-2 rounded-md hover:bg-yellow-600"
-            >
-              Perfil
-            </button>
+          {isLogged && role === "PLAYER" ? (
+          <button onClick={() => navigateTo("/PanelUsers/Player")}><FaUser className="text-green-500" /></button>
           ) : (
             <>
             <button
@@ -210,14 +205,8 @@ function Navbar() {
             </ul>
 
             <div className="mt-4">
-            {isLogged ? (
-            // Si está logueado, mostrar el enlace al perfil
-            <button
-              onClick={() => navigateTo("/profile")}
-              className="bg-yellow-500 text-black px-8 py-2 rounded-md hover:bg-yellow-600"
-            >
-              Perfil
-            </button>
+            {isLogged && role === "PLAYER" ? (
+          <button onClick={() => navigateTo("/PanelUsers/Player")}><FaUser className="text-green-500" /></button>
           ) : (
             <>
               <Link href={"/Login"}>

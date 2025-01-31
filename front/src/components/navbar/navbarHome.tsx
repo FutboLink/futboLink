@@ -7,16 +7,15 @@ import logo from "../../../public/logoP1.png";
 import Head from "next/head";
 import Link from "next/link";
 import { UserContext } from "../Context/UserContext";
+import { FaUser } from "react-icons/fa";
 
 function NavbarHome() {
   const router = useRouter();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  const { isLogged } = useContext(UserContext); 
+  const { isLogged, role } = useContext(UserContext); 
 
-  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
   const navigateTo = (path: string) => {
     router.push(path);
@@ -117,14 +116,8 @@ function NavbarHome() {
 
           {/* Sección derecha con los botones de Iniciar sesión y Registrarse (solo en escritorio) */}
           <div id="sectionTwo" className="relative flex sm:ml-auto">
-          {isLogged ? (
-            // Si está logueado, mostrar el enlace al perfil
-            <button
-              onClick={() => navigateTo("/profile")}
-              className="bg-yellow-500 text-black px-8 py-2 rounded-md hover:bg-yellow-600"
-            >
-              Perfil
-            </button>
+          {isLogged && role === "PLAYER" ? (
+          <button onClick={() => navigateTo("/PanelUsers/Player")}><FaUser /></button>
           ) : (
             <>
             <button
@@ -228,18 +221,12 @@ function NavbarHome() {
             </ul>
 
             <div className="mt-4">
-            {isLogged ? (
-            // Si está logueado, mostrar el enlace al perfil
-            <button
-              onClick={() => navigateTo("/profile")}
-              className="bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
-            >
-              Perfil
-            </button>
+            {isLogged && role === "PLAYER" ? (
+          <button onClick={() => navigateTo("/PanelUsers/Player")}><FaUser /></button>
           ) : (
             <>
               <button
-                onClick={toggleDropdown}
+                onClick={() => navigateTo("/OptionUsers")}
                 className="w-full bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
               >
                 Iniciar sesión

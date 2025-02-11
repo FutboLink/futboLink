@@ -13,7 +13,7 @@ const getNewsById = (id: number): INews | null => {
 export async function generateMetadata({
   params,
 }: INewsPageProps): Promise<Metadata> {
-  const { id } = params; // Obtener el ID desde los parámetros
+  const { id } = await params; // Espera a que 'params' se resuelva
   const news = getNewsById(Number(id));
   if (news) {
     return {
@@ -29,7 +29,7 @@ export async function generateMetadata({
 
 // Componente de la página
 export default async function NewsPage({ params }: INewsPageProps) {
-  const { id } = params; // Obtener el ID desde los parámetros
+  const { id } = await params; // Espera a que 'params' se resuelva
 
   // Obtener la noticia de manera síncrona, ya que helpersNotices está disponible localmente
   const news = getNewsById(Number(id));

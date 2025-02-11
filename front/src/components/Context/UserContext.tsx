@@ -78,21 +78,27 @@ useEffect(() => {
   const storedAuthData = localStorage.getItem("user");
 
   if (storedAuthData) {
-    const { token, role } = JSON.parse(storedAuthData);
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    try {
+      const { token, role } = JSON.parse(storedAuthData);
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const isTokenExpired = payload.exp * 1000 < Date.now();
 
-    const isTokenExpired = payload.exp * 1000 < Date.now();
-
-    if (isTokenExpired) {
+      if (isTokenExpired) {
+        console.warn("Token expirado, cerrando sesión.");
+        logOut();
+      } else {
+        setToken(token);
+        setIsLogged(true);
+        setIsAdmin(role === "ADMIN");
+        setRole(role);
+      }
+    } catch (error) {
+      console.error("Error verificando token:", error);
       logOut();
-    } else {
-      setToken(token);
-      setIsLogged(true);
-      setIsAdmin(role === "ADMIN");
-      setRole(role); // Guardar el rol en el estado
     }
   }
 }, []);
+
 
   
 

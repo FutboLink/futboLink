@@ -1,8 +1,26 @@
-import ProfileUser from '@/components/ProfileUser/ProfileUser'
-import React from 'react'
+"use client"
+import { UserContext } from "@/components/Context/UserContext";
+import ProfileAdmin from "@/components/ProfileAdmin/ProfileAdmin";
+import ProfileAgency from "@/components/ProfileAgency/ProfileAgency";
+import ProfileOfertante from "@/components/ProfileOfertante/ProfileOfertante";
+import Profile from "@/components/ProfileUser/ProfileUser";
+import { useContext } from "react";
 
-export default function page() {
+function Page() {
+  const { isLogged, role } = useContext(UserContext);
+
+  if (!isLogged) {
+    return <p>No tienes acceso a esta página. Por favor, inicia sesión.</p>;
+  }
+
   return (
-    <ProfileUser/>
-  )
+    <div>
+      {role === "PLAYER" && <Profile/>}
+      {role === "AGENCY" && <ProfileAgency/>}
+      {role === "RECRUITER" && <ProfileOfertante/>}
+      {role === "ADMIN" && <ProfileAdmin/>}
+    </div>
+  );
 }
+
+export default Page;

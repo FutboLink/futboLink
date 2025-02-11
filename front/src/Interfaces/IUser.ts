@@ -26,9 +26,9 @@ export interface ILoginResponse {
       bodyStructure: string;
       habilities: string[]; 
       videoUrl: string;
-      socialMedia: {
-        instagram: string;
-        twitter: string;
+      socialMedia?: {
+        instagram?: string;
+        twitter?: string;
       };
       puesto: {
         position: string;

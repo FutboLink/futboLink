@@ -45,7 +45,7 @@ const Home = () => {
           className="relative z-10 flex flex-col items-center justify-center p-4"
           data-aos="zoom-in"
         >
-          <h1 className="text-4xl md:text-6xl font-bold">Futbol Career</h1>
+          <h1 className="text-4xl md:text-6xl font-bold">FutboLink</h1>
           <p className="mt-4 text-lg md:text-2xl">
             Encuentra oportunidades en el mundo del fútbol.
           </p>

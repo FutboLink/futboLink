@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import userH from "@/helpers/helperUser";
 
-const PanelAgency = () => {
+const PanelManager = () => {
   const {token,logOut} = useContext(UserContext);
   const [activeSection, setActiveSection] = useState("profile");
   const [userData, setUserData] = useState<IProfileData | null>(null);
@@ -323,4 +323,4 @@ const PanelAgency = () => {
   );
 };
 
-export default PanelAgency;
+export default PanelManager;

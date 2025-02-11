@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import userH from "@/helpers/helperUser";
 
-const PanelAgency = () => {
+const PanelAdmin = () => {
   const {token,logOut} = useContext(UserContext);
   const [activeSection, setActiveSection] = useState("profile");
   const [userData, setUserData] = useState<IProfileData | null>(null);
@@ -136,7 +136,7 @@ const PanelAgency = () => {
       </button>
       </div>
 
-      
+     
         {/* Si hay un error, mostramos un mensaje */}
         {error && (
           <div className="mb-4 p-4 bg-red-100 text-red-800 rounded-lg">
@@ -323,4 +323,4 @@ const PanelAgency = () => {
   );
 };
 
-export default PanelAgency;
+export default PanelAdmin;

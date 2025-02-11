@@ -8,7 +8,7 @@ import Link from "next/link";
 import { UserContext } from "../Context/UserContext";
 import { FaUser } from "react-icons/fa";
 
-function NavbarHome() {
+function NavbarAdmin() {
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -52,7 +52,7 @@ function NavbarHome() {
       {/* Navbar Desktop */}
       <nav
         className={`fixed top-0 left-0 w-full z-50 transition-colors duration-300 ${
-          isScrolled ? "bg-green-600" : "bg-transparent"
+          isScrolled ? "bg-white" : "bg-transparent"
         }`}
       >
         <section className="flex items-center justify-between sm:flex-row w-full p-4">
@@ -70,72 +70,27 @@ function NavbarHome() {
             <ul className="flex gap-6 text-lg text-white">
               <li
                 onClick={() => navigateTo("/Offer")}
-                className="px-4 hover:bg-green-200 hover:text-black hover:rounded-md transition-all cursor-pointer"
+                className="px-4 hover:bg-green-200 text-green-700 hover:text-black hover:rounded-md transition-all cursor-pointer"
                 aria-label="Ofertas de empleo"
               >
-                Ofertas
+                Usuarios
               </li>
               <li
                 onClick={() => navigateTo("/Formation")}
-                className="px-4 hover:bg-green-200 hover:text-black hover:rounded-md transition-all cursor-pointer"
+                className="px-4 hover:bg-green-200 text-green-700 hover:text-black hover:rounded-md transition-all cursor-pointer"
                 aria-label="Cursos y formación en futbol"
               >
-                Cursos y Formación
+               Postulaciones
               </li>
-              <li
-                onClick={() => navigateTo("/NoticesApp")}
-                className="px-4 hover:bg-green-200 hover:text-black hover:rounded-md transition-all cursor-pointer"
-                aria-label="Noticias relacionadas con futbol"
-              >
-                Noticias
-              </li>
-              <li
-                onClick={() => navigateTo("/Subs")}
-                className="px-4 hover:bg-green-200 hover:text-black hover:rounded-md transition-all cursor-pointer"
-                aria-label="Suscripciones a servicios de fútbol"
-              >
-                Suscripciones
-              </li>
-              <li
-                onClick={() => navigateTo("/Contact")}
-                className="px-4 hover:bg-green-200 hover:text-black hover:rounded-md transition-all cursor-pointer"
-                aria-label="Contacto"
-              >
-                Contacto
-              </li>
-              <li
-                onClick={() => navigateTo("/Help")}
-                className="px-4 hover:bg-green-200 hover:text-black hover:rounded-md transition-all cursor-pointer"
-                aria-label="Cómo usar FutboLink"
-              >
-                ¿Cómo uso FC?
-              </li>
+             
             </ul>
           </div>
 
           {/* Sección derecha con los botones de Iniciar sesión y Registrarse (solo en escritorio) */}
           <div id="sectionTwo" className="relative flex sm:ml-auto">
-          {isLogged ? (
-    role === "PLAYER" ? (
-      <button onClick={() => navigateTo("/PanelUsers/Player")}>
-        <FaUser className="text-white" />
-      </button>
-    ) : role === "AGENCY" ? (
-      <button onClick={() => navigateTo("/PanelUsers/Agency")}>
-        <FaUser className="text-white" />
-      </button>
-    ) : role === "RECRUITER" ? (
-      <button onClick={() => navigateTo("/PanelUsers/Manager")}>
-        <FaUser className="text-white" />
-      </button>
-    ) 
-    : role === "ADMIN" ? (
-      <button onClick={() => navigateTo("/PanelAdmin")}>
-        <FaUser className="text-white" />
-      </button>
-    ) 
-    : null
-  ) : (
+          {isLogged && role === "ADMIN" ? (
+          <button onClick={() => navigateTo("/PanelAdmin")}><FaUser className="text-green-700" /></button>
+          ) : (
             <>
             <button
              onClick={() => navigateTo("/Login")}
@@ -203,38 +158,15 @@ function NavbarHome() {
                 onClick={() => navigateTo("/Offer")}
                 className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
               >
-                Ofertas
+                Usuarios
               </li>
               <li
                 onClick={() => navigateTo("/Formation")}
                 className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
               >
-                Cursos y Formación
+               Postulaciones
               </li>
-              <li
-                onClick={() => navigateTo("/NoticesApp")}
-                className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
-              >
-                Noticias
-              </li>
-              <li
-                onClick={() => navigateTo("/Subs")}
-                className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
-              >
-                Suscripciones
-              </li>
-              <li
-                onClick={() => navigateTo("/Contact")}
-                className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
-              >
-                Contacto
-              </li>
-              <li
-                onClick={() => navigateTo("/Help")}
-                className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
-              >
-                ¿Cómo uso FC?
-              </li>
+            
             </ul>
 
             <div className="mt-4">
@@ -279,4 +211,4 @@ function NavbarHome() {
   );
 }
 
-export default NavbarHome;
+export default NavbarAdmin;

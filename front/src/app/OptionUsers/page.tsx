@@ -26,7 +26,7 @@ const RegistrationCards = () => {
         </Link>
 
         {/* Card Representante */}
-        <Link href="/register">
+        <Link href="/OptionUsers/Manager">
           <div className="bg-white p-6 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition duration-300 h-[380px] flex flex-col items-center">
             <Image
               src="https://img.freepik.com/foto-gratis/joven-apuesto-hombre-negocios-ordenador-portatil-oficina_1303-21060.jpg?t=st=1735402162~exp=1735405762~hmac=a9f53376cfd7059c1b7471743a8ec44c6afd61c7feabb2934b533ae785aa7a1b&w=1380" // Cambia esta URL por la imagen adecuada
@@ -36,16 +36,16 @@ const RegistrationCards = () => {
               className="w-full h-48 object-cover rounded-t-lg mb-4"
             />
             <h3 className="text-2xl font-semibold text-gray-800 mb-4 text-center">
-              Representante
+              Ofertante
             </h3>
             <p className="text-gray-600 text-center">
-              Regístrate como representante y busca jugadores para tus clientes.
+             Puedes publicar puestos o buscar jugadores para tus clientes.
             </p>
           </div>
         </Link>
 
         {/* Card Agencia */}
-        <Link href="/register">
+        <Link href="/OptionUsers/Agency">
           <div className="bg-white p-6 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition duration-300 h-[380px] flex flex-col items-center">
             <Image
               src="https://img.freepik.com/foto-gratis/concepto-negocio-copia-espacio-mesa-escritorio-oficina-enfoque-pluma-analisis-grafico-computadora-bloc-notas-taza-cafe-tablero-desk-vintage-retro-filtro-enfoque-selectivo_1418-536.jpg?t=st=1735402112~exp=1735405712~hmac=6350a14095065e89bb8a0417032b314661f087cf856a24727cdd9ffd7f8a3cf2&w=1380" // Cambia esta URL por la imagen adecuada

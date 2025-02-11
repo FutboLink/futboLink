@@ -117,16 +117,16 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             type="text"
             value={fetchedProfileData?.imgUrl || ""}
             onChange={handleChange}
-            placeholder="URL de la imagen"
+            placeholder="URL de la imagen / Logo de la agencia o entidad / Foto de perfil"
             className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
             />
            {/* Imagen de perfil (URL) */}
            <input
-            name="videoUrl"
+            name="nameAgency"
             type="text"
-            value={fetchedProfileData?.videoUrl|| ""}
+            value={fetchedProfileData?.nameAgency|| ""}
             onChange={handleChange}
-            placeholder="URL del video)"
+            placeholder="Nombre de la agencia o entidad"
             className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
           />
 
@@ -156,7 +156,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             type="text"
             value={fetchedProfileData?.location || ""}
             onChange={handleChange}
-            placeholder="Ubicación"
+            placeholder="Ciudad"
             className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
           />
 
@@ -173,13 +173,14 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             <option value="other">Otro</option>
           </select>
 
-          {/* Fecha de nacimiento */}
-          <input
-            name="birthday"
-            type="date"
-            value={fetchedProfileData?.birthday || ""}
+       {/* Tipo de organizacion */}
+       <input
+            name="nameAgency"
+            type="text"
+            value={fetchedProfileData?.nameAgency|| ""}
             onChange={handleChange}
-            className="w-full p-2 border rounded mt-2 text-gray-400 hover:cursor-pointer focus:outline-none"
+            placeholder="-Tipo de Organización: Club profesional - Club amateur - Agencia de reclutamiento - Escuelas de fútbol"
+            className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
           />
         </>
       )}

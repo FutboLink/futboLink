@@ -117,16 +117,16 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             type="text"
             value={fetchedProfileData?.imgUrl || ""}
             onChange={handleChange}
-            placeholder="URL de la imagen"
+            placeholder="URL de la imagen / Logo de la agencia / Foto de perfil"
             className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
             />
            {/* Imagen de perfil (URL) */}
            <input
-            name="videoUrl"
+            name="nameAgency"
             type="text"
-            value={fetchedProfileData?.videoUrl|| ""}
+            value={fetchedProfileData?.nameAgency|| ""}
             onChange={handleChange}
-            placeholder="URL del video)"
+            placeholder="Nombre de la agencia"
             className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
           />
 
@@ -156,7 +156,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             type="text"
             value={fetchedProfileData?.location || ""}
             onChange={handleChange}
-            placeholder="Ubicación"
+            placeholder="Ciudad"
             className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
           />
 
@@ -174,13 +174,17 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           </select>
 
           {/* Fecha de nacimiento */}
+          <div className="mt-4">
+          <label className="text-gray-500">Fundado en :</label>
+          </div>
           <input
             name="birthday"
             type="date"
             value={fetchedProfileData?.birthday || ""}
             onChange={handleChange}
             className="w-full p-2 border rounded mt-2 text-gray-400 hover:cursor-pointer focus:outline-none"
-          />
+        
+        />
         </>
       )}
 

@@ -102,7 +102,6 @@ const ContactDetails: React.FC<{ profileData: IProfileData }> = () => {
       </button>
 
       {error && <p className="text-red-600 mt-2">{error}</p>}
-
       {showErrorNotification && (
           <div className="absolute top-24 left-0 right-0 mx-auto w-max bg-red-600 text-white p-2 rounded-md">
             <p>{errorMessage}</p>

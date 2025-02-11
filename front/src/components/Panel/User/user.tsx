@@ -5,7 +5,7 @@ import { useState, useEffect, useContext } from "react";
 import userH from "../../../helpers/helperUser"; 
 import AOS from "aos";
 import "aos/dist/aos.css"; 
-import { FaInstagram, FaTwitter } from "react-icons/fa";
+import {  FaInstagram, FaTwitter } from "react-icons/fa";
 import { IProfileData} from "@/Interfaces/IUser";
 import { UserContext } from "@/components/Context/UserContext";
 import { useRouter } from "next/navigation";
@@ -17,6 +17,7 @@ const UserProfile = () => {
   const [activeSection, setActiveSection] = useState("profile");
   const [userData, setUserData] = useState<IProfileData | null>(null);
   const [error, setError] = useState<string | null>(null);
+ 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
  const router = useRouter();
   const handleSectionChange = (section: string) => {
@@ -134,7 +135,16 @@ const UserProfile = () => {
       </button>
       </div>
 
+      
+        {/* Si hay un error, mostramos un mensaje */}
+        {error && (
+          <div className="mb-4 p-4 bg-red-100 text-red-800 rounded-lg">
+            {error}
+          </div>
+        )}
+
       <div className="flex-1 p-8">
+     
         {/* Sección de Perfil */}
         {activeSection === "profile" && (
           <div
@@ -291,7 +301,7 @@ const UserProfile = () => {
           >
          <h3 className="text-xl font-semibold mb-4">Redes Sociales</h3>
 <div className="space-y-4">
-  {userData?.socialMedia.instagram && (
+  {userData?.socialMedia?.instagram && (
     <Link
       href={`https://www.instagram.com/${userData.socialMedia.instagram}`}
       className="text-blue-500 hover:underline flex items-center space-x-2"
@@ -303,7 +313,7 @@ const UserProfile = () => {
     </Link>
   )}
  
-  {userData?.socialMedia.twitter && (
+  {userData?.socialMedia?.twitter && (
     <Link
       href={`https://twitter.com/${userData.socialMedia.twitter}`}
       className="text-blue-500 hover:underline flex items-center space-x-2"

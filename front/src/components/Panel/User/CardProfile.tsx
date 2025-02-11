@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 
 interface CardProfileProps {
@@ -43,7 +44,7 @@ interface CardProps {
 const Card: React.FC<CardProps> = ({ title, image, paragraph }) => {
   return (
     <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
-      <img src={image} alt={title} className="w-full h-48 object-cover rounded mb-4" />
+      <Image src={image} alt={title} className="w-full h-48 object-cover rounded mb-4" />
       <h2 className="text-xl font-bold mb-2">{title}</h2>
       <p>{paragraph}</p>
     </div>

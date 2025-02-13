@@ -43,7 +43,7 @@ const OfferList: React.FC = () => {
   }
 
   return (
-    <div>
+    <div className="mt-24">
       <h1 className="text-green-700 text-lg mb-4">Aqui puedes encontrar todas las ofertas publicadas y filtrarlas</h1>
       {/* Input de búsqueda */}
       <div className="flex justify-center items-center ">

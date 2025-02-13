@@ -66,7 +66,7 @@ const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
           Ver más
         </Link>
         <Link
-          href={`/applications`}
+         href={`/jobs/${offer.id}`}
           className="text-white bg-green-700 rounded p-2 hover:text-green-700 hover:bg-white hover:border-2 hover:border-green-700 font-semibold self-start"
         >
           Aplicar a esta oferta

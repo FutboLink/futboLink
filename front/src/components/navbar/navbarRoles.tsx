@@ -68,7 +68,7 @@ function NavbarRoles() {
             {/* Menú para escritorio */}
             <ul className="hidden sm:flex gap-6 text-lg text-green-600">
               <li
-                onClick={() => navigateTo("/Offer")}
+                onClick={() => navigateTo("/jobs")}
                 className="px-4 py-2 hover:bg-green-600 hover:text-white rounded-md transition-all cursor-pointer"
                 aria-label="Ofertas de empleo"
               >
@@ -181,7 +181,7 @@ function NavbarRoles() {
           <div className="sm:hidden bg-white text-green-600 text-lg p-4">
             <ul>
               <li
-                onClick={() => navigateTo("/Offer")}
+                onClick={() => navigateTo("/jobs")}
                 className="px-4 py-2 hover:bg-green-600 hover:text-white rounded-md transition-all cursor-pointer"
               >
                 Ofertas

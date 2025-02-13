@@ -54,3 +54,16 @@ export interface IApplication {
   userId:string;
   jobId: string;
 }
+
+export interface ICreateJobOffer {
+  title: string;
+  description: string;
+  location: string;
+  salary: number;
+  offerType: string;
+  position: string;
+  competencies: string[];
+  countries: string[];
+  imgUrl: string;
+  type: string;
+}

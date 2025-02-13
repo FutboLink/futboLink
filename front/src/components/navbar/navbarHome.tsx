@@ -69,7 +69,7 @@ function NavbarHome() {
             </Link>
             <ul className="flex gap-6 text-lg text-white">
               <li
-                onClick={() => navigateTo("/Offer")}
+                onClick={() => navigateTo("/jobs")}
                 className="px-4 hover:bg-green-200 hover:text-black hover:rounded-md transition-all cursor-pointer"
                 aria-label="Ofertas de empleo"
               >
@@ -118,20 +118,20 @@ function NavbarHome() {
           {isLogged ? (
     role === "PLAYER" ? (
       <button onClick={() => navigateTo("/PanelUsers/Player")}>
-        <FaUser className="text-white" />
+        <FaUser className="text-green-700" />
       </button>
     ) : role === "AGENCY" ? (
       <button onClick={() => navigateTo("/PanelUsers/Agency")}>
-        <FaUser className="text-white" />
+        <FaUser className="text-green-700" />
       </button>
     ) : role === "RECRUITER" ? (
       <button onClick={() => navigateTo("/PanelUsers/Manager")}>
-        <FaUser className="text-white" />
+        <FaUser className="text-green-700" />
       </button>
     ) 
     : role === "ADMIN" ? (
       <button onClick={() => navigateTo("/PanelAdmin")}>
-        <FaUser className="text-white" />
+        <FaUser className="text-green-700" />
       </button>
     ) 
     : null
@@ -200,7 +200,7 @@ function NavbarHome() {
           <div className="bg-green-600 text-white text-lg p-4">
             <ul>
               <li
-                onClick={() => navigateTo("/Offer")}
+                onClick={() => navigateTo("/jobs")}
                 className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
               >
                 Ofertas

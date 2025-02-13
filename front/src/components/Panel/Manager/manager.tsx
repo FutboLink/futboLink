@@ -10,6 +10,7 @@ import { UserContext } from "@/components/Context/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import userH from "@/helpers/helperUser";
+import JobOfferForm from "@/components/Jobs/JobOfferForm";
 
 const PanelManager = () => {
   const {token,logOut} = useContext(UserContext);
@@ -109,6 +110,16 @@ const PanelManager = () => {
               </button>
             </li>
             <li>
+              
+              <button
+                onClick={() => handleSectionChange("createOffers")}
+                className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
+              >
+                <span className="text-lg">⚡</span>
+                <span>Crear Oferta</span>
+              </button>
+            </li>
+            <li>
               <button
                 onClick={() => handleSectionChange("appliedOffers")}
                 className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
@@ -186,69 +197,18 @@ const PanelManager = () => {
           </div>
         )}
 
-        {/* Sección de Habilidades */}
-        {activeSection === "skills" && (
+         {/* Sección crear jobs */}
+         {activeSection === "createOffers" && (
           <div
             className="bg-white p-6 rounded-lg shadow-lg mb-6"
             data-aos="fade-up"
           >
-            <h3 className="text-xl font-semibold mb-4">Experiencia en campo</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {userData?.puesto?.map((job, index) => (
-                  <div
-                    key={index}
-                    className="bg-gray-100 p-4 rounded-md shadow-sm"
-                  >
-                    <h4 className="font-semibold">{job.position}</h4>
-                    <p className="text-gray-500">Experiencia: {job.experience} años</p>
-                  </div>
-                ))}
-              </div>
-
-            <h3 className="text-xl font-semibold mt-4 mb-4">Habilidades</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {userData?.habilities?.map((skill, index) => (
-                <div
-                  key={index}
-                  className="bg-gray-100 p-4 rounded-md shadow-sm"
-                >
-                  <h4 className="font-semibold">{skill}</h4>
-                </div>
-              ))}
-            </div>
-           {/* Separador con fondo diferente */}
-<div className="bg-gray-300 m-4 p-2"></div>
-            <h3 className="text-xl font-semibold mt-4 mb-4">Datos Físicos</h3>
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-  {userData?.height && (
-    <div className="bg-gray-100 p-4 rounded-md shadow-sm">
-      <h4 className="font-semibold">Altura</h4>
-      <p className="text-gray-500">{userData.height} cm</p>
-    </div>
-  )}
-  {userData?.weight && (
-    <div className="bg-gray-100 p-4 rounded-md shadow-sm">
-      <h4 className="font-semibold">Peso</h4>
-      <p className="text-gray-500">{userData.weight} kg</p>
-    </div>
-  )}
-  {userData?.skillfulFoot && (
-    <div className="bg-gray-100 p-4 rounded-md shadow-sm">
-      <h4 className="font-semibold">Pie Hábil</h4>
-      <p className="text-gray-500">{userData.skillfulFoot}</p>
-    </div>
-  )}
-  {userData?.bodyStructure && (
-    <div className="bg-gray-100 p-4 rounded-md shadow-sm">
-      <h4 className="font-semibold">Estructura Corporal</h4>
-      <p className="text-gray-500">{userData.bodyStructure}</p>
-    </div>
-  )}
-</div>
-
+           
+      <JobOfferForm/>
 
           </div>
         )}
+
 
         {/* Sección de Ofertas Aplicadas */}
         {activeSection === "appliedOffers" && (

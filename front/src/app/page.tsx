@@ -1,72 +1,72 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import AOS from "aos";
-import "aos/dist/aos.css"; // Importa los estilos de AOS
-
+import "aos/dist/aos.css";
+import { UserContext } from "@/components/Context/UserContext";
 import CardOffer from "@/components/OfferComponents/Offer";
 import About from "@/components/AboutUs/about";
 import Notices from "@/components/Notices/notices";
 import Subs from "@/components/Subs/subs";
 import NavbarHome from "@/components/navbar/navbarHome";
+import NavbarAdmin from "@/components/navbar/navbarAdmin";
+import Link from "next/link";
+import Image from "next/image";
 
 const Home = () => {
+  const { role } = useContext(UserContext);
+  const [currentImage, setCurrentImage] = useState(0);
+
+  const images = [
+    { src: "/buscador.jpg", link: "/link1", text: "Buscador de ofertas laborales" },
+    { src: "/publicarOfertas.jpg", link: "/link2", text: "Publicar oferta laboral" },
+    { src: "/cursosYformaciones.jpg", link: "/link3", text: "Cursos y Formaciones" },
+  ];
+
   useEffect(() => {
-    AOS.init({
-      duration: 1000, 
-      once: false, 
-    });
-  }, []);
+    AOS.init({ duration: 1000, once: false });
+
+    // Cambio automático de imagen cada 2 segundos
+    const interval = setInterval(() => {
+      setCurrentImage((prevIndex) => (prevIndex + 1) % images.length);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [images.length]);
 
   return (
     <main className="bg-green-600 text-white relative overflow-hidden">
-      <NavbarHome />
-      {/* Header Section */}
-      <header
-        className="relative flex flex-col items-center justify-center min-h-screen text-center"
-        data-aos="fade-in"
-      >
+      {role === "ADMIN" ? <NavbarAdmin /> : <NavbarHome />}
+
+      <header className="relative flex flex-col items-center justify-center min-h-screen text-center" data-aos="fade-in">
         <div className="absolute top-0 left-0 w-full h-full">
-          <video
-            className="w-full h-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-            src="/video.mp4"
-          ></video>
-        </div>
-
-        {/* Overlay for the Header */}
-        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-
-        {/* Header Content */}
-        <div
-          className="relative z-10 flex flex-col items-center justify-center p-4"
-          data-aos="zoom-in"
-        >
-          <h1 className="text-4xl md:text-6xl font-bold">FutboLink</h1>
-          <p className="mt-4 text-lg md:text-2xl">
-            Encuentra oportunidades en el mundo del fútbol.
-          </p>
-
-          {/* Slogan */}
-          <p className="mt-2 text-xl italic">
-            Conectamos talento con oportunidades
-          </p>
-
-          {/* Buttons */}
-          <div
-            className="mt-6 flex gap-4"
-            data-aos="fade-up"
-            data-aos-delay="300"
-          >
-            <button className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-300">
-              Publicar Ofertas
-            </button>
-            <button className="bg-yellow-500 text-black px-6 py-3 rounded-lg hover:bg-yellow-600 transition duration-300">
-              Vacantes Laborales
-            </button>
+          <div className="relative w-full h-full overflow-hidden">
+            <div className="h-full">
+              {images.map((image, index) => (
+                <div
+                  key={index}
+                  className={`absolute top-0 left-0 w-full h-full transition-opacity duration-1000 ${
+                    index === currentImage ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  <Image
+                    src={image.src}
+                    width={1920}
+                    height={1080}
+                    alt={`Imagen ${index + 1}`}
+                    className="w-full h-full object-cover hover:cursor-pointer"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                    <Link
+                      href={image.link}
+                      className="text-white text-2xl font-bold bg-green-700 px-4 py-2 rounded-lg hover:bg-green-800 transition duration-300"
+                    >
+                      {image.text}
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </header>

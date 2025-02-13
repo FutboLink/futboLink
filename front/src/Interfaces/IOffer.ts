@@ -15,6 +15,9 @@ export interface IOffer {
   salary: string;
 }
 
+
+
+
 export interface IOfferCard {
   id: number;
   title: string;
@@ -22,4 +25,32 @@ export interface IOfferCard {
   country: string;
   flagCode: string;
   salary?: string;
+}
+
+
+export interface IOfferCard {
+  title: string;
+  description: string;
+  location: string;
+  salary?: string;
+  createdAt: string;
+  status: string;
+  offerType: string;
+  position: string;
+  competencies: string[];
+  countries: string[];
+  imgUrl: string;
+  type: string;
+  recruiter: {
+    id: string;
+    role: "RECRUITER" | "AGENCY"; // roles posibles para el reclutador
+  };
+
+}
+
+
+export interface IApplication {
+  message: string;
+  userId:string;
+  jobId: string;
 }

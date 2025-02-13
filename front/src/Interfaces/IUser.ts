@@ -8,6 +8,7 @@ export interface ILoginResponse {
   }
 
   export interface IProfileData {
+    id?:string;
       name: string;
       lastname: string;
       nameAgency: string;

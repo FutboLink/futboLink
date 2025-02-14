@@ -82,7 +82,7 @@ function NavbarRoles() {
                 Cursos y Formación
               </li>
               <li
-                onClick={() => navigateTo("/NoticesApp")}
+                onClick={() => navigateTo("/Notices")}
                 className="px-4 py-2 hover:bg-green-600 hover:text-white rounded-md transition-all cursor-pointer"
                 aria-label="Noticias relacionadas con futbol"
               >
@@ -193,7 +193,7 @@ function NavbarRoles() {
                 Cursos y Formación
               </li>
               <li
-                onClick={() => navigateTo("/NoticesApp")}
+                onClick={() => navigateTo("/Notices")}
                 className="px-4 py-2 hover:bg-green-600 hover:text-white rounded-md transition-all cursor-pointer"
               >
                 Noticias

@@ -21,15 +21,15 @@ function About() {
         </div>
 
         {/* Descripción de la empresa */}
-        <div className="text-lg text-gray-700 space-y-4 mt-6">
-          <p>
+        <div className="text-lg text-gray-700 space-y-4 mt-6 lg:mt-0">
+          <p className="text-base sm:text-lg">
             En Futbol Career, nos dedicamos a conectar jugadores, agentes, y
             clubes de futbol con oportunidades únicas para crecer y
             desarrollarse en el mundo del futbol. Nuestra plataforma ofrece
             ofertas de empleo, cursos de formación y todo lo necesario para
             llevar tu carrera al siguiente nivel.
           </p>
-          <p>
+          <p className="text-base sm:text-lg">
             Nuestro equipo está formado por profesionales apasionados por el
             futbol, comprometidos con brindar a nuestros usuarios las mejores
             herramientas para alcanzar el éxito en su carrera deportiva.

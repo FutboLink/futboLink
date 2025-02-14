@@ -28,7 +28,7 @@ const CardNews: React.FC<{ article: NewsArticle }> = ({ article }) => {
           {article.title}
         </h3>
         <Link
-          href={`/NoticesApp/${article.id}`}
+          href={`/Notices/${article.id}`}
           className="text-green-600 hover:text-green-700 font-semibold text-sm"
         >
           Leer más

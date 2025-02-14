@@ -15,28 +15,30 @@ function Subs() {
       AOS.init();
     }
   }, []);
-  
 
   return (
     <section className="bg-gray-100 py-16 px-6">
       {/* Introducción */}
       <div
-        className="text-center mb-12 bg-gradient-to-b from-green-500 to-green-700 text-white py-16 px-6"
+        className="text-center mb-12 sm:mb-16 bg-gradient-to-b from-green-500 to-green-700 text-white py-16 px-6"
         data-aos="fade-up"
         data-aos-duration="1000"
       >
-        <h1 className="text-5xl font-bold mb-4">Descubre tu Mejor Oportunidad</h1>
+        <h1 className="text-5xl font-bold mb-8 sm:mb-12">
+          Descubre tu Mejor Oportunidad
+        </h1>
         <p className="text-lg">
-          Con nuestros planes de suscripción, accede a ofertas exclusivas y herramientas profesionales para tu carrera.
+          Con nuestros planes de suscripción, accede a ofertas exclusivas y
+          herramientas profesionales para tu carrera.
         </p>
       </div>
 
       {/* Tarjetas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1  sm:grid-cols-2 lg:grid-cols-3 gap-24">
         {subscriptionOptions.map((option, index) => (
           <div
             key={index}
-            className="card-container relative w-full h-80 mx-auto"
+            className="card-container relative w-full h-auto min-h-[350px] mx-auto"
             data-aos="fade-up"
             data-aos-duration="1000"
           >
@@ -50,7 +52,9 @@ function Subs() {
                     : "bg-green-100 text-green-800"
                 }`}
               >
-                <h3 className="text-3xl font-semibold mb-4 text-gray-800">{option.title}</h3>
+                <h3 className="text-3xl font-semibold mb-4 text-gray-800">
+                  {option.title}
+                </h3>
                 <p className="text-lg text-gray-600 mb-6">{option.subtitle}</p>
                 <p className="text-2xl font-bold bg-green-500 rounded-xl text-white px-4 py-2">
                   {option.price}
@@ -84,9 +88,11 @@ function Subs() {
           </div>
         ))}
       </div>
+
       <div className="mt-20">
         <Line />
       </div>
+
       <FaqSection />
     </section>
   );

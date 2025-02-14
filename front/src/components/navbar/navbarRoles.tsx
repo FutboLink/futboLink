@@ -116,7 +116,7 @@ function NavbarRoles() {
   {isLogged ? (
     role === "PLAYER" ? (
       <button onClick={() => navigateTo("/PanelUsers/Player")}>
-        <FaUser className="text-green-500" />
+        <FaUser className="text-green-700" />
       </button>
     ) : role === "AGENCY" ? (
       <button onClick={() => navigateTo("/PanelUsers/Agency")}>

@@ -103,10 +103,9 @@ const RegistrationForm: React.FC = () => {
     setUserRegister(updatedUser);
     setErrors(validationRegister(updatedUser));
   };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+  
     // Verificar si las contraseñas coinciden
     if (userRegister.password !== userRegister.confirmPassword) {
       setErrors((prevErrors) => ({
@@ -115,7 +114,7 @@ const RegistrationForm: React.FC = () => {
       }));
       return;
     }
-
+  
     // Verificar si se aceptaron los términos
     if (!userRegister.termsAccepted) {
       setErrorMessage("Debe aceptar los términos y condiciones.");
@@ -123,9 +122,11 @@ const RegistrationForm: React.FC = () => {
       setTimeout(() => setShowErrorNotification(false), 3000);
       return;
     }
+  
+    // Sobrescribir role con "PLAYER" antes de enviar
+    const user: IRegisterUser = { ...userRegister, role: UserType.PLAYER };
 
-    const user: IRegisterUser = { ...userRegister };
-
+  
     try {
       const isRegistered = await signUp(user);
       if (isRegistered) {
@@ -146,6 +147,7 @@ const RegistrationForm: React.FC = () => {
       setTimeout(() => setShowErrorNotification(false), 3000);
     }
   };
+  
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 mt-16 py-10">
@@ -163,23 +165,24 @@ const RegistrationForm: React.FC = () => {
         onSubmit={handleSubmit}
       >
         {/* Rol */}
-        <div className="mb-4">
-          <label className="block text-gray-700 mb-2">Rol:</label>
-          <select
-            name="role"
-            value={userRegister.role}
-            onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          >
-            <option className="text-gray-700" value="">Seleccione su rol</option>
-            {roles.map((role, index) => (
-              <option key={index} value={role}>
-                {role}
-              </option>
-            ))}
-          </select>
-        </div>
+     {/* Rol */}
+<div className="mb-4">
+  <label className="block text-gray-700 mb-2">Rol:</label>
+  <select
+    name="role"
+    value={userRegister.role}
+    onChange={handleChange}
+    className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  >
+    <option className="text-gray-700" value="">Seleccione su rol</option>
+    {roles.map((role, index) => (
+      <option key={index} value={role}>
+        {role}
+      </option>
+    ))}
+  </select>
+</div>
+
   
         {/* Nombre */}
         <div className="mb-4">

@@ -1,9 +1,10 @@
-import PlayerForm from "@/components/OptionUsersForms/PlayerForm/PlayerForm";
+import RegistrationForm from "@/components/Forms/FormUser/FormRegister";
+
 
 function Page() {
   return (
     <div>
-      <PlayerForm />
+      <RegistrationForm />
     </div>
   );
 }

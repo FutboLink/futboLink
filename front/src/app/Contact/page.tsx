@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import logo from "../../../public/logoP1.png";
 import Head from "next/head";
 import AOS from "aos"; // Importamos AOS
@@ -10,15 +8,16 @@ import "aos/dist/aos.css"; // Importamos los estilos de AOS
 import React from "react";
 
 function Page() {
-  const router = useRouter();
 
-  const navigateTo = (path: string) => {
-    router.push(path);
-  };
+ 
 
   React.useEffect(() => {
-    AOS.init(); // Inicializamos AOS cuando el componente se monte
+    if (typeof window !== "undefined") {
+      AOS.init();
+    }
   }, []);
+  
+  
 
   return (
     <div className="mt-24">

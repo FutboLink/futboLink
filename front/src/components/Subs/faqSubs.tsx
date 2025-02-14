@@ -1,14 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Image from "next/image";
 
-AOS.init();
-
 function FaqSection() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      AOS.init();
+    }
+  }, []);
+  
 
   const toggleAnswer = (index: number) => {
     setActiveIndex(activeIndex === index ? null : index);
@@ -50,12 +55,7 @@ function FaqSection() {
           </h2>
           <div className="space-y-6">
             {faqs.map((faq, index) => (
-              <div
-                key={index}
-                className="faq-item"
-                data-aos="fade-up"
-                data-aos-duration="800"
-              >
+              <div key={index} className="faq-item" data-aos="fade-up" data-aos-duration="800">
                 <button
                   onClick={() => toggleAnswer(index)}
                   className="w-full text-left text-xl font-semibold text-gray-800 bg-gray-200 p-4 rounded-lg focus:outline-none hover:bg-gray-300"

@@ -4,7 +4,6 @@ import React, { useContext, useEffect, useState } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { UserContext } from "@/components/Context/UserContext";
-import CardOffer from "@/components/OfferComponents/Offer";
 import About from "@/components/AboutUs/about";
 import Notices from "@/components/Notices/notices";
 import Subs from "@/components/Subs/subs";
@@ -71,10 +70,7 @@ const Home = () => {
         </div>
       </header>
 
-      {/* Card Offer Section */}
-      <section data-aos="fade-up">
-        <CardOffer />
-      </section>
+
 
       {/* Notices Section */}
       <section data-aos="fade-right" data-aos-delay="200">

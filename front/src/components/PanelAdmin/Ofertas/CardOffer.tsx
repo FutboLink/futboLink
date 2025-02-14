@@ -6,7 +6,7 @@ import Link from "next/link";
 
 const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
   return (
-    <div className="bg-white  border hover:cursor-pointer border-gray-300 rounded-lg shadow-lg overflow-hidden transform transition-all duration-300  hover:shadow-xl">
+    <div className="bg-white border hover:cursor-pointer border-gray-300 rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl flex flex-col h-full">
       {/* Imagen de la oferta */}
       <Image
         width={50}
@@ -15,7 +15,7 @@ const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
         alt={offer.title}
         className="w-full h-40 object-cover"
       />
-      <div className="p-6 flex flex-col gap-4">
+      <div className="flex flex-col p-6 gap-4 flex-grow">
         {/* Países y ubicación */}
         <div className="flex items-center gap-2">
           {/* Iterar sobre los países */}
@@ -26,13 +26,14 @@ const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
               svg
               style={{ width: "24px", height: "18px" }}
               title={country}
-            /> 
+            />
           ))}
         </div>
+
         <div className="flex items-center gap-2">
-  <p className="text-gray-800 text-sm font-medium">Ubicación del puesto:</p>
-  <span className="text-gray-700 text-sm font-medium"> {offer.location}</span>
-</div>
+          <p className="text-gray-800 text-sm font-medium">Ubicación del puesto:</p>
+          <span className="text-gray-700 text-sm font-medium">{offer.location}</span>
+        </div>
 
         {/* Título y descripción */}
         <h3 className="text-xl font-semibold text-gray-800">{offer.title}</h3>
@@ -50,15 +51,17 @@ const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
           ))}
         </div>
 
-        {/* Salario y acciones */}
+        {/* Salario */}
         <div className="mt-4">
           <p className="text-gray-800 text-sm font-semibold">
             Salario:{" "}
             <span className="text-green-600">${offer.salary}</span>
           </p>
         </div>
-        </div>
-      <div className="flex gap-7 p-3 text-center">
+      </div>
+
+      {/* Acciones y botones */}
+      <div className="flex gap-7 p-3 text-center justify-between mt-auto">
         <Link
           href={`/jobs/${offer.id}`}
           className="text-white bg-green-700 rounded p-2 hover:text-green-700 hover:bg-white hover:border-2 hover:border-green-700 font-semibold self-start"
@@ -66,7 +69,7 @@ const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
           Ver más
         </Link>
         <Link
-         href={`/jobs/${offer.id}`}
+          href={`/jobs/${offer.id}`}
           className="text-white bg-green-700 rounded p-2 hover:text-green-700 hover:bg-white hover:border-2 hover:border-green-700 font-semibold self-start"
         >
           Aplicar a esta oferta

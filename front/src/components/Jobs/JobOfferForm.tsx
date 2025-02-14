@@ -21,6 +21,7 @@ const JobOfferForm = () => {
   const { token } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null); // Para el mensaje de éxito
 
   const isValidImageUrl = (url: string) => {
     const imageRegex = /\.(jpeg|jpg|gif|png|webp|svg)$/i;
@@ -52,6 +53,7 @@ const JobOfferForm = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccessMessage(null); // Limpiar mensaje de éxito previo
 
     // Validación de la URL de la imagen
     if (!isValidImageUrl(formData.imgUrl)) {
@@ -66,27 +68,30 @@ const JobOfferForm = () => {
       return;
     }
 
-    try {
-      const response = await fetchCreateOffer(formData, token);
-      console.log("Oferta creada:", response);
-      alert("Oferta creada exitosamente");
-      setFormData({
-        title: "",
-        description: "",
-        location: "",
-        salary: 0,
-        offerType: "",
-        position: "",
-        competencies: [],
-        countries: [],
-        imgUrl: "/cursosYformaciones.jpg", // Restablecer la imagen predeterminada
-        type: "",
-      });
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
-    } finally {
-      setLoading(false);
-    }
+    // Establecer un timeout de 2 segundos (simulando un proceso de validación)
+    setTimeout(async () => {
+      try {
+        const response = await fetchCreateOffer(formData, token);
+        console.log("Oferta creada:", response);
+        setSuccessMessage("¡Oferta creada exitosamente!"); // Mensaje de éxito
+        setFormData({
+          title: "",
+          description: "",
+          location: "",
+          salary: 0,
+          offerType: "",
+          position: "",
+          competencies: [],
+          countries: [],
+          imgUrl: "/cursosYformaciones.jpg", // Restablecer la imagen predeterminada
+          type: "",
+        });
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "Error desconocido");
+      } finally {
+        setLoading(false);
+      }
+    }, 2000); // Simula una espera de 2 segundos antes de enviar
   };
 
   return (
@@ -175,8 +180,9 @@ const JobOfferForm = () => {
           </button>
         </div>
 
-        {/* Error */}
+        {/* Mensajes de notificación */}
         {error && <p className="col-span-1 md:col-span-2 lg:col-span-3 text-red-500 mt-2">{error}</p>}
+        {successMessage && <p className="col-span-1 md:col-span-2 lg:col-span-3 text-green-700 mt-2">{successMessage}</p>}
       </form>
     </div>
   );

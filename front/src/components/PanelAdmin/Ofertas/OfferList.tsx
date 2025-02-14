@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import CardOffer from "./CardOffer";
 import { IOfferCard } from "@/Interfaces/IOffer";
 import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
+import { mockOffers } from "./mockOfferts";
 
 const OfferList: React.FC = () => {
   const [offers, setOffers] = useState<IOfferCard[]>([]);
@@ -43,9 +44,8 @@ const OfferList: React.FC = () => {
   }
 
   return (
-    <div className="mt-24">
-      <h1 className="text-green-700 text-lg mb-4">Aqui puedes encontrar todas las ofertas publicadas y filtrarlas</h1>
-      {/* Input de búsqueda */}
+    <div className="mt-24 p-12">
+        {/* Input de búsqueda */}
       <div className="flex justify-center items-center ">
   <div className="mb-6 w-3/6 p-4">
     <input
@@ -61,7 +61,7 @@ const OfferList: React.FC = () => {
 
       {/* Filtro de salario */}
       <div className="mb-6 p-4">
-        <label className="block text-gray-700 mb-2 ">Filtrar por salario mínimo: ${selectedSalary}</label>
+        <label className="block text-green-700 mb-2 ">Filtrar por salario mínimo: ${selectedSalary}</label>
         <input
           type="range"
           min={200} // Salario mínimo
@@ -73,13 +73,16 @@ const OfferList: React.FC = () => {
       </div>
 
       {/* Lista de ofertas */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6  p-20">
-        {filteredOffers.length > 0 ? (
-          filteredOffers.map((offer) => <CardOffer key={offer.id} offer={offer} />)
-        ) : (
-          <p className="text-center text-gray-600">No hay ofertas disponibles.</p>
-        )}
-      </div>
+   
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 p-20">
+  {filteredOffers.length > 0
+    ? filteredOffers.map((offer) => <CardOffer key={offer.id} offer={offer} />)
+    : mockOffers.map((offer, index) => (
+        <CardOffer key={index} offer={offer} />
+      ))}
+</div>
+
+
     </div>
   );
 };

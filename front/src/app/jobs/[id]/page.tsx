@@ -65,7 +65,7 @@ const JobDetail: React.FC = () => {
       <div className="p-6 text-center mt-24">
         <h1 className="text-2xl font-bold text-red-600">Oferta no encontrada</h1>
         <p className="mt-2">Lo sentimos, no pudimos encontrar la oferta que buscabas.</p>
-        <Link href="/Offer">
+        <Link href="/jobs">
           <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700">
             Volver
           </button>
@@ -126,7 +126,7 @@ const JobDetail: React.FC = () => {
           Aplicar a esta oferta
         </button>
 
-        <Link href="/Offer">
+        <Link href="/jobs">
           <button className="w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
             Volver
           </button>

@@ -1,17 +1,21 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Subscription } from "../../helpers/helpersSubs";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import FaqSection from "./faqSubs";
 import Line from "../HorizontalDiv/line";
 
-// Inicializar AOS
-AOS.init();
-
 function Subs() {
   const subscriptionOptions = Subscription();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      AOS.init();
+    }
+  }, []);
+  
 
   return (
     <section className="bg-gray-100 py-16 px-6">
@@ -21,12 +25,9 @@ function Subs() {
         data-aos="fade-up"
         data-aos-duration="1000"
       >
-        <h1 className="text-5xl font-bold mb-4">
-          Descubre tu Mejor Oportunidad
-        </h1>
+        <h1 className="text-5xl font-bold mb-4">Descubre tu Mejor Oportunidad</h1>
         <p className="text-lg">
-          Con nuestros planes de suscripción, accede a ofertas exclusivas y
-          herramientas profesionales para tu carrera.
+          Con nuestros planes de suscripción, accede a ofertas exclusivas y herramientas profesionales para tu carrera.
         </p>
       </div>
 
@@ -39,9 +40,7 @@ function Subs() {
             data-aos="fade-up"
             data-aos-duration="1000"
           >
-            {/* Contenedor de la tarjeta */}
             <div className="card relative w-full h-full rotate-0 transition-transform duration-500 transform-style-preserve-3d hover:rotate-y-180">
-              {/* Cara frontal */}
               <div
                 className={`card-front p-6 flex flex-col items-center justify-center text-center border border-gray-300 rounded-lg shadow-lg ${
                   option.title === "GRATIS"
@@ -51,16 +50,13 @@ function Subs() {
                     : "bg-green-100 text-green-800"
                 }`}
               >
-                <h3 className="text-3xl font-semibold mb-4 text-gray-800">
-                  {option.title}
-                </h3>
+                <h3 className="text-3xl font-semibold mb-4 text-gray-800">{option.title}</h3>
                 <p className="text-lg text-gray-600 mb-6">{option.subtitle}</p>
                 <p className="text-2xl font-bold bg-green-500 rounded-xl text-white px-4 py-2">
                   {option.price}
                 </p>
               </div>
 
-              {/* Cara trasera */}
               <div className="card-back bg-gradient-to-br from-green-600 to-green-400 text-white p-8 flex flex-col items-center justify-center text-center rounded-lg shadow-lg">
                 <h4 className="text-2xl font-bold mb-6">Incluye:</h4>
                 <ul className="space-y-3 text-lg">
@@ -80,8 +76,6 @@ function Subs() {
                 </ul>
               </div>
             </div>
-
-            {/* Botón Contratar */}
             <div className="flex justify-center mt-6">
               <button className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-all duration-300">
                 Contratar

@@ -19,20 +19,12 @@ export interface IOffer {
 
 
 export interface IOfferCard {
-  id: number;
+  id?: number;
   title: string;
   description: string;
-  country: string;
-  flagCode: string;
+  flagCode?: string;
   salary?: string;
-}
-
-
-export interface IOfferCard {
-  title: string;
-  description: string;
   location: string;
-  salary?: string;
   createdAt: string;
   status: string;
   offerType: string;

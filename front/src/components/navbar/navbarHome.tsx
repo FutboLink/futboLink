@@ -251,6 +251,10 @@ function NavbarHome() {
       <button onClick={() => navigateTo("/PanelUsers/Manager")}>
         <FaUser className="text-green-500" />
       </button>
+    ) : role === "ADMIN" ? (
+      <button onClick={() => navigateTo("/PanelAdmin")}>
+        <FaUser className="text-green-500" />
+      </button>
     ) 
     : null
   ) : (

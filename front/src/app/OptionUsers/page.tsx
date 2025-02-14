@@ -7,7 +7,10 @@ const RegistrationCards = () => {
     <div className="min-h-screen mt-28 text-black flex items-center justify-center bg-gray-100 py-10">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
         {/* Card Jugador */}
+
         <Link href="/OptionUsers/Player">
+
+
           <div className="bg-white p-6 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition duration-300 h-[380px] flex flex-col items-center">
             <Image
               src={foto} // Cambia esta URL por la imagen adecuada

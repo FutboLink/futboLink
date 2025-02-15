@@ -115,7 +115,7 @@ const PanelManager = () => {
                 onClick={() => handleSectionChange("createOffers")}
                 className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
               >
-                <span className="text-lg">⚡</span>
+                <span className="text-lg">📝</span>
                 <span>Crear Oferta</span>
               </button>
             </li>

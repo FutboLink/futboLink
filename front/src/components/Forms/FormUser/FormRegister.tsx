@@ -161,12 +161,11 @@ const RegistrationForm: React.FC = () => {
       </div>
   
       <form
-        className="bg-white p-8 rounded-lg shadow-lg w-full max-w-3xl grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 gap-6"
-        onSubmit={handleSubmit}
-      >
-        {/* Rol */}
-     {/* Rol */}
-<div className="mb-4">
+  className="bg-white p-8 rounded-lg shadow-lg w-full max-w-3xl grid grid-cols-1 md:grid-cols-3 gap-6"
+  onSubmit={handleSubmit}
+>
+  {/* Rol */}
+  <div className="col-span-1 mb-4">
   <label className="block text-gray-700 mb-2">Rol:</label>
   <select
     name="role"
@@ -185,7 +184,7 @@ const RegistrationForm: React.FC = () => {
 
   
         {/* Nombre */}
-        <div className="mb-4">
+        <div className="col-span-1 mb-4">
           <label className="block text-gray-700 mb-2">Nombre
             <span className="text-red-500">*</span>
           </label>
@@ -201,7 +200,7 @@ const RegistrationForm: React.FC = () => {
         </div>
   
         {/* Apellidos */}
-        <div className="mb-4">
+        <div className="col-span-1 mb-4">
           <label className="block text-gray-700 mb-2">Apellidos
             <span className="text-red-500">*</span>
           </label>
@@ -217,7 +216,7 @@ const RegistrationForm: React.FC = () => {
         </div>
   
         {/* Email */}
-        <div className="mb-4">
+        <div className="col-span-1 mb-4">
           <label className="block text-gray-700 mb-2">Email
             <span className="text-red-500">*</span>
           </label>
@@ -233,7 +232,7 @@ const RegistrationForm: React.FC = () => {
         </div>
   
         {/* Nacionalidad */}
-        <div className="mb-4 relative">
+        <div className="col-span-1 mb-4 relative">
           <label htmlFor="nationalitySearch" className="block text-gray-700 mb-2">Buscar Nacionalidad</label>
           <input
             type="text"
@@ -246,7 +245,7 @@ const RegistrationForm: React.FC = () => {
         </div>
   
         {/* Nacionalidad seleccionada */}
-        <div className="mb-4 relative">
+        <div className="col-span-1 relative mb-4">
           <label htmlFor="nationality" className="block text-gray-700 mb-2">Nacionalidad seleccionada
             <span className="text-red-500">*</span>
           </label>
@@ -282,7 +281,7 @@ const RegistrationForm: React.FC = () => {
         )}
   
         {/* Género */}
-        <div className="mb-4">
+        <div className="col-span-1 mb-4">
           <label className="block text-gray-700 mb-2 hover:cursor-pointer">Género
             <span className="text-red-500">*</span>
           </label>
@@ -302,7 +301,7 @@ const RegistrationForm: React.FC = () => {
         </div>
   
         {/* Contraseña */}
-        <div className="mb-4">
+        <div className="col-span-1 mb-4">
           <label className="block text-gray-700 mb-2">Contraseña
             <span className="text-red-500">*</span>
           </label>
@@ -318,7 +317,7 @@ const RegistrationForm: React.FC = () => {
         </div>
   
         {/* Confirmar Contraseña */}
-        <div className="mb-4">
+        <div className="col-span-1 mb-4">
           <label className="block text-gray-700 mb-2">Confirmar Contraseña
             <span className="text-red-500">*</span>
           </label>

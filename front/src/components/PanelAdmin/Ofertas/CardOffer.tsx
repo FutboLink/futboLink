@@ -1,35 +1,26 @@
 import React from "react";
-import CountryFlag from "react-country-flag";
 import { IOfferCard } from "@/Interfaces/IOffer";
 import Image from "next/image";
 import Link from "next/link";
 
 const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
+  console.log(offer.imgUrl); // Verifica el valor aquí
+
   return (
     <div className="bg-white border hover:cursor-pointer border-gray-300 rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl flex flex-col h-full">
       {/* Imagen de la oferta */}
       <Image
-        width={50}
-        height={50}
-        src={offer.imgUrl || "/default-image.jpg"}
-        alt={offer.title}
-        className="w-full h-40 object-cover"
-      />
-      <div className="flex flex-col p-6 gap-4 flex-grow">
-        {/* Países y ubicación */}
-        <div className="flex items-center gap-2">
-          {/* Iterar sobre los países */}
-          {offer.countries && offer.countries.map((country, index) => (
-            <CountryFlag
-              key={index}
-              countryCode={country.slice(0, 2).toUpperCase() || "ES"} // Usar los primeros 2 caracteres del nombre del país
-              svg
-              style={{ width: "24px", height: "18px" }}
-              title={country}
-            />
-          ))}
-        </div>
+  width={500}
+  height={500}
+  src={offer.imgUrl || "/cursosYFormaciones.JPG"}
+  alt={offer.title}
+  className="w-full aspect-w-16 aspect-h-9 object-cover rounded-lg shadow-md"
+/>
 
+
+
+      <div className="flex flex-col p-6 gap-4 flex-grow">
+        {/* Ubicación */}
         <div className="flex items-center gap-2">
           <p className="text-gray-800 text-sm font-medium">Ubicación del puesto:</p>
           <span className="text-gray-700 text-sm font-medium">{offer.location}</span>

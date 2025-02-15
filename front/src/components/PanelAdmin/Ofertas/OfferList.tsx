@@ -10,7 +10,7 @@ const OfferList: React.FC = () => {
   const [filteredOffers, setFilteredOffers] = useState<IOfferCard[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [selectedSalary, setSelectedSalary] = useState<number>(50000); // Valor inicial del filtro
+  const [selectedSalary, setSelectedSalary] = useState<number>(500); // Valor inicial del filtro
 
   useEffect(() => {
     const fetchOffers = async () => {

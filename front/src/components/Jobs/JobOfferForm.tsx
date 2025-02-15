@@ -2,7 +2,7 @@ import { ICreateJobOffer } from "@/Interfaces/IOffer";
 import { useContext, useState } from "react";
 import { fetchCreateOffer } from "../Fetchs/OfertasFetch/OfertasFetchs";
 import { UserContext } from "../Context/UserContext";
-import Image from "next/image"; // Importamos el componente de Image
+import ImageUpload from "../Cloudinary/ImageUpload";
 
 const JobOfferForm = () => {
   const [formData, setFormData] = useState<ICreateJobOffer>({
@@ -14,7 +14,7 @@ const JobOfferForm = () => {
     position: "",
     competencies: [],
     countries: [],
-    imgUrl: "/cursosYformaciones.jpg", // Imagen predeterminada
+    imgUrl: "", 
     type: "",
   });
 
@@ -32,6 +32,16 @@ const JobOfferForm = () => {
       return false;
     }
   };
+
+
+  const handleImageUpload = (url: string) => {
+  
+    setFormData((prev) => ({
+      ...prev,
+      imgUrl: url, 
+    }));
+  };
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -83,7 +93,7 @@ const JobOfferForm = () => {
           position: "",
           competencies: [],
           countries: [],
-          imgUrl: "/cursosYformaciones.jpg", // Restablecer la imagen predeterminada
+          imgUrl: "", 
           type: "",
         });
       } catch (err: unknown) {
@@ -132,20 +142,13 @@ const JobOfferForm = () => {
           </div>
         ))}
 
-        {/* Mostrar la imagen usando next/image */}
-        <div className="col-span-1 md:col-span-2 lg:col-span-3">
-          <label className="block font-medium mb-1">Vista previa de la Imagen</label>
-          <div className="relative w-full h-48">
-            <Image
-              src={formData.imgUrl}
-              alt="Vista previa de la imagen"
-              layout="fill"
-              objectFit="cover"
-              className="rounded-md"
-            />
-          </div>
-        </div>
+        {/* Campo para cargar imagen */}
+      <div className="col-span-1 md:col-span-2 lg:col-span-3">
+        <label className="block font-medium mb-1">Cargar Imagen</label>
+        <ImageUpload onUpload={handleImageUpload} />
+      </div>
 
+    
         {/* Competencias y Países */}
         <div className="col-span-1 md:col-span-2 lg:col-span-3">
           <label className="block font-medium mb-1">Competencias (separadas por coma)</label>

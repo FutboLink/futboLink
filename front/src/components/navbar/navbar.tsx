@@ -7,7 +7,9 @@ import NavbarRoles from "./navbarRoles";
 
 function Navbar() {
   const { role } = useContext(UserContext);
-
+  if (role === null) {
+    return <div>Loading...</div>; // O un loader, spinner, etc.
+  }
   console.log("Navbar - Role:", role); 
 
   if (!role) {

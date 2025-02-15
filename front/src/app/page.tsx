@@ -7,10 +7,10 @@ import { UserContext } from "@/components/Context/UserContext";
 import About from "@/components/AboutUs/about";
 import Notices from "@/components/Notices/notices";
 import Subs from "@/components/Subs/subs";
-import NavbarHome from "@/components/navbar/navbarHome";
 import NavbarAdmin from "@/components/navbar/navbarAdmin";
 import Link from "next/link";
 import Image from "next/image";
+import NavbarRoles from "@/components/navbar/navbarRoles";
 
 const Home = () => {
   const { role } = useContext(UserContext);
@@ -47,7 +47,7 @@ const Home = () => {
 
   return (
     <main className="bg-green-600 text-white relative overflow-hidden">
-      {role === "ADMIN" ? <NavbarAdmin /> : <NavbarHome />}
+      {role === "ADMIN" ? <NavbarAdmin /> : <NavbarRoles />}
       <header
         className="relative flex flex-col items-center justify-center min-h-screen text-center"
         data-aos="fade-in"

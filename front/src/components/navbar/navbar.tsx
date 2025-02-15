@@ -8,11 +8,13 @@ import NavbarRoles from "./navbarRoles";
 function Navbar() {
   const { role } = useContext(UserContext);
 
-  if (role === "ADMIN") {
-    return <NavbarAdmin />;
+  console.log("Navbar - Role:", role); 
+
+  if (!role) {
+    return <NavbarRoles />; 
   }
 
-  return <NavbarRoles />;
+  return role === "ADMIN" ? <NavbarAdmin /> : <NavbarRoles />;
 }
 
 export default Navbar;

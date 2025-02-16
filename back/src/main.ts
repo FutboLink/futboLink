@@ -7,7 +7,8 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      'https://futbolcareer-52favj1to-arcadias-projects-616f0f4b.vercel.app'
+      //'https://futbolcareer-52favj1to-arcadias-projects-616f0f4b.vercel.app'
+      '*'
     ],
     methods: 'GET,POST,PUT,DELETE',
     credentials: true,

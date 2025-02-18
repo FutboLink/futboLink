@@ -1,13 +1,16 @@
+"use client"
 import { IProfileData } from "@/Interfaces/IUser";
 import React from "react";
-
+import DeleteUser from "./DeleteUser"; // Componente para manejar la eliminación
 
 interface UserCardProps {
-    user:IProfileData
-
+  user: IProfileData;
+  onDelete: (id: string) => void; // Nueva prop para pasar la función de eliminar
 }
-const UserCard: React.FC<UserCardProps> = ({ user }) => {
+
+const UserCard: React.FC<UserCardProps> = ({ user, onDelete }) => {
   const {
+    id, // ID del usuario
     name,
     lastname,
     role,
@@ -49,6 +52,11 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
       <p className="text-gray-700">
         <span className="font-semibold">Birthday:</span> {new Date(birthday).toLocaleDateString()}
       </p>
+
+      {/* Botón para eliminar usuario */}
+      <div className="mt-4">
+        <DeleteUser userId={id} onUserDeleted={onDelete} />
+      </div>
     </div>
   );
 };

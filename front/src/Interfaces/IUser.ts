@@ -40,6 +40,7 @@ export interface ILoginResponse {
 
   
 export interface IRegisterUser {
+  
     name: string;
     lastname: string;
     nameAgency?: string;

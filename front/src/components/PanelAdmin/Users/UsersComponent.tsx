@@ -1,4 +1,4 @@
-"use client";
+"use client" 
 import React, { useEffect, useState } from "react";
 import UserCard from "./UserCard";
 import { getUsers } from "@/components/Fetchs/AdminFetchs/AdminUsersFetch";
@@ -7,8 +7,8 @@ import { IProfileData } from "@/Interfaces/IUser";
 const UsersComponent = () => {
   const [users, setUsers] = useState<IProfileData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [roleFilter, setRoleFilter] = useState(""); // Filtro de rol
-  const [searchFilter, setSearchFilter] = useState(""); // Barra de búsqueda por nombre o nacionalidad
+  const [roleFilter, setRoleFilter] = useState("");
+  const [searchFilter, setSearchFilter] = useState("");
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -25,15 +25,16 @@ const UsersComponent = () => {
     fetchUsers();
   }, []);
 
-  // Filtrar usuarios por rol y búsqueda
+  const handleUserDeleted = (deletedId: string) => {
+    setUsers((prevUsers) => prevUsers.filter((user) => user.id !== deletedId));
+  };
+
   const filteredUsers = users.filter((user) => {
     const matchesRole = roleFilter ? user.role === roleFilter : true;
     const matchesSearch =
       searchFilter
-        ? (user.name &&
-            user.name.toLowerCase().includes(searchFilter.toLowerCase())) ||
-          (user.nationality &&
-            user.nationality.toLowerCase().includes(searchFilter.toLowerCase()))
+        ? (user.name && user.name.toLowerCase().includes(searchFilter.toLowerCase())) ||
+          (user.nationality && user.nationality.toLowerCase().includes(searchFilter.toLowerCase()))
         : true;
 
     return matchesRole && matchesSearch;
@@ -42,10 +43,8 @@ const UsersComponent = () => {
   if (isLoading) {
     return <p className="text-center text-green-600 mt-40">Cargando usuarios</p>;
   }
-
   return (
     <div className="container mx-auto mt-28 p-6">
-      {/* Filtros */}
       <div className="mb-6 flex justify-between items-center">
         <div>
           <label className="mr-2 font-bold text-gray-600">Rol:</label>
@@ -74,15 +73,13 @@ const UsersComponent = () => {
         </div>
       </div>
 
-      {/* Mensaje de no encontrado */}
       {filteredUsers.length === 0 && (
         <p className="text-center text-red-500 mt-4">Usuario no encontrado</p>
       )}
 
-      {/* Renderizado de tarjetas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredUsers.map((user) => (
-          <UserCard key={user.id} user={user} />
+          <UserCard key={user.id} user={user} onDelete={handleUserDeleted} />
         ))}
       </div>
     </div>

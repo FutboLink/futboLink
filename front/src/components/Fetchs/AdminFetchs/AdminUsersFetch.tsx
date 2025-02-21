@@ -39,3 +39,29 @@ export const getUsers =  async (): Promise<IProfileData[]> => {
     const data = await response.json();
     return data;
   };
+
+ //Eliminar usuarios
+ export const deleteUser = async (userId: string) => {
+  try {
+    const response = await fetch(`${apiUrl}/user/${userId}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al eliminar usuario");
+    }
+
+    // Si el servidor responde con un cuerpo vacío (content-length: 0)
+    if (response.status === 200 && response.statusText === 'OK') {
+      return { message: "Usuario eliminado con éxito" };  // Mensaje sin cuerpo
+    }
+
+    // Si la respuesta tiene contenido, procesar el JSON
+    return await response.json();
+  } catch (error) {
+    console.error("Error en deleteUser:", error);
+    throw error;
+  }
+};
+
+  

@@ -168,9 +168,9 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
           >
             <option value="">Seleccione su género (opcional)</option>
-            <option value="male">Masculino</option>
-            <option value="female">Femenino</option>
-            <option value="other">Otro</option>
+            <option value="masculino">Masculino</option>
+            <option value="femenino">Femenino</option>
+            <option value="otr@">Otro</option>
           </select>
 
           {/* Fecha de nacimiento */}

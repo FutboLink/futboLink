@@ -113,26 +113,30 @@ function NavbarRoles() {
           </div>
 
           <div id="sectionTwo" className="relative hidden sm:flex">
-  {isLogged ? (
-    role === "PLAYER" ? (
-      <button onClick={() => navigateTo("/PanelUsers/Player")}>
-        <FaUser className="text-green-700" />
-      </button>
-    ) : role === "AGENCY" ? (
-      <button onClick={() => navigateTo("/PanelUsers/Agency")}>
-        <FaUser className="text-green-500" />
-      </button>
-    ) : role === "RECRUITER" ? (
-      <button onClick={() => navigateTo("/PanelUsers/Manager")}>
-        <FaUser className="text-green-500" />
-      </button>
-    ) : role === "ADMIN" ? (
-      <button onClick={() => navigateTo("/PanelAdmin")}>
-        <FaUser className="text-green-500" />
-      </button>
-    ) 
-    : null
+          {isLogged ? (
+    role ? ( // Verifica si `role` tiene un valor antes de renderizar
+      role === "PLAYER" ? (
+        <button onClick={() => navigateTo("/PanelUsers/Player")}>
+          <FaUser className="text-green-700" />
+        </button>
+      ) : role === "AGENCY" ? (
+        <button onClick={() => navigateTo("/PanelUsers/Agency")}>
+          <FaUser className="text-green-500" />
+        </button>
+      ) : role === "RECRUITER" ? (
+        <button onClick={() => navigateTo("/PanelUsers/Manager")}>
+          <FaUser className="text-green-500" />
+        </button>
+      ) : role === "ADMIN" ? (
+        <button onClick={() => navigateTo("/PanelAdmin")}>
+          <FaUser className="text-green-500" />
+        </button>
+      ) : null
+    ) : (
+      <div>Loading...</div> 
+    )
   ) : (
+    
     <>
       <button
         onClick={() => navigateTo("/Login")}
@@ -220,26 +224,30 @@ function NavbarRoles() {
 
             <div className="mt-4">
             {isLogged ? (
-    role === "PLAYER" ? (
-      <button onClick={() => navigateTo("/PanelUsers/Player")}>
-        <FaUser className="text-green-500" />
-      </button>
-    ) : role === "AGENCY" ? (
-      <button onClick={() => navigateTo("/PanelUsers/Agency")}>
-        <FaUser className="text-green-500" />
-      </button>
-    ) : role === "RECRUITER" ? (
-      <button onClick={() => navigateTo("/PanelUsers/Manager")}>
-        <FaUser className="text-green-500" />
-      </button>
-    ) : role === "ADMIN" ? (
-      <button onClick={() => navigateTo("/PanelAdmin")}>
-        <FaUser className="text-green-500" />
-      </button>
-    ) 
-    : null
+    role ? ( // Verifica si `role` tiene un valor antes de renderizar
+      role === "PLAYER" ? (
+        <button onClick={() => navigateTo("/PanelUsers/Player")}>
+          <FaUser className="text-green-700" />
+        </button>
+      ) : role === "AGENCY" ? (
+        <button onClick={() => navigateTo("/PanelUsers/Agency")}>
+          <FaUser className="text-green-500" />
+        </button>
+      ) : role === "RECRUITER" ? (
+        <button onClick={() => navigateTo("/PanelUsers/Manager")}>
+          <FaUser className="text-green-500" />
+        </button>
+      ) : role === "ADMIN" ? (
+        <button onClick={() => navigateTo("/PanelAdmin")}>
+          <FaUser className="text-green-500" />
+        </button>
+      ) : null
+    ) : (
+      <div>Loading...</div> // O algún otro mensaje o indicador de carga
+    )
   ) : (
-            <>
+    <>
+           
               <Link href={"/Login"}>
                 <button
                   onClick={toggleDropdown}

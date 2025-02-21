@@ -8,13 +8,13 @@ import { NotificationsForms } from "@/components/Notifications/NotificationsForm
 import { validationLogin } from "@/components/Validate/ValidationLogin";
 
 function LoginForm() {
-  
   const { signIn } = useContext(UserContext);
   const router = useRouter();
   const [userData, setUserData] = useState({
     email: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false); // Estado para alternar visibilidad
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [errors, setErrors] = useState({} as { [key: string]: string });
@@ -39,7 +39,7 @@ function LoginForm() {
 
       try {
         const success = await signIn(credentials);
-        console.log(success); 
+        console.log(success);
         if (success) {
           setNotificationMessage("Has ingresado correctamente");
           setShowNotification(true);
@@ -50,8 +50,7 @@ function LoginForm() {
           setShowNotification(true);
           setTimeout(() => setShowNotification(false), 3000);
         }
-        
-          } catch {
+      } catch {
         setNotificationMessage("Ocurrió un error, intenta de nuevo");
         setShowNotification(true);
         setTimeout(() => setShowNotification(false), 3000);
@@ -70,45 +69,44 @@ function LoginForm() {
         <form onSubmit={handleSubmit}>
           {/* Campo de correo */}
           <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Correo electrónico
             </label>
             <input
-                type="email"
-                name="email"
-                value={userData.email}
-                onChange={handleChange}
-                placeholder="Email"
+              type="email"
+              name="email"
+              value={userData.email}
+              onChange={handleChange}
+              placeholder="Email"
               className="w-full mt-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
-          {errors.email && (
-          <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-        )}
+            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
           </div>
 
-
           {/* Campo de contraseña */}
-          <div className="mb-6">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
+          <div className="mb-6 relative">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
               Contraseña
             </label>
-            <input
-                type="password"
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
                 name="password"
                 value={userData.password}
                 onChange={handleChange}
-                 placeholder="Contraseña"
-              className="w-full mt-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            />
-          {errors.password && (
-          <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-        )}
+                placeholder="Contraseña"
+                className="w-full mt-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent pr-10"
+              />
+              {/* Botón para mostrar/ocultar contraseña */}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+               
+              </button>
+            </div>
+            {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
           </div>
 
           {/* Botón de iniciar sesión */}
@@ -126,7 +124,7 @@ function LoginForm() {
         </form>
         <p className="mt-4 text-center text-sm text-gray-600">
           ¿No tienes cuenta?{" "}
-          <Link href="/register" className="text-green-600 hover:underline">
+          <Link href="/OptionUsers" className="text-green-600 hover:underline">
             Regístrate aquí
           </Link>
         </p>

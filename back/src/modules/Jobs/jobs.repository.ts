@@ -29,6 +29,7 @@ export class JobRepository {
   async getJobById(id: string): Promise<Job> {
     const job = await this.repository.findOne({
       where: { id },
+      relations: ['recruiter'],
     });
     if (!job) {
       throw new NotFoundException(`Trabajos con el id ${id} no se encontró`);

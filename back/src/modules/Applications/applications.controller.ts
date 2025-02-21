@@ -39,7 +39,7 @@ export class ApplicationsController {
   @Get('/jobs/:id')
   @ApiOperation({ summary: 'Listar aplicaciones de un trabajo' })
   @ApiResponse({ status: 200, description: 'Lista de aplicaciones' })
-  async listApplications(@Param('id', ParseIntPipe) jobId: string) {
+  async listApplications(@Param('id') jobId: string) {
     return this.applicationsService.listApplications(jobId);
   }
 
@@ -47,7 +47,7 @@ export class ApplicationsController {
   @ApiOperation({ summary: 'Actualizar el estado de una aplicación' })
   @ApiResponse({ status: 200, description: 'Estado actualizado exitosamente' })
   async updateStatus(
-    @Param('id', ParseIntPipe) applicationId: string,
+    @Param('id') applicationId: string,
     @Body('status') status: string,
   ) {
     return this.applicationsService.updateStatus(applicationId, status);

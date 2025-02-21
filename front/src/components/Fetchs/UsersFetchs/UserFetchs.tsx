@@ -27,11 +27,12 @@ export const fetchLoginUser = async (credentials: ILoginUser) => {
 };
 
 
-//Formulario de Registro
+// Formulario de Registro
 export const fetchRegisterUser = async (user: IRegisterUser) => {
   console.log("Datos del usuario a enviar:", user);
-
+  console.log("Llamando a la ruta:", `${apiUrl}/user/register`);
   const response = await fetch(`${apiUrl}/user/register`, {
+    
     method: "POST",
     headers: {
       "Content-Type": "application/json",

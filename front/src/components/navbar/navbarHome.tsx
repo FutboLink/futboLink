@@ -116,27 +116,29 @@ function NavbarHome() {
           {/* Sección derecha con los botones de Iniciar sesión y Registrarse (solo en escritorio) */}
           <div id="sectionTwo" className="relative flex sm:ml-auto">
           {isLogged ? (
-    role === "PLAYER" ? (
-      <button onClick={() => navigateTo("/PanelUsers/Player")}>
-        <FaUser className="text-green-700" />
-      </button>
-    ) : role === "AGENCY" ? (
-      <button onClick={() => navigateTo("/PanelUsers/Agency")}>
-        <FaUser className="text-green-700" />
-      </button>
-    ) : role === "RECRUITER" ? (
-      <button onClick={() => navigateTo("/PanelUsers/Manager")}>
-        <FaUser className="text-green-700" />
-      </button>
-    ) 
-    : role === "ADMIN" ? (
-      <button onClick={() => navigateTo("/PanelAdmin")}>
-        <FaUser className="text-green-700" />
-      </button>
-    ) 
-    : null
+    role ? ( // Verifica si `role` tiene un valor antes de renderizar
+      role === "PLAYER" ? (
+        <button onClick={() => navigateTo("/PanelUsers/Player")}>
+          <FaUser className="text-green-700" />
+        </button>
+      ) : role === "AGENCY" ? (
+        <button onClick={() => navigateTo("/PanelUsers/Agency")}>
+          <FaUser className="text-green-500" />
+        </button>
+      ) : role === "RECRUITER" ? (
+        <button onClick={() => navigateTo("/PanelUsers/Manager")}>
+          <FaUser className="text-green-500" />
+        </button>
+      ) : role === "ADMIN" ? (
+        <button onClick={() => navigateTo("/PanelAdmin")}>
+          <FaUser className="text-green-500" />
+        </button>
+      ) : null
+    ) : (
+      <div>Loading...</div> // O algún otro mensaje o indicador de carga
+    )
   ) : (
-            <>
+    <>
             <button
              onClick={() => navigateTo("/Login")}
               className="bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
@@ -239,26 +241,29 @@ function NavbarHome() {
 
             <div className="mt-4">
             {isLogged ? (
-    role === "PLAYER" ? (
-      <button onClick={() => navigateTo("/PanelUsers/Player")}>
-        <FaUser className="text-green-500" />
-      </button>
-    ) : role === "AGENCY" ? (
-      <button onClick={() => navigateTo("/PanelUsers/Agency")}>
-        <FaUser className="text-green-500" />
-      </button>
-    ) : role === "RECRUITER" ? (
-      <button onClick={() => navigateTo("/PanelUsers/Manager")}>
-        <FaUser className="text-green-500" />
-      </button>
-    ) : role === "ADMIN" ? (
-      <button onClick={() => navigateTo("/PanelAdmin")}>
-        <FaUser className="text-green-500" />
-      </button>
-    ) 
-    : null
+    role ? ( // Verifica si `role` tiene un valor antes de renderizar
+      role === "PLAYER" ? (
+        <button onClick={() => navigateTo("/PanelUsers/Player")}>
+          <FaUser className="text-green-700" />
+        </button>
+      ) : role === "AGENCY" ? (
+        <button onClick={() => navigateTo("/PanelUsers/Agency")}>
+          <FaUser className="text-green-500" />
+        </button>
+      ) : role === "RECRUITER" ? (
+        <button onClick={() => navigateTo("/PanelUsers/Manager")}>
+          <FaUser className="text-green-500" />
+        </button>
+      ) : role === "ADMIN" ? (
+        <button onClick={() => navigateTo("/PanelAdmin")}>
+          <FaUser className="text-green-500" />
+        </button>
+      ) : null
+    ) : (
+      <div>Loading...</div> // O algún otro mensaje o indicador de carga
+    )
   ) : (
-            <>
+    <>
               <button
                 onClick={() => navigateTo("/OptionUsers")}
                 className="w-full bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"

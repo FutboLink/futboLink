@@ -96,7 +96,7 @@ const ManagerForm: React.FC = () => {
         setNotificationMessage("Registro exitoso");
         setShowNotification(true);
         setTimeout(async () => {
-          router.push("/profile");
+          router.push("/profi");
         }, 2000);
       } else {
         setErrors({

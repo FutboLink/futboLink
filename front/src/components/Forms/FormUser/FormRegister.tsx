@@ -133,7 +133,7 @@ const RegistrationForm: React.FC = () => {
         setNotificationMessage("Registro exitoso");
         setShowNotification(true);
         setTimeout(async () => {
-          router.push("/profile");
+          router.push("/");
         }, 2000);
       } else {
         setErrors({

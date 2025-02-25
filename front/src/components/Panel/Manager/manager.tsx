@@ -9,8 +9,9 @@ import { IProfileData} from "@/Interfaces/IUser";
 import { UserContext } from "@/components/Context/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import userH from "@/helpers/helperUser";
 import JobOfferForm from "@/components/Jobs/JobOfferForm";
+import JobApplications from "@/components/Jobs/JobApplications";
+import JobOfferDetails from "@/components/Jobs/JobOffertDetails";
 
 const PanelManager = () => {
   const {token,logOut} = useContext(UserContext);
@@ -20,6 +21,12 @@ const PanelManager = () => {
  
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
  const router = useRouter();
+
+
+
+ const jobId = "b9f650ff-dc90-40f4-a188-eb2afecb8b27"; 
+
+
   const handleSectionChange = (section: string) => {
     setActiveSection(section);
   };
@@ -121,11 +128,20 @@ const PanelManager = () => {
             </li>
             <li>
               <button
+                onClick={() => handleSectionChange("MyappliedOffers")}
+                className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
+              >
+                <span className="text-lg">📜</span>
+                <span>Aplicaciones a mis ofertas</span>
+              </button>
+            </li>
+            <li>
+              <button
                 onClick={() => handleSectionChange("appliedOffers")}
                 className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
               >
                 <span className="text-lg">📜</span>
-                <span>Ofertas Aplicadas</span>
+                <span>Mis ofertas</span>
               </button>
             </li>
             <li>
@@ -209,6 +225,18 @@ const PanelManager = () => {
           </div>
         )}
 
+         {/* Sección de Ofertas Aplicadas */}
+         {activeSection === "MyappliedOffers" && (
+          <div
+            className="bg-white p-6 rounded-lg shadow-lg mb-6"
+            data-aos="fade-up"
+          >
+            <h3 className="text-xl font-semibold mb-4">Aplicaciones de mis ofertas</h3>
+            <JobApplications jobId={jobId} />
+          </div>
+        )}
+
+
 
         {/* Sección de Ofertas Aplicadas */}
         {activeSection === "appliedOffers" && (
@@ -216,19 +244,8 @@ const PanelManager = () => {
             className="bg-white p-6 rounded-lg shadow-lg mb-6"
             data-aos="fade-up"
           >
-            <h3 className="text-xl font-semibold mb-4">Ofertas Aplicadas</h3>
-            <ul className="space-y-4">
-              {userH.appliedOffers.map((offer, index) => (
-                <li
-                  key={index}
-                  className="bg-gray-100 p-4 rounded-md shadow-sm"
-                >
-                  <h4 className="font-semibold">{offer.title}</h4>
-                  <p className="text-gray-500">{offer.description}</p>
-                  <p className="text-gray-500 text-sm">Fecha: {offer.date}</p>
-                </li>
-              ))}
-            </ul>
+            <h3 className="text-xl font-semibold mb-4">Mis Ofertas</h3>
+         <JobOfferDetails jobId={jobId}/>
           </div>
         )}
 

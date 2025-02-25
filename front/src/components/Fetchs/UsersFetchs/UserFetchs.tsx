@@ -69,6 +69,25 @@ export const fetchUserData = async (token: string) => {
   }
 };
 
+
+export const fetchUserId = async (userId:string) => {
+  try {
+  
+    const response = await fetch(`${apiUrl}/user/${userId}`, {
+     
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al cargar los datos del usuario.");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error al obtener los datos del usuario:", error);
+    throw error;
+  }
+};
+
 export const updateUserData = async (userId: number, formData: IProfileData) => {
   try {
     const response = await fetch(`${apiUrl}/user/${userId}`, {

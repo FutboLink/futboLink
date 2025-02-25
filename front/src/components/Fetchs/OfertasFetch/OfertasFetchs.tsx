@@ -1,4 +1,4 @@
-import { ICreateJobOffer } from "@/Interfaces/IOffer";
+import { ICreateJobOffer, IJobApplication, IOfferCard } from "@/Interfaces/IOffer";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -22,4 +22,32 @@ export const fetchCreateOffer = async (offer:ICreateJobOffer, token:string) => {
 
   const data = await response.json();
   return data;
+};
+
+
+//Listar aplicaciones de un trabajo
+export const fetchApplicationsByJobId = async (jobId: string): Promise<IJobApplication[]> => {
+  try {
+    const response = await fetch(`${apiUrl}/applications/jobs/${jobId}`);
+    if (!response.ok) throw new Error("Error al obtener aplicaciones");
+    return await response.json();
+  } catch (error) {
+    console.error("Error en fetchApplicationsByJobId:", error);
+    return [];
+  }
+};
+
+
+// jobService.ts
+
+
+export const fetchJobOfferById = async (jobId: string): Promise<IOfferCard | null> => {
+  try {
+    const response = await fetch(`${apiUrl}/jobs/${jobId}`);
+    if (!response.ok) throw new Error("No se pudo obtener la oferta de trabajo");
+    return await response.json();
+  } catch (error) {
+    console.error("Error en fetchJobOfferById:", error);
+    return null;
+  }
 };

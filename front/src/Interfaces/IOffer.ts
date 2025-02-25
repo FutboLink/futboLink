@@ -59,3 +59,17 @@ export interface ICreateJobOffer {
   imgUrl: string;
   type: string;
 }
+
+
+export interface IJobApplication {
+  id: string;
+  message: string;
+  status: JobStatus;
+  appliedAt: string;
+}
+
+export enum JobStatus {
+  OPEN = "OPEN",
+  PENDING = "PENDING",
+  CLOSED = "CLOSED",
+}

@@ -69,6 +69,7 @@ const ApplicantModal: React.FC<ApplicantModalProps> = ({ isOpen, onClose, applic
   Ver perfil
 </Link>
 
+
             </div>
           </>
         ) : (

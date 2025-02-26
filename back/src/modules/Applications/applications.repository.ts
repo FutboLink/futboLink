@@ -49,6 +49,7 @@ export class ApplicationRepository {
   async listApplications(jobId: string): Promise<Application[]> {
     return this.repository.find({
       where: { job: { id: String(jobId) } },
+      relations: ['player'],
     });
   }
 

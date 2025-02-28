@@ -23,13 +23,13 @@ export class JobRepository {
   }
 
   async getJobs(): Promise<Job[]> {
-    return await this.repository.find({ where: { status: 'OPEN' } });
+    return await this.repository.find({ where: { status: 'OPEN' }, relations: ['recruiter', 'applications'] });
   }
 
   async getJobById(id: string): Promise<Job> {
     const job = await this.repository.findOne({
       where: { id },
-      relations: ['recruiter'],
+      relations: ['recruiter', 'applications'],
     });
     if (!job) {
       throw new NotFoundException(`Trabajos con el id ${id} no se encontró`);

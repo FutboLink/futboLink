@@ -4,55 +4,60 @@ import Image from "next/image";
 import Link from "next/link";
 
 const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
-  console.log(offer.imgUrl); // Verifica el valor aquí
-
   return (
-    <div className="bg-white border hover:cursor-pointer border-gray-300 rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl flex flex-col h-full">
-      {/* Imagen de la oferta */}
-      <Image
-  width={500}
-  height={500}
-  src={offer.imgUrl || "/cursosYFormaciones.JPG"}
-  alt={offer.title}
-  className="w-full aspect-w-16 aspect-h-9 object-cover rounded-lg shadow-md"
-/>
-
-
-
-      <div className="flex flex-col p-6 gap-4 flex-grow">
-        {/* Ubicación */}
-        <div className="flex items-center gap-2">
-          <p className="text-gray-800 text-sm font-medium">Ubicación del puesto:</p>
-          <span className="text-gray-700 text-sm font-medium">{offer.location}</span>
+    <div className="bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden flex flex-col min-h-[400px]"> {/* Añadido min-h */}
+      {/* Contenedor de la imagen y el contenido */}
+      <div className="flex items-center p-4 space-x-4">
+        {/* Imagen de la oferta */}
+        <div className="w-24 h-24 flex-shrink-0">
+          <Image
+            width={100}
+            height={100}
+            src={offer.imgUrl || "/cursosYFormaciones.JPG"}
+            alt={offer.title}
+            className="w-full h-full object-cover rounded-lg" 
+          />
         </div>
 
-        {/* Título y descripción */}
-        <h3 className="text-xl font-semibold text-gray-800">{offer.title}</h3>
-        <p className="text-gray-600 text-sm line-clamp-3">{offer.description}</p>
+        {/* Contenido (título, ubicación, etc.) */}
+        <div className="flex flex-col justify-between flex-grow">
+          {/* Título */}
+          <h3 className="text-lg font-semibold text-gray-800">{offer.title}</h3>
 
-        {/* Competencias */}
-        <div className="flex flex-wrap gap-2 mt-4">
-          {offer.competencies.map((competency, index) => (
-            <span
-              key={index}
-              className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full"
-            >
-              {competency}
-            </span>
-          ))}
-        </div>
-
-        {/* Salario */}
-        <div className="mt-4">
-          <p className="text-gray-800 text-sm font-semibold">
-            Salario:{" "}
-            <span className="text-green-600">${offer.salary}</span>
-          </p>
+          {/* Ubicación */}
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <span>Ubicación:</span>
+            <span>{offer.location}</span>
+          </div>
         </div>
       </div>
 
+      {/* Descripción */}
+      <div className="px-4 py-2 flex-grow">
+        <p className="text-gray-600 text-sm line-clamp-2">{offer.description}</p>
+      </div>
+
+      {/* Competencias */}
+      <div className="flex flex-wrap gap-2 p-4 flex-grow">
+        {offer.competencies.map((competency, index) => (
+          <span
+            key={index}
+            className="bg-blue-100 text-blue-800 flex justify-center items-center text-xs font-semibold px-2 py-1 rounded-xl"
+          >
+            {competency}
+          </span>
+        ))}
+      </div>
+
+      {/* Salario */}
+      <div className="p-4">
+        <p className="text-gray-800 text-sm font-semibold">
+          Salario: <span className="text-green-600">${offer.salary}</span>
+        </p>
+      </div>
+
       {/* Acciones y botones */}
-      <div className="flex gap-7 p-3 text-center justify-between mt-auto">
+      <div className="flex gap-4 p-4 text-center justify-between mt-auto">
         <Link
           href={`/jobs/${offer.id}`}
           className="text-white bg-green-700 rounded p-2 hover:text-green-700 hover:bg-white hover:border-2 hover:border-green-700 font-semibold self-start"

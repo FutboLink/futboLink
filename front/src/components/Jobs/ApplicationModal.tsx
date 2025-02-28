@@ -51,7 +51,7 @@ const ApplicantModal: React.FC<ApplicantModalProps> = ({ isOpen, onClose, applic
           &times;
         </button>
 
-        <h2 className="text-xl font-bold mb-4">Datos del Postulante</h2>
+        <h2 className="text-xl font-bold mb-4 bg-green-600 text-center mt-2 text-white p-2 rounded">Datos del Postulante</h2>
 
         {loading ? (
           <p className="text-gray-600">Cargando...</p>
@@ -61,7 +61,7 @@ const ApplicantModal: React.FC<ApplicantModalProps> = ({ isOpen, onClose, applic
             <p className="text-gray-700"><strong>Nacionalidad:</strong> {applicant.nationality}</p>
             <p className="text-gray-700"><strong>Género:</strong> {applicant.genre}</p>
             {/* Botón de Link para redirigir */}
-            <div className="mt-4">
+            <div className="mt-4 text-center">
             <Link
   href={`/user/${applicantId}`}
   className="mt-4 px-6 py-3 bg-white text-green-600 border-2 border-green-600 rounded-lg hover:bg-green-600 hover:text-white transition duration-300"

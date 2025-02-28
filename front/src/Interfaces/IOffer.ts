@@ -19,7 +19,7 @@ export interface IOffer {
 
 
 export interface IOfferCard {
-  id?: number;
+  id?: string;
   title: string;
   description: string;
   flagCode?: string;
@@ -66,6 +66,12 @@ export interface IJobApplication {
   message: string;
   status: JobStatus;
   appliedAt: string;
+  recruiter: {
+    id:string;
+  }
+  player: {
+    id:string;
+  }
 }
 
 export enum JobStatus {

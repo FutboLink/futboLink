@@ -9,39 +9,49 @@ import { UserContext } from "@/components/Context/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import JobOfferForm from "@/components/Jobs/JobOfferForm";
-import JobApplications from "@/components/Jobs/JobApplications";
 import JobOfferDetails from "@/components/Jobs/JobOffertDetails";
+import { IOfferCard } from "@/Interfaces/IOffer";
+import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
 
 const PanelManager = () => {
-  const {token,logOut} = useContext(UserContext);
+  const { token, logOut } = useContext(UserContext);
   const [activeSection, setActiveSection] = useState("profile");
   const [userData, setUserData] = useState<IProfileData | null>(null);
   const [error, setError] = useState<string | null>(null);
- 
+  const [appliedJobs, setAppliedJobs] = useState<IOfferCard[]>([]); // Estado para almacenar las ofertas filtradas
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
- const router = useRouter();
-
-
-
- const jobId = "b9f650ff-dc90-40f4-a188-eb2afecb8b27"; 
-
+  const router = useRouter();
 
   const handleSectionChange = (section: string) => {
     setActiveSection(section);
   };
 
   const handleLogOut = () => {
-    logOut(); 
-    router.push('/'); 
+    logOut();
+    router.push('/');
   };
-  
-  
+
+  // Llamada a fetchApplicationsJob
   useEffect(() => {
     if (token) {
       try {
+        // Decodificar el token para obtener el userId
         const userId = JSON.parse(atob(token.split('.')[1])).id;
-
+  
         if (userId) {
+          // Llamada para obtener los trabajos aplicados
+          getOfertas()
+            .then((jobs) => {
+              // Filtrar las ofertas en función del recruiterId
+              const filteredJobs = jobs.filter((job) => job.recruiter.id === userId);
+              setAppliedJobs(filteredJobs); // Guarda las ofertas filtradas
+            })
+            .catch((error) => {
+              console.error("Error fetching applications:", error);
+              setError("Error al obtener las ofertas aplicadas.");
+            });
+  
+          // Llamada para obtener los datos del usuario
           fetch(`${apiUrl}/user/${userId}`)
             .then((response) => {
               if (!response.ok) {
@@ -50,7 +60,7 @@ const PanelManager = () => {
               return response.json();
             })
             .then((data) => {
-              setUserData(data);
+              setUserData(data); // Guarda los datos del usuario
             })
             .catch((error) => {
               console.error('Error fetching user data:', error);
@@ -62,7 +72,9 @@ const PanelManager = () => {
         console.error('Error:', error);
       }
     }
-  }, [token, apiUrl]);
+  }, [token, apiUrl]); // Dependencias del useEffect
+  
+  
 
   // Inicializamos AOS cuando el componente se monta
   useEffect(() => {
@@ -130,15 +142,7 @@ const PanelManager = () => {
                 <span>Crear Oferta</span>
               </button>
             </li>
-            <li>
-              <button
-                onClick={() => handleSectionChange("MyappliedOffers")}
-                className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
-              >
-                <span className="text-lg">📜</span>
-                <span>Aplicaciones a mis ofertas</span>
-              </button>
-            </li>
+            
             <li>
               <button
                 onClick={() => handleSectionChange("appliedOffers")}
@@ -271,29 +275,28 @@ const PanelManager = () => {
           </div>
         )}
 
-         {/* Sección de Ofertas Aplicadas */}
-         {activeSection === "MyappliedOffers" && (
-          <div
-            className="bg-white p-6 rounded-lg shadow-lg mb-6"
-            data-aos="fade-up"
-          >
-            <h3 className="text-xl font-semibold mb-4">Aplicaciones de mis ofertas</h3>
-            <JobApplications jobId={jobId} />
-          </div>
-        )}
+    
+
+       {/* Sección de Ofertas Aplicadas */}
+{activeSection === "appliedOffers" && (
+  <div className="bg-white p-6 rounded-lg shadow-lg mb-6" data-aos="fade-up">
+    <h3 className="text-xl font-semibold mb-4">Mis Ofertas</h3>
+    {appliedJobs.length === 0 ? (
+      <p>No has publicado ninguna oferta.</p>
+    ) : (
+      appliedJobs.map((job) => (
+        <div 
+          key={job.id} 
+          className="cursor-pointer" 
+        >
+          <JobOfferDetails key={job.id} jobId={job.id || ''} />
+        </div>
+      ))
+    )}
+  </div>
+)}
 
 
-
-        {/* Sección de Ofertas Aplicadas */}
-        {activeSection === "appliedOffers" && (
-          <div
-            className="bg-white p-6 rounded-lg shadow-lg mb-6"
-            data-aos="fade-up"
-          >
-            <h3 className="text-xl font-semibold mb-4">Mis Ofertas</h3>
-         <JobOfferDetails jobId={jobId}/>
-          </div>
-        )}
 
        {/* Sección de Configuración */}
 {activeSection === "config" && (

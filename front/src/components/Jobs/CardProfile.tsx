@@ -1,13 +1,13 @@
 import { useState } from "react";
 import Image from "next/image";
 import { IProfileData } from "@/Interfaces/IUser";
-import { FaUser, FaRunning, FaBriefcase } from "react-icons/fa"; // Importando iconos de React Icons
+import { FaUser, FaRunning, FaBriefcase } from "react-icons/fa"; 
 
 interface CardProfileProps {
   profile: IProfileData;
 }
 
-const sections = ["Perfil", "Habilidades y Físico", "Trayectoria"];
+const sections = ["Perfil", "Datos Físicos", "Trayectoria"];
 
 const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
   const [activeSection, setActiveSection] = useState<string>(sections[0]);
@@ -17,13 +17,18 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
       {/* Barra Lateral */}
       <div className="w-full sm:w-72 bg-gradient-to-r from-green-600 to-green-500 text-white p-6 rounded-t-lg sm:rounded-l-lg shadow-lg sm:shadow-none sm:mr-4">
         <div className="mb-8 flex flex-col items-center space-y-4">
-          <Image
-            src={profile.imgUrl || 'https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png'}
-            alt={profile.name}
-            width={100}
-            height={100}
-            className="rounded-full mb-4 md:mb-0"
-          />
+        <Image
+  src={profile ? 
+       (profile.imgUrl || 
+       (profile.genre === "Masculino" ? "https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png" :
+        profile.genre === "Femenino" ? "https://res.cloudinary.com/dagcofbhm/image/upload/v1740487974/Captura_de_pantalla_2025-02-25_095231_yf60vs.png" :
+        "https://res.cloudinary.com/dagcofbhm/image/upload/v1740488144/Captura_de_pantalla_2025-02-25_095529_gxe0gx.png"))
+       : "https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png"}  // Imagen predeterminada
+  alt={profile?.name || "Foto de perfil"}
+  width={100}
+  height={100}
+  className="rounded-full mb-4 md:mb-0"
+/>
           <div className="space-y-2 text-center">
             <h2 className="text-2xl font-semibold">
               {profile.name} {profile.lastname}
@@ -63,13 +68,18 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
           <div className="transition-opacity duration-300">
             {/* Imagen y Datos de Perfil */}
             <div className="flex items-start">
-              <Image
-                src={profile.imgUrl || 'https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png'}
-                alt={profile.name}
-                width={100}
-                height={100}
-                className="rounded-full mb-4 md:mb-0"
-              />
+            <Image
+  src={profile ? 
+       (profile.imgUrl || 
+       (profile.genre === "Masculino" ? "https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png" :
+        profile.genre === "Femenino" ? "https://res.cloudinary.com/dagcofbhm/image/upload/v1740487974/Captura_de_pantalla_2025-02-25_095231_yf60vs.png" :
+        "https://res.cloudinary.com/dagcofbhm/image/upload/v1740488144/Captura_de_pantalla_2025-02-25_095529_gxe0gx.png"))
+       : "https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png"}  // Imagen predeterminada
+  alt={profile?.name || "Foto de perfil"}
+  width={100}
+  height={100}
+  className="rounded-full mb-4 md:mb-0"
+/>
               <div className="ml-4">
                 <h2 className="text-xl font-semibold text-green-600">
                   {profile.name} {profile.lastname}
@@ -87,21 +97,24 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
           </div>
         )}
 
-        {activeSection === "Habilidades y Físico" && (
+        {activeSection === "Datos Físicos" && (
           <div className="transition-opacity duration-300">
              <div className="flex items-start">
-              <Image
-                src={profile.imgUrl || 'https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png'}
-                alt={profile.name}
-                width={100}
-                height={100}
-                className="rounded-full mb-4 md:mb-0"
-              />
+             <Image
+  src={profile ? 
+       (profile.imgUrl || 
+       (profile.genre === "Masculino" ? "https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png" :
+        profile.genre === "Femenino" ? "https://res.cloudinary.com/dagcofbhm/image/upload/v1740487974/Captura_de_pantalla_2025-02-25_095231_yf60vs.png" :
+        "https://res.cloudinary.com/dagcofbhm/image/upload/v1740488144/Captura_de_pantalla_2025-02-25_095529_gxe0gx.png"))
+       : "https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png"}  // Imagen predeterminada
+  alt={profile?.name || "Foto de perfil"}
+  width={100}
+  height={100}
+  className="rounded-full mb-4 md:mb-0"
+/>
               <div className="ml-4">
-            <h2 className="text-xl font-semibold text-green-600">Habilidades y Físico</h2>
+            <h2 className="text-xl font-semibold text-green-600">Datos Físicos</h2>
             <div className="text-gray-700">
-              <p><strong>Altura:</strong> {profile.height} cm</p>
-              <p><strong>Peso:</strong> {profile.weight} kg</p>
               <p><strong>Pierna hábil:</strong> {profile.skillfulFoot}</p>
               <p><strong>Estructura corporal:</strong> {profile.bodyStructure}</p>
               </div>
@@ -114,24 +127,34 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
   <div className="transition-opacity duration-300">
     {/* Imagen y Datos de Perfil */}
     <div className="flex items-start">
-      <Image
-        src={profile.imgUrl || 'https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png'}
-        alt={profile.name}
-        width={100}
-        height={100}
-        className="rounded-full mb-4 md:mb-0"
-      />
+    <Image
+  src={profile ? 
+       (profile.imgUrl || 
+       (profile.genre === "Masculino" ? "https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png" :
+        profile.genre === "Femenino" ? "https://res.cloudinary.com/dagcofbhm/image/upload/v1740487974/Captura_de_pantalla_2025-02-25_095231_yf60vs.png" :
+        "https://res.cloudinary.com/dagcofbhm/image/upload/v1740488144/Captura_de_pantalla_2025-02-25_095529_gxe0gx.png"))
+       : "https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png"}  // Imagen predeterminada
+  alt={profile?.name || "Foto de perfil"}
+  width={100}
+  height={100}
+  className="rounded-full mb-4 md:mb-0"
+/>
       <div className="ml-4">
         <h2 className="text-xl font-semibold text-green-600">Trayectoria</h2>
-        {profile.puesto.map((pos, index) => (
-          <div key={index} className="text-gray-700">
-            <p><strong>{pos.position}:</strong> {pos.experience} años de experiencia</p>
-          </div>
-        ))}
+        {profile.puesto && profile.puesto.length > 0 ? (
+          profile.puesto.map((pos, index) => (
+            <div key={index} className="text-gray-700">
+              <p><strong>{pos.position}:</strong> {pos.experience} años de experiencia</p>
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-600">Aún no tiene experiencias agregadas</p> 
+        )}
       </div>
     </div>
   </div>
 )}
+
  </div>
  </div>
 

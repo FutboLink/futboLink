@@ -4,7 +4,7 @@ import { IOfferCard } from '@/Interfaces/IOffer';
 import { getOfertaById } from '@/components/Fetchs/OfertasFetch/OfertasAdminFetch';
 import ModalApplication from '@/components/Applications/ModalApplications';
 import Link from 'next/link';
-import { useParams } from 'next/navigation'; // Usar useParams para acceder a los parámetros
+import { useParams } from 'next/navigation';
 import { UserContext } from '@/components/Context/UserContext';
 
 const JobDetail: React.FC = () => {

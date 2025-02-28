@@ -25,7 +25,8 @@ export const fetchCreateOffer = async (offer:ICreateJobOffer, token:string) => {
 };
 
 
-//Listar aplicaciones de un trabajo
+
+//Listar aplicaciones de un trabajo por Id
 export const fetchApplicationsByJobId = async (jobId: string): Promise<IJobApplication[]> => {
   try {
     const response = await fetch(`${apiUrl}/applications/jobs/${jobId}`);
@@ -38,7 +39,6 @@ export const fetchApplicationsByJobId = async (jobId: string): Promise<IJobAppli
 };
 
 
-// jobService.ts
 
 
 export const fetchJobOfferById = async (jobId: string): Promise<IOfferCard | null> => {

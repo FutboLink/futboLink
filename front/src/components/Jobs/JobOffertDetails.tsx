@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { IOfferCard } from "@/Interfaces/IOffer";
 import { BsFillCalendarEventFill } from "react-icons/bs";
 import { fetchJobOfferById } from "../Fetchs/OfertasFetch/OfertasFetchs";
+import { useRouter } from "next/navigation";
 
 interface JobOfferDetailsProps {
   jobId: string;
@@ -12,6 +13,14 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
   const [jobOffer, setJobOffer] = useState<IOfferCard | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+  const router = useRouter();
+
+
+  const handleViewApplications = () => {
+    // Navegar a la ruta de aplicaciones del trabajo usando el jobId
+    router.push(`/applications/jobs/${jobId}`);
+  };
+  
 
   useEffect(() => {
     const fetchJobOffer = async () => {
@@ -48,10 +57,6 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
     console.log("Modificar oferta", jobId);
   };
 
-  const handleViewApplications = () => {
-    // Lógica para ver las aplicaciones de la oferta
-    console.log("Ver aplicaciones de la oferta", jobId);
-  };
 
   if (loading) {
     return (
@@ -136,7 +141,7 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
           Eliminar oferta
         </button>
         <button
-          onClick={handleViewApplications}
+          onClick={handleViewApplications} 
           className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
         >
           Ver aplicaciones

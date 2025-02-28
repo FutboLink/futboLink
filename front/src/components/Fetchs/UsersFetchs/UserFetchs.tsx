@@ -109,3 +109,44 @@ export const updateUserData = async (userId: number, formData: IProfileData) => 
   }
 };
 
+export const fetchDeleteJob = async (token: string, id:string) => {
+  try {
+    
+    const response = await fetch(`${apiUrl}/jobs/${id}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al eliminar oferta.");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error al obtener los datos de la oferta:", error);
+    throw error;
+  }
+};
+
+export const fetchEditJob = async (token: string, id:string) => {
+  try {
+    
+    const response = await fetch(`${apiUrl}/jobs/${id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al eliminar oferta.");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error al obtener los datos de la oferta:", error);
+    throw error;
+  }
+};

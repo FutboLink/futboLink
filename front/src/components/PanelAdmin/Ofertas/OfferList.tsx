@@ -10,7 +10,6 @@ const OfferList: React.FC = () => {
   const [filteredOffers, setFilteredOffers] = useState<IOfferCard[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [selectedSalary, setSelectedSalary] = useState<number>(500); // Valor inicial del filtro
 
   useEffect(() => {
     const fetchOffers = async () => {
@@ -27,16 +26,14 @@ const OfferList: React.FC = () => {
   useEffect(() => {
     const filtered = offers.filter((offer) => {
       const lowerSearchTerm = searchTerm.toLowerCase();
-      const salary = parseInt(offer.salary || "0", 10); // Convertir el salario a número
       return (
-        (offer.offerType?.toLowerCase().includes(lowerSearchTerm) ||
-          offer.position?.toLowerCase().includes(lowerSearchTerm) ||
-          offer.location?.toLowerCase().includes(lowerSearchTerm)) &&
-        salary >= selectedSalary
+        offer.offerType?.toLowerCase().includes(lowerSearchTerm) ||
+        offer.position?.toLowerCase().includes(lowerSearchTerm) ||
+        offer.location?.toLowerCase().includes(lowerSearchTerm)
       );
     });
     setFilteredOffers(filtered);
-  }, [searchTerm, offers, selectedSalary]);
+  }, [searchTerm, offers]);
 
   if (loading) {
     return (
@@ -45,7 +42,8 @@ const OfferList: React.FC = () => {
   }
 
   return (
-    <div className="mt-24 p-12">
+    <div className="mt-12 p-12">
+      <h1 className="bg-green-600 text-white p-2 font-semibold text-center">OFERTAS LABORALES</h1>
       {/* Input de búsqueda */}
       <div className="flex justify-center items-center mb-6">
         <div className="w-full sm:w-4/6 md:w-3/6 lg:w-2/6 p-4">
@@ -59,20 +57,6 @@ const OfferList: React.FC = () => {
         </div>
       </div>
 
-      {/* Filtro de salario */}
-      <div className="mb-6 p-4">
-        <label className="block text-green-700 mb-2">
-          Filtrar por salario mínimo: ${selectedSalary}
-        </label>
-        <input
-          type="range"
-          min={200} // Salario mínimo
-          max={10000000} // Salario máximo
-          value={selectedSalary}
-          onChange={(e) => setSelectedSalary(parseInt(e.target.value, 10))}
-          className="w-full"
-        />
-      </div>
 
       {/* Lista de ofertas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">

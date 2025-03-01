@@ -109,44 +109,43 @@ export const updateUserData = async (userId: number, formData: IProfileData) => 
   }
 };
 
-export const fetchDeleteJob = async (token: string, id:string) => {
+export const fetchDeleteJob = async (token: string, jobId: string) => {
   try {
-    
-    const response = await fetch(`${apiUrl}/jobs/${id}`, {
-      method: "POST",
+    const response = await fetch(`${apiUrl}/jobs/${jobId}`, {
+      method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
     });
 
-    if (!response.ok) {
-      throw new Error("Error al eliminar oferta.");
-    }
-
-    return await response.json();
+    return response;
   } catch (error) {
-    console.error("Error al obtener los datos de la oferta:", error);
+    console.error("Error en fetchDeleteJob:", error);
     throw error;
   }
 };
 
-export const fetchEditJob = async (token: string, id:string) => {
+
+// Actualiza la función para aceptar formData
+export const fetchEditJob = async (token: string, id: string, formData: object) => {
   try {
-    
     const response = await fetch(`${apiUrl}/jobs/${id}`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json", // Agregar el tipo de contenido
       },
+      body: JSON.stringify(formData), // Enviar formData como cuerpo de la solicitud
     });
 
     if (!response.ok) {
-      throw new Error("Error al eliminar oferta.");
+      throw new Error("Error al editar la oferta.");
     }
 
     return await response.json();
   } catch (error) {
-    console.error("Error al obtener los datos de la oferta:", error);
+    console.error("Error al editar la oferta:", error);
     throw error;
   }
 };

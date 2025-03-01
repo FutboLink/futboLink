@@ -2,6 +2,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { IProfileData } from "@/Interfaces/IUser";
 import { FaUser, FaRunning, FaBriefcase } from "react-icons/fa"; 
+import BackButton from "../utils/BackButton";
 
 interface CardProfileProps {
   profile: IProfileData;
@@ -60,6 +61,7 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
             ))}
           </ul>
         </nav>
+        <BackButton/>
       </div>
 
       {/* Contenido Principal */}

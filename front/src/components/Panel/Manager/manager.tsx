@@ -258,7 +258,9 @@ const PanelManager = () => {
            
             </div>
             <p className="text-gray-600 mt-12">
-          Haz click en <span className="font-semibold">Editar Perfil</span> para completar tus datos.
+          Haz click en       <Link href={"/profile"} className="rounded border-2 md:w-3/4 sm:1/6 text-center font-semibold bg-blue-300 hover:bg-blue-400 hover:cursor-pointer p-2 text-gray-800">          
+                Editar Perfil
+                    </Link> para completar tus datos.
         </p>
           </div>
         )}
@@ -319,7 +321,7 @@ const PanelManager = () => {
         
       </div>
       <Link href={"/profile"}>
-            <div className="rounded border-2 md:w-3/4 sm:1/6 text-center bg-blue-300 hover:bg-blue-400 hover:cursor-pointer p-2 text-gray-800">
+            <div className="rounded border-2 md:w-3/4 sm:1/6 text-center font-semibold bg-blue-300 hover:bg-blue-400 hover:cursor-pointer p-2 text-gray-800">
                 Editar Perfil
               </div>
               </Link>

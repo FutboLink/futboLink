@@ -79,3 +79,29 @@ export enum JobStatus {
   PENDING = "PENDING",
   CLOSED = "CLOSED",
 }
+
+export interface ICreateJob {
+  title: string;
+  nationality: string;
+  position: string;
+  category: string;
+  sport: string;
+  contractTypes: string; 
+  contractDurations: string;
+  salary: number;
+  extra: string[];
+  transport: string[];
+  minAge: number;
+  maxAge:number;
+  sportGenres:string;
+  minExperience: string;
+  availabilityToTravel: YesOrNo;
+  euPassport: YesOrNo;
+  gmail?: string;
+  imgUrl: string;
+}
+
+export enum YesOrNo {
+  yes = "yes",
+  no = "no"
+}

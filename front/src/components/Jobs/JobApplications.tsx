@@ -42,10 +42,10 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
   </h2>
   <div className="grid gap-6 p-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-2">
   {applications.map((app) => (
-    <div
-      key={app.id}
-      className="flex flex-col p-6 bg-gradient-to-r from-green-100 via-gray-200 to-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 h-full"
-    >
+     <div
+     key={app.id}
+     className="flex flex-col p-6 bg-gradient-to-b from-gray-100 to-gray-50 border border-gray-300 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 h-full"
+   >
       <div className="flex items-center space-x-2 mb-3">
         <BsFillFileTextFill className="text-gray-700" size={24} />
       </div>
@@ -69,10 +69,10 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
       </div>
       <div className="mt-auto"> {/* Hace que el botón quede alineado al final */}
         <button
-          className="px-4 py-2 bg-gray-100 text-green-600 shadow-sm shadow-gray-400 border-green-600 border-2 rounded-lg hover:bg-green-600 hover:text-white transition"
-          onClick={() => setSelectedApplicantId(app.player.id)} // Aquí se toma el id del postulante
+          className="px-4 py-2 bg-gray-100 text-gray-700 shadow-sm shadow-gray-400 font-semibold border-2 rounded-lg hover:font-bold transition"
+          onClick={() => setSelectedApplicantId(app.player.id)} 
         >
-          Datos postulante
+          Ver datos postulante
         </button>
       </div>
     </div>

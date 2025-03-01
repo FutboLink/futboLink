@@ -64,7 +64,7 @@ const ApplicantModal: React.FC<ApplicantModalProps> = ({ isOpen, onClose, applic
             <div className="mt-4 text-center">
             <Link
   href={`/user/${applicantId}`}
-  className="mt-4 px-6 py-3 bg-white text-green-600 border-2 border-green-600 rounded-lg hover:bg-green-600 hover:text-white transition duration-300"
+  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 shadow-sm shadow-gray-400 font-semibold border-2 rounded-lg hover:font-bold transition"
 >
   Ver perfil
 </Link>

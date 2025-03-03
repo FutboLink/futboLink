@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useContext } from "react";
 import useNationalities from "@/components/Forms/FormUser/useNationalitys";
+import FormsTermins from "@/components/formsTermins/formsTermins";
 
 const AgencyForm: React.FC = () => {
   const { signUp } = useContext(UserContext);
@@ -34,6 +35,7 @@ const AgencyForm: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showErrorNotification, setShowErrorNotification] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showTerms, setShowTerms] = useState<boolean>(false);
 
   // Maneja el cambio en el campo de búsqueda
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -269,7 +271,6 @@ const AgencyForm: React.FC = () => {
           </div>
         </div>
 
-        {/* Términos y Condiciones */}
         <div className="flex items-center">
           <input
             type="checkbox"
@@ -280,14 +281,28 @@ const AgencyForm: React.FC = () => {
             required
           />
           <label className="text-gray-700">Acepto los</label>
-          <Link href="/termsandConditions">
-            <p className="text-blue-500 underline hover:text-blue-700 pl-1">
-              términos y condiciones
-            </p>
-          </Link>
+          <button
+            type="button"
+            className="text-blue-500 underline hover:text-blue-700 pl-1"
+            onClick={() => setShowTerms(true)}
+          >
+            términos y condiciones
+          </button>
         </div>
 
-        {/* Botón de registro */}
+        {showTerms && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg max-w-3xl w-full relative">
+              <button
+                onClick={() => setShowTerms(false)}
+                className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+              <FormsTermins />
+            </div>
+          </div>
+        )}
         <div className="flex justify-center">
           <button
             type="submit"

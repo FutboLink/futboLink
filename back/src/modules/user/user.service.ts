@@ -72,4 +72,12 @@ export class UserService {
 
     return userNoSensitiveInfo;
   }
+
+  async updateCv(userId: string, cvPath: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new Error('Usuario no encontrado');
+    
+    user.cv = cvPath;
+    return this.userRepository.save(user);
+  }
 }

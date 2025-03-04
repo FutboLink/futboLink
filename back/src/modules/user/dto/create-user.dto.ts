@@ -10,19 +10,9 @@ import {
   IsArray,
   ValidateNested,
 } from 'class-validator';
-import { UserType } from '../roles.enum';
+import { PasaporteUe, UserType } from '../roles.enum';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-
-class Puesto {
-  @ApiProperty({ description: 'Posición del usuario', example: 'Delantero' })
-  @IsString()
-  position: string;
-
-  @ApiProperty({ description: 'Años de experiencia', example: 5 })
-  @IsNumber()
-  experience: number;
-}
 
 export class RegisterUserDto {
   @ApiProperty({ description: 'Nombre del usuario', example: 'Juan' })
@@ -158,18 +148,59 @@ export class RegisterUserDto {
   @IsString()
   videoUrl?: string;
 
-  @ApiProperty({ description: 'Redes sociales del usuario (opcional)', example: { instagram: '@usuario', twitter: '@usuario' }, required: false })
-  @IsOptional()
-  @IsString()
-  socialMedia?: Record<string, string>;
-
   @ApiProperty({
     description: 'Puestos del usuario (opcional)',
     example: [{ position: 'Delantero', experience: 5 }],
     required: false,
   })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => Puesto)
-  puesto?: Puesto[];
+
+  @IsOptional()
+  @IsString()
+  club?: string;
+
+  @IsString()
+  puesto: string;
+
+  @IsOptional()
+  socialMedia?: { transfermarkt?: string; youtube?: string; twitter?: string };
+
+  @IsString()
+  countryToWork: string;
+
+  @IsString()
+  primaryPosition: string;
+
+  @IsOptional()
+  @IsString()
+  secondaryPosition?: string;
+
+  @IsEnum(PasaporteUe)
+  pasaporteUe: PasaporteUe;
+
+  @IsOptional()
+  @IsString()
+  fechaInicio?: string;
+
+  @IsOptional()
+  @IsString()
+  fechaFinalizacion?: string;
+
+  @IsOptional()
+  @IsString()
+  categoriaEquipo?: string;
+
+  @IsOptional()
+  @IsString()
+  nivelCompetencia?: string;
+
+  @IsOptional()
+  @IsString()
+  logros?: string;
+
+  @IsString()
+  suscripcion: string;
+
+  @IsOptional()
+  @IsString()
+  cv?: string;
 }

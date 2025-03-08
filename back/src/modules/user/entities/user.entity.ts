@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { PasaporteUe, UserType } from '../roles.enum';
-import { Job } from 'src/modules/Jobs/entities/jobs.entity';
+import { JobEntity } from 'src/modules/Jobs/entities/jobs.entity';
 import { Application } from 'src/modules/Applications/entities/applications.entity';
 import { Subscription } from 'src/modules/Subscriptions/entities/subscription.entity';
 
@@ -133,10 +133,6 @@ export class User {
   @OneToMany(() => Application, (application) => application.player)
   applications: Application[];
 
-  @ApiProperty({ description: 'Lista de trabajos creados por el usuario', type: () => [Job] })
-  @OneToMany(() => Job, (job) => job.recruiter)
-  jobs: Job[];
-
   @ApiProperty({ example: 'https://example.com/video.mp4', description: 'URL de video del usuario', nullable: true })
   @Column({ nullable: true })
   videoUrl?: string;
@@ -154,7 +150,7 @@ export class User {
     example: [{ position: 'Delantero', experience: 5 }],
     nullable: true,
   })
-  @ApiProperty({ description: 'Suscripción del usuario' })
+
   @OneToOne(() => Subscription, (subscription) => subscription.user, { cascade: true, onDelete: 'CASCADE' })
   @JoinColumn()
   subscription: Subscription;

@@ -7,12 +7,11 @@ import {
   IsString,
   IsDate,
   IsNumber,
-  IsArray,
-  ValidateNested,
+  IsArray,  
 } from 'class-validator';
 import { PasaporteUe, UserType } from '../roles.enum';
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+
 
 export class RegisterUserDto {
   @ApiProperty({ description: 'Nombre del usuario', example: 'Juan' })

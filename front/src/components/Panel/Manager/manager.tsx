@@ -8,10 +8,10 @@ import { IProfileData} from "@/Interfaces/IUser";
 import { UserContext } from "@/components/Context/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import JobOfferForm from "@/components/Jobs/JobOfferForm";
 import JobOfferDetails from "@/components/Jobs/JobOffertDetails";
 import { IOfferCard } from "@/Interfaces/IOffer";
 import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
+import FormComponent from "@/components/Jobs/CreateJob";
 
 const PanelManager = () => {
   const { token, logOut } = useContext(UserContext);
@@ -272,7 +272,7 @@ const PanelManager = () => {
             data-aos="fade-up"
           >
            
-      <JobOfferForm/>
+      <FormComponent/>
 
           </div>
         )}

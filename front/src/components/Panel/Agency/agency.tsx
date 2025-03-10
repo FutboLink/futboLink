@@ -9,7 +9,7 @@ import { UserContext } from "@/components/Context/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import userH from "@/helpers/helperUser";
-import JobOfferForm from "@/components/Jobs/JobOfferForm";
+import FormComponent from "@/components/Jobs/CreateJob";
 
 const PanelAgency = () => {
   const {token,logOut} = useContext(UserContext);
@@ -261,7 +261,7 @@ const PanelAgency = () => {
             data-aos="fade-up"
           >
            
-      <JobOfferForm/>
+      <FormComponent/>
 
           </div>
         )}

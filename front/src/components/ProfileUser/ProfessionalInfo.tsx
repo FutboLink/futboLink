@@ -105,7 +105,11 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = () => {
               {/* Pasaporte UE */}
               <div>
                 <label className="font-semibold mt-4 text-gray-700">Pasaporte UE</label>
-                <select className="border rounded-md p-2 mt-2 w-full text-gray-700">
+                <select 
+                name="pasaporteUe"
+                value={fetchedProfileData.pasaporteUe || ""}
+                onChange={handleChange}
+                 className="border rounded-md p-2 mt-2 w-full text-gray-700">
                   <option value="">¿Tienes pasaporte UE?</option>
                   <option value="Sí">Sí</option>
                   <option value="No">No</option>
@@ -157,43 +161,44 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = () => {
                 <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Nombre del Club</label>
                 <input
                   type="text"
-                  name="clubName"
-                  value={fetchedProfileData.clubName || ""}
+                  name="club"
+                  value={fetchedProfileData.club || ""}
                   onChange={handleChange}
                   className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
                 />
               </div>
   
-              {/* Fecha de Inicio */}
-              <div>
-                <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Fecha de Inicio</label>
-                <input
-                  type="text"
-                  name="startDate"
-                  value={fetchedProfileData.startDate || ""}
-                  onChange={handleChange}
-                  className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
-                />
-              </div>
-  
-              {/* Fecha de Finalización */}
-              <div>
-                <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Fecha de Finalización</label>
-                <input
-                  type="text"
-                  name="endDate"
-                  value={fetchedProfileData.endDate || ""}
-                  onChange={handleChange}
-                  className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
-                />
-              </div>
+             {/* Fecha de Inicio */}
+<div>
+  <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Fecha de Inicio</label>
+  <input
+    type="date"  // Usamos "date" para mostrar un calendario
+    name="fechaInicio"
+    value={fetchedProfileData.fechaInicio || ""}  // Se asegura de que la fecha sea una cadena o vacía
+    onChange={handleChange}
+    className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
+  />
+</div>
+
+{/* Fecha de Finalización */}
+<div>
+  <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Fecha de Finalización</label>
+  <input
+    type="date"  // Usamos "date" para mostrar un calendario
+    name="fechaFinalizacion"
+    value={fetchedProfileData.fechaFinalizacion || ""}  // Se asegura de que la fecha sea una cadena o vacía
+    onChange={handleChange}
+    className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
+  />
+</div>
+
   
               {/* Categoría de equipo */}
               <div>
                 <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Categoría de equipo</label>
                 <select
-                  name="teamCategory"
-                  value={fetchedProfileData.teamCategory || ""}
+                  name="categoriaEquipo"
+                  value={fetchedProfileData.categoriaEquipo|| ""}
                   onChange={handleChange}
                   className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
                 >
@@ -212,8 +217,8 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = () => {
               <div>
                 <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Nivel de competencia</label>
                 <select
-                  name="competenceLevel"
-                  value={fetchedProfileData.competenceLevel || ""}
+                  name="nivelCompetencia"
+                  value={fetchedProfileData.nivelCompetencia || ""}
                   onChange={handleChange}
                   className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
                 >
@@ -229,8 +234,8 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = () => {
                 <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Logros</label>
                 <input
                   type="text"
-                  name="achievements"
-                  value={fetchedProfileData.achievements || ""}
+                  name="logros"
+                  value={fetchedProfileData.logros || ""}
                   onChange={handleChange}
                   className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
                 />

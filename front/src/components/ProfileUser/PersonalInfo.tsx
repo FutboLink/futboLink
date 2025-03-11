@@ -29,7 +29,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
       setLoading(true);
       fetchUserData(token)
         .then((data) => {
-          setFetchedProfileData(data);
+          setFetchedProfileData(data); // Ensure socialMedia data is included here
         })
         .catch((err) => {
           console.error("Error al cargar los datos:", err);
@@ -40,30 +40,24 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
         });
     }
   }, [token]);
+  
 
   // Handle input field changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
   
     if (fetchedProfileData) {
-      if (fetchedProfileData.socialMedia && name in fetchedProfileData.socialMedia) {
-        // Si el campo pertenece a socialMedia y socialMedia está definido
-        setFetchedProfileData({
-          ...fetchedProfileData,
-          socialMedia: {
-            ...fetchedProfileData.socialMedia,
-            [name]: value,
-          },
-        });
-      } else {
-        // Si el campo no pertenece a socialMedia
-        setFetchedProfileData({
-          ...fetchedProfileData,
+      setFetchedProfileData(prevData => ({
+        ...prevData!,
+        socialMedia: {
+          ...prevData!.socialMedia,
           [name]: value,
-        });
-      }
+        },
+      }));
     }
   };
+  
+  
   
 
   // Handle nationality selection
@@ -169,6 +163,8 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               className="w-full p-1.5 border rounded text-gray-700 hover:cursor-pointer focus:outline-none"
             />
           </div>
+
+           
   
           {/* Nationality Search */}
           <div className="flex flex-col">
@@ -193,7 +189,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             <input
               type="text"
               value={selectedNationality}
-              readOnly
+             
               className="w-full border text-gray-700 mt-2 border-gray-300 rounded-lg p-2"
             />
           </div>
@@ -220,6 +216,21 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               </ul>
             </div>
           )}
+
+           {/* Nacionalidad Actual */}
+           <div className="flex flex-col">
+           <label className="text-gray-700 font-semibold text-sm">Nacionalidad actual:</label>
+            <input
+              name="nationality"
+              type="text"
+              value={fetchedProfileData?.nationality || ""}
+              onChange={handleChange}
+              placeholder="Nacionalidad Actual"
+              required
+              readOnly
+             className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
+            />
+          </div>
   
           {/* Location */}
           <div className="flex flex-col">
@@ -275,26 +286,26 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             />
           </div>
   
-          {/* Instagram */}
+          {/* Transfermarkt */}
           <div className="flex flex-col">
             <label className="text-gray-700 font-semibold text-sm pl-2">Transfermarkt:</label>
             <input
               type="text"
-              name="instagram"
-              value={fetchedProfileData?.socialMedia?.instagram || ""}
+              name="transfermarkt"
+              value={fetchedProfileData?.socialMedia?.transfermarkt || ""}
               onChange={handleChange}
               placeholder="link de Transfermarkt"
               className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
             />
           </div>
   
-          {/* Twitter */}
+          {/* X*/}
           <div className="flex flex-col">
             <label className="text-gray-700 font-semibold text-sm pl-2">X:</label>
             <input
               type="text"
-              name="twitter"
-              value={fetchedProfileData?.socialMedia?.twitter || ""}
+              name="x"
+              value={fetchedProfileData?.socialMedia?.x || ""}
               onChange={handleChange}
               placeholder="link de X"
               className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"

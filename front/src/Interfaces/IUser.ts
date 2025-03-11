@@ -14,6 +14,7 @@ export interface IProfileData {
   nameAgency: string;
   email: string;
   password?: string;
+  puesto:string;
   role: UserType.PLAYER;
   imgUrl: string;
   phone: string;
@@ -23,24 +24,34 @@ export interface IProfileData {
   birthday: string;
   height: number;
   weight: number;
+  club:string;
+  fechaInicio: string;
+  fechaFinalizacion: string;
+  categoriaEquipo: string;
+  nivelCompetencia: string;
+  logros: string;
+  pasaporteUe?: PasaporteUe;
   skillfulFoot: string;
   bodyStructure: string;
   habilities: string[];
   videoUrl: string;
-  socialMedia?: {
-    instagram?: string;
-    twitter?: string;
-  };
-  puesto: {
+  socialMedia?: Record<string, string>;
+  puestoDeportivo?: {
     position: string;
     experience: number;
   }[];
+}
+
+export enum PasaporteUe {
+  SI = "SI",
+  NO = "NO",
 }
 
 export interface IRegisterUser {
   name: string;
   lastname: string;
   nameAgency?: string;
+  puesto?:string;
   email: string;
   password: string;
   role?: UserType;

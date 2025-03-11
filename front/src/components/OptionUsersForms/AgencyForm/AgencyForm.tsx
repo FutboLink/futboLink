@@ -199,7 +199,7 @@ const AgencyForm: React.FC = () => {
                   <p
                     key={n.value}
                     onClick={() => handleSelectNationality(n.label)}
-                    className="p-2 hover:bg-gray-200 cursor-pointer"
+                    className="p-2 hover:bg-gray-200 cursor-pointer text-gray-700"
                   >
                     {n.label}
                   </p>

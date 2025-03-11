@@ -5,7 +5,6 @@ import { UserContext } from "@/components/Context/UserContext";
 import { NotificationsForms } from "@/components/Notifications/NotificationsForms";
 import { validationRegister } from "@/components/Validate/ValidationRegister";
 import { IRegisterUser, UserType } from "@/Interfaces/IUser";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useContext } from "react";
 import useNationalities from "./useNationalitys";
@@ -20,7 +19,7 @@ const RegistrationForm: React.FC = () => {
   const [selectedNationality, setSelectedNationality] = useState<string>(""); // Nacionalidad seleccionada
   const [showTerms, setShowTerms] = useState<boolean>(false);
 
-  const roles = [
+  const puestos = [
     "Jugador",
     "Entrenador",
     "Fisioterapeuta",
@@ -64,6 +63,7 @@ const RegistrationForm: React.FC = () => {
     lastname: "",
     email: "",
     nationality: "",
+    puesto:"",
     genre: "",
     password: "",
     confirmPassword: "",
@@ -169,17 +169,17 @@ const RegistrationForm: React.FC = () => {
         <div className="flex flex-col mb-4">
           <label className="block text-gray-700 mb-2">Rol:</label>
           <select
-            name="role"
-            value={userRegister.role}
+            name="puesto"
+            value={userRegister.puesto}
             onChange={handleChange}
             className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option className="text-gray-700" value="">
               Seleccione su rol
             </option>
-            {roles.map((role, index) => (
-              <option key={index} value={role}>
-                {role}
+            {puestos.map((puesto, index) => (
+              <option key={index} value={puesto}>
+                {puesto}
               </option>
             ))}
           </select>

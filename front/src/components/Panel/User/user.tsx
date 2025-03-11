@@ -84,7 +84,7 @@ const UserProfile = () => {
             <h2 className="text-2xl font-semibold">
               {userData?.name} {userData?.lastname}
             </h2>
-            <p className="text-lg text-gray-200">{userData?.role}</p>
+            <p className="text-lg">{userData?.puesto}</p>
             <p className="text-sm">{userData?.phone}</p>
             <p className="text-sm">{userData?.email}</p>
           </div>
@@ -173,47 +173,51 @@ const UserProfile = () => {
                 </p>
                
                 <div className="flex items-center space-x-4 mb-4">
-                      <span className="font-medium text-gray-700">Redes Sociales:</span>
-                      {userData?.socialMedia?.twitter ? (
-                        <Link
-                          href={`https://twitter.com/${userData.socialMedia.twitter}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center text-blue-500 hover:text-blue-700"
-                        >
-                          <Image
-                            src="/logo-black.png"
-                            alt="Twitter Icon"
-                            width={15}
-                            height={15}
-                            className="ml-2 cursor-pointer"
-                          />
-                          {userData.socialMedia.twitter}
-                        </Link>
-                      ) : (
-                        <span className="text-gray-500">No disponible</span>
-                      )}
+  <span className="font-medium text-gray-700">Redes Sociales:</span>
+  
+  {/* Twitter (X) */}
+  {userData?.socialMedia?.x ? (
+    <Link
+      href={`https://twitter.com/${userData.socialMedia.x}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center text-blue-500 hover:text-blue-700"
+    >
+      <Image
+        src="/logo-black.png" // Asegúrate de tener el icono correcto de Twitter (X)
+        alt="Twitter Icon"
+        width={15}
+        height={15}
+        className="ml-2 cursor-pointer"
+      />
+      {userData.socialMedia.x}
+    </Link>
+  ) : (
+    <span className="text-gray-500">No disponible</span>
+  )}
+  
+  {/* Transfermarkt */}
+  {userData?.socialMedia?.transfermarkt ? (
+    <Link
+      href={`https://www.transfermarkt.com/${userData.socialMedia.transfermarkt}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center text-blue-500 hover:text-blue-700"
+    >
+      <Image
+        src="/transfermarkt.png" // Asegúrate de tener el icono correcto de Transfermarkt
+        alt="Transfermarkt Icon"
+        width={25}
+        height={25}
+        className="ml-2 cursor-pointer"
+      />
+      {userData.socialMedia.transfermarkt}
+    </Link>
+  ) : (
+    <span className="text-gray-500">No disponible</span>
+  )}
+</div>
 
-                      {userData?.socialMedia?.instagram ? (
-                        <Link
-                          href={`https://instagram.com/${userData.socialMedia.instagram}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center text-blue-500 hover:text-blue-700"
-                        >
-                          <Image
-                            src="/transfermarkt.png"
-                            alt="Instagram Icon"
-                            width={25}
-                            height={25}
-                            className="ml-2 cursor-pointer rounded-sm"
-                          />
-                          {userData.socialMedia.instagram}
-                        </Link>
-                      ) : (
-                        <span className="text-gray-500">No disponible</span>
-                      )}
-                    </div>
 
 
                 <p className="flex items-center mt-2">

@@ -1,8 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { UserType } from '../roles.enum';
+import { PasaporteUe, UserType } from '../roles.enum';
 import { Job } from 'src/modules/Jobs/entities/jobs.entity';
 import { Application } from 'src/modules/Applications/entities/applications.entity';
+import { Subscription } from 'src/modules/Subscriptions/entities/subscription.entity';
 
 @Entity('users')
 export class User {
@@ -44,6 +45,30 @@ export class User {
   @Column({ default: UserType.PLAYER })
   role: UserType;
 
+  @ApiProperty({description: 'Club del jugador'})
+  @Column({nullable:true})
+  club?: string
+
+  @ApiProperty({ example: '2024-01-01', description: 'Fecha de inicio en el club', nullable: true })
+  @Column({ nullable: true })
+  fechaInicio?: string;
+
+  @ApiProperty({ example: '2025-01-01', description: 'Fecha de finalización en el club', nullable: true })
+  @Column({ nullable: true })
+  fechaFinalizacion?: string;
+
+  @ApiProperty({ example: 'Primera División', description: 'Categoría del equipo', nullable: true })
+  @Column({ nullable: true })
+  categoriaEquipo?: string;
+
+  @ApiProperty({ example: 'Alto', description: 'Nivel de competencia', nullable: true })
+  @Column({ nullable: true })
+  nivelCompetencia?: string;
+
+  @ApiProperty({ example: 'Goleador de la liga', description: 'Logros del usuario', nullable: true })
+  @Column({ nullable: true })
+  logros?: string;
+
   @ApiProperty({ example: 'https://example.com/avatar.jpg', description: 'URL de la img de perfil', nullable: true })
   @Column({ nullable: true })
   imgUrl?: string;
@@ -68,6 +93,14 @@ export class User {
   @Column({ type: 'date', nullable: true })
   birthday?: Date;
 
+  @ApiProperty({ example: 'España', description: 'País donde puede trabajar' })
+  @Column()
+  countryToWork: string;
+
+  @ApiProperty({ example: PasaporteUe.SI, description: '¿Tiene pasaporte de la UE?', enum: PasaporteUe })
+  @Column({ type: 'enum', enum: PasaporteUe })
+  pasaporteUe: PasaporteUe;
+
   @ApiProperty({ example: 180, description: 'Altura en cm', nullable: true })
   @Column({ type: 'int', nullable: true })
   height?: number;
@@ -88,6 +121,14 @@ export class User {
   @Column('text', { array: true, nullable: true })
   habilities?: string[];
 
+  @ApiProperty({ example: 'Delantero', description: 'Posición primaria' })
+  @Column()
+  primaryPosition: string;
+
+  @ApiProperty({ example: 'Extremo', description: 'Posición secundaria', nullable: true })
+  @Column({ nullable: true })
+  secondaryPosition?: string;
+
   @ApiProperty({ description: 'Listado de postulaciones del usuario', type: () => [Application] })
   @OneToMany(() => Application, (application) => application.player)
   applications: Application[];
@@ -102,7 +143,7 @@ export class User {
 
   @ApiProperty({
     description: 'Redes sociales del usuario (opcional)',
-    example: { instagram: '@usuario', twitter: '@usuario', facebook: '@usuario' },
+    example: { twitter: '@usuario', trasnfermarkt: '@usuario',youtube: '@usuario' },
     nullable: true,
   })
   @Column({ type: 'json', nullable: true })
@@ -113,8 +154,14 @@ export class User {
     example: [{ position: 'Delantero', experience: 5 }],
     nullable: true,
   })
-  @Column({ type: 'json', nullable: true })
-  puesto?: { position: string; experience: number }[];
+  @ApiProperty({ description: 'Suscripción del usuario' })
+  @OneToOne(() => Subscription, (subscription) => subscription.user, { cascade: true, onDelete: 'CASCADE' })
+  @JoinColumn()
+  subscription: Subscription;
+
+  @ApiProperty({ description: 'CV del usuario (archivo PDF o TXT)', nullable: true })
+  @Column({ nullable: true })
+  cv?: string;
 
   
 }

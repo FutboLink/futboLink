@@ -163,6 +163,10 @@ const UserProfile = () => {
                   {userData?.birthday  || undefined}
                 </p>
                 <p className="text-lg text-gray-600 mb-4">
+                  <span className="font-medium text-gray-700">Edad:</span>{" "}
+                  {userData?.age}
+                </p>
+                <p className="text-lg text-gray-600 mb-4">
                   <span className="font-medium">Género:</span> {userData?.genre}
                 </p>
                 <p className="text-lg text-gray-600 mb-4">
@@ -176,7 +180,7 @@ const UserProfile = () => {
   {/* Twitter (X) */}
   {userData?.socialMedia?.x ? (
     <Link
-      href={`https://twitter.com/${userData.socialMedia.x}`}
+    href={`https://www.youtube.com/${userData.socialMedia.youtube}`}
       target="_blank"
       rel="noopener noreferrer"
       className="flex items-center text-blue-500 hover:text-blue-700"
@@ -210,6 +214,28 @@ const UserProfile = () => {
         className="ml-2 cursor-pointer"
       />
       {userData.socialMedia.transfermarkt}
+    </Link>
+
+    
+  ) : (
+    <span className="text-gray-500">No disponible</span>
+  )}
+   {/* Twitter (X) */}
+   {userData?.socialMedia?.youtube ? (
+    <Link
+      href={`https://twitter.com/${userData.socialMedia.youtube}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center text-blue-500 hover:text-blue-700"
+    >
+      <Image
+        src="/logo-black.png" // Asegúrate de tener el icono correcto de Twitter (X)
+        alt="Youtube Icon"
+        width={15}
+        height={15}
+        className="ml-2 cursor-pointer"
+      />
+      {userData.socialMedia.youtube}
     </Link>
   ) : (
     <span className="text-gray-500">No disponible</span>

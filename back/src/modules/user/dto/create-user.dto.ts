@@ -103,6 +103,14 @@ export class RegisterUserDto {
   birthday?: Date;
 
   @ApiProperty({
+    description: 'Edad del usuario',
+    example: 18,
+    required: false,
+  })
+  @IsNumber()
+  age?: number;
+
+  @ApiProperty({
     description: 'Altura del usuario en centímetros (opcional)',
     example: 180,
     required: false,

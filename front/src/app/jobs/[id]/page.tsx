@@ -91,12 +91,21 @@ const JobDetail: React.FC = () => {
       {/* Card de la oferta principal */}
       <div className="bg-white p-6 rounded-lg shadow-lg flex-1">
         <h1 className="text-3xl font-bold mb-4">{offer.position}</h1>
-        <p className="mb-4">{offer.description}</p>
+      
 
         <h2 className="text-2xl font-semibold mb-2">Requisitos</h2>
         <ul className="list-disc list-inside mb-4">
-          {/* Requisitos si es necesario */}
-        </ul>
+        <li>{offer.sportGenres}</li>
+  <li>{offer.availabilityToTravel}</li>
+  <li>{offer.euPassport}</li>
+  <li>{offer.minAge}</li>
+  <li>{offer.maxAge}</li>
+  <li>{offer.salary}</li>
+
+  <li>{offer.type}</li>
+  <li>{offer.createdAt}</li>
+</ul>
+
 
         <h2 className="text-2xl font-semibold mb-2">Responsabilidades</h2>
         <ul className="list-disc list-inside mb-4">
@@ -113,9 +122,9 @@ const JobDetail: React.FC = () => {
       <div className="bg-white p-6 rounded-lg shadow-lg w-80">
         <h2 className="text-xl font-semibold mb-2">Información de la Oferta</h2>
         <div className="mb-4">
-          <p><strong>Puesto:</strong> {offer.type}</p>
+          <p><strong>Puesto:</strong> {offer.position}</p>
           <p><strong>Ubicación:</strong> {offer.location}</p>
-          <p><strong>Contrato:</strong> {offer.offerType}</p>
+          <p><strong>Contrato:</strong> {offer.contractTypes}</p>
         </div>
 
         {/* Botones de aplicar y volver */}

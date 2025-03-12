@@ -110,7 +110,6 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
             <h2 className="text-3xl font-semibold text-gray-800">{jobOffer.title}</h2>
             <span className="text-sm text-gray-500">{jobOffer.status}</span>
           </div>
-          <p className="text-gray-700 mb-6 text-lg">{jobOffer.description}</p>
 
           <div className="flex items-center space-x-4 mb-6">
             <div className="flex items-center space-x-2">
@@ -135,11 +134,10 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div className="flex items-center space-x-2">
               <span className="font-semibold text-gray-700">Competencias:</span>
-              <span className="text-gray-600">{jobOffer.competencies.join(", ")}</span>
             </div>
             <div className="flex items-center space-x-2">
               <span className="font-semibold text-gray-700">Países:</span>
-              <span className="text-gray-600">{jobOffer.countries.join(", ")}</span>
+              <span className="text-gray-600">{jobOffer.location}</span>
             </div>
           </div>
 

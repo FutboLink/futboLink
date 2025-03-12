@@ -1,10 +1,11 @@
 "use client"
 import React, { useContext, useState } from "react";
-import { UserContext } from "../Context/UserContext";
-import { ICreateJob, YesOrNo, YesOrNotravell } from "@/Interfaces/IOffer";
-import { fetchCreateJob } from "../Fetchs/OfertasFetch/OfertasFetchs";
-import ImageUpload from "../Cloudinary/ImageUpload";
+import { IJobApplication, YesOrNo, YesOrNotravell } from "@/Interfaces/IOffer";
+;
 import useNationalities from "../Forms/FormUser/useNationalitys";
+import { NotificationsForms } from "../Notifications/NotificationsForms";
+import { fetchApplications } from "../Fetchs/AdminFetchs/AdminUsersFetch";
+import { UserContext } from "../Context/UserContext";
 
 const position = [
   "Jugador", "Entrenador", "Fisioterapeuta", "Preparador Físico", "Analista",
@@ -19,42 +20,38 @@ const position = [
 const sportGenres = ["Masculino", "Femenino"];
 const categories = ["Amateur", "Semiprofesional", "Profesional", "Fútbol base"];
 const sports = ["Fútbol 11", "Futsal", "Fútbol Base", "Fútbol Playa", "Pruebas"];
-const contractTypes = ["Contrato Profesional", "Semiprofesional", "Amateur", "Contrato de cesión", "Prueba"];
-const contractDurations = ["Contrato Temporal", "Por temporada", "Contrato indefinido", "Pasantía/Prácticas", "Freelance", "Autónomo", "Otro tipo de contrato"];
 const minExperience = ["Amateur", "Semiprofesional", "Profesional", "Experiencia en ligas similares"];
-const extras = ["Sueldo fijo","Transporte incluido", "Bonos por rendimiento", "Viáticos incluidos", "Alojamiento incluido", "No remunerado", "A convenir", "Equipamiento deportivo"];
 
 
-const FormComponent = () => {
+
+
+export default function ApplicationUser() {
         const { nationalities} = useNationalities();
         const [selectedNationality, setSelectedNationality] = useState<string>('');
         const [isOpen, setIsOpen] = useState<boolean>(false); 
         const [search, setSearch] = useState<string>('');
-    const [formData, setFormData] = useState<ICreateJob>({
-        title: "",
+        const {user} = useContext(UserContext)
+        const userId = user?.id;
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+        
+  const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formData, setFormData] = useState<IJobApplication>({
+       
         nationality: "",
         location:"",
         position: "",
         category: "",
         sport: "",
-        contractTypes:"",
-        contractDurations: "",
-        salary: 0,
-        extra: [],
-        minAge: 0,
-        maxAge: 0,
+        age:0,
+        transport: [],
         sportGenres:"",
         minExperience: "",
         availabilityToTravel: "Si" as YesOrNotravell, 
         euPassport: "Si" as YesOrNo,
         gmail: "",
-        imgUrl: "",
     });
 
-    const { token } = useContext(UserContext);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     
 
@@ -81,107 +78,66 @@ const FormComponent = () => {
     setIsOpen(!isOpen);
   };
 
-
-  const handleExtraChange = (e: React.ChangeEvent<HTMLInputElement>, extra: string) => {
-    const { checked } = e.target;
-    setFormData({
-        ...formData,
-        extra: checked
-            ? [...formData.extra, extra]
-            : formData.extra.filter(item => item !== extra), 
-    });
-};
-
-
-    const isValidImageUrl = (url: string) => {
-        const imageRegex = /\.(jpeg|jpg|gif|png|webp|svg)$/i;
-        try {
-            const parsedUrl = new URL(url, window.location.href); 
-            return imageRegex.test(parsedUrl.pathname); 
-        } catch {
-            return false;
-        }
-    };
-
-    const handleImageUpload = (url: string) => {
-        setFormData((prev) => ({
-            ...prev,
-            imgUrl: url, 
-        }));
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log(formData);
-        setLoading(true);
-        setError(null);
-        setSuccessMessage(null); 
-
-        if (!isValidImageUrl(formData.imgUrl)) {
-            setError("La URL de la imagen no es válida.");
-            setLoading(false);
-            return;
-        }
-
-        if (!token) {
-            setError("Token no disponible.");
-            setLoading(false);
-            return;
-        }
-
-        setTimeout(async () => {
-            try {
-                const response = await fetchCreateJob(formData, token);
-                console.log("Oferta creada:", response);
-                setSuccessMessage("¡Oferta creada exitosamente!"); 
-                setFormData({
-                    title: "",
-                    nationality: "",
-                    location:"",
-                    position: "",
-                    category: "",
-                    sport: "",
-                    contractTypes:"",
-                    contractDurations: "",
-                    salary: 0,
-                    extra: [],
-                    minAge: 0,
-                    maxAge: 0,
-                    sportGenres:"",
-                    minExperience: "",
-                    availabilityToTravel: "Si" as YesOrNotravell, 
-                    euPassport: "Si" as YesOrNo,
-                    gmail: "",
-                    imgUrl: "",
-                });
-            } catch (err: unknown) {
-                setError(err instanceof Error ? err.message : "Error desconocido");
-            } finally {
-                setLoading(false);
-            }
+  const handleSubmit = async () => {
+    // Mostrar la notificación "Enviando..."
+    setNotificationMessage("Enviando solicitud...");
+    setShowNotification(true);
+  
+    // Aseguramos que la notificación se vea antes de enviar la solicitud
+    setTimeout(async () => {
+      setIsSubmitting(true); // Activar estado de envío
+  
+      try {
+        const application = { jobId, userId };
+        
+        // Realizamos la solicitud de aplicación
+        await fetchApplications(application);
+  
+        // Si la solicitud fue exitosa, mostramos un mensaje de éxito
+        setNotificationMessage("Has enviado la solicitud.");
+        setShowNotification(true);
+  
+        // Mantenemos la notificación visible por 2 segundos antes de cerrarla
+        setTimeout(() => {
+          setShowNotification(false);
         }, 2000);
-    };
+  
+      } catch (error) {
+        console.error('Error al enviar la aplicación:', error);
+  
+        // Si es una instancia de Error, mostramos el mensaje de error
+        if (error instanceof Error) {
+          setNotificationMessage(`Error: ${error.message}`);
+        } else {
+          setNotificationMessage("Error desconocido al enviar la solicitud.");
+        }
+  
+        setShowNotification(true);
+  
+        // Ocultar la notificación después de 2 segundos
+        setTimeout(() => {
+          setShowNotification(false);
+        }, 2000);
+  
+      } finally {
+        setIsSubmitting(false); // Desactivar el estado de envío
+      }
+    }, 500); // Aseguramos que la notificación se vea antes de iniciar la solicitud
+  };
+  
+
 
     return (
         <div className="max-w-6xl mt-24 mx-auto p-4 bg-gray-100  text-gray-700 rounded-lg shadow-lg shadow-gray-400  border-2 hover:cursor-pointer ">
            <div className="max-w-2xl  mx-auto p-4 ">
     <h1 className="text-xl font-bold mb-4 text-center bg-gray-600 text-white p-2 rounded">
-        Crear Oferta de Trabajo
+        Postularse a Oferta Laboral
     </h1>
 </div>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-4 lg:grid-cols-4">
+        <form className="grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-4 lg:grid-cols-4">
                 
-                <div className="flex flex-col">
-                    <label className="text-sm font-bold mb-2">Título</label>
-                    <input
-                        type="text"
-                        className="p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
-                        value={formData.title}
-                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        placeholder="Nombre de la oferta laboral"
-                    />
-                </div>
+               
     
                {/* Nacionalidad */}
         <div className="col-span-1 mb-4 relative">
@@ -223,8 +179,6 @@ const FormComponent = () => {
         {/* Dropdown de opciones */}
         {isOpen && (
           <div className="absolute z-10 w-full sm:w-auto max-w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
-            {loading && <p>Cargando nacionalidades...</p>}
-            {error && <p className="text-red-500">{error}</p>}
             <ul>
               {nationalities
                 .filter((nationality) =>
@@ -295,84 +249,49 @@ const FormComponent = () => {
                     </select>
                 </div>
  
-                <div className="flex flex-col">
-                    <label className="text-sm font-bold mb-2">Tipo de contrato</label>
-                    <select
-                        className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
-                        value={formData.contractTypes}
-                        onChange={(e) => setFormData({ ...formData,contractTypes: e.target.value })}
-                    >
-                        {contractTypes.map((contractTypes, index) => (
-                            <option key={index} value={contractTypes}>{contractTypes}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="flex flex-col">
-                    <label className="text-sm font-bold mb-2">Tiempo de contrato</label>
-                    <select
-                        className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
-                        value={formData.contractDurations}
-                        onChange={(e) => setFormData({ ...formData,contractDurations: e.target.value })}
-                    >
-                          {contractDurations.map((duration, index) => (
-                        <option key={index} value={duration}>{duration}</option>
-                    ))}
-                    </select>
-                  
-
-                </div>
+               
 
       
+                
+
+          
+
+                
+<div className="flex flex-col">
+    <label className="text-sm font-bold mb-2">Transporte</label>
+    <input
+        type="text"
+        className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 text-gray-600 focus:ring-green-500"
+        value={formData.transport.join(', ')} 
+        onChange={(e) => {
+            const transportArray = e.target.value.split(',').map(item => item.trim());
+            setFormData({
+                ...formData,
+                transport: transportArray, 
+            });
+        }}
+        placeholder="Escribe separados por coma"
+    />
+</div>
+
+
                 <div className="flex flex-col">
-                <label className="text-sm font-bold mb-2">Salario</label>
-                <input
-                    type="number"
-                    className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
-                    value={formData.salary === 0 ? '' : formData.salary}
-                    onChange={(e) => {
-                        const value = e.target.value;
-                        setFormData({
-                            ...formData,
-                            salary: value === '' ? 0 : Number(value),
-                        });
-                    }}
-                />
-            </div>
-
-
-
-                <div className="flex flex-col">
-                    <label className="text-sm font-bold mb-2">Edad mínima</label>
+                    <label className="text-sm font-bold mb-2">Edad:</label>
                     <input
                     type="number"
                     className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
-                    value={formData.minAge === 0 ? '' : formData.minAge}
+                    value={formData.age === 0 ? '' : formData.age}
                     onChange={(e) => {
                         const value = e.target.value;
                         setFormData({
                             ...formData,
-                            minAge: value === '' ? 0 : Number(value),
+                            age: value === '' ? 0 : Number(value),
                         });
                     }}
                 />
                 </div>
     
-                <div className="flex flex-col">
-                    <label className="text-sm font-bold mb-2">Edad máxima</label>
-                    <input
-                    type="number"
-                    className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
-                    value={formData.maxAge === 0 ? '' : formData.maxAge}
-                    onChange={(e) => {
-                        const value = e.target.value;
-                        setFormData({
-                            ...formData,
-                            maxAge: value === '' ? 0 : Number(value),
-                        });
-                    }}
-                />
-                </div>
+             
 
               
                                            
@@ -407,7 +326,7 @@ const FormComponent = () => {
                         <select
                         className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
                         value={formData.availabilityToTravel}
-                        onChange={(e) => setFormData({ ...formData, availabilityToTravel: e.target.value as YesOrNotravell })} // Asegúrate de que sea 'yes' o 'no'
+                        onChange={(e) => setFormData({ ...formData, availabilityToTravel: e.target.value as YesOrNotravell })} 
                     >
                         <option value="Si">Sí</option>
                         <option value="No">No</option>
@@ -437,54 +356,25 @@ const FormComponent = () => {
                         onChange={(e) => setFormData({ ...formData, gmail: e.target.value })}
                     />
                 </div>
-    
-                <div className="flex flex-col border-2 border-gray-300 p-2 rounded">
-                <label className="text-sm font-bold">Extras al salario</label> <p className="mb-2 text-sm">(haz click en las que desees agregar)</p>
-                <div className="flex flex-wrap gap-2">
-                    {extras.map((extra, index) => (
-                        <div key={index} className="flex items-center">
-                            <input
-                                type="checkbox"
-                                id={`extra-${index}`}
-                                value={extra}
-                                checked={formData.extra.includes(extra)} // Verifica si la opción está seleccionada
-                                onChange={(e) => handleExtraChange(e, extra)} // Llama a la función de manejo
-                                className="p-2 border text-gray-600 border-gray-300 rounded-md"
-                            />
-                            <label htmlFor={`extra-${index}`} className="ml-2">{extra}</label>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-               
-    
-            <div className="flex flex-col md:col-span-2 mt-4">
-  <label className="text-sm font-bold mb-2">Cargar Imagen</label>
-  <div className="w-full">
-    <ImageUpload onUpload={handleImageUpload} />
-  </div>
-</div>
-    
-<div className="max-w-2xl mx-auto p-4">
-    <div className="max-w-6xl mx-auto p-4">
-        <button
-            type="submit"
-            className="text-xl w-full font-bold mb-4 text-center bg-gray-600 text-white p-2 rounded hover:bg-gray-700"
-            disabled={loading}
-        >
-            {loading ? "Creando oferta..." : "Crear Oferta"}
-        </button>
-    </div>
+                <div className="flex justify-center items-center">
+  <button
+    className="px-2 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+    onClick={handleSubmit}
+    disabled={isSubmitting}
+  >
+    {isSubmitting ? 'Enviando...' : 'Enviar Postulación'}
+  </button>
 </div>
 
-
-                {error && <p className="col-span-1 md:col-span-2 lg:col-span-3 text-red-500 mt-4">{error}</p>}
-                {successMessage && <p className="col-span-1 md:col-span-2 lg:col-span-3 text-green-700 mt-4">{successMessage}</p>}
             </form>
+            {showNotification && (
+        <div className="absolute top-12 left-0 right-0 mx-auto w-max z-50">
+          <NotificationsForms message={notificationMessage} />
+        </div>
+      )}
         </div>
     );
     
 };
 
-export default FormComponent;
+

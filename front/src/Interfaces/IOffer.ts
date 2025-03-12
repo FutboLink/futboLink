@@ -71,16 +71,21 @@ export interface ICreateJobOffer {
 
 
 export interface IJobApplication {
-  id: string;
-  message: string;
-  status: JobStatus;
-  appliedAt: string;
-  recruiter: {
-    id:string;
-  }
-  player: {
-    id:string;
-  }
+  id?: string;
+ 
+  nationality: string;
+  location: string;
+  position: string;
+  category: string;
+  sportGenres:string;
+  sport: string;
+  transport: string[];
+  age: number;
+  availabilityToTravel: YesOrNotravell;
+  euPassport: YesOrNo;
+  gmail?: string;
+  minExperience: string;
+
 }
 
 export enum JobStatus {
@@ -100,7 +105,6 @@ export interface ICreateJob {
   contractTypes: string; 
   contractDurations: string;
   salary: number;
-  transport: string[];
   minAge: number;
   maxAge:number;
   availabilityToTravel: YesOrNotravell;

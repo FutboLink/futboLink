@@ -113,6 +113,10 @@ export class User {
   @Column({ type: 'int', nullable: true })
   height?: number;
 
+  @ApiProperty({ example: 18, description: 'Edad del usuario', nullable: true })
+  @Column({ type: 'int', nullable: true })
+  age?: number;
+
   @ApiProperty({ example: 75, description: 'Peso en kg', nullable: true })
   @Column({ type: 'int', nullable: true })
   weight?: number;

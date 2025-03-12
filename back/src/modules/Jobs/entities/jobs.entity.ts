@@ -100,7 +100,8 @@ export class Job {
     example: 35,
   })
   @Column()
-  maxAge: number;
+  maxAge: number; 
+
 
   @ApiProperty({
     description: 'Deporte relacionado con el trabajo',

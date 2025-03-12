@@ -110,6 +110,8 @@ export class CreateJobDto {
   @IsNumber()
   maxAge: number;
 
+
+
   @ApiProperty({
     description: 'Deporte relacionado con el trabajo',
     example: 'Fútbol 11',

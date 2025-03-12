@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Application } from 'src/modules/Applications/entities/applications.entity';
+import { YesOrNo, YesOrNotravell } from '../jobs.enum';
 
 @Entity('jobs')
 export class Job {
@@ -20,12 +21,6 @@ export class Job {
   @Column()
   title: string;
 
-  @ApiProperty({
-    example: 'Se busca un delantero como Messi',
-    description: 'Que juegue como Messi y que cobre como el Pulga Rodriguez',
-  })
-  @Column()
-  description: string;
 
   @ApiProperty({ example: 'Presencial', description: 'Ubicación del trabajo' })
   @Column()
@@ -51,25 +46,22 @@ export class Job {
     description: 'Tipo de oferta laboral',
   })
   @Column()
-  offerType: string;
+  contractDurations: string;
 
   @ApiProperty({ example: 'Delantero', description: 'Nivel de posición' })
   @Column()
   position: string;
 
   @ApiProperty({
-    example: ['zurdo', 'definición'],
+    example: ['Sueldo fijo', 'Bonos por rendimiento', 'Viáticos incluidos', 'Alojamiento incluido', 'No remunerado', 'A convenir', 'Equipamiento deportivo'],
     description: 'Competencias requeridas',
   })
   @Column('simple-array')
-  competencies: string[];
+  extra: string[];
 
-  @ApiProperty({
-    example: ['USA', 'Argentina'],
-    description: 'Países disponibles',
-  })
-  @Column('simple-array')
-  countries: string[];
+  @ApiProperty({ example: 'USA', description: 'Países disponibles' })
+  @Column()
+  nationality: string;
 
   @ApiProperty({
     example: 'https://example.com/job.png',
@@ -80,7 +72,77 @@ export class Job {
 
   @ApiProperty({ example: 'Presencial', description: 'Tipo de trabajo' })
   @Column()
-  type: string;
+  contractTypes: string;
+
+  @ApiProperty({
+    description: 'Categoría del trabajo',
+    example: 'Profesional',
+  })
+  @Column()
+  category: string;
+
+  @ApiProperty({
+    description: 'Género del deporte',
+    example: 'Masculino',
+  })
+  @Column()
+  sportGenres: string;
+
+  @ApiProperty({
+    description: 'Edad mínima del trabajador',
+    example: 18,
+  })
+  @Column()
+  minAge: number;
+
+  @ApiProperty({
+    description: 'Edad máxima del trabajador',
+    example: 35,
+  })
+  @Column()
+  maxAge: number;
+
+  @ApiProperty({
+    description: 'Deporte relacionado con el trabajo',
+    example: 'Fútbol 11',
+  })
+  @Column()
+  sport: string;
+
+  @ApiProperty({
+    description: 'Experiencia mínima necesaria para el trabajo',
+    example: 'Semiprofesional',
+  })
+  @Column()
+  minExperience: string;
+
+  @ApiProperty({
+    description: 'Disponibilidad para viajar',
+    example: 'yes',
+  })
+  @Column({
+    type: 'enum',
+    enum: YesOrNo,
+  })
+  availabilityToTravel: YesOrNotravell;
+
+  @ApiProperty({
+    description: '¿Requiere pasaporte de la UE?',
+    example: 'no',
+  })
+  @Column({
+    type: 'enum',
+    enum: YesOrNo,
+  })
+  euPassport: YesOrNo;
+
+  @ApiProperty({
+    description: 'Gmail del usuario (opcional)',
+    example: 'user@example.com',
+    required: false,
+  })
+  @Column({ nullable: true })
+  gmail?: string;
 
   @ApiProperty({
     type: () => User,

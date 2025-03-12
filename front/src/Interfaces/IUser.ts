@@ -36,6 +36,8 @@ export interface IProfileData {
   habilities: string[];
   videoUrl: string;
   socialMedia?: Record<string, string>;
+  primaryPosition?: string;
+  secondaryPosition?: string;
   puestoDeportivo?: {
     position: string;
     experience: number;
@@ -43,8 +45,8 @@ export interface IProfileData {
 }
 
 export enum PasaporteUe {
-  SI = "SI",
-  NO = "NO",
+  SI = "Si",
+  NO = "No",
 }
 
 export interface IRegisterUser {

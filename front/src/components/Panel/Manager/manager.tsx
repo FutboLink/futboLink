@@ -106,7 +106,6 @@ const PanelManager = () => {
             <h2 className="text-2xl font-semibold">
               {userData?.nameAgency}
             </h2>
-            <p className="text-sm">{userData?.phone}</p>
             <p className="text-sm">{userData?.email}</p>
           </div>
         </div>

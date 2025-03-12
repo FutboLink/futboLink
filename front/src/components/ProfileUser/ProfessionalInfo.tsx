@@ -13,9 +13,12 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const [showErrorNotification, setShowErrorNotification] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [error, setError] = useState<string | null>(null);
+  
 
   // Variable de estado para almacenar los datos obtenidos y modificados
   const [fetchedProfileData, setFetchedProfileData] = useState<IProfileData | null>(null);
+
+  
 
   // useEffect para hacer la solicitud a la API cuando el token cambia
   useEffect(() => {
@@ -79,20 +82,29 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = () => {
               {/* Puesto Principal */}
               <div>
                 <label className="font-semibold text-gray-700">Puesto Principal</label>
-                <select className="border rounded-md p-2 mt-2 w-full text-gray-700">
-                  <option value="">Selecciona tu puesto principal</option>
-                  <option value="Arquero">Arquero</option>
-                  <option value="Defensa central">Defensa central</option>
-                  <option value="Defensa lateral">Defensa lateral</option>
-                  <option value="Centrocampista">Centrocampista</option>
-                  <option value="Delantero">Delantero</option>
-                </select>
+                <select 
+                name="primaryPosition" 
+                value={fetchedProfileData.primaryPosition || ""} 
+                onChange={handleChange} 
+                className="border rounded-md p-2 mt-2 w-full text-gray-700"
+              >
+                <option value="">Selecciona tu puesto principal</option>
+                <option value="Arquero">Arquero</option>
+                <option value="Defensa central">Defensa central</option>
+                <option value="Defensa lateral">Defensa lateral</option>
+                <option value="Centrocampista">Centrocampista</option>
+                <option value="Delantero">Delantero</option>
+              </select>
+
               </div>
   
               {/* Puesto Secundario */}
               <div>
                 <label className="font-semibold mt-4 text-gray-700">Puesto Secundario</label>
-                <select className="border rounded-md p-2 mt-2 w-full text-gray-700">
+                <select className="border rounded-md p-2 mt-2 w-full text-gray-700"
+                name="secondaryPosition" 
+                value={fetchedProfileData.secondaryPosition || ""} 
+                onChange={handleChange} >
                   <option value="">Selecciona tu puesto secundario</option>
                   <option value="Arquero">Arquero</option>
                   <option value="Defensa central">Defensa central</option>
@@ -147,7 +159,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = () => {
                   <option value="">Seleccione una opción</option>
                   <option value="Derecho">Derecho</option>
                   <option value="Izquierdo">Izquierdo</option>
-                  <option value="Ambos">Ambidiestro</option>
+                  <option value="Ambidiestro">Ambidiestro</option>
                 </select>
               </div>
             </div>
@@ -174,8 +186,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = () => {
   <input
     type="date"  // Usamos "date" para mostrar un calendario
     name="fechaInicio"
-    value={fetchedProfileData.fechaInicio || ""}  // Se asegura de que la fecha sea una cadena o vacía
-    onChange={handleChange}
+    value={fetchedProfileData.fechaInicio || ""}  
     className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
   />
 </div>
@@ -186,7 +197,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = () => {
   <input
     type="date"  // Usamos "date" para mostrar un calendario
     name="fechaFinalizacion"
-    value={fetchedProfileData.fechaFinalizacion || ""}  // Se asegura de que la fecha sea una cadena o vacía
+    value={fetchedProfileData.fechaFinalizacion || ""} 
     onChange={handleChange}
     className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
   />

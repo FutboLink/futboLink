@@ -1,7 +1,7 @@
 "use client"
 import React, { useContext, useState } from "react";
 import { UserContext } from "../Context/UserContext";
-import { ICreateJob, YesOrNo } from "@/Interfaces/IOffer";
+import { ICreateJob, YesOrNo, YesOrNotravell } from "@/Interfaces/IOffer";
 import { fetchCreateJob } from "../Fetchs/OfertasFetch/OfertasFetchs";
 import ImageUpload from "../Cloudinary/ImageUpload";
 import useNationalities from "../Forms/FormUser/useNationalitys";
@@ -33,6 +33,7 @@ const FormComponent = () => {
     const [formData, setFormData] = useState<ICreateJob>({
         title: "",
         nationality: "",
+        location:"",
         position: "",
         category: "",
         sport: "",
@@ -45,8 +46,8 @@ const FormComponent = () => {
         maxAge: 0,
         sportGenres:"",
         minExperience: "",
-        availabilityToTravel: "yes" as YesOrNo, 
-        euPassport: "yes" as YesOrNo,
+        availabilityToTravel: "Si" as YesOrNotravell, 
+        euPassport: "Si" as YesOrNo,
         gmail: "",
         imgUrl: "",
     });
@@ -112,6 +113,7 @@ const FormComponent = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log(formData);
         setLoading(true);
         setError(null);
         setSuccessMessage(null); 
@@ -136,6 +138,7 @@ const FormComponent = () => {
                 setFormData({
                     title: "",
                     nationality: "",
+                    location:"",
                     position: "",
                     category: "",
                     sport: "",
@@ -148,8 +151,8 @@ const FormComponent = () => {
                     maxAge: 0,
                     sportGenres:"",
                     minExperience: "",
-                    availabilityToTravel: "yes" as YesOrNo, 
-                    euPassport: "yes" as YesOrNo,
+                    availabilityToTravel: "Si" as YesOrNotravell, 
+                    euPassport: "Si" as YesOrNo,
                     gmail: "",
                     imgUrl: "",
                 });
@@ -208,6 +211,17 @@ const FormComponent = () => {
           />
         </div>
   
+        <div className="flex flex-col">
+                    <label className="text-sm font-bold mb-2">Ciudad:</label>
+                    <input
+                        type="text"
+                        className="p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+                        value={formData.location}
+                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                        placeholder="Ciudad de la oferta laboral"
+                    />
+                </div>
+    
         {/* Dropdown de opciones */}
         {isOpen && (
           <div className="absolute z-10 w-full sm:w-auto max-w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
@@ -397,6 +411,17 @@ const FormComponent = () => {
                         ))}
                     </select>
                 </div>
+
+                <div className="flex flex-col">
+                    <label className="text-sm font-bold mb-2">Mínimo de experiencia:</label>
+                    <input
+                        type="text"
+                        className="p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+                        value={formData.minExperience}
+                        onChange={(e) => setFormData({ ...formData, minExperience: e.target.value })}
+                        placeholder="Mínimo de experiencia de la oferta laboral"
+                    />
+                </div>
     
                 <div className="flex flex-col">
                     <label className="text-sm font-bold mb-2">Disponibilidad para viajar</label>
@@ -404,10 +429,10 @@ const FormComponent = () => {
                         <select
                         className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
                         value={formData.availabilityToTravel}
-                        onChange={(e) => setFormData({ ...formData, availabilityToTravel: e.target.value as YesOrNo })} // Asegúrate de que sea 'yes' o 'no'
+                        onChange={(e) => setFormData({ ...formData, availabilityToTravel: e.target.value as YesOrNotravell })} // Asegúrate de que sea 'yes' o 'no'
                     >
-                        <option value="yes">Sí</option>
-                        <option value="no">No</option>
+                        <option value="Si">Sí</option>
+                        <option value="No">No</option>
                     </select>
 
                 </div>
@@ -419,8 +444,8 @@ const FormComponent = () => {
                         value={formData.euPassport}
                         onChange={(e) => setFormData({ ...formData, euPassport: e.target.value as YesOrNo })}
                     >
-                        <option value="yes">Sí</option>
-                        <option value="no">No</option>
+                        <option value="Si">Sí</option>
+                        <option value="No">No</option>
                     </select>
 
                 </div>

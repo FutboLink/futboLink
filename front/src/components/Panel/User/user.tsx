@@ -9,7 +9,6 @@ import { IProfileData} from "@/Interfaces/IUser";
 import { UserContext } from "@/components/Context/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { IoDocumentTextOutline } from "react-icons/io5";
 
 const UserProfile = () => {
   const {token,logOut} = useContext(UserContext);
@@ -85,7 +84,6 @@ const UserProfile = () => {
               {userData?.name} {userData?.lastname}
             </h2>
             <p className="text-lg">{userData?.puesto}</p>
-            <p className="text-sm">{userData?.phone}</p>
             <p className="text-sm">{userData?.email}</p>
           </div>
         </div>
@@ -220,18 +218,7 @@ const UserProfile = () => {
 
 
 
-                <p className="flex items-center mt-2">
-                <span className="font-medium text-gray-700 mr-2">CV:</span> 
-                <Link
-                  href={userH.additionalDocument}
-                  className="text-blue-500 hover:underline flex items-center"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Ver
-                  <IoDocumentTextOutline className="ml-2" />
-                </Link>
-              </p> 
+              
                 
               </div>
 
@@ -269,7 +256,7 @@ const UserProfile = () => {
       <div>
         <h4 className="font-semibold text-lg">Puesto Principal</h4>
         <div className="bg-gray-100 p-4 rounded-md shadow-sm">
-          <p className="text-gray-500">Defensa central</p>
+          <p className="text-gray-500">{userData?.primaryPosition}</p>
         </div>
       </div>
 
@@ -277,7 +264,7 @@ const UserProfile = () => {
       <div>
         <h4 className="font-semibold text-lg mt-4 md:mt-0">Puesto Secundario</h4>
         <div className="bg-gray-100 p-4 rounded-md shadow-sm">
-          <p className="text-gray-500">Defensa lateral</p>
+          <p className="text-gray-500">{userData?.secondaryPosition}</p>
         </div>
       </div>
 
@@ -285,7 +272,7 @@ const UserProfile = () => {
       <div className="mt-4 md:mt-0">
         <h4 className="font-semibold text-lg">Pasaporte UE</h4>
         <div className="bg-gray-100 p-4 rounded-md shadow-sm">
-          <p className="text-gray-500">Sí</p>
+          <p className="text-gray-500">{userData?.pasaporteUe}</p>
         </div>
       </div>
     </div>

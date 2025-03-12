@@ -38,6 +38,14 @@ export class User {
   password: string;
 
   @ApiProperty({
+    example: 'Kinesiólogo, utilero,etc',
+    description: 'Puesto del usuario',
+  })
+  @Column({ nullable: true })
+ puesto?: string;
+
+
+  @ApiProperty({
     example: UserType.PLAYER,
     description: 'Rol del usuario',
     enum: UserType,
@@ -94,12 +102,12 @@ export class User {
   birthday?: Date;
 
   @ApiProperty({ example: 'España', description: 'País donde puede trabajar' })
-  @Column()
-  countryToWork: string;
+  @Column({ nullable: true })
+  countryToWork?: string;
 
   @ApiProperty({ example: PasaporteUe.SI, description: '¿Tiene pasaporte de la UE?', enum: PasaporteUe })
-  @Column({ type: 'enum', enum: PasaporteUe })
-  pasaporteUe: PasaporteUe;
+  @Column({ type: 'enum', enum: PasaporteUe, nullable: true })
+  pasaporteUe?: PasaporteUe;
 
   @ApiProperty({ example: 180, description: 'Altura en cm', nullable: true })
   @Column({ type: 'int', nullable: true })
@@ -122,8 +130,8 @@ export class User {
   habilities?: string[];
 
   @ApiProperty({ example: 'Delantero', description: 'Posición primaria' })
-  @Column()
-  primaryPosition: string;
+  @Column({ nullable: true })
+  primaryPosition?: string;
 
   @ApiProperty({ example: 'Extremo', description: 'Posición secundaria', nullable: true })
   @Column({ nullable: true })
@@ -149,15 +157,20 @@ export class User {
   @Column({ type: 'json', nullable: true })
   socialMedia?: Record<string, string>;
 
+  @Column({ type: 'json', nullable: true })
   @ApiProperty({
     description: 'Puestos del usuario (opcional)',
     example: [{ position: 'Delantero', experience: 5 }],
     nullable: true,
   })
+  puestoDeportivo?: { position: string; experience: number }[];
+
+  
   @ApiProperty({ description: 'Suscripción del usuario' })
-  @OneToOne(() => Subscription, (subscription) => subscription.user, { cascade: true, onDelete: 'CASCADE' })
+  
   @JoinColumn()
-  subscription: Subscription;
+  @Column({ nullable: true })
+  subscription?: string;
 
   @ApiProperty({ description: 'CV del usuario (archivo PDF o TXT)', nullable: true })
   @Column({ nullable: true })

@@ -21,17 +21,26 @@ export interface IOffer {
 export interface IOfferCard {
   id?: string;
   title: string;
-  description: string;
-  flagCode?: string;
-  salary?: string;
+  nationality: string;
   location: string;
+  position: string;
+  category: string;
+  sportGenres:string;
+  sport: string;
+  contractTypes: string; 
+  contractDurations: string;
+  salary: number;
+  transport: string[];
+  minAge: number;
+  maxAge:number;
+  availabilityToTravel: YesOrNotravell;
+  euPassport: YesOrNo;
+  gmail?: string;
+  imgUrl: string;
+  extra: string[];
+  minExperience: string;
   createdAt: string;
   status: string;
-  offerType: string;
-  position: string;
-  competencies: string[];
-  countries: string[];
-  imgUrl: string;
   type: string;
   recruiter: {
     id: string;
@@ -81,27 +90,35 @@ export enum JobStatus {
 }
 
 export interface ICreateJob {
-  title: string;
+  title: string; 
   nationality: string;
+  location: string;
   position: string;
   category: string;
+  sportGenres:string;
   sport: string;
   contractTypes: string; 
   contractDurations: string;
   salary: number;
-  extra: string[];
   transport: string[];
   minAge: number;
   maxAge:number;
-  sportGenres:string;
-  minExperience: string;
-  availabilityToTravel: YesOrNo;
+  availabilityToTravel: YesOrNotravell;
   euPassport: YesOrNo;
   gmail?: string;
   imgUrl: string;
+  extra: string[];
+  minExperience: string;
 }
 
+
+
 export enum YesOrNo {
-  yes = "yes",
-  no = "no"
+  SI = 'Si',
+  NO = 'No'
+}
+
+export enum YesOrNotravell {
+  SI = 'Si',
+  NO = 'No'
 }

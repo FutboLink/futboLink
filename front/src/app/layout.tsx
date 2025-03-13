@@ -27,8 +27,7 @@ export default function RootLayout({
 }>) {
   const pathname = usePathname(); // Obtener la ruta actual
 
-  // Condición para no mostrar Navbar en la página de inicio
-  const showNavbar = pathname !== "/"; // Excluir Navbar en la página de inicio
+ 
 
   return (
     <html lang="en">
@@ -36,7 +35,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <UserProvider>
-        {showNavbar && <Navbar />}{" "}
+         <Navbar />
         <div>{children}</div>
         <SocialButton />
         <Footer />

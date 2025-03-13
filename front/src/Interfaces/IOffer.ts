@@ -15,11 +15,114 @@ export interface IOffer {
   salary: string;
 }
 
+
+
+
 export interface IOfferCard {
-  id: number;
+  id?: string;
+  title: string;
+  nationality: string;
+  location: string;
+  position: string;
+  category: string;
+  sportGenres:string;
+  sport: string;
+  contractTypes: string; 
+  contractDurations: string;
+  salary: number;
+  transport: string[];
+  minAge: number;
+  maxAge:number;
+  availabilityToTravel: YesOrNotravell;
+  euPassport: YesOrNo;
+  gmail?: string;
+  imgUrl: string;
+  extra: string[];
+  minExperience: string;
+  createdAt: string;
+  status: string;
+  type: string;
+  recruiter: {
+    id: string;
+    role: "RECRUITER" | "AGENCY"; // roles posibles para el reclutador
+  };
+
+}
+
+
+export interface IApplication {
+  message: string;
+  userId:string;
+  jobId: string;
+}
+
+export interface ICreateJobOffer {
   title: string;
   description: string;
-  country: string;
-  flagCode: string;
-  salary?: string;
+  location: string;
+  salary: number;
+  offerType: string;
+  position: string;
+  competencies: string[];
+  countries: string[];
+  imgUrl: string;
+  type: string;
+}
+
+
+export interface IJobApplication {
+  id?: string;
+ 
+  nationality: string;
+  location: string;
+  position: string;
+  category: string;
+  sportGenres:string;
+  sport: string;
+  transport: string[];
+  age: number;
+  availabilityToTravel: YesOrNotravell;
+  euPassport: YesOrNo;
+  gmail?: string;
+  minExperience: string;
+
+}
+
+export enum JobStatus {
+  OPEN = "OPEN",
+  PENDING = "PENDING",
+  CLOSED = "CLOSED",
+}
+
+export interface ICreateJob {
+  title: string; 
+  nationality: string;
+  location: string;
+  position: string;
+  category: string;
+  sportGenres:string;
+  sport: string;
+  contractTypes: string; 
+  contractDurations: string;
+  salary: number;
+  minAge: number;
+  maxAge:number;
+  availabilityToTravel: YesOrNotravell;
+  euPassport: YesOrNo;
+  gmail?: string;
+  imgUrl: string;
+  extra: string[];
+  minExperience: string;
+}
+
+
+
+export enum YesOrNo {
+  SI = 'Si',
+  NO = 'No'
+}
+
+export enum YesOrNotravell {
+  SI = 'Si',
+  NO = 'No'
 }

@@ -1,4 +1,4 @@
-import AgencyForm from "../../../components/OptionUsersForms/AgencyForm/AgencyForm";
+import AgencyForm from "@/components/OptionUsersForms/AgencyForm/AgencyForm";
 
 function Page() {
   return (

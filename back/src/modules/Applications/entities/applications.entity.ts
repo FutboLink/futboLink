@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Contract } from 'src/modules/contracts/entities/contract.entity';
-import { Job } from 'src/modules/Jobs/entities/jobs.entity';
+import { JobEntity } from 'src/modules/Jobs/entities/jobs.entity';
 import { User } from 'src/modules/user/entities/user.entity';
 import {
   Column,
@@ -21,10 +21,6 @@ export class Application {
   @ApiProperty({ type: () => User, description: 'Usuario que aplica' })
   @ManyToOne(() => User, (user) => user.applications)
   player: User;
-
-  @ApiProperty({ type: () => Job, description: 'Trabajo al que se aplica' })
-  @ManyToOne(() => Job, (job) => job.applications)
-  job: Job;
 
   @ApiProperty({
     example: 'Estoy interesado en esta posición.',
@@ -55,4 +51,7 @@ export class Application {
   @OneToOne(() => Contract, (contract) => contract.application)
   @JoinColumn({ name: 'Contracts' })
   contract: Contract;
+
+  @ManyToOne(() => JobEntity, (job) => job.applications)
+  job: JobEntity;
 }

@@ -7,10 +7,11 @@ import {
   IsString,
   IsDate,
   IsNumber,
-  IsArray,
+  IsArray,  
 } from 'class-validator';
-import { UserType } from '../roles.enum';
+import { PasaporteUe, UserType } from '../roles.enum';
 import { ApiProperty } from '@nestjs/swagger';
+
 
 export class RegisterUserDto {
   @ApiProperty({ description: 'Nombre del usuario', example: 'Juan' })
@@ -101,6 +102,14 @@ export class RegisterUserDto {
   birthday?: Date;
 
   @ApiProperty({
+    description: 'Edad del usuario',
+    example: 18,
+    required: false,
+  })
+  @IsNumber()
+  age?: number;
+
+  @ApiProperty({
     description: 'Altura del usuario en centímetros (opcional)',
     example: 180,
     required: false,
@@ -140,4 +149,70 @@ export class RegisterUserDto {
   @IsArray()
   @IsString({ each: true })
   habilities?: string[];
+
+  @ApiProperty({ description: 'URL de video del usuario (opcional)', example: 'https://example.com/video.mp4', required: false })
+  @IsOptional()
+  @IsString()
+  videoUrl?: string;
+
+  @ApiProperty({
+    description: 'Puestos del usuario (opcional)',
+    example: [{ position: 'Delantero', experience: 5 }],
+    required: false,
+  })
+
+  @IsOptional()
+  @IsString()
+  club?: string;
+
+  @IsOptional()
+  @IsString()
+  puesto?: string;
+
+  @IsOptional()
+  socialMedia?: { transfermarkt?: string; youtube?: string; twitter?: string };
+  
+  @IsOptional()
+  @IsString()
+  countryToWork?: string;
+
+  @IsOptional()
+  @IsString()
+  primaryPosition?: string;
+
+  @IsOptional()
+  @IsString()
+  secondaryPosition?: string;
+
+  @IsOptional()
+  @IsEnum(PasaporteUe)
+  pasaporteUe?: PasaporteUe;
+
+  @IsOptional()
+  @IsString()
+  fechaInicio?: string;
+
+  @IsOptional()
+  @IsString()
+  fechaFinalizacion?: string;
+
+  @IsOptional()
+  @IsString()
+  categoriaEquipo?: string;
+
+  @IsOptional()
+  @IsString()
+  nivelCompetencia?: string;
+
+  @IsOptional()
+  @IsString()
+  logros?: string;
+
+  @IsOptional()
+  @IsString()
+  subscription?: string;
+
+  @IsOptional()
+  @IsString()
+  cv?: string;
 }

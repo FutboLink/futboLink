@@ -3,20 +3,18 @@
 import { useState, useEffect, useContext } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import logo from "../../../public/logoP1.png";
 import Head from "next/head";
 import Link from "next/link";
 import { UserContext } from "../Context/UserContext";
+import { FaUser } from "react-icons/fa";
 
 function NavbarHome() {
   const router = useRouter();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  const { isLogged } = useContext(UserContext); 
+  const { isLogged, role } = useContext(UserContext); 
 
-  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
   const navigateTo = (path: string) => {
     router.push(path);
@@ -43,10 +41,10 @@ function NavbarHome() {
   return (
     <>
       <Head>
-        <title>Futbol Career - Ofertas, Cursos, Noticias y Más</title>
+        <title>FutboLink - Ofertas, Cursos, Noticias y Más</title>
         <meta
           name="description"
-          content="Encuentra ofertas de futbol, cursos de formación, noticias y más con Futbol Career. Regístrate o inicia sesión para empezar."
+          content="Encuentra ofertas de futbol, cursos de formación, noticias y más con FutboLink. Regístrate o inicia sesión para empezar."
         />
         <meta name="robots" content="index, follow" />
       </Head>
@@ -62,16 +60,16 @@ function NavbarHome() {
           <div id="sectionOne" className="flex items-center gap-6">
             <Link href={"/"}>
               <Image
-                src={logo}
+                src="/logoD.png"
                 height={75}
                 width={75}
-                alt="Futbol Career logo"
+                alt="FutboLink logo"
                 className="rounded-2xl"
               />
             </Link>
             <ul className="flex gap-6 text-lg text-white">
               <li
-                onClick={() => navigateTo("/Offer")}
+                onClick={() => navigateTo("/jobs")}
                 className="px-4 hover:bg-green-200 hover:text-black hover:rounded-md transition-all cursor-pointer"
                 aria-label="Ofertas de empleo"
               >
@@ -85,7 +83,7 @@ function NavbarHome() {
                 Cursos y Formación
               </li>
               <li
-                onClick={() => navigateTo("/NoticesApp")}
+                onClick={() => navigateTo("/Notices")}
                 className="px-4 hover:bg-green-200 hover:text-black hover:rounded-md transition-all cursor-pointer"
                 aria-label="Noticias relacionadas con futbol"
               >
@@ -108,7 +106,7 @@ function NavbarHome() {
               <li
                 onClick={() => navigateTo("/Help")}
                 className="px-4 hover:bg-green-200 hover:text-black hover:rounded-md transition-all cursor-pointer"
-                aria-label="Cómo usar Futbol Career"
+                aria-label="Cómo usar FutboLink"
               >
                 ¿Cómo uso FC?
               </li>
@@ -118,15 +116,29 @@ function NavbarHome() {
           {/* Sección derecha con los botones de Iniciar sesión y Registrarse (solo en escritorio) */}
           <div id="sectionTwo" className="relative flex sm:ml-auto">
           {isLogged ? (
-            // Si está logueado, mostrar el enlace al perfil
-            <button
-              onClick={() => navigateTo("/profile")}
-              className="bg-yellow-500 text-black px-8 py-2 rounded-md hover:bg-yellow-600"
-            >
-              Perfil
-            </button>
-          ) : (
-            <>
+    role ? ( // Verifica si `role` tiene un valor antes de renderizar
+      role === "PLAYER" ? (
+        <button onClick={() => navigateTo("/PanelUsers/Player")}>
+          <FaUser className="text-green-700" />
+        </button>
+      ) : role === "AGENCY" ? (
+        <button onClick={() => navigateTo("/PanelUsers/Agency")}>
+          <FaUser className="text-green-500" />
+        </button>
+      ) : role === "RECRUITER" ? (
+        <button onClick={() => navigateTo("/PanelUsers/Manager")}>
+          <FaUser className="text-green-500" />
+        </button>
+      ) : role === "ADMIN" ? (
+        <button onClick={() => navigateTo("/PanelAdmin")}>
+          <FaUser className="text-green-500" />
+        </button>
+      ) : null
+    ) : (
+      <div>Loading...</div> // O algún otro mensaje o indicador de carga
+    )
+  ) : (
+    <>
             <button
              onClick={() => navigateTo("/Login")}
               className="bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
@@ -154,10 +166,10 @@ function NavbarHome() {
           {/* Logo */}
           <Link href={"/"}>
             <Image
-              src={logo}
+              src="/logoD.png"
               height={60}
               width={60}
-              alt="Futbol Career logo"
+              alt="FutboLink logo"
               className="rounded-2xl"
             />
           </Link>
@@ -190,7 +202,7 @@ function NavbarHome() {
           <div className="bg-green-600 text-white text-lg p-4">
             <ul>
               <li
-                onClick={() => navigateTo("/Offer")}
+                onClick={() => navigateTo("/jobs")}
                 className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
               >
                 Ofertas
@@ -202,7 +214,7 @@ function NavbarHome() {
                 Cursos y Formación
               </li>
               <li
-                onClick={() => navigateTo("/NoticesApp")}
+                onClick={() => navigateTo("/Notices")}
                 className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
               >
                 Noticias
@@ -229,17 +241,31 @@ function NavbarHome() {
 
             <div className="mt-4">
             {isLogged ? (
-            // Si está logueado, mostrar el enlace al perfil
-            <button
-              onClick={() => navigateTo("/profile")}
-              className="bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
-            >
-              Perfil
-            </button>
-          ) : (
-            <>
+    role ? ( // Verifica si `role` tiene un valor antes de renderizar
+      role === "PLAYER" ? (
+        <button onClick={() => navigateTo("/PanelUsers/Player")}>
+          <FaUser className="text-green-700" />
+        </button>
+      ) : role === "AGENCY" ? (
+        <button onClick={() => navigateTo("/PanelUsers/Agency")}>
+          <FaUser className="text-green-500" />
+        </button>
+      ) : role === "RECRUITER" ? (
+        <button onClick={() => navigateTo("/PanelUsers/Manager")}>
+          <FaUser className="text-green-500" />
+        </button>
+      ) : role === "ADMIN" ? (
+        <button onClick={() => navigateTo("/PanelAdmin")}>
+          <FaUser className="text-green-500" />
+        </button>
+      ) : null
+    ) : (
+      <div>Loading...</div> // O algún otro mensaje o indicador de carga
+    )
+  ) : (
+    <>
               <button
-                onClick={toggleDropdown}
+                onClick={() => navigateTo("/OptionUsers")}
                 className="w-full bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
               >
                 Iniciar sesión

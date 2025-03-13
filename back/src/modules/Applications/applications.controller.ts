@@ -13,14 +13,15 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { ApplicationsService } from './applications.service';
+
 import { CreateApplicationsDto } from './dto/applications.dto';
+import { ApplicationService } from './applications.service';
 
 @ApiTags('Applications')
 @ApiBearerAuth()
 @Controller('applications')
-export class ApplicationsController {
-  constructor(private readonly applicationsService: ApplicationsService) {}
+export class ApplicationController {
+  constructor(private readonly applicationService: ApplicationService) {}
 
   @Post()
   @ApiOperation({ summary: 'Crear una nueva aplicación' })
@@ -33,23 +34,23 @@ export class ApplicationsController {
 
     console.log(jobId);
 
-    return this.applicationsService.apply(playerId, jobid, message);
+    return this.applicationService.apply(playerId, jobid, message);
   }
 
   @Get('/jobs/:id')
   @ApiOperation({ summary: 'Listar aplicaciones de un trabajo' })
   @ApiResponse({ status: 200, description: 'Lista de aplicaciones' })
-  async listApplications(@Param('id', ParseIntPipe) jobId: string) {
-    return this.applicationsService.listApplications(jobId);
+  async listApplications(@Param('id') jobId: string) {
+    return this.applicationService.listApplications(jobId);
   }
 
   @Patch('/:id/status')
   @ApiOperation({ summary: 'Actualizar el estado de una aplicación' })
   @ApiResponse({ status: 200, description: 'Estado actualizado exitosamente' })
   async updateStatus(
-    @Param('id', ParseIntPipe) applicationId: string,
+    @Param('id') applicationId: string,
     @Body('status') status: string,
   ) {
-    return this.applicationsService.updateStatus(applicationId, status);
+    return this.applicationService.updateStatus(applicationId, status);
   }
 }

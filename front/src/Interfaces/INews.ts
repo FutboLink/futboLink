@@ -8,7 +8,6 @@ export interface INews {
 
 // Interfaz para las props de la página de noticia
 export interface INewsPageProps {
-  params: {
-    id: string; // El ID de la noticia, que es un string
-  };
+  params: Promise<{ id: string }>;
 }
+

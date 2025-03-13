@@ -1,14 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Image from "next/image";
 
-AOS.init();
-
 function FaqSection() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      AOS.init();
+    }
+  }, []);
 
   const toggleAnswer = (index: number) => {
     setActiveIndex(activeIndex === index ? null : index);
@@ -34,18 +38,21 @@ function FaqSection() {
 
   return (
     <section className="py-16 mt-20 px-6 bg-gray-100">
-      <div className="flex items-center justify-between mb-12">
-        <div className="w-1/2">
+      <div className="flex flex-col md:flex-row items-center justify-between mb-12">
+        {/* Imagen */}
+        <div className="w-full md:w-1/2 mb-6 md:mb-0">
           <Image
             src="https://img.freepik.com/foto-gratis/estadio-barcelona-helicoptero-espana_1398-4989.jpg?t=st=1736458259~exp=1736461859~hmac=c6c4d1301166fce56714bc260da93f3df68e9776479676d8a36364cb06d5c9a2&w=996"
             alt="Imagen explicativa"
-            className="w-auto rounded-lg shadow-lg"
+            className="w-full rounded-lg shadow-lg"
             width={600}
             height={500}
           />
         </div>
-        <div className="w-1/2 pl-8">
-          <h2 className="text-3xl font-bold mb-6 text-gray-800">
+
+        {/* Texto de preguntas frecuentes */}
+        <div className="w-full md:w-1/2 md:pl-8">
+          <h2 className="text-3xl font-bold mb-6 text-gray-800 text-center md:text-left">
             ¿Todavía con dudas? Las despejamos para ti a continuación…
           </h2>
           <div className="space-y-6">

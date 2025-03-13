@@ -102,6 +102,14 @@ export class RegisterUserDto {
   birthday?: Date;
 
   @ApiProperty({
+    description: 'Edad del usuario',
+    example: 18,
+    required: false,
+  })
+  @IsNumber()
+  age?: number;
+
+  @ApiProperty({
     description: 'Altura del usuario en centímetros (opcional)',
     example: 180,
     required: false,
@@ -157,24 +165,28 @@ export class RegisterUserDto {
   @IsString()
   club?: string;
 
+  @IsOptional()
   @IsString()
-  puesto: string;
+  puesto?: string;
 
   @IsOptional()
   socialMedia?: { transfermarkt?: string; youtube?: string; twitter?: string };
-
+  
+  @IsOptional()
   @IsString()
-  countryToWork: string;
+  countryToWork?: string;
 
+  @IsOptional()
   @IsString()
-  primaryPosition: string;
+  primaryPosition?: string;
 
   @IsOptional()
   @IsString()
   secondaryPosition?: string;
 
+  @IsOptional()
   @IsEnum(PasaporteUe)
-  pasaporteUe: PasaporteUe;
+  pasaporteUe?: PasaporteUe;
 
   @IsOptional()
   @IsString()
@@ -196,8 +208,9 @@ export class RegisterUserDto {
   @IsString()
   logros?: string;
 
+  @IsOptional()
   @IsString()
-  suscripcion: string;
+  subscription?: string;
 
   @IsOptional()
   @IsString()

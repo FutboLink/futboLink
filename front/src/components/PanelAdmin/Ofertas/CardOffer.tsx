@@ -4,64 +4,90 @@ import Image from "next/image";
 import Link from "next/link";
 
 const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
-  console.log(offer.imgUrl); // Verifica el valor aquí
-
   return (
-    <div className="bg-white border hover:cursor-pointer border-gray-300 rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl flex flex-col h-full">
-      {/* Imagen de la oferta */}
-      <Image
-  width={500}
-  height={500}
-  src={offer.imgUrl || "/cursosYFormaciones.JPG"}
-  alt={offer.title}
-  className="w-full aspect-w-16 aspect-h-9 object-cover rounded-lg shadow-md"
-/>
-
-
-
-      <div className="flex flex-col p-6 gap-4 flex-grow">
-        {/* Ubicación */}
-        <div className="flex items-center gap-2">
-          <p className="text-gray-800 text-sm font-medium">Ubicación del puesto:</p>
-          <span className="text-gray-700 text-sm font-medium">{offer.location}</span>
+    <div className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden flex flex-col min-h-[500px] max-w-sm mx-auto">
+      {/* Contenedor de la imagen y el contenido */}
+      <div className="flex items-center p-6 space-x-4">
+        {/* Imagen de la oferta */}
+        <div className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden">
+          <Image
+            width={100}
+            height={100}
+            src={offer.imgUrl || "/cursosYFormaciones.JPG"}
+            alt={offer.title}
+            className="w-full h-full object-cover"
+          />
         </div>
 
-        {/* Título y descripción */}
-        <h3 className="text-xl font-semibold text-gray-800">{offer.title}</h3>
-        <p className="text-gray-600 text-sm line-clamp-3">{offer.description}</p>
+        {/* Contenido (título, ubicación, etc.) */}
+        <div className="flex flex-col justify-between flex-grow space-y-2">
+          {/* Título */}
+          <h3 className="text-xl font-semibold text-gray-800 hover:text-green-600 transition-colors">
+            {offer.title}
+          </h3>
 
-        {/* Competencias */}
-        <div className="flex flex-wrap gap-2 mt-4">
-          {offer.competencies.map((competency, index) => (
-            <span
-              key={index}
-              className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full"
-            >
-              {competency}
-            </span>
-          ))}
-        </div>
-
-        {/* Salario */}
-        <div className="mt-4">
-          <p className="text-gray-800 text-sm font-semibold">
-            Salario:{" "}
-            <span className="text-green-600">${offer.salary}</span>
-          </p>
+          {/* Información adicional */}
+          <div className="text-sm text-gray-600 space-y-1">
+            <p><strong>Nacionalidad:</strong> {offer.nationality}</p>
+            <p><strong>Posición:</strong> {offer.position}</p>
+            <p><strong>Categoría:</strong> {offer.category}</p>
+            <p><strong>Géneros Deportivos:</strong> {offer.sportGenres}</p>
+            <p><strong>Tipo de contrato:</strong> {offer.contractTypes}</p>
+            <p><strong>Duración del contrato:</strong> {offer.contractDurations}</p>
+            <p><strong>Edad mínima:</strong> {offer.minAge}</p>
+            <p><strong>Edad máxima:</strong> {offer.maxAge}</p>
+            <p><strong>Disponibilidad para viajar:</strong> {offer.availabilityToTravel}</p>
+            <p><strong>Pasaporte UE:</strong> {offer.euPassport}</p>
+          </div>
+          
+          {/* Información extra */}
+          {offer.extra && offer.extra.length > 0 && (
+            <div className="text-sm text-gray-600">
+              <strong>Información extra:</strong>
+              <ul className="list-disc pl-5 space-y-1">
+                {offer.extra.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
 
+      {/* Sección de transporte */}
+      <div className="flex flex-wrap gap-2 p-4">
+        {Array.isArray(offer.transport) && offer.transport.length > 0 ? (
+          offer.transport.map((transport, index) => (
+            <span
+              key={index}
+              className="bg-blue-100 text-blue-800 flex justify-center items-center text-xs font-semibold px-3 py-1 rounded-xl shadow-sm"
+            >
+              {transport}
+            </span>
+          ))
+        ) : (
+          <p className="text-gray-500 text-sm"></p>
+        )}
+      </div>
+
+      {/* Salario */}
+      <div className="p-4 border-t border-gray-200">
+        <p className="text-gray-800 text-sm font-semibold">
+          Salario: <span className="text-green-600">${offer.salary}</span>
+        </p>
+      </div>
+
       {/* Acciones y botones */}
-      <div className="flex gap-7 p-3 text-center justify-between mt-auto">
+      <div className="flex gap-4 p-4 text-center justify-between mt-auto border-t border-gray-200">
         <Link
           href={`/jobs/${offer.id}`}
-          className="text-white bg-green-700 rounded p-2 hover:text-green-700 hover:bg-white hover:border-2 hover:border-green-700 font-semibold self-start"
+          className="text-white bg-green-700 rounded-lg py-2 px-4 hover:bg-white hover:text-green-700 hover:border-2 hover:border-green-700 font-semibold transition-colors"
         >
           Ver más
         </Link>
         <Link
           href={`/jobs/${offer.id}`}
-          className="text-white bg-green-700 rounded p-2 hover:text-green-700 hover:bg-white hover:border-2 hover:border-green-700 font-semibold self-start"
+          className="text-white bg-green-700 rounded-lg py-2 px-4 hover:bg-white hover:text-green-700 hover:border-2 hover:border-green-700 font-semibold transition-colors"
         >
           Aplicar a esta oferta
         </Link>

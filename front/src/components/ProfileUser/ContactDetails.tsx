@@ -69,29 +69,33 @@ const ContactDetails: React.FC<{ profileData: IProfileData }> = () => {
 
   return (
     <div className="p-4 border border-gray-300 shadow-lg rounded-lg">
-      <h2 className="text-lg font-semibold text-gray-700">Detalles Físicos</h2>
-      {fetchedProfileData ? (
-        <>
+      <h2 className="text-sm font-semibold mt-2 text-center p-1 bg-gray-100 text-gray-700">Configuración</h2>
+      
           <input
             type="text"
             name="instagram"
-            value={fetchedProfileData.socialMedia?.instagram || ""}
+          
             onChange={handleChange}
-            placeholder="link de instagram"
+            placeholder="Idioma"
             className="w-full p-2 border rounded mt-2 focus:outline-none hover:cursor-pointer text-gray-700"
           />
           <input
             type="text"
             name="twitter"
-            value={fetchedProfileData.socialMedia?.twitter || ""}
+          
             onChange={handleChange}
-            placeholder="link de twitter"
+            placeholder="Cambiar contraseña"
             className="w-full p-2 border rounded mt-2 focus:outline-none hover:cursor-pointer text-gray-700"
           />
-        </>
-      ) : (
-        <p>Cargando los datos...</p>
-      )}
+            <input
+            type="text"
+            name="twitter"
+          
+            onChange={handleChange}
+            placeholder="Cambiar suscripción"
+            className="w-full p-2 border rounded mt-2 focus:outline-none hover:cursor-pointer text-gray-700"
+          />
+      
 
       <button
         onClick={handleSubmit}

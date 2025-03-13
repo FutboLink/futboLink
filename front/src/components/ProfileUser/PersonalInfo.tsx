@@ -1,9 +1,11 @@
-"use client"
+"use client";
 import { useState, useEffect, useContext } from "react";
 import { IProfileData } from "@/Interfaces/IUser";
 import { fetchUserData, updateUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { UserContext } from "../Context/UserContext";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
+import useNationalities from "../Forms/FormUser/useNationalitys";
+import { FaChevronDown } from "react-icons/fa";
 
 const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const { token } = useContext(UserContext);
@@ -14,15 +16,20 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const [notificationMessage, setNotificationMessage] = useState('');
   const [showErrorNotification, setShowErrorNotification] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  
+  // Nationality related state
+  const { nationalities, loading: nationalitiesLoading, error: nationalitiesError } = useNationalities();
+  const [search, setSearch] = useState("");  
+  const [isOpen, setIsOpen] = useState(false); 
+  const [selectedNationality, setSelectedNationality] = useState<string>(''); 
 
-
-  // useEffect para hacer la solicitud a la API cuando el token cambia
+  // Fetch user data when token changes
   useEffect(() => {
     if (token) {
       setLoading(true);
       fetchUserData(token)
         .then((data) => {
-          setFetchedProfileData(data);
+          setFetchedProfileData(data); // Ensure socialMedia data is included here
         })
         .catch((err) => {
           console.error("Error al cargar los datos:", err);
@@ -33,19 +40,47 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
         });
     }
   }, [token]);
+  
 
-  // Manejo de cambios en los campos
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  // Handle input field changes
+const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const { name, value } = e.target;
+
+  if (fetchedProfileData) {
+    setFetchedProfileData((prevData) => ({
+      ...prevData!,
+      [name]: value,  
+      socialMedia: {
+        ...prevData!.socialMedia,
+        [name]: value,
+      },
+    }));
+  }
+};
+
+  
+  
+  
+
+  // Handle nationality selection
+  const handleSelectNationality = (value: string) => {
+    setSelectedNationality(value); // Update selected nationality
     if (fetchedProfileData) {
       setFetchedProfileData({
         ...fetchedProfileData,
-        [e.target.name]: e.target.value,  
+        nationality: value,  // Update nationality in fetched data
       });
     }
+    setSearch('');  // Clear search input
+    setIsOpen(false);  // Close the dropdown
   };
-  
 
-  // Función de envío de datos
+  // Toggle dropdown visibility
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
+  // Handle form submission
   const handleSubmit = async () => {
     if (!token || !fetchedProfileData) return;
 
@@ -66,145 +101,272 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
     }
   };
 
+  
   return (
-    <div className="p-4 border border-gray-300 shadow-lg rounded-lg">
-      <h2 className="text-lg font-semibold text-gray-700">Información Profesional</h2>
+    <div className="p-2 border border-gray-300 shadow-sm rounded-lg"> {/* Reducir padding */}
+      <h2 className="text-sm font-semibold mt-2 text-center p-2 bg-gray-100 text-gray-700">Información Personal</h2>
+  
       {loading ? (
-        <p>Cargando los datos...</p> // Si está cargando, muestra el mensaje
+        <p>Cargando los datos...</p>
       ) : error ? (
-        <p className="text-red-600">{error}</p> // Muestra el error si existe
+        <p className="text-red-600">{error}</p>
       ) : (
-        <>
-          {/* Nombre */}
-          <input
-            name="name"
-            type="text"
-            value={fetchedProfileData?.name}
-            onChange={handleChange}
-            placeholder="Nombre"
-            required
-            readOnly
-            className="w-full p-2 border rounded mt-2 text-gray-700 bg-gray-100 focus:outline-none"
-          />
-
-          {/* Apellido */}
-          <input
-            name="lastname"
-            type="text"
-            value={fetchedProfileData?.lastname}
-            onChange={handleChange}
-            placeholder="Apellido"
-            required
-            readOnly
-            className="w-full p-2 border rounded mt-2 text-gray-700 bg-gray-100 focus:outline-none"
-          />
-
-          {/* Email */}
-          <input
-            name="email"
-            type="email"
-            value={fetchedProfileData?.email}
-            onChange={handleChange}
-            placeholder="Correo electrónico"
-            required
-            readOnly
-            className="w-full p-2 border rounded mt-2 text-gray-700 bg-gray-100 focus:outline-none"
-          />
-
-          {/* Imagen de perfil (URL) */}
-          <input
-            name="imgUrl"
-            type="text"
-            value={fetchedProfileData?.imgUrl || ""}
-            onChange={handleChange}
-            placeholder="URL de la imagen"
-            className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3"> {/* Reducir gap entre los inputs */}
+          {/* Name */}
+          <div className="flex flex-col">
+            <input
+              name="name"
+              type="text"
+              value={fetchedProfileData?.name || ""}
+              onChange={handleChange}
+              placeholder="Nombre"
+              required
+              readOnly
+              className="w-full p-1.5 border rounded text-gray-700 bg-gray-200 focus:outline-none"
             />
-           {/* Imagen de perfil (URL) */}
-           <input
-            name="videoUrl"
-            type="text"
-            value={fetchedProfileData?.videoUrl|| ""}
-            onChange={handleChange}
-            placeholder="URL del video)"
-            className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
-          />
+          </div>
+  
+          {/* Last Name */}
+          <div className="flex flex-col">
+            <input
+              name="lastname"
+              type="text"
+              value={fetchedProfileData?.lastname || ""}
+              onChange={handleChange}
+              placeholder="Apellido"
+              required
+              readOnly
+              className="w-full p-1.5 border rounded text-gray-700 bg-gray-200 focus:outline-none"
+            />
+          </div>
+  
+          {/* Email */}
+          <div className="flex flex-col">
+            <input
+              name="email"
+              type="email"
+              value={fetchedProfileData?.email || ""}
+              onChange={handleChange}
+              placeholder="Correo electrónico"
+              required
+              readOnly
+              className="w-full p-1.5 border rounded text-gray-700 bg-gray-200 focus:outline-none"
+            />
+          </div>
+  
+          {/* Profile Picture */}
+          <div className="flex flex-col">
+            <input
+              name="imgUrl"
+              type="text"
+              value={fetchedProfileData?.imgUrl || ""}
+              onChange={handleChange}
+              placeholder="URL de la imagen"
+              className="w-full p-1.5 border rounded text-gray-700 hover:cursor-pointer focus:outline-none"
+            />
+          </div>
 
-          {/* Teléfono */}
-          <input
-            name="phone"
-            type="text"
-            value={fetchedProfileData?.phone || ""}
-            onChange={handleChange}
-            placeholder="Teléfono"
-            className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
-          />
+           
+  
+          {/* Nationality Search */}
+          <div className="flex flex-col">
+            <label htmlFor="nationalitySearch" className="block text-gray-700 font-semibold text-sm">Buscar Nacionalidad</label>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar nacionalidad..."
+              onClick={toggleDropdown}
+              className="w-full border text-gray-700 mt-2 border-gray-300 rounded-lg p-2"
+            />
+            <FaChevronDown
+              className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500"
+              onClick={toggleDropdown}
+            />
+          </div>
+  
+          {/* Selected Nationality */}
+          <div className="flex flex-col mb-2">
+            <label htmlFor="nationality" className="block text-gray-700 font-semibold text-sm">Nacionalidad seleccionada</label>
+            <input
+              type="text"
+              value={selectedNationality}
+             
+              className="w-full border text-gray-700 mt-2 border-gray-300 rounded-lg p-2"
+            />
+          </div>
+  
+          {/* Nationality Dropdown */}
+          {isOpen && (
+            <div className="absolute z-10 w-full sm:w-auto max-w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
+              {nationalitiesLoading && <p>Cargando nacionalidades...</p>}
+              {nationalitiesError && <p className="text-red-500">{nationalitiesError}</p>}
+              <ul>
+                {nationalities
+                  .filter((nationality) =>
+                    nationality.label.toLowerCase().includes(search.toLowerCase())
+                  )
+                  .map((nationality) => (
+                    <li
+                      key={nationality.value}
+                      className="p-2 cursor-pointer text-gray-700 hover:bg-gray-200"
+                      onClick={() => handleSelectNationality(nationality.label)}
+                    >
+                      {nationality.label}
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          )}
 
-          {/* Nacionalidad */}
-          <input
-            name="nationality"
-            type="text"
-            value={fetchedProfileData?.nationality || ""}
-            onChange={handleChange}
-            placeholder="Nacionalidad"
-            className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
-          />
+           {/* Nacionalidad Actual */}
+           <div className="flex flex-col">
+           <label className="text-gray-700 font-semibold text-sm">Nacionalidad actual:</label>
+            <input
+              name="nationality"
+              type="text"
+              value={fetchedProfileData?.nationality || ""}
+              onChange={handleChange}
+              placeholder="Nacionalidad Actual"
+              required
+              readOnly
+             className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
+            />
+          </div>
+  
+          {/* Location */}
+          <div className="flex flex-col">
+            <label className="text-gray-700 font-semibold text-sm">Ciudad:</label>
+            <input
+              name="location"
+              type="text"
+              value={fetchedProfileData?.location || ""}
+              onChange={handleChange}
+              placeholder="Ubicación"
+              className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
+            />
+          </div>
+  
+          {/* Phone */}
+          <div className="flex flex-col">
+            <label className="text-gray-700 font-semibold text-sm">Teléfono:</label>
+            <input
+              name="phone"
+              type="text"
+              value={fetchedProfileData?.phone || ""}
+              onChange={handleChange}
+              placeholder="Teléfono"
+              className="w-full p-1.5 border mt-2 rounded text-gray-700 focus:outline-none"
+            />
+          </div>
+  
+          {/* Gender */}
+          <div className="flex flex-col">
+            <label className="text-gray-700 font-semibold text-sm">Género:</label>
+            <select
+              name="genre"
+              value={fetchedProfileData?.genre || ""}
+              onChange={handleChange}
+              className="w-full p-1.5 border mt-2 rounded text-gray-700 focus:outline-none"
+            >
+              <option value="">Seleccione su género (opcional)</option>
+              <option value="Masculino">Masculino</option>
+              <option value="Femenino">Femenino</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+  
+          {/* Birthdate */}
+          <div className="flex flex-col">
+            <label className="text-gray-700 font-semibold text-sm">Fecha de nacimiento:</label>
+            <input
+              name="birthday"
+              type="date"
+              value={fetchedProfileData?.birthday || ""}
+              onChange={handleChange}
+              className="w-full p-1.5 border rounded mt-2 text-gray-400 focus:outline-none"
+            />
+          </div>
+  
+        
+{/* Age */}
+<div className="flex flex-col">
+  <label className="text-gray-700 font-semibold text-sm">Edad:</label>
+  <input
+    name="age"
+    type="number"
+    value={fetchedProfileData?.age || ""}
+    onChange={handleChange}
+    placeholder="Edad"
+    className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
+  />
+</div>
 
-          {/* Ubicación */}
-          <input
-            name="location"
-            type="text"
-            value={fetchedProfileData?.location || ""}
-            onChange={handleChange}
-            placeholder="Ubicación"
-            className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
-          />
+          {/* Transfermarkt */}
+          <div className="flex flex-col">
+            <label className="text-gray-700 font-semibold text-sm pl-2">Transfermarkt:</label>
+            <input
+              type="text"
+              name="transfermarkt"
+              value={fetchedProfileData?.socialMedia?.transfermarkt || ""}
+              onChange={handleChange}
+              placeholder="link de Transfermarkt"
+              className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
+            />
+          </div>
+  
+          {/* X*/}
+          <div className="flex flex-col">
+            <label className="text-gray-700 font-semibold text-sm pl-2">X:</label>
+            <input
+              type="text"
+              name="x"
+              value={fetchedProfileData?.socialMedia?.x || ""}
+              onChange={handleChange}
+              placeholder="link de X"
+              className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
+            />
+          </div>
 
-          {/* Género */}
-          <select
-            name="genre"
-            value={fetchedProfileData?.genre || ""}
-            onChange={handleChange}
-            className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
-          >
-            <option value="">Seleccione su género (opcional)</option>
-            <option value="masculino">Masculino</option>
-            <option value="femenino">Femenino</option>
-            <option value="otr@">Otro</option>
-          </select>
-
-          {/* Fecha de nacimiento */}
-          <input
-            name="birthday"
-            type="date"
-            value={fetchedProfileData?.birthday || ""}
-            onChange={handleChange}
-            className="w-full p-2 border rounded mt-2 text-gray-400 hover:cursor-pointer focus:outline-none"
-          />
-        </>
+            {/* Youtube*/}
+            <div className="flex flex-col">
+            <label className="text-gray-700 font-semibold text-sm pl-2">Youtube:</label>
+            <input
+              type="text"
+              name="youtube"
+              value={fetchedProfileData?.socialMedia?.youtube || ""}
+              onChange={handleChange}
+              placeholder="link de Youtube"
+              className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
+            />
+          </div>
+        </div>
       )}
-
-      {/* Botón Guardar Cambios */}
+  
+      {/* Save Button */}
       <button
         onClick={handleSubmit}
-        className="mt-4 w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
+        className="mt-3 w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
         disabled={loading}
       >
         {loading ? "Guardando..." : "Guardar cambios"}
       </button>
-      {showErrorNotification && (
-          <div className="absolute top-24 left-0 right-0 mx-auto w-max bg-red-600 text-white p-2 rounded-md">
-            <p>{errorMessage}</p>
-          </div>
-        )}
   
+      {/* Error Notification */}
+      {showErrorNotification && (
+        <div className="absolute top-20 left-0 right-0 mx-auto w-max bg-red-600 text-white p-2 rounded-md">
+          <p>{errorMessage}</p>
+        </div>
+      )}
+  
+      {/* Success Notification */}
       {showNotification && (
-          <div className="absolute top-12 left-0 right-0 mx-auto w-max">
-            <NotificationsForms message={notificationMessage} />
-          </div>
-        )}
+        <div className="absolute top-10 left-0 right-0 mx-auto w-max">
+          <NotificationsForms message={notificationMessage} />
+        </div>
+      )}
     </div>
   );
-};
-
+  
+}  
 export default PersonalInfo;

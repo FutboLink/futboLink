@@ -1,26 +1,25 @@
-import { ApiProperty } from '@nestjs/swagger';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  CreateDateColumn,
-  OneToMany,
-} from 'typeorm';
-import { User } from '../../user/entities/user.entity';
 import { Application } from 'src/modules/Applications/entities/applications.entity';
+<<<<<<< HEAD
 import { YesOrNo, YesOrNotravell } from '../jobs.enum';
+=======
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+
+
+export enum YesOrNo {
+  YES = 'YES',
+  NO = 'NO',
+}
+>>>>>>> develop
 
 @Entity('jobs')
-export class Job {
-  @ApiProperty({ description: 'ID del trabajo' })
+export class JobEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty({ example: 'Se busca delantero', description: 'Que haga goles' })
   @Column()
   title: string;
 
+<<<<<<< HEAD
 
   @ApiProperty({ example: 'Presencial', description: 'Ubicación del trabajo' })
   @Column()
@@ -62,14 +61,60 @@ export class Job {
   @ApiProperty({ example: 'USA', description: 'Países disponibles' })
   @Column()
   nationality: string;
+=======
+  @Column()
+  location: string;
 
-  @ApiProperty({
-    example: 'https://example.com/job.png',
-    description: 'URL de la imagen del trabajo',
-  })
+  @Column()
+  position: string;
+
+  @Column()
+  category: string;
+
+  @Column()
+  sport: string;
+
+  @Column()
+  contractTypes: string;
+
+  @Column()
+  contractDurations: string;
+
+  @Column('decimal')
+  salary: number;
+
+  @Column('simple-array')
+  extra: string[];
+
+  @Column('simple-array')
+  transport: string[];
+
+  @Column()
+  minAge: string;
+
+  @Column()
+  maxAge: string;
+
+  @Column()
+  sportGenres: string;
+
+  @Column()
+  minExperience: string;
+
+  @Column({ type: 'enum', enum: YesOrNo })
+  availabilityToTravel: YesOrNo;
+
+  @Column({ type: 'enum', enum: YesOrNo })
+  euPassport: YesOrNo;
+
+  @Column({ nullable: true })
+  gmail?: string;
+>>>>>>> develop
+
   @Column()
   imgUrl: string;
 
+<<<<<<< HEAD
   @ApiProperty({ example: 'Presencial', description: 'Tipo de trabajo' })
   @Column()
   contractTypes: string;
@@ -157,5 +202,8 @@ export class Job {
     description: 'Aplicaciones al trabajo',
   })
   @OneToMany(() => Application, (application) => application.job)
+=======
+  @OneToMany(() => Application, (application) => application.job, { cascade: true })
+>>>>>>> develop
   applications: Application[];
 }

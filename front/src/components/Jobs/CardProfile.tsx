@@ -141,18 +141,7 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
   height={100}
   className="rounded-full mb-4 md:mb-0"
 />
-      <div className="ml-4">
-        <h2 className="text-xl font-semibold text-green-600">Trayectoria</h2>
-        {profile.puesto && profile.puesto.length > 0 ? (
-          profile.puesto.map((pos, index) => (
-            <div key={index} className="text-gray-700">
-              <p><strong>{pos.position}:</strong> {pos.experience} años de experiencia</p>
-            </div>
-          ))
-        ) : (
-          <p className="text-gray-600">Aún no tiene experiencias agregadas</p> 
-        )}
-      </div>
+     
     </div>
   </div>
 )}

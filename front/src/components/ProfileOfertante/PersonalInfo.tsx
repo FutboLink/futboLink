@@ -160,6 +160,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
           />
 
+
           {/* Género */}
           <select
             name="genre"
@@ -168,9 +169,9 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
           >
             <option value="">Seleccione su género (opcional)</option>
-            <option value="male">Masculino</option>
-            <option value="female">Femenino</option>
-            <option value="other">Otro</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Femenino">Femenino</option>
+            <option value="Otro">Otro</option>
           </select>
 
        {/* Tipo de organizacion */}
@@ -184,6 +185,8 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           />
         </>
       )}
+
+      
 
       {/* Botón Guardar Cambios */}
       <button

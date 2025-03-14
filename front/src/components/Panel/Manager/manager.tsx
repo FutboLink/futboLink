@@ -210,41 +210,47 @@ const PanelManager = () => {
                     </p>
                     <div className="flex items-center space-x-4 mb-4">
   <span className="font-medium text-gray-700">Redes Sociales:</span>
-  {userData?.socialMedia?.twitter ? (
+   {/* Twitter (X) */}
+   {userData?.socialMedia?.x ? (
     <Link
-      href={`https://twitter.com/${userData.socialMedia.twitter}`}
+    href={`https://www.youtube.com/${userData.socialMedia.youtube}`}
       target="_blank"
       rel="noopener noreferrer"
       className="flex items-center text-blue-500 hover:text-blue-700"
     >
-      <Image
-        src="/logo-black.png"
-        alt="Twitter Icon"
-        width={15}
-        height={15}
-        className="ml-2 cursor-pointer"
-      />
-      {userData.socialMedia.twitter}
+   <p className="text-gray-800"> X: </p> 
+      {userData.socialMedia.x}
     </Link>
   ) : (
     <span className="text-gray-500">No disponible</span>
   )}
-
-  {userData?.socialMedia?.instagram ? (
+  
+  {/* Transfermarkt */}
+  {userData?.socialMedia?.transfermarkt ? (
     <Link
-      href={`https://instagram.com/${userData.socialMedia.instagram}`}
+      href={`https://www.transfermarkt.com/${userData.socialMedia.transfermarkt}`}
       target="_blank"
       rel="noopener noreferrer"
       className="flex items-center text-blue-500 hover:text-blue-700"
-    >
-      <Image
-        src="/transfermarkt.png"
-        alt="Instagram Icon"
-        width={25}
-        height={25}
-        className="ml-2 cursor-pointer rounded-sm"
-      />
-      {userData.socialMedia.instagram}
+    >  <p className="text-gray-800"> Transfermarkt:  </p> 
+     
+      {userData.socialMedia.transfermarkt}
+    </Link>
+
+    
+  ) : (
+    <span className="text-gray-500">No disponible</span>
+  )}
+   {/* Twitter (X) */}
+   {userData?.socialMedia?.youtube ? (
+    <Link
+      href={`https://twitter.com/${userData.socialMedia.youtube}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center text-blue-500 hover:text-blue-700"
+    >  <p className="text-gray-800"> Youtube:   </p> 
+    
+      {userData.socialMedia.youtube}
     </Link>
   ) : (
     <span className="text-gray-500">No disponible</span>

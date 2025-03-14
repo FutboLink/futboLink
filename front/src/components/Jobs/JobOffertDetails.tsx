@@ -97,20 +97,19 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
     <div className="p-8 bg-gray-100 rounded-lg shadow-lg max-w-4xl mx-auto my-6">
       {isEditing ? (
         <EditJobOffer
-        jobId={jobId}
-        token={token || ""}  
-        jobOffer={jobOffer}
-        onCancel={handleCancelEdit}
-        onSuccess={handleEditSuccess}
-      />
-      
+          jobId={jobId}
+          token={token || ""}
+          jobOffer={jobOffer}
+          onCancel={handleCancelEdit}
+          onSuccess={handleEditSuccess}
+        />
       ) : (
         <>
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-3xl font-semibold text-gray-800">{jobOffer.title}</h2>
             <span className="text-sm text-gray-500">{jobOffer.status}</span>
           </div>
-
+  
           <div className="flex items-center space-x-4 mb-6">
             <div className="flex items-center space-x-2">
               <BsFillCalendarEventFill className="text-gray-600 text-xl" />
@@ -119,7 +118,7 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
               </p>
             </div>
           </div>
-
+  
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex items-center space-x-2">
               <span className="font-semibold text-gray-700">Ubicación:</span>
@@ -130,17 +129,84 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
               <span className="text-gray-600">${jobOffer.salary}</span>
             </div>
           </div>
-
+  
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div className="flex items-center space-x-2">
-              <span className="font-semibold text-gray-700">Competencias:</span>
+              <span className="font-semibold text-gray-700">Género:</span>
+              <span className="text-gray-600">{jobOffer.sportGenres}</span>
             </div>
             <div className="flex items-center space-x-2">
               <span className="font-semibold text-gray-700">Países:</span>
-              <span className="text-gray-600">{jobOffer.location}</span>
+              <span className="text-gray-600">{jobOffer.nationality}</span>
             </div>
           </div>
+  
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="flex items-center space-x-2">
+              <span className="font-semibold text-gray-700">Posición:</span>
+              <span className="text-gray-600">{jobOffer.position}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="font-semibold text-gray-700">Categoría:</span>
+              <span className="text-gray-600">{jobOffer.category}</span>
+            </div>
+          </div>
+  
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="flex items-center space-x-2">
+              <span className="font-semibold text-gray-700">Tipo de contrato:</span>
+              <span className="text-gray-600">{jobOffer.contractTypes}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="font-semibold text-gray-700">Duración del contrato:</span>
+              <span className="text-gray-600">{jobOffer.contractDurations}</span>
+            </div>
+          </div>
+  
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="flex items-center space-x-2">
+  <span className="font-semibold text-gray-700">Extras:</span>
+  {jobOffer.extra.length > 0 ? (
+    <ul className="list-disc pl-5 text-gray-600 space-y-1">
+      {jobOffer.extra.map((item, index) => (
+        <li key={index}>{item}</li>
+      ))}
+    </ul>
+  ) : (
+    <span className="text-gray-500">No disponible</span>
+  )}
+</div>
 
+
+            <div className="flex items-center space-x-2">
+              <span className="font-semibold text-gray-700">Edad mínima:</span>
+              <span className="text-gray-600">{jobOffer.minAge} años</span>
+            </div>
+          </div>
+  
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="flex items-center space-x-2">
+              <span className="font-semibold text-gray-700">Edad máxima:</span>
+              <span className="text-gray-600">{jobOffer.maxAge} años</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="font-semibold text-gray-700">Disponibilidad para viajar:</span>
+              <span className="text-gray-600">{jobOffer.availabilityToTravel}</span>
+            </div>
+          </div>
+  
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="flex items-center space-x-2">
+              <span className="font-semibold text-gray-700">Pasaporte UE:</span>
+              <span className="text-gray-600">{jobOffer.euPassport}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="font-semibold text-gray-700">Correo electrónico:</span>
+              <span className="text-gray-600">{jobOffer.gmail || "No disponible"}</span>
+            </div>
+          </div>
+  
+  
           <div className="flex justify-end space-x-4 mt-6">
             <button
               onClick={handleViewApplications}
@@ -160,6 +226,7 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
       )}
     </div>
   );
+  
 };
 
 export default JobOfferDetails;

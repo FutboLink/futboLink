@@ -28,6 +28,7 @@ export interface IOfferCard {
   sportGenres:string;
   sport: string;
   contractTypes: string; 
+  description:string;
   contractDurations: string;
   salary: number;
   transport: string[];

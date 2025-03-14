@@ -17,8 +17,6 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({ jobId, token, jobOffer, onC
     description: jobOffer.description,
     location: jobOffer.location,
     salary: jobOffer.salary || "",
-    competencies: jobOffer.competencies.join(", "), // Convertimos el array a un string con comas
-    countries: jobOffer.countries.join(", "), // Convertimos el array a un string con comas
   });
 
   useEffect(() => {
@@ -28,8 +26,6 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({ jobId, token, jobOffer, onC
       description: jobOffer.description,
       location: jobOffer.location,
       salary: jobOffer.salary || "",
-      competencies: jobOffer.competencies.join(", "),
-      countries: jobOffer.countries.join(", "),
     });
   }, [jobOffer]);
 
@@ -46,8 +42,7 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({ jobId, token, jobOffer, onC
       // Convertimos las competencias y países de nuevo a arreglos cuando guardamos
       const updatedOffer = {
         ...formData,
-        competencies: formData.competencies.split(", ").map((item) => item.trim()), // Convertimos el string en un array
-        countries: formData.countries.split(", ").map((item) => item.trim()), // Convertimos el string en un array
+     
       };
       
       const result = await fetchEditJob(token, jobId, updatedOffer);
@@ -99,27 +94,8 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({ jobId, token, jobOffer, onC
           className="w-full p-2 border border-gray-300 rounded-md mb-4"
         />
       </div>
-      <div>
-        <label className="block text-gray-700">Competencias:</label>
-        <input
-          type="text"
-          name="competencies"
-          value={formData.competencies}
-          onChange={handleChange}
-          className="w-full p-2 border border-gray-300 rounded-md mb-4"
-        />
-      </div>
-      <div>
-        <label className="block text-gray-700">Países:</label>
-        <input
-          type="text"
-          name="countries"
-          value={formData.countries}
-          onChange={handleChange}
-          className="w-full p-2 border border-gray-300 rounded-md mb-4"
-        />
-      </div>
-
+      
+   
       <div className="flex justify-end space-x-4 mt-6">
         <button
           onClick={onCancel}

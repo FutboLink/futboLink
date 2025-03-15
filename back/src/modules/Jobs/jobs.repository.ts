@@ -5,10 +5,10 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Job } from './entities/jobs.entity';
 import { CreateJobDto } from './dto/create-jobs.dto';
 import { UpdateJobDto } from './dto/update-jobs.dto';
 import { User } from '../user/entities/user.entity';
+import { JobEntity } from './entities/jobs.entity';
 
 @Injectable()
 export class JobRepository {
@@ -16,11 +16,11 @@ export class JobRepository {
     throw new Error('Method not implemented.');
   }
   constructor(
-    @InjectRepository(Job)
-    private readonly repository: Repository<Job>,
+    @InjectRepository(JobEntity)
+    private readonly repository: Repository<JobEntity>,
   ) {}
 
-  async createJob(createJobDto: CreateJobDto, recruiter: User): Promise<Job> {
+  async createJob(createJobDto: CreateJobDto, recruiter: User): Promise<JobEntity> {
     try {
       const job = this.repository.create({ ...createJobDto, recruiter });
       console.log('Job created:', job);
@@ -32,11 +32,11 @@ export class JobRepository {
   }
   
 
-  async getJobs(): Promise<Job[]> {
+  async getJobs(): Promise<JobEntity[]> {
     return await this.repository.find({ where: { status: 'OPEN' }, relations: ['recruiter', 'applications'] });
   }
 
-  async getJobById(id: string): Promise<Job> {
+  async getJobById(id: string): Promise<JobEntity> {
     const job = await this.repository.findOne({
       where: { id },
       relations: ['recruiter', 'applications'],
@@ -51,7 +51,7 @@ export class JobRepository {
     id: string,
     updateJobDto: UpdateJobDto,
     recruiter: User,
-  ): Promise<Job> {
+  ): Promise<JobEntity> {
     const job = await this.getJobById(id);
     if (job.recruiter.id !== recruiter.id) {
       throw new UnauthorizedException(

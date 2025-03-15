@@ -20,31 +20,31 @@ export interface IOffer {
 
 export interface IOfferCard {
   id?: string;
-  title?: string;
-  position?: string;
-  sportGenres?:string;
-  availabilityToTravel?: YesOrNotravell;
-  euPassport?: YesOrNo;
-  salary?: number;
-  minAge?: number;
-  maxAge?:number;
-  createdAt?: string;
-  contractType?: string; 
-  nationality?: string;
-  contractDuration?: string;
-  minExperience?: string;
-  location?: string;
-  category?: string;
-  sport?: string;
-  description?:string;
+  title: string;
+  position: string;
+  sportGenres:string;
+  availabilityToTravel: YesOrNotravell;
+  euPassport: YesOrNo;
+  salary: number;
+  minAge: number;
+  maxAge:number;
+  createdAt: string;
+  contractType: string; 
+  nationality: string;
+  contractDuration: string;
+  minExperience: string;
+    location: string;
+  category: string;
+  sport: string;
+  description:string;
   gmail?: string;
-  imgUrl?: string;
-  extra?: string[];
-  status?: string;
-  type?: string;
-  recruiter?: {
-    id?: string;
-    role?: "RECRUITER" | "AGENCY"; // roles posibles para el reclutador
+  imgUrl: string;
+  extra: string[];
+  status: string;
+  type: string;
+  recruiter: {
+    id: string;
+    role: "RECRUITER" | "AGENCY"; // roles posibles para el reclutador
   };
 
 }

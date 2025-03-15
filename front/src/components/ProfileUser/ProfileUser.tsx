@@ -4,7 +4,6 @@ import { useContext, useState, useEffect } from "react";
 import { IProfileData } from "@/Interfaces/IUser";
 import PersonalInfo from "./PersonalInfo";
 import ProfessionalInfo from "./ProfessionalInfo";
-import ContactDetails from "./ContactDetails";
 import { UserContext } from "../Context/UserContext";
 import { fetchUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 
@@ -46,7 +45,6 @@ const Profile = () => {
         {/* Contenido de cada pestaña */}
         {activeTab === "Personal" && userData && <PersonalInfo profileData={userData} />}
         {activeTab === "Profesional" && userData && <ProfessionalInfo profileData={userData} />}
-        {activeTab === "Configuración" && userData && <ContactDetails profileData={userData} />}
   
         {error && <p className="text-red-600 mt-2">{error}</p>} {/* Reducir el margen inferior del error */}
       </div>

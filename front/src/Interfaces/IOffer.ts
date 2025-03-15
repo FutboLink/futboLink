@@ -73,7 +73,11 @@ export interface ICreateJobOffer {
 
 export interface IJobApplication {
   id?: string;
- 
+  appliedAt:string;
+  message:string;
+  player:{
+    id:string;
+  }
   nationality: string;
   location: string;
   position: string;

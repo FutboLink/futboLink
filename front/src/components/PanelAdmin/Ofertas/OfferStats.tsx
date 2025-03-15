@@ -40,12 +40,14 @@ const OfferStats = () => {
     const offersBySalary: { [key: string]: number } = {};
     const offersByTime: { [key: string]: number } = {};
     const profilesActivity: { [key: string]: number } = {};
-
+  
     offers.forEach((offer) => {
-      offersByType[offer.offerType] = (offersByType[offer.offerType] || 0) + 1;
+      offersByType[offer.contractType] = (offersByType[offer.contractType] || 0) + 1;
       offersByLocation[offer.location] = (offersByLocation[offer.location] || 0) + 1;
-
-      const salary = parseInt(offer.salary || "0", 10);
+  
+      // Asegúrate de que `offer.salary` es un número
+      const salary = typeof offer.salary === 'number' ? offer.salary : parseInt(offer.salary || "0", 10);
+      
       if (salary < 30000) {
         offersBySalary["<$30K"] = (offersBySalary["<$30K"] || 0) + 1;
       } else if (salary >= 30000 && salary <= 60000) {
@@ -53,7 +55,7 @@ const OfferStats = () => {
       } else {
         offersBySalary[">$60K"] = (offersBySalary[">$60K"] || 0) + 1;
       }
-
+  
       const publicationDate = new Date(offer.createdAt);
       const daysAgo = (Date.now() - publicationDate.getTime()) / (1000 * 3600 * 24);
       if (daysAgo <= 30) {
@@ -61,18 +63,18 @@ const OfferStats = () => {
       } else {
         offersByTime["Hace más de 30 días"] = (offersByTime["Hace más de 30 días"] || 0) + 1;
       }
-
+  
       const profileKey = offer.recruiter?.role;
       if (profileKey) {
         profilesActivity[profileKey] = (profilesActivity[profileKey] || 0) + 1;
       }
     });
-
+  
     const mostActiveProfile = Object.keys(profilesActivity).reduce(
       (a, b) => (profilesActivity[a] > profilesActivity[b] ? a : b),
       ""
     );
-
+  
     setStats({
       offersByType,
       offersByLocation,
@@ -81,6 +83,7 @@ const OfferStats = () => {
       mostActiveProfile: mostActiveProfile === "RECRUITER" ? "Reclutador" : "Agencia",
     });
   };
+  
 
   const handleTabChange = (tab: string) => setActiveTab(tab);
 
@@ -107,7 +110,7 @@ const OfferStats = () => {
               {offers.map((offer) => (
                 <div key={offer.id} className="bg-white border p-4 rounded shadow-md">
                   <h4 className="font-bold text-gray-800">{offer.title}</h4>
-                  <p className="text-gray-600">Tipo: {offer.offerType}</p>
+                  <p className="text-gray-600">Tipo: {offer.contractType}</p>
                   <p className="text-gray-600">Ubicación: {offer.location}</p>
                   <p className="text-gray-600">Salario: ${offer.salary}</p>
                   <p className="text-gray-600">Publicado: {new Date(offer.createdAt).toLocaleDateString()}</p>

@@ -7,9 +7,7 @@ const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
     <div className="bg-white border border-gray-300 rounded-lg shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-primary p-6 flex flex-col gap-4 w-full">
       <div className="flex items-center gap-2 mb-4">
       
-        <span className="text-gray-700 text-sm font-medium">
-          {offer.countries}
-        </span>
+     
       </div>
       {/* Contenedor de contenido */}
       <div>

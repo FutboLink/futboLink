@@ -51,17 +51,7 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
       </div>
       <p className="text-gray-800 text-base mb-3 flex-grow">{app.message}</p>
       <div className="flex items-center space-x-2 mb-3">
-        <p
-          className={`text-sm font-medium text-white ${
-            app.status === "PENDING"
-              ? "bg-yellow-300"
-              : app.status === "OPEN"
-              ? "bg-green-500"
-              : "bg-gray-500"
-          } py-1 px-2 rounded-full`}
-        >
-          {app.status}
-        </p>
+        
         <div className="flex items-center space-x-1 text-xs text-gray-500 opacity-75">
           <BsFillClockFill />
           <p>{new Date(app.appliedAt).toLocaleString()}</p>

@@ -144,13 +144,7 @@ export class Job {
   })
   euPassport: YesOrNo;
 
-  @ApiProperty({
-    description: 'Gmail del usuario (opcional)',
-    example: 'user@example.com',
-    required: false,
-  })
-  @Column({ nullable: true })
-  gmail?: string;
+
 
   @ApiProperty({
     type: () => User,

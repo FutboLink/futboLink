@@ -124,8 +124,8 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
             <div className="text-gray-700 font-semibold"><span>Países:</span> {jobOffer.nationality}</div>
             <div className="text-gray-700 font-semibold"><span>Posición:</span> {jobOffer.position}</div>
             <div className="text-gray-700 font-semibold"><span>Categoría:</span> {jobOffer.category}</div>
-            <div className="text-gray-700 font-semibold"><span>Tipo de contrato:</span> {jobOffer.contractType}</div>
-            <div className="text-gray-700 font-semibold"><span>Duración del contrato:</span> {jobOffer.contractDuration}</div>
+            <div className="text-gray-700 font-semibold"><span>Tipo de contrato:</span> {jobOffer.contractTypes}</div>
+            <div className="text-gray-700 font-semibold"><span>Duración del contrato:</span> {jobOffer.contractDurations}</div>
           </div>
   
         

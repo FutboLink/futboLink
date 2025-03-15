@@ -42,7 +42,7 @@ const OfferStats = () => {
     const profilesActivity: { [key: string]: number } = {};
   
     offers.forEach((offer) => {
-      offersByType[offer.contractType] = (offersByType[offer.contractType] || 0) + 1;
+      offersByType[offer.contractTypes] = (offersByType[offer.contractTypes] || 0) + 1;
       offersByLocation[offer.location] = (offersByLocation[offer.location] || 0) + 1;
   
       // Asegúrate de que `offer.salary` es un número
@@ -110,7 +110,7 @@ const OfferStats = () => {
               {offers.map((offer) => (
                 <div key={offer.id} className="bg-white border p-4 rounded shadow-md">
                   <h4 className="font-bold text-gray-800">{offer.title}</h4>
-                  <p className="text-gray-600">Tipo: {offer.contractType}</p>
+                  <p className="text-gray-600">Tipo: {offer.contractTypes}</p>
                   <p className="text-gray-600">Ubicación: {offer.location}</p>
                   <p className="text-gray-600">Salario: ${offer.salary}</p>
                   <p className="text-gray-600">Publicado: {new Date(offer.createdAt).toLocaleDateString()}</p>

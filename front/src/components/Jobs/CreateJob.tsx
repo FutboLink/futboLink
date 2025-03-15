@@ -49,7 +49,6 @@ const FormComponent = () => {
         minExperience: "",
         availabilityToTravel: "Si" as YesOrNotravell, 
         euPassport: "Si" as YesOrNo,
-        gmail: "",
         imgUrl: "",
     });
 
@@ -154,7 +153,6 @@ const FormComponent = () => {
                     minExperience: "",
                     availabilityToTravel: "Si" as YesOrNotravell, 
                     euPassport: "Si" as YesOrNo,
-                    gmail: "",
                     imgUrl: "",
                 });
             } catch (err: unknown) {
@@ -431,16 +429,6 @@ const FormComponent = () => {
                         <option value="No">No</option>
                     </select>
 
-                </div>
-    
-                <div className="flex flex-col">
-                    <label className="text-sm font-bold mb-2">Gmail (opcional)</label>
-                    <input
-                        type="email"
-                        className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
-                        value={formData.gmail}
-                        onChange={(e) => setFormData({ ...formData, gmail: e.target.value })}
-                    />
                 </div>
     
                 <div className="flex flex-col">

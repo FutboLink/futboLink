@@ -40,8 +40,8 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({ jobId, token, jobOffer, onC
     sport: jobOffer.sport || "",
     euPassport: jobOffer.euPassport || "",
     availabilityToTravel: jobOffer.availabilityToTravel|| "",
-    contractType: jobOffer.contractType || "",
-    contractDuration: jobOffer.contractDuration || "",
+    contractTypes: jobOffer.contractTypes || "",
+    contractDuration: jobOffer.contractDurations || "",
     minExperience: jobOffer.minExperience || "",
     extras: jobOffer.extra || [],
   });
@@ -58,8 +58,8 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({ jobId, token, jobOffer, onC
       sport: jobOffer.sport || "",
       euPassport: jobOffer.euPassport || "",
       availabilityToTravel:jobOffer.availabilityToTravel || "",
-      contractType: jobOffer.contractType || "",
-      contractDuration: jobOffer.contractDuration || "",
+      contractTypes: jobOffer.contractTypes || "",
+      contractDuration: jobOffer.contractDurations || "",
       minExperience: jobOffer.minExperience || "",
       extras: jobOffer.extra || [],
     });
@@ -210,8 +210,8 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({ jobId, token, jobOffer, onC
         <div>
           <label className="block text-gray-700">Tipo de Contrato:</label>
           <select
-            name="contractType"
-            value={formData.contractType}
+            name="contractTypes"
+            value={formData.contractTypes}
             onChange={handleChange}
             className="w-full p-2 border border-gray-300 rounded-md mb-4"
           >

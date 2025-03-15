@@ -29,9 +29,9 @@ export interface IOfferCard {
   minAge: number;
   maxAge:number;
   createdAt: string;
-  contractType: string; 
+  contractTypes: string; 
   nationality: string;
-  contractDuration: string;
+  contractDurations: string;
   minExperience: string;
     location: string;
   category: string;
@@ -114,7 +114,6 @@ export interface ICreateJob {
   maxAge:number;
   availabilityToTravel: YesOrNotravell;
   euPassport: YesOrNo;
-  gmail?: string;
   imgUrl: string;
   extra: string[];
   minExperience: string;

@@ -32,8 +32,8 @@ const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
             <p><strong>Posición:</strong> {offer.position}</p>
             <p><strong>Categoría:</strong> {offer.category}</p>
             <p><strong>Géneros Deportivos:</strong> {offer.sportGenres}</p>
-            <p><strong>Tipo de contrato:</strong> {offer.contractType}</p>
-            <p><strong>Duración del contrato:</strong> {offer.contractDuration}</p>
+            <p><strong>Tipo de contrato:</strong> {offer.contractTypes}</p>
+            <p><strong>Duración del contrato:</strong> {offer.contractDurations}</p>
           </div>
         </div>
       </div>

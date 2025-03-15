@@ -108,7 +108,7 @@ const JobDetail: React.FC = () => {
             <li><strong>Edad máxima:</strong> {offer.maxAge}</li>
             <li><strong>Experiencia mínima:</strong> {offer.minExperience}</li>
             <li><strong>Deporte:</strong> {offer.sport}</li>
-            <li><strong>Tipo de contrato:</strong> {offer.contractType}</li>
+            <li><strong>Tipo de contrato:</strong> {offer.contractTypes}</li>
             <li><strong>Fecha de creación:</strong> {offer.createdAt}</li>
           </ul>
         </div>
@@ -121,8 +121,8 @@ const JobDetail: React.FC = () => {
           <p><strong>Puesto:</strong> {offer.position}</p>
           <p><strong>País:</strong> {offer.nationality}</p>
           <p><strong>Ciudad:</strong> {offer.location}</p>
-          <p><strong>Contrato:</strong> {offer.contractType}</p>
-          <p><strong>Duración del contrato:</strong> {offer.contractDuration}</p>
+          <p><strong>Contrato:</strong> {offer.contractTypes}</p>
+          <p><strong>Duración del contrato:</strong> {offer.contractDurations}</p>
           <p className="text-green-500 text-center font-bold text-lg border-2 border-green-500 rounded p-2">
             <strong>Salario:</strong> ${offer.salary}
           </p>

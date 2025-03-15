@@ -14,7 +14,7 @@ export class CreateJobDto {
 
   @ApiProperty({
     description: 'Ubicación donde se llevará a cabo el trabajo',
-    example: 'Barcelona, España',
+    example: 'Barcelona',
   })
   @IsNotEmpty()
   @IsString()
@@ -154,12 +154,4 @@ export class CreateJobDto {
   @IsEnum(YesOrNo)
   euPassport: YesOrNo;
 
-  @ApiProperty({
-    description: 'Gmail del usuario (opcional)',
-    example: 'user@example.com',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  gmail?: string;
 }

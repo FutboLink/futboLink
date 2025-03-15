@@ -23,10 +23,11 @@ export class JobRepository {
   async createJob(createJobDto: CreateJobDto, recruiter: User): Promise<Job> {
     try {
       const job = this.repository.create({ ...createJobDto, recruiter });
+      console.log('Job created:', job);
       return await this.repository.save(job);
     } catch (error) {
       console.error('Error al crear el trabajo:', error);
-      throw new Error(`No se pudo crear el trabajo: ${error.message}`);
+      throw new Error('No se pudo crear el trabajo');
     }
   }
   

@@ -26,7 +26,7 @@ const OfferList: React.FC = () => {
     const filtered = offers.filter((offer) => {
       const lowerSearchTerm = searchTerm.toLowerCase();
       return (
-        offer.contractType?.toLowerCase().includes(lowerSearchTerm) ||
+        offer.contractTypes?.toLowerCase().includes(lowerSearchTerm) ||
         offer.position?.toLowerCase().includes(lowerSearchTerm) ||
         offer.location?.toLowerCase().includes(lowerSearchTerm)
       );

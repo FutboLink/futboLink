@@ -123,11 +123,11 @@ export interface ICreateJob {
 
 
 export enum YesOrNo {
-  SI = 'Si',
+   SI = 'Si',
   NO = 'No'
 }
 
 export enum YesOrNotravell {
   SI = 'Si',
-  NO = 'No'
+ NO = 'No'
 }

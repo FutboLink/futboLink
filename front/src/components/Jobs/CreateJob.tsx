@@ -414,7 +414,20 @@ const FormComponent = () => {
                         value={formData.euPassport}
                         onChange={(e) => setFormData({ ...formData, euPassport: e.target.value as YesOrNo })}
                     >
-                        <option value="Si">Sí</option>
+                        <option value="Si">Si</option>
+                        <option value="No">No</option>
+                    </select>
+
+                </div>
+
+                <div className="flex flex-col">
+                    <label className="text-sm font-bold mb-2">Disponibilidad para viajar:</label>
+                    <select
+                        className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+                        value={formData.availabilityToTravel}
+                        onChange={(e) => setFormData({ ...formData, availabilityToTravel: e.target.value as YesOrNotravell })}
+                    >
+                        <option value="Si">Si</option>
                         <option value="No">No</option>
                     </select>
 

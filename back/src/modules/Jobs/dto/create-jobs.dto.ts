@@ -140,10 +140,10 @@ export class CreateJobDto {
 
   @ApiProperty({
     description: 'Disponibilidad para viajar',
-    example: 'yes',
+    example: 'Si',
   })
   @IsNotEmpty()
-  @IsEnum(YesOrNo)
+  @IsEnum(YesOrNotravell)
   availabilityToTravel: YesOrNotravell;
 
   @ApiProperty({

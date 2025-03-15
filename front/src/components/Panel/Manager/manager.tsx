@@ -122,15 +122,7 @@ const PanelManager = () => {
                 <span>Mi Perfil</span>
               </button>
             </li>
-            <li>
-              <button
-                onClick={() => handleSectionChange("skills")}
-                className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
-              >
-                <span className="text-lg">⚡</span>
-                <span>Postulantes</span>
-              </button>
-            </li>
+           
             <li>
               
               <button
@@ -273,7 +265,7 @@ const PanelManager = () => {
          {/* Sección crear jobs */}
          {activeSection === "createOffers" && (
           <div
-            className="bg-white p-6 rounded-lg shadow-lg mb-6"
+            className="bg-white rounded-lg shadow-lg mb-6"
             data-aos="fade-up"
           >
            
@@ -286,8 +278,7 @@ const PanelManager = () => {
 
        {/* Sección de Ofertas Aplicadas */}
 {activeSection === "appliedOffers" && (
-  <div className="bg-white p-6 rounded-lg shadow-lg mb-6" data-aos="fade-up">
-    <h3 className="text-xl font-semibold mb-4">Mis Ofertas</h3>
+  <div className="bg-white p-1 rounded-lg shadow-lg mb-6" data-aos="fade-up">
     {appliedJobs.length === 0 ? (
       <p>No has publicado ninguna oferta.</p>
     ) : (
@@ -325,11 +316,7 @@ const PanelManager = () => {
          
         
       </div>
-      <Link href={"/profile"}>
-            <div className="rounded border-2 md:w-3/4 sm:1/6 text-center font-semibold bg-blue-300 hover:bg-blue-400 hover:cursor-pointer p-2 text-gray-800">
-                Editar Perfil
-              </div>
-              </Link>
+   
     </div>
   );
 };

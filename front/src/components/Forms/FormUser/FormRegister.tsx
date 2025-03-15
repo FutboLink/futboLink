@@ -239,62 +239,52 @@ const RegistrationForm: React.FC = () => {
           )}
         </div>
 
-        {/* Nacionalidad - Buscar */}
-        <div className="flex flex-col mb-4 relative">
-          <label
-            htmlFor="nationalitySearch"
-            className="block text-gray-700 mb-2"
-          >
+        {/* Nacionalidad (Búsqueda y Selección) */}
+        <div className="relative">
+          <label className="block text-gray-700 mb-1">
             Buscar Nacionalidad
           </label>
           <input
             type="text"
-            id="nationalitySearch"
             value={search}
             onChange={handleSearchChange}
             placeholder="Buscar nacionalidad..."
             onClick={toggleDropdown}
             className="w-full border border-gray-300 text-gray-700 rounded-lg p-3"
           />
+          {isOpen && (
+            <div className="absolute left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-40 overflow-auto z-10">
+              {loading && <p className="p-2">Cargando...</p>}
+              {nationalities
+                .filter((n) =>
+                  n.label.toLowerCase().includes(search.toLowerCase())
+                )
+                .map((n) => (
+                  <p
+                    key={n.value}
+                    onClick={() => handleSelectNationality(n.label)}
+                    className="p-2 hover:bg-gray-200 cursor-pointer text-gray-700"
+                  >
+                    {n.label}
+                  </p>
+                ))}
+            </div>
+          )}
         </div>
 
-        {/* Nacionalidad seleccionada */}
-        <div className="flex flex-col mb-4 relative">
-          <label htmlFor="nationality" className="block text-gray-700 mb-2">
-            Nacionalidad seleccionada <span className="text-red-500">*</span>
+        {/* Nacionalidad Seleccionada */}
+        <div>
+          <label className="block text-gray-700 mb-1">
+            Nacionalidad Seleccionada <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
-            id="nationality"
             value={selectedNationality}
             readOnly
             className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 bg-gray-100"
           />
         </div>
-
-        {/* Dropdown de opciones */}
-        {isOpen && (
-          <div className="absolute z-20 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
-            {loading && <p className="p-2">Cargando nacionalidades...</p>}
-            {error && <p className="text-red-500 p-2">{error}</p>}
-            <ul>
-              {nationalities
-                .filter((nationality) =>
-                  nationality.label.toLowerCase().includes(search.toLowerCase())
-                )
-                .map((nationality) => (
-                  <li
-                    key={nationality.value}
-                    className="p-2 cursor-pointer text-gray-700 hover:bg-gray-200"
-                    onClick={() => handleSelectNationality(nationality.label)}
-                  >
-                    {nationality.label}
-                  </li>
-                ))}
-            </ul>
-          </div>
-        )}
-
+        
         {/* Género */}
         <div className="flex flex-col mb-4">
           <label className="block text-gray-700 mb-2 hover:cursor-pointer">

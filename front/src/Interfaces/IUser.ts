@@ -11,7 +11,7 @@ export interface IProfileData {
   id?: string;
   name: string;
   lastname: string;
-  age:number;
+  age:string;
   nameAgency: string;
   email: string;
   password?: string;

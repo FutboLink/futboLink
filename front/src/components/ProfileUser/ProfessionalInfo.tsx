@@ -123,7 +123,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = () => {
                 onChange={handleChange}
                  className="border rounded-md p-2 mt-2 w-full text-gray-700">
                   <option value="">¿Tienes pasaporte UE?</option>
-                  <option value="Sí">Sí</option>
+                  <option value="Si">Sí</option>
                   <option value="No">No</option>
                 </select>
               </div>

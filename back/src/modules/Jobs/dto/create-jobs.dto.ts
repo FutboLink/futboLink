@@ -29,6 +29,16 @@ export class CreateJobDto {
   salary: number;
 
   @ApiProperty({
+    description: 'Descripción del trabajo o posición',
+    example:
+      'Se busca delantero con experiencia en ligas nacionales o internacionales.',
+  })
+  @IsNotEmpty()
+  @IsString()
+  description: string;
+
+  
+  @ApiProperty({
     description:
       'Tipo de oferta (e.g., contrato temporal, contrato permanente)',
     example: 'Contrato permanente',

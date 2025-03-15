@@ -37,6 +37,13 @@ export class Job {
   @CreateDateColumn()
   createdAt: Date;
 
+  @ApiProperty({
+    example: 'Se busca un delantero como Messi',
+    description: 'Que juegue como Messi y que cobre como el Pulga Rodriguez',
+  })
+  @Column()
+  description: string;
+
   @ApiProperty({ example: 'OPEN', description: 'Estado del trabajo' })
   @Column({ default: 'OPEN' })
   status: string;

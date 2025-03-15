@@ -36,6 +36,7 @@ const FormComponent = () => {
         location:"",
         position: "",
         category: "",
+        description:"",
         sport: "",
         contractTypes:"",
         contractDurations: "",
@@ -146,6 +147,7 @@ const FormComponent = () => {
                     salary: 0,
                     extra: [],
                     minAge: 0,
+                    description:"",
                     maxAge: 0,
                     sportGenres:"",
                     minExperience: "",
@@ -163,7 +165,7 @@ const FormComponent = () => {
     };
 
     return (
-        <div className="max-w-6xl mt-24 mx-auto p-4 bg-gray-100  text-gray-700 rounded-lg shadow-lg shadow-gray-400  border-2 hover:cursor-pointer ">
+        <div className="max-w-6xl mx-auto p-4 bg-gray-100  text-gray-700 rounded-lg shadow-lg shadow-gray-400  border-2 hover:cursor-pointer ">
            <div className="max-w-2xl  mx-auto p-4 ">
     <h1 className="text-xl font-bold mb-4 text-center bg-gray-600 text-white p-2 rounded">
         Crear Oferta de Trabajo
@@ -401,19 +403,8 @@ const FormComponent = () => {
                     />
                 </div>
     
-                <div className="flex flex-col">
-                    <label className="text-sm font-bold mb-2">Disponibilidad para viajar</label>
-                   
-                        <select
-                        className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
-                        value={formData.availabilityToTravel}
-                        onChange={(e) => setFormData({ ...formData, availabilityToTravel: e.target.value as YesOrNotravell })} // Asegúrate de que sea 'yes' o 'no'
-                    >
-                        <option value="Si">Sí</option>
-                        <option value="No">No</option>
-                    </select>
+               
 
-                </div>
     
                 <div className="flex flex-col">
                     <label className="text-sm font-bold mb-2">Pasaporte de la UE</label>
@@ -438,6 +429,19 @@ const FormComponent = () => {
                     />
                 </div>
     
+                <div className="flex flex-col">
+                <label className="text-sm font-bold mb-2">Descripción</label>
+                <textarea
+                    name="description"
+                    maxLength={50}  
+                    className="p-2 mb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Escribe una breve descripción..."
+                />
+                <p className="text-xs text-gray-500">{50 - formData.description.length} caracteres restantes</p>
+                </div>
+                
                 <div className="flex flex-col border-2 border-gray-300 p-2 rounded">
                 <label className="text-sm font-bold">Extras al salario</label> <p className="mb-2 text-sm">(haz click en las que desees agregar)</p>
                 <div className="flex flex-wrap gap-2">

@@ -75,41 +75,41 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
         <p className="text-red-600">{error}</p> // Muestra el error si existe
       ) : (
         <>
-          {/* Nombre */}
-          <input
-            name="name"
-            type="text"
-            value={fetchedProfileData?.name}
-            onChange={handleChange}
-            placeholder="Nombre"
-            required
-            readOnly
-            className="w-full p-2 border rounded mt-2 text-gray-700 bg-gray-100 focus:outline-none"
-          />
-
-          {/* Apellido */}
+       {/* Name */}
+       <div className="flex flex-col">
+             <input
+          name="name"
+          type="text"
+          value={fetchedProfileData?.name || ""}
+          readOnly
+          placeholder="Nombre"
+          className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
+        />
+          </div>
+  
+          {/* Last Name */}
+          <div className="flex flex-col">
           <input
             name="lastname"
             type="text"
-            value={fetchedProfileData?.lastname}
-            onChange={handleChange}
-            placeholder="Apellido"
-            required
+            value={fetchedProfileData?.lastname || ""}
             readOnly
-            className="w-full p-2 border rounded mt-2 text-gray-700 bg-gray-100 focus:outline-none"
+            placeholder="Apellido"
+            className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
           />
-
+          </div>
+  
           {/* Email */}
+          <div className="flex flex-col">
           <input
             name="email"
             type="email"
-            value={fetchedProfileData?.email}
-            onChange={handleChange}
-            placeholder="Correo electrónico"
-            required
+            value={fetchedProfileData?.email || ""}
             readOnly
-            className="w-full p-2 border rounded mt-2 text-gray-700 bg-gray-100 focus:outline-none"
+            placeholder="Apellido"
+            className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
           />
+          </div>
 
           {/* Imagen de perfil (URL) */}
           <input

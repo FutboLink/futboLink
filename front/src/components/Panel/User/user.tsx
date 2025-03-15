@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useState, useEffect, useContext } from "react";
-import userH from "../../../helpers/helperUser"; 
 import AOS from "aos";
 import "aos/dist/aos.css";  
 import { IProfileData} from "@/Interfaces/IUser";
@@ -109,15 +108,7 @@ const UserProfile = () => {
                 <span>Información Profesional</span>
               </button>
             </li>
-            <li>
-              <button
-                onClick={() => handleSectionChange("appliedOffers")}
-                className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
-              >
-                <span className="text-lg">📜</span>
-                <span>Ofertas Aplicadas</span>
-              </button>
-            </li>
+           
             <li>
               <button
                 onClick={() => handleSectionChange("config")}
@@ -145,12 +136,15 @@ const UserProfile = () => {
           </div>
         )}
 
-      <div className="flex-1 p-8">
-     
+      <div className="flex-1 p-1 ">
+      <div className="bg-gray-200 border-l-4 border-green-600 text-gray-700 p-4 max-w-xl mx-auto text-center rounded-lg">
+  <p className="font-semibold text-sm">Es importante que completes tus datos y los mantengas actualizados para que los reclutadores conozcan más sobre ti.</p>
+</div>
+
         {/* Sección de Perfil */}
         {activeSection === "profile" && (
           <div
-            className="bg-white p-10 rounded-xl shadow-xl mb-8 max-w-5xl mx-auto min-h-[500px]"
+            className="bg-white mt-2 p-10 rounded-xl shadow-xl mb-8 max-w-5xl mx-auto min-h-[500px]"
             data-aos="fade-up"
           >
             <h3 className="text-2xl font-semibold mb-6 text-gray-800">
@@ -337,21 +331,6 @@ const UserProfile = () => {
   </div>
 )}
 
-{/* Sección de Ofertas Aplicadas */}
-{activeSection === "appliedOffers" && (
-  <div className="bg-white p-6 rounded-lg shadow-lg mb-6" data-aos="fade-up">
-    <h3 className="text-xl font-semibold mb-4">Ofertas Aplicadas</h3>
-    <ul className="space-y-6">
-      {userH.appliedOffers.map((offer, index) => (
-        <li key={index} className="bg-gray-100 p-4 rounded-md shadow-sm">
-          <h4 className="font-semibold text-lg">{offer.title}</h4>
-          <p className="text-gray-500">{offer.description}</p>
-          <p className="text-gray-500 text-sm">Fecha: {offer.date}</p>
-        </li>
-      ))}
-    </ul>
-  </div>
-)}
 
 {/* Sección de Configuración */}
 {activeSection === "config" && (

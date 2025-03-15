@@ -34,7 +34,7 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
             <h2 className="text-2xl font-semibold">
               {profile.name} {profile.lastname}
             </h2>
-            <h2 className="text-2xl font-semibold">{profile.role}</h2>
+            <h2 className="text-2xl font-semibold">{profile.puesto}</h2>
             <p className="text-sm">{profile.phone}</p>
             <p className="text-sm">{profile.email}</p>
           </div>
@@ -87,12 +87,14 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
                   {profile.name} {profile.lastname}
                 </h2>
                 <div className="text-gray-700">
-                  <p><strong>Rol:</strong> {profile.role}</p>
+                  <p><strong>Rol:</strong> {profile.puesto}</p>
                   <p><strong>Email:</strong> {profile.email}</p>
                   <p><strong>Teléfono:</strong> {profile.phone}</p>
                   <p><strong>Nacionalidad:</strong> {profile.nationality}</p>
-                  <p><strong>Género:</strong> {profile.genre}</p>
+                  <p><strong>Ciudad:</strong> {profile.location}</p> <p><strong>Género:</strong> {profile.genre}</p>
+                  <p><strong>Edad:</strong> {profile.age} años</p>
                   <p><strong>Fecha de Nacimiento:</strong> {profile.birthday}</p>
+                  <p><strong>Pasaport UE:</strong> {profile.pasaporteUe}</p>
                 </div>
               </div>
             </div>

@@ -5,13 +5,12 @@ import { UserContext } from "@/components/Context/UserContext";
 import { NotificationsForms } from "@/components/Notifications/NotificationsForms";
 import { validationRegister } from "@/components/Validate/ValidationRegister";
 import { IRegisterUser, UserType } from "@/Interfaces/IUser";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useContext } from "react";
 import useNationalities from "@/components/Forms/FormUser/useNationalitys";
 import FormsTermins from "@/components/formsTermins/formsTermins";
 
-const AgencyForm: React.FC = () => {
+const ManagerForm: React.FC = () => {
   const { signUp } = useContext(UserContext);
   const router = useRouter();
   const { nationalities, loading, error } = useNationalities();
@@ -323,4 +322,4 @@ const AgencyForm: React.FC = () => {
   );
 };
 
-export default AgencyForm;
+export default ManagerForm;

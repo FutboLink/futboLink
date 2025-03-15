@@ -42,23 +42,28 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   }, [token]);
   
 
-  // Handle input field changes
-const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-  const { name, value } = e.target;
-
-  if (fetchedProfileData) {
-    setFetchedProfileData((prevData) => ({
-      ...prevData!,
-      [name]: value,  
-      socialMedia: {
-        ...prevData!.socialMedia,
-        [name]: value,
-      },
-    }));
-  }
-};
-
-  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    if (fetchedProfileData) {
+      const { name, value } = e.target;
+      
+      // Verificar si el nombre del campo pertenece a socialMedia
+      if (['transfermarkt', 'x', 'youtube'].includes(name)) {
+        setFetchedProfileData({
+          ...fetchedProfileData,
+          socialMedia: {
+            ...fetchedProfileData.socialMedia,
+            [name]: value, // Guardar en el campo correspondiente dentro de socialMedia
+          },
+        });
+      } else {
+        // Actualizar propiedades principales que no están dentro de socialMedia
+        setFetchedProfileData({
+          ...fetchedProfileData,
+          [name]: value, // Guardar directamente en el campo correspondiente del objeto principal
+        });
+      }
+    }
+  };
   
   
 
@@ -114,44 +119,38 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3"> {/* Reducir gap entre los inputs */}
           {/* Name */}
           <div className="flex flex-col">
-            <input
-              name="name"
-              type="text"
-              value={fetchedProfileData?.name || ""}
-              onChange={handleChange}
-              placeholder="Nombre"
-              required
-              readOnly
-              className="w-full p-1.5 border rounded text-gray-700 bg-gray-200 focus:outline-none"
-            />
+             <input
+          name="name"
+          type="text"
+          value={fetchedProfileData?.name || ""}
+          readOnly
+          placeholder="Nombre"
+          className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
+        />
           </div>
   
           {/* Last Name */}
           <div className="flex flex-col">
-            <input
-              name="lastname"
-              type="text"
-              value={fetchedProfileData?.lastname || ""}
-              onChange={handleChange}
-              placeholder="Apellido"
-              required
-              readOnly
-              className="w-full p-1.5 border rounded text-gray-700 bg-gray-200 focus:outline-none"
-            />
+          <input
+            name="lastname"
+            type="text"
+            value={fetchedProfileData?.lastname || ""}
+            readOnly
+            placeholder="Apellido"
+            className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
+          />
           </div>
   
           {/* Email */}
           <div className="flex flex-col">
-            <input
-              name="email"
-              type="email"
-              value={fetchedProfileData?.email || ""}
-              onChange={handleChange}
-              placeholder="Correo electrónico"
-              required
-              readOnly
-              className="w-full p-1.5 border rounded text-gray-700 bg-gray-200 focus:outline-none"
-            />
+          <input
+            name="email"
+            type="email"
+            value={fetchedProfileData?.email || ""}
+            readOnly
+            placeholder="Apellido"
+            className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
+          />
           </div>
   
           {/* Profile Picture */}
@@ -190,10 +189,10 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
             <label htmlFor="nationality" className="block text-gray-700 font-semibold text-sm">Nacionalidad seleccionada</label>
             <input
               type="text"
-              value={selectedNationality}
-             
+              defaultValue={selectedNationality}
               className="w-full border text-gray-700 mt-2 border-gray-300 rounded-lg p-2"
             />
+
           </div>
   
           {/* Nationality Dropdown */}
@@ -229,7 +228,6 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
               onChange={handleChange}
               placeholder="Nacionalidad Actual"
               required
-              readOnly
              className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
             />
           </div>
@@ -294,16 +292,15 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   <label className="text-gray-700 font-semibold text-sm">Edad:</label>
   <input
     name="age"
-    type="number"
+    type="text"
     value={fetchedProfileData?.age || ""}
     onChange={handleChange}
     placeholder="Edad"
     className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
   />
 </div>
-
-          {/* Transfermarkt */}
-          <div className="flex flex-col">
+  {/* Transfermarkt */}
+  <div className="flex flex-col">
             <label className="text-gray-700 font-semibold text-sm pl-2">Transfermarkt:</label>
             <input
               type="text"
@@ -340,6 +337,7 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
               className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
             />
           </div>
+       
         </div>
       )}
   

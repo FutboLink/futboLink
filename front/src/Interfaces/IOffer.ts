@@ -21,26 +21,26 @@ export interface IOffer {
 export interface IOfferCard {
   id?: string;
   title: string;
-  nationality: string;
-  location: string;
   position: string;
-  category: string;
   sportGenres:string;
-  sport: string;
-  contractTypes: string; 
-  description:string;
-  contractDurations: string;
-  salary: number;
-  transport: string[];
-  minAge: number;
-  maxAge:number;
   availabilityToTravel: YesOrNotravell;
   euPassport: YesOrNo;
+  salary: number;
+  minAge: number;
+  maxAge:number;
+  createdAt: string;
+  contractType: string; 
+  nationality: string;
+  contractDuration: string;
+  minExperience: string;
+  
+  location: string;
+  category: string;
+  sport: string;
+  description:string;
   gmail?: string;
   imgUrl: string;
   extra: string[];
-  minExperience: string;
-  createdAt: string;
   status: string;
   type: string;
   recruiter: {
@@ -100,6 +100,7 @@ export interface ICreateJob {
   nationality: string;
   location: string;
   position: string;
+  description:string;
   category: string;
   sportGenres:string;
   sport: string;

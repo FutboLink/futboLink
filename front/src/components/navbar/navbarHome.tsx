@@ -121,10 +121,6 @@ function NavbarHome() {
         <button onClick={() => navigateTo("/PanelUsers/Player")}>
           <FaUser className="text-green-700" />
         </button>
-      ) : role === "AGENCY" ? (
-        <button onClick={() => navigateTo("/PanelUsers/Agency")}>
-          <FaUser className="text-green-500" />
-        </button>
       ) : role === "RECRUITER" ? (
         <button onClick={() => navigateTo("/PanelUsers/Manager")}>
           <FaUser className="text-green-500" />
@@ -245,10 +241,6 @@ function NavbarHome() {
       role === "PLAYER" ? (
         <button onClick={() => navigateTo("/PanelUsers/Player")}>
           <FaUser className="text-green-700" />
-        </button>
-      ) : role === "AGENCY" ? (
-        <button onClick={() => navigateTo("/PanelUsers/Agency")}>
-          <FaUser className="text-green-500" />
         </button>
       ) : role === "RECRUITER" ? (
         <button onClick={() => navigateTo("/PanelUsers/Manager")}>

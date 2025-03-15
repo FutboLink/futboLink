@@ -7,14 +7,15 @@ import ImageUpload from "../Cloudinary/ImageUpload";
 import useNationalities from "../Forms/FormUser/useNationalitys";
 
 const position = [
-  "Jugador", "Entrenador", "Fisioterapeuta", "Preparador Físico", "Analista",
-  "Gerente", "Entrenador de Porteros", "Coordinador", "Ojeador Scout", "Marketing Digital",
-  "Director Deportivo", "Comercial", "Jefe de Reclutamiento", "Periodista", "Nutricionista",
-  "Administrativo", "Diseñador Gráfico", "Director Técnico", "Médico", "Psicólogo",
-  "Recursos Humanos", "Abogado", "Científico Deportivo", "Director de Negocio", "Editor Multimedia",
-  "Finanzas", "Árbitro", "Delegado", "Profesor", "Ejecutivo", "Inversor", "Utillero", "Agente",
-  "Representante", "Terapeuta"
-];
+    "Abogado", "Administrativo", "Agente", "Árbitro", "Analista", "Científico Deportivo",
+    "Coordinador", "Comercial", "Delegado", "Director Deportivo", "Director de Negocio",
+    "Director Técnico", "Diseñador Gráfico", "Editor Multimedia", "Entrenador", "Entrenador de Porteros",
+    "Ejecutivo", "Fisioterapeuta", "Finanzas", "Gerente", "Inversor", "Jefe de Reclutamiento",
+    "Jugador", "Marketing Digital", "Médico", "Nutricionista", "Ojeador Scout", "Periodista",
+    "Preparador Físico", "Profesor", "Psicólogo", "Recursos Humanos", "Representante", "Terapeuta",
+    "Utillero"
+  ];
+  
 
 const sportGenres = ["Masculino", "Femenino"];
 const categories = ["Amateur", "Semiprofesional", "Profesional", "Fútbol base"];

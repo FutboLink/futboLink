@@ -34,14 +34,14 @@ function NavbarAdmin() {
       {/* Navbar Desktop */}
       <nav className="fixed top-0 left-0 w-full z-50 text-green-800 bg-white border-b-2 shadow-sm shadow-gray-400  border-gray-400">
 
-        <section className="flex items-center justify-between sm:flex-row w-full p-4">
+        <section className="flex items-center justify-between sm:flex-row w-full p-2">
           {/* Sección izquierda con logo y links */}
           <div id="sectionOne" className="flex items-center gap-6">
             <Link href={"/"}>
               <Image
                 src="/logoD.png"
-                height={75}
-                width={75}
+                height={50}
+                width={50}
                 alt="FutboLink logo"
                 className="rounded-2xl"
               />
@@ -55,14 +55,14 @@ function NavbarAdmin() {
                 Usuarios
               </li>
               <li
-                onClick={() => navigateTo("/Formation")}
+                onClick={() => navigateTo("/PanelAdmin/Applications")}
                 className="px-4 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
                 aria-label="Cursos y formación en futbol"
               >
                 Postulaciones
               </li>
               <li
-                onClick={() => navigateTo("/PanelAdmin/Ofertas")}
+                onClick={() => navigateTo("/jobs")}
                 className="px-4 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
                 aria-label="Cursos y formación en futbol"
               >
@@ -148,13 +148,13 @@ function NavbarAdmin() {
                 Usuarios
               </li>
               <li
-                onClick={() => navigateTo("/Formation")}
+                onClick={() => navigateTo("/PanelAdmin/Applications")}
                 className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
               >
                 Postulaciones
               </li>
               <li
-                onClick={() => navigateTo("PanelAdmin/Ofertas")}
+                onClick={() => navigateTo("/jobs")}
                 className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
               >
                 Ofertas

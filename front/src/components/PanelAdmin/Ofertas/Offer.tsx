@@ -1,6 +1,5 @@
 "use client"
 import React, { useState } from 'react';
-import OfferList from './OfferList';
 import OfferStats from './OfferStats';
 
 export default function Offer() {
@@ -15,13 +14,8 @@ export default function Offer() {
   return (
     <div className="p-4 ">
       {/* Pestañas */}
-      <div className="flex space-x-4 mb-4">
-        <button
-          onClick={() => handleTabChange("first")}
-          className={`px-4 py-2 ${activeTab === "first" ? "bg-green-700 text-white" : "bg-gray-200 text-gray-700"} rounded`}
-        >
-          Ofertas Laborales
-        </button>
+      <div className="flex space-x-4">
+      
         <button
           onClick={() => handleTabChange("second")}
           className={`px-4 py-2 ${activeTab === "second" ? "bg-green-700 text-white" : "bg-gray-200 text-gray-700"} rounded`}
@@ -32,11 +26,9 @@ export default function Offer() {
 
       {/* Contenido según la pestaña activa */}
       <div>
-        {activeTab === "first" ? (
-          <OfferList /> 
-        ) : (
+      
           <OfferStats/>
-        )}
+        
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import { UserContext } from "@/components/Context/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Offer from "./Ofertas/Offer";
+import AllApplications from "./Applications/AllApplications";
 
 const PanelAdmin = () => {
   const {token,logOut} = useContext(UserContext);
@@ -114,7 +115,7 @@ const PanelAdmin = () => {
                 className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
               >
                 <span className="text-lg">📜</span>
-                <span>Ofertas</span>
+                <span>Estadísticas de Ofertas</span>
               </button>
             </li>
             <li>
@@ -153,7 +154,7 @@ const PanelAdmin = () => {
             data-aos="fade-up"
           >
             <h3 className="text-2xl font-semibold mb-6 text-gray-800">
-              Información Adicional
+              Información
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
@@ -181,8 +182,13 @@ const PanelAdmin = () => {
            
             </div>
             <p className="text-gray-600 mt-12">
-          Haz click en <span className="font-semibold">Completar datos</span> para terminar tu perfil.
+          Haz click para terminar tu perfil.
         </p>
+        <Link href={"/profile"}>
+            <div className="rounded border-2 md:w-3/4 sm:1/6 text-center bg-blue-300 hover:bg-blue-400 hover:cursor-pointer p-2 text-gray-800">
+                Completar datos
+              </div>
+              </Link>
           </div>
         )}
 
@@ -192,7 +198,7 @@ const PanelAdmin = () => {
             className="bg-white p-6 rounded-lg shadow-lg mb-6"
             data-aos="fade-up"
           >
-           <Offer/>
+          <AllApplications/>
 
           </div>
         )}
@@ -249,11 +255,7 @@ const PanelAdmin = () => {
           </div>
         )}
       </div>
-      <Link href={"/profile"}>
-            <div className="rounded border-2 md:w-3/4 sm:1/6 text-center bg-blue-300 hover:bg-blue-400 hover:cursor-pointer p-2 text-gray-800">
-                Completar datos
-              </div>
-              </Link>
+   
     </div>
   );
 };

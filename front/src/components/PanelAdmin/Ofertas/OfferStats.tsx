@@ -92,20 +92,28 @@ const OfferStats = () => {
   }
 
   return (
-    <div className="mt-20 p-6">
+    <div className="mt-4 p-6">
       <div className="flex space-x-6 mb-6">
-        <button onClick={() => handleTabChange("ofertas")} className={`tab-button ${activeTab === "ofertas" ? "active" : ""}`}>
-          Estadísticas de Ofertas
-        </button>
-        <button onClick={() => handleTabChange("perfiles")} className={`tab-button ${activeTab === "perfiles" ? "active" : ""}`}>
-          Perfiles Activos
-        </button>
+      <button
+  onClick={() => handleTabChange("ofertas")}
+  className={`px-4 py-2 ${activeTab === "ofertas" ? "bg-green-700 text-white" : "bg-gray-200 text-gray-700"} tab-button ${activeTab === "ofertas" ? "active" : ""}`}
+>
+  Estadísticas de Ofertas
+</button>
+
+<button
+  onClick={() => handleTabChange("perfiles")}
+  className={`px-4 py-2 ${activeTab === "perfiles" ? "bg-green-700 text-white" : "bg-gray-200 text-gray-700"} tab-button ${activeTab === "perfiles" ? "active" : ""}`}
+>
+  Perfiles Activos
+</button>
+
       </div>
 
       <div>
         {activeTab === "ofertas" && (
           <>
-            <h3 className="text-xl font-semibold mb-4">Ofertas Disponibles</h3>
+            <h3 className="text-xl font-semibold mb-4 text-gray-700">Ofertas Disponibles</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {offers.map((offer) => (
                 <div key={offer.id} className="bg-white border p-4 rounded shadow-md">
@@ -122,8 +130,8 @@ const OfferStats = () => {
 
         {activeTab === "perfiles" && (
           <div className="bg-white border p-4 rounded shadow-md">
-            <h3 className="text-lg font-semibold mb-4">Perfil más activo</h3>
-            <p className="text-gray-800">Perfil más activo: {stats.mostActiveProfile}</p>
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">Perfil más activo</h3>
+            <p className="text-gray-700">Perfil más activo: {stats.mostActiveProfile}</p>
           </div>
         )}
       </div>

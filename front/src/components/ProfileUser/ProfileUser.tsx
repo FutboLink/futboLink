@@ -29,7 +29,7 @@ const Profile = () => {
         
         {/* Pestañas */}
         <div className="flex space-x-3 border-b pb-1 mt-2 mb-3 text-gray-700"> {/* Reducir el espacio y márgenes */}
-          {["Personal", "Profesional", "Configuración"].map((tab) => (
+          {["Personal", "Profesional"].map((tab) => (
             <button
               key={tab}
               className={`py-1.5 px-3 mt-6 ${

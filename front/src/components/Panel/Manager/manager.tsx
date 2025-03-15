@@ -10,15 +10,16 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import JobOfferDetails from "@/components/Jobs/JobOffertDetails";
 import { IOfferCard } from "@/Interfaces/IOffer";
-import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
 import FormComponent from "@/components/Jobs/CreateJob";
+import {  fetchUserId } from "@/components/Fetchs/UsersFetchs/UserFetchs";
+import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
 
 const PanelManager = () => {
   const { user, logOut } = useContext(UserContext);
   const [activeSection, setActiveSection] = useState("profile");
   const [userData, setUserData] = useState<IProfileData | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [appliedJobs, setAppliedJobs] = useState<IOfferCard[]>([]); // Estado para almacenar las ofertas filtradas
+  const [appliedJobs, setAppliedJobs] = useState<IOfferCard[]>([]);
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const router = useRouter();
 
@@ -31,48 +32,40 @@ const PanelManager = () => {
     router.push('/');
   };
 
-
   useEffect(() => {
-    if (user && user.id) { // Verificamos que `user` y `user.id` estén disponibles
-      console.log("userid", user.id)
+    const loadUserData = async () => {
       try {
-        const userId = user.id; // Obtener el userId del contexto de usuario
-
-        if (userId) {
-          // Llamada para obtener los trabajos aplicados
-          getOfertas()
-            .then((jobs) => {
-              // Filtrar las ofertas en función del recruiterId
-              const filteredJobs = jobs.filter((job) => job.recruiter.id === userId);
-              setAppliedJobs(filteredJobs); // Guarda las ofertas filtradas
-            })
-            .catch((error) => {
-              console.error("Error fetching applications:", error);
-              setError("Error al obtener las ofertas aplicadas.");
-            });
-
-          // Llamada para obtener los datos del usuario
-          fetch(`${apiUrl}/user/${userId}`)
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error('Failed to fetch user data');
-              }
-              return response.json();
-            })
-            .then((data) => {
-              setUserData(data); // Guarda los datos del usuario
-            })
-            .catch((error) => {
-              console.error('Error fetching user data:', error);
-              setError('Failed to load user data.');
-            });
+        if (user && user.id) {
+          console.log("userid", user.id);
+          const data = await fetchUserId(user.id);
+          setUserData(data); 
         }
       } catch (error) {
-        setError('Error fetching user data.');
-        console.error('Error:', error);
+        console.error("Error loading user data:", error);
+        setError("Failed to load user data.");
       }
-    }
-  }, [user, apiUrl]); 
+    };
+  
+    loadUserData();
+  }, [user, apiUrl]);
+  
+  useEffect(() => {
+    const loadAppliedJobs = async () => {
+      try {
+        if (user && user.id) {
+          console.log("userid en getOfertas", user.id);
+          const jobs = await getOfertas();
+          const filteredJobs = jobs.filter((job) => job.recruiter && job.recruiter.id === user.id);
+          setAppliedJobs(filteredJobs); 
+        }
+      } catch (error) {
+        console.error("Error loading applied jobs:", error);
+        setError("Error al obtener las ofertas aplicadas.");
+      }
+    };
+  
+    loadAppliedJobs();
+  }, [user]);
   
   
 
@@ -214,7 +207,7 @@ const PanelManager = () => {
       {userData.socialMedia.x}
     </Link>
   ) : (
-    <span className="text-gray-500">No disponible</span>
+    <span className="text-gray-500"></span>
   )}
   
   {/* Transfermarkt */}
@@ -231,7 +224,7 @@ const PanelManager = () => {
 
     
   ) : (
-    <span className="text-gray-500">No disponible</span>
+    <span className="text-gray-500"></span>
   )}
    {/* Twitter (X) */}
    {userData?.socialMedia?.youtube ? (
@@ -245,7 +238,7 @@ const PanelManager = () => {
       {userData.socialMedia.youtube}
     </Link>
   ) : (
-    <span className="text-gray-500">No disponible</span>
+    <span className="text-gray-500"></span>
   )}
 </div>
                  

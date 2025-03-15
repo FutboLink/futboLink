@@ -189,7 +189,7 @@ const UserProfile = () => {
       {userData.socialMedia.x}
     </Link>
   ) : (
-    <span className="text-gray-500">No disponible</span>
+    <span className="text-gray-500"></span>
   )}
   
   {/* Transfermarkt */}
@@ -212,7 +212,7 @@ const UserProfile = () => {
 
     
   ) : (
-    <span className="text-gray-500">No disponible</span>
+    <span className="text-gray-500"></span>
   )}
    {/* Twitter (X) */}
    {userData?.socialMedia?.youtube ? (
@@ -232,7 +232,7 @@ const UserProfile = () => {
       {userData.socialMedia.youtube}
     </Link>
   ) : (
-    <span className="text-gray-500">No disponible</span>
+    <span className="text-gray-500"></span>
   )}
 </div>
 

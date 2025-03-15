@@ -4,7 +4,6 @@ import { useContext, useState, useEffect } from "react";
 import { IProfileData } from "@/Interfaces/IUser";
 import PersonalInfo from "./PersonalInfo";
 import ProfessionalInfo from "./ProfessionalInfo";
-import ContactDetails from "./ContactDetails";
 import { UserContext } from "../Context/UserContext";
 import { fetchUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 
@@ -25,33 +24,32 @@ const Profile = () => {
 
  
   return (
-    <div className="mt-20">
-      <div className="p-6 max-w-4xl mx-auto">
-       
+    <div className="mt-12"> {/* Reducir el margen superior */}
+      <div className="p-4 max-w-4xl mx-auto"> {/* Reducir el padding */}
+        
         {/* Pestañas */}
-        <div className="flex space-x-4 border-b pb-2 mt-4 mb-4 text-gray-700 ">
-          {["Personal", "Profesional", "Redes"].map((tab) => (
+        <div className="flex space-x-3 border-b pb-1 mt-2 mb-3 text-gray-700"> {/* Reducir el espacio y márgenes */}
+          {["Personal", "Profesional"].map((tab) => (
             <button
               key={tab}
-              className={`py-2 px-4 mt-8 ${
-                activeTab === tab ? " bg-green-300 shadow-md font-bold" : "text-gray-600"
-              }`}
+              className={`py-1.5 px-3 mt-6 ${
+                activeTab === tab ? "bg-green-300 shadow-md font-semibold" : "text-gray-600"
+              }`} // Reducir el tamaño del padding y la altura
               onClick={() => setActiveTab(tab)}
             >
               {tab}
             </button>
           ))}
         </div>
-
+  
         {/* Contenido de cada pestaña */}
         {activeTab === "Personal" && userData && <PersonalInfo profileData={userData} />}
         {activeTab === "Profesional" && userData && <ProfessionalInfo profileData={userData} />}
-        {activeTab === "Redes" && userData && <ContactDetails profileData={userData} />}
-
-        {error && <p className="text-red-600 mt-4">{error}</p>}
+  
+        {error && <p className="text-red-600 mt-2">{error}</p>} {/* Reducir el margen inferior del error */}
       </div>
     </div>
   );
-};
+}  
 
 export default Profile;

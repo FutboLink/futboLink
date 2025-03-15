@@ -47,26 +47,7 @@ const RegistrationCards = () => {
           </div>
         </Link>
 
-        {/* Card Agencia */}
-        <Link href="/OptionUsers/Agency">
-          <div className="bg-white p-6 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition duration-300 h-[380px] flex flex-col items-center">
-            <Image
-              src="https://img.freepik.com/foto-gratis/concepto-negocio-copia-espacio-mesa-escritorio-oficina-enfoque-pluma-analisis-grafico-computadora-bloc-notas-taza-cafe-tablero-desk-vintage-retro-filtro-enfoque-selectivo_1418-536.jpg?t=st=1735402112~exp=1735405712~hmac=6350a14095065e89bb8a0417032b314661f087cf856a24727cdd9ffd7f8a3cf2&w=1380" // Cambia esta URL por la imagen adecuada
-              alt="Agencia"
-              width={200}
-              height={200}
-              className="w-full h-48 object-cover rounded-t-lg mb-4"
-            />
-            <h3 className="text-2xl font-semibold text-gray-800 mb-4 text-center">
-              Agencia
-            </h3>
-            <p className="text-gray-600 text-center">
-              Regístrate como agencia y gestiona varios representantes y
-              jugadores.
-            </p>
-          </div>
-        </Link>
-      </div>
+        </div>
     </div>
   );
 };

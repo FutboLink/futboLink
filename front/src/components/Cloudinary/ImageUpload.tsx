@@ -59,11 +59,11 @@ const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
       <button
         onClick={uploadImage}
         disabled={uploading}
-        className={`mt-2 w-full rounded-lg p-2 text-white ${uploading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
+        className={`mt-2 w-2/5 rounded-lg p-2 text-white ${uploading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
       >
         {uploading ? 'Subiendo...' : 'Subir Imagen'}
       </button>
-      {imageUrl && <img width={500} height={500} src={imageUrl} alt="Imagen subida" className="mt-2 w-full rounded-lg" />}
+      {imageUrl && <img width={100} height={100} src={imageUrl} alt="Imagen subida" className="mt-2  rounded-lg" />}
     </div>
   );
 };

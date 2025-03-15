@@ -72,22 +72,45 @@ const ContactDetails: React.FC<{ profileData: IProfileData }> = () => {
       <h2 className="text-lg font-semibold text-gray-700">Detalles Físicos</h2>
       {fetchedProfileData ? (
         <>
-          <input
-            type="text"
-            name="instagram"
-            value={fetchedProfileData.socialMedia?.instagram || ""}
-            onChange={handleChange}
-            placeholder="link de instagram"
-            className="w-full p-2 border rounded mt-2 focus:outline-none hover:cursor-pointer text-gray-700"
-          />
-          <input
-            type="text"
-            name="twitter"
-            value={fetchedProfileData.socialMedia?.twitter || ""}
-            onChange={handleChange}
-            placeholder="link de twitter"
-            className="w-full p-2 border rounded mt-2 focus:outline-none hover:cursor-pointer text-gray-700"
-          />
+          {/* Transfermarkt */}
+          <div className="flex flex-col">
+            <label className="text-gray-700 font-semibold text-sm pl-2">Transfermarkt:</label>
+            <input
+              type="text"
+              name="transfermarkt"
+              value={fetchedProfileData?.socialMedia?.transfermarkt || ""}
+              onChange={handleChange}
+              placeholder="link de Transfermarkt"
+              className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
+            />
+          </div>
+  
+          {/* X*/}
+          <div className="flex flex-col">
+            <label className="text-gray-700 font-semibold text-sm pl-2">X:</label>
+            <input
+              type="text"
+              name="x"
+              value={fetchedProfileData?.socialMedia?.x || ""}
+              onChange={handleChange}
+              placeholder="link de X"
+              className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
+            />
+          </div>
+
+            {/* Youtube*/}
+            <div className="flex flex-col">
+            <label className="text-gray-700 font-semibold text-sm pl-2">Youtube:</label>
+            <input
+              type="text"
+              name="youtube"
+              value={fetchedProfileData?.socialMedia?.youtube || ""}
+              onChange={handleChange}
+              placeholder="link de Youtube"
+              className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
+            />
+          </div>
+       
         </>
       ) : (
         <p>Cargando los datos...</p>

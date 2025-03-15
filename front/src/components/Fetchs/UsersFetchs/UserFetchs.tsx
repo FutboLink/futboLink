@@ -69,6 +69,23 @@ export const fetchUserData = async (token: string) => {
   }
 };
 
+
+export const fetchUserId = async (userId:string) => {
+
+    try {
+      const response = await fetch(`${apiUrl}/user/${userId}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch user data");
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      throw error;
+    }
+  };
+  
+
 export const updateUserData = async (userId: number, formData: IProfileData) => {
   try {
     const response = await fetch(`${apiUrl}/user/${userId}`, {
@@ -90,3 +107,43 @@ export const updateUserData = async (userId: number, formData: IProfileData) => 
   }
 };
 
+export const fetchDeleteJob = async (token: string, jobId: string) => {
+  try {
+    const response = await fetch(`${apiUrl}/jobs/${jobId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response;
+  } catch (error) {
+    console.error("Error en fetchDeleteJob:", error);
+    throw error;
+  }
+};
+
+
+// Actualiza la función para aceptar formData
+export const fetchEditJob = async (token: string, id: string, formData: object) => {
+  try {
+    const response = await fetch(`${apiUrl}/jobs/${id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json", // Agregar el tipo de contenido
+      },
+      body: JSON.stringify(formData), // Enviar formData como cuerpo de la solicitud
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al editar la oferta.");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error al editar la oferta:", error);
+    throw error;
+  }
+};

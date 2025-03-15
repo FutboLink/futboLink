@@ -1,7 +1,6 @@
+import { IsNotEmpty, IsString, IsNumber, IsArray, IsOptional, IsEnum } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsNumber, IsArray, IsEnum, IsOptional, IsEmail } from 'class-validator';
-import { YesOrNo } from '../entities/jobs.entity';
-
+import { YesOrNo, YesOrNotravell } from '../jobs.enum';
 
 export class CreateJobDto {
   @ApiProperty({ description: 'Título del trabajo', example: 'Entrenador de fútbol' })
@@ -9,7 +8,19 @@ export class CreateJobDto {
   @IsString()
   title: string;
 
-  @ApiProperty({ description: 'Ubicación del trabajo', example: 'Madrid, España' })
+  @ApiProperty({
+    description: 'Descripción del trabajo o posición',
+    example:
+      'Se busca delantero con experiencia en ligas nacionales o internacionales.',
+  })
+  @IsNotEmpty()
+  @IsString()
+  description: string;
+
+  @ApiProperty({
+    description: 'Ubicación donde se llevará a cabo el trabajo',
+    example: 'Barcelona, España',
+  })
   @IsNotEmpty()
   @IsString()
   location: string;
@@ -44,53 +55,48 @@ export class CreateJobDto {
   @IsNumber()
   salary: number;
 
-  @ApiProperty({ description: 'Beneficios adicionales', example: ['Alojamiento', 'Comida'] })
-  @IsArray()
-  @IsString({ each: true })
-  extra: string[];
-
-  @ApiProperty({ description: 'Opciones de transporte', example: ['Vehículo proporcionado', 'Reembolso de transporte'] })
-  @IsArray()
-  @IsString({ each: true })
-  transport: string[];
-
-  @ApiProperty({ description: 'Edad mínima requerida', example: '18' })
-  @IsNotEmpty()
+  @ApiProperty({
+    description:
+      'Tipo de oferta (e.g., contrato temporal, contrato permanente)',
+    example: 'Contrato permanente',
+  })
   @IsString()
-  minAge: string;
+  offerType: string;
 
-  @ApiProperty({ description: 'Edad máxima permitida', example: '35' })
-  @IsNotEmpty()
-  @IsString()
-  maxAge: string;
-
-  @ApiProperty({ description: 'Género deportivo', example: 'Masculino' })
-  @IsNotEmpty()
-  @IsString()
-  sportGenres: string;
-
-  @ApiProperty({ description: 'Experiencia mínima requerida', example: '2 años' })
-  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Posición en el campo que se necesita cubrir',
+    example: 'Delantero',
+  })
   @IsString()
   minExperience: string;
 
-  @ApiProperty({ description: 'Disponibilidad para viajar', enum: YesOrNo, example: YesOrNo.YES })
-  @IsNotEmpty()
-  @IsEnum(YesOrNo)
-  availabilityToTravel: YesOrNo;
+  @ApiProperty({
+    description: 'Competencias requeridas para el puesto',
+    example: ['Velocidad', 'Técnica de disparo', 'Trabajo en equipo'],
+  })
+  @IsArray()
+  competencies: string[];
 
-  @ApiProperty({ description: 'Pasaporte de la UE requerido', enum: YesOrNo, example: YesOrNo.NO })
-  @IsNotEmpty()
-  @IsEnum(YesOrNo)
-  euPassport: YesOrNo;
+  @ApiProperty({
+    description: 'Países donde aplica la oferta',
+    example: ['España', 'Italia', 'Francia'],
+  })
+  @IsArray()
+  countries: string[];
 
-  @ApiProperty({ description: 'Correo electrónico de contacto', required: false, example: 'contacto@gmail.com' })
-  @IsOptional()
-  @IsEmail()
-  gmail?: string;
-
-  @ApiProperty({ description: 'URL de la imagen', example: 'https://example.com/image.jpg' })
-  @IsNotEmpty()
+  @ApiProperty({
+    description: 'URL de la imagen representativa de la oferta (opcional)',
+    example: 'https://example.com/player-image.jpg',
+    required: false,
+  })
   @IsString()
   imgUrl: string;
+
+  @ApiProperty({
+    description:
+      'Tipo de trabajo (e.g., profesional, semiprofesional, juvenil)',
+    example: 'Profesional',
+  })
+  @IsString()
+  type: string;
 }

@@ -38,6 +38,14 @@ export class User {
   password: string;
 
   @ApiProperty({
+    example: 'Kinesiólogo, utilero,etc',
+    description: 'Puesto del usuario',
+  })
+  @Column({ nullable: true })
+ puesto?: string;
+
+
+  @ApiProperty({
     example: UserType.PLAYER,
     description: 'Rol del usuario',
     enum: UserType,
@@ -45,29 +53,7 @@ export class User {
   @Column({ default: UserType.PLAYER })
   role: UserType;
 
-  @ApiProperty({description: 'Club del jugador'})
-  @Column({nullable:true})
-  club?: string
 
-  @ApiProperty({ example: '2024-01-01', description: 'Fecha de inicio en el club', nullable: true })
-  @Column({ nullable: true })
-  fechaInicio?: string;
-
-  @ApiProperty({ example: '2025-01-01', description: 'Fecha de finalización en el club', nullable: true })
-  @Column({ nullable: true })
-  fechaFinalizacion?: string;
-
-  @ApiProperty({ example: 'Primera División', description: 'Categoría del equipo', nullable: true })
-  @Column({ nullable: true })
-  categoriaEquipo?: string;
-
-  @ApiProperty({ example: 'Alto', description: 'Nivel de competencia', nullable: true })
-  @Column({ nullable: true })
-  nivelCompetencia?: string;
-
-  @ApiProperty({ example: 'Goleador de la liga', description: 'Logros del usuario', nullable: true })
-  @Column({ nullable: true })
-  logros?: string;
 
   @ApiProperty({ example: 'https://example.com/avatar.jpg', description: 'URL de la img de perfil', nullable: true })
   @Column({ nullable: true })
@@ -94,16 +80,20 @@ export class User {
   birthday?: Date;
 
   @ApiProperty({ example: 'España', description: 'País donde puede trabajar' })
-  @Column()
-  countryToWork: string;
+  @Column({ nullable: true })
+  countryToWork?: string;
 
   @ApiProperty({ example: PasaporteUe.SI, description: '¿Tiene pasaporte de la UE?', enum: PasaporteUe })
-  @Column({ type: 'enum', enum: PasaporteUe })
-  pasaporteUe: PasaporteUe;
+  @Column({ type: 'enum', enum: PasaporteUe, nullable: true })
+  pasaporteUe?: PasaporteUe;
 
   @ApiProperty({ example: 180, description: 'Altura en cm', nullable: true })
   @Column({ type: 'int', nullable: true })
   height?: number;
+
+  @ApiProperty({ example: 18, description: 'Edad del usuario', nullable: true })
+  @Column({ type: 'int', nullable: true })
+  age?: number;
 
   @ApiProperty({ example: 75, description: 'Peso en kg', nullable: true })
   @Column({ type: 'int', nullable: true })
@@ -122,8 +112,8 @@ export class User {
   habilities?: string[];
 
   @ApiProperty({ example: 'Delantero', description: 'Posición primaria' })
-  @Column()
-  primaryPosition: string;
+  @Column({ nullable: true })
+  primaryPosition?: string;
 
   @ApiProperty({ example: 'Extremo', description: 'Posición secundaria', nullable: true })
   @Column({ nullable: true })
@@ -137,6 +127,18 @@ export class User {
   @Column({ nullable: true })
   videoUrl?: string;
 
+  @ApiProperty({ example: [{ club: "FC Barcelona", fechaInicio: "2020-01-01", fechaFinalizacion: "2023-01-01" }], description: 'Trayectorias del usuario', nullable: true })
+@Column('jsonb', { array: true, nullable: true })
+trayectorias?: {
+  club: string;
+  fechaInicio: string;
+  fechaFinalizacion: string;
+  categoriaEquipo: string;
+  nivelCompetencia: string;
+  logros: string;
+}[];
+
+
   @ApiProperty({
     description: 'Redes sociales del usuario (opcional)',
     example: { twitter: '@usuario', trasnfermarkt: '@usuario',youtube: '@usuario' },
@@ -145,6 +147,7 @@ export class User {
   @Column({ type: 'json', nullable: true })
   socialMedia?: Record<string, string>;
 
+  @Column({ type: 'json', nullable: true })
   @ApiProperty({
     description: 'Puestos del usuario (opcional)',
     example: [{ position: 'Delantero', experience: 5 }],
@@ -152,8 +155,14 @@ export class User {
   })
 
   @OneToOne(() => Subscription, (subscription) => subscription.user, { cascade: true, onDelete: 'CASCADE' })
+  puestoDeportivo?: { position: string; experience: number }[];
+
+  
+  @ApiProperty({ description: 'Suscripción del usuario' })
+  
   @JoinColumn()
-  subscription: Subscription;
+  @Column({ nullable: true })
+  subscription?: string;
 
   @ApiProperty({ description: 'CV del usuario (archivo PDF o TXT)', nullable: true })
   @Column({ nullable: true })

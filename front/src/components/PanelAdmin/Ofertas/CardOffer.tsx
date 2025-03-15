@@ -4,70 +4,68 @@ import Image from "next/image";
 import Link from "next/link";
 
 const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
-  console.log(offer.imgUrl); // Verifica el valor aquí
-
   return (
-    <div className="bg-white border hover:cursor-pointer border-gray-300 rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl flex flex-col h-full">
-      {/* Imagen de la oferta */}
-      <Image
-  width={500}
-  height={500}
-  src={offer.imgUrl || "/cursosYFormaciones.JPG"}
-  alt={offer.title}
-  className="w-full aspect-w-16 aspect-h-9 object-cover rounded-lg shadow-md"
-/>
-
-
-
-      <div className="flex flex-col p-6 gap-4 flex-grow">
-        {/* Ubicación */}
-        <div className="flex items-center gap-2">
-          <p className="text-gray-800 text-sm font-medium">Ubicación del puesto:</p>
-          <span className="text-gray-700 text-sm font-medium">{offer.location}</span>
+    <div className="bg-white border border-gray-100 rounded-lg shadow-xl overflow-hidden flex flex-col max-w-sm mx-auto transition-all hover:shadow-2xl hover:scale-105 duration-300">
+      {/* Contenedor de la imagen y el contenido */}
+      <div className="flex items-center p-6 space-x-4">
+        {/* Imagen de la oferta */}
+        <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
+          <Image
+            width={80}
+            height={80}
+            src={offer.imgUrl || "/cursosYFormaciones.JPG"}
+            alt={offer.title}
+            className="w-full h-full object-cover"
+          />
         </div>
-
-        {/* Título y descripción */}
-        <h3 className="text-xl font-semibold text-gray-800">{offer.title}</h3>
-        <p className="text-gray-600 text-sm line-clamp-3">{offer.description}</p>
-
-        {/* Competencias */}
-        <div className="flex flex-wrap gap-2 mt-4">
-          {offer.competencies.map((competency, index) => (
-            <span
-              key={index}
-              className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full"
-            >
-              {competency}
-            </span>
-          ))}
-        </div>
-
-        {/* Salario */}
-        <div className="mt-4">
-          <p className="text-gray-800 text-sm font-semibold">
-            Salario:{" "}
-            <span className="text-green-600">${offer.salary}</span>
-          </p>
+  
+        {/* Contenido (título, ubicación, etc.) */}
+        <div className="flex flex-col justify-between flex-grow space-y-3">
+          {/* Título */}
+          <h3 className="text-2xl font-semibold text-gray-700 hover:text-green-700 transition-colors">
+            {offer.title}
+          </h3>
+  
+          {/* Información adicional */}
+          <div className="text-sm text-gray-700 space-y-1">
+            <p><strong>Nacionalidad:</strong> {offer.nationality}</p>
+            <p><strong>Posición:</strong> {offer.position}</p>
+            <p><strong>Categoría:</strong> {offer.category}</p>
+            <p><strong>Géneros Deportivos:</strong> {offer.sportGenres}</p>
+            <p><strong>Tipo de contrato:</strong> {offer.contractTypes}</p>
+            <p><strong>Duración del contrato:</strong> {offer.contractDurations}</p>
+          </div>
         </div>
       </div>
-
+  
+      {/* Descripción y Salario */}
+      <div className="p-4 border-t border-gray-100">
+        <p className="text-gray-700 text-sm">
+          {offer.description}
+        </p>
+        <p className="text-gray-800 text-sm font-semibold text-center mt-2">
+          Salario: <span className="text-green-600">${offer.salary}</span>
+        </p>
+      </div>
+  
       {/* Acciones y botones */}
-      <div className="flex gap-7 p-3 text-center justify-between mt-auto">
+      <div className="flex gap-4 p-1 text-center justify-between mt-auto border-t border-gray-100">
         <Link
           href={`/jobs/${offer.id}`}
-          className="text-white bg-green-700 rounded p-2 hover:text-green-700 hover:bg-white hover:border-2 hover:border-green-700 font-semibold self-start"
+          className="text-white bg-green-600 rounded-lg p-2 hover:bg-white hover:text-green-600 hover:border-2 hover:border-green-600 font-semibold transition-colors duration-200"
         >
           Ver más
         </Link>
         <Link
           href={`/jobs/${offer.id}`}
-          className="text-white bg-green-700 rounded p-2 hover:text-green-700 hover:bg-white hover:border-2 hover:border-green-700 font-semibold self-start"
+          className="text-white bg-green-600 rounded-lg p-2 hover:bg-white hover:text-green-600 hover:border-2 hover:border-green-600 font-semibold transition-colors duration-200"
         >
           Aplicar a esta oferta
         </Link>
       </div>
     </div>
   );
+  
 };
 
 export default CardOffer;

@@ -19,19 +19,28 @@ export interface IOffer {
 
 
 export interface IOfferCard {
-  id?: number;
+  id?: string;
   title: string;
-  description: string;
-  flagCode?: string;
-  salary?: string;
-  location: string;
-  createdAt: string;
-  status: string;
-  offerType: string;
   position: string;
-  competencies: string[];
-  countries: string[];
+  sportGenres:string;
+  availabilityToTravel: YesOrNotravell;
+  euPassport: YesOrNo;
+  salary: number;
+  minAge: number;
+  maxAge:number;
+  createdAt: string;
+  contractTypes: string; 
+  nationality: string;
+  contractDurations: string;
+  minExperience: string;
+    location: string;
+  category: string;
+  sport: string;
+  description:string;
+  gmail?: string;
   imgUrl: string;
+  extra: string[];
+  status: string;
   type: string;
   recruiter: {
     id: string;
@@ -58,4 +67,66 @@ export interface ICreateJobOffer {
   countries: string[];
   imgUrl: string;
   type: string;
+}
+
+
+export interface IJobApplication {
+  id?: string;
+  appliedAt:string;
+  message:string;
+  player:{
+    id:string;
+  }
+  nationality: string;
+  location: string;
+  position: string;
+  category: string;
+  sportGenres:string;
+  sport: string;
+  transport: string[];
+  age: number;
+  availabilityToTravel: YesOrNotravell;
+  euPassport: YesOrNo;
+  gmail?: string;
+  minExperience: string;
+
+}
+
+export enum JobStatus {
+  OPEN = "OPEN",
+  PENDING = "PENDING",
+  CLOSED = "CLOSED",
+}
+
+export interface ICreateJob {
+  title: string; 
+  nationality: string;
+  location: string;
+  position: string;
+  description:string;
+  category: string;
+  sportGenres:string;
+  sport: string;
+  contractTypes: string; 
+  contractDurations: string;
+  salary: number;
+  minAge: number;
+  maxAge:number;
+  availabilityToTravel: YesOrNotravell;
+  euPassport: YesOrNo;
+  imgUrl: string;
+  extra: string[];
+  minExperience: string;
+}
+
+
+
+export enum YesOrNo {
+   SI = 'Si',
+  NO = 'No'
+}
+
+export enum YesOrNotravell {
+  SI = 'Si',
+ NO = 'No'
 }

@@ -4,7 +4,7 @@ import { IOfferCard } from '@/Interfaces/IOffer';
 import { getOfertaById } from '@/components/Fetchs/OfertasFetch/OfertasAdminFetch';
 import ModalApplication from '@/components/Applications/ModalApplications';
 import Link from 'next/link';
-import { useParams } from 'next/navigation'; // Usar useParams para acceder a los parámetros
+import { useParams } from 'next/navigation';
 import { UserContext } from '@/components/Context/UserContext';
 
 const JobDetail: React.FC = () => {
@@ -87,52 +87,64 @@ const JobDetail: React.FC = () => {
   };
   
   return (
-    <div className="p-6 mt-36 text-black flex gap-8">
+    <div className="flex flex-col md:flex-row gap-12 justify-center mt-20 px-4 sm:px-6 lg:px-8">
       {/* Card de la oferta principal */}
-      <div className="bg-white p-6 rounded-lg shadow-lg flex-1">
-        <h1 className="text-3xl font-bold mb-4">{offer.position}</h1>
-        <p className="mb-4">{offer.description}</p>
+      <div className="bg-white p-8 rounded-xl shadow-xl max-w-2xl w-full transition-all duration-300">
+        <h1 className="text-4xl font-extrabold mb-6 bg-green-600 text-white text-center p-2 rounded">{offer.title}</h1>
+        <h2 className="text-2xl p-2 font-extrabold bg-gray-600 text-white rounded mb-6  text-center mx-auto">
+  {offer.position}
+</h2>
 
-        <h2 className="text-2xl font-semibold mb-2">Requisitos</h2>
-        <ul className="list-disc list-inside mb-4">
-          {/* Requisitos si es necesario */}
-        </ul>
-
-        <h2 className="text-2xl font-semibold mb-2">Responsabilidades</h2>
-        <ul className="list-disc list-inside mb-4">
-          {/* Responsabilidades si es necesario */}
-        </ul>
-
-        <h2 className="text-2xl font-semibold mb-2">Habilidades</h2>
-        <ul className="list-disc list-inside mb-4">
-          {/* Habilidades si es necesario */}
-        </ul>
-      </div>
-
-      {/* Card con la información adicional */}
-      <div className="bg-white p-6 rounded-lg shadow-lg w-80">
-        <h2 className="text-xl font-semibold mb-2">Información de la Oferta</h2>
-        <div className="mb-4">
-          <p><strong>Puesto:</strong> {offer.type}</p>
-          <p><strong>Ubicación:</strong> {offer.location}</p>
-          <p><strong>Contrato:</strong> {offer.offerType}</p>
+  
+        {/* Requisitos */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">{offer.description}</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Requisitos:</h2>
+          <ul className="list-inside space-y-2 text-gray-700">
+            <li><strong>Géneros Deportivos:</strong> {offer.sportGenres}</li>
+            <li><strong>Disponibilidad para viajar:</strong> {offer.availabilityToTravel}</li>
+            <li><strong>Pasaporte Europeo:</strong> {offer.euPassport}</li>
+            <li><strong>Edad mínima:</strong> {offer.minAge}</li>
+            <li><strong>Edad máxima:</strong> {offer.maxAge}</li>
+            <li><strong>Experiencia mínima:</strong> {offer.minExperience}</li>
+            <li><strong>Deporte:</strong> {offer.sport}</li>
+            <li><strong>Tipo de contrato:</strong> {offer.contractTypes}</li>
+            <li><strong>Fecha de creación:</strong> {offer.createdAt}</li>
+          </ul>
         </div>
-
-        {/* Botones de aplicar y volver */}
-        <button
-          className="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 mb-4"
-          onClick={handleApplyClick}
-        >
-          Aplicar a esta oferta
-        </button>
-
-        <Link href="/jobs">
-          <button className="w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
-            Volver
-          </button>
-        </Link>
       </div>
-
+  
+      {/* Card con la información adicional */}
+      <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-lg transition-all hover:scale-105 hover:shadow-2xl duration-300">
+        <h2 className="text-2xl font-semibold text-gray-700 mb-4">Información de la Oferta</h2>
+        <div className="space-y-4 text-gray-700">
+          <p><strong>Puesto:</strong> {offer.position}</p>
+          <p><strong>País:</strong> {offer.nationality}</p>
+          <p><strong>Ciudad:</strong> {offer.location}</p>
+          <p><strong>Contrato:</strong> {offer.contractTypes}</p>
+          <p><strong>Duración del contrato:</strong> {offer.contractDurations}</p>
+          <p className="text-green-500 text-center font-bold text-lg border-2 border-green-500 rounded p-2">
+            <strong>Salario:</strong> ${offer.salary}
+          </p>
+        </div>
+  
+        {/* Botones de aplicar y volver */}
+        <div className="mt-8 space-y-4">
+          <button
+            className="w-full px-3 py-3 bg-green-600 text-white rounded-lg shadow-lg hover:bg-green-700 transition-colors duration-200"
+            onClick={handleApplyClick}
+          >
+            Aplicar a esta oferta
+          </button>
+  
+          <Link href="/jobs">
+            <button className="w-full px-3 mt-2 py-3 bg-gray-600 text-white rounded-lg shadow-lg hover:bg-gray-700 transition-colors duration-200">
+              Volver
+            </button>
+          </Link>
+        </div>
+      </div>
+  
       {/* Modal para aplicar a la oferta */}
       {isModalOpen && userId && jobId && (
         <ModalApplication
@@ -143,6 +155,7 @@ const JobDetail: React.FC = () => {
       )}
     </div>
   );
+  
 };
 
 export default JobDetail;

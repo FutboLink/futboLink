@@ -1,4 +1,5 @@
-import ManagerForm from "@/components/OptionUsersForms/AgencyForm/AgencyForm";
+import ManagerForm from "@/components/Forms/FormManager/FormManager";
+
 function Page() {
   return (
     <div>

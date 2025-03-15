@@ -14,7 +14,7 @@ import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
 import FormComponent from "@/components/Jobs/CreateJob";
 
 const PanelManager = () => {
-  const { token, logOut } = useContext(UserContext);
+  const { user, logOut } = useContext(UserContext);
   const [activeSection, setActiveSection] = useState("profile");
   const [userData, setUserData] = useState<IProfileData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -31,13 +31,13 @@ const PanelManager = () => {
     router.push('/');
   };
 
-  // Llamada a fetchApplicationsJob
+
   useEffect(() => {
-    if (token) {
+    if (user && user.id) { // Verificamos que `user` y `user.id` estén disponibles
+      console.log("userid", user.id)
       try {
-        // Decodificar el token para obtener el userId
-        const userId = JSON.parse(atob(token.split('.')[1])).id;
-  
+        const userId = user.id; // Obtener el userId del contexto de usuario
+
         if (userId) {
           // Llamada para obtener los trabajos aplicados
           getOfertas()
@@ -50,7 +50,7 @@ const PanelManager = () => {
               console.error("Error fetching applications:", error);
               setError("Error al obtener las ofertas aplicadas.");
             });
-  
+
           // Llamada para obtener los datos del usuario
           fetch(`${apiUrl}/user/${userId}`)
             .then((response) => {
@@ -68,11 +68,11 @@ const PanelManager = () => {
             });
         }
       } catch (error) {
-        setError('Error decoding token or fetching user data.');
+        setError('Error fetching user data.');
         console.error('Error:', error);
       }
     }
-  }, [token, apiUrl]); // Dependencias del useEffect
+  }, [user, apiUrl]); 
   
   
 

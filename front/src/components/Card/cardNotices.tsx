@@ -12,7 +12,7 @@ interface NewsArticle {
 
 const CardNews: React.FC<{ article: NewsArticle }> = ({ article }) => {
   return (
-    <div className="bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-primary">
+    <div className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-primary">
       {/* Imagen destacada */}
       <Image
         src={article.imageUrl}

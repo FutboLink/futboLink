@@ -14,9 +14,9 @@ const RegistrationForm: React.FC = () => {
   const { signUp } = useContext(UserContext);
   const router = useRouter();
   const { nationalities, loading, error } = useNationalities();
-  const [search, setSearch] = useState<string>(""); // Estado para el texto de búsqueda
-  const [isOpen, setIsOpen] = useState<boolean>(false); // Estado para manejar la apertura del menú
-  const [selectedNationality, setSelectedNationality] = useState<string>(""); // Nacionalidad seleccionada
+  const [search, setSearch] = useState<string>("");
+  const [selectedNationality, setSelectedNationality] = useState<string>(""); // Nuevo estado
+  const [isOpen, setIsOpen] = useState<boolean>(false); // Nacionalidad seleccionada
   const [showTerms, setShowTerms] = useState<boolean>(false);
 
   const puestos = [
@@ -63,7 +63,7 @@ const RegistrationForm: React.FC = () => {
     lastname: "",
     email: "",
     nationality: "",
-    puesto:"",
+    puesto: "",
     genre: "",
     password: "",
     confirmPassword: "",
@@ -81,15 +81,10 @@ const RegistrationForm: React.FC = () => {
     setIsOpen(true);
   };
 
-  // Maneja la selección de una nacionalidad
-  const handleSelectNationality = (value: string) => {
-    setSelectedNationality(value);
-    setUserRegister((prevState) => ({
-      ...prevState,
-      nationality: value,
-    }));
-    setSearch("");
-    setIsOpen(false);
+  const handleSelectNationality = (nationality: string) => {
+    setSelectedNationality(nationality); // Guardamos la nacionalidad seleccionada
+    setSearch(""); // Limpiamos el input para que no quede texto escrito
+    setIsOpen(false); // Cerramos el desplegable
   };
 
   // Maneja la apertura y cierre del menú
@@ -151,6 +146,7 @@ const RegistrationForm: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 mt-16 py-10 px-4">
+      {/* Título y Descripción */}
       <div className="text-center mb-6">
         <h2 className="text-3xl font-bold mb-4 bg-white text-green-600 border-green-600 border-2 rounded-lg p-2">
           Crea una cuenta
@@ -161,198 +157,181 @@ const RegistrationForm: React.FC = () => {
         </p>
       </div>
 
+      {/* Formulario de Registro */}
       <form
-        className="bg-white p-8 rounded-lg shadow-lg w-full max-w-3xl flex flex-col gap-6 relative"
+        className="bg-white p-8 rounded-lg shadow-lg w-full max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-6 relative"
         onSubmit={handleSubmit}
       >
-        {/* Rol */}
-        <div className="flex flex-col mb-4">
-          <label className="block text-gray-700 mb-2">Rol:</label>
-          <select
-            name="puesto"
-            value={userRegister.puesto}
-            onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option className="text-gray-700" value="">
-              Seleccione su rol
-            </option>
-            {puestos.map((puesto, index) => (
-              <option key={index} value={puesto}>
-                {puesto}
-              </option>
-            ))}
-          </select>
+        {/* Primera Columna */}
+        <div className="flex flex-col gap-4">
+          {/* Rol */}
+          <div>
+            <label className="block text-gray-700 mb-2">Rol:</label>
+            <select
+              name="puesto"
+              value={userRegister.puesto}
+              onChange={handleChange}
+              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Seleccione su rol</option>
+              {puestos.map((puesto, index) => (
+                <option key={index} value={puesto}>
+                  {puesto}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Nombre */}
+          <div>
+            <label className="block text-gray-700 mb-2">Nombre *</label>
+            <input
+              type="text"
+              name="name"
+              value={userRegister.name}
+              onChange={handleChange}
+              required
+              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+            )}
+          </div>
+
+          {/* Apellidos */}
+          <div>
+            <label className="block text-gray-700 mb-2">Apellidos *</label>
+            <input
+              type="text"
+              name="lastname"
+              value={userRegister.lastname}
+              onChange={handleChange}
+              required
+              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {errors.lastname && (
+              <p className="text-red-500 text-sm mt-1">{errors.lastname}</p>
+            )}
+          </div>
+
+          {/* Nacionalidad */}
+          <div className="relative w-full">
+            <label className="block text-gray-700 mb-1">
+              Buscar Nacionalidad
+            </label>
+            <input
+              type="text"
+              value={search}
+              onChange={handleSearchChange}
+              onClick={() => setIsOpen(true)}
+              placeholder={selectedNationality || "Buscar nacionalidad..."}
+              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {isOpen && (
+              <div className="absolute left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-40 overflow-auto z-10">
+                {loading && <p className="p-2">Cargando...</p>}
+                {nationalities
+                  .filter((n) =>
+                    n.label.toLowerCase().includes(search.toLowerCase())
+                  )
+                  .map((n) => (
+                    <p
+                      key={n.value}
+                      onClick={() => handleSelectNationality(n.label)}
+                      className="p-2 hover:bg-gray-200 cursor-pointer text-gray-700"
+                    >
+                      {n.label}
+                    </p>
+                  ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Nombre */}
-        <div className="flex flex-col mb-4">
-          <label className="block text-gray-700 mb-2">
-            Nombre <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="name"
-            value={userRegister.name}
-            onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
-            required
-          />
-          {errors.name && (
-            <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-          )}
+        {/* Segunda Columna */}
+        <div className="flex flex-col gap-4">
+          {/* Email */}
+          <div>
+            <label className="block text-gray-700 mb-2">Email *</label>
+            <input
+              type="email"
+              name="email"
+              value={userRegister.email}
+              onChange={handleChange}
+              required
+              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+            )}
+          </div>
+
+          {/* Género */}
+          <div>
+            <label className="block text-gray-700 mb-2">Género *</label>
+            <select
+              name="genre"
+              value={userRegister.genre}
+              onChange={handleChange}
+              required
+              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Selecciona tu género</option>
+              <option value="Masculino">Masculino</option>
+              <option value="Femenino">Femenino</option>
+              <option value="Otro">Otr@s</option>
+            </select>
+            {errors.genre && (
+              <p className="text-red-500 text-sm mt-1">{errors.genre}</p>
+            )}
+          </div>
+
+          {/* Contraseña */}
+          <div>
+            <label className="block text-gray-700 mb-2">Contraseña *</label>
+            <input
+              type="password"
+              name="password"
+              value={userRegister.password}
+              onChange={handleChange}
+              required
+              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+            )}
+          </div>
+
+          {/* Confirmar Contraseña */}
+          <div>
+            <label className="block text-gray-700 mb-2">
+              Confirmar Contraseña *
+            </label>
+            <input
+              type="password"
+              name="confirmPassword"
+              value={userRegister.confirmPassword}
+              onChange={handleChange}
+              required
+              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {errors.confirmPassword && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.confirmPassword}
+              </p>
+            )}
+          </div>
         </div>
 
-        {/* Apellidos */}
-        <div className="flex flex-col mb-4">
-          <label className="block text-gray-700 mb-2">
-            Apellidos <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="lastname"
-            value={userRegister.lastname}
-            onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
-            required
-          />
-          {errors.lastname && (
-            <p className="text-red-500 text-sm mt-1">{errors.lastname}</p>
-          )}
-        </div>
-
-        {/* Email */}
-        <div className="flex flex-col mb-4">
-          <label className="block text-gray-700 mb-2">
-            Email <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="email"
-            name="email"
-            value={userRegister.email}
-            onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
-            required
-          />
-          {errors.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-          )}
-        </div>
-
-        {/* Nacionalidad (Búsqueda y Selección) */}
-        <div className="relative">
-          <label className="block text-gray-700 mb-1">
-            Buscar Nacionalidad
-          </label>
-          <input
-            type="text"
-            value={search}
-            onChange={handleSearchChange}
-            placeholder="Buscar nacionalidad..."
-            onClick={toggleDropdown}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3"
-          />
-          {isOpen && (
-            <div className="absolute left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-40 overflow-auto z-10">
-              {loading && <p className="p-2">Cargando...</p>}
-              {nationalities
-                .filter((n) =>
-                  n.label.toLowerCase().includes(search.toLowerCase())
-                )
-                .map((n) => (
-                  <p
-                    key={n.value}
-                    onClick={() => handleSelectNationality(n.label)}
-                    className="p-2 hover:bg-gray-200 cursor-pointer text-gray-700"
-                  >
-                    {n.label}
-                  </p>
-                ))}
-            </div>
-          )}
-        </div>
-
-        {/* Nacionalidad Seleccionada */}
-        <div>
-          <label className="block text-gray-700 mb-1">
-            Nacionalidad Seleccionada <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={selectedNationality}
-            readOnly
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 bg-gray-100"
-          />
-        </div>
-        
-        {/* Género */}
-        <div className="flex flex-col mb-4">
-          <label className="block text-gray-700 mb-2 hover:cursor-pointer">
-            Género <span className="text-red-500">*</span>
-          </label>
-          <select
-            name="genre"
-            value={userRegister.genre}
-            onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
-            required
-          >
-            <option value="">Selecciona tu género</option>
-            <option value="Masculino">Masculino</option>
-            <option value="Femenino">Femenino</option>
-            <option value="Otro">Otr@s</option>
-          </select>
-          {errors.genre && (
-            <p className="text-red-500 text-sm mt-1">{errors.genre}</p>
-          )}
-        </div>
-
-        {/* Contraseña */}
-        <div className="flex flex-col mb-4">
-          <label className="block text-gray-700 mb-2">
-            Contraseña <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="password"
-            name="password"
-            value={userRegister.password}
-            onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
-            required
-          />
-          {errors.password && (
-            <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-          )}
-        </div>
-
-        {/* Confirmar Contraseña */}
-        <div className="flex flex-col mb-4">
-          <label className="block text-gray-700 mb-2">
-            Confirmar Contraseña <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="password"
-            name="confirmPassword"
-            value={userRegister.confirmPassword}
-            onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
-            required
-          />
-          {errors.confirmPassword && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.confirmPassword}
-            </p>
-          )}
-        </div>
-
-        <div className="flex items-center">
+        {/* Checkbox de Términos */}
+        <div className="col-span-1 md:col-span-2 flex items-center">
           <input
             type="checkbox"
             name="termsAccepted"
             checked={userRegister.termsAccepted}
             onChange={handleChange}
-            className="mr-2"
             required
+            className="mr-2"
           />
           <label className="text-gray-700">Acepto los</label>
           <button
@@ -364,22 +343,8 @@ const RegistrationForm: React.FC = () => {
           </button>
         </div>
 
-        {showTerms && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg max-w-3xl w-full relative">
-              <button
-                onClick={() => setShowTerms(false)}
-                className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-              >
-                ✕
-              </button>
-              <FormsTermins />
-            </div>
-          </div>
-        )}
-
-        {/* Botón de registro */}
-        <div className="flex justify-center">
+        {/* Botón de Registro */}
+        <div className="col-span-1 md:col-span-2 flex justify-center">
           <button
             type="submit"
             className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -388,6 +353,7 @@ const RegistrationForm: React.FC = () => {
           </button>
         </div>
 
+        {/* Notificación */}
         {showNotification && (
           <div className="absolute top-12 left-0 right-0 mx-auto w-max">
             <NotificationsForms message={notificationMessage} />

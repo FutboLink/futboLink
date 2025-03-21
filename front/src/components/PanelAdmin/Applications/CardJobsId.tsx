@@ -45,7 +45,7 @@ const CardJobsId: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
         </div>
 
         <p className="text-gray-800 text-sm font-semibold text-center mt-2">
-          Salario: <span className="text-green-600">${offer.salary}</span>
+          Salario: <span className="text-verde-oscuro">${offer.salary}</span>
         </p>
       </div>
 

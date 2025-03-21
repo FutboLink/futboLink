@@ -140,7 +140,7 @@ const UserProfile = () => {
       )}
 
       <div className="flex-1 p-1 ">
-        <div className="bg-gray-200 border-l-4 border-green-600 text-gray-700 p-4 max-w-xl mx-auto text-center rounded-lg">
+        <div className="bg-gray-200 border-l-4 border-verde-oscuro text-gray-700 p-4 max-w-xl mx-auto text-center rounded-lg">
           <p className="font-semibold text-sm">
             Es importante que completes tus datos y los mantengas actualizados
             para que los reclutadores conozcan más sobre ti.

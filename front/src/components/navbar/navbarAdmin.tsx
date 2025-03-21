@@ -33,7 +33,6 @@ function NavbarAdmin() {
 
       {/* Navbar Desktop */}
       <nav className="fixed top-0 left-0 w-full z-50 text-green-800 bg-white border-b-2 shadow-sm shadow-gray-400  border-gray-400">
-
         <section className="flex items-center justify-between sm:flex-row w-full p-2">
           {/* Sección izquierda con logo y links */}
           <div id="sectionOne" className="flex items-center gap-6">
@@ -57,14 +56,14 @@ function NavbarAdmin() {
               <li
                 onClick={() => navigateTo("/PanelAdmin/Applications")}
                 className="px-4 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
-                aria-label="Entrenamiento en futbol"
+                aria-label="Cursos y formación en futbol"
               >
                 Postulaciones
               </li>
               <li
                 onClick={() => navigateTo("/jobs")}
                 className="px-4 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
-                aria-label="Entrenamiento en futbol"
+                aria-label="Cursos y formación en futbol"
               >
                 Ofertas laborales
               </li>
@@ -75,7 +74,7 @@ function NavbarAdmin() {
           <div id="sectionTwo" className="relative flex sm:ml-auto">
             {isLogged && role === "ADMIN" ? (
               <button onClick={() => navigateTo("/PanelAdmin")}>
-                <FaUser className="text-green-800" />
+                <FaUser className="text-verde-oscuro hover:scale-125 hover:text-verde-claro transition-all" />
               </button>
             ) : (
               <>
@@ -89,7 +88,7 @@ function NavbarAdmin() {
 
                 <button
                   onClick={() => navigateTo("/OptionUsers")}
-                  className="bg-white text-green-600 px-4 py-2 rounded-md ml-4 hover:bg-gray-200"
+                  className="bg-white text-verde-oscuro px-4 py-2 rounded-md ml-4 hover:bg-gray-200"
                   aria-label="Registrarse"
                 >
                   Registrarse
@@ -165,15 +164,15 @@ function NavbarAdmin() {
               {isLogged ? (
                 role === "PLAYER" ? (
                   <button onClick={() => navigateTo("/PanelUsers/Player")}>
-                    <FaUser className="text-green-500" />
+                    <FaUser className="text-verde-oscuro hover:text-verde-claro hover:transition-all hover:scale-125" />
                   </button>
                 ) : role === "AGENCY" ? (
                   <button onClick={() => navigateTo("/PanelUsers/Agency")}>
-                    <FaUser className="text-green-500" />
+                    <FaUser className="text-verde-claro" />
                   </button>
                 ) : role === "RECRUITER" ? (
                   <button onClick={() => navigateTo("/PanelUsers/Manager")}>
-                    <FaUser className="text-green-500" />
+                    <FaUser className="text-verde-claro" />
                   </button>
                 ) : null
               ) : (
@@ -187,7 +186,7 @@ function NavbarAdmin() {
 
                   <button
                     onClick={() => navigateTo("/OptionUsers")}
-                    className="w-full mt-4 bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-200"
+                    className="w-full mt-4 bg-white text-verde-oscuro px-4 py-2 rounded-md hover:bg-gray-200"
                   >
                     Registrarse
                   </button>

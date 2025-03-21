@@ -74,7 +74,7 @@ const SubPage = () => {
 
   return (
     <div className="bg-gray-100 min-h-screen">
-      <header className="bg-green-600 text-white py-16 text-center">
+      <header className="bg-verde-oscuro text-white py-16 text-center">
         <h1 className="text-4xl font-bold">Planes de Suscripción</h1>
         <p className="mt-4 text-lg">
           Elige el plan que mejor se adapte a tus necesidades.
@@ -88,7 +88,7 @@ const SubPage = () => {
             <div>
               <button
                 onClick={() => toggleSection("jugadores")}
-                className="w-full bg-green-500 text-white py-4 px-6 text-left font-semibold rounded-md shadow-md"
+                className="w-full bg-verde-claro text-white py-4 px-6 text-left font-semibold rounded-md shadow-md"
               >
                 Jugadores: Las ofertas para jugadores
               </button>
@@ -103,7 +103,7 @@ const SubPage = () => {
                           <li key={idx}>{feature}</li>
                         ))}
                       </ul>
-                      <p className="text-green-600 font-semibold mt-2">
+                      <p className="text-verde-oscuro font-semibold mt-2">
                         {plan.price}
                       </p>
                     </div>

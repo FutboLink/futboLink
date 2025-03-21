@@ -16,7 +16,7 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
   return (
     <div className="flex min-h-screen mt-24 text-black bg-gray-50 flex-col sm:flex-row">
       {/* Barra Lateral */}
-      <div className="w-full sm:w-72 bg-gradient-to-r from-green-600 to-green-500 text-white p-6 rounded-t-lg sm:rounded-l-lg shadow-lg sm:shadow-none sm:mr-4">
+      <div className="w-full sm:w-72 bg-gradient-to-r from-verde-oscuro to-verde-claro text-white p-6 rounded-t-lg sm:rounded-l-lg shadow-lg sm:shadow-none sm:mr-4">
         <div className="mb-8 flex flex-col items-center space-y-4">
         <Image
   src={profile ? 
@@ -83,7 +83,7 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
   className="rounded-full mb-4 md:mb-0"
 />
               <div className="ml-4">
-                <h2 className="text-xl font-semibold text-green-600">
+                <h2 className="text-xl font-semibold text-verde-oscuro">
                   {profile.name} {profile.lastname}
                 </h2>
                 <div className="text-gray-700">
@@ -117,7 +117,7 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
   className="rounded-full mb-4 md:mb-0"
 />
               <div className="ml-4">
-            <h2 className="text-xl font-semibold text-green-600">Datos Físicos</h2>
+            <h2 className="text-xl font-semibold text-verde-oscuro">Datos Físicos</h2>
             <div className="text-gray-700">
               <p><strong>Pierna hábil:</strong> {profile.skillfulFoot}</p>
               <p><strong>Estructura corporal:</strong> {profile.bodyStructure}</p>

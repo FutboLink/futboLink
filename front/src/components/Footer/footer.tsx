@@ -19,17 +19,17 @@ function Footer() {
             <h3 className="text-lg font-semibold">Enlaces</h3>
             <ul className="mt-2 space-y-2">
               <li>
-                <Link href="#about" className="hover:text-green-600">
+                <Link href="#about" className="hover:text-verde-oscuro">
                   Sobre nosotros
                 </Link>
               </li>
               <li>
-                <Link href="/Offer" className="hover:text-green-600">
+                <Link href="/Offer" className="hover:text-verde-oscuro">
                   Ofertas
                 </Link>
               </li>
               <li>
-                <Link href="#contact" className="hover:text-green-600">
+                <Link href="#contact" className="hover:text-verde-oscuro">
                   Contacto
                 </Link>
               </li>
@@ -38,16 +38,16 @@ function Footer() {
 
           {/* Social Media Section */}
           <div className="flex space-x-6 mt-6 md:mt-0">
-            <a href="#" className="text-2xl hover:text-green-600">
+            <a href="#" className="text-2xl hover:text-verde-oscuro">
               <FaFacebook />
             </a>
-            <a href="#" className="text-2xl hover:text-green-600">
+            <a href="#" className="text-2xl hover:text-verde-oscuro">
               <FaTwitter />
             </a>
-            <a href="#" className="text-2xl hover:text-green-600">
+            <a href="#" className="text-2xl hover:text-verde-oscuro">
               <FaLinkedin />
             </a>
-            <a href="#" className="text-2xl hover:text-green-600">
+            <a href="#" className="text-2xl hover:text-verde-oscuro">
               <FaInstagram />
             </a>
           </div>

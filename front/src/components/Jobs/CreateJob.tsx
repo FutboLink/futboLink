@@ -237,7 +237,7 @@ const FormComponent = () => {
           <label className="text-sm font-bold mb-2">Título</label>
           <input
             type="text"
-            className="p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+            className="p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
             value={formData.title}
             onChange={(e) =>
               setFormData({ ...formData, title: e.target.value })
@@ -282,7 +282,7 @@ const FormComponent = () => {
           <label className="text-sm font-bold mb-2">Ciudad:</label>
           <input
             type="text"
-            className="p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+            className="p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
             value={formData.location}
             onChange={(e) =>
               setFormData({ ...formData, location: e.target.value })
@@ -317,7 +317,7 @@ const FormComponent = () => {
         <div className="flex flex-col">
           <label className="text-sm font-bold  mb-2">Posición</label>
           <select
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
             value={formData.position}
             onChange={(e) =>
               setFormData({ ...formData, position: e.target.value })
@@ -334,7 +334,7 @@ const FormComponent = () => {
         <div className="flex flex-col">
           <label className="text-sm font-bold mb-2">Categoría</label>
           <select
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
             value={formData.category}
             onChange={(e) =>
               setFormData({ ...formData, category: e.target.value })
@@ -351,7 +351,7 @@ const FormComponent = () => {
         <div className="flex flex-col">
           <label className="text-sm font-bold mb-2">Género deporte</label>
           <select
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
             value={formData.sportGenres}
             onChange={(e) =>
               setFormData({ ...formData, sportGenres: e.target.value })
@@ -368,7 +368,7 @@ const FormComponent = () => {
         <div className="flex flex-col">
           <label className="text-sm font-bold mb-2">Modalidad</label>
           <select
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
             value={formData.sport}
             onChange={(e) =>
               setFormData({ ...formData, sport: e.target.value })
@@ -385,7 +385,7 @@ const FormComponent = () => {
         <div className="flex flex-col">
           <label className="text-sm font-bold mb-2">Tipo de contrato</label>
           <select
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
             value={formData.contractTypes}
             onChange={(e) =>
               setFormData({ ...formData, contractTypes: e.target.value })
@@ -402,7 +402,7 @@ const FormComponent = () => {
         <div className="flex flex-col">
           <label className="text-sm font-bold mb-2">Tiempo de contrato</label>
           <select
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
             value={formData.contractDurations}
             onChange={(e) =>
               setFormData({ ...formData, contractDurations: e.target.value })
@@ -420,7 +420,7 @@ const FormComponent = () => {
           <label className="text-sm font-bold mb-2">Salario</label>
           <input
             type="number"
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
             value={formData.salary === 0 ? "" : formData.salary}
             onChange={(e) => {
               const value = e.target.value;
@@ -436,7 +436,7 @@ const FormComponent = () => {
           <label className="text-sm font-bold mb-2">Edad mínima</label>
           <input
             type="number"
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
             value={formData.minAge === 0 ? "" : formData.minAge}
             onChange={(e) => {
               const value = e.target.value;
@@ -452,7 +452,7 @@ const FormComponent = () => {
           <label className="text-sm font-bold mb-2">Edad máxima</label>
           <input
             type="number"
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
             value={formData.maxAge === 0 ? "" : formData.maxAge}
             onChange={(e) => {
               const value = e.target.value;
@@ -467,7 +467,7 @@ const FormComponent = () => {
         <div className="flex flex-col">
           <label className="text-sm font-bold mb-2">Experiencia mínima</label>
           <select
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
             value={formData.minExperience}
             onChange={(e) =>
               setFormData({ ...formData, minExperience: e.target.value })
@@ -487,7 +487,7 @@ const FormComponent = () => {
           </label>
           <input
             type="text"
-            className="p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+            className="p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
             value={formData.minExperience}
             onChange={(e) =>
               setFormData({ ...formData, minExperience: e.target.value })
@@ -499,7 +499,7 @@ const FormComponent = () => {
         <div className="flex flex-col">
           <label className="text-sm font-bold mb-2">Pasaporte de la UE</label>
           <select
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
             value={formData.euPassport}
             onChange={(e) =>
               setFormData({
@@ -518,7 +518,7 @@ const FormComponent = () => {
             Disponibilidad para viajar:
           </label>
           <select
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
             value={formData.availabilityToTravel}
             onChange={(e) =>
               setFormData({
@@ -537,7 +537,7 @@ const FormComponent = () => {
           <textarea
             name="description"
             maxLength={50}
-            className="p-2 mb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+            className="p-2 mb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
             value={formData.description}
             onChange={(e) =>
               setFormData({ ...formData, description: e.target.value })

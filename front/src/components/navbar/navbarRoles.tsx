@@ -13,7 +13,7 @@ function NavbarRoles() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { isLogged,role } = useContext(UserContext); 
+  const { isLogged, role } = useContext(UserContext);
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -66,45 +66,45 @@ function NavbarRoles() {
             </Link>
 
             {/* Menú para escritorio */}
-            <ul className="hidden sm:flex gap-6 text-lg text-green-600">
+            <ul className="hidden sm:flex gap-6 text-lg text-verde-oscuro">
               <li
                 onClick={() => navigateTo("/jobs")}
-                className="px-4 py-2 hover:bg-green-600 hover:text-white rounded-md transition-all cursor-pointer"
+                className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
                 aria-label="Ofertas de empleo"
               >
                 Ofertas
               </li>
               <li
                 onClick={() => navigateTo("/Formation")}
-                className="px-4 py-2 hover:bg-green-600 hover:text-white rounded-md transition-all cursor-pointer"
+                className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
                 aria-label="Entrenamiento en futbol"
               >
                 Entrenamiento
               </li>
               <li
                 onClick={() => navigateTo("/Notices")}
-                className="px-4 py-2 hover:bg-green-600 hover:text-white rounded-md transition-all cursor-pointer"
+                className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
                 aria-label="Noticias relacionadas con futbol"
               >
                 Noticias
               </li>
               <li
                 onClick={() => navigateTo("/Subs")}
-                className="px-4 py-2 hover:bg-green-600 hover:text-white rounded-md transition-all cursor-pointer"
+                className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
                 aria-label="Suscripciones"
               >
                 Suscripciones
               </li>
               <li
                 onClick={() => navigateTo("/Contact")}
-                className="px-4 py-2 hover:bg-green-600 hover:text-white rounded-md transition-all cursor-pointer"
+                className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
                 aria-label="Contacto"
               >
                 Contacto
               </li>
               <li
                 onClick={() => navigateTo("/Help")}
-                className="px-4 py-2 hover:bg-green-600 hover:text-white rounded-md transition-all cursor-pointer"
+                className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
                 aria-label="Cómo usar FutboLink"
               >
                 Ayuda
@@ -113,51 +113,48 @@ function NavbarRoles() {
           </div>
 
           <div id="sectionTwo" className="relative hidden sm:flex">
-          {isLogged ? (
-    role ? ( // Verifica si `role` tiene un valor antes de renderizar
-      role === "PLAYER" ? (
-        <button onClick={() => navigateTo("/PanelUsers/Player")}>
-          <FaUser className="text-green-700" />
-        </button>
-
-      ) : role === "RECRUITER" ? (
-        <button onClick={() => navigateTo("/PanelUsers/Manager")}>
-          <FaUser className="text-green-500" />
-        </button>
-      ) : role === "ADMIN" ? (
-        <button onClick={() => navigateTo("/PanelAdmin")}>
-          <FaUser className="text-green-500" />
-        </button>
-      ) : null
-    ) : (
-      <div>Loading...</div> 
-    )
-  ) : (
-    
-    <>
-      <button
-        onClick={() => navigateTo("/Login")}
-        className="bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
-        aria-label="Iniciar sesión"
-      >
-        Iniciar sesión
-      </button>
-      <button
-         onClick={() => navigateTo("/OptionUsers")}
-              className="bg-white text-green-600 px-4 py-2 rounded-md ml-4 hover:bg-gray-200"
-        aria-label="Registrarse"
-      >
-        Registrarse
-      </button>
-    </>
-  )}
-</div>
-
+            {isLogged ? (
+              role ? ( // Verifica si `role` tiene un valor antes de renderizar
+                role === "PLAYER" ? (
+                  <button onClick={() => navigateTo("/PanelUsers/Player")}>
+                    <FaUser className="text-verde-oscuro text-2xl hover:text-verde-claro transition-all hover:transition-all hover:scale-150" />
+                  </button>
+                ) : role === "RECRUITER" ? (
+                  <button onClick={() => navigateTo("/PanelUsers/Manager")}>
+                    <FaUser className="text-verde-oscuro text-2xl hover:text-verde-claro transition-all hover:transition-all hover:scale-150" />
+                  </button>
+                ) : role === "ADMIN" ? (
+                  <button onClick={() => navigateTo("/PanelAdmin")}>
+                    <FaUser className="text-verde-oscuro text-2xl hover:text-verde-claro transition-all hover:transition-all hover:scale-150" />
+                  </button>
+                ) : null
+              ) : (
+                <div>Loading...</div>
+              )
+            ) : (
+              <>
+                <button
+                  onClick={() => navigateTo("/Login")}
+                  className="bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
+                  aria-label="Iniciar sesión"
+                >
+                  Iniciar sesión
+                </button>
+                <button
+                  onClick={() => navigateTo("/OptionUsers")}
+                  className="bg-white text-verde-oscuro px-4 py-2 rounded-md ml-4 hover:bg-gray-200"
+                  aria-label="Registrarse"
+                >
+                  Registrarse
+                </button>
+              </>
+            )}
+          </div>
 
           {/* Menú Hamburguesa en pantallas pequeñas */}
           <button
             onClick={toggleMobileMenu}
-            className="sm:hidden text-green-600 focus:outline-none"
+            className="sm:hidden text-verde-oscuro focus:outline-none"
             aria-label="Abrir menú móvil"
           >
             <svg
@@ -179,85 +176,84 @@ function NavbarRoles() {
 
         {/* Menú desplegable móvil */}
         {isMobileMenuOpen && (
-          <div className="sm:hidden bg-white text-green-600 text-lg p-4">
+          <div className="sm:hidden bg-white text-verde-oscuro text-lg p-4">
             <ul>
               <li
                 onClick={() => navigateTo("/jobs")}
-                className="px-4 py-2 hover:bg-green-600 hover:text-white rounded-md transition-all cursor-pointer"
+                className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
               >
                 Ofertas
               </li>
               <li
                 onClick={() => navigateTo("/Formation")}
-                className="px-4 py-2 hover:bg-green-600 hover:text-white rounded-md transition-all cursor-pointer"
+                className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
               >
                 Entrenamiento
               </li>
               <li
                 onClick={() => navigateTo("/Notices")}
-                className="px-4 py-2 hover:bg-green-600 hover:text-white rounded-md transition-all cursor-pointer"
+                className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
               >
                 Noticias
               </li>
               <li
                 onClick={() => navigateTo("/Subs")}
-                className="px-4 py-2 hover:bg-green-600 hover:text-white rounded-md transition-all cursor-pointer"
+                className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
               >
                 Suscripciones
               </li>
               <li
                 onClick={() => navigateTo("/Contact")}
-                className="px-4 py-2 hover:bg-green-600 hover:text-white rounded-md transition-all cursor-pointer"
+                className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
               >
                 Contacto
               </li>
               <li
                 onClick={() => navigateTo("/Help")}
-                className="px-4 py-2 hover:bg-green-600 hover:text-white rounded-md transition-all cursor-pointer"
+                className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
               >
                 Ayuda
               </li>
             </ul>
 
             <div className="mt-4">
-            {isLogged ? (
-    role ? ( // Verifica si `role` tiene un valor antes de renderizar
-      role === "PLAYER" ? (
-        <button onClick={() => navigateTo("/PanelUsers/Player")}>
-          <FaUser className="text-green-700" />
-        </button>
-      ) : role === "RECRUITER" ? (
-        <button onClick={() => navigateTo("/PanelUsers/Manager")}>
-          <FaUser className="text-green-500" />
-        </button>
-      ) : role === "ADMIN" ? (
-        <button onClick={() => navigateTo("/PanelAdmin")}>
-          <FaUser className="text-green-500" />
-        </button>
-      ) : null
-    ) : (
-      <div>Loading...</div> // O algún otro mensaje o indicador de carga
-    )
-  ) : (
-    <>
-           
-              <Link href={"/Login"}>
-                <button
-                  onClick={toggleDropdown}
-                  className="w-full bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
-                >
-                  Iniciar sesión
-                </button>
-              </Link>
-              <button
-                onClick={() => navigateTo("/OptionUsers")}
-                className="w-full bg-white text-green-600 px-4 py-2 rounded-md mt-2 hover:bg-gray-200"
-              >
-                Registrarse
-              </button>
-              </>
-          )}
-        </div>
+              {isLogged ? (
+                role ? ( // Verifica si `role` tiene un valor antes de renderizar
+                  role === "PLAYER" ? (
+                    <button onClick={() => navigateTo("/PanelUsers/Player")}>
+                      <FaUser className="text-verde-oscuro" />
+                    </button>
+                  ) : role === "RECRUITER" ? (
+                    <button onClick={() => navigateTo("/PanelUsers/Manager")}>
+                      <FaUser className="text-verde-claro hover:text-verde-mas-claro hover:scale-110" />
+                    </button>
+                  ) : role === "ADMIN" ? (
+                    <button onClick={() => navigateTo("/PanelAdmin")}>
+                      <FaUser className="text-verde-claro hover:text-verde-mas-claro hover:scale-110" />
+                    </button>
+                  ) : null
+                ) : (
+                  <div>Loading...</div> // O algún otro mensaje o indicador de carga
+                )
+              ) : (
+                <>
+                  <Link href={"/Login"}>
+                    <button
+                      onClick={toggleDropdown}
+                      className="w-full bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
+                    >
+                      Iniciar sesión
+                    </button>
+                  </Link>
+                  <button
+                    onClick={() => navigateTo("/OptionUsers")}
+                    className="w-full bg-white text-verde-oscuro px-4 py-2 rounded-md mt-2 hover:bg-gray-200"
+                  >
+                    Registrarse
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         )}
       </nav>

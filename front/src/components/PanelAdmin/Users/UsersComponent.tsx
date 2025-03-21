@@ -41,7 +41,7 @@ const UsersComponent = () => {
   });
 
   if (isLoading) {
-    return <p className="text-center text-green-600 mt-40">Cargando usuarios</p>;
+    return <p className="text-center text-verde-oscuro mt-40">Cargando usuarios</p>;
   }
   return (
     <div className="container mx-auto mt-28 p-6">

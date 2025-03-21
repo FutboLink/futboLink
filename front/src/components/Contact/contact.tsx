@@ -69,7 +69,7 @@ function Contact() {
               data-aos="fade-right"
               data-aos-duration="1000"
             >
-              <h2 className="text-2xl sm:text-3xl font-semibold text-green-600 mb-6">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-verde-oscuro mb-6">
                 Contáctanos
               </h2>
               <form className="space-y-4 sm:space-y-6">
@@ -84,7 +84,7 @@ function Contact() {
                     id="name"
                     type="text"
                     placeholder="Tu nombre"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-600"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-oscuro"
                   />
                 </div>
 
@@ -99,7 +99,7 @@ function Contact() {
                     id="email"
                     type="email"
                     placeholder="Tu correo electrónico"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-600"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-oscuro"
                   />
                 </div>
 
@@ -114,13 +114,13 @@ function Contact() {
                     id="message"
                     rows={4}
                     placeholder="Tu mensaje"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-600"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-oscuro"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full py-3 bg-green-600 text-white text-lg font-semibold rounded-md hover:bg-green-700 transition-colors"
+                  className="w-full py-3 bg-verde-oscuro text-white text-lg font-semibold rounded-md hover:bg-green-700 transition-colors"
                 >
                   Enviar mensaje
                 </button>
@@ -133,7 +133,7 @@ function Contact() {
               data-aos="fade-left"
               data-aos-duration="1000"
             >
-              <h2 className="text-2xl sm:text-3xl font-semibold text-green-600 mb-6">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-verde-oscuro mb-6">
                 Ubicación
               </h2>
               <p className="text-lg text-gray-700 mb-4">
@@ -153,19 +153,19 @@ function Contact() {
               </div>
 
               <div className="mt-6">
-                <h3 className="text-xl font-semibold text-green-600">
+                <h3 className="text-xl font-semibold text-verde-oscuro">
                   Dirección:
                 </h3>
                 <p className="text-lg text-gray-700">
                   Via Roma, 123, 00100 Roma, Italia
                 </p>
 
-                <h3 className="text-xl font-semibold text-green-600 mt-4">
+                <h3 className="text-xl font-semibold text-verde-oscuro mt-4">
                   Teléfono:
                 </h3>
                 <p className="text-lg text-gray-700">+39 06 1234 5678</p>
 
-                <h3 className="text-xl font-semibold text-green-600 mt-4">
+                <h3 className="text-xl font-semibold text-verde-oscuro mt-4">
                   Correo electrónico:
                 </h3>
                 <p className="text-lg text-gray-700">
@@ -178,7 +178,7 @@ function Contact() {
       </section>
 
       <section
-        className="bg-green-600 text-white py-6 sm:py-8 text-center"
+        className="bg-verde-oscuro text-white py-6 sm:py-8 text-center"
         data-aos="fade-up"
         data-aos-duration="1000"
       >

@@ -173,7 +173,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
       {/* Botón Guardar Cambios */}
       <button
         onClick={handleSubmit}
-        className="mt-4 w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
+        className="mt-4 w-full bg-verde-oscuro text-white p-2 rounded hover:bg-green-700"
         disabled={loading}
       >
         {loading ? "Guardando..." : "Guardar cambios"}

@@ -155,7 +155,7 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
           <div className="flex justify-end space-x-4 mt-4">
             <button
               onClick={handleViewApplications}
-              className="px-5 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+              className="px-5 py-2 bg-verde-claro text-white rounded-md hover:bg-verde-oscuro transition-colors"
             >
               Ver postulantes
             </button>

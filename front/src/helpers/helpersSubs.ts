@@ -16,7 +16,7 @@ export function Subscription() {
       bgColor: "bg-white",
       textColor: "text-gray-800",
       borderColor: "border-gray-300",
-      buttonColor: "bg-green-600",
+      buttonColor: "bg-verde-oscuro",
     },
     {
       title: "BÁSICO",
@@ -45,8 +45,8 @@ export function Subscription() {
       buttonLabel: "Contratar",
       bgColor: "bg-white",
       textColor: "text-gray-800",
-      borderColor: "border-green-600",
-      buttonColor: "bg-green-600",
+      borderColor: "border-verde-oscuro",
+      buttonColor: "bg-verde-oscuro",
     },
   ];
 }

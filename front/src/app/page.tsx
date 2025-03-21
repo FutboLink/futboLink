@@ -46,7 +46,7 @@ const Home = () => {
   }, [images.length]);
 
   return (
-    <main className="bg-green-600 text-white relative overflow-hidden">
+    <main className="bg-verde-oscuro text-white relative overflow-hidden">
       {role === "ADMIN" ? <NavbarAdmin /> : <NavbarRoles />}
       <header
         className="relative flex flex-col items-center justify-center min-h-screen text-center"

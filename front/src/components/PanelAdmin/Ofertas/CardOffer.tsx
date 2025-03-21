@@ -2,70 +2,85 @@ import React from "react";
 import { IOfferCard } from "@/Interfaces/IOffer";
 import Image from "next/image";
 import Link from "next/link";
+import styles from "../../../Styles/cardOffer.module.css";
 
 const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
   return (
-    <div className="bg-white border border-gray-100 rounded-lg shadow-xl overflow-hidden flex flex-col max-w-sm mx-auto transition-all hover:shadow-2xl hover:scale-105 duration-300">
-      {/* Contenedor de la imagen y el contenido */}
-      <div className="flex items-center p-6 space-x-4">
-        {/* Imagen de la oferta */}
-        <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
+    <div className={styles.cardContainer}>
+      {/* Encabezado con imagen y título */}
+      <div className={styles.cardHeader}>
+        <div className={styles.imageContainer}>
           <Image
-            width={80}
-            height={80}
+            width={100}
+            height={100}
             src={offer.imgUrl || "/cursosYFormaciones.JPG"}
             alt={offer.title}
-            className="w-full h-full object-cover"
+            className={styles.image}
           />
         </div>
-  
-        {/* Contenido (título, ubicación, etc.) */}
-        <div className="flex flex-col justify-between flex-grow space-y-3">
-          {/* Título */}
-          <h3 className="text-2xl font-semibold text-gray-700 hover:text-green-700 transition-colors">
-            {offer.title}
-          </h3>
-  
-          {/* Información adicional */}
-          <div className="text-sm text-gray-700 space-y-1">
-            <p><strong>Nacionalidad:</strong> {offer.nationality}</p>
-            <p><strong>Posición:</strong> {offer.position}</p>
-            <p><strong>Categoría:</strong> {offer.category}</p>
-            <p><strong>Géneros Deportivos:</strong> {offer.sportGenres}</p>
-            <p><strong>Tipo de contrato:</strong> {offer.contractTypes}</p>
-            <p><strong>Duración del contrato:</strong> {offer.contractDurations}</p>
+        <div>
+          <h3 className={styles.title}>{offer.title}</h3>
+          {/* Descripción debajo del título */}
+          <div className={styles.description}>
+            <p>{offer.description}</p>
           </div>
         </div>
       </div>
-  
-      {/* Descripción y Salario */}
-      <div className="p-4 border-t border-gray-100">
-        <p className="text-gray-700 text-sm">
-          {offer.description}
-        </p>
-        <p className="text-gray-800 text-sm font-semibold text-center mt-2">
-          Salario: <span className="text-green-600">${offer.salary}</span>
-        </p>
+
+      {/* Contenido en dos columnas */}
+      <div className={styles.cardContent}>
+        <div>
+          <p>
+            <span className={styles.bold}>Posición:</span> {offer.position}
+          </p>
+          <p>
+            <span className={styles.bold}>Nacionalidad:</span>{" "}
+            {offer.nationality}
+          </p>
+          <p>
+            <span className={styles.bold}>Categoría:</span> {offer.category}
+          </p>
+          <p>
+            <span className={styles.bold}>Tipo de contrato:</span>{" "}
+            {offer.contractTypes}
+          </p>
+        </div>
+        <div>
+          <p>
+            <span className={styles.bold}>Edad:</span> {offer.minAge} -{" "}
+            {offer.maxAge}
+          </p>
+          <p>
+            <span className={styles.bold}>Viajes:</span>{" "}
+            {offer.availabilityToTravel ? "Sí" : "No"}
+          </p>
+          <p>
+            <span className={styles.bold}>Pasaporte UE:</span>{" "}
+            {offer.euPassport ? "Sí" : "No"}
+          </p>
+        </div>
       </div>
-  
-      {/* Acciones y botones */}
-      <div className="flex gap-4 p-1 text-center justify-between mt-auto border-t border-gray-100">
+
+      {/* Salario */}
+      <div className={styles.salary}>Salario: ${offer.salary}</div>
+
+      {/* Acciones */}
+      <div className={styles.cardActions}>
         <Link
           href={`/jobs/${offer.id}`}
-          className="text-white bg-green-600 rounded-lg p-2 hover:bg-white hover:text-green-600 hover:border-2 hover:border-green-600 font-semibold transition-colors duration-200"
+          className={`${styles.button} ${styles.detailsButton}`}
         >
           Ver más
         </Link>
         <Link
           href={`/jobs/${offer.id}`}
-          className="text-white bg-green-600 rounded-lg p-2 hover:bg-white hover:text-green-600 hover:border-2 hover:border-green-600 font-semibold transition-colors duration-200"
+          className={`${styles.button} ${styles.applyButton}`}
         >
-          Aplicar a esta oferta
+          Aplicar
         </Link>
       </div>
     </div>
   );
-  
 };
 
 export default CardOffer;

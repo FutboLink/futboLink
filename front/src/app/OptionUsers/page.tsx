@@ -1,53 +1,48 @@
 import Image from "next/image";
 import Link from "next/link";
 import foto from "../../../public/fotoprof.png";
+import styles from "../../Styles/optionUser.module.css"; // Importa el módulo CSS
 
 const RegistrationCards = () => {
   return (
-    <div className="min-h-screen mt-28 text-black flex items-center justify-center bg-gray-100 py-10">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
+    <div className={styles.container}>
+      <div className={styles.grid}>
         {/* Card Jugador */}
-
-        <Link href="/OptionUsers/Player">
-
-
-          <div className="bg-white p-6 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition duration-300 h-[380px] flex flex-col items-center">
+        <Link href="/OptionUsers/Player" className={styles.cardLink}>
+          <div className={styles.card}>
             <Image
-              src={foto} // Cambia esta URL por la imagen adecuada
+              src={foto}
               alt="Jugador"
-              width={200}
-              height={200}
-              className="w-full h-48 object-cover rounded-t-lg mb-4"
+              width={220}
+              height={220}
+              className={styles.image}
             />
-            <h3 className="text-2xl font-semibold text-gray-800 mb-4 text-center">
-              Jugadores y Profesionales
-            </h3>
-            <p className="text-gray-600  text-center">
-              Regístrate como jugador o profesional del mundo del deporte y comparte tus habilidades.
+            <h3 className={styles.title}>Jugadores y Profesionales</h3>
+            <p className={styles.description}>
+              Regístrate como jugador o profesional del mundo del deporte y
+              comparte tus habilidades.
             </p>
           </div>
         </Link>
 
         {/* Card Representante */}
-        <Link href="/OptionUsers/Manager">
-          <div className="bg-white p-6 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition duration-300 h-[380px] flex flex-col items-center">
+        <Link href="/OptionUsers/Manager" className={styles.cardLink}>
+          <div className={styles.card}>
             <Image
-              src="https://img.freepik.com/foto-gratis/joven-apuesto-hombre-negocios-ordenador-portatil-oficina_1303-21060.jpg?t=st=1735402162~exp=1735405762~hmac=a9f53376cfd7059c1b7471743a8ec44c6afd61c7feabb2934b533ae785aa7a1b&w=1380" // Cambia esta URL por la imagen adecuada
+              src="https://img.freepik.com/foto-gratis/joven-apuesto-hombre-negocios-ordenador-portatil-oficina_1303-21060.jpg"
               alt="Representante"
-              width={200}
-              height={200}
-              className="w-full h-48 object-cover rounded-t-lg mb-4"
+              width={220}
+              height={220}
+              className={styles.image}
             />
-            <h3 className="text-2xl font-semibold text-gray-800 mb-4 text-center">
-              Ofertante
-            </h3>
-            <p className="text-gray-600 text-center">
-             Puedes publicar puestos o buscar jugadores para tus clientes.
+            <h3 className={styles.title}>Ofertante</h3>
+            <p className={styles.description}>
+              Publica puestos o encuentra jugadores para tus clientes con
+              facilidad.
             </p>
           </div>
         </Link>
-
-        </div>
+      </div>
     </div>
   );
 };

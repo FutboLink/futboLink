@@ -17,10 +17,10 @@ function Contact() {
   return (
     <div className="mt-16 overflow-x-hidden">
       <Head>
-        <title>Contacto - Futbol Career</title>
+        <title>Contacto - Futbolink</title>
         <meta
           name="description"
-          content="Conéctate con Futbol Career, la agencia que conecta jugadores, representantes y agencias de fútbol de todo el mundo. ¡Contáctanos hoy!"
+          content="Conéctate con Futbolink, la agencia que conecta jugadores, representantes y agencias de fútbol de todo el mundo. ¡Contáctanos hoy!"
         />
         <meta name="robots" content="index, follow" />
       </Head>
@@ -38,7 +38,7 @@ function Contact() {
           >
             <Image
               src={logo}
-              alt="Futbol Career Logo"
+              alt="Futbolink Logo"
               width={120}
               height={120}
               className="rounded-lg"
@@ -51,7 +51,7 @@ function Contact() {
             data-aos-duration="1000"
           >
             <h1 className="text-3xl sm:text-4xl font-semibold text-green-700">
-              ¡Bienvenido a Futbol Career!
+              ¡Bienvenido a Futbolink!
             </h1>
             <p className="text-lg sm:text-xl text-gray-600 mt-4">
               Somos una agencia con sede en Italia, dedicada a conectar
@@ -144,7 +144,7 @@ function Contact() {
                 {/* Imagen del mapa con ajuste */}
                 <Image
                   src="https://img.freepik.com/vector-gratis/mapas-ubicacion-telefono-icono-dibujos-animados-ilustracion-concepto-icono-tecnologia-transporte-aislado-estilo-dibujos-animados-plana_138676-2157.jpg?t=st=1735405761~exp=1735409361~hmac=ebe3cbf4045191e5a98a73bc3241205ae252bed98ae1188fa14a2e924f012c67&w=826"
-                  alt="Ubicación de Futbol Career"
+                  alt="Ubicación de Futbolink"
                   layout="responsive"
                   width={600}
                   height={400}

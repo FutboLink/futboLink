@@ -10,7 +10,7 @@ function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center md:items-start mb-6">
           {/* Logo */}
           <div className="flex flex-col items-center md:items-start">
-            <h2 className="text-3xl font-bold">Futbol Career</h2>
+            <h2 className="text-3xl font-bold">Futbolink</h2>
             <p className="mt-2 text-lg">Conecta talento con oportunidades</p>
           </div>
 
@@ -56,7 +56,7 @@ function Footer() {
         {/* Footer Bottom */}
         <div className="border-t border-gray-700 pt-6 mt-6 text-center text-sm">
           <p>
-            &copy; {new Date().getFullYear()} Futbol Career. Todos los derechos
+            &copy; {new Date().getFullYear()} Futbolink. Todos los derechos
             reservados.
           </p>
         </div>

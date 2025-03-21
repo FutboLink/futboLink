@@ -77,9 +77,9 @@ function NavbarRoles() {
               <li
                 onClick={() => navigateTo("/Formation")}
                 className="px-4 py-2 hover:bg-green-600 hover:text-white rounded-md transition-all cursor-pointer"
-                aria-label="Cursos y formación en futbol"
+                aria-label="Entrenamiento en futbol"
               >
-                Cursos y Formación
+                Entrenamiento
               </li>
               <li
                 onClick={() => navigateTo("/Notices")}
@@ -107,7 +107,7 @@ function NavbarRoles() {
                 className="px-4 py-2 hover:bg-green-600 hover:text-white rounded-md transition-all cursor-pointer"
                 aria-label="Cómo usar FutboLink"
               >
-                ¿Cómo uso FC?
+                Ayuda
               </li>
             </ul>
           </div>
@@ -191,7 +191,7 @@ function NavbarRoles() {
                 onClick={() => navigateTo("/Formation")}
                 className="px-4 py-2 hover:bg-green-600 hover:text-white rounded-md transition-all cursor-pointer"
               >
-                Cursos y Formación
+                Entrenamiento
               </li>
               <li
                 onClick={() => navigateTo("/Notices")}
@@ -215,7 +215,7 @@ function NavbarRoles() {
                 onClick={() => navigateTo("/Help")}
                 className="px-4 py-2 hover:bg-green-600 hover:text-white rounded-md transition-all cursor-pointer"
               >
-                ¿Cómo uso FC?
+                Ayuda
               </li>
             </ul>
 

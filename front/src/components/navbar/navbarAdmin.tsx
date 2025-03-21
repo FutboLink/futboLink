@@ -57,14 +57,14 @@ function NavbarAdmin() {
               <li
                 onClick={() => navigateTo("/PanelAdmin/Applications")}
                 className="px-4 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
-                aria-label="Cursos y formación en futbol"
+                aria-label="Entrenamiento en futbol"
               >
                 Postulaciones
               </li>
               <li
                 onClick={() => navigateTo("/jobs")}
                 className="px-4 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
-                aria-label="Cursos y formación en futbol"
+                aria-label="Entrenamiento en futbol"
               >
                 Ofertas laborales
               </li>

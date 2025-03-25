@@ -2,8 +2,8 @@ export function Subscription() {
   return [
     {
       title: "Amateur",
-      subtitle: "Amateur",
       image: "/botin1.svg",
+      slogan: "Empieza a construir tu carrera",
       features: [
         { text: "Página de perfil", available: true },
         { text: "Aplica a ofertas", available: false },
@@ -11,7 +11,8 @@ export function Subscription() {
         { text: "Accede a entrenamientos con descuento", available: false },
         { text: "Perfil Destacado", available: false },
       ],
-      price: "Gratis",
+      monthlyPrice: "Gratis",
+      yearlyPrice: "Mira nuestras ofertas", // No tiene precio anual
       buttonLabel: "Registrate Gratis",
       bgColor: "bg-white",
       textColor: "text-gray-800",
@@ -20,8 +21,8 @@ export function Subscription() {
     },
     {
       title: "Semiprofesional",
-      subtitle: "Semiprofesional",
       image: "/botin2.svg",
+      slogan: "Sé parte del juego activo",
       features: [
         { text: "Página de perfil", available: true },
         { text: "Ofertas estándar", available: true },
@@ -29,7 +30,8 @@ export function Subscription() {
         { text: "Accede a entrenamientos con descuento", available: false },
         { text: "Perfil Destacado", available: false },
       ],
-      price: "€3,95 / Mes | €37,95 / Año (-20% Descuento)",
+      monthlyPrice: "€3,95",
+      yearlyPrice: "€37,95 Anual (-20%)",
       buttonLabel: "Contratar",
       bgColor: "bg-white",
       textColor: "text-gray-800",
@@ -38,8 +40,8 @@ export function Subscription() {
     },
     {
       title: "Profesional",
-      subtitle: "El más contratado",
       image: "/botin3.svg",
+      slogan: "Destaca en el mercado profesional",
       features: [
         { text: "Página de perfil", available: true },
         { text: "Ofertas Internacionales", available: true },
@@ -47,7 +49,8 @@ export function Subscription() {
         { text: "Accede a entrenamientos con descuento", available: true },
         { text: "Perfil Destacado", available: true },
       ],
-      price: "€7,95 / Mes | €75,95 / Año (-20% Descuento)",
+      monthlyPrice: "€7,95",
+      yearlyPrice: "€75,95 Anual (-20%)",
       buttonLabel: "Contratar",
       bgColor: "bg-white",
       textColor: "text-gray-800",

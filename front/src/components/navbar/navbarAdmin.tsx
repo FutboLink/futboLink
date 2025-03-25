@@ -68,6 +68,20 @@ function NavbarAdmin() {
               >
                 Ofertas laborales
               </li>
+              <li
+                  onClick={() => navigateTo("/PanelAdmin/Noticias")}
+                  className="px-4 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
+                  aria-label="Cursos y formación en futbol"
+                >
+                Noticias
+              </li>
+              <li
+              onClick={() => navigateTo("/PanelAdmin/Cursos")}
+              className="px-4 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
+              aria-label="Cursos y formación en futbol"
+            >
+              Cursos Y Formación
+              </li>
             </ul>
           </div>
 
@@ -158,6 +172,18 @@ function NavbarAdmin() {
                 className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
               >
                 Ofertas
+              </li>
+              <li
+                onClick={() => navigateTo("/PanelAdmin/Noticias")}
+                className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
+              >
+                Noticias
+              </li>
+              <li
+                onClick={() => navigateTo("/PanelAdmin/Cursos")}
+                className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
+              >
+              Cursos Y Formación
               </li>
             </ul>
 

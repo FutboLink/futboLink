@@ -147,3 +147,40 @@ export const fetchEditJob = async (token: string, id: string, formData: object) 
     throw error;
   }
 };
+
+
+export const resetPassword = async (token: string, password: string) => {
+  console.log("Token desde fetch", { token, password });
+  try {
+    const res = await fetch(`${apiUrl}/auth/reset-password`, {
+      method: "POST",
+      body: JSON.stringify({ token, newPassword: password }),  // Enviar tanto el token como la nueva contraseña en el cuerpo
+      headers: { 
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await res.json();
+    return { success: res.ok, message: data.message };
+  } catch (error) {
+    console.error(error);
+    return { success: false, message: "Error al conectar con el servidor." };
+  }
+};
+
+
+export const forgotPassword = async (email: string) => {
+  try {
+    const res = await fetch(`${apiUrl}/auth/forgot-password`, {
+      method: "POST",
+      body: JSON.stringify({ email }),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const data = await res.json();
+    return { success: res.ok, message: data.message };
+  } catch (error) {
+    console.error(error);
+    return { success: false, message: "Error al conectar con el servidor." };
+  }
+};

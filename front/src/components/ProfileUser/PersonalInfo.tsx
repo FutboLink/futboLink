@@ -6,6 +6,8 @@ import { UserContext } from "../Context/UserContext";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
 import useNationalities from "../Forms/FormUser/useNationalitys";
 import { FaChevronDown } from "react-icons/fa";
+import ImageUpload from "../Cloudinary/ImageUpload";
+import Image from "next/image";
 
 const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const { token } = useContext(UserContext);
@@ -65,6 +67,12 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
     }
   };
   
+  const handleImageUpload = (imageUrl: string) => {
+    setFetchedProfileData((prev) => ({
+      ...prev!,
+      imgUrl: imageUrl, // Actualizar la URL de la imagen en fetchedProfileData
+    }));
+  };
   
 
   // Handle nationality selection
@@ -153,19 +161,23 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           />
           </div>
   
-          {/* Profile Picture */}
-          <div className="flex flex-col">
-            <input
-              name="imgUrl"
-              type="text"
-              value={fetchedProfileData?.imgUrl || ""}
-              onChange={handleChange}
-              placeholder="URL de la imagen"
-              className="w-full p-1.5 border rounded text-gray-700 hover:cursor-pointer focus:outline-none"
-            />
+          {/* Imagen de perfil (URL) */}
+       <div className="sm:col-span-2 flex flex-col items-center">
+            <label className="text-gray-700 font-semibold mb-2">Subir Imagen</label>
+            <ImageUpload onUpload={handleImageUpload} />
+            {/* Aquí se mostrará la imagen de perfil si existe */}
+            {fetchedProfileData?.imgUrl && (
+              <div className="mt-4 rounded-full w-24 h-24 overflow-hidden">
+                <Image
+                  src={fetchedProfileData.imgUrl}
+                  alt="Imagen de perfil"
+                  width={96} 
+                  height={96} 
+                  className="object-cover"
+                />
+              </div>
+            )}
           </div>
-
-           
   
           {/* Nationality Search */}
           <div className="flex flex-col">

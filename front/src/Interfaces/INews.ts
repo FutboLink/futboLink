@@ -11,3 +11,9 @@ export interface INewsPageProps {
   params: Promise<{ id: string }>;
 }
 
+export interface INotice {
+  id?:string;
+  title: string;
+  description: string;
+  imageUrl: string;
+}

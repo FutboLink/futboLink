@@ -128,6 +128,10 @@ function LoginForm() {
             Regístrate aquí
           </Link>
         </p>
+        <p className="mt-4 text-center text-sm text-gray-600">
+        <Link className="underline hover:font-bold" href="/forgotPassword"> Olvidé mi contraseña</Link>
+        </p>
+      
       </div>
     </div>
   );

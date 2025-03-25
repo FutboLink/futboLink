@@ -62,7 +62,7 @@ export default function Page() {
     <div className="flex flex-col mt-12 items-center justify-center min-h-screen bg-gray-100 p-6">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl">
         <h1 className="text-2xl font-bold text-green-700 mb-4 text-center">
-          Crear Nuevo Curso
+          Crear Nueva Noticia
         </h1>
   
         <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">

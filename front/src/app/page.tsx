@@ -11,6 +11,7 @@ import NavbarAdmin from "@/components/navbar/navbarAdmin";
 import Link from "next/link";
 import Image from "next/image";
 import NavbarRoles from "@/components/navbar/navbarRoles";
+import ClientsSection from "@/components/Clients/client";
 
 const Home = () => {
   const { role } = useContext(UserContext);
@@ -89,8 +90,8 @@ const Home = () => {
       <section data-aos="zoom-in" data-aos-delay="600">
         <Subs />
       </section>
-      <section>
-        <p>hola</p>
+      <section data-aos="zoom-in" data-aos-delay="600">
+        <ClientsSection />
       </section>
       <section data-aos="fade-right" data-aos-delay="200">
         <Notices />

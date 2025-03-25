@@ -126,7 +126,7 @@ const UserProfile = () => {
         </nav>
         <button
           onClick={handleLogOut}
-          className={styles.button}
+          className="mt-6 w-full py-2 bg-red-600 rounded-lg text-white text-center font-medium hover:bg-red-700"
         >
           Cerrar sesión
         </button>

@@ -11,6 +11,7 @@ import { ApplicationsModule } from './modules/Applications/applications.module';
 import { ContractsModule } from './modules/contracts/contracts.module';
 import { StripeModule } from './stripe/stripe.module';
 import { PaymentController } from './stripe/stripe.controller';
+import { NewsModule } from './modules/News/news.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { PaymentController } from './stripe/stripe.controller';
     JobsModule,
     ApplicationsModule,
     ContractsModule,
+    NewsModule,
     // Agrega el módulo de Stripe
     StripeModule,
   ],

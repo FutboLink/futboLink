@@ -12,6 +12,7 @@ import { ContractsModule } from './modules/contracts/contracts.module';
 import { StripeModule } from './stripe/stripe.module';
 import { PaymentController } from './stripe/stripe.controller';
 import { NewsModule } from './modules/News/news.module';
+import { CursoModule } from './modules/Courses/cursos.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { NewsModule } from './modules/News/news.module';
     ApplicationsModule,
     ContractsModule,
     NewsModule,
+    CursoModule,
     // Agrega el módulo de Stripe
     StripeModule,
   ],

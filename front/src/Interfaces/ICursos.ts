@@ -1,5 +1,5 @@
 export interface ICurso {
-    id?:string;
+    id:string;
     image: string;
     title: string;
     category: CategoryCursos;
@@ -16,4 +16,14 @@ export enum CategoryCursos {
     Diplomatura = "Diplomatura",
     Pruebas = "Pruebas",
     Tryouts = "Tryouts"
+}
+
+export interface ICreateCurso {
+    image: string;
+    title: string;
+    category: CategoryCursos;
+    country: string;
+    language: string;
+    modality: string;
+    contact: string;
 }

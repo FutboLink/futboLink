@@ -54,8 +54,9 @@ const EditCourse: React.FC<EditCourseProps> = ({ courseId, token, course, onCanc
 
   const handleSave = async () => {
     try {
-      const updatedCourse = {
-        ...formData,
+      const updatedCourse: ICurso = {
+        id: course.id,
+        ...formData
       };
       const result = await fetchEditCourse(token, courseId, updatedCourse);
       onSuccess(result);

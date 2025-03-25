@@ -1,12 +1,12 @@
 "use client";
 
-import { ICurso,CategoryCursos } from "@/Interfaces/ICursos";
+import { CategoryCursos, ICreateCurso } from "@/Interfaces/ICursos";
 import React, { useState } from "react";
 import ImageUpload from "@/components/Cloudinary/ImageUpload";
 import { fetchCreateCourse } from "@/components/Fetchs/AdminFetchs/AdminUsersFetch";
 
 export default function Page() {
-  const [course, setCourse] = useState<ICurso>({
+  const [course, setCourse] = useState<ICreateCurso>({
     image: "",
     title: "",
     category: CategoryCursos.Curso,

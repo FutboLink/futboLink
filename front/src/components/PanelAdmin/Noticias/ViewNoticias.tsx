@@ -3,9 +3,9 @@ import React, { useContext, useEffect, useState } from 'react';
 import { INotice } from '@/Interfaces/INews';
 import Image from 'next/image';
 import EditNotice from './EditNotice';
-import DeleteNoticeButton from '../Cursos/DeleteCurso';
 import { getNews } from '@/components/Fetchs/AdminFetchs/AdminUsersFetch';
 import { UserContext } from '@/components/Context/UserContext';
+import DeleteNotice from './DeleteNotice';
 
 export default function ViewNoticias() {
   const [noticias, setNoticias] = useState<INotice[]>([]);
@@ -94,7 +94,7 @@ export default function ViewNoticias() {
                   >
                     Editar
                   </button>
-                  <DeleteNoticeButton
+                  <DeleteNotice
                     noticeId={noticia.id}
                     onDelete={() => handleDelete(noticia.id)}
                   />

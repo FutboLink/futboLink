@@ -110,6 +110,13 @@ function NavbarHome() {
               >
                 ¿Cómo uso FC?
               </li>
+              <li
+                onClick={() => navigateTo("/cursos")}
+                className="px-4 hover:bg-green-200 hover:text-black hover:rounded-md transition-all cursor-pointer"
+                aria-label="Cómo usar FutboLink"
+              >
+                Cursos y Formaciones
+              </li>
             </ul>
           </div>
 
@@ -232,6 +239,12 @@ function NavbarHome() {
                 className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
               >
                 ¿Cómo uso FC?
+              </li>
+              <li
+                onClick={() => navigateTo("/cursos")}
+                className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
+              >
+                Cursos y Formaciones
               </li>
             </ul>
 

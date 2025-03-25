@@ -1,16 +1,16 @@
 "use client";
 import React, { useContext, useState } from "react";
-import {  fetchDeleteNotice } from "@/components/Fetchs/AdminFetchs/AdminUsersFetch";
+import { fetchDeleteCurso } from "@/components/Fetchs/AdminFetchs/AdminUsersFetch";
 import ConfirmDialog from "@/components/Jobs/ConfirmDialog";
 import { Notifi } from "@/components/Jobs/Notif";
 import { UserContext } from "@/components/Context/UserContext";
 
 interface DeleteCursoButtonProps {
-  noticeId: string;
+  cursoId: string;
   onDelete: () => void; // Callback para actualizar la vista después de eliminar
 }
 
-const DeleteCursoButton: React.FC<DeleteCursoButtonProps> = ({ noticeId, onDelete }) => {
+const DeleteCursoButton: React.FC<DeleteCursoButtonProps> = ({ cursoId, onDelete }) => {
   const [loading, setLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [message, setMessage] = useState<string>("¿Estás seguro de que deseas eliminar este curso?");
@@ -31,7 +31,7 @@ const DeleteCursoButton: React.FC<DeleteCursoButtonProps> = ({ noticeId, onDelet
     }
 
     try {
-      const response = await fetchDeleteNotice(noticeId,token); 
+      const response = await fetchDeleteCurso(cursoId,token); 
       if (response.ok || response.status === 200) {
         setMessage("Curso eliminado correctamente.");
         setIsSuccess(true);

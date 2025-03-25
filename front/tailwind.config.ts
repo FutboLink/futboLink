@@ -8,6 +8,9 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        montserrat: "var(--font-montserrat)",
+      },
       colors: {
         "verde-oscuro": "#1d5126",
         "verde-claro": "#3e7c27",

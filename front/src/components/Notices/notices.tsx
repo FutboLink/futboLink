@@ -23,7 +23,7 @@ const NoticeSection = () => {
       {/* Botón para ver más noticias */}
       <div className="flex justify-center mt-6">
         <Link href="/Notices">
-          <button className="px-6 py-3 text-verde-oscuro hover:text-green-700 rounded-lg hover:bg-green-100 transition duration-300">
+          <button className="px-6 py-3 text-verde-oscuro rounded-lg hover:bg-verde-claro hover:text-slate-100 transition duration-300">
             Ver Más Noticias
           </button>
         </Link>

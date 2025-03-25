@@ -1,5 +1,5 @@
 import React from "react";
-import { FaTwitter, FaFacebook, FaLinkedin, FaInstagram } from "react-icons/fa"; // Iconos de redes sociales
+import { FaTwitter, FaInstagram, FaTiktok, FaYoutube } from "react-icons/fa"; // Iconos de redes sociales
 import Link from "next/link"; // Importar Link de Next.js
 
 function Footer() {
@@ -11,7 +11,7 @@ function Footer() {
           {/* Logo */}
           <div className="flex flex-col items-center md:items-start">
             <h2 className="text-3xl font-bold">Futbolink</h2>
-            <p className="mt-2 text-lg">Conecta talento con oportunidades</p>
+            <p className="mt-2 text-lg">Conectando Talento</p>
           </div>
 
           {/* Links Section */}
@@ -19,17 +19,26 @@ function Footer() {
             <h3 className="text-lg font-semibold">Enlaces</h3>
             <ul className="mt-2 space-y-2">
               <li>
-                <Link href="#about" className="hover:text-verde-oscuro">
+                <Link
+                  href="#about"
+                  className="hover:text-verde-mas-claro hover:bg-slate-50 hover:rounded-xl p-1"
+                >
                   Sobre nosotros
                 </Link>
               </li>
               <li>
-                <Link href="/Offer" className="hover:text-verde-oscuro">
+                <Link
+                  href="/Offer"
+                  className="hover:text-verde-mas-claro hover:bg-slate-50 hover:rounded-xl p-1"
+                >
                   Ofertas
                 </Link>
               </li>
               <li>
-                <Link href="#contact" className="hover:text-verde-oscuro">
+                <Link
+                  href="#contact"
+                  className="hover:text-verde-mas-claro hover:bg-slate-50 hover:rounded-xl p-1"
+                >
                   Contacto
                 </Link>
               </li>
@@ -38,16 +47,16 @@ function Footer() {
 
           {/* Social Media Section */}
           <div className="flex space-x-6 mt-6 md:mt-0">
-            <a href="#" className="text-2xl hover:text-verde-oscuro">
-              <FaFacebook />
+            <a href="#" className="text-2xl hover:text-verde-mas-claro">
+              <FaTiktok />
             </a>
-            <a href="#" className="text-2xl hover:text-verde-oscuro">
+            <a href="#" className="text-2xl hover:text-verde-mas-claro">
               <FaTwitter />
             </a>
-            <a href="#" className="text-2xl hover:text-verde-oscuro">
-              <FaLinkedin />
+            <a href="#" className="text-2xl hover:text-verde-mas-claro">
+              <FaYoutube />
             </a>
-            <a href="#" className="text-2xl hover:text-verde-oscuro">
+            <a href="#" className="text-2xl hover:text-verde-mas-claro">
               <FaInstagram />
             </a>
           </div>

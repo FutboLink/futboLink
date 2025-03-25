@@ -37,7 +37,7 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
     );
 
   return (
-    <div className="mt-24"> <h2 className=" text-white text-center text-lg bg-green-600 p-4 font-semibold">
+    <div className="mt-24"> <h2 className=" text-white text-center text-lg bg-verde-oscuro p-4 font-semibold">
     APLICACIONES 
   </h2>
   <div className="grid gap-6 p-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-2">

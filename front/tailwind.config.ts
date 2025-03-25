@@ -8,6 +8,12 @@ export default {
   ],
   theme: {
     extend: {
+      colors: {
+        "verde-oscuro": "#1d5126",
+        "verde-claro": "#3e7c27",
+        "verde-mas-claro": "#4e722d",
+        blanco: "#ffffff",
+      },
       perspective: {
         "1000": "1000px",
       },

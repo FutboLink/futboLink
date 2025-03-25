@@ -21,7 +21,6 @@ export class Job {
   @Column()
   title: string;
 
-
   @ApiProperty({ example: 'Presencial', description: 'Ubicación del trabajo' })
   @Column()
   location: string;
@@ -60,7 +59,15 @@ export class Job {
   position: string;
 
   @ApiProperty({
-    example: ['Sueldo fijo', 'Bonos por rendimiento', 'Viáticos incluidos', 'Alojamiento incluido', 'No remunerado', 'A convenir', 'Equipamiento deportivo'],
+    example: [
+      'Sueldo fijo',
+      'Bonos por rendimiento',
+      'Viáticos incluidos',
+      'Alojamiento incluido',
+      'No remunerado',
+      'A convenir',
+      'Equipamiento deportivo',
+    ],
     description: 'Competencias requeridas',
   })
   @Column('simple-array')
@@ -107,8 +114,7 @@ export class Job {
     example: 35,
   })
   @Column()
-  maxAge: number; 
-
+  maxAge: number;
 
   @ApiProperty({
     description: 'Deporte relacionado con el trabajo',
@@ -143,8 +149,6 @@ export class Job {
     enum: YesOrNo,
   })
   euPassport: YesOrNo;
-
-
 
   @ApiProperty({
     type: () => User,

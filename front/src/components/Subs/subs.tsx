@@ -16,11 +16,38 @@ function Subs() {
     }
   }, []);
 
+  const handleSubscribe = async (priceId: string) => {
+    try {
+      // Llama al backend para crear la sesión de Checkout
+      const response = await fetch(
+        "http://localhost:3000/payment/create-checkout-session",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ priceId }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const { sessionUrl } = await response.json();
+
+      // Redirige al usuario a la página de pago de Stripe usando la URL proporcionada
+      window.location.href = sessionUrl;
+    } catch (error) {
+      console.error("Error al crear la sesión de pago:", error);
+    }
+  };
+
   return (
     <section className="bg-gray-100 py-16 px-6">
       {/* Introducción */}
       <div
-        className="text-center mb-12 sm:mb-16 bg-gradient-to-b from-green-500 to-green-700 text-white py-16 px-6"
+        className="text-center mb-12 sm:mb-16 bg-gradient-to-b from-verde-claro to-green-700 text-white py-16 px-6"
         data-aos="fade-up"
         data-aos-duration="1000"
       >
@@ -34,7 +61,7 @@ function Subs() {
       </div>
 
       {/* Tarjetas */}
-      <div className="grid grid-cols-1  sm:grid-cols-2 lg:grid-cols-3 gap-24">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-24">
         {subscriptionOptions.map((option, index) => (
           <div
             key={index}
@@ -56,12 +83,12 @@ function Subs() {
                   {option.title}
                 </h3>
                 <p className="text-lg text-gray-600 mb-6">{option.subtitle}</p>
-                <p className="text-2xl font-bold bg-green-500 rounded-xl text-white px-4 py-2">
+                <p className="text-2xl font-bold bg-verde-claro rounded-xl text-white px-4 py-2">
                   {option.price}
                 </p>
               </div>
 
-              <div className="card-back bg-gradient-to-br from-green-600 to-green-400 text-white p-8 flex flex-col items-center justify-center text-center rounded-lg shadow-lg">
+              <div className="card-back bg-gradient-to-br from-verde-oscuro to-green-400 text-white p-8 flex flex-col items-center justify-center text-center rounded-lg shadow-lg">
                 <h4 className="text-2xl font-bold mb-6">Incluye:</h4>
                 <ul className="space-y-3 text-lg">
                   {option.features.map((feature, idx) => (
@@ -81,7 +108,12 @@ function Subs() {
               </div>
             </div>
             <div className="flex justify-center mt-6">
-              <button className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-all duration-300">
+              <button
+                onClick={() =>
+                  handleSubscribe("price_1R58kLH1hYerpaTPFGkZab8i")
+                }
+                className="bg-verde-claro text-white px-6 py-3 rounded-lg hover:bg-verde-oscuro transition-all duration-300"
+              >
                 Contratar
               </button>
             </div>

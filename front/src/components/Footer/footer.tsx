@@ -10,7 +10,7 @@ function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center md:items-start mb-6">
           {/* Logo */}
           <div className="flex flex-col items-center md:items-start">
-            <h2 className="text-3xl font-bold">Futbol Career</h2>
+            <h2 className="text-3xl font-bold">Futbolink</h2>
             <p className="mt-2 text-lg">Conecta talento con oportunidades</p>
           </div>
 
@@ -19,17 +19,17 @@ function Footer() {
             <h3 className="text-lg font-semibold">Enlaces</h3>
             <ul className="mt-2 space-y-2">
               <li>
-                <Link href="#about" className="hover:text-green-600">
+                <Link href="#about" className="hover:text-verde-oscuro">
                   Sobre nosotros
                 </Link>
               </li>
               <li>
-                <Link href="/Offer" className="hover:text-green-600">
+                <Link href="/Offer" className="hover:text-verde-oscuro">
                   Ofertas
                 </Link>
               </li>
               <li>
-                <Link href="#contact" className="hover:text-green-600">
+                <Link href="#contact" className="hover:text-verde-oscuro">
                   Contacto
                 </Link>
               </li>
@@ -38,16 +38,16 @@ function Footer() {
 
           {/* Social Media Section */}
           <div className="flex space-x-6 mt-6 md:mt-0">
-            <a href="#" className="text-2xl hover:text-green-600">
+            <a href="#" className="text-2xl hover:text-verde-oscuro">
               <FaFacebook />
             </a>
-            <a href="#" className="text-2xl hover:text-green-600">
+            <a href="#" className="text-2xl hover:text-verde-oscuro">
               <FaTwitter />
             </a>
-            <a href="#" className="text-2xl hover:text-green-600">
+            <a href="#" className="text-2xl hover:text-verde-oscuro">
               <FaLinkedin />
             </a>
-            <a href="#" className="text-2xl hover:text-green-600">
+            <a href="#" className="text-2xl hover:text-verde-oscuro">
               <FaInstagram />
             </a>
           </div>
@@ -56,7 +56,7 @@ function Footer() {
         {/* Footer Bottom */}
         <div className="border-t border-gray-700 pt-6 mt-6 text-center text-sm">
           <p>
-            &copy; {new Date().getFullYear()} Futbol Career. Todos los derechos
+            &copy; {new Date().getFullYear()} Futbolink. Todos los derechos
             reservados.
           </p>
         </div>

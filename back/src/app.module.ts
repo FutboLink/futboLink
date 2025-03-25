@@ -9,6 +9,9 @@ import { AuthModule } from './modules/auth/auth.module';
 import { JobsModule } from './modules/Jobs/jobs.module';
 import { ApplicationsModule } from './modules/Applications/applications.module';
 import { ContractsModule } from './modules/contracts/contracts.module';
+import { StripeModule } from './stripe/stripe.module';
+import { PaymentController } from './stripe/stripe.controller';
+import { NewsModule } from './modules/News/news.module';
 
 @Module({
   imports: [
@@ -25,9 +28,12 @@ import { ContractsModule } from './modules/contracts/contracts.module';
     JobsModule,
     ApplicationsModule,
     ContractsModule,
-
+    NewsModule,
+    // Agrega el módulo de Stripe
+    StripeModule,
   ],
-  controllers: [AppController],
+  // Agrega el PaymentController junto con el AppController
+  controllers: [AppController, PaymentController],
   providers: [AppService],
 })
 export class AppModule {}

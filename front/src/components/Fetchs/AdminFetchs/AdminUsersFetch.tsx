@@ -1,5 +1,5 @@
 import { ICurso } from "@/Interfaces/ICursos";
-import { INotice } from "@/Interfaces/INews";
+import { ICreateNotice, INotice } from "@/Interfaces/INews";
 import { IApplication } from "@/Interfaces/IOffer";
 import { IProfileData } from "@/Interfaces/IUser";
 
@@ -67,13 +67,58 @@ export const getUsers =  async (): Promise<IProfileData[]> => {
 };
 
   
-//Formulario crear noticias
-export const fetchCreateNews = async (notice:INotice) => {
 
-  const response = await fetch(`${apiUrl}/news`, {
+// Función para obtener las noticias
+export const getNews =  async (): Promise<INotice[]> => {
+  try {
+    const response = await fetch(`${apiUrl}/News`); 
+    if (!response.ok) {
+      throw new Error('Error al obtener las noticias');
+    }
+    const notice: INotice[] = await response.json();
+    return notice;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+};
+export const getNewsById = async (noticeId: string) => {
+  try {
+    // Realiza la petición GET al endpoint con el noticeId
+    const response = await fetch(`${apiUrl}/News/${noticeId}`, {
+      method: "GET", // Método de la solicitud
+      headers: {
+        "Content-Type": "application/json",
+        // Si necesitas enviar un token o algo más en los headers, agrégalo aquí
+        // "Authorization": `Bearer ${token}`,
+      },
+    });
+
+    // Verifica si la respuesta es exitosa (status 200)
+    if (!response.ok) {
+      throw new Error("Error al obtener la noticia");
+    }
+
+    // Si la respuesta es exitosa, parseamos el JSON de la respuesta
+    const data = await response.json();
+    return data; // Retorna la noticia obtenida
+
+  } catch (error) {
+    console.error("Error al obtener la noticia:", error);
+    throw error; // Lanza el error para que se pueda manejar en el componente que lo llame
+  }
+};
+
+
+//Formulario crear noticias
+export const fetchCreateNews = async (notice:ICreateNotice, token:string) => {
+
+  const response = await fetch(`${apiUrl}/News`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(notice),
   });
@@ -85,6 +130,21 @@ export const fetchCreateNews = async (notice:INotice) => {
 
   const data = await response.json();
   return data;
+};
+
+// Función para obtener los cursos
+export const getCursos =  async (): Promise<ICurso[]> => {
+  try {
+    const response = await fetch(`${apiUrl}/News`); 
+    if (!response.ok) {
+      throw new Error('Error al obtener las noticias');
+    }
+    const curso: ICurso[] = await response.json();
+    return curso;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
 };
 
 //Formulario crear cursos
@@ -150,32 +210,37 @@ export const fetchEditCourse = async (token: string, courseId: string, updatedCo
 };
 
 
-//Eliminar noticia
-export const fetchDeleteNotice = async (cursoId: string) => {
+// Eliminar noticia
+export const fetchDeleteNotice = async (noticeId: string, token: string) => {
   try {
-    const response = await fetch(`${apiUrl}/curso/${cursoId}`, {
+    const response = await fetch(`${apiUrl}/News/${noticeId}`, {
       method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
     });
 
     if (!response.ok) {
-      throw new Error("Error al eliminar curso");
+      throw new Error("Error al eliminar noticia");
     }
 
     // Si el servidor responde con un cuerpo vacío (content-length: 0)
     if (response.status === 200 && response.statusText === 'OK') {
-      return { message: "Curso eliminado con éxito" };  // Mensaje sin cuerpo
+      return { ok: true, status: response.status, message: "Noticia eliminada con éxito" };  // Devuelve el estado y mensaje
     }
 
     // Si la respuesta tiene contenido, procesar el JSON
-    return await response.json();
+    return { ok: false, status: response.status, message: await response.json() };
   } catch (error) {
-    console.error("Error en deleteUser:", error);
+    console.error("Error al eliminar noticia:", error);
     throw error;
   }
 };
 
-export const fetchEditNotice = async (token: string, courseId: string, updatedCourse: ICurso) => {
-  const response = await fetch(`/api/courses/${courseId}`, {
+
+export const fetchEditNotice = async (token: string, noticeId: string, updatedCourse: INotice) => {
+  const response = await fetch(`${apiUrl}/News/${noticeId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",

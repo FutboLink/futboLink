@@ -1,0 +1,35 @@
+.container {
+  display: flex;
+  margin-top: 6rem;
+  text-align: center;
+}
+
+.containerProfile {
+  background-color: #1d5126;
+  padding: 1rem;
+  border-radius: 2rem;
+  margin: 1rem;
+}
+
+.containerInfo {
+  display: flex;
+  flex-direction: column;
+  margin: 5rem;
+  border-radius: 1.5rem;
+  border: solid #1d5126 3px;
+  padding: 1rem;
+}
+
+.button {
+  margin-top: 3rem;
+  background-color: whitesmoke;
+  color: #1d5126;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  transition: all 0.5s;
+}
+
+.button:hover {
+  transform: scale(1.1);
+  transition: 0.3s;
+}

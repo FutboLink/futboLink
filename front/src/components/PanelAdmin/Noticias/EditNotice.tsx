@@ -46,8 +46,11 @@ const EditNotice: React.FC<EditNoticeProps> = ({ noticeId, token, notice, onCanc
 
   const handleSave = async () => {
     try {
-      const updatedNotice = {
-        ...formData,
+      const updatedNotice: INotice = {
+        id: notice.id,  
+        title: formData.title,
+        imageUrl: formData.image,  
+        description: formData.description,
       };
       const result = await fetchEditNotice(token, noticeId, updatedNotice);
       onSuccess(result);
@@ -55,6 +58,7 @@ const EditNotice: React.FC<EditNoticeProps> = ({ noticeId, token, notice, onCanc
       console.error("Error al actualizar la notificación:", error);
     }
   };
+  
 
   return (
     <div className="mt-24 bg-gray-100 rounded-lg max-w-4xl mx-auto p-6">

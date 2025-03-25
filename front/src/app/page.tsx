@@ -46,7 +46,7 @@ const Home = () => {
   }, [images.length]);
 
   return (
-    <main className="bg-green-600 text-white relative overflow-hidden">
+    <main className="bg-verde-oscuro text-white relative overflow-hidden">
       {role === "ADMIN" ? <NavbarAdmin /> : <NavbarRoles />}
       <header
         className="relative flex flex-col items-center justify-center min-h-screen text-center"
@@ -83,16 +83,17 @@ const Home = () => {
         </div>
       </header>
       {/* Notices Section (visible only on large screens) */}
-      <section data-aos="fade-right" data-aos-delay="200">
-        <Notices />
-      </section>
-      {/* About Section (visible only on large screens) */}
       <section data-aos="fade-left" data-aos-delay="400">
         <About />
       </section>
-      {/* Subs Section (visible only on large screens) */}
       <section data-aos="zoom-in" data-aos-delay="600">
         <Subs />
+      </section>
+      <section>
+        <p>hola</p>
+      </section>
+      <section data-aos="fade-right" data-aos-delay="200">
+        <Notices />
       </section>
     </main>
   );

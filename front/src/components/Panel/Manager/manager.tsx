@@ -77,7 +77,7 @@ const PanelManager = () => {
   return (
     <div className="flex min-h-screen mt-24 text-black bg-gray-50">
       {/* Panel izquierdo: Datos del usuario y pestañas */}
-      <div className="w-72 bg-gradient-to-r from-green-600 to-green-500 text-white p-6 rounded-l-lg shadow-lg">
+      <div className="w-72 bg-gradient-to-r from-verde-oscuro to-verde-claro text-white p-6 rounded-l-lg shadow-lg">
         {/* Datos Básicos del Usuario */}
         <div className="mb-8 flex flex-col items-center space-y-4">
         <Image

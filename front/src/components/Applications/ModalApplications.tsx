@@ -83,7 +83,7 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({ jobId, userId, onCl
             Cancelar
           </button>
           <button
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            className="px-4 py-2 bg-verde-oscuro text-white rounded-lg hover:bg-green-700"
             onClick={handleSubmit}
             disabled={isSubmitting}
           >

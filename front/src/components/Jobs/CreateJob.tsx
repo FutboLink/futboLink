@@ -536,7 +536,7 @@ const FormComponent = () => {
           <label className="text-sm font-bold mb-2">Descripción</label>
           <textarea
             name="description"
-            maxLength={50}
+            maxLength={200}
             className="p-2 mb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
             value={formData.description}
             onChange={(e) =>
@@ -545,7 +545,7 @@ const FormComponent = () => {
             placeholder="Escribe una breve descripción..."
           />
           <p className="text-xs text-gray-500">
-            {50 - formData.description.length} caracteres restantes
+            {200 - formData.description.length} caracteres restantes
           </p>
         </div>
 

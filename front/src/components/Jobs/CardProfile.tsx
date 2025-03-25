@@ -86,38 +86,38 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
                   {profile.name} {profile.lastname}
                 </h2>
                 <div className="text-gray-700">
-                  <p>
+                  <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                     <strong>Rol:</strong> {profile.puesto}
                   </p>
-                  <p>
+                  <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                     <strong>Email:</strong> {profile.email}
                   </p>
-                  <p>
+                  <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                     <strong>Teléfono:</strong> {profile.phone}
                   </p>
-                  <p>
+                  <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                     <strong>Nacionalidad:</strong> {profile.nationality}
                   </p>
-                  <p>
+                  <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                     <strong>Ciudad:</strong> {profile.location}
                   </p>
-                  <p>
+                  <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                     <strong>Género:</strong> {profile.genre}
                   </p>
-                  <p>
+                  <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                     <strong>Edad:</strong> {profile.age} años
                   </p>
-                  <p>
+                  <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                     <strong>Fecha de Nacimiento:</strong> {profile.birthday}
                   </p>
-                  <p>
+                  <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                     <strong>Pasaport UE:</strong> {profile.pasaporteUe}
                   </p>
 
                   {/* Redes Sociales */}
-                  <div className="mt-4">
+                  <div className="mt-4 border-s-verde-oscuro">
                     <strong>Redes Sociales:</strong>
-                    <div className="flex space-x-4 mt-2">
+                    <div className="flex space-x-4 mt-2 items-center">
                       <a
                         href={profile.socialMedia?.x || "#"}
                         target="_blank"

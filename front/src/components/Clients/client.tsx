@@ -20,18 +20,18 @@ const clients: ClientProps[] = [
 
 const ClientsSection: React.FC = () => {
   return (
-    <section className="bg-[#f5f5f5] py-12">
-      <div className="container mx-auto text-center">
+    <section className="bg-[#f5f5f5] py-12 ">
+      <div className="container mx-auto text-center ">
         <h2 className="text-3xl font-semibold text-[#1d5126] mb-8">
           Nuestros Clientes
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1  sm:grid-cols-2 lg:grid-cols-3 gap-8 ">
           {clients.map((client, index) => (
             <div
               key={index}
               className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
             >
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center hover:scale-105">
                 <Image
                   src={client.imgUrl}
                   alt={client.name}

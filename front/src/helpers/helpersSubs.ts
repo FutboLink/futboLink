@@ -11,13 +11,13 @@ export function Subscription() {
         { text: "Accede a entrenamientos con descuento", available: false },
         { text: "Perfil Destacado", available: false },
       ],
-      monthlyPrice: "Gratis",
-      yearlyPrice: "Mira nuestras ofertas", // No tiene precio anual
-      buttonLabel: "Registrate Gratis",
+      monthlyPrice: "€0",
+      buttonLabel: "Registrate Gratis", // Este texto es el que aparece en lugar del "Contratar"
       bgColor: "bg-white",
       textColor: "text-gray-800",
       borderColor: "border-gray-300",
       buttonColor: "bg-verde-oscuro",
+      priceId: { monthly: null, yearly: null }, // Gratis, sin integración de Stripe
     },
     {
       title: "Semiprofesional",
@@ -32,11 +32,15 @@ export function Subscription() {
       ],
       monthlyPrice: "€3,95",
       yearlyPrice: "€37,95 Anual (-20%)",
-      buttonLabel: "Contratar",
+      buttonLabel: "Contratar", // Este texto será el que aparece en este plan
       bgColor: "bg-white",
       textColor: "text-gray-800",
       borderColor: "border-verde-claro",
       buttonColor: "bg-verde-claro",
+      priceId: {
+        monthly: "price_1QzExaGfoNYDVs9qoxSEwlGL",
+        yearly: "price_1R6zorGfoNYDVs9qaCmwW8Ik",
+      },
     },
     {
       title: "Profesional",
@@ -51,11 +55,15 @@ export function Subscription() {
       ],
       monthlyPrice: "€7,95",
       yearlyPrice: "€75,95 Anual (-20%)",
-      buttonLabel: "Contratar",
+      buttonLabel: "Contratar", // Este texto será el que aparece en este plan
       bgColor: "bg-white",
       textColor: "text-gray-800",
       borderColor: "border-verde-oscuro",
       buttonColor: "bg-verde-oscuro",
+      priceId: {
+        monthly: "price_1R6znRGfoNYDVs9q8Rh8SKmK",
+        yearly: "price_1R6zo8GfoNYDVs9qeEIlhdnW",
+      },
     },
   ];
 }

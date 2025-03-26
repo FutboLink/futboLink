@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Subscription } from "../../helpers/helpersSubs";
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -18,7 +18,18 @@ function Subs() {
     }
   }, []);
 
+  // Estado de selección de plan
+  const [selectedPlans, setSelectedPlans] = useState<{ [key: number]: string }>(
+    () =>
+      subscriptionOptions.reduce((acc, _, index) => {
+        acc[index] = subscriptionOptions[index].priceId.monthly ?? "";
+        return acc;
+      }, {} as { [key: number]: string })
+  );
+
   const handleSubscribe = async (priceId: string) => {
+    if (!priceId) return;
+
     try {
       const response = await fetch(
         "http://localhost:3000/payment/create-checkout-session",
@@ -104,16 +115,37 @@ function Subs() {
                 </ul>
               </div>
             </div>
-            <div className={styles.buttonContainer}>
-              <button
-                className={styles.button}
-                onClick={() =>
-                  handleSubscribe("price_1R58kLH1hYerpaTPFGkZab8i")
-                }
-              >
-                Contratar
-              </button>
-            </div>
+
+            {/* Mostrar solo el botón si el plan no es "Amateur" */}
+            {option.priceId.monthly && (
+              <div className={styles.selectContainer}>
+                <select
+                  value={selectedPlans[index] ?? ""}
+                  onChange={(e) =>
+                    setSelectedPlans({
+                      ...selectedPlans,
+                      [index]: e.target.value,
+                    })
+                  }
+                >
+                  <option value={option.priceId.monthly ?? ""}>
+                    Mensual ({option.monthlyPrice})
+                  </option>
+                  <option value={option.priceId.yearly ?? ""}>
+                    Anual ({option.yearlyPrice})
+                  </option>
+                </select>
+
+                <button
+                  className={`${styles.button} m-4`}
+                  onClick={() => handleSubscribe(selectedPlans[index])}
+                >
+                  {option.title === "Amateur"
+                    ? "Registrate Gratis"
+                    : "Contratar"}
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>

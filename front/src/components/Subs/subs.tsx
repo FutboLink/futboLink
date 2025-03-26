@@ -78,6 +78,7 @@ function Subs() {
                 }`}
               >
                 <h3 className={styles.title}>{option.title}</h3>
+                <p className={`${styles.slogan}`}>{option.slogan}</p>
                 <Image
                   src={option.image}
                   alt={option.title}
@@ -89,7 +90,6 @@ function Subs() {
                   <p className={styles.textMonth}>/Mensual</p>
                 </div>
                 <p className={styles.precioAnual}>{option.yearlyPrice}</p>
-                <p className={styles.slogan}>{option.slogan}</p>
               </div>
 
               <div className={styles.cardBack}>

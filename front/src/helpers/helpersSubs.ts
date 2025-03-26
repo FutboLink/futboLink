@@ -3,7 +3,7 @@ export function Subscription() {
     {
       title: "Amateur",
       image: "/botin1.svg",
-      slogan: "Empieza a construir tu carrera",
+      slogan: "Construi tu carrera",
       features: [
         { text: "Página de perfil", available: true },
         { text: "Aplica a ofertas", available: false },
@@ -11,7 +11,7 @@ export function Subscription() {
         { text: "Accede a entrenamientos con descuento", available: false },
         { text: "Perfil Destacado", available: false },
       ],
-      monthlyPrice: "€0",
+      monthlyPrice: "GRATIS",
       buttonLabel: "Registrate Gratis", // Este texto es el que aparece en lugar del "Contratar"
       bgColor: "bg-white",
       textColor: "text-gray-800",

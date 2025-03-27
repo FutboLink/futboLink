@@ -32,7 +32,7 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
           />
           <div className="space-y-2 text-center">
             <h2 className="text-2xl font-semibold">
-              {profile.name} {profile.lastname}
+            {profile.name} {profile.lastname}
             </h2>
             <h2 className="text-xl font-medium">{profile.puesto}</h2>
             <p className="text-sm">{profile.phone}</p>

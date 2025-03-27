@@ -13,7 +13,11 @@ import { IOfferCard } from "@/Interfaces/IOffer";
 import FormComponent from "@/components/Jobs/CreateJob";
 import { fetchUserId } from "@/components/Fetchs/UsersFetchs/UserFetchs";
 import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
-import { FaFutbol, FaXTwitter, FaYoutube } from "react-icons/fa6";
+import { FaYoutube } from "react-icons/fa6";
+import { AiOutlineFileAdd, AiOutlineFileText, AiOutlineUser } from "react-icons/ai";
+import { MdSettings } from "react-icons/md";
+import { PiSoccerBall } from "react-icons/pi";
+import { FaTwitter } from "react-icons/fa";
 
 const PanelManager = () => {
   const { user, logOut } = useContext(UserContext);
@@ -68,10 +72,9 @@ const PanelManager = () => {
   };
 
   return (
-    <div className="flex min-h-screen mt-24 text-black bg-gray-50">
+    <div className="flex min-h-screen mt-24 text-black bg-gray-50 flex-col sm:flex-row">
       {/* Panel izquierdo: Datos del usuario y navegación */}
-      <aside className="w-72 bg-gradient-to-b from-[#1d5126] to-[#3e7c27] text-white p-6 rounded-r-lg shadow-xl">
-        {/* Datos básicos del usuario */}
+      <div className="w-full sm:w-72 bg-gradient-to-r from-[#1d5126] to-[#3e7c27] text-white p-6 rounded-t-lg sm:rounded-l-lg shadow-lg sm:shadow-none sm:mr-4">
         <div className="mb-8 flex flex-col items-center space-y-4">
           <Image
             src={
@@ -99,33 +102,29 @@ const PanelManager = () => {
         {/* Menú de navegación */}
         <nav className="space-y-2">
           {[
-            { name: "Mi Perfil", section: "profile", icon: "👤" },
-            { name: "Crear Oferta", section: "createOffers", icon: "📝" },
-            { name: "Mis Ofertas", section: "appliedOffers", icon: "📜" },
-            { name: "Configuración", section: "config", icon: "⚙️" },
+           { name: "Mi Perfil", section: "profile", icon: <AiOutlineUser /> },
+           { name: "Crear Oferta", section: "createOffers", icon: <AiOutlineFileAdd /> },
+           { name: "Mis Ofertas", section: "appliedOffers", icon: <AiOutlineFileText /> },
+           { name: "Configuración", section: "config", icon: <MdSettings /> },
           ].map(({ name, section, icon }) => (
             <button
               key={section}
               onClick={() => handleSectionChange(section)}
-              className={`w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg transition duration-200 ${
-                activeSection === section
-                  ? "bg-[#4e722d] text-white"
-                  : "hover:bg-[#3e7c27] hover:text-white"
-              }`}
-            >
-              <span className="text-lg">{icon}</span>
-              <span>{name}</span>
+              className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
+    >
+              <span  className="text-white text-lg">{icon}</span>
+              <span className="text-white">{name}</span>
             </button>
           ))}
         </nav>
 
         <button
           onClick={handleLogOut}
-          className="mt-6 w-full py-2 bg-red-600 rounded-lg text-white text-center font-medium hover:bg-red-700"
+          className="mt-6 w-full py-2 rounded-lg text-white text-center font-bold border-2 border-white hover:bg-white hover:text-gray-700"
         >
           Cerrar sesión
         </button>
-      </aside>
+      </div>
 
       {/* Contenido principal */}
       <main className="flex-1 p-10">
@@ -137,74 +136,78 @@ const PanelManager = () => {
 
         {/* Sección de Perfil */}
         {activeSection === "profile" && (
-          <section
-            className="bg-white p-10 rounded-xl shadow-xl mb-8 max-w-5xl mx-auto"
-            data-aos="fade-up"
-          >
-            <h3 className="text-2xl font-semibold text-[#1d5126] mb-6">
-              Información Personal
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <p className="text-lg text-[#3e7c27] mb-4">
-                  <span className="font-medium">País:</span>{" "}
-                  {userData?.nationality}
-                </p>
-                <p className="text-lg text-[#3e7c27] mb-4">
-                  <span className="font-medium">Ciudad:</span>{" "}
-                  {userData?.location}
-                </p>
-                <p className="text-lg text-[#3e7c27] mb-4">
-                  <span className="font-medium text-[#1d5126]">Teléfono:</span>{" "}
-                  {userData?.phone}
-                </p>
-
-                {/* Redes Sociales con íconos */}
-                <div className="flex space-x-4 mt-4">
-                  {userData?.socialMedia?.x && (
-                    <Link
-                      href={`https://twitter.com/${userData.socialMedia.x}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[#1d5126] hover:text-[#3e7c27] transition-colors"
-                    >
-                      <FaXTwitter size={28} />
-                    </Link>
-                  )}
-                  {userData?.socialMedia?.transfermarkt && (
-                    <Link
-                      href={`https://www.transfermarkt.com/${userData.socialMedia.transfermarkt}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[#1d5126] hover:text-[#3e7c27] transition-colors"
-                    >
-                      <FaFutbol size={28} />
-                    </Link>
-                  )}
-                  {userData?.socialMedia?.youtube && (
-                    <Link
-                      href={`https://www.youtube.com/${userData.socialMedia.youtube}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[#1d5126] hover:text-[#3e7c27] transition-colors"
-                    >
-                      <FaYoutube size={28} />
-                    </Link>
-                  )}
+          <div className="p-6 bg-gray-50 text-gray-700" data-aos="fade-up">
+          <h3 className="text-2xl font-semibold mb-6 text-[#1d5126]">Información</h3>
+      
+          {/* Contenedor Principal con Flex */}
+          <div className="flex flex-col sm:flex-col md:flex-row justify-between gap-6">
+            
+            {/* Sección de Información y Redes Sociales */}
+            <div className="md:w-1/2">
+              <div className="flex items-start">
+                <Image
+                  src={userData?.imgUrl || "https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png"}
+                  alt={userData?.name || "Foto de perfil"}
+                  width={100}
+                  height={100}
+                  className="rounded-full mb-4 md:mb-0"
+                />
+                <div className="ml-4">
+                  <h2 className="text-xl font-semibold text-[#1d5126]">
+                    {userData?.name} {userData?.lastname}
+                  </h2>
+                  <div className="text-gray-700">
+                    <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
+                      <strong>Fecha de Nacimiento:</strong> {userData?.birthday || "No disponible"}
+                    </p>
+                    <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
+                      <strong>Edad:</strong> {userData?.age} años
+                    </p>
+                    <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
+                      <strong>Género:</strong> {userData?.genre}
+                    </p>
+                    <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
+                      <strong>Teléfono:</strong> {userData?.phone}
+                    </p>
+      
+                    {/* Redes Sociales */}
+                    <div className="mt-4">
+                      <strong>Redes Sociales:</strong>
+                      <div className="flex space-x-4 mt-2 items-center">
+                        {userData?.socialMedia?.x && (
+                          <a href={`https://twitter.com/${userData.socialMedia.x}`} target="_blank" rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800">
+                            <FaTwitter size={24} />
+                          </a>
+                        )}
+                        {userData?.socialMedia?.youtube && (
+                          <a href={`https://www.youtube.com/${userData.socialMedia.youtube}`} target="_blank" rel="noopener noreferrer"
+                            className="text-red-600 hover:text-red-800">
+                            <FaYoutube size={24} />
+                          </a>
+                        )}
+                        {userData?.socialMedia?.transfermarkt && (
+                          <a href={`https://www.transfermarkt.com/${userData.socialMedia.transfermarkt}`} target="_blank" rel="noopener noreferrer"
+                            className="text-green-600 hover:text-green-800">
+                            <PiSoccerBall size={24} />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
+      
+              {/* Botón Editar Perfil */}
+              <Link href={"/profile"}>
+                <div className="rounded border-2 md:w-1/2 text-center bg-[#1d5126] hover:bg-white hover:text-gray-700 hover:border-2 hover:border-[#1d5126] cursor-pointer p-2 text-white font-bold mt-4">
+                  Editar Perfil
+                </div>
+              </Link>
             </div>
-            <p className="text-gray-600 mt-12">
-              Haz click en{" "}
-              <Link
-                href="/profile"
-                className="rounded border-2 w-full md:w-3/4 text-center font-semibold bg-[#1d5126] hover:bg-[#3e7c27] hover:cursor-pointer p-2 text-white"
-              >
-                Editar Perfil
-              </Link>{" "}
-              para completar tus datos.
-            </p>
-          </section>
+            </div>
+            </div>
+            
         )}
 
         {/* Sección Crear Ofertas */}

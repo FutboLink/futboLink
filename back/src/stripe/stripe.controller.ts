@@ -3,6 +3,7 @@ import { Controller, Post, Body } from '@nestjs/common';
 import { StripeService } from './stripe.service';
 import { CreateCheckoutSessionDto } from './dto/create-checkout-session.dto';
 
+
 @Controller('payment')
 export class PaymentController {
   constructor(private readonly stripeService: StripeService) {}
@@ -13,5 +14,6 @@ export class PaymentController {
     const { sessionUrl } =
       await this.stripeService.createCheckoutSession(priceId);
     return { sessionUrl };
+
   }
 }

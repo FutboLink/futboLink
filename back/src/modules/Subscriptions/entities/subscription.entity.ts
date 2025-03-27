@@ -19,7 +19,6 @@ export class Subscription {
   @Column({ type: 'date', nullable: true })
   endDate?: Date;
 
-  @ApiProperty({ description: 'Usuario asociado a la suscripción' })
   @OneToOne(() => User, (user) => user.subscription)
   user: User;
 }

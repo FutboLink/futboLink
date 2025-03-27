@@ -154,7 +154,7 @@ export class Job {
     type: () => User,
     description: 'Reclutador que creó la oferta',
   })
-  @ManyToOne(() => User, (user) => user.jobs)
+  @ManyToOne(() => User, (user) => user.job)
   recruiter: User;
 
   @ApiProperty({

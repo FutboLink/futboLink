@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Contract } from 'src/modules/contracts/entities/contract.entity';
-import { JobEntity } from 'src/modules/Jobs/entities/jobs.entity';
+import { Job } from 'src/modules/Jobs/entities/jobs.entity';
 import { User } from 'src/modules/user/entities/user.entity';
 import {
   Column,
@@ -52,6 +52,6 @@ export class Application {
   @JoinColumn({ name: 'Contracts' })
   contract: Contract;
 
-  @ManyToOne(() => JobEntity, (job) => job.applications)
-  job: JobEntity;
+  @ManyToOne(() => Job, (job) => job.applications)
+  job: Job;
 }

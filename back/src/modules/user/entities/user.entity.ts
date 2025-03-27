@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { PasaporteUe, UserType } from '../roles.enum';
-import { JobEntity } from 'src/modules/Jobs/entities/jobs.entity';
+import { Job } from 'src/modules/Jobs/entities/jobs.entity';
 import { Application } from 'src/modules/Applications/entities/applications.entity';
 import { Subscription } from 'src/modules/Subscriptions/entities/subscription.entity';
 
@@ -153,16 +153,9 @@ trayectorias?: {
     example: [{ position: 'Delantero', experience: 5 }],
     nullable: true,
   })
-<<<<<<< HEAD
-  puestoDeportivo?: { position: string; experience: number }[];
 
-  
-  @ApiProperty({ description: 'Suscripción del usuario' })
-  
-=======
 
   @OneToOne(() => Subscription, (subscription) => subscription.user, { cascade: true, onDelete: 'CASCADE' })
->>>>>>> develop
   @JoinColumn()
   @Column({ nullable: true })
   subscription?: string;
@@ -171,5 +164,11 @@ trayectorias?: {
   @Column({ nullable: true })
   cv?: string;
 
+  @ApiProperty({
+    type: () => Job,
+    description: 'La oferta que creó el reclutador',
+  })
+  @OneToMany(()=>Job,(job) =>job.recruiter)
+  job :Job;
   
 }

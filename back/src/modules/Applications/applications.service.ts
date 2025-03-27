@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Application } from './entities/applications.entity';
 import { User } from '../user/entities/user.entity';
-import { JobEntity } from '../Jobs/entities/jobs.entity';
+import { Job } from '../Jobs/entities/jobs.entity';
 import { UserType } from '../user/roles.enum';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
@@ -17,8 +17,8 @@ export class ApplicationService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
 
-    @InjectRepository(JobEntity)
-    private readonly jobRepository: Repository<JobEntity>,
+    @InjectRepository(Job)
+    private readonly jobRepository: Repository<Job>,
   ) {}
 
   @ApiOperation({ summary: 'Aplicar a un trabajo' })

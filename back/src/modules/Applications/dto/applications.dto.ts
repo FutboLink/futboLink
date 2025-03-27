@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
-import { JobEntity } from 'src/modules/Jobs/entities/jobs.entity';
+import { Job } from 'src/modules/Jobs/entities/jobs.entity';
 import { User } from 'src/modules/user/entities/user.entity';
 
 export class CreateApplicationsDto {

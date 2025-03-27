@@ -70,11 +70,11 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({ jobId, userId, onCl
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
-        <h2 className="text-2xl font-bold mb-4">Aplicar a la Oferta</h2>
+        <h2 className="text-2xl text-gray-700 font-bold mb-4">Aplicar a la Oferta</h2>
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          className="w-full p-2 border rounded-lg mb-4"
+          className="w-full p-2 border text-gray-700 rounded-lg mb-4"
           rows={5}
           placeholder="Escribe tu mensaje..."
         />
@@ -83,7 +83,7 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({ jobId, userId, onCl
             Cancelar
           </button>
           <button
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            className="px-4 py-2 bg-verde-oscuro text-white rounded-lg hover:bg-green-700"
             onClick={handleSubmit}
             disabled={isSubmitting}
           >

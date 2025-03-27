@@ -1,25 +1,25 @@
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  OneToMany,
+} from 'typeorm';
+import { User } from '../../user/entities/user.entity';
 import { Application } from 'src/modules/Applications/entities/applications.entity';
-<<<<<<< HEAD
 import { YesOrNo, YesOrNotravell } from '../jobs.enum';
-=======
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-
-
-export enum YesOrNo {
-  YES = 'YES',
-  NO = 'NO',
-}
->>>>>>> develop
 
 @Entity('jobs')
-export class JobEntity {
+export class Job {
+  @ApiProperty({ description: 'ID del trabajo' })
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @ApiProperty({ example: 'Se busca delantero', description: 'Que haga goles' })
   @Column()
   title: string;
-
-<<<<<<< HEAD
 
   @ApiProperty({ example: 'Presencial', description: 'Ubicación del trabajo' })
   @Column()
@@ -35,6 +35,13 @@ export class JobEntity {
   })
   @CreateDateColumn()
   createdAt: Date;
+
+  @ApiProperty({
+    example: 'Se busca un delantero como Messi',
+    description: 'Que juegue como Messi y que cobre como el Pulga Rodriguez',
+  })
+  @Column()
+  description: string;
 
   @ApiProperty({ example: 'OPEN', description: 'Estado del trabajo' })
   @Column({ default: 'OPEN' })
@@ -52,7 +59,15 @@ export class JobEntity {
   position: string;
 
   @ApiProperty({
-    example: ['Sueldo fijo', 'Bonos por rendimiento', 'Viáticos incluidos', 'Alojamiento incluido', 'No remunerado', 'A convenir', 'Equipamiento deportivo'],
+    example: [
+      'Sueldo fijo',
+      'Bonos por rendimiento',
+      'Viáticos incluidos',
+      'Alojamiento incluido',
+      'No remunerado',
+      'A convenir',
+      'Equipamiento deportivo',
+    ],
     description: 'Competencias requeridas',
   })
   @Column('simple-array')
@@ -61,60 +76,14 @@ export class JobEntity {
   @ApiProperty({ example: 'USA', description: 'Países disponibles' })
   @Column()
   nationality: string;
-=======
-  @Column()
-  location: string;
 
-  @Column()
-  position: string;
-
-  @Column()
-  category: string;
-
-  @Column()
-  sport: string;
-
-  @Column()
-  contractTypes: string;
-
-  @Column()
-  contractDurations: string;
-
-  @Column('decimal')
-  salary: number;
-
-  @Column('simple-array')
-  extra: string[];
-
-  @Column('simple-array')
-  transport: string[];
-
-  @Column()
-  minAge: string;
-
-  @Column()
-  maxAge: string;
-
-  @Column()
-  sportGenres: string;
-
-  @Column()
-  minExperience: string;
-
-  @Column({ type: 'enum', enum: YesOrNo })
-  availabilityToTravel: YesOrNo;
-
-  @Column({ type: 'enum', enum: YesOrNo })
-  euPassport: YesOrNo;
-
-  @Column({ nullable: true })
-  gmail?: string;
->>>>>>> develop
-
+  @ApiProperty({
+    example: 'https://example.com/job.png',
+    description: 'URL de la imagen del trabajo',
+  })
   @Column()
   imgUrl: string;
 
-<<<<<<< HEAD
   @ApiProperty({ example: 'Presencial', description: 'Tipo de trabajo' })
   @Column()
   contractTypes: string;
@@ -145,8 +114,7 @@ export class JobEntity {
     example: 35,
   })
   @Column()
-  maxAge: number; 
-
+  maxAge: number;
 
   @ApiProperty({
     description: 'Deporte relacionado con el trabajo',
@@ -183,14 +151,6 @@ export class JobEntity {
   euPassport: YesOrNo;
 
   @ApiProperty({
-    description: 'Gmail del usuario (opcional)',
-    example: 'user@example.com',
-    required: false,
-  })
-  @Column({ nullable: true })
-  gmail?: string;
-
-  @ApiProperty({
     type: () => User,
     description: 'Reclutador que creó la oferta',
   })
@@ -202,8 +162,6 @@ export class JobEntity {
     description: 'Aplicaciones al trabajo',
   })
   @OneToMany(() => Application, (application) => application.job)
-=======
-  @OneToMany(() => Application, (application) => application.job, { cascade: true })
->>>>>>> develop
   applications: Application[];
 }
+

@@ -94,63 +94,74 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
   }
 
   return (
-    <div className="p-8 bg-gray-100 rounded-lg shadow-lg max-w-4xl mx-auto my-6">
+    <div className="p-6 bg-gray-100 rounded-lg shadow-md max-w-3xl mx-auto my-6">
       {isEditing ? (
         <EditJobOffer
-        jobId={jobId}
-        token={token || ""}  
-        jobOffer={jobOffer}
-        onCancel={handleCancelEdit}
-        onSuccess={handleEditSuccess}
-      />
-      
+          jobId={jobId}
+          token={token || ""}
+          jobOffer={jobOffer}
+          onCancel={handleCancelEdit}
+          onSuccess={handleEditSuccess}
+        />
       ) : (
         <>
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-3xl font-semibold text-gray-800">{jobOffer.title}</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-semibold text-gray-800">{jobOffer.title}</h2>
             <span className="text-sm text-gray-500">{jobOffer.status}</span>
           </div>
-
-          <div className="flex items-center space-x-4 mb-6">
+  
+          <div className="text-sm text-gray-600 mb-4">
             <div className="flex items-center space-x-2">
-              <BsFillCalendarEventFill className="text-gray-600 text-xl" />
-              <p className="text-sm text-gray-600">
-                Publicado: {new Date(jobOffer.createdAt).toLocaleDateString()}
-              </p>
+              <BsFillCalendarEventFill className="text-xl" />
+              <span>Publicado: {new Date(jobOffer.createdAt).toLocaleDateString()}</span>
             </div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex items-center space-x-2">
-              <span className="font-semibold text-gray-700">Ubicación:</span>
-              <span className="text-gray-600">{jobOffer.location}</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="font-semibold text-gray-700">Salario:</span>
-              <span className="text-gray-600">${jobOffer.salary}</span>
-            </div>
+  
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
+            <div className="text-gray-700 font-semibold"><span>Ubicación:</span> {jobOffer.location}</div>
+            <div className="text-gray-700 font-semibold"><span>Salario:</span> ${jobOffer.salary}</div>
+            <div className="text-gray-700 font-semibold"><span>Género:</span> {jobOffer.sportGenres}</div>
+            <div className="text-gray-700 font-semibold"><span>Países:</span> {jobOffer.nationality}</div>
+            <div className="text-gray-700 font-semibold"><span>Posición:</span> {jobOffer.position}</div>
+            <div className="text-gray-700 font-semibold"><span>Categoría:</span> {jobOffer.category}</div>
+            <div className="text-gray-700 font-semibold"><span>Tipo de contrato:</span> {jobOffer.contractTypes}</div>
+            <div className="text-gray-700 font-semibold"><span>Duración del contrato:</span> {jobOffer.contractDurations}</div>
+          </div>
+  
+        
+  
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
+          <div className="text-gray-700 font-semibold"><span>Edad mínima:</span> {jobOffer.minAge} años</div>
+          <div className="text-gray-700 font-semibold"><span>Edad máxima:</span> {jobOffer.maxAge} años</div>
+          <div className="text-gray-700 font-semibold"><span>Disponibilidad para viajar:</span> {jobOffer.availabilityToTravel}</div>
+          <div className="text-gray-700 font-semibold"><span>Pasaporte UE:</span> {jobOffer.euPassport}</div>
+          <div className="text-gray-700 font-semibold"><span>Correo electrónico:</span> {jobOffer.gmail || "No disponible"}</div>
+          </div>
+  
+          <div className="mb-4">
+            <span className="font-semibold text-gray-700">Extras:</span>
+            {jobOffer.extra.length > 0 ? (
+              <ul className="list-disc pl-5 text-gray-700 space-y-1">
+                {jobOffer.extra.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            ) : (
+              <span className="text-gray-700">No disponible</span>
+            )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="flex items-center space-x-2">
-              <span className="font-semibold text-gray-700">Competencias:</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="font-semibold text-gray-700">Países:</span>
-              <span className="text-gray-600">{jobOffer.location}</span>
-            </div>
-          </div>
-
-          <div className="flex justify-end space-x-4 mt-6">
+          
+          <div className="flex justify-end space-x-4 mt-4">
             <button
               onClick={handleViewApplications}
-              className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+              className="px-5 py-2 bg-verde-claro text-white rounded-md hover:bg-verde-oscuro transition-colors"
             >
               Ver postulantes
             </button>
             <button
               onClick={handleEditOffer}
-              className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+              className="px-5 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
             >
               Modificar oferta
             </button>
@@ -160,6 +171,7 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
       )}
     </div>
   );
+  
 };
 
 export default JobOfferDetails;

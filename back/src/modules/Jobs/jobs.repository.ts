@@ -12,15 +12,25 @@ import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class JobRepository {
+  create(arg0: { recruiter: User; title: string; location: string; salary: number; description: string; contractDurations: string; position: string; extra: string[]; nationality: string; imgUrl: string; contractTypes: string; category: string; sportGenres: string; minAge: number; maxAge: number; sport: string; minExperience: string; availabilityToTravel: import("./jobs.enum").YesOrNotravell; euPassport: import("./jobs.enum").YesOrNo; gmail?: string; }) {
+    throw new Error('Method not implemented.');
+  }
   constructor(
     @InjectRepository(Job)
     private readonly repository: Repository<Job>,
   ) {}
 
   async createJob(createJobDto: CreateJobDto, recruiter: User): Promise<Job> {
-    const job = this.repository.create({ ...createJobDto, recruiter });
-    return await this.repository.save(job);
+    try {
+      const job = this.repository.create({ ...createJobDto, recruiter });
+      console.log('Job created:', job);
+      return await this.repository.save(job);
+    } catch (error) {
+      console.error('Error al crear el trabajo:', error);
+      throw new Error('No se pudo crear el trabajo');
+    }
   }
+  
 
   async getJobs(): Promise<Job[]> {
     return await this.repository.find({ where: { status: 'OPEN' }, relations: ['recruiter', 'applications'] });

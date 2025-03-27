@@ -53,29 +53,7 @@ export class User {
   @Column({ default: UserType.PLAYER })
   role: UserType;
 
-  @ApiProperty({description: 'Club del jugador'})
-  @Column({nullable:true})
-  club?: string
 
-  @ApiProperty({ example: '2024-01-01', description: 'Fecha de inicio en el club', nullable: true })
-  @Column({ nullable: true })
-  fechaInicio?: string;
-
-  @ApiProperty({ example: '2025-01-01', description: 'Fecha de finalización en el club', nullable: true })
-  @Column({ nullable: true })
-  fechaFinalizacion?: string;
-
-  @ApiProperty({ example: 'Primera División', description: 'Categoría del equipo', nullable: true })
-  @Column({ nullable: true })
-  categoriaEquipo?: string;
-
-  @ApiProperty({ example: 'Alto', description: 'Nivel de competencia', nullable: true })
-  @Column({ nullable: true })
-  nivelCompetencia?: string;
-
-  @ApiProperty({ example: 'Goleador de la liga', description: 'Logros del usuario', nullable: true })
-  @Column({ nullable: true })
-  logros?: string;
 
   @ApiProperty({ example: 'https://example.com/avatar.jpg', description: 'URL de la img de perfil', nullable: true })
   @Column({ nullable: true })
@@ -148,6 +126,18 @@ export class User {
   @ApiProperty({ example: 'https://example.com/video.mp4', description: 'URL de video del usuario', nullable: true })
   @Column({ nullable: true })
   videoUrl?: string;
+
+  @ApiProperty({ example: [{ club: "FC Barcelona", fechaInicio: "2020-01-01", fechaFinalizacion: "2023-01-01" }], description: 'Trayectorias del usuario', nullable: true })
+@Column('jsonb', { array: true, nullable: true })
+trayectorias?: {
+  club: string;
+  fechaInicio: string;
+  fechaFinalizacion: string;
+  categoriaEquipo: string;
+  nivelCompetencia: string;
+  logros: string;
+}[];
+
 
   @ApiProperty({
     description: 'Redes sociales del usuario (opcional)',

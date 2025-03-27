@@ -123,7 +123,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = () => {
                 onChange={handleChange}
                  className="border rounded-md p-2 mt-2 w-full text-gray-700">
                   <option value="">¿Tienes pasaporte UE?</option>
-                  <option value="Sí">Sí</option>
+                  <option value="Si">Sí</option>
                   <option value="No">No</option>
                 </select>
               </div>
@@ -257,7 +257,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = () => {
             {/* Botón Guardar Cambios */}
             <button
               onClick={handleSubmit}
-              className="mt-3 w-full bg-green-600 text-white p-2 rounded hover:bg-green-700 text-sm"
+              className="mt-3 w-full bg-verde-oscuro text-white p-2 rounded hover:bg-green-700 text-sm"
               disabled={loading}
             >
               {loading ? "Guardando..." : "Guardar cambios"}

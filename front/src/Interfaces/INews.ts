@@ -1,13 +1,14 @@
-export interface INews {
-  id: number;
+
+export interface ICreateNotice {
+  
   title: string;
   description: string;
   imageUrl: string;
-  imageAlt: string;
 }
 
-// Interfaz para las props de la página de noticia
-export interface INewsPageProps {
-  params: Promise<{ id: string }>;
+export interface INotice {
+  id: string;  
+  title: string;
+  description: string;
+  imageUrl: string;
 }
-

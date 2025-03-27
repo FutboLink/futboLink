@@ -1,0 +1,42 @@
+.container {
+  display: flex;
+  margin-top: 6rem;
+  text-align: left; /* Cambiado de center a left */
+}
+
+.containerProfile {
+  background-color: #1d5126;
+  padding: 1rem;
+  border-radius: 2rem;
+  margin: 1rem;
+  text-align: left; /* Alineación a la izquierda */
+}
+
+.containerInfo {
+  display: flex;
+  flex-direction: column;
+  margin-top: 2rem; /* Modificado el margen superior */
+  margin-left: 1rem; /* Añadido margen izquierdo */
+  margin-right: 1rem; /* Añadido margen derecho */
+  border-radius: 1rem;
+  border: #1d5126 solid 0.5px;
+  padding: 0.5rem;
+  text-align: left; /* Alineación a la izquierda */
+}
+
+.button {
+  margin-top: 3rem;
+  background-color: whitesmoke;
+  color: #1d5126;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  transition: all 0.5s;
+  display: block; /* Para alinear el botón de manera central */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.button:hover {
+  transform: scale(1.1);
+  transition: 0.3s;
+}

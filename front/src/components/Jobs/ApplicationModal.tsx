@@ -51,7 +51,7 @@ const ApplicantModal: React.FC<ApplicantModalProps> = ({ isOpen, onClose, applic
           &times;
         </button>
 
-        <h2 className="text-xl font-bold mb-4 bg-green-600 text-center mt-2 text-white p-2 rounded">Datos del Postulante</h2>
+        <h2 className="text-xl font-bold mb-4 bg-verde-oscuro text-center mt-2 text-white p-2 rounded">Datos del Postulante</h2>
 
         {loading ? (
           <p className="text-gray-600">Cargando...</p>

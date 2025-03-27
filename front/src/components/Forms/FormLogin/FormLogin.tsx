@@ -63,7 +63,7 @@ function LoginForm() {
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-center mb-6 text-green-600">
+        <h2 className="text-2xl font-bold text-center mb-6 text-verde-oscuro">
           Iniciar sesión
         </h2>
         <form onSubmit={handleSubmit}>
@@ -78,7 +78,7 @@ function LoginForm() {
               value={userData.email}
               onChange={handleChange}
               placeholder="Email"
-              className="w-full mt-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full mt-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro focus:border-transparent"
             />
             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
           </div>
@@ -95,7 +95,7 @@ function LoginForm() {
                 value={userData.password}
                 onChange={handleChange}
                 placeholder="Contraseña"
-                className="w-full mt-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent pr-10"
+                className="w-full mt-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro focus:border-transparent pr-10"
               />
               {/* Botón para mostrar/ocultar contraseña */}
               <button
@@ -112,7 +112,7 @@ function LoginForm() {
           {/* Botón de iniciar sesión */}
           <button
             type="submit"
-            className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+            className="w-full py-2 bg-verde-oscuro text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-verde-claro focus:ring-opacity-50"
           >
             Ingresar
           </button>
@@ -124,10 +124,14 @@ function LoginForm() {
         </form>
         <p className="mt-4 text-center text-sm text-gray-600">
           ¿No tienes cuenta?{" "}
-          <Link href="/OptionUsers" className="text-green-600 hover:underline">
+          <Link href="/OptionUsers" className="text-verde-oscuro hover:underline">
             Regístrate aquí
           </Link>
         </p>
+        <p className="mt-4 text-center text-sm text-gray-600">
+        <Link className="underline hover:font-bold" href="/forgotPassword"> Olvidé mi contraseña</Link>
+        </p>
+      
       </div>
     </div>
   );

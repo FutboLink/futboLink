@@ -12,7 +12,7 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-    .setTitle('API Futbol Career')
+    .setTitle('API Futbolink')
     .setDescription('Documentación del back')
     .addBearerAuth()
     .setVersion('1.0')

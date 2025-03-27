@@ -4,6 +4,8 @@ import { IProfileData } from "@/Interfaces/IUser";
 import { fetchUserData, updateUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { UserContext } from "../Context/UserContext";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
+import ImageUpload from "../Cloudinary/ImageUpload";
+import Image from "next/image";
 
 const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const { token } = useContext(UserContext);
@@ -44,6 +46,13 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
     }
   };
   
+  const handleImageUpload = (imageUrl: string) => {
+    setFetchedProfileData((prev) => ({
+      ...prev!,
+      imgUrl: imageUrl, // Actualizar la URL de la imagen en fetchedProfileData
+    }));
+  };
+  
 
   // Función de envío de datos
   const handleSubmit = async () => {
@@ -75,52 +84,60 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
         <p className="text-red-600">{error}</p> // Muestra el error si existe
       ) : (
         <>
-          {/* Nombre */}
-          <input
-            name="name"
-            type="text"
-            value={fetchedProfileData?.name}
-            onChange={handleChange}
-            placeholder="Nombre"
-            required
-            readOnly
-            className="w-full p-2 border rounded mt-2 text-gray-700 bg-gray-100 focus:outline-none"
-          />
-
-          {/* Apellido */}
+        {/* Name */}
+        <div className="flex flex-col">
+             <input
+          name="name"
+          type="text"
+          value={fetchedProfileData?.name || ""}
+          readOnly
+          placeholder="Nombre"
+          className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
+        />
+          </div>
+  
+          {/* Last Name */}
+          <div className="flex flex-col">
           <input
             name="lastname"
             type="text"
-            value={fetchedProfileData?.lastname}
-            onChange={handleChange}
-            placeholder="Apellido"
-            required
+            value={fetchedProfileData?.lastname || ""}
             readOnly
-            className="w-full p-2 border rounded mt-2 text-gray-700 bg-gray-100 focus:outline-none"
+            placeholder="Apellido"
+            className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
           />
-
+          </div>
+  
           {/* Email */}
+          <div className="flex flex-col">
           <input
             name="email"
             type="email"
-            value={fetchedProfileData?.email}
-            onChange={handleChange}
-            placeholder="Correo electrónico"
-            required
+            value={fetchedProfileData?.email || ""}
             readOnly
-            className="w-full p-2 border rounded mt-2 text-gray-700 bg-gray-100 focus:outline-none"
+            placeholder="Apellido"
+            className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
           />
+          </div>
+       {/* Imagen de perfil (URL) */}
+       <div className="sm:col-span-2 flex flex-col items-center">
+            <label className="text-gray-700 font-semibold mb-2">Subir Imagen</label>
+            <ImageUpload onUpload={handleImageUpload} />
+            {/* Aquí se mostrará la imagen de perfil si existe */}
+            {fetchedProfileData?.imgUrl && (
+              <div className="mt-4 rounded-full w-24 h-24 overflow-hidden">
+                <Image
+                  src={fetchedProfileData.imgUrl}
+                  alt="Imagen de perfil"
+                  width={96} 
+                  height={96} 
+                  className="object-cover"
+                />
+              </div>
+            )}
+          </div>
 
-          {/* Imagen de perfil (URL) */}
-          <input
-            name="imgUrl"
-            type="text"
-            value={fetchedProfileData?.imgUrl || ""}
-            onChange={handleChange}
-            placeholder="URL de la imagen / Logo de la agencia o entidad / Foto de perfil"
-            className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
-            />
-           {/* Imagen de perfil (URL) */}
+           {/* nombre agencia */}
            <input
             name="nameAgency"
             type="text"
@@ -160,6 +177,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
           />
 
+
           {/* Género */}
           <select
             name="genre"
@@ -168,9 +186,9 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
           >
             <option value="">Seleccione su género (opcional)</option>
-            <option value="male">Masculino</option>
-            <option value="female">Femenino</option>
-            <option value="other">Otro</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Femenino">Femenino</option>
+            <option value="Otro">Otro</option>
           </select>
 
        {/* Tipo de organizacion */}
@@ -185,10 +203,12 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
         </>
       )}
 
+      
+
       {/* Botón Guardar Cambios */}
       <button
         onClick={handleSubmit}
-        className="mt-4 w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
+        className="mt-4 w-full bg-verde-oscuro text-white p-2 rounded hover:bg-green-700"
         disabled={loading}
       >
         {loading ? "Guardando..." : "Guardar cambios"}

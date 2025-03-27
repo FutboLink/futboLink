@@ -11,13 +11,14 @@ export interface IProfileData {
   id?: string;
   name: string;
   lastname: string;
-  age:number;
+  age:string;
   nameAgency: string;
   email: string;
   password?: string;
   puesto:string;
   role: UserType.PLAYER;
   imgUrl: string;
+  cv?:string;
   phone: string;
   nationality: string;
   location: string;

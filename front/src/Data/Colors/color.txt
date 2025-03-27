@@ -1,0 +1,6 @@
+Paleta de colores usables
+
+Verde oscuro : #1d5126
+Verde claro: #3e7c27
+Verde mas claro : #4e722d
+Blanco: #ffffff

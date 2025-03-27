@@ -114,7 +114,7 @@ const ManagerForm: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 mt-16 py-10">
       <div className="text-center mb-6">
-        <h2 className="text-3xl font-bold mb-4 bg-white text-green-600 border-green-600 border-2  rounded-lg p-2">
+        <h2 className="text-3xl font-bold mb-4 bg-white text-verde-oscuro border-verde-oscuro border-2  rounded-lg p-2">
           Crea una cuenta
         </h2>
         <p className="text-sm text-gray-500">
@@ -305,7 +305,7 @@ const ManagerForm: React.FC = () => {
         <div className="flex justify-center col-span-3">
           <button
             type="submit"
-            className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+            className="w-full py-2 bg-verde-oscuro text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-verde-claro focus:ring-opacity-50"
           >
             Registrarse
           </button>

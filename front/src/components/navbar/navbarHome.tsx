@@ -52,7 +52,7 @@ function NavbarHome() {
       {/* Navbar Desktop */}
       <nav
         className={`fixed top-0 left-0 w-full z-50 transition-colors duration-300 ${
-          isScrolled ? "bg-green-600" : "bg-transparent"
+          isScrolled ? "bg-verde-oscuro" : "bg-transparent"
         }`}
       >
         <section className="flex items-center justify-between sm:flex-row w-full p-4">
@@ -83,7 +83,7 @@ function NavbarHome() {
                 Cursos y Formación
               </li>
               <li
-                onClick={() => navigateTo("/Notices")}
+                onClick={() => navigateTo("/News")}
                 className="px-4 hover:bg-green-200 hover:text-black hover:rounded-md transition-all cursor-pointer"
                 aria-label="Noticias relacionadas con futbol"
               >
@@ -110,6 +110,13 @@ function NavbarHome() {
               >
                 ¿Cómo uso FC?
               </li>
+              <li
+                onClick={() => navigateTo("/cursos")}
+                className="px-4 hover:bg-green-200 hover:text-black hover:rounded-md transition-all cursor-pointer"
+                aria-label="Cómo usar FutboLink"
+              >
+                Cursos y Formaciones
+              </li>
             </ul>
           </div>
 
@@ -119,19 +126,15 @@ function NavbarHome() {
     role ? ( // Verifica si `role` tiene un valor antes de renderizar
       role === "PLAYER" ? (
         <button onClick={() => navigateTo("/PanelUsers/Player")}>
-          <FaUser className="text-green-700" />
-        </button>
-      ) : role === "AGENCY" ? (
-        <button onClick={() => navigateTo("/PanelUsers/Agency")}>
-          <FaUser className="text-green-500" />
+          <FaUser className="text-verde-oscuro hover:text-verde-claro hover:transition-all hover:scale-125" />
         </button>
       ) : role === "RECRUITER" ? (
         <button onClick={() => navigateTo("/PanelUsers/Manager")}>
-          <FaUser className="text-green-500" />
+          <FaUser className="text-verde-claro" />
         </button>
       ) : role === "ADMIN" ? (
         <button onClick={() => navigateTo("/PanelAdmin")}>
-          <FaUser className="text-green-500" />
+          <FaUser className="text-verde-claro" />
         </button>
       ) : null
     ) : (
@@ -149,7 +152,7 @@ function NavbarHome() {
 
             <button
               onClick={() => navigateTo("/OptionUsers")}
-              className="bg-white text-green-600 px-4 py-2 rounded-md ml-4 hover:bg-gray-200"
+              className="bg-white text-verde-oscuro px-4 py-2 rounded-md ml-4 hover:bg-gray-200"
               aria-label="Registrarse"
             >
               Registrarse
@@ -161,7 +164,7 @@ function NavbarHome() {
       </nav>
 
       {/* Navbar Mobile */}
-      <nav className="fixed top-0 left-0 w-full z-50 bg-green-600 sm:hidden">
+      <nav className="fixed top-0 left-0 w-full z-50 bg-verde-oscuro sm:hidden">
         <section className="flex justify-between p-4">
           {/* Logo */}
           <Link href={"/"}>
@@ -199,7 +202,7 @@ function NavbarHome() {
 
         {/* Menú desplegable móvil */}
         {isMobileMenuOpen && (
-          <div className="bg-green-600 text-white text-lg p-4">
+          <div className="bg-verde-oscuro text-white text-lg p-4">
             <ul>
               <li
                 onClick={() => navigateTo("/jobs")}
@@ -214,7 +217,7 @@ function NavbarHome() {
                 Cursos y Formación
               </li>
               <li
-                onClick={() => navigateTo("/Notices")}
+                onClick={() => navigateTo("/News")}
                 className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
               >
                 Noticias
@@ -237,6 +240,12 @@ function NavbarHome() {
               >
                 ¿Cómo uso FC?
               </li>
+              <li
+                onClick={() => navigateTo("/cursos")}
+                className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
+              >
+                Cursos y Formaciones
+              </li>
             </ul>
 
             <div className="mt-4">
@@ -246,17 +255,13 @@ function NavbarHome() {
         <button onClick={() => navigateTo("/PanelUsers/Player")}>
           <FaUser className="text-green-700" />
         </button>
-      ) : role === "AGENCY" ? (
-        <button onClick={() => navigateTo("/PanelUsers/Agency")}>
-          <FaUser className="text-green-500" />
-        </button>
       ) : role === "RECRUITER" ? (
         <button onClick={() => navigateTo("/PanelUsers/Manager")}>
-          <FaUser className="text-green-500" />
+          <FaUser className="text-verde-claro" />
         </button>
       ) : role === "ADMIN" ? (
         <button onClick={() => navigateTo("/PanelAdmin")}>
-          <FaUser className="text-green-500" />
+          <FaUser className="text-verde-claro" />
         </button>
       ) : null
     ) : (
@@ -273,7 +278,7 @@ function NavbarHome() {
 
               <button
                 onClick={() => navigateTo("/OptionUsers")}
-                className="w-full mt-4 bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-200"
+                className="w-full mt-4 bg-white text-verde-oscuro px-4 py-2 rounded-md hover:bg-gray-200"
               >
                 Registrarse
               </button>

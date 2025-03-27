@@ -4,7 +4,6 @@ import { useContext, useState, useEffect } from "react";
 import { IProfileData } from "@/Interfaces/IUser";
 import PersonalInfo from "./PersonalInfo";
 import ProfessionalInfo from "./ProfessionalInfo";
-import ContactDetails from "./ContactDetails";
 import { UserContext } from "../Context/UserContext";
 import { fetchUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 
@@ -30,7 +29,7 @@ const Profile = () => {
         
         {/* Pestañas */}
         <div className="flex space-x-3 border-b pb-1 mt-2 mb-3 text-gray-700"> {/* Reducir el espacio y márgenes */}
-          {["Personal", "Profesional", "Configuración"].map((tab) => (
+          {["Personal", "Profesional"].map((tab) => (
             <button
               key={tab}
               className={`py-1.5 px-3 mt-6 ${
@@ -46,7 +45,6 @@ const Profile = () => {
         {/* Contenido de cada pestaña */}
         {activeTab === "Personal" && userData && <PersonalInfo profileData={userData} />}
         {activeTab === "Profesional" && userData && <ProfessionalInfo profileData={userData} />}
-        {activeTab === "Configuración" && userData && <ContactDetails profileData={userData} />}
   
         {error && <p className="text-red-600 mt-2">{error}</p>} {/* Reducir el margen inferior del error */}
       </div>

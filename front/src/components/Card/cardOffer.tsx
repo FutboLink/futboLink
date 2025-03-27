@@ -5,12 +5,7 @@ import { IOfferCard } from "@/Interfaces/IOffer";
 const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
   return (
     <div className="bg-white border border-gray-300 rounded-lg shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-primary p-6 flex flex-col gap-4 w-full">
-      <div className="flex items-center gap-2 mb-4">
-      
-        <span className="text-gray-700 text-sm font-medium">
-          {offer.countries}
-        </span>
-      </div>
+      <div className="flex items-center gap-2 mb-4"></div>
       {/* Contenedor de contenido */}
       <div>
         <h3 className="text-xl font-semibold text-gray-800 mb-2">
@@ -23,7 +18,7 @@ const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
         {/* Salario */}
         <p className="text-gray-800 text-sm font-semibold">
           Salario:{" "}
-          <span className=" bg-green-500 rounded-xl p-2 text-primary">
+          <span className=" bg-verde-claro rounded-xl p-2 text-primary">
             {offer.salary}
           </span>
         </p>
@@ -31,13 +26,13 @@ const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
       <div className="flex gap-7">
         <Link
           href={`/Offer/${offer.id}`}
-          className="text-green-600 hover:text-green-700 font-semibold self-start"
+          className="text-verde-oscuro hover:text-green-700 font-semibold self-start"
         >
           Ver más
         </Link>
         <Link
           href={`/Offer/${offer.id}`}
-          className="text-green-600 hover:text-green-700 font-semibold self-start"
+          className="text-verde-oscuro hover:text-green-700 font-semibold self-start"
         >
           Aplicar a esta oferta
         </Link>

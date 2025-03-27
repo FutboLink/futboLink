@@ -20,19 +20,19 @@ function FaqSection() {
 
   const faqs = [
     {
-      question: "¿Cómo publico una vacante en Futbol Career?",
+      question: "¿Cómo publico una vacante en Futbolink?",
       answer:
-        "Para publicar una oferta en Futbol Career debes registrarte como agencia/club en la web. Una vez registrado, en el panel de control te aparecerá el menú de ofertas donde podrás subir, editar y cerrar las vacantes que necesites.",
+        "Para publicar una oferta en Futbolink debes registrarte como agencia/club en la web. Una vez registrado, en el panel de control te aparecerá el menú de ofertas donde podrás subir, editar y cerrar las vacantes que necesites.",
     },
     {
       question: "¿Cómo me inscribo en un curso o máster?",
       answer:
-        "Para inscribirte en un curso de una empresa colaboradora de Futbol Career debes rellenar el formulario 'más información' del curso en el que estás interesado. Una vez realizado esto, la empresa organizadora se pondrá en contacto contigo para brindarte toda la información necesaria.",
+        "Para inscribirte en un curso de una empresa colaboradora de Futbolink debes rellenar el formulario 'más información' del curso en el que estás interesado. Una vez realizado esto, la empresa organizadora se pondrá en contacto contigo para brindarte toda la información necesaria.",
     },
     {
-      question: "¿Cómo doy de baja mi suscripción?",
+      question: "¿Cómo me suscribo a una oferta?",
       answer:
-        "Si quieres darte de baja tu suscripción puedes hacerlo desde tu cuenta o poniéndote en contacto con nosotros a través de web@Futbol Career.com",
+        'Podés ver nuestro video orientativo haciendo click en <span class="text-verde-oscuro font-bold">ayuda</span>, y prepárate para despegar en tu carrera.',
     },
   ];
 
@@ -70,7 +70,10 @@ function FaqSection() {
                   {faq.question}
                 </button>
                 {activeIndex === index && (
-                  <p className="mt-4 text-lg text-gray-600">{faq.answer}</p>
+                  <p
+                    className="mt-4 text-lg text-gray-600"
+                    dangerouslySetInnerHTML={{ __html: faq.answer }}
+                  />
                 )}
               </div>
             ))}

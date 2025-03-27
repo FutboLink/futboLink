@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import CardOffer from "./CardOffer";
 import { IOfferCard } from "@/Interfaces/IOffer";
 import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
-import { mockOffers } from "./mockOfferts";
 
 const OfferList: React.FC = () => {
   const [offers, setOffers] = useState<IOfferCard[]>([]);
@@ -43,7 +42,7 @@ const OfferList: React.FC = () => {
 
   return (
     <div className="mt-12 p-12">
-      <h1 className="bg-green-600 text-white p-2 font-semibold text-center">OFERTAS LABORALES</h1>
+      <h1 className="bg-verde-oscuro text-white p-2 font-semibold text-center">OFERTAS LABORALES</h1>
       {/* Input de búsqueda */}
       <div className="flex justify-center items-center mb-6">
         <div className="w-full sm:w-4/6 md:w-3/6 lg:w-2/6 p-4">
@@ -60,13 +59,14 @@ const OfferList: React.FC = () => {
 
       {/* Lista de ofertas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
-        {filteredOffers.length > 0
-          ? filteredOffers.map((offer) => (
-              <CardOffer key={offer.id} offer={offer} />
-            ))
-          : mockOffers.map((offer, index) => (
-              <CardOffer key={index} offer={offer} />
-            ))}
+      {filteredOffers.length > 0 ? (
+  filteredOffers.map((offer) => (
+    <CardOffer key={offer.id} offer={offer} />
+  ))
+) : (
+  <p></p> 
+)}
+
       </div>
     </div>
   );

@@ -1,4 +1,3 @@
-// stripe.service.ts
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import Stripe from 'stripe';
 import { ConfigService } from '@nestjs/config';
@@ -31,10 +30,10 @@ export class StripeService {
         ],
         mode: 'subscription',
         success_url:
-          'https://localhost:3001/success?session_id={CHECKOUT_SESSION_ID}',
-        cancel_url: 'https://localhost:3001/cancel',
+          'http://localhost:3001/success?session_id={CHECKOUT_SESSION_ID}',
+        cancel_url: 'http://localhost:3001/Subs',
       });
-      // Retorna la URL generada por Stripe para redirigir al Checkout
+
       return { sessionUrl: session.url };
     } catch (error) {
       throw error;

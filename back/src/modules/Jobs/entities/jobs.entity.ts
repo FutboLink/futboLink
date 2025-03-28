@@ -164,3 +164,4 @@ export class Job {
   @OneToMany(() => Application, (application) => application.job)
   applications: Application[];
 }
+

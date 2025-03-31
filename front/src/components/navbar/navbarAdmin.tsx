@@ -79,7 +79,7 @@ function NavbarAdmin() {
               className="px-4 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
               aria-label="Cursos y formación en futbol"
             >
-              Cursos Y Formación
+              Entrenamiento
               </li>
             </ul>
           </div>
@@ -182,7 +182,7 @@ function NavbarAdmin() {
                 onClick={() => navigateTo("/PanelAdmin/Cursos")}
                 className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
               >
-              Cursos Y Formación
+           Entrenamiento
               </li>
             </ul>
 

@@ -76,13 +76,6 @@ function NavbarHome() {
                 Ofertas
               </li>
               <li
-                onClick={() => navigateTo("/Formation")}
-                className="px-4 hover:bg-green-200 hover:text-black hover:rounded-md transition-all cursor-pointer"
-                aria-label="Cursos y formación en futbol"
-              >
-                Entrenamiento
-              </li>
-              <li
                 onClick={() => navigateTo("/News")}
                 className="px-4 hover:bg-green-200 hover:text-black hover:rounded-md transition-all cursor-pointer"
                 aria-label="Noticias relacionadas con futbol"
@@ -115,7 +108,7 @@ function NavbarHome() {
                 className="px-4 hover:bg-green-200 hover:text-black hover:rounded-md transition-all cursor-pointer"
                 aria-label="Cómo usar FutboLink"
               >
-                Cursos y Formaciones
+               Entrenamiento
               </li>
             </ul>
           </div>
@@ -210,13 +203,7 @@ function NavbarHome() {
               >
                 Ofertas
               </li>
-              <li
-                onClick={() => navigateTo("/Formation")}
-                className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
-              >
-                Cursos y Formación
-              </li>
-              <li
+                    <li
                 onClick={() => navigateTo("/News")}
                 className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
               >

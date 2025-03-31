@@ -191,13 +191,7 @@ function NavbarRoles() {
               >
                 Ofertas
               </li>
-              <li
-                onClick={() => navigateTo("/Formation")}
-                className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
-              >
-                Entrenamiento
-              </li>
-              <li
+                <li
                 onClick={() => navigateTo("/News")}
                 className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
               >

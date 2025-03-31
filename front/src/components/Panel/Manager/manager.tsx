@@ -52,6 +52,7 @@ const PanelManager = () => {
       if (user && user.id) {
         try {
           const jobs = await getOfertas();
+          console.log("Ofertas obtenidas:", jobs);
           const filteredJobs = jobs.filter(
             (job) => job.recruiter && job.recruiter.id === user.id
           );

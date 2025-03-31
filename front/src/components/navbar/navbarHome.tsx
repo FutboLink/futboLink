@@ -80,7 +80,7 @@ function NavbarHome() {
                 className="px-4 hover:bg-green-200 hover:text-black hover:rounded-md transition-all cursor-pointer"
                 aria-label="Cursos y formación en futbol"
               >
-                Cursos y Formación
+                Entrenamiento
               </li>
               <li
                 onClick={() => navigateTo("/News")}
@@ -244,7 +244,7 @@ function NavbarHome() {
                 onClick={() => navigateTo("/cursos")}
                 className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
               >
-                Cursos y Formaciones
+               Entrenamiento
               </li>
             </ul>
 

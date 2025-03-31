@@ -114,7 +114,7 @@ function NavbarRoles() {
                 className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
                 aria-label="Cómo usar FutboLink"
               >
-                Cursos y Formaciones
+               Entrenamiento
               </li>
             </ul>
           </div>
@@ -225,7 +225,7 @@ function NavbarRoles() {
                 onClick={() => navigateTo("/cursos")}
                 className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
               >
-               Cursos y Formaciones
+              Entrenamiento
               </li>
             </ul>
 

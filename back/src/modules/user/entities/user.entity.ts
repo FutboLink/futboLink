@@ -128,15 +128,15 @@ export class User {
   videoUrl?: string;
 
   @ApiProperty({ example: [{ club: "FC Barcelona", fechaInicio: "2020-01-01", fechaFinalizacion: "2023-01-01" }], description: 'Trayectorias del usuario', nullable: true })
-@Column('jsonb', { array: true, nullable: true })
-trayectorias?: {
+ @Column('jsonb', { array: true, nullable: true })
+  trayectorias?: {
   club: string;
   fechaInicio: string;
   fechaFinalizacion: string;
   categoriaEquipo: string;
   nivelCompetencia: string;
   logros: string;
-}[];
+ }[];
 
 
   @ApiProperty({
@@ -169,6 +169,6 @@ trayectorias?: {
     description: 'La oferta que creó el reclutador',
   })
   @OneToMany(()=>Job,(job) =>job.recruiter)
-  job :Job;
+  job :Job[];
   
 }

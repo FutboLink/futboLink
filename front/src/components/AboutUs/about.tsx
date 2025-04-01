@@ -23,7 +23,7 @@ function About() {
         {/* Descripción de la empresa */}
         <div className="text-lg text-gray-700 space-y-4 mt-6 lg:mt-0">
           <p className="text-base sm:text-lg">
-            En Futbol Career, nos dedicamos a conectar jugadores, agentes, y
+            En Futbolink, nos dedicamos a conectar jugadores, agentes, y
             clubes de futbol con oportunidades únicas para crecer y
             desarrollarse en el mundo del futbol. Nuestra plataforma ofrece
             ofertas de empleo, cursos de formación y todo lo necesario para

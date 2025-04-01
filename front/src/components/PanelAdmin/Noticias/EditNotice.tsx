@@ -80,7 +80,7 @@ const EditNotice: React.FC<EditNoticeProps> = ({ noticeId, token, notice, onCanc
         <div className="sm:col-span-2">
           <label className="block text-gray-700">Descripción:</label>
           <textarea
-            name="content"
+            name="description"
             value={formData.description}
             onChange={handleChange}
             className="w-full p-2 text-gray-700 border border-gray-300 rounded-md mb-4"

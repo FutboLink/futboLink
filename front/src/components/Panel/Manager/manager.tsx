@@ -17,7 +17,7 @@ import { FaYoutube } from "react-icons/fa6";
 import { AiOutlineFileAdd, AiOutlineFileText, AiOutlineUser } from "react-icons/ai";
 import { MdSettings } from "react-icons/md";
 import { PiSoccerBall } from "react-icons/pi";
-import { FaTimes} from "react-icons/fa";
+import { FaGlobe, FaTimes} from "react-icons/fa";
 
 const PanelManager = () => {
   const { user, logOut } = useContext(UserContext);
@@ -158,14 +158,17 @@ const PanelManager = () => {
                     {userData?.name} {userData?.lastname}
                   </h2>
                   <div className="text-gray-700">
-                    <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
-                      <strong>Fecha de Nacimiento:</strong> {userData?.birthday || "No disponible"}
+                  <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
+                      <strong>Nombre Agencia:</strong> {userData?.nameAgency || "No disponible"}
                     </p>
                     <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
-                      <strong>Edad:</strong> {userData?.age} años
+                      <strong>Tipo de organización:</strong> {userData?.puesto}
                     </p>
                     <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
-                      <strong>Género:</strong> {userData?.genre}
+                      <strong>Año de fundación:</strong> {userData?.age} 
+                    </p>
+                    <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
+                      <strong>Región:</strong> {userData?.location}
                     </p>
                     <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                       <strong>Teléfono:</strong> {userData?.phone}
@@ -193,6 +196,13 @@ const PanelManager = () => {
                             <PiSoccerBall size={24} />
                           </a>
                         )}
+                        {userData?.socialMedia?.website && (
+                <a href={userData.socialMedia.website} target="_blank" rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800">
+                  <FaGlobe size={24} />
+                </a>
+              )}
+
                       </div>
                     </div>
                   </div>

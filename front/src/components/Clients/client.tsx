@@ -23,7 +23,7 @@ const ClientsSection: React.FC = () => {
     <section className="bg-[#f5f5f5] py-12 ">
       <div className="container mx-auto text-center ">
         <h2 className="text-3xl font-semibold text-[#1d5126] mb-8">
-          Nuestros Clientes
+         Casos de Éxito
         </h2>
         <div className="grid grid-cols-1  sm:grid-cols-2 lg:grid-cols-3 gap-8 ">
           {clients.map((client, index) => (

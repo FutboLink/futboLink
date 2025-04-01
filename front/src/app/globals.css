@@ -20,3 +20,27 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* ===== Ocultar Google Translate completamente ===== */
+.goog-te-banner-frame,
+.goog-te-menu-frame,
+.goog-te-ftab-frame,
+.goog-te-gadget,
+.goog-te-combo,
+.skiptranslate,
+.goog-logo-link,
+.goog-te-footer,
+.goog-te-balloon-frame,
+.goog-tooltip {
+  display: none !important;
+}
+
+/* Evitar desplazamiento del body */
+body {
+  top: 0 !important;
+}
+
+/* Ocultar el texto "Traducido con Google" */
+.goog-text-highlight {
+  background: none !important;
+  box-shadow: none !important;
+}

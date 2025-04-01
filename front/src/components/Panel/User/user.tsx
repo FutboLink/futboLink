@@ -28,6 +28,17 @@ const UserProfile = () => {
     router.push("/");
   };
 
+ 
+  
+  const getYouTubeEmbedUrl = (url: string) => {
+    if (!url) return ""; // Retorna vacío si no hay URL
+  
+    const regex = /(?:youtube\.com\/(?:.*v=|embed\/)|youtu\.be\/)([\w-]+)/;
+    const match = url.match(regex);
+    return match ? `https://www.youtube.com/embed/${match[1]}` : "";
+  };
+  
+
   useEffect(() => {
     if (token) {
       try {
@@ -181,6 +192,7 @@ const UserProfile = () => {
               <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                 <strong>Teléfono:</strong> {userData?.phone}
               </p>
+    
 
               {/* Redes Sociales */}
               <div className="mt-4">
@@ -217,23 +229,30 @@ const UserProfile = () => {
           </div>
         </Link>
       </div>
+{/* Video de Presentación */}
+<div className="md:w-1/2">
+  <span className="font-medium text-lg mb-4 text-gray-500 block">
+    Video de Presentación:
+  </span>
+  <div className="relative w-full h-[250px] overflow-hidden rounded-lg bg-black">
+    {userData?.videoUrl ? (
+      <iframe
+        className="absolute top-0 left-0 w-full h-full"
+        src={getYouTubeEmbedUrl(userData.videoUrl)}
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerPolicy="strict-origin-when-cross-origin"
+        allowFullScreen
+      ></iframe>
+    ) : (
+      <p className="text-white text-center p-4">No hay video disponible</p>
+    )}
+  </div>
+</div>
 
-      {/* Video de Presentación */}
-      <div className="md:w-1/2">
-        <span className="font-medium text-lg mb-4 text-gray-500 block">
-          Video de Presentación:
-        </span>
-        <div className="relative w-full h-[250px] overflow-hidden rounded-lg bg-black">
-          <iframe
-            className="absolute top-0 left-0 w-full h-full"
-            src="https://www.youtube.com/embed/lscs_jCKz58?si=gKpwYaZit93EGAlZ"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allowFullScreen
-          ></iframe>
-        </div>
-      </div>
+
+
+
 
     </div>
   </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import { FaTwitter, FaInstagram, FaTiktok, FaYoutube } from "react-icons/fa"; // Iconos de redes sociales
+import { FaTiktok, FaYoutube, FaTimes } from "react-icons/fa"; // Iconos de redes sociales
 import Link from "next/link"; // Importar Link de Next.js
 
 function Footer() {
@@ -28,7 +28,7 @@ function Footer() {
               </li>
               <li>
                 <Link
-                  href="/Offer"
+                  href="/jobs"
                   className="hover:text-verde-mas-claro hover:bg-slate-50 hover:rounded-xl p-1"
                 >
                   Ofertas
@@ -36,7 +36,7 @@ function Footer() {
               </li>
               <li>
                 <Link
-                  href="#contact"
+                  href="Contact"
                   className="hover:text-verde-mas-claro hover:bg-slate-50 hover:rounded-xl p-1"
                 >
                   Contacto
@@ -51,14 +51,12 @@ function Footer() {
               <FaTiktok />
             </a>
             <a href="#" className="text-2xl hover:text-verde-mas-claro">
-              <FaTwitter />
+            <FaTimes />
             </a>
             <a href="#" className="text-2xl hover:text-verde-mas-claro">
               <FaYoutube />
             </a>
-            <a href="#" className="text-2xl hover:text-verde-mas-claro">
-              <FaInstagram />
-            </a>
+          
           </div>
         </div>
 

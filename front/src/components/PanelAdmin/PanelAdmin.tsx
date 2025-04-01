@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState, useEffect, useContext } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css"; 
-import {  FaBolt, FaChartBar, FaCog, FaInstagram, FaTwitter, FaUser, FaYoutube } from "react-icons/fa";
+import {  FaBolt, FaChartBar, FaCog, FaInstagram, FaTimes, FaUser, FaYoutube } from "react-icons/fa";
 import { IProfileData} from "@/Interfaces/IUser";
 import { UserContext } from "@/components/Context/UserContext";
 import { useRouter } from "next/navigation";
@@ -196,7 +196,7 @@ const PanelAdmin = () => {
                   <div className="flex space-x-4 mt-2 items-center">
                     {userData?.socialMedia?.x && (
                       <a href={`https://twitter.com/${userData.socialMedia.x}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
-                        <FaTwitter size={24} />
+                        <FaTimes size={24} />
                       </a>
                     )}
                     {userData?.socialMedia?.youtube && (
@@ -278,12 +278,12 @@ const PanelAdmin = () => {
           {userData?.socialMedia?.twitter && (
             <Link
               href={`https://twitter.com/${userData.socialMedia.twitter}`}
-              className="text-blue-500 hover:underline flex items-center space-x-2"
+              className=" hover:underline flex items-center space-x-2"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <FaTwitter className="text-xl" />
-              <span>Twitter</span>
+              <FaTimes className="text-xl" />
+              <span>X</span>
             </Link>
           )}
         </>

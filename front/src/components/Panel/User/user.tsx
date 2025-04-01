@@ -8,7 +8,7 @@ import { IProfileData } from "@/Interfaces/IUser";
 import { UserContext } from "@/components/Context/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { FaBolt, FaCog, FaTwitter, FaUser, FaYoutube } from "react-icons/fa";
+import { FaBolt, FaCog,  FaTimes,  FaUser, FaYoutube } from "react-icons/fa";
 import { PiSoccerBall } from "react-icons/pi";
 
 const UserProfile = () => {
@@ -188,8 +188,8 @@ const UserProfile = () => {
                 <div className="flex space-x-4 mt-2 items-center">
                   {userData?.socialMedia?.x && (
                     <a href={`https://twitter.com/${userData.socialMedia.x}`} target="_blank" rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800">
-                      <FaTwitter size={24} />
+                      className=" hover:text-gray-800">
+                      <FaTimes size={24} />
                     </a>
                   )}
                   {userData?.socialMedia?.youtube && (

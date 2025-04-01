@@ -31,8 +31,8 @@ const NoticeSection = () => {
 
   return (
     <section className="relative z-10 px-4 py-16 bg-white mt-7 text-black">
-      <h1 className="text-center text-3xl font-semibold text-gray-800 mb-8">
-        Últimas Noticias
+      <h1 className="bg-gradient-to-r from-green-400 via-green-500 to-green-600 text-white p-2 font-semibold text-center mb-4">
+      ÚLTIMAS NOTICIAS
       </h1>
 
       {loading ? (

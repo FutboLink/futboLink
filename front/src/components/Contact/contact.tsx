@@ -169,7 +169,7 @@ function Contact() {
                   Correo electrónico:
                 </h3>
                 <p className="text-lg text-gray-700">
-                  contacto@futbolcareer.com
+                linkfutbo@gmail.com
                 </p>
               </div>
             </div>

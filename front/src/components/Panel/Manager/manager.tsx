@@ -17,7 +17,7 @@ import { FaYoutube } from "react-icons/fa6";
 import { AiOutlineFileAdd, AiOutlineFileText, AiOutlineUser } from "react-icons/ai";
 import { MdSettings } from "react-icons/md";
 import { PiSoccerBall } from "react-icons/pi";
-import { FaTwitter } from "react-icons/fa";
+import { FaTimes} from "react-icons/fa";
 
 const PanelManager = () => {
   const { user, logOut } = useContext(UserContext);
@@ -177,8 +177,8 @@ const PanelManager = () => {
                       <div className="flex space-x-4 mt-2 items-center">
                         {userData?.socialMedia?.x && (
                           <a href={`https://twitter.com/${userData.socialMedia.x}`} target="_blank" rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800">
-                            <FaTwitter size={24} />
+                          className=" hover:text-gray-800">
+                            <FaTimes  size={24} />
                           </a>
                         )}
                         {userData?.socialMedia?.youtube && (

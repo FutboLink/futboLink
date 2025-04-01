@@ -32,8 +32,9 @@ const Page: React.FC = () => {
 
   return (
     <div>
-      <h1 className="text-2xl mt-32 text-green-800 text-center font-bold mb-4">Cursos y formaciones</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+   <h1 className="mt-24 bg-gradient-to-r from-green-400 via-green-500 to-green-600 text-white p-2 font-semibold text-center mb-4">
+    CURSOS Y FORMACIONES</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 hover:cursor-pointer">
         {cursos.map((curso) => (
           <div key={curso.id} className="bg-white shadow-lg rounded-lg p-4">
             <Image

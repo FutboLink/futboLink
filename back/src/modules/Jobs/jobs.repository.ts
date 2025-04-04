@@ -5,10 +5,11 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Job } from './entities/jobs.entity';
 import { CreateJobDto } from './dto/create-jobs.dto';
 import { UpdateJobDto } from './dto/update-jobs.dto';
 import { User } from '../user/entities/user.entity';
+import { Job } from './entities/jobs.entity';
+
 
 @Injectable()
 export class JobRepository {

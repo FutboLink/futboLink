@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsNumber, IsArray, IsOptional, IsEnum } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, IsArray, IsOptional, IsEnum, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { YesOrNo, YesOrNotravell } from '../jobs.enum';
 
@@ -10,7 +10,6 @@ export class CreateJobDto {
   @IsNotEmpty()
   @IsString()
   title: string;
-
 
   @ApiProperty({
     description: 'Ubicación donde se llevará a cabo el trabajo',
@@ -54,6 +53,14 @@ export class CreateJobDto {
   @IsNotEmpty()
   @IsString()
   position: string;
+
+
+  @ApiProperty({
+    description: 'El tipo de moneda',
+    example: 'Usd',
+  })
+  @IsString()
+  moneda: string;
 
   @ApiProperty({
     description: 'Competencias requeridas para el puesto',
@@ -148,7 +155,7 @@ export class CreateJobDto {
 
   @ApiProperty({
     description: '¿Requiere pasaporte de la UE?',
-    example: 'no',
+    example: 'No',
   })
   @IsNotEmpty()
   @IsEnum(YesOrNo)

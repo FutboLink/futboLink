@@ -1,0 +1,140 @@
+.cardContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  min-height: 550px;
+  height: 100%;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  width: 100%;
+  max-width: 350px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  height: auto;
+}
+
+.imageContainer {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-right: 16px;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 230px;
+  margin-bottom: 8px;
+}
+
+.description {
+  font-size: 14px;
+  color: #4b5563;
+  padding: 0 16px;
+  min-height: 60px;
+  max-height: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: justify;
+}
+
+.cardContent {
+  flex-grow: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 12px;
+  gap: 8px;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.bold {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.salary {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #10b981;
+  border-top: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+.cardActions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.button {
+  text-align: center;
+  padding: 10px 0;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.applyButton {
+  background: #10b981;
+  color: white;
+  border: 2px solid transparent;
+}
+
+.applyButton:hover {
+  background: white;
+  color: #10b981;
+  border-color: #10b981;
+}
+
+.detailsButton {
+  background: #2563eb;
+  color: white;
+  border: 2px solid transparent;
+}
+
+.detailsButton:hover {
+  background: white;
+  color: #2563eb;
+  border-color: #2563eb;
+}
+
+@media (max-width: 768px) {
+  .cardContainer {
+    max-width: 100%;
+  }
+  
+  .cardContent {
+    grid-template-columns: 1fr;
+  }
+
+  .title {
+    max-width: 100%;
+  }
+}

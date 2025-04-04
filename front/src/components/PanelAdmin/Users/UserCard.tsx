@@ -25,7 +25,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, onDelete }) => {
 
   return (
     <div className="bg-white shadow-lg rounded-xl p-6 max-w-sm hover:shadow-xl transition-shadow duration-300">
-      <h3 className="text-xl font-bold text-green-600 mb-2">
+      <h3 className="text-xl font-bold text-verde-oscuro mb-2">
         {name} {lastname}
       </h3>
       <p className="text-gray-700">

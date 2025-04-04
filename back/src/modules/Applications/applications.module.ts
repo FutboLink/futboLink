@@ -4,11 +4,11 @@ import { ApplicationController } from './applications.controller';
 import { ApplicationService } from './applications.service';
 import { Application } from './entities/applications.entity';
 import { User } from '../user/entities/user.entity';
-import { JobEntity } from '../Jobs/entities/jobs.entity';
+import { Job } from '../Jobs/entities/jobs.entity';
 import { Contract } from '../contracts/entities/contract.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Application, User, JobEntity, Contract])],
+  imports: [TypeOrmModule.forFeature([Application, User, Job, Contract])],
   controllers: [ApplicationController],
   providers: [ApplicationService],
 })

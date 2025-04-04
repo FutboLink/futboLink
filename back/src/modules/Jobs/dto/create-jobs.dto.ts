@@ -3,10 +3,30 @@ import { ApiProperty } from '@nestjs/swagger';
 import { YesOrNo, YesOrNotravell } from '../jobs.enum';
 
 export class CreateJobDto {
-  @ApiProperty({ description: 'Título del trabajo', example: 'Entrenador de fútbol' })
+  @ApiProperty({
+    description: 'Título del trabajo relacionado con el fútbol',
+    example: 'Delantero para equipo profesional',
+  })
   @IsNotEmpty()
   @IsString()
   title: string;
+
+
+  @ApiProperty({
+    description: 'Ubicación donde se llevará a cabo el trabajo',
+    example: 'Barcelona, España',
+  })
+  @IsNotEmpty()
+  @IsString()
+  location: string;
+
+  @ApiProperty({
+    description: 'Salario ofrecido para el jugador',
+    example: 1500000,
+  })
+  @IsNotEmpty()
+  @IsNumber()
+  salary: number;
 
   @ApiProperty({
     description: 'Descripción del trabajo o posición',
@@ -17,44 +37,7 @@ export class CreateJobDto {
   @IsString()
   description: string;
 
-  @ApiProperty({
-    description: 'Ubicación donde se llevará a cabo el trabajo',
-    example: 'Barcelona, España',
-  })
-  @IsNotEmpty()
-  @IsString()
-  location: string;
-
-  @ApiProperty({ description: 'Posición del trabajo', example: 'Delantero' })
-  @IsNotEmpty()
-  @IsString()
-  position: string;
-
-  @ApiProperty({ description: 'Categoría del deporte', example: 'Fútbol profesional' })
-  @IsNotEmpty()
-  @IsString()
-  category: string;
-
-  @ApiProperty({ description: 'Tipo de deporte', example: 'Fútbol' })
-  @IsNotEmpty()
-  @IsString()
-  sport: string;
-
-  @ApiProperty({ description: 'Tipo de contrato', example: 'Tiempo completo' })
-  @IsNotEmpty()
-  @IsString()
-  contractTypes: string;
-
-  @ApiProperty({ description: 'Duración del contrato', example: '1 año' })
-  @IsNotEmpty()
-  @IsString()
-  contractDurations: string;
-
-  @ApiProperty({ description: 'Salario ofrecido', example: 50000 })
-  @IsNotEmpty()
-  @IsNumber()
-  salary: number;
-
+  
   @ApiProperty({
     description:
       'Tipo de oferta (e.g., contrato temporal, contrato permanente)',
@@ -63,12 +46,6 @@ export class CreateJobDto {
   @IsString()
   offerType: string;
 
-  @ApiProperty({
-    description: 'Posición en el campo que se necesita cubrir',
-    example: 'Delantero',
-  })
-  @IsString()
-  minExperience: string;
 
   @ApiProperty({
     description: 'Competencias requeridas para el puesto',
@@ -98,5 +75,72 @@ export class CreateJobDto {
     example: 'Profesional',
   })
   @IsString()
-  type: string;
+  contractTypes: string;
+
+  @ApiProperty({
+    description: 'Categoría del trabajo',
+    example: 'Profesional',
+  })
+  @IsNotEmpty()
+  @IsString()
+  category: string;
+
+  @ApiProperty({
+    description: 'Género del deporte',
+    example: 'Masculino',
+  })
+  @IsNotEmpty()
+  @IsString()
+  sportGenres: string;
+
+  @ApiProperty({
+    description: 'Edad mínima del trabajador',
+    example: 18,
+  })
+  @IsNotEmpty()
+  @IsNumber()
+  minAge: number;
+
+  @ApiProperty({
+    description: 'Edad máxima del trabajador',
+    example: 35,
+  })
+  @IsNotEmpty()
+  @IsNumber()
+  maxAge: number;
+
+
+
+  @ApiProperty({
+    description: 'Deporte relacionado con el trabajo',
+    example: 'Fútbol 11',
+  })
+  @IsNotEmpty()
+  @IsString()
+  sport: string;
+
+  @ApiProperty({
+    description: 'Experiencia mínima necesaria para el trabajo',
+    example: 'Semiprofesional',
+  })
+  @IsNotEmpty()
+  @IsString()
+  minExperience: string;
+
+  @ApiProperty({
+    description: 'Disponibilidad para viajar',
+    example: 'Si',
+  })
+  @IsNotEmpty()
+  @IsEnum(YesOrNotravell)
+  availabilityToTravel: YesOrNotravell;
+
+  @ApiProperty({
+    description: '¿Requiere pasaporte de la UE?',
+    example: 'no',
+  })
+  @IsNotEmpty()
+  @IsEnum(YesOrNo)
+  euPassport: YesOrNo;
+
 }

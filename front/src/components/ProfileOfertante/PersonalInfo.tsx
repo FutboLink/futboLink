@@ -4,6 +4,8 @@ import { IProfileData } from "@/Interfaces/IUser";
 import { fetchUserData, updateUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { UserContext } from "../Context/UserContext";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
+import ImageUpload from "../Cloudinary/ImageUpload";
+import Image from "next/image";
 
 const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const { token } = useContext(UserContext);
@@ -42,6 +44,13 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
         [e.target.name]: e.target.value,  
       });
     }
+  };
+  
+  const handleImageUpload = (imageUrl: string) => {
+    setFetchedProfileData((prev) => ({
+      ...prev!,
+      imgUrl: imageUrl, // Actualizar la URL de la imagen en fetchedProfileData
+    }));
   };
   
 
@@ -110,16 +119,37 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
           />
           </div>
-          {/* Imagen de perfil (URL) */}
-          <input
-            name="imgUrl"
-            type="text"
-            value={fetchedProfileData?.imgUrl || ""}
-            onChange={handleChange}
-            placeholder="URL de la imagen / Logo de la agencia o entidad / Foto de perfil"
-            className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
-            />
-           {/* Imagen de perfil (URL) */}
+          {/* Age */}
+<div className="flex flex-col">
+  <label className="text-gray-700 font-semibold text-sm">Año de fundación:</label>
+  <input
+    name="age"
+    type="text"
+    value={fetchedProfileData?.age || ""}
+    onChange={handleChange}
+    placeholder="Año de fundación"
+    className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
+  />
+  </div>
+       {/* Imagen de perfil (URL) */}
+       <div className="sm:col-span-2 flex flex-col items-center">
+            <label className="text-gray-700 font-semibold mb-2">Subir Imagen</label>
+            <ImageUpload onUpload={handleImageUpload} />
+            {/* Aquí se mostrará la imagen de perfil si existe */}
+            {fetchedProfileData?.imgUrl && (
+              <div className="mt-4 rounded-full w-24 h-24 overflow-hidden">
+                <Image
+                  src={fetchedProfileData.imgUrl}
+                  alt="Imagen de perfil"
+                  width={96} 
+                  height={96} 
+                  className="object-cover"
+                />
+              </div>
+            )}
+          </div>
+
+           {/* nombre agencia */}
            <input
             name="nameAgency"
             type="text"
@@ -160,28 +190,20 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           />
 
 
-          {/* Género */}
-          <select
-            name="genre"
-            value={fetchedProfileData?.genre || ""}
-            onChange={handleChange}
-            className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
-          >
-            <option value="">Seleccione su género (opcional)</option>
-            <option value="Masculino">Masculino</option>
-            <option value="Femenino">Femenino</option>
-            <option value="Otro">Otro</option>
-          </select>
+{/* Tipo de Organización */}
+<select
+  name="puesto"
+  value={fetchedProfileData?.puesto || ""}
+  onChange={handleChange}
+  className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
+>
+  <option value="" disabled>Selecciona el tipo de organización</option>
+  <option value="Club profesional">Club profesional</option>
+  <option value="Club amateur">Club amateur</option>
+  <option value="Agencia de reclutamiento">Agencia de reclutamiento</option>
+  <option value="Escuelas de fútbol">Escuelas de fútbol</option>
+</select>
 
-       {/* Tipo de organizacion */}
-       <input
-            name="nameAgency"
-            type="text"
-            value={fetchedProfileData?.nameAgency|| ""}
-            onChange={handleChange}
-            placeholder="-Tipo de Organización: Club profesional - Club amateur - Agencia de reclutamiento - Escuelas de fútbol"
-            className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
-          />
         </>
       )}
 
@@ -190,7 +212,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
       {/* Botón Guardar Cambios */}
       <button
         onClick={handleSubmit}
-        className="mt-4 w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
+        className="mt-4 w-full bg-verde-oscuro text-white p-2 rounded hover:bg-green-700"
         disabled={loading}
       >
         {loading ? "Guardando..." : "Guardar cambios"}

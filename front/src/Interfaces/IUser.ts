@@ -18,6 +18,7 @@ export interface IProfileData {
   puesto:string;
   role: UserType.PLAYER;
   imgUrl: string;
+  cv?:string;
   phone: string;
   nationality: string;
   location: string;

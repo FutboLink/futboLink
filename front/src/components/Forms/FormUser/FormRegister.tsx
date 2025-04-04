@@ -14,9 +14,9 @@ const RegistrationForm: React.FC = () => {
   const { signUp } = useContext(UserContext);
   const router = useRouter();
   const { nationalities, loading, error } = useNationalities();
-  const [search, setSearch] = useState<string>(""); // Estado para el texto de búsqueda
-  const [isOpen, setIsOpen] = useState<boolean>(false); // Estado para manejar la apertura del menú
-  const [selectedNationality, setSelectedNationality] = useState<string>(""); // Nacionalidad seleccionada
+  const [search, setSearch] = useState<string>("");
+  const [selectedNationality, setSelectedNationality] = useState<string>(""); // Nuevo estado
+  const [isOpen, setIsOpen] = useState<boolean>(false); // Nacionalidad seleccionada
   const [showTerms, setShowTerms] = useState<boolean>(false);
 
   const puestos = [
@@ -63,7 +63,7 @@ const RegistrationForm: React.FC = () => {
     lastname: "",
     email: "",
     nationality: "",
-    puesto:"",
+    puesto: "",
     genre: "",
     password: "",
     confirmPassword: "",
@@ -81,15 +81,10 @@ const RegistrationForm: React.FC = () => {
     setIsOpen(true);
   };
 
-  // Maneja la selección de una nacionalidad
-  const handleSelectNationality = (value: string) => {
-    setSelectedNationality(value);
-    setUserRegister((prevState) => ({
-      ...prevState,
-      nationality: value,
-    }));
-    setSearch("");
-    setIsOpen(false);
+  const handleSelectNationality = (nationality: string) => {
+    setSelectedNationality(nationality); // Guardamos la nacionalidad seleccionada
+    setSearch(""); // Limpiamos el input para que no quede texto escrito
+    setIsOpen(false); // Cerramos el desplegable
   };
 
   // Maneja la apertura y cierre del menú

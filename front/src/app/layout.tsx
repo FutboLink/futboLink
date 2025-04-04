@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Montserrat } from "next/font/google";
 import "./globals.css";
-// Navbar from "@/components/navbar/navbarHome";
+
 import Footer from "@/components/Footer/footer";
 import Navbar from "@/components/navbar/navbar";
 import { usePathname } from "next/navigation"; // Importar usePathname
@@ -20,6 +20,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const metaData = metadata;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,18 +29,26 @@ export default function RootLayout({
 }>) {
   const pathname = usePathname(); // Obtener la ruta actual
 
- 
-
   return (
     <html lang="en">
+      <head>
+        <title>{String(metadata.title ?? "Futbolink")}</title>
+        <meta
+          name="description"
+          content={String(
+            metadata.description ??
+              "Creando oportunidades para tu futuro en el fútbol"
+          )}
+        />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased hover:scale`}
       >
         <UserProvider>
-         <Navbar />
-        <div>{children}</div>
-        <SocialButton />
-        <Footer />
+          <Navbar />
+          <div>{children}</div>
+          <SocialButton />
+          <Footer />
         </UserProvider>
       </body>
     </html>

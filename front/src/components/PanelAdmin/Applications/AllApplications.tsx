@@ -42,7 +42,7 @@ const AllApplications: React.FC = () => {
 
   return (
     <div className="p-4 mt-2">
-      <h1 className="bg-green-600 text-white p-2 font-semibold text-center">OFERTAS LABORALES</h1>
+      <h1 className="bg-verde-oscuro text-white p-2 font-semibold text-center">OFERTAS LABORALES</h1>
       {/* Input de búsqueda */}
       <div className="flex justify-center items-center mb-6">
         <div className="w-full sm:w-4/6 md:w-3/6 lg:w-2/6 p-4">
@@ -57,17 +57,20 @@ const AllApplications: React.FC = () => {
       </div>
 
 
-      {/* Lista de ofertas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
-      {filteredOffers.length > 0 ? (
-  filteredOffers.map((offer) => (
-    <CardJobsId key={offer.id} offer={offer} />
-  ))
-) : (
-  <p></p> 
-)}
+{/* Lista de ofertas */}
+{/* Lista de ofertas */}
+<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
+  {filteredOffers.length > 0 ? (
+    filteredOffers.map((offer) => (
+      <CardJobsId key={offer.id} offer={offer} />
+    ))
+  ) : (
+    <p>No hay ofertas disponibles</p>
+  )}
+</div>
 
-      </div>
+
+    
     </div>
   );
 };

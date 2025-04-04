@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { PasaporteUe, UserType } from '../roles.enum';
+import { Job } from 'src/modules/Jobs/entities/jobs.entity';
 import { Application } from 'src/modules/Applications/entities/applications.entity';
 import { Subscription } from 'src/modules/Subscriptions/entities/subscription.entity';
 
@@ -127,15 +128,15 @@ export class User {
   videoUrl?: string;
 
   @ApiProperty({ example: [{ club: "FC Barcelona", fechaInicio: "2020-01-01", fechaFinalizacion: "2023-01-01" }], description: 'Trayectorias del usuario', nullable: true })
-@Column('jsonb', { array: true, nullable: true })
-trayectorias?: {
+ @Column('jsonb', { array: true, nullable: true })
+  trayectorias?: {
   club: string;
   fechaInicio: string;
   fechaFinalizacion: string;
   categoriaEquipo: string;
   nivelCompetencia: string;
   logros: string;
-}[];
+ }[];
 
 
   @ApiProperty({
@@ -153,12 +154,8 @@ trayectorias?: {
     nullable: true,
   })
 
-  @OneToOne(() => Subscription, (subscription) => subscription.user, { cascade: true, onDelete: 'CASCADE' })
-  puestoDeportivo?: { position: string; experience: number }[];
 
-  
-  @ApiProperty({ description: 'Suscripción del usuario' })
-  
+  @OneToOne(() => Subscription, (subscription) => subscription.user, { cascade: true, onDelete: 'CASCADE' })
   @JoinColumn()
   @Column({ nullable: true })
   subscription?: string;
@@ -167,5 +164,11 @@ trayectorias?: {
   @Column({ nullable: true })
   cv?: string;
 
+  @ApiProperty({
+    type: () => Job,
+    description: 'La oferta que creó el reclutador',
+  })
+  @OneToMany(()=>Job,(job) =>job.recruiter)
+  job :Job[];
   
 }

@@ -8,7 +8,8 @@ import { Repository } from 'typeorm';
 import { CreateJobDto } from './dto/create-jobs.dto';
 import { UpdateJobDto } from './dto/update-jobs.dto';
 import { User } from '../user/entities/user.entity';
-import { JobEntity } from './entities/jobs.entity';
+import { Job } from './entities/jobs.entity';
+
 
 @Injectable()
 export class JobRepository {
@@ -16,11 +17,11 @@ export class JobRepository {
     throw new Error('Method not implemented.');
   }
   constructor(
-    @InjectRepository(JobEntity)
-    private readonly repository: Repository<JobEntity>,
+    @InjectRepository(Job)
+    private readonly repository: Repository<Job>,
   ) {}
 
-  async createJob(createJobDto: CreateJobDto, recruiter: User): Promise<JobEntity> {
+  async createJob(createJobDto: CreateJobDto, recruiter: User): Promise<Job> {
     try {
       const job = this.repository.create({ ...createJobDto, recruiter });
       console.log('Job created:', job);
@@ -32,11 +33,11 @@ export class JobRepository {
   }
   
 
-  async getJobs(): Promise<JobEntity[]> {
+  async getJobs(): Promise<Job[]> {
     return await this.repository.find({ where: { status: 'OPEN' }, relations: ['recruiter', 'applications'] });
   }
 
-  async getJobById(id: string): Promise<JobEntity> {
+  async getJobById(id: string): Promise<Job> {
     const job = await this.repository.findOne({
       where: { id },
       relations: ['recruiter', 'applications'],
@@ -51,7 +52,7 @@ export class JobRepository {
     id: string,
     updateJobDto: UpdateJobDto,
     recruiter: User,
-  ): Promise<JobEntity> {
+  ): Promise<Job> {
     const job = await this.getJobById(id);
     if (job.recruiter.id !== recruiter.id) {
       throw new UnauthorizedException(

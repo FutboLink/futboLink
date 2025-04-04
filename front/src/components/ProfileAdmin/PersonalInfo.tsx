@@ -4,6 +4,8 @@ import { IProfileData } from "@/Interfaces/IUser";
 import { fetchUserData, updateUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { UserContext } from "../Context/UserContext";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
+import Image from "next/image";
+import ImageUpload from "../Cloudinary/ImageUpload";
 
 const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const { token } = useContext(UserContext);
@@ -44,7 +46,13 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
     }
   };
   
-
+  const handleImageUpload = (imageUrl: string) => {
+    setFetchedProfileData((prev) => ({
+      ...prev!,
+      imgUrl: imageUrl, // Actualizar la URL de la imagen en fetchedProfileData
+    }));
+  };
+  
   // Función de envío de datos
   const handleSubmit = async () => {
     if (!token || !fetchedProfileData) return;
@@ -111,16 +119,23 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           />
           </div>
 
-          {/* Imagen de perfil (URL) */}
-          <input
-            name="imgUrl"
-            type="text"
-            value={fetchedProfileData?.imgUrl || ""}
-            onChange={handleChange}
-            placeholder="URL de la imagen / Logo de la agencia / Foto de perfil"
-            className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
-            />
-          
+         {/* Imagen de perfil (URL) */}
+       <div className="sm:col-span-2 flex flex-col items-center">
+            <label className="text-gray-700 font-semibold mb-2">Subir Imagen</label>
+            <ImageUpload onUpload={handleImageUpload} />
+            {/* Aquí se mostrará la imagen de perfil si existe */}
+            {fetchedProfileData?.imgUrl && (
+              <div className="mt-4 rounded-full w-24 h-24 overflow-hidden">
+                <Image
+                  src={fetchedProfileData.imgUrl}
+                  alt="Imagen de perfil"
+                  width={96} 
+                  height={96} 
+                  className="object-cover"
+                />
+              </div>
+            )}
+          </div>
 
           {/* Teléfono */}
           <input
@@ -173,7 +188,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
       {/* Botón Guardar Cambios */}
       <button
         onClick={handleSubmit}
-        className="mt-4 w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
+        className="mt-4 w-full bg-verde-oscuro text-white p-2 rounded hover:bg-green-700"
         disabled={loading}
       >
         {loading ? "Guardando..." : "Guardar cambios"}

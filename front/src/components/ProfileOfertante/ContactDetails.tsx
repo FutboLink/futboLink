@@ -69,7 +69,6 @@ const ContactDetails: React.FC<{ profileData: IProfileData }> = () => {
 
   return (
     <div className="p-4 border border-gray-300 shadow-lg rounded-lg">
-      <h2 className="text-lg font-semibold text-gray-700">Detalles Físicos</h2>
       {fetchedProfileData ? (
         <>
           {/* Transfermarkt */}
@@ -110,6 +109,20 @@ const ContactDetails: React.FC<{ profileData: IProfileData }> = () => {
               className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
             />
           </div>
+
+          {/* Website */}
+      <div className="flex flex-col">
+        <label className="text-gray-700 font-semibold text-sm pl-2">Página Web:</label>
+        <input
+          type="text"
+          name="website"
+          value={fetchedProfileData?.socialMedia?.website || ""}
+          onChange={handleChange}
+          placeholder="Link de tu página web"
+          className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
+        />
+      </div>
+
        
         </>
       ) : (
@@ -118,7 +131,7 @@ const ContactDetails: React.FC<{ profileData: IProfileData }> = () => {
 
       <button
         onClick={handleSubmit}
-        className="mt-4 w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
+        className="mt-4 w-full bg-verde-oscuro text-white p-2 rounded hover:bg-green-700"
         disabled={loading}
       >
         {loading ? "Guardando..." : "Guardar cambios"}

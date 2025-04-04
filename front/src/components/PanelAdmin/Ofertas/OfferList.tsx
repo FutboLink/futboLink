@@ -42,7 +42,7 @@ const OfferList: React.FC = () => {
 
   return (
     <div className="mt-12 p-12">
-      <h1 className="bg-green-600 text-white p-2 font-semibold text-center">OFERTAS LABORALES</h1>
+      <h1 className="bg-gradient-to-r from-green-400 via-green-500 to-green-600 text-white p-2 font-semibold text-center">OFERTAS LABORALES</h1>
       {/* Input de búsqueda */}
       <div className="flex justify-center items-center mb-6">
         <div className="w-full sm:w-4/6 md:w-3/6 lg:w-2/6 p-4">

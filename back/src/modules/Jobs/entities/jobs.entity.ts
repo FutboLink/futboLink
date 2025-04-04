@@ -1,17 +1,25 @@
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  OneToMany,
+} from 'typeorm';
+import { User } from '../../user/entities/user.entity';
 import { Application } from 'src/modules/Applications/entities/applications.entity';
 import { YesOrNo, YesOrNotravell } from '../jobs.enum';
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
-import { User } from 'src/modules/user/entities/user.entity';
 
 @Entity('jobs')
-export class JobEntity {
+export class Job {
+  @ApiProperty({ description: 'ID del trabajo' })
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @ApiProperty({ example: 'Se busca delantero', description: 'Que haga goles' })
   @Column()
   title: string;
-
 
   @ApiProperty({ example: 'Presencial', description: 'Ubicación del trabajo' })
   @Column()
@@ -51,7 +59,15 @@ export class JobEntity {
   position: string;
 
   @ApiProperty({
-    example: ['Sueldo fijo', 'Bonos por rendimiento', 'Viáticos incluidos', 'Alojamiento incluido', 'No remunerado', 'A convenir', 'Equipamiento deportivo'],
+    example: [
+      'Sueldo fijo',
+      'Bonos por rendimiento',
+      'Viáticos incluidos',
+      'Alojamiento incluido',
+      'No remunerado',
+      'A convenir',
+      'Equipamiento deportivo',
+    ],
     description: 'Competencias requeridas',
   })
   @Column('simple-array')
@@ -61,6 +77,10 @@ export class JobEntity {
   @Column()
   nationality: string;
 
+  @ApiProperty({
+    example: 'https://example.com/job.png',
+    description: 'URL de la imagen del trabajo',
+  })
   @Column()
   imgUrl: string;
 
@@ -94,8 +114,7 @@ export class JobEntity {
     example: 35,
   })
   @Column()
-  maxAge: number; 
-
+  maxAge: number;
 
   @ApiProperty({
     description: 'Deporte relacionado con el trabajo',
@@ -131,14 +150,12 @@ export class JobEntity {
   })
   euPassport: YesOrNo;
 
-
-
-/*   @ApiProperty({
+  @ApiProperty({
     type: () => User,
     description: 'Reclutador que creó la oferta',
   })
-  @ManyToOne(() => User, (user) => user.jobs)
-  recruiter: User; */
+  @ManyToOne(() => User, (user) => user.job)
+  recruiter: User;
 
   @ApiProperty({
     type: () => [Application],
@@ -147,3 +164,4 @@ export class JobEntity {
   @OneToMany(() => Application, (application) => application.job)
   applications: Application[];
 }
+

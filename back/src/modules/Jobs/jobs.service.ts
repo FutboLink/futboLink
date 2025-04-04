@@ -1,27 +1,27 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateJobDto } from './dto/create-jobs.dto';
-import { JobEntity } from './entities/jobs.entity';
+import { Job } from './entities/jobs.entity';
 import { Repository } from 'typeorm';
 
 
 @Injectable()
 export class JobsService {
   constructor(
-    @InjectRepository(JobEntity)
-    private readonly jobRepository: Repository<JobEntity>,
+    @InjectRepository(Job)
+    private readonly jobRepository: Repository<Job>,
   ) {}
 
-  async create(createJobDto: CreateJobDto): Promise<JobEntity> {
+  async create(createJobDto: CreateJobDto): Promise<Job> {
     const job = this.jobRepository.create(createJobDto);
     return await this.jobRepository.save(job);
   }
 
-  async findAll(): Promise<JobEntity[]> {
+  async findAll(): Promise<Job[]> {
     return await this.jobRepository.find();
   }
 
-  async findOne(id: string): Promise<JobEntity> {
+  async findOne(id: string): Promise<Job> {
     const job = await this.jobRepository.findOne({ where: { id } });
     if (!job) {
       throw new NotFoundException(`Job with ID ${id} not found`);
@@ -29,7 +29,7 @@ export class JobsService {
     return job;
   }
 
-  async update(id: string, updateJobDto: Partial<CreateJobDto>): Promise<JobEntity> {
+  async update(id: string, updateJobDto: Partial<CreateJobDto>): Promise<Job> {
     await this.jobRepository.update(id, updateJobDto);
     return this.findOne(id);
   }

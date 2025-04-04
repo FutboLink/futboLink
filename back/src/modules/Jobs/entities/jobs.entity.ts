@@ -1,5 +1,8 @@
 import { Application } from 'src/modules/Applications/entities/applications.entity';
 import { YesOrNo, YesOrNotravell } from '../jobs.enum';
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { ApiProperty } from '@nestjs/swagger';
+import { User } from 'src/modules/user/entities/user.entity';
 
 @Entity('jobs')
 export class JobEntity {
@@ -130,12 +133,12 @@ export class JobEntity {
 
 
 
-  @ApiProperty({
+/*   @ApiProperty({
     type: () => User,
     description: 'Reclutador que creó la oferta',
   })
   @ManyToOne(() => User, (user) => user.jobs)
-  recruiter: User;
+  recruiter: User; */
 
   @ApiProperty({
     type: () => [Application],

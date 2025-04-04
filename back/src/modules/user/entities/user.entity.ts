@@ -1,7 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { PasaporteUe, UserType } from '../roles.enum';
-import { JobEntity } from 'src/modules/Jobs/entities/jobs.entity';
 import { Application } from 'src/modules/Applications/entities/applications.entity';
 import { Subscription } from 'src/modules/Subscriptions/entities/subscription.entity';
 

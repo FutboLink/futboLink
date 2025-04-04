@@ -18,17 +18,17 @@ export class JobsService {
   }
 
   async findAll(): Promise<Job[]> {
-    return await this.jobRepository.find();
+    return await this.jobRepository.find({ relations: ['recruiter'] });
   }
-
+  
   async findOne(id: string): Promise<Job> {
-    const job = await this.jobRepository.findOne({ where: { id } });
+    const job = await this.jobRepository.findOne({ where: { id }, relations: ['recruiter'] });
     if (!job) {
       throw new NotFoundException(`Job with ID ${id} not found`);
     }
     return job;
   }
-
+  
   async update(id: string, updateJobDto: Partial<CreateJobDto>): Promise<Job> {
     await this.jobRepository.update(id, updateJobDto);
     return this.findOne(id);

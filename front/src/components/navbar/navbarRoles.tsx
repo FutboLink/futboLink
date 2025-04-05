@@ -89,13 +89,6 @@ function NavbarRoles() {
                 Suscripciones
               </li>
               <li
-                onClick={() => navigateTo("/Contact")}
-                className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
-                aria-label="Contacto"
-              >
-                Contacto
-              </li>
-              <li
                 onClick={() => navigateTo("/Help")}
                 className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
                 aria-label="Cómo usar FutboLink"
@@ -108,6 +101,13 @@ function NavbarRoles() {
                 aria-label="Cómo usar FutboLink"
               >
                Entrenamiento
+              </li>              
+              <li
+                onClick={() => navigateTo("/Contact")}
+                className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
+                aria-label="Contacto"
+              >
+                Contacto
               </li>
             </ul>
           </div>
@@ -198,12 +198,6 @@ function NavbarRoles() {
                 Suscripciones
               </li>
               <li
-                onClick={() => navigateTo("/Contact")}
-                className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
-              >
-                Contacto
-              </li>
-              <li
                 onClick={() => navigateTo("/Help")}
                 className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
               >
@@ -214,6 +208,13 @@ function NavbarRoles() {
                 className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
               >
               Entrenamiento
+              </li>
+              
+              <li
+                onClick={() => navigateTo("/Contact")}
+                className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
+              >
+                Contacto
               </li>
             </ul>
 

@@ -86,7 +86,7 @@ const ContactDetails: React.FC<{ profileData: IProfileData }> = () => {
   
           {/* X*/}
           <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold text-sm pl-2">X:</label>
+          <label className="text-gray-700 font-semibold text-sm pl-2 mt-2">X:</label>
             <input
               type="text"
               name="x"
@@ -99,7 +99,7 @@ const ContactDetails: React.FC<{ profileData: IProfileData }> = () => {
 
             {/* Youtube*/}
             <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold text-sm pl-2">Youtube:</label>
+            <label className="text-gray-700 font-semibold text-sm pl-2 mt-2">Youtube:</label>
             <input
               type="text"
               name="youtube"
@@ -112,7 +112,7 @@ const ContactDetails: React.FC<{ profileData: IProfileData }> = () => {
 
           {/* Website */}
       <div className="flex flex-col">
-        <label className="text-gray-700 font-semibold text-sm pl-2">Página Web:</label>
+        <label className="text-gray-700 font-semibold text-sm pl-2 mt-2">Página Web:</label>
         <input
           type="text"
           name="website"

@@ -23,12 +23,12 @@ const useNationalities = () => {
       .then((data: Country[]) => {
         // Mapeamos los datos y los ordenamos alfabéticamente
         const nationalityOptions: NationalityOption[] = data
-          .map((country) => ({
-            value: country.cca2,
-            label: country.name.common,
-          }))
-          .sort((a, b) => a.label.localeCompare(b.label)); // Ordenamos por nombre alfabéticamente
-
+        .map((country) => ({
+          value: country.name.common, // ← ahora guarda el nombre completo
+          label: country.name.common, // ← y también lo muestra así
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label));
+      
         setNationalities(nationalityOptions);
         setLoading(false);
       })

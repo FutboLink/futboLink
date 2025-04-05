@@ -4,94 +4,94 @@ import { NotificationsForms } from '../Notifications/NotificationsForms';
 
 type ModalApplicationProps = {
   jobId: string;
-  userId: string;  // Recibimos el userId como prop
+  userId: string; 
+  jobTitle: string;
   onClose: () => void;
 };
 
-const ModalApplication: React.FC<ModalApplicationProps> = ({ jobId, userId, onClose }) => {
-  const [message, setMessage] = useState('');
+const ModalApplication: React.FC<ModalApplicationProps> = ({ jobId, userId, jobTitle, onClose }) => {
+  const message = "Mensaje de aplicación";
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
+  const [buttonText, setButtonText] = useState("Enviar");
 
   const handleSubmit = async () => {
-    if (!message.trim()) {
-      // Mostrar notificación de error si el mensaje está vacío
-      setNotificationMessage("Por favor, ingresa un mensaje.");
-      setShowNotification(true);
-
-      // Mantenemos la notificación visible por 2 segundos antes de ocultarla
-      setTimeout(() => setShowNotification(false), 2000);
-      return;
-    }
-
-    // Primero mostramos la notificación de "enviando..."
+     
     setNotificationMessage("Enviando solicitud...");
+    setButtonText("Enviando...");
     setShowNotification(true);
-
-    // Hacemos un setTimeout para asegurar que la notificación se vea
+  
     setTimeout(async () => {
       setIsSubmitting(true);
-
+  
       try {
         const application = { message, jobId, userId };
         await fetchApplications(application);
-
-        // Si la solicitud fue exitosa, mostramos un mensaje de éxito
+  
         setNotificationMessage("Has enviado la solicitud.");
+        setButtonText("Aplicación enviada");
         setShowNotification(true);
-
-        // Mantenemos la notificación visible por 2 segundos antes de cerrarla
+  
         setTimeout(() => {
           setShowNotification(false);
+          onClose(); // Cerrar modal luego del envío exitoso
         }, 2000);
-
-        onClose(); // Cerramos el modal después de enviar la aplicación
       } catch (error: unknown) {
         console.error('Error al enviar la aplicación:', error);
-
-        // Manejo de error en función de si es una instancia de Error o no
+  
         if (error instanceof Error) {
-          setNotificationMessage(`Ya has enviado la solicitud.`);
+          setNotificationMessage("Ya has enviado la solicitud.");
+          setButtonText("Ya has aplicado");
         } else {
           setNotificationMessage("Error desconocido al enviar la solicitud.");
+          setButtonText("Error al enviar");
         }
-
+  
         setShowNotification(true);
         setTimeout(() => {
           setShowNotification(false);
         }, 2000);
       } finally {
-        setIsSubmitting(false); // Siempre se ejecuta, independientemente de si hubo error o no
+        setIsSubmitting(false);
       }
-    }, 500); // Aseguramos que la notificación se vea antes de iniciar la solicitud
+    }, 500);
   };
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
-        <h2 className="text-2xl text-gray-700 font-bold mb-4">Aplicar a la Oferta</h2>
-        <textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          className="w-full p-2 border text-gray-700 rounded-lg mb-4"
-          rows={5}
-          placeholder="Escribe tu mensaje..."
-        />
-        <div className="flex justify-end gap-4">
-          <button className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600" onClick={onClose}>
-            Cancelar
-          </button>
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 px-4">
+      <div className="bg-gradient-to-r from-[#1d5126] to-[#3e7c27] rounded-2xl shadow-2xl w-full max-w-lg p-6 relative animate-fade-in">
+        
+        {/* Botón de cierre (X) */}
+        <button
+          className="absolute top-4 right-4 text-white text-2xl hover:text-red-400 font-bold focus:outline-none"
+          onClick={onClose}
+        >
+          &times;
+        </button>
+  
+        {/* Título */}
+        <h2 className="text-2xl font-bold text-center text-white mb-6 border-b pb-3">
+          Aplicar a la oferta
+        </h2>
+  
+        {/* Subtítulo con el título del trabajo */}
+        <div className="text-center mb-6 rounded bg-white border-b p-3">
+          <span className="text-xl font-bold text-gray-700">{jobTitle}</span>
+        </div>
+  
+        {/* Botones */}
+        <div className="flex justify-end gap-4 mt-4">
           <button
-            className="px-4 py-2 bg-verde-oscuro text-white rounded-lg hover:bg-green-700"
+            className="px-5 py-2 rounded-lg bg-white text-gray-700 font-semibold hover:bg-gray-200 transition disabled:opacity-60"
             onClick={handleSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitting || buttonText !== "Enviar"}
           >
-            {isSubmitting ? 'Enviando...' : 'Enviar'}
+            {buttonText}
           </button>
         </div>
       </div>
-
+  
+      {/* Notificación */}
       {showNotification && (
         <div className="absolute top-12 left-0 right-0 mx-auto w-max z-50">
           <NotificationsForms message={notificationMessage} />
@@ -99,6 +99,7 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({ jobId, userId, onCl
       )}
     </div>
   );
+  
 };
 
 export default ModalApplication;

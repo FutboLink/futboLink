@@ -77,20 +77,23 @@ const minExperience = [
 ];
 const extras = [
   "Sueldo fijo",
-  "Transporte incluido",
-  "Bonos por rendimiento",
-  "Viáticos incluidos",
-  "Alojamiento incluido",
   "No remunerado",
   "A convenir",
+  "Transporte incluido",
+  "Alojamiento incluido",
+  "Viáticos incluidos",
+  "Bonos por rendimiento",
   "Equipamiento deportivo",
 ];
 
 const FormComponent = () => {
   const { nationalities } = useNationalities();
-  const [selectedNationality, setSelectedNationality] = useState<string>("");
+  const [ ,setSelectedNationality] = useState<string>("");
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
+  const [currency, setCurrency] = useState('EUR');
+  const [amount, setAmount] = useState('');
+
   const [formData, setFormData] = useState<ICreateJob>({
     title: "",
     nationality: "",
@@ -117,12 +120,7 @@ const FormComponent = () => {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Maneja el cambio en el campo de búsqueda
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value); // Actualiza el texto de búsqueda
-    setIsOpen(true); // Asegura que el dropdown se mantenga abierto mientras se escribe
-  };
-
+ 
   // Maneja la selección de una nacionalidad
   const handleSelectNationality = (value: string) => {
     setSelectedNationality(value); // Actualiza selectedNationality con el valor seleccionado
@@ -134,10 +132,6 @@ const FormComponent = () => {
     setIsOpen(false); // Cierra el dropdown una vez se seleccione una opción
   };
 
-  // Maneja la apertura y cierre del menú
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
 
   const handleExtraChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -222,67 +216,43 @@ const FormComponent = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-4 bg-gray-100  text-gray-700 rounded-lg shadow-lg shadow-gray-400  border-2 hover:cursor-pointer ">
-      <div className="max-w-2xl  mx-auto p-4 ">
-        <h1 className="text-xl font-bold mb-4 text-center bg-gray-600 text-white p-2 rounded">
+    <div className="max-w-5xl mx-auto p-2 bg-gray-100 text-gray-700 rounded-lg shadow-md border border-gray-300">
+    <div className="mx-auto text-center mb-2">
+      <h1 className="text-lg font-semibold bg-gray-600 text-white py-1 px-2 rounded">
           Crear Oferta de Trabajo
         </h1>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-4 lg:grid-cols-4"
-      >
-        <div className="flex flex-col">
-          <label className="text-sm font-bold mb-2">Título</label>
-          <input
-            type="text"
-            className="p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
-            value={formData.title}
-            onChange={(e) =>
-              setFormData({ ...formData, title: e.target.value })
-            }
-            placeholder="Nombre de la oferta laboral"
-          />
-        </div>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-2">
+    <div className="flex flex-col">
+      <label className="text-xs font-semibold mb-1">Título</label>
+      <input
+        type="text"
+        className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+        value={formData.title}
+        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+        placeholder="Nombre de la oferta"
+      />
+    </div>
 
-        {/* Nacionalidad */}
-        <div className="col-span-1 mb-4 relative">
-          <label
-            htmlFor="nationalitySearch"
-            className="block text-sm font-bold mb-2"
-          >
-            Buscar Nacionalidad
-          </label>
-          <input
-            type="text"
-            value={search}
-            onChange={handleSearchChange}
-            placeholder="Buscar nacionalidad..."
-            onClick={toggleDropdown}
-            className="w-full border text-gray-600 border-gray-300 rounded-lg p-1 mb-1"
-          />
-        </div>
+        {/* Ubicación */}
+         <div className="flex flex-col">
+      <label className="text-xs font-semibold mb-1">Ubicación</label>
+      <input
+        type="text"
+        className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+        value={formData.location}
+        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+        placeholder="Lugar del trabajo"
+      />
+    </div>
 
-        {/* Nacionalidad seleccionada */}
-        <div className="col-span-1 relative mb-4">
-          <label htmlFor="nationality" className="block text-sm font-bold mb-2">
-            Nacionalidad seleccionada
-            <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={selectedNationality}
-            readOnly
-            className="w-full border text-gray-600 border-gray-300 rounded-lg p-1 mb-1"
-          />
-        </div>
 
-        <div className="flex flex-col">
-          <label className="text-sm font-bold mb-2">Ciudad:</label>
+    <div className="flex flex-col">
+    <label className="text-xs font-semibold mb-1">Ciudad</label>
           <input
             type="text"
-            className="p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
+          className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.location}
             onChange={(e) =>
               setFormData({ ...formData, location: e.target.value })
@@ -294,7 +264,7 @@ const FormComponent = () => {
         {/* Dropdown de opciones */}
         {isOpen && (
           <div className="absolute z-10 w-full sm:w-auto max-w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
-            {loading && <p>Cargando nacionalidades...</p>}
+            {loading && <p>Cargando ubicación...</p>}
             {error && <p className="text-red-500">{error}</p>}
             <ul>
               {nationalities
@@ -314,10 +284,10 @@ const FormComponent = () => {
           </div>
         )}
 
-        <div className="flex flex-col">
-          <label className="text-sm font-bold  mb-2">Posición</label>
+<div className="flex flex-col">
+<label className="text-xs font-semibold mb-1">Posición</label>
           <select
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
+           className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.position}
             onChange={(e) =>
               setFormData({ ...formData, position: e.target.value })
@@ -332,9 +302,9 @@ const FormComponent = () => {
         </div>
 
         <div className="flex flex-col">
-          <label className="text-sm font-bold mb-2">Categoría</label>
+        <label className="text-xs font-semibold mb-1">Categoría</label>
           <select
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
+           className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.category}
             onChange={(e) =>
               setFormData({ ...formData, category: e.target.value })
@@ -349,9 +319,9 @@ const FormComponent = () => {
         </div>
 
         <div className="flex flex-col">
-          <label className="text-sm font-bold mb-2">Género deporte</label>
+      <label className="text-xs font-semibold mb-1">Género deporte</label>
           <select
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
+           className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.sportGenres}
             onChange={(e) =>
               setFormData({ ...formData, sportGenres: e.target.value })
@@ -366,9 +336,9 @@ const FormComponent = () => {
         </div>
 
         <div className="flex flex-col">
-          <label className="text-sm font-bold mb-2">Modalidad</label>
+        <label className="text-xs font-semibold mb-1">Modalidad</label>
           <select
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
+            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.sport}
             onChange={(e) =>
               setFormData({ ...formData, sport: e.target.value })
@@ -383,9 +353,9 @@ const FormComponent = () => {
         </div>
 
         <div className="flex flex-col">
-          <label className="text-sm font-bold mb-2">Tipo de contrato</label>
+        <label className="text-xs font-semibold mb-1">Tipo de contrato</label>
           <select
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
+           className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.contractTypes}
             onChange={(e) =>
               setFormData({ ...formData, contractTypes: e.target.value })
@@ -400,9 +370,9 @@ const FormComponent = () => {
         </div>
 
         <div className="flex flex-col">
-          <label className="text-sm font-bold mb-2">Tiempo de contrato</label>
+        <label className="text-xs font-semibold mb-1">Tiempo de contrato</label>
           <select
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
+            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.contractDurations}
             onChange={(e) =>
               setFormData({ ...formData, contractDurations: e.target.value })
@@ -417,10 +387,22 @@ const FormComponent = () => {
         </div>
 
         <div className="flex flex-col">
-          <label className="text-sm font-bold mb-2">Salario</label>
+        <label className="text-xs font-semibold mb-1">Moneda</label>
+  <select
+   className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+    value={currency}
+    onChange={(e) => setCurrency(e.target.value)}
+  >
+    <option value="EUR">EUR (€)</option>
+    <option value="USD">USD ($)</option>
+  </select>
+</div>
+
+        <div className="flex flex-col">
+      <label className="text-xs font-semibold mb-1">Salario</label>
           <input
             type="number"
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
+           className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.salary === 0 ? "" : formData.salary}
             onChange={(e) => {
               const value = e.target.value;
@@ -433,10 +415,10 @@ const FormComponent = () => {
         </div>
 
         <div className="flex flex-col">
-          <label className="text-sm font-bold mb-2">Edad mínima</label>
+      <label className="text-xs font-semibold mb-1">Edad mínima</label>
           <input
             type="number"
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
+            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.minAge === 0 ? "" : formData.minAge}
             onChange={(e) => {
               const value = e.target.value;
@@ -449,10 +431,10 @@ const FormComponent = () => {
         </div>
 
         <div className="flex flex-col">
-          <label className="text-sm font-bold mb-2">Edad máxima</label>
+        <label className="text-xs font-semibold mb-1">Edad máxima</label>
           <input
             type="number"
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
+            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.maxAge === 0 ? "" : formData.maxAge}
             onChange={(e) => {
               const value = e.target.value;
@@ -465,41 +447,29 @@ const FormComponent = () => {
         </div>
 
         <div className="flex flex-col">
-          <label className="text-sm font-bold mb-2">Experiencia mínima</label>
-          <select
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
-            value={formData.minExperience}
-            onChange={(e) =>
-              setFormData({ ...formData, minExperience: e.target.value })
-            }
-          >
-            {minExperience.map((minExperience, index) => (
-              <option key={index} value={minExperience}>
-                {minExperience}
-              </option>
-            ))}
-          </select>
-        </div>
+        <label className="text-xs font-semibold mb-1">Experiencia mínima</label>
+  <select
+    className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+    value={formData.minExperience}
+    onChange={(e) => {
+      const value = e.target.value;
+      setFormData({ ...formData, minExperience: value });
+    }}
+  >
+    {minExperience.map((experience, index) => (
+      <option key={index} value={experience}>
+        {experience}
+      </option>
+    ))}
+     </select>
 
-        <div className="flex flex-col">
-          <label className="text-sm font-bold mb-2">
-            Mínimo de experiencia:
-          </label>
-          <input
-            type="text"
-            className="p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
-            value={formData.minExperience}
-            onChange={(e) =>
-              setFormData({ ...formData, minExperience: e.target.value })
-            }
-            placeholder="Mínimo de experiencia de la oferta laboral"
-          />
-        </div>
+</div>
 
-        <div className="flex flex-col">
-          <label className="text-sm font-bold mb-2">Pasaporte de la UE</label>
+
+<div className="flex flex-col">
+<label className="text-xs font-semibold mb-1">Pasaporte de la UE</label>
           <select
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
+            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.euPassport}
             onChange={(e) =>
               setFormData({
@@ -514,11 +484,11 @@ const FormComponent = () => {
         </div>
 
         <div className="flex flex-col">
-          <label className="text-sm font-bold mb-2">
+        <label className="text-xs font-semibold mb-1">
             Disponibilidad para viajar:
           </label>
           <select
-            className="p-1 mb-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
+           className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.availabilityToTravel}
             onChange={(e) =>
               setFormData({
@@ -533,11 +503,11 @@ const FormComponent = () => {
         </div>
 
         <div className="flex flex-col">
-          <label className="text-sm font-bold mb-2">Descripción</label>
+        <label className="text-xs font-semibold mb-1">Descripción</label>
           <textarea
             name="description"
-            maxLength={200}
-            className="p-2 mb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro text-gray-600"
+            maxLength={1500}
+            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.description}
             onChange={(e) =>
               setFormData({ ...formData, description: e.target.value })
@@ -545,31 +515,32 @@ const FormComponent = () => {
             placeholder="Escribe una breve descripción..."
           />
           <p className="text-xs text-gray-500">
-            {200 - formData.description.length} caracteres restantes
+            {1500 - formData.description.length} caracteres restantes
           </p>
         </div>
 
-        <div className="flex flex-col border-2 border-gray-300 p-2 rounded">
-          <label className="text-sm font-bold">Extras al salario</label>{" "}
-          <p className="mb-2 text-sm">(haz click en las que desees agregar)</p>
-          <div className="flex flex-wrap gap-2">
-            {extras.map((extra, index) => (
-              <div key={index} className="flex items-center">
-                <input
-                  type="checkbox"
-                  id={`extra-${index}`}
-                  value={extra}
-                  checked={formData.extra.includes(extra)} // Verifica si la opción está seleccionada
-                  onChange={(e) => handleExtraChange(e, extra)} // Llama a la función de manejo
-                  className="p-2 border text-gray-600 border-gray-300 rounded-md"
-                />
-                <label htmlFor={`extra-${index}`} className="ml-2">
-                  {extra}
-                </label>
-              </div>
-            ))}
-          </div>
-        </div>
+        <div className="flex flex-col">
+  <label className="text-xs font-semibold mb-1">Extras al salario</label>
+  <p className="mb-1 text-xs text-gray-500">(Haz clic en las que desees agregar)</p>
+  <div className="flex flex-wrap gap-3">
+    {extras.map((extra, index) => (
+      <div key={index} className="flex items-center">
+        <input
+          type="checkbox"
+          id={`extra-${index}`}
+          value={extra}
+          checked={formData.extra.includes(extra)}
+          onChange={(e) => handleExtraChange(e, extra)}
+          className="h-4 w-4 text-verde-claro border-gray-300 rounded"
+        />
+        <label htmlFor={`extra-${index}`} className="ml-1 text-sm text-gray-700">
+          {extra}
+        </label>
+      </div>
+    ))}
+  </div>
+</div>
+
 
         <div className="flex flex-col md:col-span-2 mt-4">
           <label className="text-sm font-bold mb-2">Cargar Imagen</label>

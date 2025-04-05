@@ -181,12 +181,12 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   
           {/* Nationality Search */}
           <div className="flex flex-col">
-            <label htmlFor="nationalitySearch" className="block text-gray-700 font-semibold text-sm">Buscar Nacionalidad</label>
+            <label htmlFor="nationalitySearch" className="block text-gray-700 font-semibold text-sm">Buscar ubicación</label>
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar nacionalidad..."
+              placeholder="Buscar ubicación..."
               onClick={toggleDropdown}
               className="w-full border text-gray-700 mt-2 border-gray-300 rounded-lg p-2"
             />
@@ -198,7 +198,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   
           {/* Selected Nationality */}
           <div className="flex flex-col mb-2">
-            <label htmlFor="nationality" className="block text-gray-700 font-semibold text-sm">Nacionalidad seleccionada</label>
+            <label htmlFor="nationality" className="block text-gray-700 font-semibold text-sm">Ubicación seleccionada</label>
             <input
               type="text"
               defaultValue={selectedNationality}
@@ -210,7 +210,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           {/* Nationality Dropdown */}
           {isOpen && (
             <div className="absolute z-10 w-full sm:w-auto max-w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
-              {nationalitiesLoading && <p>Cargando nacionalidades...</p>}
+              {nationalitiesLoading && <p>Cargando ubicaciones...</p>}
               {nationalitiesError && <p className="text-red-500">{nationalitiesError}</p>}
               <ul>
                 {nationalities
@@ -230,19 +230,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             </div>
           )}
 
-           {/* Nacionalidad Actual */}
-           <div className="flex flex-col">
-           <label className="text-gray-700 font-semibold text-sm">Nacionalidad actual:</label>
-            <input
-              name="nationality"
-              type="text"
-              value={fetchedProfileData?.nationality || ""}
-              onChange={handleChange}
-              placeholder="Nacionalidad Actual"
-              required
-             className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
-            />
-          </div>
+         
   
           {/* Location */}
           <div className="flex flex-col">

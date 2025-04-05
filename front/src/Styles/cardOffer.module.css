@@ -41,9 +41,9 @@
   font-size: 18px;
   font-weight: bold;
   color: #1f2937;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
   max-width: 230px;
   margin-bottom: 8px;
 }
@@ -52,11 +52,20 @@
   font-size: 14px;
   color: #4b5563;
   padding: 0 16px;
-  min-height: 60px;
-  max-height: 80px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: justify;
+  margin: 0;
+}
+
+
+.description p {
+  margin: 0; /* el <p> puede tener márgenes por defecto */
 }
 
 .cardContent {

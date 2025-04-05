@@ -15,13 +15,12 @@ const OfferList: React.FC = () => {
       setLoading(true);
       const data = await getOfertas();
       setOffers(data);
-      setFilteredOffers(data); // Mostrar todas las ofertas al inicio
+      setFilteredOffers(data);
       setLoading(false);
     };
     fetchOffers();
   }, []);
 
-  // Filtrar ofertas en tiempo real
   useEffect(() => {
     const filtered = offers.filter((offer) => {
       const lowerSearchTerm = searchTerm.toLowerCase();
@@ -40,10 +39,13 @@ const OfferList: React.FC = () => {
     );
   }
 
+  const sortedOffers = filteredOffers.slice().sort((a, b) => {
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+
   return (
     <div className="mt-12 p-12">
       <h1 className="bg-gradient-to-r from-green-400 via-green-500 to-green-600 text-white p-2 font-semibold text-center">OFERTAS LABORALES</h1>
-      {/* Input de búsqueda */}
       <div className="flex justify-center items-center mb-6">
         <div className="w-full sm:w-4/6 md:w-3/6 lg:w-2/6 p-4">
           <input
@@ -56,17 +58,14 @@ const OfferList: React.FC = () => {
         </div>
       </div>
 
-
-      {/* Lista de ofertas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
-      {filteredOffers.length > 0 ? (
-  filteredOffers.map((offer) => (
-    <CardOffer key={offer.id} offer={offer} />
-  ))
-) : (
-  <p></p> 
-)}
-
+        {sortedOffers.length > 0 ? (
+          sortedOffers.map((offer) => (
+            <CardOffer key={offer.id} offer={offer} />
+          ))
+        ) : (
+          <p>No se encontraron ofertas.</p>
+        )}
       </div>
     </div>
   );

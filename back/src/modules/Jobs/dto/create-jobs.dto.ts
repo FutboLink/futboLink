@@ -143,4 +143,9 @@ export class CreateJobDto {
   @IsEnum(YesOrNo)
   euPassport: YesOrNo;
 
+  @IsNotEmpty()
+  @IsString()
+  currencyType:string
+
+
 }

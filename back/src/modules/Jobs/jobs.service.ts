@@ -12,8 +12,11 @@ export class JobsService {
     private readonly jobRepository: Repository<Job>,
   ) {}
 
-  async create(createJobDto: CreateJobDto): Promise<Job> {
-    const job = this.jobRepository.create(createJobDto);
+  async create(createJobDto: CreateJobDto, recruiterId: string): Promise<Job> {
+    const job = this.jobRepository.create({
+      ...createJobDto,
+      recruiter: { id: recruiterId }, 
+    });
     return await this.jobRepository.save(job);
   }
 

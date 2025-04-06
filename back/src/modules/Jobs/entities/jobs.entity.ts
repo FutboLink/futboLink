@@ -150,6 +150,15 @@ export class Job {
   })
   euPassport: YesOrNo;
 
+
+  @ApiProperty({
+    description: 'Tipo de moneda',
+    example: 'Euro€',
+  })
+  @Column()
+  currencyType:string
+  
+
   @ApiProperty({
     type: () => User,
     description: 'Reclutador que creó la oferta',

@@ -1,7 +1,10 @@
-import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UseGuards, Req } from '@nestjs/common';
 import { JobsService } from './jobs.service';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { CreateJobDto } from './dto/create-jobs.dto';
+import { AuthGuard } from '../auth/auth.guard';
+import {Request} from "express"
+import { RequestWithUser } from '../auth/RequestWithUser';
 
 @ApiTags('Jobs')
 @Controller('jobs')
@@ -9,9 +12,11 @@ export class JobsController {
   constructor(private readonly jobsService: JobsService) {}
 
   @Post()
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Crear un nuevo trabajo' })
-  async create(@Body() createJobDto: CreateJobDto) {
-    return this.jobsService.create(createJobDto);
+  async create(@Body() createJobDto: CreateJobDto, @Req() req: RequestWithUser) {
+    const recruiterId = req.user.id; 
+    return this.jobsService.create(createJobDto, recruiterId);
   }
 
   @Get()

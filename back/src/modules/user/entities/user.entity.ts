@@ -53,8 +53,6 @@ export class User {
   @Column({ default: UserType.PLAYER })
   role: UserType;
 
-
-
   @ApiProperty({ example: 'https://example.com/avatar.jpg', description: 'URL de la img de perfil', nullable: true })
   @Column({ nullable: true })
   imgUrl?: string;

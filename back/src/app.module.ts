@@ -13,6 +13,7 @@ import { StripeModule } from './stripe/stripe.module';
 import { PaymentController } from './stripe/stripe.controller';
 import { NewsModule } from './modules/News/news.module';
 import { CursoModule } from './modules/Courses/cursos.module';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
@@ -23,6 +24,18 @@ import { CursoModule } from './modules/Courses/cursos.module';
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => config.get('typeorm'),
+    }),
+    MailerModule.forRoot({
+      transport: {
+        service: 'gmail',
+        auth: {
+          user: 'tu-email@gmail.com',
+          pass: 'tu-contraseña-o-app-password',
+        },
+      },
+      defaults: {
+        from: '"No Reply" <tu-email@gmail.com>',
+      },
     }),
     UserModule,
     AuthModule,

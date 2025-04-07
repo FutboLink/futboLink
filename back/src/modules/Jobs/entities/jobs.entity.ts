@@ -103,6 +103,13 @@ export class Job {
   sportGenres: string;
 
   @ApiProperty({
+    description: 'tipo de moneda',
+    example: 'Usds',
+  })
+  @Column()
+  moneda?: string;
+
+  @ApiProperty({
     description: 'Edad mínima del trabajador',
     example: 18,
   })
@@ -163,8 +170,9 @@ export class Job {
     type: () => User,
     description: 'Reclutador que creó la oferta',
   })
-  @ManyToOne(() => User, (user) => user.job)
+  @ManyToOne(() => User, (user) => user.jobs)
   recruiter: User;
+
 
   @ApiProperty({
     type: () => [Application],

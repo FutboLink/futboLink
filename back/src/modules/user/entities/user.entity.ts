@@ -167,6 +167,6 @@ export class User {
     description: 'La oferta que creó el reclutador',
   })
   @OneToMany(()=>Job,(job) =>job.recruiter)
-  job :Job[];
+  jobs :Job[];
   
 }

@@ -25,6 +25,7 @@ export interface IOfferCard {
   sportGenres:string;
   availabilityToTravel: YesOrNotravell;
   euPassport: YesOrNo;
+  currencyType:string
   salary: number;
   minAge: number;
   maxAge:number;
@@ -100,6 +101,7 @@ export enum JobStatus {
 
 export interface ICreateJob {
   title: string; 
+  currencyType:string
   nationality: string;
   location: string;
   position: string;

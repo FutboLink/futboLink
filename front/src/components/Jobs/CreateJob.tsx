@@ -91,8 +91,7 @@ const FormComponent = () => {
   const [ ,setSelectedNationality] = useState<string>("");
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
-  const [currency, setCurrency] = useState('EUR');
-  const [amount, setAmount] = useState('');
+  
 
   const [formData, setFormData] = useState<ICreateJob>({
     title: "",
@@ -101,6 +100,7 @@ const FormComponent = () => {
     position: "",
     category: "",
     description: "",
+    currencyType: "EUR", 
     sport: "",
     contractTypes: "",
     contractDurations: "",
@@ -200,6 +200,7 @@ const FormComponent = () => {
           extra: [],
           minAge: 0,
           description: "",
+          currencyType: "EUR", 
           maxAge: 0,
           sportGenres: "",
           minExperience: "",
@@ -235,20 +236,60 @@ const FormComponent = () => {
       />
     </div>
 
-        {/* Ubicación */}
-         <div className="flex flex-col">
-      <label className="text-xs font-semibold mb-1">Ubicación</label>
-      <input
-        type="text"
-        className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
-        value={formData.location}
-        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-        placeholder="Lugar del trabajo"
-      />
+   {/* Ubicación */}
+<div className="flex flex-col">
+  <label className="text-xs font-semibold mb-1">Ubicación de la oferta</label>
+  <input
+    type="text"
+    className="px-2 flex flex-col relative py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-verde-claro"
+    value={formData.nationality}
+    onChange={(e) => {
+      const value = e.target.value;
+      setFormData({ ...formData, nationality: value });
+      setSearch(value);
+      setIsOpen(true);
+    }}
+    placeholder="Lugar del trabajo"
+  />
+
+    {/* Ícono de flecha */}
+    <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none mt-2">
+      <svg
+        className="w-4 h-4 text-gray-500"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+      </svg>
     </div>
+  
 
+  {/* Dropdown de opciones */}
+  {isOpen && (
+    <div className="absolute z-10 w-full sm:w-auto max-w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
+      {loading && <p>Cargando ubicación...</p>}
+      {error && <p className="text-red-500">{error}</p>}
+      <ul>
+        {nationalities
+          .filter((nationality) =>
+            nationality.label.toLowerCase().includes(search.toLowerCase())
+          )
+          .map((nationality) => (
+            <li
+              key={nationality.value}
+              className="p-2 cursor-pointer text-gray-700 hover:bg-gray-200"
+              onClick={() => handleSelectNationality(nationality.label)}
+            >
+              {nationality.label}
+            </li>
+          ))}
+      </ul>
+    </div>
+  )}
+</div>
 
-    <div className="flex flex-col">
+<div className="flex flex-col">
     <label className="text-xs font-semibold mb-1">Ciudad</label>
           <input
             type="text"
@@ -260,29 +301,6 @@ const FormComponent = () => {
             placeholder="Ciudad de la oferta laboral"
           />
         </div>
-
-        {/* Dropdown de opciones */}
-        {isOpen && (
-          <div className="absolute z-10 w-full sm:w-auto max-w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
-            {loading && <p>Cargando ubicación...</p>}
-            {error && <p className="text-red-500">{error}</p>}
-            <ul>
-              {nationalities
-                .filter((nationality) =>
-                  nationality.label.toLowerCase().includes(search.toLowerCase())
-                )
-                .map((nationality) => (
-                  <li
-                    key={nationality.value}
-                    className="p-2 cursor-pointer text-gray-700 hover:bg-gray-200"
-                    onClick={() => handleSelectNationality(nationality.label)}
-                  >
-                    {nationality.label}
-                  </li>
-                ))}
-            </ul>
-          </div>
-        )}
 
 <div className="flex flex-col">
 <label className="text-xs font-semibold mb-1">Posición</label>
@@ -387,16 +405,21 @@ const FormComponent = () => {
         </div>
 
         <div className="flex flex-col">
-        <label className="text-xs font-semibold mb-1">Moneda</label>
+  <label className="text-xs font-semibold mb-1">Tipo de Moneda</label>
   <select
-   className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
-    value={currency}
-    onChange={(e) => setCurrency(e.target.value)}
+    className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+    value={formData.currencyType}
+    onChange={(e) =>
+      setFormData({ ...formData, currencyType: e.target.value })
+    }
   >
-    <option value="EUR">EUR (€)</option>
-    <option value="USD">USD ($)</option>
+    <option value="">Selecciona una moneda</option>
+    <option value="EUR">EUR - Euro</option>
+    <option value="USD">USD - Dólar</option>
+   
   </select>
 </div>
+
 
         <div className="flex flex-col">
       <label className="text-xs font-semibold mb-1">Salario</label>

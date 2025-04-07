@@ -139,7 +139,7 @@ if (!offer) {
         {typeof offer.euPassport === "boolean" && (
           <p><strong>Pasaporte UE:</strong> {offer.euPassport ? "Sí" : "No"}</p>
         )}
-        {offer.salary && <p><strong>Salario:</strong> ${offer.salary}</p>}
+        {offer.salary && offer.currencyType && <p><strong>Salario:</strong> {offer.currencyType} {offer.salary}</p>}
         {offer.createdAt && <p><strong>Fecha de publicación:</strong> {offer.createdAt}</p>}
 
         {Array.isArray(offer.extra) && offer.extra.length > 0 && (

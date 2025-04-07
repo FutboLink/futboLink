@@ -119,7 +119,7 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
   
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
             <div className="text-gray-700 font-semibold"><span>Ubicación:</span> {jobOffer.location}</div>
-            <div className="text-gray-700 font-semibold"><span>Salario:</span> ${jobOffer.salary}</div>
+            <div className="text-gray-700 font-semibold"><span>Salario:</span> {jobOffer.currencyType}{jobOffer.salary}</div>
             <div className="text-gray-700 font-semibold"><span>Género:</span> {jobOffer.sportGenres}</div>
             <div className="text-gray-700 font-semibold"><span>Países:</span> {jobOffer.nationality}</div>
             <div className="text-gray-700 font-semibold"><span>Posición:</span> {jobOffer.position}</div>

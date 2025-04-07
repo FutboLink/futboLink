@@ -84,7 +84,7 @@ const handleCloseModal = () => {
     {/* Sección 4: Salario + botones */}
     <div className="flex flex-col justify-between flex-1 border-t border-gray-200">
       <div className="py-2 px-4 text-base font-bold text-green-500 text-center">
-        Salario: ${offer.salary}
+        Salario: {offer.currencyType}{offer.salary}
       </div>
       <div className="flex flex-col gap-2 p-4">
   <Link

@@ -52,7 +52,7 @@ export class CreateJobDto {
     example: 'Usd',
   })
   @IsString()
-  moneda: string;
+  moneda?: string;
 
   @ApiProperty({
     description: 'Competencias requeridas para el puesto',
@@ -150,9 +150,9 @@ export class CreateJobDto {
   @IsEnum(YesOrNo)
   euPassport: YesOrNo;
 
-  @IsNotEmpty()
+  
   @IsString()
-  currencyType:string
+  currencyType?:string
 
 
 }

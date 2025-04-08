@@ -106,7 +106,7 @@ export class Job {
     description: 'tipo de moneda',
     example: 'Usds',
   })
-  @Column()
+  @Column({ nullable: true })
   moneda?: string;
 
   @ApiProperty({
@@ -162,7 +162,7 @@ export class Job {
     description: 'Tipo de moneda',
     example: 'Euro€',
   })
-  @Column()
+  @Column({ nullable: true })
   currencyType:string
   
 

@@ -45,10 +45,10 @@ import { MailerModule } from '@nestjs-modules/mailer';
     NewsModule,
     CursoModule,
     // Agrega el módulo de Stripe
-    StripeModule,
+   
   ],
   // Agrega el PaymentController junto con el AppController
-  controllers: [AppController, PaymentController],
+  controllers: [AppController,],
   providers: [AppService],
 })
 export class AppModule {}

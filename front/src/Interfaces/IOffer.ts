@@ -101,7 +101,8 @@ export enum JobStatus {
 
 export interface ICreateJob {
   title: string; 
-  currencyType:string
+  currencyType:string;
+  customCurrencySign?: string;
   nationality: string;
   location: string;
   position: string;

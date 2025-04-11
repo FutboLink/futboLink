@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { UserContext } from "../Context/UserContext";
 import { ICreateJob, YesOrNo, YesOrNotravell } from "@/Interfaces/IOffer";
 import { fetchCreateJob } from "../Fetchs/OfertasFetch/OfertasFetchs";
@@ -44,7 +44,7 @@ const position = [
   "Utillero",
 ];
 
-const sportGenres = ["Masculino", "Femenino"];
+const sportGenres = ["Masculino", "Femenino","Ambos","Indistinto"];
 const categories = ["Amateur", "Semiprofesional", "Profesional", "Fútbol base"];
 const sports = [
   "Fútbol 11",
@@ -101,6 +101,7 @@ const FormComponent = () => {
     category: "",
     description: "",
     currencyType: "EUR", 
+    customCurrencySign: "",
     sport: "",
     contractTypes: "",
     contractDurations: "",
@@ -119,7 +120,21 @@ const FormComponent = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+ 
+const dropdownRef = useRef<HTMLDivElement | null>(null);
 
+useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      setIsOpen(false);
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
  
   // Maneja la selección de una nacionalidad
   const handleSelectNationality = (value: string) => {
@@ -162,29 +177,46 @@ const FormComponent = () => {
       imgUrl: url,
     }));
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log(formData);
     setLoading(true);
     setError(null);
     setSuccessMessage(null);
-
+  
     if (!isValidImageUrl(formData.imgUrl)) {
       setError("La URL de la imagen no es válida.");
       setLoading(false);
       return;
     }
-
+  
     if (!token) {
       setError("Token no disponible.");
       setLoading(false);
       return;
     }
-
+  
+    const currencyToSend =
+      formData.currencyType === "Otro"
+        ? formData.customCurrencySign?.trim() ?? ""
+        : formData.currencyType?.trim() ?? "";
+  
+    if (!currencyToSend) {
+      setError("Debes ingresar un tipo de moneda válido.");
+      setLoading(false);
+      return;
+    }
+  
+    const { customCurrencySign, ...restFormData } = formData;
+  
+    const formDataToSend: ICreateJob = {
+      ...restFormData,
+      currencyType: currencyToSend,
+    };
+  
     setTimeout(async () => {
       try {
-        const response = await fetchCreateJob(formData, token);
+        const response = await fetchCreateJob(formDataToSend, token);
         console.log("Oferta creada:", response);
         setSuccessMessage("¡Oferta creada exitosamente!");
         setFormData({
@@ -200,7 +232,8 @@ const FormComponent = () => {
           extra: [],
           minAge: 0,
           description: "",
-          currencyType: "EUR", 
+          currencyType: "EUR",
+          customCurrencySign: "",
           maxAge: 0,
           sportGenres: "",
           minExperience: "",
@@ -215,6 +248,8 @@ const FormComponent = () => {
       }
     }, 2000);
   };
+  
+  
 
   return (
     <div className="max-w-5xl mx-auto p-2 bg-gray-100 text-gray-700 rounded-lg shadow-md border border-gray-300">
@@ -237,7 +272,7 @@ const FormComponent = () => {
     </div>
 
    {/* Ubicación */}
-<div className="flex flex-col">
+   <div className="flex flex-col relative" ref={dropdownRef}>
   <label className="text-xs font-semibold mb-1">Ubicación de la oferta</label>
   <input
     type="text"
@@ -267,7 +302,7 @@ const FormComponent = () => {
 
   {/* Dropdown de opciones */}
   {isOpen && (
-    <div className="absolute z-10 w-full sm:w-auto max-w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
+    <div className="absolute z-10 w-full max-w-[95vw] bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
       {loading && <p>Cargando ubicación...</p>}
       {error && <p className="text-red-500">{error}</p>}
       <ul>
@@ -405,20 +440,34 @@ const FormComponent = () => {
         </div>
 
         <div className="flex flex-col">
-  <label className="text-xs font-semibold mb-1">Tipo de Moneda</label>
-  <select
-    className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
-    value={formData.currencyType}
-    onChange={(e) =>
-      setFormData({ ...formData, currencyType: e.target.value })
-    }
-  >
-    <option value="">Selecciona una moneda</option>
-    <option value="EUR">EUR - Euro</option>
-    <option value="USD">USD - Dólar</option>
-   
-  </select>
-</div>
+        <label className="text-xs font-semibold mb-1">Tipo de Moneda</label>
+        <select
+          className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+          value={formData.currencyType}
+          onChange={(e) =>
+            setFormData({ ...formData, currencyType: e.target.value })
+          }
+        >
+          <option value="">Selecciona una moneda</option>
+          <option value="EUR">EUR - Euro</option>
+          <option value="USD">USD - Dólar</option>
+          <option value="Otro">Otro</option>
+        </select>
+
+        {formData.currencyType === "Otro" && (
+          <input
+            type="text"
+            className="mt-2 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+            placeholder="Ingresa el signo de la moneda"
+            value={formData.customCurrencySign}
+            onChange={(e) =>
+              setFormData({ ...formData, customCurrencySign: e.target.value })
+            }
+          />
+        )}
+      </div>
+
+
 
 
         <div className="flex flex-col">

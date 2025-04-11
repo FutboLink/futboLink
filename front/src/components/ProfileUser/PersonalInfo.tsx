@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { IProfileData } from "@/Interfaces/IUser";
 import { fetchUserData, updateUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { UserContext } from "../Context/UserContext";
@@ -24,6 +24,20 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const [search, setSearch] = useState("");  
   const [isOpen, setIsOpen] = useState(false); 
   const [selectedNationality, setSelectedNationality] = useState<string>(''); 
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      setIsOpen(false);
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
 
   // Fetch user data when token changes
   useEffect(() => {
@@ -179,56 +193,59 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             )}
           </div>
   
-          {/* Nationality Search */}
-          <div className="flex flex-col">
-            <label htmlFor="nationalitySearch" className="block text-gray-700 font-semibold text-sm">Buscar ubicación</label>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar ubicación..."
-              onClick={toggleDropdown}
-              className="w-full border text-gray-700 mt-2 border-gray-300 rounded-lg p-2"
-            />
-            <FaChevronDown
-              className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500"
-              onClick={toggleDropdown}
-            />
-          </div>
-  
-          {/* Selected Nationality */}
-          <div className="flex flex-col mb-2">
-            <label htmlFor="nationality" className="block text-gray-700 font-semibold text-sm">Ubicación seleccionada</label>
-            <input
-              type="text"
-              defaultValue={selectedNationality}
-              className="w-full border text-gray-700 mt-2 border-gray-300 rounded-lg p-2"
-            />
+          <div className="relative flex flex-col" ref={dropdownRef}>
+  {/* Nationality Search */}
+  <label htmlFor="nationalitySearch" className="block text-gray-700 font-semibold text-sm">Buscar ubicación</label>
+  <input
+    type="text"
+    id="nationalitySearch"
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    placeholder="Buscar ubicación..."
+    onClick={toggleDropdown}
+    className="w-full border text-gray-700 mt-2 border-gray-300 rounded-lg p-2"
+  />
+  <FaChevronDown
+    className="absolute top-10 right-3 transform -translate-y-1/2 text-gray-500 cursor-pointer"
+    onClick={toggleDropdown}
+  />
 
-          </div>
-  
-          {/* Nationality Dropdown */}
-          {isOpen && (
-            <div className="absolute z-10 w-full sm:w-auto max-w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
-              {nationalitiesLoading && <p>Cargando ubicaciones...</p>}
-              {nationalitiesError && <p className="text-red-500">{nationalitiesError}</p>}
-              <ul>
-                {nationalities
-                  .filter((nationality) =>
-                    nationality.label.toLowerCase().includes(search.toLowerCase())
-                  )
-                  .map((nationality) => (
-                    <li
-                      key={nationality.value}
-                      className="p-2 cursor-pointer text-gray-700 hover:bg-gray-200"
-                      onClick={() => handleSelectNationality(nationality.label)}
-                    >
-                      {nationality.label}
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          )}
+  {/* Dropdown */}
+  {isOpen && (
+  <div className="absolute z-10 w-full max-w-[95vw] bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
+
+      {nationalitiesLoading && <p className="p-2">Cargando ubicaciones...</p>}
+      {nationalitiesError && <p className="text-red-500 p-2">{nationalitiesError}</p>}
+      <ul>
+        {nationalities
+          .filter((nationality) =>
+            nationality.label.toLowerCase().includes(search.toLowerCase())
+          )
+          .map((nationality) => (
+            <li
+              key={nationality.value}
+              className="p-2 cursor-pointer text-gray-700 hover:bg-gray-200"
+              onClick={() => handleSelectNationality(nationality.label)}
+            >
+              {nationality.label}
+            </li>
+          ))}
+      </ul>
+    </div>
+  )}
+
+  {/* Selected Nationality */}
+  <div className="flex flex-col mt-4">
+    <label htmlFor="nationality" className="block text-gray-700 font-semibold text-sm">Ubicación seleccionada</label>
+    <input
+      type="text"
+      id="nationality"
+      defaultValue={selectedNationality}
+      className="w-full border text-gray-700 mt-2 border-gray-300 rounded-lg p-2"
+      readOnly
+    />
+  </div>
+</div>
 
          
   

@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { IProfileData } from "@/Interfaces/IUser";
 import { fetchUserData, updateUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { UserContext } from "../Context/UserContext";
@@ -21,7 +21,21 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const [notificationMessage, setNotificationMessage] = useState('');
   const [showErrorNotification, setShowErrorNotification] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const nationalityRef = useRef<HTMLDivElement | null>(null);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (nationalityRef.current && !nationalityRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+  
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+  
 
   const handleSelectNationality = (value: string) => {
     setSelectedNationality(value);
@@ -144,6 +158,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           </div>
 
           <div className="flex flex-col">
+  {/* Ubicación actual */}
   <label className="text-gray-700 font-semibold text-sm mt-2">Ubicación actual</label>
   <input
     type="text"
@@ -152,57 +167,60 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
     className="w-full p-2 border rounded mt-1 text-gray-500 bg-gray-100 cursor-not-allowed"
   />
 
-<div className="flex flex-col relative">
-  <label className="text-gray-700 font-semibold text-sm mt-2">Cambiar ubicación:</label>
+  {/* Cambiar ubicación */}
+  <div className="flex flex-col relative mt-2" ref={nationalityRef}>
+    <label className="text-gray-700 font-semibold text-sm">Cambiar ubicación:</label>
 
-  <div className="relative w-full">
-    <input
-      type="text"
-      name="nationality"
-      value={search}
-      onChange={(e) => {
-        setSearch(e.target.value);
-        setIsOpen(true);
-      }}
-      placeholder="Selecciona o escribe tu nacionalidad"
-      className="w-full p-2 border rounded mt-2 text-gray-700 focus:outline-none pr-10"
-    />
+    <div className="relative w-full">
+      <input
+        type="text"
+        name="nationality"
+        value={search}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setIsOpen(true);
+        }}
+        placeholder="Selecciona o escribe tu nacionalidad"
+        className="w-full p-2 border rounded mt-2 text-gray-700 focus:outline-none pr-10"
+      />
 
-    {/* Ícono de flecha */}
-    <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none mt-2">
-      <svg
-        className="w-4 h-4 text-gray-500"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-      </svg>
+      {/* Ícono de flecha */}
+      <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none mt-2">
+        <svg
+          className="w-4 h-4 text-gray-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
     </div>
+
+    {/* Dropdown */}
+    {isOpen && (
+      <div className="absolute z-10 w-full max-w-[95vw] bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
+
+        <ul>
+          {nationalities
+            .filter((nationality) =>
+              nationality.label.toLowerCase().includes(search.toLowerCase())
+            )
+            .map((nationality) => (
+              <li
+                key={nationality.value}
+                className="p-2 cursor-pointer text-gray-700 hover:bg-gray-200"
+                onClick={() => handleSelectNationality(nationality.label)}
+              >
+                {nationality.label}
+              </li>
+            ))}
+        </ul>
+      </div>
+    )}
   </div>
+</div>
 
-  {/* Dropdown de opciones */}
-  {isOpen && (
-    <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
-      <ul>
-        {nationalities
-          .filter((nationality) =>
-            nationality.label.toLowerCase().includes(search.toLowerCase())
-          )
-          .map((nationality) => (
-            <li
-              key={nationality.value}
-              className="p-2 cursor-pointer text-gray-700 hover:bg-gray-200"
-              onClick={() => handleSelectNationality(nationality.label)}
-            >
-              {nationality.label}
-            </li>
-          ))}
-      </ul>
-    </div>
-  )}
-</div>
-</div>
 
           {/* Age */}
 <div className="flex flex-col">

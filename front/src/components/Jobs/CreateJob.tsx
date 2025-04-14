@@ -105,7 +105,7 @@ const FormComponent = () => {
     sport: "",
     contractTypes: "",
     contractDurations: "",
-    salary: 0,
+    salary: "",
     extra: [],
     minAge: 0,
     maxAge: 0,
@@ -228,7 +228,7 @@ useEffect(() => {
           sport: "",
           contractTypes: "",
           contractDurations: "",
-          salary: 0,
+          salary: "",
           extra: [],
           minAge: 0,
           description: "",
@@ -467,24 +467,21 @@ useEffect(() => {
         )}
       </div>
 
-
-
-
-        <div className="flex flex-col">
-      <label className="text-xs font-semibold mb-1">Salario</label>
-          <input
-            type="number"
-           className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
-            value={formData.salary === 0 ? "" : formData.salary}
-            onChange={(e) => {
-              const value = e.target.value;
-              setFormData({
-                ...formData,
-                salary: value === "" ? 0 : Number(value),
-              });
-            }}
-          />
-        </div>
+      <div className="flex flex-col">
+  <label className="text-xs font-semibold mb-1">Salario</label>
+  <input
+    type="text"
+    className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+    value={formData.salary || ""}
+    onChange={(e) => {
+      const value = e.target.value;
+      setFormData({
+        ...formData,
+        salary: value, 
+      });
+    }}
+  />
+</div>
 
         <div className="flex flex-col">
       <label className="text-xs font-semibold mb-1">Edad mínima</label>

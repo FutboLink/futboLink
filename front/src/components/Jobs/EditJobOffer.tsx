@@ -26,13 +26,15 @@ const sports = ["Fútbol 11", "Futsal", "Fútbol Base", "Fútbol Playa", "Prueba
 const contractTypes = ["Contrato Profesional", "Semiprofesional", "Amateur", "Contrato de cesión", "Prueba"];
 const contractDurations = ["Contrato Temporal", "Por temporada", "Contrato indefinido", "Pasantía/Prácticas", "Freelance", "Autónomo", "Otro tipo de contrato"];
 const minExperience = ["Amateur", "Semiprofesional", "Profesional", "Experiencia en ligas similares"];
-const extras = ["Sueldo fijo", "Transporte incluido", "Bonos por rendimiento", "Viáticos incluidos", "Alojamiento incluido", "No remunerado", "A convenir", "Equipamiento deportivo"];
+const extra = ["Sueldo fijo", "Transporte incluido", "Bonos por rendimiento", "Viáticos incluidos", "Alojamiento incluido", "No remunerado", "A convenir", "Equipamiento deportivo"];
 
 const EditJobOffer: React.FC<EditJobOfferProps> = ({ jobId, token, jobOffer, onCancel, onSuccess }) => {
   const [formData, setFormData] = useState({
     title: jobOffer.title,
     description: jobOffer.description,
     location: jobOffer.location,
+    customCurrencySign: jobOffer.customCurrencySign || "",
+    currencyType: jobOffer.currencyType || "",
     salary: jobOffer.salary || "",
     position: jobOffer.position || "",
     sportGenres: jobOffer.sportGenres || "",
@@ -41,9 +43,9 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({ jobId, token, jobOffer, onC
     euPassport: jobOffer.euPassport || "",
     availabilityToTravel: jobOffer.availabilityToTravel|| "",
     contractTypes: jobOffer.contractTypes || "",
-    contractDuration: jobOffer.contractDurations || "",
+    contractDurations: jobOffer.contractDurations || "",
     minExperience: jobOffer.minExperience || "",
-    extras: jobOffer.extra || [],
+    extra: jobOffer.extra || [],
   });
 
   useEffect(() => {
@@ -51,6 +53,8 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({ jobId, token, jobOffer, onC
       title: jobOffer.title,
       description: jobOffer.description,
       location: jobOffer.location,
+      customCurrencySign: jobOffer.customCurrencySign || "",
+      currencyType: jobOffer.currencyType || "",
       salary: jobOffer.salary || "",
       position: jobOffer.position || "",
       sportGenres: jobOffer.sportGenres || "",
@@ -59,9 +63,9 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({ jobId, token, jobOffer, onC
       euPassport: jobOffer.euPassport || "",
       availabilityToTravel:jobOffer.availabilityToTravel || "",
       contractTypes: jobOffer.contractTypes || "",
-      contractDuration: jobOffer.contractDurations || "",
+      contractDurations: jobOffer.contractDurations || "",
       minExperience: jobOffer.minExperience || "",
-      extras: jobOffer.extra || [],
+      extra: jobOffer.extra || [],
     });
   }, [jobOffer]);
 
@@ -77,23 +81,33 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({ jobId, token, jobOffer, onC
     const {  value, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      extras: checked
-        ? [...prev.extras, value]
-        : prev.extras.filter((item) => item !== value),
+      extra: checked
+        ? [...prev.extra, value]
+        : prev.extra.filter((item) => item !== value),
     }));
   };
 
   const handleSave = async () => {
     try {
-      const updatedOffer = {
-        ...formData,
-      };
-      const result = await fetchEditJob(token, jobId, updatedOffer);
-      onSuccess(result);
+        let updatedOffer = { ...formData };
+
+        if (updatedOffer.currencyType === "Otro") {
+            updatedOffer.currencyType = updatedOffer.customCurrencySign ?? '';
+        }
+
+        // Crear una copia de updatedOffer sin customCurrencySign
+        const { customCurrencySign, ...offerWithoutCustomCurrencySign } = updatedOffer;
+
+        // Realiza la solicitud con los datos modificados
+        const result = await fetchEditJob(jobId, offerWithoutCustomCurrencySign);
+        onSuccess(result);
     } catch (error) {
-      console.error("Error al actualizar la oferta:", error);
+        console.error("Error al actualizar la oferta:", error);
     }
-  };
+};
+
+
+  
 
   return (
     <div className=" bg-gray-100 rounded-lg  max-w-4xl ">
@@ -132,10 +146,40 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({ jobId, token, jobOffer, onC
           />
         </div>
   
+        <div className="flex flex-col">
+  <label className="text-xs font-semibold mb-1">Tipo de Moneda</label>
+  <select
+    className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+    value={formData.currencyType}
+    onChange={(e) =>
+      setFormData({ ...formData, currencyType: e.target.value })
+    }
+  >
+    <option value="">Selecciona una moneda</option>
+    <option value="EUR">EUR - Euro</option>
+    <option value="USD">USD - Dólar</option>
+    <option value="Otro">Otro</option>
+  </select>
+
+  {/* Mostrar el input solo si se selecciona "Otro" */}
+  {formData.currencyType === "Otro" && (
+    <input
+      type="text"
+      className="mt-2 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+      placeholder="Ingresa el signo de la moneda"
+      value={formData.customCurrencySign}
+      onChange={(e) =>
+        setFormData({ ...formData, customCurrencySign: e.target.value })
+      }
+    />
+  )}
+</div>
+
+
         <div>
           <label className="block text-gray-700">Salario:</label>
           <input
-            type="number"
+            type="text"
             name="salary"
             value={formData.salary}
             onChange={handleChange}
@@ -227,7 +271,7 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({ jobId, token, jobOffer, onC
           <label className="block text-gray-700">Duración del Contrato:</label>
           <select
             name="contractDuration"
-            value={formData.contractDuration}
+            value={formData.contractDurations}
             onChange={handleChange}
             className="w-full p-2 border border-gray-300 rounded-md mb-4"
           >
@@ -281,22 +325,23 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({ jobId, token, jobOffer, onC
           </select>
         </div>
 
-        <div className="col-span-3">
-          <label className="block text-gray-700">Extras:</label>
-          {extras.map((extra, index) => (
-            <div key={index} className="flex items-center">
-              <input
-                type="checkbox"
-                name="extras"
-                value={extra}
-                checked={formData.extras.includes(extra)}
-                onChange={handleCheckboxChange}
-                className="mr-2"
-              />
-              <label>{extra}</label>
-            </div>
-          ))}
-        </div>
+       
+<div className="col-span-3">
+  <label className="block text-gray-700">Extras:</label>
+  {extra.map((ex, index) => (
+    <div key={index} className="flex items-center">
+      <input
+        type="checkbox"
+        name="extra"
+        value={ex}  // Usar el valor individual
+        checked={formData.extra.includes(ex)}  // Compara con el valor individual
+        onChange={handleCheckboxChange}
+        className="mr-2"
+      />
+      <label>{ex}</label>  {/* Aquí también usar 'ex' */}
+    </div>
+  ))}
+</div>
   
       
       </div>

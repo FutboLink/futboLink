@@ -25,8 +25,9 @@ export interface IOfferCard {
   sportGenres:string;
   availabilityToTravel: YesOrNotravell;
   euPassport: YesOrNo;
-  currencyType:string
-  salary: number;
+  customCurrencySign?: string;
+  currencyType:string;
+  salary: string;
   minAge: number;
   maxAge:number;
   createdAt: string;
@@ -112,7 +113,7 @@ export interface ICreateJob {
   sport: string;
   contractTypes: string; 
   contractDurations: string;
-  salary: number;
+  salary: string;
   minAge: number;
   maxAge:number;
   availabilityToTravel: YesOrNotravell;

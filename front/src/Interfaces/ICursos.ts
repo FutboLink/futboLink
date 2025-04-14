@@ -2,6 +2,7 @@ export interface ICurso {
     id:string;
     image: string;
     title: string;
+    description:string;
     category: CategoryCursos;
     country: string;
     language: string;
@@ -21,6 +22,7 @@ export enum CategoryCursos {
 export interface ICreateCurso {
     image: string;
     title: string;
+    description:string;
     category: CategoryCursos;
     country: string;
     language: string;

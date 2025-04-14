@@ -97,13 +97,13 @@ if (!offer) {
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-4">
         {offer.imgUrl && (
           <div className="w-24 h-24 flex-shrink-0 rounded-md overflow-hidden shadow-md">
-            <Image
-              width={100}
-              height={100}
-              src={offer.imgUrl || "/cursosYFormaciones.JPG"}
-              alt={offer.title}
-              className="w-full h-full object-cover"
-            />
+              <Image
+  width={100}
+  height={100}
+  src={offer.imgUrl || "/cursosYFormaciones.JPG"}
+  alt={offer.title}
+  className="w-full h-full object-contain rounded-md"
+/>
           </div>
         )}
         {offer.title && (
@@ -166,6 +166,7 @@ if (!offer) {
       {offer.position && <p className="mb-1"><strong>Puesto:</strong> {offer.position}</p>}
       {offer.location && <p className="mb-1"><strong>Ubicación:</strong> {offer.location}</p>}
       {offer.contractTypes && <p className="mb-4"><strong>Tipo de contrato:</strong> {offer.contractTypes}</p>}
+      {offer.contractDurations && <p className="mb-4"><strong>Tiempo de contrato:</strong> {offer.contractDurations}</p>}
    
   
         <button

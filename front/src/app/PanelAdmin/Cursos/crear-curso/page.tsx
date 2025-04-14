@@ -9,6 +9,7 @@ export default function Page() {
   const [course, setCourse] = useState<ICreateCurso>({
     image: "",
     title: "",
+    description:"",
     category: CategoryCursos.Curso,
     country: "",
     language: "",
@@ -44,6 +45,7 @@ export default function Page() {
       setCourse({
         image: "",
         title: "",
+        description:"",
         category: CategoryCursos.Curso,
         country: "",
         language: "",
@@ -135,18 +137,38 @@ export default function Page() {
             />
           </div>
   
-          {/* Contacto */}
-          <div className="sm:col-span-2">
-            <label className="block text-gray-700 font-semibold">Contacto</label>
-            <input
-              type="text"
-              name="contact"
-              value={course.contact}
-              onChange={handleChange}
-              className="w-full p-2 border text-gray-700 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-700"
-              required
-            />
-          </div>
+  {/* Contacto */}
+<div className="sm:col-span-2">
+  <label className="block text-gray-700 font-semibold">Contacto</label>
+  <input
+    type="text"
+    name="contact"
+    value={course.contact}
+    onChange={handleChange}
+    className="w-full p-2 border text-gray-700 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-700"
+    required
+  />
+</div>
+
+{/* Descripción */}
+<div className="sm:col-span-2">
+  <label className="block text-gray-700 font-semibold">Descripción</label>
+  <textarea
+    name="description"
+    maxLength={1500}
+    className="w-full p-2 border text-gray-700 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-700"
+    required
+    value={course.description}
+    onChange={(e) =>
+      setCourse({ ...course, description: e.target.value })
+    }
+    placeholder="Escribe una breve descripción..."
+  />
+  <p className="text-xs text-gray-500">
+    {1500 - course.description.length} caracteres restantes
+  </p>
+</div>
+
   
           {/* Subir Imagen (Ocupa 2 columnas) */}
           <div className="sm:col-span-2 flex flex-col items-center">

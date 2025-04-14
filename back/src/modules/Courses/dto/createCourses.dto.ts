@@ -33,6 +33,10 @@ export class CreateCursoDto {
 
   @ApiProperty()
   @IsString()
+  description: string;
+
+  @ApiProperty()
+  @IsString()
   modality: string;
 
   @ApiProperty()

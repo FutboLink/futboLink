@@ -93,6 +93,7 @@ export default function ViewCursos() {
                   {curso.language} - Modalidad: {curso.modality}
                 </p>
                 <p className="mt-4 text-gray-700">Contacto: {curso.contact}</p>
+                <p className="mt-4 text-gray-700">Descripción del curso: {curso.description}</p>
                 <div className="mt-4 flex space-x-4">
                   <button
                     onClick={() => handleEdit(curso)}

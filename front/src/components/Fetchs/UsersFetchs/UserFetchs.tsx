@@ -124,7 +124,7 @@ export const fetchDeleteJob = async (token: string, jobId: string) => {
 
 // Actualiza la función para aceptar formData
 export const fetchEditJob = async (
-  token: string,
+ 
   id: string,
   formData: object
 ) => {
@@ -132,7 +132,7 @@ export const fetchEditJob = async (
     const response = await fetch(`${apiUrl}/jobs/${id}`, {
       method: "PUT",
       headers: {
-        Authorization: `Bearer ${token}`,
+       
         "Content-Type": "application/json", // Agregar el tipo de contenido
       },
       body: JSON.stringify(formData), // Enviar formData como cuerpo de la solicitud

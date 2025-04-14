@@ -25,9 +25,9 @@ export class Job {
   @Column()
   location: string;
 
-  @ApiProperty({ example: 60000, description: 'Salario anual en dólares' })
-  @Column('decimal')
-  salary: number;
+  @ApiProperty({ example: '60000', description: 'Salario anual en dólares' })
+  @Column('text')
+  salary: string;
 
   @ApiProperty({
     example: '2024-12-01T12:34:56Z',

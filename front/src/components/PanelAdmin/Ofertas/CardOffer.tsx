@@ -41,13 +41,14 @@ const handleCloseModal = () => {
     {/* Sección 1: Encabezado */}
     <div className="flex items-center p-4 border-b border-gray-200 flex-1">
       <div className="w-20 h-20 flex-shrink-0 rounded-md overflow-hidden mr-4">
-        <Image
-          width={100}
-          height={100}
-          src={offer.imgUrl || "/cursosYFormaciones.JPG"}
-          alt={offer.title}
-          className="w-full h-full object-cover"
-        />
+      <Image
+  width={100}
+  height={100}
+  src={offer.imgUrl || "/cursosYFormaciones.JPG"}
+  alt={offer.title}
+  className="w-full h-full object-contain rounded-md"
+/>
+
       </div>
       <div>
         <h3 className="text-lg font-bold text-gray-800 break-words max-w-[230px] mb-2">
@@ -63,6 +64,7 @@ const handleCloseModal = () => {
         <p><span className="font-semibold text-gray-800">Ubicación:</span> {offer.nationality}</p>
         <p><span className="font-semibold text-gray-800">Categoría:</span> {offer.category}</p>
         <p><span className="font-semibold text-gray-800">Tipo de contrato:</span> {offer.contractTypes}</p>
+        <p><span className="font-semibold text-gray-800">Tiempo de contrato:</span> {offer.contractDurations}</p>
       </div>
       <div className="space-y-1">
         <p><span className="font-semibold text-gray-800">Edad:</span> {offer.minAge} - {offer.maxAge}</p>

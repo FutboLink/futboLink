@@ -18,6 +18,7 @@ const EditCourse: React.FC<EditCourseProps> = ({ courseId, token, course, onCanc
   const [formData, setFormData] = useState({
     title: course.title,
     image: course.image,
+    description:course.description,
     country: course.country,
     language: course.language,
     modality: course.modality,
@@ -30,6 +31,7 @@ const EditCourse: React.FC<EditCourseProps> = ({ courseId, token, course, onCanc
       title: course.title,
       image: course.image,
       country: course.country,
+      description:course.description,
       language: course.language,
       modality: course.modality,
       category: course.category,
@@ -142,6 +144,22 @@ const EditCourse: React.FC<EditCourseProps> = ({ courseId, token, course, onCanc
             className="w-full p-2 border text-gray-700 border-gray-300 rounded-md mb-4"
           />
         </div>
+
+        <div>
+  <label className="block text-gray-700">Descripción:</label>
+  <textarea
+    name="description"
+    value={formData.description}
+    onChange={handleChange}
+    className="w-full p-2 border text-gray-700 border-gray-300 rounded-md mb-4"
+    maxLength={1500}
+    placeholder="Escribe una breve descripción..."
+  />
+  <p className="text-xs text-gray-500">
+    {1500 - formData.description.length} caracteres restantes
+  </p>
+</div>
+
 
         {/* Reemplazar el campo de la URL por el componente ImageUpload */}
         <div className="sm:col-span-2 flex flex-col items-center">

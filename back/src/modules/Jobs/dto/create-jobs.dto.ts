@@ -21,11 +21,11 @@ export class CreateJobDto {
 
   @ApiProperty({
     description: 'Salario ofrecido para el jugador',
-    example: 1500000,
+    example: "1500000",
   })
   @IsNotEmpty()
-  @IsNumber()
-  salary: number;
+  @IsString()
+  salary: string;
 
   @ApiProperty({
     description: 'Descripción del trabajo o posición',

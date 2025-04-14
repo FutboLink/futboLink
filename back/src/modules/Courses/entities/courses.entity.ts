@@ -11,6 +11,9 @@ export class Curso {
 
   @Column()
   title: string;
+  
+  @Column()
+  description: string;
 
   @Column({ type: 'enum', enum: CategoryCursos })
   category: CategoryCursos;

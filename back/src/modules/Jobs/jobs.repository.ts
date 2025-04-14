@@ -13,7 +13,7 @@ import { Job } from './entities/jobs.entity';
 
 @Injectable()
 export class JobRepository {
-  create(arg0: { recruiter: User; title: string; location: string; salary: number; description: string; contractDurations: string; position: string; extra: string[]; nationality: string; imgUrl: string; contractTypes: string; category: string; sportGenres: string; minAge: number; maxAge: number; sport: string; minExperience: string; availabilityToTravel: import("./jobs.enum").YesOrNotravell; euPassport: import("./jobs.enum").YesOrNo; gmail?: string; }) {
+  create(arg0: { recruiter: User; title: string; location: string; salary: string;  description: string; contractDurations: string; position: string; extra: string[]; nationality: string; imgUrl: string; contractTypes: string; category: string; sportGenres: string; minAge: number; maxAge: number; sport: string; minExperience: string; availabilityToTravel: import("./jobs.enum").YesOrNotravell; euPassport: import("./jobs.enum").YesOrNo; gmail?: string; }) {
     throw new Error('Method not implemented.');
   }
   constructor(

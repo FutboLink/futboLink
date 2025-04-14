@@ -11,7 +11,8 @@ export const fetchCursos = (): ICurso[] => {
       country: "Perú",
       language: "Español",
       modality: "Online",
-      contact: "contacto@desarrolloweb.com"
+      contact: "contacto@desarrolloweb.com",
+      description: ""
     },
     {
       id: "2",
@@ -21,7 +22,9 @@ export const fetchCursos = (): ICurso[] => {
       country: "Argentina",
       language: "Inglés",
       modality: "Presencial",
-      contact: "info@ai-master.com"
+      contact: "info@ai-master.com",
+      description: ""
+      
     },
     {
       id: "3",
@@ -31,7 +34,8 @@ export const fetchCursos = (): ICurso[] => {
       country: "Chile",
       language: "Español",
       modality: "Híbrido",
-      contact: "contacto@marketingseminario.com"
+      contact: "contacto@marketingseminario.com",
+      description: ""
     }
   ];
 

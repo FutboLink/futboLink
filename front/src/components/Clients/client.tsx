@@ -34,7 +34,7 @@ const clients = [
     name: "Julian Picart",
     age: "19 años — Argentino",
     testimonial:
-      "A través de FutboLink conecté con clubes de España y terminé firmando en UE Alcudia. Muy contento con todo el proceso.",
+      "A través de FutboLink, conecté con clubes de España y terminé firmando en UE Alcudia. Muy contento con todo el proceso.",
     imgUrl: "/3.jpg",
   },
 ];

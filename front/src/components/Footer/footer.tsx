@@ -1,6 +1,7 @@
 import React from "react";
-import { FaTiktok, FaYoutube, FaTimes } from "react-icons/fa"; // Iconos de redes sociales
+import { FaTiktok, FaYoutube, FaTimes, FaInstagram, FaLinkedin, FaFacebook } from "react-icons/fa"; // Iconos de redes sociales
 import Link from "next/link"; // Importar Link de Next.js
+import { FaX } from "react-icons/fa6";
 
 function Footer() {
   return (
@@ -10,7 +11,7 @@ function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center md:items-start mb-6">
           {/* Logo */}
           <div className="flex flex-col items-center md:items-start">
-            <h2 className="text-3xl font-bold">Futbolink</h2>
+            <h2 className="text-3xl font-bold">FutboLink</h2>
             <p className="mt-2 text-lg">Conectando Talento</p>
           </div>
 
@@ -47,15 +48,24 @@ function Footer() {
 
           {/* Social Media Section */}
           <div className="flex space-x-6 mt-6 md:mt-0">
-            <a href="#" className="text-2xl hover:text-verde-mas-claro">
-              <FaTiktok />
-            </a>
-            <a href="#" className="text-2xl hover:text-verde-mas-claro">
-            <FaTimes />
-            </a>
-            <a href="#" className="text-2xl hover:text-verde-mas-claro">
-              <FaYoutube />
-            </a>
+          <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-verde-mas-claro">
+  <FaFacebook />
+</a>
+<a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-verde-mas-claro">
+  <FaLinkedin />
+</a>
+<a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-verde-mas-claro">
+  <FaYoutube />
+</a>
+<a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-verde-mas-claro">
+  <FaInstagram />
+</a>
+<a href="https://www.tiktok.com" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-verde-mas-claro">
+  <FaTiktok />
+</a>
+<a href="https://x.com" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-verde-mas-claro">
+  <FaX />
+</a>
           
           </div>
         </div>
@@ -63,7 +73,7 @@ function Footer() {
         {/* Footer Bottom */}
         <div className="border-t border-gray-700 pt-6 mt-6 text-center text-sm">
           <p>
-            &copy; {new Date().getFullYear()} Futbolink. Todos los derechos
+            &copy; {new Date().getFullYear()} FutboLink. Todos los derechos
             reservados.
           </p>
         </div>

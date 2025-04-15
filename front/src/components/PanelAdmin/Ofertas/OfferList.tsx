@@ -27,6 +27,7 @@ const OfferList: React.FC = () => {
       return (
         offer.contractTypes?.toLowerCase().includes(lowerSearchTerm) ||
         offer.position?.toLowerCase().includes(lowerSearchTerm) ||
+        offer.title?.toLowerCase().includes(lowerSearchTerm) ||
         offer.location?.toLowerCase().includes(lowerSearchTerm)
       );
     });
@@ -50,7 +51,7 @@ const OfferList: React.FC = () => {
         <div className="w-full sm:w-4/6 md:w-3/6 lg:w-2/6 p-4">
           <input
             type="text"
-            placeholder="Buscar por tipo de oferta, posición o ubicación..."
+            placeholder="Buscar por oferta por titulo, posición o ubicación..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded-md text-gray-700"

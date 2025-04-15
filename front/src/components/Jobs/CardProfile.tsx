@@ -2,9 +2,9 @@ import { useState } from "react";
 import Image from "next/image";
 import { IProfileData } from "@/Interfaces/IUser";
 import { FaUser, FaRunning, FaBriefcase } from "react-icons/fa";
-import { FaTwitter, FaYoutube } from "react-icons/fa";
-import { PiSoccerBall } from "react-icons/pi";
+import { FaYoutube } from "react-icons/fa";
 import BackButton from "../utils/BackButton";
+import { FaX } from "react-icons/fa6";
 
 interface CardProfileProps {
   profile: IProfileData;
@@ -122,9 +122,9 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
                         href={profile.socialMedia?.x || "#"}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800"
+                     
                       >
-                        <FaTwitter size={24} />
+                        <FaX size={24} />
                       </a>
                       <a
                         href={profile.socialMedia?.youtube || "#"}
@@ -140,7 +140,12 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
                         rel="noopener noreferrer"
                         className="text-green-600 hover:text-green-800"
                       >
-                        <PiSoccerBall size={24} />
+                                  <Image
+      src="/transfermarkt.png"
+      alt="Transfermarkt"
+      width={60}
+      height={60}
+    />
                       </a>
                     </div>
                   </div>

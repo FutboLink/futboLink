@@ -120,7 +120,7 @@ if (!offer) {
       {offer.description && (
         <>
           <h2 className="text-lg font-semibold text-verde-oscuro mt-4 mb-2">Descripción de la oferta</h2>
-          <p className="text-gray-700 mb-4">{offer.description}</p>
+          <p className="text-gray-700 mb-4 whitespace-pre-line">{offer.description}</p>
         </>
       )}
 

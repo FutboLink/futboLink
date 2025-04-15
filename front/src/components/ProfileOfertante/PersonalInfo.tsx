@@ -236,7 +236,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   </div>
       
   <div className="flex flex-col">
-  <label className="text-gray-700 font-semibold text-sm mt-2">Nombre agencia:</label>
+  <label className="text-gray-700 font-semibold text-sm mt-2">Nombre entidad:</label>
            {/* nombre agencia */}
            <input
             name="nameAgency"

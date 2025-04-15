@@ -69,7 +69,7 @@ const ContactDetails: React.FC<{ profileData: IProfileData }> = () => {
 
   return (
     <div className="p-4 border border-gray-300 shadow-lg rounded-lg">
-      <h2 className="text-lg font-semibold text-gray-700">Detalles Físicos</h2>
+      <h2 className="text-lg font-semibold text-gray-700">Redes</h2>
       {fetchedProfileData ? (
         <>
           <input

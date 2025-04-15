@@ -7,6 +7,7 @@ export const fetchCursos = (): ICurso[] => {
       id: "1",
       image: "/cesped.jpg",
       title: "Curso de Desarrollo Web",
+      description:"d",
       category: CategoryCursos.Curso,
       country: "Perú",
       language: "Español",
@@ -17,6 +18,7 @@ export const fetchCursos = (): ICurso[] => {
       id: "2",
       image: "/cesped.jpg",
       title: "Master en Inteligencia Artificial",
+      description:"d",
       category: CategoryCursos.Master,
       country: "Argentina",
       language: "Inglés",
@@ -26,6 +28,7 @@ export const fetchCursos = (): ICurso[] => {
     {
       id: "3",
       image: "/cesped.jpg",
+      description:"d",
       title: "Seminario de Marketing Digital",
       category: CategoryCursos.Seminario,
       country: "Chile",

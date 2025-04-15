@@ -51,7 +51,9 @@ export class ApplicationService {
   async listApplications(jobId: string): Promise<Application[]> {
     return this.applicationRepository.find({
       where: { job: { id: String(jobId) } },
+      relations: ['player'],
     });
+   
   }
 
   @ApiOperation({ summary: 'Actualizar estado de una aplicación' })

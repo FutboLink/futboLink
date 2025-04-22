@@ -1,8 +1,10 @@
 import { Controller, Post, Headers, Req, Res, Body } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { StripeService } from './stripe.service';
+import { ApiBody, ApiHeader, ApiTags } from '@nestjs/swagger';
+import { CreateCheckoutSessionDto } from './dto/create-checkout-session.dto';
 
-
+@ApiTags('Payment')
 @Controller('payment')
 export class PaymentController {
   constructor(private readonly stripeService: StripeService) {}
@@ -17,6 +19,12 @@ export class PaymentController {
   } */
 
   @Post('checkout')
+  @ApiBody({ schema: {
+    type: 'object',
+    properties: {
+      amount: { type: 'number', example: 1000 },
+      currency: { type: 'string', example: 'usd' }
+    }}})
   async createCheckout(@Body() body: { amount: number; currency: string }) {
     const session = await this.stripeService.createCheckoutSession(
       body.amount,
@@ -28,6 +36,7 @@ export class PaymentController {
   }
 
   @Post('webhook')
+  @ApiHeader({ name: 'stripe-signature', required: true })
   async handleWebhook(
     @Req() req: any,
     @Res() res: Response,
@@ -38,6 +47,13 @@ export class PaymentController {
   }
 
   @Post('subscribe')
+  @ApiBody({ schema: {
+    type: 'object',
+    properties: {
+      email: { type: 'string', example: 'user@example.com' },
+      priceId: { type: 'string', example: 'price_12345' }
+    }
+  }})
 async subscribe(@Body() body: { email: string; priceId: string }) {
   const session = await this.stripeService.createSubscriptionSession(
     body.email,

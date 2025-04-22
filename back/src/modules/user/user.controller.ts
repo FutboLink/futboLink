@@ -5,7 +5,6 @@ import {
   Body,
   Param,
   Delete,
-  UseGuards,
   Put,
   ParseUUIDPipe,
   UseInterceptors,

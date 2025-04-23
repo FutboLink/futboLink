@@ -14,7 +14,12 @@ import NavbarRoles from "@/components/navbar/navbarRoles";
 import ClientsSection from "@/components/Clients/client";
 import { FaGlobe } from "react-icons/fa";
 
-// Declaramos `googleTranslateElementInit` para evitar errores de TypeScript
+// Importá las imágenes correctamente
+import futA from "../../../public/buscador_ydamak.jpg";
+import futB from "../../../public/publicarOfertas.jpg";
+import futC from "../../../public/cursosYformaciones.jpg";
+
+// Tipado global de Google Translate
 declare global {
   interface Window {
     googleTranslateElementInit: () => void;
@@ -30,22 +35,20 @@ const Home = () => {
   const { role } = useContext(UserContext);
   const [currentImage, setCurrentImage] = useState(0);
   const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState("es"); // Estado para el idioma actual
+  const [currentLanguage, setCurrentLanguage] = useState("es");
 
+  // ✅ Usar imágenes importadas correctamente
   const images = [
     {
-      src: "/buscador.jpg",
-      link: "https://res.cloudinary.com/dm8dsqseu/image/upload/v1745439390/publicarOfertas_zmcsxr.jpg",
+      src: futA,
       text: "Buscador de ofertas laborales",
     },
     {
-      src: "/publicarOfertas.jpg",
-      link: "https://res.cloudinary.com/dm8dsqseu/image/upload/v1745439389/cursosYformaciones_a8xc0y.jpg",
+      src: futB,
       text: "Publicar oferta laboral",
     },
     {
-      src: "/cursosYformaciones.jpg",
-      link: "https://res.cloudinary.com/dm8dsqseu/image/upload/v1745439389/buscador_ydamak.jpg",
+      src: futC,
       text: "Cursos y Formaciones",
     },
   ];
@@ -67,7 +70,7 @@ const Home = () => {
       new window.google.translate.TranslateElement(
         {
           pageLanguage: "es",
-          includedLanguages: "it,es", // Español e Italiano
+          includedLanguages: "it,es",
           autoDisplay: false,
         },
         "google_translate_element"
@@ -78,12 +81,9 @@ const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Alternar entre español e italiano
   const toggleLanguage = () => {
     if (!isGoogleLoaded) {
-      alert(
-        "Google Translate aún no ha cargado. Intenta de nuevo en unos segundos."
-      );
+      alert("Google Translate aún no ha cargado.");
       return;
     }
 
@@ -91,7 +91,7 @@ const Home = () => {
       ".goog-te-combo"
     ) as HTMLSelectElement;
     if (select) {
-      const newLanguage = currentLanguage === "es" ? "it" : "es"; // Cambia el idioma
+      const newLanguage = currentLanguage === "es" ? "it" : "es";
       select.value = newLanguage;
       select.dispatchEvent(new Event("change"));
       setCurrentLanguage(newLanguage);
@@ -102,10 +102,8 @@ const Home = () => {
     <main className="bg-verde-oscuro text-white relative overflow-hidden">
       {role === "ADMIN" ? <NavbarAdmin /> : <NavbarRoles />}
 
-      {/* Contenedor oculto del traductor */}
       <div id="google_translate_element" className="hidden"></div>
 
-      {/* Ocultar la barra de Google Translate */}
       <style>
         {`
           .goog-te-banner-frame { display: none !important; }
@@ -114,12 +112,11 @@ const Home = () => {
         `}
       </style>
 
-      {/* Botón para cambiar entre español e italiano */}
       <button
         onClick={toggleLanguage}
         className="fixed top-4 right-4 mt-28 bg-white text-black p-2 rounded-full shadow-lg flex items-center gap-2 hover:bg-gray-200 transition duration-300 z-50"
       >
-        <FaGlobe size={20} />{" "}
+        <FaGlobe size={20} />
         <span>{currentLanguage === "es" ? "Italiano" : "Español"}</span>
       </button>
 
@@ -147,7 +144,7 @@ const Home = () => {
                     />
                     <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
                       <div className="text-white text-2xl sm:text-4xl font-bold bg-black bg-opacity-50 px-8 py-4 rounded-lg">
-                        <Link href={image.link}>{image.text}</Link>
+                        {image.text}
                       </div>
                     </div>
                   </div>

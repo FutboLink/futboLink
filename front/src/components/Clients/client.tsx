@@ -42,7 +42,7 @@ const ClientsSwiper: React.FC = () => {
     <section className="bg-[#f5f5f5] py-12">
       <div className="container mx-auto text-center">
         <h2 className="text-3xl font-semibold text-[#1d5126] mb-8">
-          Casos de Éxito
+          Casos de Exito
         </h2>
         <Swiper
           spaceBetween={50}

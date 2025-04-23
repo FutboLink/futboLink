@@ -142,6 +142,7 @@ const Home = () => {
                       alt={`Imagen ${index + 1}`}
                       className="w-full h-full object-cover"
                     />
+
                     <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
                       <div className="text-white text-2xl sm:text-4xl font-bold bg-black bg-opacity-50 px-8 py-4 rounded-lg">
                         {image.text}

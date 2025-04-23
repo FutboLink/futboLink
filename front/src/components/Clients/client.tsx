@@ -2,11 +2,9 @@
 
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { EffectCards } from "swiper/modules";
-import Image from "next/image";
-
+import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
-import "swiper/css/effect-cards";
+import "swiper/css/pagination";
 
 const clients = [
   {
@@ -47,10 +45,18 @@ const ClientsSwiper: React.FC = () => {
           Casos de Éxito
         </h2>
         <Swiper
-          effect={"cards"}
-          grabCursor={true}
-          modules={[EffectCards]}
-          className="mySwiper max-w-[320px] md:max-w-[380px] mx-auto"
+          spaceBetween={50}
+          loop={true}
+          autoplay={{
+            delay: 2000,
+            disableOnInteraction: false,
+          }}
+          pagination={{
+            el: ".swiper-pagination",
+            dynamicBullets: true,
+          }}
+          modules={[Autoplay, Pagination]}
+          className="swiper-container max-w-[320px] md:max-w-[380px] mx-auto"
         >
           {clients.map((client, index) => (
             <SwiperSlide
@@ -58,12 +64,10 @@ const ClientsSwiper: React.FC = () => {
               className="flex flex-col justify-start items-center bg-white p-4 rounded-2xl shadow-lg h-[500px] w-[300px]"
             >
               <div className="flex justify-center items-center h-[300px] w-full mb-4 overflow-hidden rounded-xl">
-                <Image
+                <img
                   src={client.imgUrl}
                   alt={client.name}
-                  width={280}
-                  height={280}
-                  className="object-cover rounded-xl"
+                  className="object-contain rounded-xl w-full h-full"
                 />
               </div>
               <h3 className="text-lg font-semibold text-[#1d5126] mt-2">
@@ -76,6 +80,7 @@ const ClientsSwiper: React.FC = () => {
             </SwiperSlide>
           ))}
         </Swiper>
+        <div className="swiper-pagination"></div>
       </div>
     </section>
   );

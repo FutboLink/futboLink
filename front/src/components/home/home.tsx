@@ -35,17 +35,17 @@ const Home = () => {
   const images = [
     {
       src: "/buscador.jpg",
-      link: "/link1",
+      link: "/https://res.cloudinary.com/dm8dsqseu/image/upload/v1745439390/publicarOfertas_zmcsxr.jpg",
       text: "Buscador de ofertas laborales",
     },
     {
       src: "/publicarOfertas.jpg",
-      link: "/link2",
+      link: "/https://res.cloudinary.com/dm8dsqseu/image/upload/v1745439389/cursosYformaciones_a8xc0y.jpg",
       text: "Publicar oferta laboral",
     },
     {
       src: "/cursosYformaciones.jpg",
-      link: "/link3",
+      link: "/https://res.cloudinary.com/dm8dsqseu/image/upload/v1745439389/buscador_ydamak.jpg",
       text: "Cursos y Formaciones",
     },
   ];

@@ -8,8 +8,8 @@ import { IProfileData } from "@/Interfaces/IUser";
 import { UserContext } from "@/components/Context/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { FaBolt, FaCog,  FaTimes,  FaUser, FaYoutube } from "react-icons/fa";
-import { PiSoccerBall } from "react-icons/pi";
+import { FaBolt, FaCog,   FaUser, FaYoutube } from "react-icons/fa";
+import { FaX } from "react-icons/fa6";
 
 const UserProfile = () => {
   const { token, logOut } = useContext(UserContext);
@@ -180,6 +180,13 @@ const UserProfile = () => {
               {userData?.name} {userData?.lastname}
             </h2>
             <div className="text-gray-700">
+            <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
+                <strong>Nacionalidad:</strong> {userData?.nationality || "No disponible"}
+              </p>
+              <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
+                <strong>Ubicación actual:</strong> {userData?.ubicacionActual || "No disponible"}
+              </p>
+  
               <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                 <strong>Fecha de Nacimiento:</strong> {userData?.birthday || "No disponible"}
               </p>
@@ -201,7 +208,7 @@ const UserProfile = () => {
                   {userData?.socialMedia?.x && (
                     <a href={`https://twitter.com/${userData.socialMedia.x}`} target="_blank" rel="noopener noreferrer"
                       className=" hover:text-gray-800">
-                      <FaTimes size={24} />
+                      <FaX size={24} />
                     </a>
                   )}
                   {userData?.socialMedia?.youtube && (
@@ -210,12 +217,21 @@ const UserProfile = () => {
                       <FaYoutube size={24} />
                     </a>
                   )}
-                  {userData?.socialMedia?.transfermarkt && (
-                    <a href={`https://www.transfermarkt.com/${userData.socialMedia.transfermarkt}`} target="_blank" rel="noopener noreferrer"
-                      className="text-green-600 hover:text-green-800">
-                      <PiSoccerBall size={24} />
-                    </a>
-                  )}
+                 {userData?.socialMedia?.transfermarkt && (
+  <a
+    href={`https://www.transfermarkt.com/${userData.socialMedia.transfermarkt}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="hover:opacity-80"
+  >
+    <Image
+      src="/transfermarkt.png"
+      alt="Transfermarkt"
+      width={60}
+      height={60}
+    />
+  </a>
+)}
                 </div>
               </div>
             </div>

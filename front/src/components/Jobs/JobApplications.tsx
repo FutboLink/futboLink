@@ -49,7 +49,7 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
       <div className="flex items-center space-x-2 mb-3">
         <BsFillFileTextFill className="text-gray-700" size={24} />
       </div>
-      <p className="text-gray-800 text-base mb-3 flex-grow">{app.message}</p>
+      
       <div className="flex items-center space-x-2 mb-3">
         
         <div className="flex items-center space-x-1 text-xs text-gray-500 opacity-75">

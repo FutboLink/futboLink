@@ -9,6 +9,28 @@ const OfferList: React.FC = () => {
   const [filteredOffers, setFilteredOffers] = useState<IOfferCard[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [contractTypeFilter, setContractTypeFilter] = useState<string>("");
+  const [positionFilter, setPositionFilter] = useState<string>("");
+
+  // Opciones de tipo de contrato
+  const contractTypes = [
+    "Contrato Profesional",
+    "Semiprofesional",
+    "Amateur",
+    "Contrato de cesión",
+    "Prueba",
+  ];
+
+  // Opciones de posición
+  const positions = [
+    "Abogado", "Administrativo", "Agente", "Árbitro", "Analista", "Científico Deportivo",
+    "Coordinador", "Comercial", "Delegado", "Director Deportivo", "Director de Negocio",
+    "Director Técnico", "Diseñador Gráfico", "Editor Multimedia", "Entrenador",
+    "Entrenador de Porteros", "Ejecutivo", "Fisioterapeuta", "Finanzas", "Gerente",
+    "Inversor", "Jefe de Reclutamiento", "Jugador", "Marketing Digital", "Médico",
+    "Nutricionista", "Ojeador Scout", "Periodista", "Preparador Físico", "Profesor",
+    "Psicólogo", "Recursos Humanos", "Representante", "Terapeuta", "Utillero",
+  ];
 
   useEffect(() => {
     const fetchOffers = async () => {
@@ -22,16 +44,37 @@ const OfferList: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const filtered = offers.filter((offer) => {
-      const lowerSearchTerm = searchTerm.toLowerCase();
-      return (
-        offer.contractTypes?.toLowerCase().includes(lowerSearchTerm) ||
-        offer.position?.toLowerCase().includes(lowerSearchTerm) ||
-        offer.location?.toLowerCase().includes(lowerSearchTerm)
+    let filtered = offers;
+
+    // Filtro por tipo de contrato
+    if (contractTypeFilter) {
+      filtered = filtered.filter((offer) =>
+        offer.contractTypes?.includes(contractTypeFilter)
       );
-    });
+    }
+
+    // Filtro por posición
+    if (positionFilter) {
+      filtered = filtered.filter((offer) =>
+        offer.position?.includes(positionFilter)
+      );
+    }
+
+    // Filtro por términos de búsqueda
+    if (searchTerm) {
+      filtered = filtered.filter((offer) => {
+        const lowerSearchTerm = searchTerm.toLowerCase();
+        return (
+          offer.contractTypes?.toLowerCase().includes(lowerSearchTerm) ||
+          offer.position?.toLowerCase().includes(lowerSearchTerm) ||
+          offer.title?.toLowerCase().includes(lowerSearchTerm) ||
+          offer.location?.toLowerCase().includes(lowerSearchTerm)
+        );
+      });
+    }
+
     setFilteredOffers(filtered);
-  }, [searchTerm, offers]);
+  }, [searchTerm, contractTypeFilter, positionFilter, offers]);
 
   if (loading) {
     return (
@@ -45,24 +88,60 @@ const OfferList: React.FC = () => {
 
   return (
     <div className="mt-12 p-12">
-      <h1 className="bg-gradient-to-r from-green-400 via-green-500 to-green-600 text-white p-2 font-semibold text-center">OFERTAS LABORALES</h1>
+      <h1 className="bg-gradient-to-r from-green-400 via-green-500 to-green-600 text-white p-2 font-semibold text-center">
+        OFERTAS LABORALES
+      </h1>
       <div className="flex justify-center items-center mb-6">
-        <div className="w-full sm:w-4/6 md:w-3/6 lg:w-2/6 p-4">
-          <input
-            type="text"
-            placeholder="Buscar por tipo de oferta, posición o ubicación..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md text-gray-700"
-          />
-        </div>
-      </div>
+  <div className="w-full sm:w-4/6 md:w-3/6 lg:w-2/6 p-4">
+    <input
+      type="text"
+      placeholder="Buscar por oferta por título, posición o ubicación..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      className="w-full p-2 border border-gray-300 rounded-md text-gray-700"
+    />
+  </div>
+</div>
+
+<div className="flex justify-center space-x-4 mb-6">
+  {/* Filtro por tipo de contrato */}
+  <div className="w-full sm:w-2/6 md:w-2/6 lg:w-2/6 p-4">
+    <select
+      value={contractTypeFilter}
+      onChange={(e) => setContractTypeFilter(e.target.value)}
+      className="w-full p-2 border border-gray-300 rounded-md text-gray-700"
+    >
+      <option value="">Seleccionar tipo de contrato</option>
+      {contractTypes.map((contractType) => (
+        <option key={contractType} value={contractType}>
+          {contractType}
+        </option>
+      ))}
+    </select>
+  </div>
+
+  {/* Filtro por posición */}
+  <div className="w-full sm:w-2/6 md:w-2/6 lg:w-2/6 p-4">
+    <select
+      value={positionFilter}
+      onChange={(e) => setPositionFilter(e.target.value)}
+      className="w-full p-2 border border-gray-300 rounded-md text-gray-700"
+    >
+      <option value="">Seleccionar posición</option>
+      {positions.map((position) => (
+        <option key={position} value={position}>
+          {position}
+        </option>
+      ))}
+    </select>
+  </div>
+</div>
+
+
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
         {sortedOffers.length > 0 ? (
-          sortedOffers.map((offer) => (
-            <CardOffer key={offer.id} offer={offer} />
-          ))
+          sortedOffers.map((offer) => <CardOffer key={offer.id} offer={offer} />)
         ) : (
           <p>No se encontraron ofertas.</p>
         )}

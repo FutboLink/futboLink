@@ -40,7 +40,9 @@ const Home = () => {
   // ✅ Usar imágenes importadas correctamente
   const images = [
     {
+
       src: futA,
+
       text: "Buscador de ofertas laborales",
     },
     {

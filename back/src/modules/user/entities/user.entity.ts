@@ -18,6 +18,11 @@ export class User {
   @Column()
   name: string;
 
+  @ApiProperty({ example: 'Madrid', description: 'Ubicación actual del usuario', nullable: true })
+  @Column({ nullable: true })
+  ubicacionActual?: string;
+  
+
   @ApiProperty({ example: 'Ejemplo', description: 'Apellido del usuario' })
   @Column()
   lastname: string;

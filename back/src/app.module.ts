@@ -9,11 +9,10 @@ import { AuthModule } from './modules/auth/auth.module';
 import { JobsModule } from './modules/Jobs/jobs.module';
 import { ApplicationsModule } from './modules/Applications/applications.module';
 import { ContractsModule } from './modules/contracts/contracts.module';
-import { StripeModule } from './stripe/stripe.module';
-import { PaymentController } from './stripe/stripe.controller';
 import { NewsModule } from './modules/News/news.module';
 import { CursoModule } from './modules/Courses/cursos.module';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { StripeModule } from './stripe/stripe.module';
 
 @Module({
   imports: [
@@ -44,10 +43,10 @@ import { MailerModule } from '@nestjs-modules/mailer';
     ContractsModule,
     NewsModule,
     CursoModule,
-    // Agrega el módulo de Stripe
+    StripeModule
    
   ],
-  // Agrega el PaymentController junto con el AppController
+  
   controllers: [AppController,],
   providers: [AppService],
 })

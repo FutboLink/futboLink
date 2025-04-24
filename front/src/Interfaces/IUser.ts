@@ -21,6 +21,7 @@ export interface IProfileData {
   cv?:string;
   phone: string;
   nationality: string;
+  ubicacionActual?: string;
   location: string;
   genre?: string;
   birthday: string;
@@ -54,6 +55,7 @@ export enum PasaporteUe {
 export interface IRegisterUser {
   name: string;
   lastname: string;
+  ubicacionActual:string;
   nameAgency?: string;
   puesto?:string;
   email: string;

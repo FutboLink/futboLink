@@ -6,23 +6,25 @@ import { NotificationsForms } from "@/components/Notifications/NotificationsForm
 import { validationRegister } from "@/components/Validate/ValidationRegister";
 import { IRegisterUser, UserType } from "@/Interfaces/IUser";
 import { useRouter } from "next/navigation";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef } from "react";
 import useNationalities from "@/components/Forms/FormUser/useNationalitys";
 import FormsTermins from "@/components/formsTermins/formsTermins";
+import { FaChevronDown } from "react-icons/fa";
 
 const ManagerForm: React.FC = () => {
   const { signUp } = useContext(UserContext);
   const router = useRouter();
-  const { nationalities, loading, error } = useNationalities();
+  const { nationalities, loading: nationalitiesLoading, error: nationalitiesError } = useNationalities();
   const [search, setSearch] = useState<string>(""); // Estado para el texto de búsqueda
   const [isOpen, setIsOpen] = useState<boolean>(false); // Estado para manejar la apertura del menú
   const [selectedNationality, setSelectedNationality] = useState<string>(""); // Nacionalidad seleccionada
-
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
   const [userRegister, setUserRegister] = useState<IRegisterUser>({
     role: UserType.RECRUITER,
     name: "",
     lastname: "",
     email: "",
+    ubicacionActual:"",
     nationality: "",
     genre: "",
     password: "",
@@ -173,50 +175,69 @@ const ManagerForm: React.FC = () => {
             required
           />
         </div>
+ {/* Nacionalidad (Búsqueda y Selección en un solo input) */}
+ <label htmlFor="nationalitySearch" className="block text-gray-700 mb-2">
+    Nacionalidad <span className="text-red-500">*</span>
+  </label>
+  
+  <div className="relative w-full">
+    <input
+      type="text"
+      id="nationalitySearch"
+      value={search || selectedNationality}
+      onChange={(e) => {
+        setSearch(e.target.value);
+        setSelectedNationality(""); // Limpiar selección si se tipea
+      }}
+      placeholder="Buscar nacionalidad..."
+      onClick={toggleDropdown}
+      className="w-full border border-gray-300 text-gray-700 rounded-lg p-3"
+    />
+    <FaChevronDown
+      className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500 cursor-pointer"
+      onClick={toggleDropdown}
+    />
+  </div>
 
-        {/* Nacionalidad (Búsqueda y Selección) */}
-        <div className="relative">
+  {/* Dropdown de nacionalidades */}
+  {isOpen && (
+    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+      {nationalitiesLoading && <p className="p-2">Cargando nacionalidades...</p>}
+      {nationalitiesError && <p className="text-red-500 p-2">{nationalitiesError}</p>}
+      <ul>
+        {nationalities
+          .filter((n) =>
+            n.label.toLowerCase().includes(search.toLowerCase())
+          )
+          .map((n) => (
+            <li
+              key={n.value}
+              className="p-2 cursor-pointer text-gray-700 hover:bg-gray-200"
+              onClick={() => {
+                handleSelectNationality(n.label);
+                setSearch(n.label); // Muestra la selección
+                setIsOpen(false);   // Cierra el dropdown
+              }}
+            >
+              {n.label}
+            </li>
+          ))}
+      </ul>
+    </div>
+  )}
+
+ {/* Ubicación actual */}
+<div>
           <label className="block text-gray-700 mb-1">
-            Buscar Nacionalidad
+          Ubicación actual <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
-            value={search}
-            onChange={handleSearchChange}
-            placeholder="Buscar nacionalidad..."
-            onClick={toggleDropdown}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3"
-          />
-          {isOpen && (
-            <div className="absolute left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-40 overflow-auto z-10">
-              {loading && <p className="p-2">Cargando...</p>}
-              {nationalities
-                .filter((n) =>
-                  n.label.toLowerCase().includes(search.toLowerCase())
-                )
-                .map((n) => (
-                  <p
-                    key={n.value}
-                    onClick={() => handleSelectNationality(n.label)}
-                    className="p-2 hover:bg-gray-200 cursor-pointer text-gray-700"
-                  >
-                    {n.label}
-                  </p>
-                ))}
-            </div>
-          )}
-        </div>
-
-        {/* Nacionalidad Seleccionada */}
-        <div>
-          <label className="block text-gray-700 mb-1">
-            Nacionalidad Seleccionada <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={selectedNationality}
-            readOnly
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 bg-gray-100"
+            name="ubicacionActual"
+            value={userRegister.ubicacionActual}
+            onChange={handleChange}
+            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:ring-2 focus:ring-blue-500"
+            required
           />
         </div>
 

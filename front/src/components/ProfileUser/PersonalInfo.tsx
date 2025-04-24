@@ -24,6 +24,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const [search, setSearch] = useState("");  
   const [isOpen, setIsOpen] = useState(false); 
   const [selectedNationality, setSelectedNationality] = useState<string>(''); 
+  
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
 useEffect(() => {
@@ -195,15 +196,23 @@ useEffect(() => {
   
           <div className="relative flex flex-col" ref={dropdownRef}>
   {/* Nationality Search */}
-  <label htmlFor="nationalitySearch" className="block text-gray-700 font-semibold text-sm">Buscar ubicación</label>
+  <div className="relative w-full">
+  {/* Nationality Search & Selection in one input */}
+  <label htmlFor="nationalitySearch" className="block text-gray-700 font-semibold text-sm">
+    Nacionalidad
+  </label>
   <input
     type="text"
     id="nationalitySearch"
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-    placeholder="Buscar ubicación..."
+    value={search || selectedNationality}
+    onChange={(e) => {
+      setSearch(e.target.value);
+      setSelectedNationality(""); // Limpiar la selección si se empieza a tipear de nuevo
+    }}
+    placeholder="Buscar nacionalidad..."
     onClick={toggleDropdown}
     className="w-full border text-gray-700 mt-2 border-gray-300 rounded-lg p-2"
+    readOnly={isOpen === false} // Para evitar edición directa cuando ya está seleccionada
   />
   <FaChevronDown
     className="absolute top-10 right-3 transform -translate-y-1/2 text-gray-500 cursor-pointer"
@@ -212,9 +221,8 @@ useEffect(() => {
 
   {/* Dropdown */}
   {isOpen && (
-  <div className="absolute z-10 w-full max-w-[95vw] bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
-
-      {nationalitiesLoading && <p className="p-2">Cargando ubicaciones...</p>}
+    <div className="absolute z-10 w-full max-w-[95vw] bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
+      {nationalitiesLoading && <p className="p-2">Cargando nacionalidades...</p>}
       {nationalitiesError && <p className="text-red-500 p-2">{nationalitiesError}</p>}
       <ul>
         {nationalities
@@ -225,7 +233,11 @@ useEffect(() => {
             <li
               key={nationality.value}
               className="p-2 cursor-pointer text-gray-700 hover:bg-gray-200"
-              onClick={() => handleSelectNationality(nationality.label)}
+              onClick={() => {
+                handleSelectNationality(nationality.label);
+                setSearch(nationality.label); // Mostrarlo en el input
+                setIsOpen(false); // Cerrar dropdown
+              }}
             >
               {nationality.label}
             </li>
@@ -233,18 +245,9 @@ useEffect(() => {
       </ul>
     </div>
   )}
+</div>
 
-  {/* Selected Nationality */}
-  <div className="flex flex-col mt-4">
-    <label htmlFor="nationality" className="block text-gray-700 font-semibold text-sm">Ubicación seleccionada</label>
-    <input
-      type="text"
-      id="nationality"
-      defaultValue={selectedNationality}
-      className="w-full border text-gray-700 mt-2 border-gray-300 rounded-lg p-2"
-      readOnly
-    />
-  </div>
+
 </div>
 
          
@@ -258,6 +261,18 @@ useEffect(() => {
               value={fetchedProfileData?.location || ""}
               onChange={handleChange}
               placeholder="Ubicación"
+              className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-gray-700 font-semibold text-sm">Ubicación actual:</label>
+            <input
+              name="ubicacionActual"
+              type="text"
+              value={fetchedProfileData?.ubicacionActual || ""}
+              onChange={handleChange}
+              placeholder="Ubicación actual"
               className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
             />
           </div>

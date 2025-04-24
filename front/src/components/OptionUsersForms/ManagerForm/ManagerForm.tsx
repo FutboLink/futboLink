@@ -24,6 +24,7 @@ const ManagerForm: React.FC = () => {
     name: "",
     lastname: "",
     email: "",
+    ubicacionActual:"",
     nationality: "",
     genre: "",
     password: "",

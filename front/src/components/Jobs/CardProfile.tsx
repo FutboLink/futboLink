@@ -97,9 +97,12 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
                   </p>
                   <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                     <strong>Nacionalidad:</strong> {profile.nationality}
-                  </p>
+                  </p> 
                   <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                     <strong>Ciudad:</strong> {profile.location}
+                  </p>
+                  <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
+                    <strong>Ubicación actual:</strong> {profile.ubicacionActual}
                   </p>
                   <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                     <strong>Género:</strong> {profile.genre}

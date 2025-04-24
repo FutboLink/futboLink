@@ -34,7 +34,7 @@ const Home = () => {
 
   const images = [
     {
-      src: "/buscador.jpg",
+      src: "/buscadorr.jpg",
       link: "/link1",
       text: "Buscador de ofertas laborales",
     },

@@ -9,7 +9,6 @@ import { UserContext } from "@/components/Context/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FaBolt, FaCog,   FaUser, FaYoutube } from "react-icons/fa";
-import { PiSoccerBall } from "react-icons/pi";
 import { FaX } from "react-icons/fa6";
 
 const UserProfile = () => {
@@ -184,6 +183,10 @@ const UserProfile = () => {
             <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                 <strong>Nacionalidad:</strong> {userData?.nationality || "No disponible"}
               </p>
+              <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
+                <strong>Ubicación actual:</strong> {userData?.ubicacionActual || "No disponible"}
+              </p>
+  
               <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                 <strong>Fecha de Nacimiento:</strong> {userData?.birthday || "No disponible"}
               </p>

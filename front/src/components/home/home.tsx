@@ -14,7 +14,13 @@ import NavbarRoles from "@/components/navbar/navbarRoles";
 import ClientsSection from "@/components/Clients/client";
 import { FaGlobe } from "react-icons/fa";
 
-// Importá las imágenes correctamente
+// Swiper
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, EffectFade } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/effect-fade";
+
+// Imágenes
 import futA from "../../../public/buscador_ydamak.jpg";
 import futB from "../../../public/publicarOfertas.jpg";
 import futC from "../../../public/cursosYformaciones.jpg";
@@ -33,11 +39,9 @@ declare global {
 
 const Home = () => {
   const { role } = useContext(UserContext);
-  const [currentImage, setCurrentImage] = useState(0);
   const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState("es");
 
-  // ✅ Usar imágenes importadas correctamente
   const images = [
     {
       src: futA,
@@ -56,10 +60,6 @@ const Home = () => {
   useEffect(() => {
     AOS.init({ duration: 1000, once: false });
 
-    const interval = setInterval(() => {
-      setCurrentImage((prevIndex) => (prevIndex + 1) % images.length);
-    }, 2000);
-
     const script = document.createElement("script");
     script.src =
       "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
@@ -77,8 +77,6 @@ const Home = () => {
       );
       setIsGoogleLoaded(true);
     };
-
-    return () => clearInterval(interval);
   }, []);
 
   const toggleLanguage = () => {
@@ -120,42 +118,40 @@ const Home = () => {
         <span>{currentLanguage === "es" ? "Italiano" : "Español"}</span>
       </button>
 
+      {/* Carrusel con Swiper */}
       <header
         className="relative flex flex-col items-center justify-center min-h-screen text-center"
         data-aos="fade-in"
       >
-        <div className="absolute top-0 left-0 w-full h-full">
-          <div className="relative w-full h-full overflow-hidden">
-            <div className="h-full">
-              {images.map((image, index) => (
-                <div
-                  key={index}
-                  className={`absolute top-0 left-0 w-full h-full transition-opacity duration-1000 ${
-                    index === currentImage ? "opacity-100" : "opacity-0"
-                  }`}
-                >
-                  <div className="relative w-full h-full">
-                    <Image
-                      src={image.src}
-                      width={1920}
-                      height={1080}
-                      alt={`Imagen ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-
-                    <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-                      <div className="text-white text-2xl sm:text-4xl font-bold bg-black bg-opacity-50 px-8 py-4 rounded-lg">
-                        {image.text}
-                      </div>
-                    </div>
+        <Swiper
+          modules={[Autoplay, EffectFade]}
+          autoplay={{ delay: 2000, disableOnInteraction: false }}
+          effect="fade"
+          loop
+          className="w-full h-screen"
+        >
+          {images.map((image, index) => (
+            <SwiperSlide key={index}>
+              <div className="relative w-full h-full">
+                <Image
+                  src={image.src}
+                  fill
+                  alt={`Imagen ${index + 1}`}
+                  className="object-cover"
+                  priority
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                  <div className="text-white text-2xl sm:text-4xl font-bold bg-black bg-opacity-50 px-8 py-4 rounded-lg">
+                    {image.text}
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </header>
 
+      {/* Secciones */}
       <section data-aos="fade-left" data-aos-delay="400">
         <About />
       </section>

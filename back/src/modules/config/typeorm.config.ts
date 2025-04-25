@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
 import { registerAs } from '@nestjs/config';
-import { config as dotenvConfig } from 'dotenv'
+import { config as dotenvConfig } from 'dotenv';
 import { DataSource, DataSourceOptions } from 'typeorm';
 
-dotenvConfig({ path: '.env.development' });
+dotenvConfig({ path: '.env.production.local' });
 
 const config: DataSourceOptions = {
   type: 'postgres',

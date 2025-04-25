@@ -22,9 +22,8 @@ import "swiper/css/effect-fade";
 
 // Imágenes
 import futA from "../../../public/buscador_ydamak.jpg";
-import futB from "../../../public/publicarOfertas.jpg";
-import futC from "../../../public/cursosYformaciones.jpg";
-
+import futB from "../../../public/publicarOfertas2.jpg";
+import futC from "../../../public/cursosYformaciones2.jpg";
 // Tipado global de Google Translate
 declare global {
   interface Window {
@@ -169,4 +168,3 @@ const Home = () => {
 };
 
 export default Home;
-  

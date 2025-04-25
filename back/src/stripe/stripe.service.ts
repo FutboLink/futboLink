@@ -13,7 +13,7 @@ export class StripeService {
     @InjectRepository(Payment)
     private readonly paymentRepo: Repository<Payment>,
     private readonly configService: ConfigService) {  
-    const secretKey = this.configService.get<string>('YOUR_STRIPE_SECRET_KEY');
+    const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
     if (!secretKey) {
       throw new InternalServerErrorException(
         'Stripe secret key not configured',

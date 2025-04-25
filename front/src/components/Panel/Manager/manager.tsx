@@ -13,11 +13,11 @@ import { IOfferCard } from "@/Interfaces/IOffer";
 import FormComponent from "@/components/Jobs/CreateJob";
 import { fetchUserId } from "@/components/Fetchs/UsersFetchs/UserFetchs";
 import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
-import { FaYoutube } from "react-icons/fa6";
+import { FaX, FaYoutube } from "react-icons/fa6";
 import { AiOutlineFileAdd, AiOutlineFileText, AiOutlineUser } from "react-icons/ai";
 import { MdSettings } from "react-icons/md";
 import { PiSoccerBall } from "react-icons/pi";
-import { FaGlobe, FaTimes} from "react-icons/fa";
+import { FaGlobe} from "react-icons/fa";
 
 const PanelManager = () => {
   const { user, logOut } = useContext(UserContext);
@@ -159,7 +159,7 @@ const PanelManager = () => {
                   </h2>
                   <div className="text-gray-700">
                   <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
-                      <strong>Nombre Agencia:</strong> {userData?.nameAgency || "No disponible"}
+                      <strong>Nombre de la entidad:</strong> {userData?.nameAgency || "No disponible"}
                     </p>
                     <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                       <strong>Tipo de organización:</strong> {userData?.puesto}
@@ -181,7 +181,7 @@ const PanelManager = () => {
                         {userData?.socialMedia?.x && (
                           <a href={`https://twitter.com/${userData.socialMedia.x}`} target="_blank" rel="noopener noreferrer"
                           className=" hover:text-gray-800">
-                            <FaTimes  size={24} />
+                            <FaX  size={24} />
                           </a>
                         )}
                         {userData?.socialMedia?.youtube && (
@@ -193,7 +193,12 @@ const PanelManager = () => {
                         {userData?.socialMedia?.transfermarkt && (
                           <a href={`https://www.transfermarkt.com/${userData.socialMedia.transfermarkt}`} target="_blank" rel="noopener noreferrer"
                             className="text-green-600 hover:text-green-800">
-                            <PiSoccerBall size={24} />
+                           <Image
+      src="/transfermarkt.png"
+      alt="Transfermarkt"
+      width={60}
+      height={60}
+    />
                           </a>
                         )}
                         {userData?.socialMedia?.website && (

@@ -7,6 +7,7 @@ interface Applicant {
   name: string;
   lastname: string;
   nationality: string;
+  ubicacionActual: string;
   genre: string;
 }
 
@@ -59,6 +60,7 @@ const ApplicantModal: React.FC<ApplicantModalProps> = ({ isOpen, onClose, applic
           <>
             <p className="text-gray-700"><strong>Nombre:</strong> {applicant.name} {applicant.lastname}</p>
             <p className="text-gray-700"><strong>Nacionalidad:</strong> {applicant.nationality}</p>
+            <p className="text-gray-700"><strong>Ubicación actual:</strong> {applicant.ubicacionActual}</p>
             <p className="text-gray-700"><strong>Género:</strong> {applicant.genre}</p>
             {/* Botón de Link para redirigir */}
             <div className="mt-4 text-center">

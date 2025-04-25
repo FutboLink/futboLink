@@ -37,7 +37,7 @@ const handleCloseModal = () => {
 };
 
   return (
-    <div className="flex flex-col h-full bg-white border border-gray-200 rounded-xl shadow-md overflow-hidden w-full max-w-[350px] min-h-[550px]">
+    <div className="flex flex-col h-full bg-white border border-gray-200 rounded-xl w-full max-w-[350px] min-h-[550px]rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-primary">
     {/* Sección 1: Encabezado */}
     <div className="flex items-center p-4 border-b border-gray-200 flex-1">
       <div className="w-20 h-20 flex-shrink-0 rounded-md overflow-hidden mr-4">
@@ -73,15 +73,14 @@ const handleCloseModal = () => {
       </div>
     </div>
   
-    {/* Sección 3: Descripción */}
-    <div className="text-sm text-gray-600 px-4 text-justify overflow-hidden flex-1 flex flex-col justify-start">
-      <div className="font-semibold text-sm text-gray-800 mb-1">Descripción de la oferta:</div>
-      <p className="text-sm line-clamp-4">
-        {offer.description.length > 100
-          ? offer.description.slice(0, 100) + "..."
-          : offer.description}
-      </p>
-    </div>
+{/* Sección 3: Descripción */}
+<div className="text-sm text-gray-600 px-4 text-justify overflow-hidden flex-1 flex flex-col justify-start">
+  <div className="font-semibold text-sm text-gray-800 mb-1">Descripción de la oferta:</div>
+  <p className="text-sm whitespace-pre-line">
+    {offer.description}
+  </p>
+</div>
+
   
     {/* Sección 4: Salario + botones */}
     <div className="flex flex-col justify-between flex-1 border-t border-gray-200">

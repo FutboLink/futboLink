@@ -2,9 +2,9 @@ import { useState } from "react";
 import Image from "next/image";
 import { IProfileData } from "@/Interfaces/IUser";
 import { FaUser, FaRunning, FaBriefcase } from "react-icons/fa";
-import { FaTwitter, FaYoutube } from "react-icons/fa";
-import { PiSoccerBall } from "react-icons/pi";
+import { FaYoutube } from "react-icons/fa";
 import BackButton from "../utils/BackButton";
+import { FaX } from "react-icons/fa6";
 
 interface CardProfileProps {
   profile: IProfileData;
@@ -97,9 +97,12 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
                   </p>
                   <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                     <strong>Nacionalidad:</strong> {profile.nationality}
-                  </p>
+                  </p> 
                   <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                     <strong>Ciudad:</strong> {profile.location}
+                  </p>
+                  <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
+                    <strong>Ubicación actual:</strong> {profile.ubicacionActual}
                   </p>
                   <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                     <strong>Género:</strong> {profile.genre}
@@ -122,9 +125,9 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
                         href={profile.socialMedia?.x || "#"}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800"
+                     
                       >
-                        <FaTwitter size={24} />
+                        <FaX size={24} />
                       </a>
                       <a
                         href={profile.socialMedia?.youtube || "#"}
@@ -140,7 +143,12 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
                         rel="noopener noreferrer"
                         className="text-green-600 hover:text-green-800"
                       >
-                        <PiSoccerBall size={24} />
+                                  <Image
+      src="/transfermarkt.png"
+      alt="Transfermarkt"
+      width={60}
+      height={60}
+    />
                       </a>
                     </div>
                   </div>

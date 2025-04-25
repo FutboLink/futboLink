@@ -92,29 +92,29 @@ const FormComponent = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
   
-
   const [formData, setFormData] = useState<ICreateJob>({
     title: "",
     nationality: "",
     location: "",
-    position: "",
-    category: "",
-    description: "",
-    currencyType: "EUR", 
-    customCurrencySign: "",
-    sport: "",
-    contractTypes: "",
-    contractDurations: "",
+    position: "Jugador", 
+    category: "Amateur", 
+    sport: "Fútbol 11",
+    contractTypes: "Contrato Profesional",
+    contractDurations: "Contrato Temporal",
     salary: "",
     extra: [],
     minAge: 0,
+    description: "",
+    currencyType: "EUR",
+    customCurrencySign: "",
     maxAge: 0,
-    sportGenres: "",
-    minExperience: "",
-    availabilityToTravel: "Si" as YesOrNotravell,
-    euPassport: "Si" as YesOrNo,
+    sportGenres: "Masculino",
+    minExperience: "Amateur",
+    availabilityToTravel: YesOrNotravell.SI,
+    euPassport: YesOrNo.SI,
     imgUrl: "",
   });
+  
 
   const { token } = useContext(UserContext);
   const [loading, setLoading] = useState(false);

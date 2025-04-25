@@ -171,6 +171,16 @@ export class RegisterUserDto {
 
   @IsOptional()
   socialMedia?: { transfermarkt?: string; youtube?: string; twitter?: string };
+
+  @ApiProperty({
+    description: 'Ubicación actual del usuario (opcional)',
+    example: 'Barcelona, España',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  ubicacionActual?: string;
+  
   
   @IsOptional()
   @IsString()

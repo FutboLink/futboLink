@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState, useEffect, useContext } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css"; 
-import {  FaBolt, FaChartBar, FaCog, FaInstagram, FaTimes, FaUser, FaYoutube } from "react-icons/fa";
+import {  FaBolt, FaChartBar, FaCog, FaInstagram, FaUser, FaYoutube } from "react-icons/fa";
 import { IProfileData} from "@/Interfaces/IUser";
 import { UserContext } from "@/components/Context/UserContext";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,7 @@ import Link from "next/link";
 import Offer from "./Ofertas/Offer";
 import AllApplications from "./Applications/AllApplications";
 import { PiSoccerBall } from "react-icons/pi";
+import { FaX } from "react-icons/fa6";
 
 const PanelAdmin = () => {
   const {token,logOut} = useContext(UserContext);
@@ -196,7 +197,7 @@ const PanelAdmin = () => {
                   <div className="flex space-x-4 mt-2 items-center">
                     {userData?.socialMedia?.x && (
                       <a href={`https://twitter.com/${userData.socialMedia.x}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
-                        <FaTimes size={24} />
+                        <FaX size={24} />
                       </a>
                     )}
                     {userData?.socialMedia?.youtube && (
@@ -282,7 +283,7 @@ const PanelAdmin = () => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <FaTimes className="text-xl" />
+              <FaX className="text-xl" />
               <span>X</span>
             </Link>
           )}

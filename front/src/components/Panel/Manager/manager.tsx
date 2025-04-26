@@ -264,7 +264,11 @@ const PanelManager = () => {
               Configuración
             </h3>
             <div className="space-y-6">
-              <h4 className="font-semibold text-lg">Cambiar contraseña</h4>
+            <Link className="group relative" href="/forgotPassword">
+  <h4 className="font-semibold text-lg  group-hover:underline ">
+    Cambiar contraseña
+  </h4>
+</Link>
               <h4 className="font-semibold text-lg">Idioma</h4>
               <h4 className="font-semibold text-lg">Suscripción</h4>
             </div>

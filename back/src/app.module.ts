@@ -13,9 +13,13 @@ import { NewsModule } from './modules/News/news.module';
 import { CursoModule } from './modules/Courses/cursos.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { StripeModule } from './stripe/stripe.module';
+import { mailConfig } from './modules/config/mail.config';
+import { EmailController } from './modules/Mailing/email.controller';
+import { EmailService } from './modules/Mailing/email.service';
 
 @Module({
   imports: [
+    MailerModule.forRoot(mailConfig),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [typeormConfig],
@@ -23,18 +27,6 @@ import { StripeModule } from './stripe/stripe.module';
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => config.get('typeorm'),
-    }),
-    MailerModule.forRoot({
-      transport: {
-        service: 'gmail',
-        auth: {
-          user: 'tu-email@gmail.com',
-          pass: 'tu-contraseña-o-app-password',
-        },
-      },
-      defaults: {
-        from: '"No Reply" <tu-email@gmail.com>',
-      },
     }),
     UserModule,
     AuthModule,
@@ -47,7 +39,7 @@ import { StripeModule } from './stripe/stripe.module';
    
   ],
   
-  controllers: [AppController,],
-  providers: [AppService],
+  controllers: [AppController,EmailController],
+  providers: [AppService, EmailService],
 })
 export class AppModule {}

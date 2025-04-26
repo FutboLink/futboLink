@@ -57,6 +57,15 @@ export class UserService {
     }
   }
 
+  
+  async findOneByEmail(email: string) {
+    try {
+      return await this.userRepository.findOne({ where: { email } });
+    } catch (error) {
+      throw new Error(`Error al obtener usuario por email: ${error.message}`);
+    }
+  }
+
   async updateUser(id: string, user: Partial<User>): Promise<Partial<User>> {
     if (Object.keys(user).length === 0) {
       throw new BadRequestException('No update values provided');
@@ -71,6 +80,16 @@ export class UserService {
     const { password, ...userNoSensitiveInfo } = updateUser;
 
     return userNoSensitiveInfo;
+  }
+
+  async updatePassword(userId: string, newPassword: string): Promise<void> {
+    const user = await this.findOne(userId);
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await this.userRepository.save(user);
   }
 
   async updateCv(userId: string, cvPath: string): Promise<User> {

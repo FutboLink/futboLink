@@ -153,7 +153,7 @@ export const fetchEditJob = async (
 export const resetPassword = async (token: string, password: string) => {
   console.log("Token desde fetch", { token, password });
   try {
-    const res = await fetch(`${apiUrl}/auth/reset-password`, {
+    const res = await fetch(`${apiUrl}/login/reset-password`, {
       method: "POST",
       body: JSON.stringify({ token, newPassword: password }),  // Enviar tanto el token como la nueva contraseña en el cuerpo
       headers: { 
@@ -172,7 +172,7 @@ export const resetPassword = async (token: string, password: string) => {
 
 export const forgotPassword = async (email: string) => {
   try {
-    const res = await fetch(`${apiUrl}/auth/forgot-password`, {
+    const res = await fetch(`${apiUrl}/login/forgot-password`, {
       method: "POST",
       body: JSON.stringify({ email }),
       headers: { "Content-Type": "application/json" },

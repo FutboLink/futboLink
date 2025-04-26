@@ -369,21 +369,21 @@ return (
         ))}
       </div>
     </div>
+    <div className="flex sm:flex-col justify-end space-x-4 sm:space-x-0 mt-6">
+  <button
+    onClick={onCancel}
+    className="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors mb-4 sm:mb-2"
+  >
+    Cancelar
+  </button>
+  <button
+    onClick={handleSave}
+    className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors sm:mb-2"
+  >
+    Guardar cambios
+  </button>
+</div>
 
-    <div className="flex justify-end space-x-4 mt-6">
-      <button
-        onClick={onCancel}
-        className="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
-      >
-        Cancelar
-      </button>
-      <button
-        onClick={handleSave}
-        className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-      >
-        Guardar cambios
-      </button>
-    </div>
   </div>
 );
 }

@@ -9,7 +9,6 @@ import { UserContext } from "@/components/Context/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FaBolt, FaCog,   FaUser, FaYoutube } from "react-icons/fa";
-import { FaX } from "react-icons/fa6";
 
 const UserProfile = () => {
   const { token, logOut } = useContext(UserContext);
@@ -206,9 +205,15 @@ const UserProfile = () => {
                 <strong>Redes Sociales:</strong>
                 <div className="flex space-x-4 mt-2 items-center">
                   {userData?.socialMedia?.x && (
-                    <a href={`https://twitter.com/${userData.socialMedia.x}`} target="_blank" rel="noopener noreferrer"
+                    <a href={`https://x.com/${userData.socialMedia.x}`} target="_blank" rel="noopener noreferrer"
                       className=" hover:text-gray-800">
-                      <FaX size={24} />
+                       <Image 
+    src="/logoX.png" 
+    alt="Logo X Futbolink" 
+    width={30} 
+    height={30} 
+    className="w-6 h-6 p-2 rounded-md bg-black" 
+  />
                     </a>
                   )}
                   {userData?.socialMedia?.youtube && (

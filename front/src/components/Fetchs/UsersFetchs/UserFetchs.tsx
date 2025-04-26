@@ -184,4 +184,29 @@ export const forgotPassword = async (email: string) => {
     console.error(error);
     return { success: false, message: "Error al conectar con el servidor." };
   }
+
+}
+
+export const contact = async (email: string, name: string, mensaje: string) => {
+  try {
+    const res = await fetch(`${apiUrl}/email/contact`, {  
+      method: "POST",
+      body: JSON.stringify({ email, name, mensaje }),  
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      return { success: false, message: errorData.message || "Hubo un problema al enviar el mensaje." };
+    }
+
+    const data = await res.json();
+    return { success: true, message: data.message || "Mensaje enviado exitosamente." };
+  } catch (error) {
+    console.error(error);
+    return { success: false, message: "Error al conectar con el servidor." };
+  }
+
+
+
 };

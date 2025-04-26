@@ -39,7 +39,7 @@ const clients = [
 
 const ClientsSwiper: React.FC = () => {
   return (
-    <section className="bg-[#f5f5f5] py-12">
+    <section id="casos-de-exito" className="bg-[#f5f5f5] py-12">
       <div className="container mx-auto text-center">
         <h2 className="text-3xl font-semibold text-[#1d5126] mb-8">
           Casos de Éxito

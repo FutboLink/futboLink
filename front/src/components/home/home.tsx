@@ -8,7 +8,6 @@ import About from "@/components/AboutUs/about";
 import Notices from "@/components/Notices/notices";
 import Subs from "@/components/Subs/subs";
 import NavbarAdmin from "@/components/navbar/navbarAdmin";
-import Link from "next/link";
 import Image from "next/image";
 import NavbarRoles from "@/components/navbar/navbarRoles";
 import ClientsSection from "@/components/Clients/client";

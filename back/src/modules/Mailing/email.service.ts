@@ -42,5 +42,27 @@ console.log('Template Path:', this.configService.get<string>('NODE_ENV') === 'pr
     }
   }
 
- 
+  
+  // Función para enviar el mensaje de contacto al administrador
+  async sendContactEmailToAdmin(email: string, name: string, mensaje: string) {
+    try {
+      const adminEmail = this.configService.get<string>('MAIL_USER'); 
+     
+      await this.mailerService.sendMail({
+        to: adminEmail,
+        subject: 'Nuevo mensaje de contacto',
+        template: 'contact',
+        context: {
+          name,
+          email,
+          mensaje,
+        },
+      });
+
+      this.logger.log('Mensaje de contacto enviado al administrador.');
+    } catch (error) {
+      this.logger.error(`Error al enviar el correo de contacto: ${error.message}`);
+      throw new Error('No se pudo enviar el mensaje. Inténtelo más tarde.');
+    }
   }
+}

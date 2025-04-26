@@ -12,7 +12,7 @@ const CardCurso: React.FC<{ curso: ICurso }> = ({ curso }) => {
           alt={curso.title}
           layout="fill"
           objectFit="cover"
-          className="w-full h-full"
+          className="w-full h-full object-cover rounded-md"
         />
       </div>
 

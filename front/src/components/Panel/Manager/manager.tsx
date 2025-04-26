@@ -16,7 +16,6 @@ import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
 import { FaX, FaYoutube } from "react-icons/fa6";
 import { AiOutlineFileAdd, AiOutlineFileText, AiOutlineUser } from "react-icons/ai";
 import { MdSettings } from "react-icons/md";
-import { PiSoccerBall } from "react-icons/pi";
 import { FaGlobe} from "react-icons/fa";
 
 const PanelManager = () => {
@@ -179,11 +178,17 @@ const PanelManager = () => {
                       <strong>Redes Sociales:</strong>
                       <div className="flex space-x-4 mt-2 items-center">
                         {userData?.socialMedia?.x && (
-                          <a href={`https://twitter.com/${userData.socialMedia.x}`} target="_blank" rel="noopener noreferrer"
+                          <a href={`https://x.com/${userData.socialMedia.x}`} target="_blank" rel="noopener noreferrer"
                           className=" hover:text-gray-800">
-                            <FaX  size={24} />
-                          </a>
-                        )}
+                           <Image 
+        src="/logoX.png" 
+        alt="Logo X Futbolink" 
+        width={30} 
+        height={30} 
+        className="w-6 h-6 p-2 rounded-md bg-black" 
+      />
+                        </a>
+                      )}
                         {userData?.socialMedia?.youtube && (
                           <a href={`https://www.youtube.com/${userData.socialMedia.youtube}`} target="_blank" rel="noopener noreferrer"
                             className="text-red-600 hover:text-red-800">

@@ -87,54 +87,57 @@ const OfferList: React.FC = () => {
   });
 
   return (
-    <div className="mt-12 p-12">
-      <h1 className="bg-gradient-to-r from-green-400 via-green-500 to-green-600 text-white p-2 font-semibold text-center">
-        OFERTAS LABORALES
-      </h1>
-      <div className="flex justify-center items-center mb-6">
-  <div className="w-full sm:w-4/6 md:w-3/6 lg:w-2/6 p-4">
-    <input
-      type="text"
-      placeholder="Buscar por oferta por título, posición o ubicación..."
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-      className="w-full p-2 border border-gray-300 rounded-md text-gray-700"
-    />
-  </div>
-</div>
+    <div className="mt-12 p-4 sm:p-6 lg:p-12">
+    <h1 className="bg-gradient-to-r from-green-400 via-green-500 to-green-600 text-white p-2 font-semibold text-center">
+      OFERTAS LABORALES
+    </h1>
+    
+    {/* Barra de búsqueda */}
+    <div className="flex justify-center items-center sm:text-xs md:text-md lg:text-md mb-6">
+      <div className="w-full sm:w-4/6 md:w-3/6 lg:w-2/6 p-4">
+        <input
+          type="text"
+          placeholder="Buscar por oferta por título, posición o ubicación..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded-md text-gray-700"
+        />
+      </div>
+    </div>
 
-<div className="flex justify-center space-x-4 mb-6">
-  {/* Filtro por tipo de contrato */}
-  <div className="w-full sm:w-2/6 md:w-2/6 lg:w-2/6 p-4">
-    <select
-      value={contractTypeFilter}
-      onChange={(e) => setContractTypeFilter(e.target.value)}
-      className="w-full p-2 border border-gray-300 rounded-md text-gray-700"
-    >
-      <option value="">Seleccionar tipo de contrato</option>
-      {contractTypes.map((contractType) => (
-        <option key={contractType} value={contractType}>
-          {contractType}
-        </option>
-      ))}
-    </select>
-  </div>
+    {/* Filtros */}
+    <div className="flex flex-wrap justify-center gap-4 mb-6">
+      {/* Filtro por tipo de contrato */}
+      <div className="w-full sm:w-2/6 md:w-2/6 lg:w-2/6 p-4">
+        <select
+          value={contractTypeFilter}
+          onChange={(e) => setContractTypeFilter(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded-md text-gray-700"
+        >
+          <option value="">Seleccionar tipo de contrato</option>
+          {contractTypes.map((contractType) => (
+            <option key={contractType} value={contractType}>
+              {contractType}
+            </option>
+          ))}
+        </select>
+      </div>
 
-  {/* Filtro por posición */}
-  <div className="w-full sm:w-2/6 md:w-2/6 lg:w-2/6 p-4">
-    <select
-      value={positionFilter}
-      onChange={(e) => setPositionFilter(e.target.value)}
-      className="w-full p-2 border border-gray-300 rounded-md text-gray-700"
-    >
-      <option value="">Seleccionar posición</option>
-      {positions.map((position) => (
-        <option key={position} value={position}>
-          {position}
-        </option>
-      ))}
-    </select>
-  </div>
+      {/* Filtro por posición */}
+      <div className="w-full sm:w-2/6 md:w-2/6 lg:w-2/6 p-4">
+        <select
+          value={positionFilter}
+          onChange={(e) => setPositionFilter(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded-md text-gray-700"
+        >
+          <option value="">Seleccionar posición</option>
+          {positions.map((position) => (
+            <option key={position} value={position}>
+              {position}
+            </option>
+          ))}
+        </select>
+      </div>
 </div>
 
 

@@ -89,6 +89,7 @@ function NavbarAdmin() {
             {isLogged && role === "ADMIN" ? (
               <button onClick={() => navigateTo("/PanelAdmin")}>
                 <FaUser className="text-verde-oscuro hover:scale-125 hover:text-verde-claro transition-all" />
+              
               </button>
             ) : (
               <>
@@ -187,37 +188,30 @@ function NavbarAdmin() {
             </ul>
 
             <div className="mt-4">
-              {isLogged ? (
-                role === "PLAYER" ? (
-                  <button onClick={() => navigateTo("/PanelUsers/Player")}>
-                    <FaUser className="text-verde-oscuro hover:text-verde-claro hover:transition-all hover:scale-125" />
-                  </button>
-                ) : role === "AGENCY" ? (
-                  <button onClick={() => navigateTo("/PanelUsers/Agency")}>
-                    <FaUser className="text-verde-claro" />
-                  </button>
-                ) : role === "RECRUITER" ? (
-                  <button onClick={() => navigateTo("/PanelUsers/Manager")}>
-                    <FaUser className="text-verde-claro" />
-                  </button>
-                ) : null
-              ) : (
-                <>
-                  <button
-                    onClick={() => navigateTo("/OptionUsers")}
-                    className="w-full bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
-                  >
-                    Iniciar sesión
-                  </button>
+            {isLogged && role === "ADMIN" ? (
+              <button onClick={() => navigateTo("/PanelAdmin")}>
+                <FaUser className="text-white hover:scale-125 hover:text-verde-claro transition-all" />
+              
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={() => navigateTo("/Login")}
+                  className="bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
+                  aria-label="Iniciar sesión"
+                >
+                  Iniciar sesión
+                </button>
 
-                  <button
-                    onClick={() => navigateTo("/OptionUsers")}
-                    className="w-full mt-4 bg-white text-verde-oscuro px-4 py-2 rounded-md hover:bg-gray-200"
-                  >
-                    Registrarse
-                  </button>
-                </>
-              )}
+                <button
+                  onClick={() => navigateTo("/OptionUsers")}
+                  className="bg-white text-verde-oscuro px-4 py-2 rounded-md ml-4 hover:bg-gray-200"
+                  aria-label="Registrarse"
+                >
+                  Registrarse
+                </button>
+              </>
+            )}
             </div>
           </div>
         )}

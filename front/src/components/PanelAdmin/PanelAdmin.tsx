@@ -126,15 +126,7 @@ const PanelAdmin = () => {
 
               </button>
             </li>
-            <li>
-              <button
-                onClick={() => handleSectionChange("social")}
-                className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
-                >
-              <FaCog className="text-white text-lg" />
-              <span className="text-white">Redes Sociales</span>
-              </button>
-            </li>
+           
           </ul>
         </nav>
         <button
@@ -191,27 +183,9 @@ const PanelAdmin = () => {
                   <strong>Ubicación:</strong> {userData?.location}
                 </p>
 
-                {/* Redes Sociales */}
-                <div className="mt-4">
-                  <strong>Redes Sociales:</strong>
-                  <div className="flex space-x-4 mt-2 items-center">
-                    {userData?.socialMedia?.x && (
-                      <a href={`https://twitter.com/${userData.socialMedia.x}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
-                        <FaX size={24} />
-                      </a>
-                    )}
-                    {userData?.socialMedia?.youtube && (
-                      <a href={`https://www.youtube.com/${userData.socialMedia.youtube}`} target="_blank" rel="noopener noreferrer" className="text-red-600 hover:text-red-800">
-                        <FaYoutube size={24} />
-                      </a>
-                    )}
-                    {userData?.socialMedia?.transfermarkt && (
-                      <a href={`https://www.transfermarkt.com/${userData.socialMedia.transfermarkt}`} target="_blank" rel="noopener noreferrer" className="text-green-600 hover:text-green-800">
-                        <PiSoccerBall size={24} />
-                      </a>
-                    )}
-                  </div>
-                </div>
+              
+             
+           
               </div>
             </div>
           </div>
@@ -257,47 +231,7 @@ const PanelAdmin = () => {
         )}
 
        
-        {/* Sección de Redes Sociales */}
-        {activeSection === "social" && (
-  <div className="bg-white p-6 rounded-lg shadow-lg mb-6" data-aos="fade-up">
-    <h3 className="text-xl font-semibold mb-4">Redes Sociales</h3>
-    <div className="space-y-4">
-      {userData?.socialMedia?.instagram || userData?.socialMedia?.twitter ? (
-        <>
-          {userData?.socialMedia?.instagram && (
-            <Link
-              href={`https://www.instagram.com/${userData.socialMedia.instagram}`}
-              className="text-blue-500 hover:underline flex items-center space-x-2"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <FaInstagram className="text-xl" />
-              <span>Instagram</span>
-            </Link>
-          )}
-
-          {userData?.socialMedia?.twitter && (
-            <Link
-              href={`https://twitter.com/${userData.socialMedia.twitter}`}
-              className=" hover:underline flex items-center space-x-2"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <FaX className="text-xl" />
-              <span>X</span>
-            </Link>
-          )}
-        </>
-      ) : (
-        <p className="text-gray-600">
-          Haz click en <span className="font-semibold">Completar datos</span> para agregar redes.
-        </p>
-      )}
-    </div>
-
-          </div>
-        )}
-      </div>
+       </div>
    
     </div>
   );

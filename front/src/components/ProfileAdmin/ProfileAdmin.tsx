@@ -30,7 +30,7 @@ const ProfileAdmin = () => {
        
         {/* Pestañas */}
         <div className="flex space-x-4 border-b pb-2 mt-4 mb-4 text-gray-700 ">
-          {["Personal", "Redes"].map((tab) => (
+          {["Personal"].map((tab) => (
             <button
               key={tab}
               className={`py-2 px-4 mt-8 ${
@@ -45,8 +45,6 @@ const ProfileAdmin = () => {
 
         {/* Contenido de cada pestaña */}
         {activeTab === "Personal" && userData && <PersonalInfo profileData={userData} />}
-        {activeTab === "Redes" && userData && <ContactDetails profileData={userData} />}
-
         {error && <p className="text-red-600 mt-4">{error}</p>}
       </div>
     </div>

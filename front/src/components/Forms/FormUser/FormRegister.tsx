@@ -237,32 +237,31 @@ const RegistrationForm: React.FC = () => {
         </div>
         <div className="relative flex flex-col" ref={dropdownRef}>
   {/* Nacionalidad (Búsqueda y Selección en un solo input) */}
-  <label htmlFor="nationalitySearch" className="block text-gray-700 mb-2">
-    Nacionalidad <span className="text-red-500">*</span>
-  </label>
-  
-  <div className="relative w-full">
-    <input
-      type="text"
-      id="nationalitySearch"
-      value={search || selectedNationality}
-      onChange={(e) => {
-        setSearch(e.target.value);
-        setSelectedNationality(""); // Limpiar selección si se tipea
-      }}
-      placeholder="Buscar nacionalidad..."
-      onClick={toggleDropdown}
-      className="w-full border border-gray-300 text-gray-700 rounded-lg p-3"
-    />
-    <FaChevronDown
-      className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500 cursor-pointer"
-      onClick={toggleDropdown}
-    />
-  </div>
+<label htmlFor="nationalitySearch" className="block text-gray-700 mb-2">
+  Nacionalidad <span className="text-red-500">*</span>
+</label>
+
+<div className="relative w-full">
+  <input
+    type="text"
+    id="nationalitySearch"
+    value={search || selectedNationality}
+    onChange={(e) => {
+      setSearch(e.target.value);
+      setSelectedNationality(""); // Limpiar selección si se tipea
+    }}
+    placeholder="Buscar nacionalidad..."
+    onClick={toggleDropdown}
+    className="w-full border border-gray-300 text-gray-700 rounded-lg p-3"
+  />
+  <FaChevronDown
+    className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500 cursor-pointer"
+    onClick={toggleDropdown}
+  />
 
   {/* Dropdown de nacionalidades */}
   {isOpen && (
-    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+    <div className="absolute left-0 right-0 mt-2 sm:mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto z-20">
       {nationalitiesLoading && <p className="p-2">Cargando nacionalidades...</p>}
       {nationalitiesError && <p className="text-red-500 p-2">{nationalitiesError}</p>}
       <ul>
@@ -276,8 +275,8 @@ const RegistrationForm: React.FC = () => {
               className="p-2 cursor-pointer text-gray-700 hover:bg-gray-200"
               onClick={() => {
                 handleSelectNationality(n.label);
-                setSearch(n.label); // Muestra la selección
-                setIsOpen(false);   // Cierra el dropdown
+                setSearch(n.label);
+                setIsOpen(false);
               }}
             >
               {n.label}
@@ -286,6 +285,8 @@ const RegistrationForm: React.FC = () => {
       </ul>
     </div>
   )}
+</div>
+
 </div>
 
         {/* Ubicación actual */}

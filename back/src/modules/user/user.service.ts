@@ -94,23 +94,7 @@ export class UserService {
     user.password = await bcrypt.hash(newPassword, 10);
     await this.userRepository.save(user);
   }
-  getCv(filename: string, res: Response) {
-    const filePath = join(__dirname, '..', '..', 'uploads', 'cvs', filename);
 
-    try {
-      const fileStream = createReadStream(filePath);
-      fileStream.pipe(res); // Esto debería funcionar correctamente
-    } catch (error) {
-      res.status(404).send('Archivo no encontrado');
-    }
-  }
 
-async saveCV(userId: string, filename: string): Promise<User> {
-  const user = await this.userRepository.findOneBy({ id: userId });
-  if (!user) throw new Error('Usuario no encontrado');
-
-  user.cv = filename;
-  return await this.userRepository.save(user);
-}
 
 }

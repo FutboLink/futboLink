@@ -7,10 +7,7 @@ import {
   Delete,
   Put,
   ParseUUIDPipe,
-  UseInterceptors,
-  UploadedFile,
-  Res,
-} from '@nestjs/common';
+  } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/create-user.dto';
 import {
@@ -21,11 +18,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { Response } from 'express';
-import { join } from 'path';
-import { createReadStream } from 'fs';
+
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -45,17 +38,6 @@ export class UserController {
   }
 
   
-  @Get('cv/:filename')
-getCv(@Param('filename') filename: string, @Res() res: Response) {
-  const filePath = join(__dirname, '..', '..', 'uploads', 'cvs', filename);
-
-  try {
-    const fileStream = createReadStream(filePath);
-    fileStream.pipe(res); // Responde el archivo al cliente
-  } catch (error) {
-    res.status(404).send('Archivo no encontrado');
-  }
-}
 
   
 

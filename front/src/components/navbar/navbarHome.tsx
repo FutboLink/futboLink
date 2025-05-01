@@ -169,7 +169,44 @@ function NavbarHome() {
               className="rounded-2xl"
             />
           </Link>
+          <div className="mt-4">
+            {isLogged ? (
+    role ? ( // Verifica si `role` tiene un valor antes de renderizar
+      role === "PLAYER" ? (
+        <button onClick={() => navigateTo("/PanelUsers/Player")}>
+          <FaUser className="text-green-700" />
+        </button>
+      ) : role === "RECRUITER" ? (
+        <button onClick={() => navigateTo("/PanelUsers/Manager")}>
+          <FaUser className="text-verde-claro" />
+        </button>
+      ) : role === "ADMIN" ? (
+        <button onClick={() => navigateTo("/PanelAdmin")}>
+          <FaUser className="text-verde-claro" />
+        </button>
+      ) : null
+    ) : (
+      <div>Loading...</div> // O algún otro mensaje o indicador de carga
+    )
+  ) : (
+    <>
+              <button
+                onClick={() => navigateTo("/OptionUsers")}
+                className="w-full bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
+              >
+                Iniciar sesión
+              </button>
 
+              <button
+                onClick={() => navigateTo("/OptionUsers")}
+                className="w-full mt-4 bg-white text-verde-oscuro px-4 py-2 rounded-md hover:bg-gray-200"
+              >
+                Registrarse
+              </button>
+              </>
+          )}
+      
+            </div>
           {/* Menú Hamburguesa */}
           <button
             onClick={toggleMobileMenu}
@@ -236,44 +273,7 @@ function NavbarHome() {
               </li>
             </ul>
 
-            <div className="mt-4">
-            {isLogged ? (
-    role ? ( // Verifica si `role` tiene un valor antes de renderizar
-      role === "PLAYER" ? (
-        <button onClick={() => navigateTo("/PanelUsers/Player")}>
-          <FaUser className="text-green-700" />
-        </button>
-      ) : role === "RECRUITER" ? (
-        <button onClick={() => navigateTo("/PanelUsers/Manager")}>
-          <FaUser className="text-verde-claro" />
-        </button>
-      ) : role === "ADMIN" ? (
-        <button onClick={() => navigateTo("/PanelAdmin")}>
-          <FaUser className="text-verde-claro" />
-        </button>
-      ) : null
-    ) : (
-      <div>Loading...</div> // O algún otro mensaje o indicador de carga
-    )
-  ) : (
-    <>
-              <button
-                onClick={() => navigateTo("/OptionUsers")}
-                className="w-full bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
-              >
-                Iniciar sesión
-              </button>
-
-              <button
-                onClick={() => navigateTo("/OptionUsers")}
-                className="w-full mt-4 bg-white text-verde-oscuro px-4 py-2 rounded-md hover:bg-gray-200"
-              >
-                Registrarse
-              </button>
-              </>
-          )}
-      
-            </div>
+           
           </div>
         )}
       </nav>

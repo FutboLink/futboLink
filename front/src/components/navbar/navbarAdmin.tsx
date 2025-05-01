@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useContext } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Head from "next/head";
@@ -10,15 +10,51 @@ import { FaUser } from "react-icons/fa";
 
 function NavbarAdmin() {
   const router = useRouter();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const { isLogged, role } = useContext(UserContext);
 
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const navigateTo = (path: string) => {
     router.push(path);
+    setIsMobileMenuOpen(false);
   };
 
-  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const menuItems = [
+    { label: "Ofertas", path: "/jobs" },
+    { label: "Noticias", path: "/News" },
+    { label: "Suscripciones", path: "/Subs" },
+    { label: "Ayuda", path: "/Help" },
+    { label: "Entrenamiento", path: "/cursos" },
+    { label: "Contacto", path: "/Contact" },
+  ];
+
+  const renderUserIcon = () => {
+    if (!isLogged || !role) return null;
+
+    let targetPath = "";
+     if (role === "ADMIN") targetPath = "/PanelAdmin";
+
+    return (
+      <button onClick={() => navigateTo(targetPath)}>
+        <FaUser className="text-verde-oscuro hover:text-verde-mas-claro hover:scale-110" />
+      </button>
+    );
+  };
 
   return (
     <>
@@ -31,187 +67,119 @@ function NavbarAdmin() {
         <meta name="robots" content="index, follow" />
       </Head>
 
-      {/* Navbar Desktop */}
-      <nav className="fixed top-0 left-0 w-full z-50 text-green-800 bg-white border-b-2 shadow-sm shadow-gray-400  border-gray-400">
-        <section className="flex items-center justify-between sm:flex-row w-full p-2">
-          {/* Sección izquierda con logo y links */}
-          <div id="sectionOne" className="flex items-center gap-6">
+      <nav className="fixed top-0 left-0 w-full z-50 bg-white shadow-md">
+        <section className="flex items-center justify-between py-2 px-4">
+          {/* Logo + Menú escritorio */}
+          <div className="flex items-center gap-6">
             <Link href={"/"}>
               <Image
                 src="/logoD.png"
-                height={50}
-                width={50}
+                height={60}
+                width={60}
                 alt="FutboLink logo"
                 className="rounded-2xl"
               />
             </Link>
-            <ul className="flex gap-6 text-lg">
-              <li
-                onClick={() => navigateTo("/PanelAdmin/Users")}
-                className="px-4 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
-                aria-label="Ofertas de empleo"
-              >
-                Usuarios
-              </li>
-              <li
-                onClick={() => navigateTo("/PanelAdmin/Applications")}
-                className="px-4 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
-                aria-label="Cursos y formación en futbol"
-              >
-                Postulaciones
-              </li>
-              <li
-                onClick={() => navigateTo("/jobs")}
-                className="px-4 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
-                aria-label="Cursos y formación en futbol"
-              >
-                Ofertas laborales
-              </li>
-              <li
-                  onClick={() => navigateTo("/PanelAdmin/News")}
-                  className="px-4 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
-                  aria-label="Cursos y formación en futbol"
-                >
-                Noticias
-              </li>
-              <li
-              onClick={() => navigateTo("/PanelAdmin/Cursos")}
-              className="px-4 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
-              aria-label="Cursos y formación en futbol"
-            >
-              Entrenamiento
-              </li>
-            </ul>
+
+            <ul className="hidden sm:flex gap-6 text-lg text-verde-oscuro">
+  {menuItems.map((item) => (
+    <li
+      key={item.path}
+      onClick={() => navigateTo(item.path)}
+      className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
+    >
+      {item.label}
+    </li>
+  ))}
+</ul>
+
+{/* Botones de sesión fuera del loop */}
+<div>
+  {!isLogged && (
+    <>
+      <Link href={"/Login"}>
+        <button
+          onClick={() => setIsDropdownOpen(false)}
+          className="w-full bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
+        >
+          Iniciar sesión
+        </button>
+      </Link>
+      <button
+        onClick={() => navigateTo("/OptionUsers")}
+        className="w-full bg-white text-verde-oscuro px-4 py-2 rounded-md mt-2 hover:bg-gray-200"
+      >
+        Registrarse
+      </button>
+    </>
+  )}
+</div>
+
           </div>
 
-          {/* Sección derecha con los botones de Iniciar sesión y Registrarse (solo en escritorio) */}
-          <div id="sectionTwo" className="relative flex sm:ml-auto">
-            {isLogged && role === "ADMIN" ? (
-              <button onClick={() => navigateTo("/PanelAdmin")}>
-                <FaUser className="text-verde-oscuro hover:scale-125 hover:text-verde-claro transition-all" />
-              
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={() => navigateTo("/Login")}
-                  className="bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
-                  aria-label="Iniciar sesión"
-                >
-                  Iniciar sesión
-                </button>
+          {/* Icono de usuario en escritorio */}
+          <div className="hidden sm:flex items-center gap-4">{renderUserIcon()}</div>
 
-                <button
-                  onClick={() => navigateTo("/OptionUsers")}
-                  className="bg-white text-verde-oscuro px-4 py-2 rounded-md ml-4 hover:bg-gray-200"
-                  aria-label="Registrarse"
-                >
-                  Registrarse
-                </button>
-              </>
-            )}
-          </div>
-        </section>
-      </nav>
-
-      {/* Navbar Mobile */}
-      <nav className="fixed top-0 left-0 w-full z-50 bg-green-800 sm:hidden">
-        <section className="flex justify-between p-4">
-          {/* Logo */}
-          <Link href={"/"}>
-            <Image
-              src="/logoD.png"
-              height={60}
-              width={60}
-              alt="FutboLink logo"
-              className="rounded-2xl"
-            />
-          </Link>
-
-          {/* Menú Hamburguesa */}
-          <button
-            onClick={toggleMobileMenu}
-            className="text-white focus:outline-none"
-            aria-label="Abrir menú móvil"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              className="h-8 w-8"
+          {/* Menú móvil: hamburguesa + ícono de usuario */}
+          <div className="flex items-center gap-4 sm:hidden">
+            {renderUserIcon()}
+            <button
+              onClick={toggleMobileMenu}
+              className="text-verde-oscuro focus:outline-none"
+              aria-label="Abrir menú móvil"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                className="h-8 w-8"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+          </div>
         </section>
 
         {/* Menú desplegable móvil */}
         {isMobileMenuOpen && (
-          <div className="bg-green-800 text-white text-lg p-4">
+          <div className="sm:hidden bg-white text-verde-oscuro text-lg p-4">
             <ul>
-              <li
-                onClick={() => navigateTo("PanelAdmin/Users")}
-                className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
-              >
-                Usuarios
-              </li>
-              <li
-                onClick={() => navigateTo("/PanelAdmin/Applications")}
-                className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
-              >
-                Postulaciones
-              </li>
-              <li
-                onClick={() => navigateTo("/jobs")}
-                className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
-              >
-                Ofertas
-              </li>
-              <li
-                onClick={() => navigateTo("/PanelAdmin/News")}
-                className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
-              >
-                Noticias
-              </li>
-              <li
-                onClick={() => navigateTo("/PanelAdmin/Cursos")}
-                className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
-              >
-           Entrenamiento
-              </li>
+              {menuItems.map((item) => (
+                <li
+                  key={item.path}
+                  onClick={() => navigateTo(item.path)}
+                  className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
+                >
+                  {item.label}
+                </li>
+              ))}
             </ul>
 
             <div className="mt-4">
-            {isLogged && role === "ADMIN" ? (
-              <button onClick={() => navigateTo("/PanelAdmin")}>
-                <FaUser className="text-white hover:scale-125 hover:text-verde-claro transition-all" />
-              
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={() => navigateTo("/Login")}
-                  className="bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
-                  aria-label="Iniciar sesión"
-                >
-                  Iniciar sesión
-                </button>
-
-                <button
-                  onClick={() => navigateTo("/OptionUsers")}
-                  className="bg-white text-verde-oscuro px-4 py-2 rounded-md ml-4 hover:bg-gray-200"
-                  aria-label="Registrarse"
-                >
-                  Registrarse
-                </button>
-              </>
-            )}
+              {!isLogged && (
+                <>
+                  <Link href={"/Login"}>
+                    <button
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="w-full bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
+                    >
+                      Iniciar sesión
+                    </button>
+                  </Link>
+                  <button
+                    onClick={() => navigateTo("/OptionUsers")}
+                    className="w-full bg-white text-verde-oscuro px-4 py-2 rounded-md mt-2 hover:bg-gray-200"
+                  >
+                    Registrarse
+                  </button>
+                </>
+              )}
             </div>
           </div>
         )}

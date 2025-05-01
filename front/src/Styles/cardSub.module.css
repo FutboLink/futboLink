@@ -194,7 +194,7 @@
   color: #007e33;
   font-size: 1rem;
   transition: border-color 0.3s;
-}
+  }
 
 .selectContainer select:hover,
 .selectContainer select:focus {
@@ -215,4 +215,11 @@
 .selectContainer button:hover {
   background-color: #06b44b;
   transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .cardContainer {
+    margin-bottom: 4em;
+    margin-top: 4em;
+  }
 }

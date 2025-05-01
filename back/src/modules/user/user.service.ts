@@ -9,6 +9,9 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { RegisterUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import { join } from 'path';
+import { createReadStream } from 'fs';
+import { Response } from 'express'; 
 
 @Injectable()
 export class UserService {
@@ -91,12 +94,23 @@ export class UserService {
     user.password = await bcrypt.hash(newPassword, 10);
     await this.userRepository.save(user);
   }
+  getCv(filename: string, res: Response) {
+    const filePath = join(__dirname, '..', '..', 'uploads', 'cvs', filename);
 
-  async updateCv(userId: string, cvPath: string): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) throw new Error('Usuario no encontrado');
-    
-    user.cv = cvPath;
-    return this.userRepository.save(user);
+    try {
+      const fileStream = createReadStream(filePath);
+      fileStream.pipe(res); // Esto debería funcionar correctamente
+    } catch (error) {
+      res.status(404).send('Archivo no encontrado');
+    }
   }
+
+async saveCV(userId: string, filename: string): Promise<User> {
+  const user = await this.userRepository.findOneBy({ id: userId });
+  if (!user) throw new Error('Usuario no encontrado');
+
+  user.cv = filename;
+  return await this.userRepository.save(user);
+}
+
 }

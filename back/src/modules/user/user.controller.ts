@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   UseInterceptors,
   UploadedFile,
+  Res,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/create-user.dto';
@@ -22,6 +23,9 @@ import {
 import { User } from './entities/user.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { Response } from 'express';
+import { join } from 'path';
+import { createReadStream } from 'fs';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -40,18 +44,20 @@ export class UserController {
     return this.userService.register(createUserDto);
   }
 
-  @Post('upload-cv')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: './uploads/cvs',
-      filename: (req, file, cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`);
-      }
-    })
-  }))
-  uploadCv(@UploadedFile() file: Express.Multer.File) {
-    return { filename: file.filename, path: `/uploads/cvs/${file.filename}` };
+  
+  @Get('cv/:filename')
+getCv(@Param('filename') filename: string, @Res() res: Response) {
+  const filePath = join(__dirname, '..', '..', 'uploads', 'cvs', filename);
+
+  try {
+    const fileStream = createReadStream(filePath);
+    fileStream.pipe(res); // Responde el archivo al cliente
+  } catch (error) {
+    res.status(404).send('Archivo no encontrado');
   }
+}
+
+  
 
   @ApiOperation({ summary: 'Traer los usuarios' })
   @ApiResponse({ status: 200, description: 'Lista de usuarios', type: [User] })

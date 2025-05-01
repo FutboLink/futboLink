@@ -210,3 +210,45 @@ export const contact = async (email: string, name: string, mensaje: string) => {
 
 
 };
+
+export const uploadCv = async (userId: string, file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await fetch(`${apiUrl}/user/${userId}/upload-cv`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to upload CV");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error uploading CV:", error);
+    throw error;
+  }
+};
+
+
+export const getCv = async (filename: string) => {
+  try {
+    const response = await fetch(`${apiUrl}/user/cv/${filename}`, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch CV");
+    }
+
+    const data = await response.blob(); // Leemos la respuesta como un archivo binario
+    const fileURL = URL.createObjectURL(data); // Creamos una URL para el archivo
+    return fileURL; // Retornamos la URL que puede ser utilizada para mostrar el CV
+  } catch (error) {
+    console.error("Error fetching CV:", error);
+    throw error;
+  }
+};

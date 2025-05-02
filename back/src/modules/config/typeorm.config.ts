@@ -15,7 +15,7 @@ const config: DataSourceOptions = {
   /*   ssl: {
     rejectUnauthorized: false,
   }, */
-  dropSchema: false,
+  dropSchema: true,
   logging: true,
   synchronize: true,
   entities: [__dirname + '/../**/*.entity.{js,ts}'],

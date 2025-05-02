@@ -36,7 +36,9 @@ const NoticeSection = () => {
       </h1>
 
       {loading ? (
-        <div className="text-center">Cargando...</div>
+          <div className="flex justify-center items-center h-96">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-green-700"></div>
+        </div>
       ) : error ? (
         <div className="text-center text-red-500">{error}</div>
       ) : (

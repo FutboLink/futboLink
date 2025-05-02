@@ -3,8 +3,8 @@
 import Image from "next/image";
 import logo from "../../../public/logoD.png";
 import Head from "next/head";
-import AOS from "aos"; // Importamos AOS
-import "aos/dist/aos.css"; // Importamos los estilos de AOS
+import AOS from "aos";
+import "aos/dist/aos.css"; 
 import React, { useState } from "react";
 import { contact } from "../Fetchs/UsersFetchs/UserFetchs";
 
@@ -137,8 +137,8 @@ function Contact() {
                 </label>
                 <textarea
                   id="message"
-                  value={mensaje} // Vinculamos el estado de `mensaje` con el textarea
-                  onChange={(e) => setMensaje(e.target.value)} // Actualizamos el estado con el valor del textarea
+                  value={mensaje} 
+                  onChange={(e) => setMensaje(e.target.value)} 
                   rows={4}
                   placeholder="Tu mensaje"
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-oscuro"
@@ -149,7 +149,7 @@ function Contact() {
               <button
                 type="submit"
                 className="w-full py-3 bg-verde-oscuro text-white text-lg font-semibold rounded-md hover:bg-green-700 transition-colors"
-                disabled={loading} // Deshabilitamos el botón mientras se está enviando
+                disabled={loading} 
               >
                 {loading ? "Enviando..." : "Enviar mensaje"}
               </button>
@@ -173,22 +173,15 @@ function Contact() {
                 jugadores, representantes y agencias de todo el mundo.
               </p>
               <div className="relative rounded-lg overflow-hidden shadow-lg">
-  <a
-    href="https://www.google.com/maps?q=Lecce,Apulia,Italia&zoom=9"
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    <Image
-      src="/Lecce.png"  
-      alt="Ubicación de Lecce"
-      width={600}
-      height={400}
-      className="w-full h-[400px] rounded-lg"
-    />
-  </a>
+  <iframe
+    src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d12578.187595244646!2d18.174808!3d40.350853!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses!2sit!4v1714500000000!5m2!1ses!2sit"
+    width="600"
+    height="400"
+    allowFullScreen
+    loading="lazy"
+    className="w-full h-[400px] rounded-lg border-0"
+  ></iframe>
 </div>
-
-
 
               <div className="mt-6">
                 <h3 className="text-xl font-semibold text-verde-oscuro">

@@ -7,9 +7,7 @@ import {
   Delete,
   Put,
   ParseUUIDPipe,
-  UseInterceptors,
-  UploadedFile,
-} from '@nestjs/common';
+  } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/create-user.dto';
 import {
@@ -20,8 +18,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -40,18 +37,9 @@ export class UserController {
     return this.userService.register(createUserDto);
   }
 
-  @Post('upload-cv')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: './uploads/cvs',
-      filename: (req, file, cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`);
-      }
-    })
-  }))
-  uploadCv(@UploadedFile() file: Express.Multer.File) {
-    return { filename: file.filename, path: `/uploads/cvs/${file.filename}` };
-  }
+  
+
+  
 
   @ApiOperation({ summary: 'Traer los usuarios' })
   @ApiResponse({ status: 200, description: 'Lista de usuarios', type: [User] })

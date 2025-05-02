@@ -9,6 +9,9 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { RegisterUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import { join } from 'path';
+import { createReadStream } from 'fs';
+import { Response } from 'express'; 
 
 @Injectable()
 export class UserService {
@@ -92,11 +95,6 @@ export class UserService {
     await this.userRepository.save(user);
   }
 
-  async updateCv(userId: string, cvPath: string): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) throw new Error('Usuario no encontrado');
-    
-    user.cv = cvPath;
-    return this.userRepository.save(user);
-  }
+
+
 }

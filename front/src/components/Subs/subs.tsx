@@ -8,6 +8,7 @@ import FaqSection from "./faqSubs";
 import Line from "../HorizontalDiv/line";
 import styles from "../../Styles/cardSub.module.css";
 import Image from "next/image";
+import Link from "next/link";
 
 function Subs() {
   const subscriptionOptions = Subscription();
@@ -116,36 +117,49 @@ function Subs() {
               </div>
             </div>
 
-            {/* Mostrar solo el botón si el plan no es "Amateur" */}
-            {option.priceId.monthly && (
-              <div className={styles.selectContainer}>
-                <select
-                  value={selectedPlans[index] ?? ""}
-                  onChange={(e) =>
-                    setSelectedPlans({
-                      ...selectedPlans,
-                      [index]: e.target.value,
-                    })
-                  }
-                >
-                  <option value={option.priceId.monthly ?? ""}>
-                    Mensual ({option.monthlyPrice})
-                  </option>
-                  <option value={option.priceId.yearly ?? ""}>
-                    Anual ({option.yearlyPrice})
-                  </option>
-                </select>
+            {option.title === "Amateur" ? (
+  <div className={styles.selectContainer}>
+    {/* Select vacío o bloqueado para mantener la altura */}
+    <select disabled className={styles.disabledSelect}>
+      <option>Registrate Gratis</option>
+    </select>
 
-                <button
-                  className={`${styles.button} m-4`}
-                  onClick={() => handleSubscribe(selectedPlans[index])}
-                >
-                  {option.title === "Amateur"
-                    ? "Registrate Gratis"
-                    : "Contratar"}
-                </button>
-              </div>
-            )}
+    <Link href="/OptionUsers">
+      <button className={`${styles.button} m-4`}>
+        Registrarse
+      </button>
+    </Link>
+  </div>
+) : (
+  option.priceId.monthly && (
+    <div className={styles.selectContainer}>
+      <select
+        value={selectedPlans[index] ?? ""}
+        onChange={(e) =>
+          setSelectedPlans({
+            ...selectedPlans,
+            [index]: e.target.value,
+          })
+        }
+      >
+        <option value={option.priceId.monthly ?? ""}>
+          Mensual {option.monthlyPrice}
+        </option>
+        <option value={option.priceId.yearly ?? ""}>
+          Anual {option.yearlyPrice}
+        </option>
+      </select>
+
+      <button
+        className={`${styles.button} m-4`}
+        onClick={() => handleSubscribe(selectedPlans[index])}
+      >
+        Contratar
+      </button>
+    </div>
+  )
+)}
+
           </div>
         ))}
       </div>

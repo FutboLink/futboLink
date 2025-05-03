@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build && copyfiles -u 2 src/back/templates/**/* dist/templates",
+    "build": "nest build && copyfiles back/src/templates/**/* dist/templates",
     "postbuild": "cp -R src/templates dist/templates",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "node --max-old-space-size=1024 --expose-gc node_modules/@nestjs/cli/bin/nest.js start",

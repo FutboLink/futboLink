@@ -6,33 +6,12 @@ import { Repository } from 'typeorm';
 import { Payment, PaymentStatus, PaymentType } from '../entities/payment.entity';
 import { CreateOneTimePaymentDto, CreateSubscriptionDto } from '../dto';
 import * as https from 'https';
-import * as fs from 'fs';
-import * as path from 'path';
-
-// Define interface for fallback config
-interface StripeFallbackConfig {
-  prices: {
-    semiprofessional: {
-      monthly: string;
-      yearly: string;
-    };
-    professional: {
-      monthly: string;
-      yearly: string;
-    };
-  };
-  products: {
-    main: string;
-  };
-}
 
 @Injectable()
 export class StripeService {
   private stripe: Stripe;
   private readonly logger = new Logger(StripeService.name);
   private readonly frontendDomain: string;
-  private readonly isProduction: boolean;
-  private fallbackConfig: StripeFallbackConfig | null = null;
 
   constructor(
     @InjectRepository(Payment)
@@ -41,69 +20,80 @@ export class StripeService {
   ) {
     const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
     this.frontendDomain = this.configService.get<string>('FRONTEND_DOMAIN') || 'http://localhost:3000';
-    this.isProduction = this.configService.get<string>('NODE_ENV') === 'production';
     
     if (!secretKey) {
       this.logger.error('Stripe secret key not configured');
       throw new InternalServerErrorException('Stripe secret key not configured');
     }
-
-    // Try to load fallback configuration
-    this.loadFallbackConfig();
-
-    // Create custom HTTPS agent with optimized settings for production
-    const httpsAgent = new https.Agent({
-      keepAlive: true,
-      keepAliveMsecs: 3000,
-      maxSockets: 25,
-      maxFreeSockets: 10,
-      timeout: 60000,
-    });
-    
-    // Increase timeout and retries for production environment
-    const timeout = this.isProduction ? 120000 : 60000; // 2 minutes in production
-    const maxRetries = this.isProduction ? 10 : 7;
-    
-    this.logger.log(`Initializing Stripe service in ${this.isProduction ? 'PRODUCTION' : 'development'} mode`);
-    this.logger.log(`Using timeout: ${timeout}ms, maxRetries: ${maxRetries}`);
     
     this.stripe = new Stripe(secretKey, {
       apiVersion: '2025-02-24.acacia' as any,
-      timeout: timeout,
-      maxNetworkRetries: maxRetries,
-      httpAgent: httpsAgent,
+      timeout: 120000, // Increased timeout to 2 minutes
+      maxNetworkRetries: 10, // Increased from 7 to 10
+      httpAgent: new https.Agent({ 
+        keepAlive: true,
+        timeout: 120000, // Match the Stripe timeout
+        // Add these to help with potential network issues
+        rejectUnauthorized: true,
+        keepAliveMsecs: 2000
+      }),
     });
     
     this.logger.log('Stripe service initialized with enhanced connection settings');
   }
 
   /**
-   * Loads the fallback configuration from file if available
+   * Wrapper function to safely execute Stripe API calls with retry logic
    */
-  private loadFallbackConfig() {
-    try {
-      // Try to load from module-relative path first
-      const configPath = path.resolve(__dirname, '../config/stripe-fallback.json');
-      
-      if (fs.existsSync(configPath)) {
-        const configData = fs.readFileSync(configPath, 'utf8');
-        this.fallbackConfig = JSON.parse(configData) as StripeFallbackConfig;
-        this.logger.log('Loaded Stripe fallback configuration from config directory');
-      } else {
-        // Try root path as fallback
-        const rootConfigPath = path.resolve(process.cwd(), 'stripe-fallback.json');
+  private async executeWithRetry<T>(
+    operation: () => Promise<T>,
+    operationName: string,
+    maxRetries = 5,
+    initialDelay = 1000
+  ): Promise<T> {
+    let lastError: any;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await operation();
+      } catch (error) {
+        lastError = error;
         
-        if (fs.existsSync(rootConfigPath)) {
-          const configData = fs.readFileSync(rootConfigPath, 'utf8');
-          this.fallbackConfig = JSON.parse(configData) as StripeFallbackConfig;
-          this.logger.log('Loaded Stripe fallback configuration from root directory');
+        // Only retry on connection errors
+        if (!this.isConnectionError(error)) {
+          this.logger.error(`Stripe ${operationName} error (not retrying): ${error.message}`, error.stack);
+          throw error;
+        }
+        
+        // Calculate backoff delay with exponential increase and some jitter
+        const delay = Math.min(initialDelay * Math.pow(2, attempt - 1) + Math.random() * 1000, 15000);
+        
+        if (attempt < maxRetries) {
+          this.logger.warn(`Stripe connection error, retrying in ${delay}ms (Attempt ${attempt}/${maxRetries}): ${error.message}`);
+          await new Promise(resolve => setTimeout(resolve, delay));
         } else {
-          this.logger.warn('No fallback configuration found - fallback prices will not be available');
+          this.logger.error(`Failed after ${maxRetries} retries: ${error.message}`, error.stack);
+          throw error;
         }
       }
-    } catch (error) {
-      this.logger.warn(`Failed to load fallback config: ${error.message}`);
     }
+    
+    throw lastError;
+  }
+  
+  /**
+   * Check if the error is a connection-related error
+   */
+  private isConnectionError(error: any): boolean {
+    return (
+      error.type === 'StripeConnectionError' ||
+      error.message.includes('connection') ||
+      error.message.includes('network') ||
+      error.message.includes('timeout') ||
+      error.message.includes('socket hang up') ||
+      error.message.includes('ECONNRESET') ||
+      error.message.includes('ETIMEDOUT')
+    );
   }
 
   /**
@@ -114,35 +104,40 @@ export class StripeService {
       const successUrl = dto.successUrl || `${this.frontendDomain}/payment/success`;
       const cancelUrl = dto.cancelUrl || `${this.frontendDomain}/payment/cancel`;
       
-      // Using the specific product ID from config or hardcoded fallback
-      const productId = this.fallbackConfig?.products?.main || 'prod_SHJrAdSz0dxsxC';
+      // Using the specific product ID
+      const productId = 'prod_SHJrAdSz0dxsxC';
       
       // Log the product details for debugging
       try {
-        const product = await this.stripe.products.retrieve(productId);
+        const product = await this.executeWithRetry(
+          () => this.stripe.products.retrieve(productId),
+          'product retrieval'
+        );
         this.logger.log(`Using product for one-time payment: ${product.name} (${product.id})`);
       } catch (productError) {
         this.logger.warn(`Could not retrieve product details: ${productError.message}`);
       }
       
-      // Add exponential backoff retry logic for Stripe API calls
-      const session = await this.retryStripeOperation(() => this.stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        customer_email: dto.customerEmail,
-        line_items: [
-          {
-            price_data: {
-              currency: dto.currency,
-              product: productId, // Use the specific product ID
-              unit_amount: dto.amount,
+      const session = await this.executeWithRetry(
+        () => this.stripe.checkout.sessions.create({
+          payment_method_types: ['card'],
+          customer_email: dto.customerEmail,
+          line_items: [
+            {
+              price_data: {
+                currency: dto.currency,
+                product: productId,
+                unit_amount: dto.amount,
+              },
+              quantity: 1,
             },
-            quantity: 1,
-          },
-        ],
-        mode: 'payment',
-        success_url: successUrl,
-        cancel_url: cancelUrl,
-      }));
+          ],
+          mode: 'payment',
+          success_url: successUrl,
+          cancel_url: cancelUrl,
+        }),
+        'one-time payment session creation'
+      );
 
       // Save the payment in our database
       const payment = this.paymentRepo.create({
@@ -182,8 +177,10 @@ export class StripeService {
       let validPriceId = dto.priceId;
       
       try {
-        // Use the retry mechanism for price retrieval
-        await this.retryStripeOperation(() => this.stripe.prices.retrieve(validPriceId));
+        await this.executeWithRetry(
+          () => this.stripe.prices.retrieve(validPriceId),
+          'price validation'
+        );
         this.logger.log(`Successfully validated price ID: ${validPriceId}`);
       } catch (priceError) {
         this.logger.warn(`Invalid price ID: ${validPriceId}. Error: ${priceError.message}`);
@@ -191,8 +188,10 @@ export class StripeService {
         
         // Try to list all prices and use the first available one as fallback
         try {
-          // Use the retry mechanism for listing prices
-          const prices = await this.retryStripeOperation(() => this.stripe.prices.list({ limit: 5 }));
+          const prices = await this.executeWithRetry(
+            () => this.stripe.prices.list({ limit: 5 }),
+            'prices listing'
+          );
           if (prices.data.length > 0) {
             validPriceId = prices.data[0].id;
             this.logger.log(`Using fallback price ID: ${validPriceId}`);
@@ -201,95 +200,47 @@ export class StripeService {
           }
         } catch (listError) {
           this.logger.error(`Failed to list prices: ${listError.message}`);
-          
-          // Try using the fallback config if available
-          if (this.fallbackConfig && this.isProduction) {
-            // Try to determine which tier and billing period from the original price ID
-            const isProfessional = dto.priceId.includes('sVRv9wq0') || dto.priceId.includes('oRU6jXzy');
-            const isYearly = dto.priceId.includes('oRU6jXzy') || dto.priceId.includes('ezWEeM3F');
-            
-            if (isProfessional) {
-              validPriceId = isYearly 
-                ? this.fallbackConfig.prices.professional.yearly 
-                : this.fallbackConfig.prices.professional.monthly;
-            } else {
-              validPriceId = isYearly 
-                ? this.fallbackConfig.prices.semiprofessional.yearly 
-                : this.fallbackConfig.prices.semiprofessional.monthly;
-            }
-            
-            this.logger.log(`Using fallback config price ID: ${validPriceId}`);
-          } else if (this.isProduction) {
-            const fallbackPriceIds = [
-              'price_1ROuhFGggu4c99M7oOnftD8O',
-              'price_1ROuhFGggu4c99M7ezWEeM3F',
-              'price_1ROuhFGggu4c99M7sVRv9wq0',
-              'price_1ROuhGGggu4c99M7oRU6jXzy'
-            ];
-            
-            this.logger.log('Trying hardcoded fallback price IDs as last resort...');
-            
-            // Try each fallback price ID
-            for (const fallbackId of fallbackPriceIds) {
-              try {
-                await this.retryStripeOperation(() => this.stripe.prices.retrieve(fallbackId), 3);
-                validPriceId = fallbackId;
-                this.logger.log(`Using hardcoded fallback price ID: ${validPriceId}`);
-                break;
-              } catch (e) {
-                // Continue to the next fallback ID
-                this.logger.warn(`Fallback price ID ${fallbackId} failed: ${e.message}`);
-              }
-            }
-            
-            // If we've tried all fallbacks and none worked, throw error
-            if (validPriceId === dto.priceId) {
-              throw new InternalServerErrorException(`Could not find any valid price IDs. Please check your Stripe configuration.`);
-            }
-          } else {
-            throw new InternalServerErrorException(`Could not find any valid price IDs. Please check your Stripe configuration.`);
-          }
+          throw new InternalServerErrorException(`Could not find any valid price IDs. Please check your Stripe configuration.`);
         }
       }
       
       // Get product information
-      const productId = this.fallbackConfig?.products?.main || 'prod_SHJrAdSz0dxsxC';
+      const productId = 'prod_SHJrAdSz0dxsxC'; // Using the specific product ID
       
       // Log the product details for debugging
       try {
-        const product = await this.retryStripeOperation(() => this.stripe.products.retrieve(productId), 2);
+        const product = await this.executeWithRetry(
+          () => this.stripe.products.retrieve(productId),
+          'product retrieval'
+        );
         this.logger.log(`Using product: ${product.name} (${product.id})`);
       } catch (productError) {
         this.logger.warn(`Could not retrieve product details: ${productError.message}`);
       }
       
       this.logger.log(`Creating checkout session with price ID: ${validPriceId}`);
-      const session = await this.retryStripeOperation(() => this.stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        customer_email: dto.customerEmail,
-        line_items: [
-          {
-            price: validPriceId,
-            quantity: 1,
-          },
-        ],
-        mode: 'subscription',
-        success_url: successUrl,
-        cancel_url: cancelUrl,
-      }));
+      const session = await this.executeWithRetry(
+        () => this.stripe.checkout.sessions.create({
+          payment_method_types: ['card'],
+          customer_email: dto.customerEmail,
+          line_items: [
+            {
+              price: validPriceId,
+              quantity: 1,
+            },
+          ],
+          mode: 'subscription',
+          success_url: successUrl,
+          cancel_url: cancelUrl,
+        }),
+        'subscription session creation'
+      );
 
       // Get price details to populate our database record
-      let price;
-      try {
-        price = await this.retryStripeOperation(() => this.stripe.prices.retrieve(validPriceId), 2);
-      } catch (priceError) {
-        // If we can't retrieve the price details, use default values
-        this.logger.warn(`Could not retrieve price details: ${priceError.message}`);
-        price = {
-          unit_amount: validPriceId.includes('professional') ? 795 : 395,
-          currency: 'eur'
-        };
-      }
+      const price = await this.executeWithRetry(
+        () => this.stripe.prices.retrieve(validPriceId),
+        'price retrieval'
+      );
       
       // Save the payment in our database
       const payment = this.paymentRepo.create({
@@ -318,35 +269,6 @@ export class StripeService {
   }
 
   /**
-   * Helper method to retry Stripe operations with exponential backoff
-   */
-  private async retryStripeOperation<T>(operation: () => Promise<T>, maxRetries = 5): Promise<T> {
-    let lastError;
-    
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        return await operation();
-      } catch (error) {
-        lastError = error;
-        
-        // If this is a Stripe connection error, retry with exponential backoff
-        if (error.type === 'StripeConnectionError') {
-          const delay = Math.min(Math.pow(2, attempt) * 1000, 15000); // Max 15 seconds delay
-          this.logger.warn(`Stripe connection error, retrying in ${delay}ms (Attempt ${attempt}/${maxRetries}): ${error.message}`);
-          await new Promise(resolve => setTimeout(resolve, delay));
-        } else {
-          // For other errors, don't retry
-          throw error;
-        }
-      }
-    }
-    
-    // If we've exhausted all retries
-    this.logger.error(`Failed after ${maxRetries} retries: ${lastError.message}`);
-    throw lastError;
-  }
-
-  /**
    * Handles Stripe webhook events
    */
   async handleWebhookEvent(rawBody: string, signature: string) {
@@ -358,7 +280,7 @@ export class StripeService {
     }
 
     try {
-      // Verify and construct the event
+      // Verify and construct the event - this does not need retry as it's a local operation
       const event = this.stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
       
       this.logger.log(`Processing webhook event: ${event.type}`);
@@ -432,7 +354,10 @@ export class StripeService {
    */
   async getSessionDetails(sessionId: string) {
     try {
-      return await this.stripe.checkout.sessions.retrieve(sessionId);
+      return await this.executeWithRetry(
+        () => this.stripe.checkout.sessions.retrieve(sessionId),
+        'session retrieval'
+      );
     } catch (error) {
       this.logger.error(`Error retrieving session ${sessionId}: ${error.message}`, error.stack);
       throw new InternalServerErrorException(`Error retrieving session: ${error.message}`);
@@ -479,6 +404,7 @@ export class StripeService {
    */
   private async handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
     try {
+      // Find the payment in our database by payment intent ID
       const payment = await this.paymentRepo.findOne({ 
         where: { stripePaymentIntentId: paymentIntent.id } 
       });
@@ -488,7 +414,9 @@ export class StripeService {
         return;
       }
 
+      // Update payment status
       payment.status = PaymentStatus.SUCCEEDED;
+      
       await this.paymentRepo.save(payment);
       this.logger.log(`Updated payment status for payment intent ${paymentIntent.id} to SUCCEEDED`);
       
@@ -502,6 +430,7 @@ export class StripeService {
    */
   private async handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
     try {
+      // Find the payment in our database by payment intent ID
       const payment = await this.paymentRepo.findOne({ 
         where: { stripePaymentIntentId: paymentIntent.id } 
       });
@@ -511,7 +440,10 @@ export class StripeService {
         return;
       }
 
+      // Update payment status
       payment.status = PaymentStatus.FAILED;
+      payment.failureReason = paymentIntent.last_payment_error?.message || 'Unknown failure reason';
+      
       await this.paymentRepo.save(payment);
       this.logger.log(`Updated payment status for payment intent ${paymentIntent.id} to FAILED`);
       
@@ -525,11 +457,24 @@ export class StripeService {
    */
   private async handleSubscriptionCreated(subscription: Stripe.Subscription) {
     try {
-      // We may need to link this with an existing payment or create a new record
-      // depending on your business logic
-      this.logger.log(`Subscription created: ${subscription.id}`);
+      // Find the payment in our database by subscription ID
+      const payment = await this.paymentRepo.findOne({ 
+        where: { stripeSubscriptionId: subscription.id } 
+      });
+
+      if (!payment) {
+        this.logger.warn(`Payment not found for subscription ID: ${subscription.id}`);
+        return;
+      }
+      
+      // Update subscription status
+      payment.subscriptionStatus = subscription.status;
+      
+      await this.paymentRepo.save(payment);
+      this.logger.log(`Updated subscription status for ${subscription.id} to ${subscription.status}`);
+      
     } catch (error) {
-      this.logger.error(`Error handling subscription.created: ${error.message}`, error.stack);
+      this.logger.error(`Error handling customer.subscription.created: ${error.message}`, error.stack);
     }
   }
 
@@ -538,6 +483,7 @@ export class StripeService {
    */
   private async handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     try {
+      // Find the payment in our database by subscription ID
       const payment = await this.paymentRepo.findOne({ 
         where: { stripeSubscriptionId: subscription.id } 
       });
@@ -546,19 +492,24 @@ export class StripeService {
         this.logger.warn(`Payment not found for subscription ID: ${subscription.id}`);
         return;
       }
-
-      // Update the payment status based on the subscription status
-      if (subscription.status === 'active') {
+      
+      // Update subscription status and related details
+      payment.subscriptionStatus = subscription.status;
+      
+      // Update payment status based on subscription status
+      if (subscription.status === 'active' || subscription.status === 'trialing') {
         payment.status = PaymentStatus.SUCCEEDED;
-      } else if (subscription.status === 'canceled' || subscription.status === 'unpaid') {
+      } else if (subscription.status === 'past_due' || subscription.status === 'unpaid') {
+        payment.status = PaymentStatus.PAYMENT_REQUIRED;
+      } else if (subscription.status === 'canceled' || subscription.status === 'incomplete_expired') {
         payment.status = PaymentStatus.CANCELED;
       }
-
+      
       await this.paymentRepo.save(payment);
-      this.logger.log(`Updated payment for subscription ${subscription.id} to ${payment.status}`);
+      this.logger.log(`Updated subscription status for ${subscription.id} to ${subscription.status}`);
       
     } catch (error) {
-      this.logger.error(`Error handling subscription.updated: ${error.message}`, error.stack);
+      this.logger.error(`Error handling customer.subscription.updated: ${error.message}`, error.stack);
     }
   }
 
@@ -567,6 +518,7 @@ export class StripeService {
    */
   private async handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     try {
+      // Find the payment in our database by subscription ID
       const payment = await this.paymentRepo.findOne({ 
         where: { stripeSubscriptionId: subscription.id } 
       });
@@ -575,13 +527,16 @@ export class StripeService {
         this.logger.warn(`Payment not found for subscription ID: ${subscription.id}`);
         return;
       }
-
+      
+      // Update subscription status
+      payment.subscriptionStatus = 'canceled';
       payment.status = PaymentStatus.CANCELED;
+      
       await this.paymentRepo.save(payment);
       this.logger.log(`Updated payment for subscription ${subscription.id} to CANCELED`);
       
     } catch (error) {
-      this.logger.error(`Error handling subscription.deleted: ${error.message}`, error.stack);
+      this.logger.error(`Error handling customer.subscription.deleted: ${error.message}`, error.stack);
     }
   }
 
@@ -590,17 +545,29 @@ export class StripeService {
    */
   private async handleInvoicePaid(invoice: Stripe.Invoice) {
     try {
-      if (invoice.subscription) {
-        const payment = await this.paymentRepo.findOne({ 
-          where: { stripeSubscriptionId: invoice.subscription as string } 
-        });
-
-        if (payment) {
-          payment.status = PaymentStatus.SUCCEEDED;
-          await this.paymentRepo.save(payment);
-          this.logger.log(`Updated payment for subscription ${invoice.subscription} to SUCCEEDED due to paid invoice`);
-        }
+      if (!invoice.subscription) {
+        this.logger.warn(`Invoice ${invoice.id} is not associated with a subscription`);
+        return;
       }
+      
+      // Find the payment in our database by subscription ID
+      const payment = await this.paymentRepo.findOne({ 
+        where: { stripeSubscriptionId: invoice.subscription as string } 
+      });
+
+      if (!payment) {
+        this.logger.warn(`Payment not found for subscription ID: ${invoice.subscription}`);
+        return;
+      }
+      
+      // Update payment status
+      payment.status = PaymentStatus.SUCCEEDED;
+      payment.lastInvoiceId = invoice.id;
+      payment.lastPaymentDate = new Date();
+      
+      await this.paymentRepo.save(payment);
+      this.logger.log(`Updated payment status for invoice ${invoice.id} to SUCCEEDED`);
+      
     } catch (error) {
       this.logger.error(`Error handling invoice.paid: ${error.message}`, error.stack);
     }
@@ -611,17 +578,29 @@ export class StripeService {
    */
   private async handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     try {
-      if (invoice.subscription) {
-        const payment = await this.paymentRepo.findOne({ 
-          where: { stripeSubscriptionId: invoice.subscription as string } 
-        });
-
-        if (payment) {
-          payment.status = PaymentStatus.FAILED;
-          await this.paymentRepo.save(payment);
-          this.logger.log(`Updated payment for subscription ${invoice.subscription} to FAILED due to failed invoice payment`);
-        }
+      if (!invoice.subscription) {
+        this.logger.warn(`Invoice ${invoice.id} is not associated with a subscription`);
+        return;
       }
+      
+      // Find the payment in our database by subscription ID
+      const payment = await this.paymentRepo.findOne({ 
+        where: { stripeSubscriptionId: invoice.subscription as string } 
+      });
+
+      if (!payment) {
+        this.logger.warn(`Payment not found for subscription ID: ${invoice.subscription}`);
+        return;
+      }
+      
+      // Update payment status
+      payment.status = PaymentStatus.PAYMENT_REQUIRED;
+      payment.lastInvoiceId = invoice.id;
+      payment.failureReason = invoice.last_payment_error?.message || 'Payment failed';
+      
+      await this.paymentRepo.save(payment);
+      this.logger.log(`Updated payment status for invoice ${invoice.id} to PAYMENT_REQUIRED`);
+      
     } catch (error) {
       this.logger.error(`Error handling invoice.payment_failed: ${error.message}`, error.stack);
     }

@@ -7,6 +7,7 @@ export enum PaymentStatus {
   CANCELED = 'canceled',
   PROCESSING = 'processing',
   REFUNDED = 'refunded',
+  PAYMENT_REQUIRED = 'payment_required',
 }
 
 export enum PaymentType {
@@ -61,6 +62,18 @@ export class Payment {
 
   @Column({ nullable: true })
   stripeSubscriptionId?: string;
+
+  @Column({ nullable: true })
+  subscriptionStatus?: string;
+
+  @Column({ nullable: true })
+  failureReason?: string;
+
+  @Column({ nullable: true })
+  lastInvoiceId?: string;
+
+  @Column({ nullable: true })
+  lastPaymentDate?: Date;
 
   @Column({ nullable: true })
   metadata?: string; // JSON string for additional data

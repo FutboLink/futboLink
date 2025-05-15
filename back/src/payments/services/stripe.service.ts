@@ -111,8 +111,11 @@ export class StripeService {
       const successUrl = dto.successUrl || `${this.frontendDomain}/payment/success?session_id={CHECKOUT_SESSION_ID}`;
       const cancelUrl = dto.cancelUrl || `${this.frontendDomain}/payment/cancel`;
       
-      // Simplest version - use direct price data only, no price ID lookups
-      this.logger.log('Creating subscription with direct price data');
+      // Obtener el ID del producto específico si está disponible en la solicitud
+      const productId = dto.productId || this.productId;
+      if (dto.productId) {
+        this.logger.log(`Usando producto específico: ${dto.productId}`);
+      }
       
       // Intentar obtener información del precio real desde Stripe
       let realPrice = 0;
@@ -162,7 +165,7 @@ export class StripeService {
             {
               price_data: {
                 currency: 'eur',
-                product: this.productId, 
+                product: productId, 
                 unit_amount: 1000, // 10.00 EUR
                 recurring: {
                   interval: 'month' as Stripe.Checkout.SessionCreateParams.LineItem.PriceData.Recurring.Interval,

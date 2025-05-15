@@ -89,8 +89,17 @@ export class StripeService {
    */
   async createSubscriptionSession(dto: CreateSubscriptionDto) {
     try {
+      this.logger.log(`Creating subscription session with priceId: ${dto.priceId}`);
       const successUrl = dto.successUrl || `${this.frontendDomain}/payment/success`;
       const cancelUrl = dto.cancelUrl || `${this.frontendDomain}/payment/cancel`;
+      
+      // First try to retrieve the price to validate it exists
+      try {
+        await this.stripe.prices.retrieve(dto.priceId);
+      } catch (priceError) {
+        this.logger.error(`Invalid price ID: ${dto.priceId}. Error: ${priceError.message}`);
+        throw new InternalServerErrorException(`Invalid price ID. Please check your Stripe price configuration.`);
+      }
       
       const session = await this.stripe.checkout.sessions.create({
         payment_method_types: ['card'],

@@ -114,27 +114,68 @@ export class StripeService {
       // Simplest version - use direct price data only, no price ID lookups
       this.logger.log('Creating subscription with direct price data');
       
+      // Intentar obtener información del precio real desde Stripe
+      let realPrice = 0;
+      let realCurrency = 'eur';
+      
+      try {
+        // Intentar obtener el precio real desde Stripe
+        const priceInfo = await this.stripe.prices.retrieve(dto.priceId || this.priceId);
+        if (priceInfo && priceInfo.unit_amount) {
+          realPrice = priceInfo.unit_amount / 100; // Convertir centavos a euros
+          realCurrency = priceInfo.currency;
+          this.logger.log(`Precio obtenido de Stripe: ${realPrice} ${realCurrency}`);
+        } else {
+          this.logger.warn(`No se pudo obtener información del precio. Usando valor por defecto.`);
+        }
+      } catch (priceError) {
+        this.logger.warn(`Error al obtener información del precio: ${priceError.message}`);
+      }
+      
+      // Utilizar precio real o valor por defecto si no se pudo obtener
+      const finalPrice = realPrice > 0 ? realPrice : 0; // Si no pudimos obtener el precio, dejamos 0 y se actualizará después
+      
       // Create very simple request with minimal data
-      const createParams: Stripe.Checkout.SessionCreateParams = {
-        payment_method_types: ['card'],
-        customer_email: dto.customerEmail,
-        line_items: [
-          {
-            price_data: {
-              currency: 'eur',
-              product: this.productId, 
-              unit_amount: 1000, // 10.00 EUR
-              recurring: {
-                interval: 'month' as Stripe.Checkout.SessionCreateParams.LineItem.PriceData.Recurring.Interval,
-              },
+      let createParams: Stripe.Checkout.SessionCreateParams;
+      
+      if (dto.priceId) {
+        // Si hay un priceId, usar ese directamente
+        createParams = {
+          payment_method_types: ['card'],
+          customer_email: dto.customerEmail,
+          line_items: [
+            {
+              price: dto.priceId,
+              quantity: 1,
             },
-            quantity: 1,
-          },
-        ],
-        mode: 'subscription' as Stripe.Checkout.SessionCreateParams.Mode,
-        success_url: successUrl,
-        cancel_url: cancelUrl,
-      };
+          ],
+          mode: 'subscription' as Stripe.Checkout.SessionCreateParams.Mode,
+          success_url: successUrl,
+          cancel_url: cancelUrl,
+        };
+      } else {
+        // Si no hay priceId, crear con datos directos
+        createParams = {
+          payment_method_types: ['card'],
+          customer_email: dto.customerEmail,
+          line_items: [
+            {
+              price_data: {
+                currency: 'eur',
+                product: this.productId, 
+                unit_amount: 1000, // 10.00 EUR
+                recurring: {
+                  interval: 'month' as Stripe.Checkout.SessionCreateParams.LineItem.PriceData.Recurring.Interval,
+                },
+              },
+              quantity: 1,
+            },
+          ],
+          mode: 'subscription' as Stripe.Checkout.SessionCreateParams.Mode,
+          success_url: successUrl,
+          cancel_url: cancelUrl,
+        };
+      }
       
       this.logger.log('Sending simplified request to Stripe');
       const session = await this.stripe.checkout.sessions.create(createParams);
@@ -147,8 +188,8 @@ export class StripeService {
           stripeCustomerId: null, // Will be updated when checkout completes
           stripePriceId: dto.priceId || this.priceId,
           customerEmail: dto.customerEmail,
-          amountTotal: 10.00, // Hardcoded amount for now
-          currency: 'eur', // Default currency
+          amountTotal: finalPrice,
+          currency: realCurrency,
           status: PaymentStatus.PENDING,
           type: PaymentType.SUBSCRIPTION,
           description: dto.description || 'FutboLink Subscription',

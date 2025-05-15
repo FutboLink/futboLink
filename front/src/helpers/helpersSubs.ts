@@ -38,8 +38,8 @@ export function Subscription() {
       borderColor: "border-verde-claro",
       buttonColor: "bg-verde-claro",
       priceId: {
-        monthly: "price_1ROuhFGggu4c99M7oOnftD8O",
-        yearly: "price_1ROuhFGggu4c99M7ezWEeM3F",
+        monthly: "price_1RMlDOGggu4c99M76gGzQ1de",
+        yearly: "price_1RMlDOGggu4c99M76gGzQ1de",
       },
     },
     {
@@ -61,8 +61,8 @@ export function Subscription() {
       borderColor: "border-verde-oscuro",
       buttonColor: "bg-verde-oscuro",
       priceId: {
-        monthly: "price_1ROuhFGggu4c99M7sVRv9wq0",
-        yearly: "price_1ROuhGGggu4c99M7oRU6jXzy",
+        monthly: "price_1RMlDOGggu4c99M76gGzQ1de",
+        yearly: "price_1RMlDOGggu4c99M76gGzQ1de",
       },
     },
   ];

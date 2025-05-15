@@ -30,11 +30,11 @@ export class StripeService {
     
     this.stripe = new Stripe(secretKey, {
       apiVersion: '2023-10-16' as any,
-      timeout: 60000, // 60 seconds timeout
-      maxNetworkRetries: 5,
+      timeout: 30000, // Reduced timeout to 30 seconds
+      maxNetworkRetries: 3, // Reduced retries to prevent long waiting times
       httpAgent: new https.Agent({ 
         keepAlive: true,
-        timeout: 60000,
+        timeout: 30000, // Match the Stripe timeout
         rejectUnauthorized: true,
       }),
     });
@@ -113,24 +113,50 @@ export class StripeService {
       
       // Default to the test priceId if not provided
       const priceId = dto.priceId || this.priceId;
+      let session;
       
-      // Create the checkout session
-      const session = await this.stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        customer_email: dto.customerEmail,
-        line_items: [
-          {
-            price: priceId,
-            quantity: 1,
-          },
-        ],
-        mode: 'subscription',
-        success_url: successUrl,
-        cancel_url: cancelUrl,
-        metadata: {
-          description: dto.description || 'Subscription payment',
-        },
-      });
+      try {
+        // Try to create session using price ID
+        session = await this.stripe.checkout.sessions.create({
+          payment_method_types: ['card'],
+          customer_email: dto.customerEmail,
+          line_items: [
+            {
+              price: priceId,
+              quantity: 1,
+            },
+          ],
+          mode: 'subscription',
+          success_url: successUrl,
+          cancel_url: cancelUrl,
+        });
+      } catch (priceError) {
+        // If using price ID fails, try with price_data as fallback
+        this.logger.warn(`Failed to create session with price ID: ${priceError.message}`);
+        this.logger.log('Attempting to create subscription with direct price data');
+        
+        // Create session with direct price data
+        session = await this.stripe.checkout.sessions.create({
+          payment_method_types: ['card'],
+          customer_email: dto.customerEmail,
+          line_items: [
+            {
+              price_data: {
+                currency: 'eur',
+                product: this.productId,
+                unit_amount: 1000, // 10.00 EUR
+                recurring: {
+                  interval: 'month',
+                },
+              },
+              quantity: 1,
+            },
+          ],
+          mode: 'subscription',
+          success_url: successUrl,
+          cancel_url: cancelUrl,
+        });
+      }
       
       // Save the payment record in our database
       const payment = this.paymentRepo.create({

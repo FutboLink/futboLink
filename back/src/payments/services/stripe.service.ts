@@ -26,7 +26,7 @@ export class StripeService {
     }
     
     this.stripe = new Stripe(secretKey, {
-      apiVersion: '2025-02-24.acacia',
+      apiVersion: '2023-10-16' as any,
     });
   }
 
@@ -415,4 +415,4 @@ export class StripeService {
       this.logger.error(`Error handling invoice.payment_failed: ${error.message}`, error.stack);
     }
   }
-} 
+}

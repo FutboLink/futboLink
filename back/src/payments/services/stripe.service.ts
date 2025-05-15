@@ -140,28 +140,38 @@ export class StripeService {
       const session = await this.stripe.checkout.sessions.create(createParams);
       this.logger.log(`Session created successfully with ID: ${session.id}`);
       
-      // Save the payment record in our database
-      const payment = this.paymentRepo.create({
-        stripeSessionId: session.id,
-        stripeCustomerId: null, // Will be updated when checkout completes
-        stripePriceId: dto.priceId || this.priceId,
-        customerEmail: dto.customerEmail,
-        amountTotal: 10.00, // Hardcoded amount for now
-        currency: 'eur', // Default currency
-        status: PaymentStatus.PENDING,
-        type: PaymentType.SUBSCRIPTION,
-        description: dto.description || 'FutboLink Subscription',
-      });
+      try {
+        // Try to save the payment record in our database
+        const payment = this.paymentRepo.create({
+          stripeSessionId: session.id,
+          stripeCustomerId: null, // Will be updated when checkout completes
+          stripePriceId: dto.priceId || this.priceId,
+          customerEmail: dto.customerEmail,
+          amountTotal: 10.00, // Hardcoded amount for now
+          currency: 'eur', // Default currency
+          status: PaymentStatus.PENDING,
+          type: PaymentType.SUBSCRIPTION,
+          description: dto.description || 'FutboLink Subscription',
+        });
 
-      await this.paymentRepo.save(payment);
-      this.logger.log(`Created subscription session: ${session.id}`);
-      
-      // Return session URL and IDs
-      return {
-        url: session.url,
-        sessionId: session.id,
-        paymentId: payment.id,
-      };
+        await this.paymentRepo.save(payment);
+        this.logger.log(`Created subscription session: ${session.id}`);
+        
+        // Return session URL and IDs
+        return {
+          url: session.url,
+          sessionId: session.id,
+          paymentId: payment.id,
+        };
+      } catch (dbError) {
+        // If we can't save to the database, just return the session URL
+        this.logger.error(`Error saving payment to database: ${dbError.message}`, dbError);
+        
+        return {
+          url: session.url,
+          sessionId: session.id,
+        };
+      }
     } catch (error) {
       this.logger.error(`Error creating subscription session: ${error.message}`, error);
       

@@ -8,13 +8,14 @@ export default function PaymentSuccessPage() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [paymentDetails, setPaymentDetails] = useState<any>(null);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
     
     if (sessionId) {
       // Optionally fetch payment details if needed
-      fetch(`http://localhost:3000/payments/session/${sessionId}`)
+      fetch(`${apiUrl}/payments/session/${sessionId}`)
         .then(res => res.json())
         .then(data => {
           setPaymentDetails(data);
@@ -26,7 +27,7 @@ export default function PaymentSuccessPage() {
     } else {
       setLoading(false);
     }
-  }, [searchParams]);
+  }, [searchParams, apiUrl]);
   
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-white">

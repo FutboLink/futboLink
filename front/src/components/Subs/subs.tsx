@@ -13,6 +13,7 @@ import Link from "next/link";
 function Subs() {
   const subscriptionOptions = Subscription();
   const [isLoading, setIsLoading] = useState<{ [key: number]: boolean }>({});
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -40,7 +41,7 @@ function Subs() {
       const userEmail = localStorage.getItem('userEmail') || 'usuario@example.com';
       
       const response = await fetch(
-        "http://localhost:3000/payments/subscription",
+        `${apiUrl}/payments/subscription`,
         {
           method: "POST",
           headers: {

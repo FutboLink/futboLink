@@ -38,6 +38,17 @@ export class StripeService {
       const successUrl = dto.successUrl || `${this.frontendDomain}/payment/success`;
       const cancelUrl = dto.cancelUrl || `${this.frontendDomain}/payment/cancel`;
       
+      // Using the specific product ID
+      const productId = 'prod_SHJrAdSz0dxsxC';
+      
+      // Log the product details for debugging
+      try {
+        const product = await this.stripe.products.retrieve(productId);
+        this.logger.log(`Using product for one-time payment: ${product.name} (${product.id})`);
+      } catch (productError) {
+        this.logger.warn(`Could not retrieve product details: ${productError.message}`);
+      }
+      
       const session = await this.stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         customer_email: dto.customerEmail,
@@ -45,10 +56,7 @@ export class StripeService {
           {
             price_data: {
               currency: dto.currency,
-              product_data: {
-                name: dto.productName,
-                description: dto.description || 'One-time payment',
-              },
+              product: productId, // Use the specific product ID
               unit_amount: dto.amount,
             },
             quantity: 1,
@@ -99,6 +107,17 @@ export class StripeService {
       } catch (priceError) {
         this.logger.error(`Invalid price ID: ${dto.priceId}. Error: ${priceError.message}`);
         throw new InternalServerErrorException(`Invalid price ID. Please check your Stripe price configuration.`);
+      }
+      
+      // Get product information
+      const productId = 'prod_SHJrAdSz0dxsxC'; // Using the specific product ID
+      
+      // Log the product details for debugging
+      try {
+        const product = await this.stripe.products.retrieve(productId);
+        this.logger.log(`Using product: ${product.name} (${product.id})`);
+      } catch (productError) {
+        this.logger.warn(`Could not retrieve product details: ${productError.message}`);
       }
       
       const session = await this.stripe.checkout.sessions.create({

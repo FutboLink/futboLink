@@ -12,6 +12,7 @@ import Link from "next/link";
 
 function Subs() {
   const subscriptionOptions = Subscription();
+  const [isLoading, setIsLoading] = useState<{ [key: number]: boolean }>({});
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -28,29 +29,49 @@ function Subs() {
       }, {} as { [key: number]: string })
   );
 
-  const handleSubscribe = async (priceId: string) => {
+  const handleSubscribe = async (index: number, priceId: string) => {
     if (!priceId) return;
+    
+    setIsLoading({ ...isLoading, [index]: true });
 
     try {
+      // Get the user email from local storage or context
+      // For this example, we'll use a default email
+      const userEmail = localStorage.getItem('userEmail') || 'usuario@example.com';
+      
       const response = await fetch(
-        "http://localhost:3000/payment/create-checkout-session",
+        "http://localhost:3000/payments/subscription",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ priceId }),
+          body: JSON.stringify({ 
+            priceId,
+            customerEmail: userEmail,
+            successUrl: `${window.location.origin}/payment/success`, 
+            cancelUrl: `${window.location.origin}/payment/cancel`,
+            description: "Suscripción a FutboLink"
+          }),
         }
       );
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`Error HTTP: ${response.status}`);
       }
 
-      const { sessionUrl } = await response.json();
-      window.location.href = sessionUrl;
+      const { url } = await response.json();
+      
+      if (url) {
+        window.location.href = url;
+      } else {
+        throw new Error("No se recibió URL de pago");
+      }
     } catch (error) {
       console.error("Error al crear la sesión de pago:", error);
+      alert("Error al procesar el pago. Por favor, inténtelo de nuevo más tarde.");
+    } finally {
+      setIsLoading({ ...isLoading, [index]: false });
     }
   };
 
@@ -152,9 +173,10 @@ function Subs() {
 
       <button
         className={`${styles.button} m-4`}
-        onClick={() => handleSubscribe(selectedPlans[index])}
+        onClick={() => handleSubscribe(index, selectedPlans[index])}
+        disabled={isLoading[index]}
       >
-        Contratar
+        {isLoading[index] ? "Procesando..." : "Contratar"}
       </button>
     </div>
   )

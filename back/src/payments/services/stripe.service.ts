@@ -6,12 +6,33 @@ import { Repository } from 'typeorm';
 import { Payment, PaymentStatus, PaymentType } from '../entities/payment.entity';
 import { CreateOneTimePaymentDto, CreateSubscriptionDto } from '../dto';
 import * as https from 'https';
+import * as fs from 'fs';
+import * as path from 'path';
+
+// Define interface for fallback config
+interface StripeFallbackConfig {
+  prices: {
+    semiprofessional: {
+      monthly: string;
+      yearly: string;
+    };
+    professional: {
+      monthly: string;
+      yearly: string;
+    };
+  };
+  products: {
+    main: string;
+  };
+}
 
 @Injectable()
 export class StripeService {
   private stripe: Stripe;
   private readonly logger = new Logger(StripeService.name);
   private readonly frontendDomain: string;
+  private readonly isProduction: boolean;
+  private fallbackConfig: StripeFallbackConfig | null = null;
 
   constructor(
     @InjectRepository(Payment)
@@ -20,20 +41,69 @@ export class StripeService {
   ) {
     const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
     this.frontendDomain = this.configService.get<string>('FRONTEND_DOMAIN') || 'http://localhost:3000';
+    this.isProduction = this.configService.get<string>('NODE_ENV') === 'production';
     
     if (!secretKey) {
       this.logger.error('Stripe secret key not configured');
       throw new InternalServerErrorException('Stripe secret key not configured');
     }
+
+    // Try to load fallback configuration
+    this.loadFallbackConfig();
+
+    // Create custom HTTPS agent with optimized settings for production
+    const httpsAgent = new https.Agent({
+      keepAlive: true,
+      keepAliveMsecs: 3000,
+      maxSockets: 25,
+      maxFreeSockets: 10,
+      timeout: 60000,
+    });
+    
+    // Increase timeout and retries for production environment
+    const timeout = this.isProduction ? 120000 : 60000; // 2 minutes in production
+    const maxRetries = this.isProduction ? 10 : 7;
+    
+    this.logger.log(`Initializing Stripe service in ${this.isProduction ? 'PRODUCTION' : 'development'} mode`);
+    this.logger.log(`Using timeout: ${timeout}ms, maxRetries: ${maxRetries}`);
     
     this.stripe = new Stripe(secretKey, {
       apiVersion: '2025-02-24.acacia' as any,
-      timeout: 60000,
-      maxNetworkRetries: 7,
-      httpAgent: new https.Agent({ keepAlive: true }),
+      timeout: timeout,
+      maxNetworkRetries: maxRetries,
+      httpAgent: httpsAgent,
     });
     
     this.logger.log('Stripe service initialized with enhanced connection settings');
+  }
+
+  /**
+   * Loads the fallback configuration from file if available
+   */
+  private loadFallbackConfig() {
+    try {
+      // Try to load from module-relative path first
+      const configPath = path.resolve(__dirname, '../config/stripe-fallback.json');
+      
+      if (fs.existsSync(configPath)) {
+        const configData = fs.readFileSync(configPath, 'utf8');
+        this.fallbackConfig = JSON.parse(configData) as StripeFallbackConfig;
+        this.logger.log('Loaded Stripe fallback configuration from config directory');
+      } else {
+        // Try root path as fallback
+        const rootConfigPath = path.resolve(process.cwd(), 'stripe-fallback.json');
+        
+        if (fs.existsSync(rootConfigPath)) {
+          const configData = fs.readFileSync(rootConfigPath, 'utf8');
+          this.fallbackConfig = JSON.parse(configData) as StripeFallbackConfig;
+          this.logger.log('Loaded Stripe fallback configuration from root directory');
+        } else {
+          this.logger.warn('No fallback configuration found - fallback prices will not be available');
+        }
+      }
+    } catch (error) {
+      this.logger.warn(`Failed to load fallback config: ${error.message}`);
+    }
   }
 
   /**
@@ -44,8 +114,8 @@ export class StripeService {
       const successUrl = dto.successUrl || `${this.frontendDomain}/payment/success`;
       const cancelUrl = dto.cancelUrl || `${this.frontendDomain}/payment/cancel`;
       
-      // Using the specific product ID
-      const productId = 'prod_SHJrAdSz0dxsxC';
+      // Using the specific product ID from config or hardcoded fallback
+      const productId = this.fallbackConfig?.products?.main || 'prod_SHJrAdSz0dxsxC';
       
       // Log the product details for debugging
       try {
@@ -55,7 +125,8 @@ export class StripeService {
         this.logger.warn(`Could not retrieve product details: ${productError.message}`);
       }
       
-      const session = await this.stripe.checkout.sessions.create({
+      // Add exponential backoff retry logic for Stripe API calls
+      const session = await this.retryStripeOperation(() => this.stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         customer_email: dto.customerEmail,
         line_items: [
@@ -71,7 +142,7 @@ export class StripeService {
         mode: 'payment',
         success_url: successUrl,
         cancel_url: cancelUrl,
-      });
+      }));
 
       // Save the payment in our database
       const payment = this.paymentRepo.create({
@@ -111,7 +182,8 @@ export class StripeService {
       let validPriceId = dto.priceId;
       
       try {
-        await this.stripe.prices.retrieve(validPriceId);
+        // Use the retry mechanism for price retrieval
+        await this.retryStripeOperation(() => this.stripe.prices.retrieve(validPriceId));
         this.logger.log(`Successfully validated price ID: ${validPriceId}`);
       } catch (priceError) {
         this.logger.warn(`Invalid price ID: ${validPriceId}. Error: ${priceError.message}`);
@@ -119,7 +191,8 @@ export class StripeService {
         
         // Try to list all prices and use the first available one as fallback
         try {
-          const prices = await this.stripe.prices.list({ limit: 5 });
+          // Use the retry mechanism for listing prices
+          const prices = await this.retryStripeOperation(() => this.stripe.prices.list({ limit: 5 }));
           if (prices.data.length > 0) {
             validPriceId = prices.data[0].id;
             this.logger.log(`Using fallback price ID: ${validPriceId}`);
@@ -128,23 +201,70 @@ export class StripeService {
           }
         } catch (listError) {
           this.logger.error(`Failed to list prices: ${listError.message}`);
-          throw new InternalServerErrorException(`Could not find any valid price IDs. Please check your Stripe configuration.`);
+          
+          // Try using the fallback config if available
+          if (this.fallbackConfig && this.isProduction) {
+            // Try to determine which tier and billing period from the original price ID
+            const isProfessional = dto.priceId.includes('sVRv9wq0') || dto.priceId.includes('oRU6jXzy');
+            const isYearly = dto.priceId.includes('oRU6jXzy') || dto.priceId.includes('ezWEeM3F');
+            
+            if (isProfessional) {
+              validPriceId = isYearly 
+                ? this.fallbackConfig.prices.professional.yearly 
+                : this.fallbackConfig.prices.professional.monthly;
+            } else {
+              validPriceId = isYearly 
+                ? this.fallbackConfig.prices.semiprofessional.yearly 
+                : this.fallbackConfig.prices.semiprofessional.monthly;
+            }
+            
+            this.logger.log(`Using fallback config price ID: ${validPriceId}`);
+          } else if (this.isProduction) {
+            const fallbackPriceIds = [
+              'price_1ROuhFGggu4c99M7oOnftD8O',
+              'price_1ROuhFGggu4c99M7ezWEeM3F',
+              'price_1ROuhFGggu4c99M7sVRv9wq0',
+              'price_1ROuhGGggu4c99M7oRU6jXzy'
+            ];
+            
+            this.logger.log('Trying hardcoded fallback price IDs as last resort...');
+            
+            // Try each fallback price ID
+            for (const fallbackId of fallbackPriceIds) {
+              try {
+                await this.retryStripeOperation(() => this.stripe.prices.retrieve(fallbackId), 3);
+                validPriceId = fallbackId;
+                this.logger.log(`Using hardcoded fallback price ID: ${validPriceId}`);
+                break;
+              } catch (e) {
+                // Continue to the next fallback ID
+                this.logger.warn(`Fallback price ID ${fallbackId} failed: ${e.message}`);
+              }
+            }
+            
+            // If we've tried all fallbacks and none worked, throw error
+            if (validPriceId === dto.priceId) {
+              throw new InternalServerErrorException(`Could not find any valid price IDs. Please check your Stripe configuration.`);
+            }
+          } else {
+            throw new InternalServerErrorException(`Could not find any valid price IDs. Please check your Stripe configuration.`);
+          }
         }
       }
       
       // Get product information
-      const productId = 'prod_SHJrAdSz0dxsxC'; // Using the specific product ID
+      const productId = this.fallbackConfig?.products?.main || 'prod_SHJrAdSz0dxsxC';
       
       // Log the product details for debugging
       try {
-        const product = await this.stripe.products.retrieve(productId);
+        const product = await this.retryStripeOperation(() => this.stripe.products.retrieve(productId), 2);
         this.logger.log(`Using product: ${product.name} (${product.id})`);
       } catch (productError) {
         this.logger.warn(`Could not retrieve product details: ${productError.message}`);
       }
       
       this.logger.log(`Creating checkout session with price ID: ${validPriceId}`);
-      const session = await this.stripe.checkout.sessions.create({
+      const session = await this.retryStripeOperation(() => this.stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         customer_email: dto.customerEmail,
         line_items: [
@@ -156,10 +276,20 @@ export class StripeService {
         mode: 'subscription',
         success_url: successUrl,
         cancel_url: cancelUrl,
-      });
+      }));
 
       // Get price details to populate our database record
-      const price = await this.stripe.prices.retrieve(validPriceId);
+      let price;
+      try {
+        price = await this.retryStripeOperation(() => this.stripe.prices.retrieve(validPriceId), 2);
+      } catch (priceError) {
+        // If we can't retrieve the price details, use default values
+        this.logger.warn(`Could not retrieve price details: ${priceError.message}`);
+        price = {
+          unit_amount: validPriceId.includes('professional') ? 795 : 395,
+          currency: 'eur'
+        };
+      }
       
       // Save the payment in our database
       const payment = this.paymentRepo.create({
@@ -185,6 +315,35 @@ export class StripeService {
       this.logger.error(`Error creating subscription session: ${error.message}`, error.stack);
       throw new InternalServerErrorException(`Error creating subscription session: ${error.message}`);
     }
+  }
+
+  /**
+   * Helper method to retry Stripe operations with exponential backoff
+   */
+  private async retryStripeOperation<T>(operation: () => Promise<T>, maxRetries = 5): Promise<T> {
+    let lastError;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await operation();
+      } catch (error) {
+        lastError = error;
+        
+        // If this is a Stripe connection error, retry with exponential backoff
+        if (error.type === 'StripeConnectionError') {
+          const delay = Math.min(Math.pow(2, attempt) * 1000, 15000); // Max 15 seconds delay
+          this.logger.warn(`Stripe connection error, retrying in ${delay}ms (Attempt ${attempt}/${maxRetries}): ${error.message}`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          // For other errors, don't retry
+          throw error;
+        }
+      }
+    }
+    
+    // If we've exhausted all retries
+    this.logger.error(`Failed after ${maxRetries} retries: ${lastError.message}`);
+    throw lastError;
   }
 
   /**

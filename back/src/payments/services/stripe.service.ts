@@ -596,7 +596,8 @@ export class StripeService {
       // Update payment status
       payment.status = PaymentStatus.PAYMENT_REQUIRED;
       payment.lastInvoiceId = invoice.id;
-      payment.failureReason = invoice.last_payment_error?.message || 'Payment failed';
+      // Use a fallback message since last_payment_error is not available on Invoice type
+      payment.failureReason = invoice.description || 'Payment failed';
       
       await this.paymentRepo.save(payment);
       this.logger.log(`Updated payment status for invoice ${invoice.id} to PAYMENT_REQUIRED`);

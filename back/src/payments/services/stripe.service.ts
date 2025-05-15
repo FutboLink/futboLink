@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Payment, PaymentStatus, PaymentType } from '../entities/payment.entity';
 import { CreateOneTimePaymentDto, CreateSubscriptionDto } from '../dto';
+import * as https from 'https';
 
 @Injectable()
 export class StripeService {
@@ -26,10 +27,10 @@ export class StripeService {
     }
     
     this.stripe = new Stripe(secretKey, {
-      apiVersion: '2023-10-16' as any,
-      timeout: 30000,
-      maxNetworkRetries: 5,
-      httpAgent: new (require('http').Agent)({ keepAlive: true }),
+      apiVersion: '2025-02-24.acacia' as any,
+      timeout: 60000,
+      maxNetworkRetries: 7,
+      httpAgent: new https.Agent({ keepAlive: true }),
     });
     
     this.logger.log('Stripe service initialized with enhanced connection settings');

@@ -108,7 +108,7 @@ async function fixStripeConnection() {
   // Network diagnostic
   console.log('\n🔄 Running network diagnostic...');
   
-  const testPriceId = 'price_1ROua1Gggu4c99M7WhGJjz0m'; // Your test price ID
+  const testPriceId = 'price_1R7MaqGbCHvHfqXFimcCzvlo'; // Your test price ID
   
   try {
     const startTime = Date.now();

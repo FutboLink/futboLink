@@ -43,10 +43,10 @@ async function testStripeImplementation() {
     }
     
     // Test product ID
-    const productId = 'prod_SJXfFO3DbuBj0X';
+    const productId = 'prod_S1PP1zfIAIwheC';
     
     // Test price ID
-    const priceId = 'price_1ROua1Gggu4c99M7WhGJjz0m';
+    const priceId = 'price_1R7MaqGbCHvHfqXFimcCzvlo';
     
     // Verify that the product exists
     console.log(`\nVerifying product with ID: ${productId}`);

@@ -8,8 +8,8 @@ This document explains how the Stripe integration works in futboLink for process
 
 The current implementation is using Stripe in **test mode** with the following test IDs:
 
-- **Product ID**: `prod_SJXfFO3DbuBj0X`
-- **Price ID**: `price_1ROua1Gggu4c99M7WhGJjz0m`
+- **Product ID**: `prod_S1PP1zfIAIwheC`
+- **Price ID**: `price_1R7MaqGbCHvHfqXFimcCzvlo`
 
 ## Environment Variables
 
@@ -61,7 +61,7 @@ POST /payments/subscription
 ```json
 {
   "customerEmail": "customer@example.com",
-  "priceId": "price_1ROua1Gggu4c99M7WhGJjz0m",
+  "priceId": "price_1R7MaqGbCHvHfqXFimcCzvlo",
   "description": "Subscription description",
   "successUrl": "https://yourdomain.com/success", // optional
   "cancelUrl": "https://yourdomain.com/cancel" // optional

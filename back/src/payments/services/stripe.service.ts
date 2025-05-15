@@ -12,8 +12,8 @@ export class StripeService {
   private stripe: Stripe;
   private readonly logger = new Logger(StripeService.name);
   private readonly frontendDomain: string;
-  private readonly productId: string = 'prod_SJXfFO3DbuBj0X'; // Test product ID
-  private readonly priceId: string = 'price_1ROua1Gggu4c99M7WhGJjz0m'; // Test price ID
+  private readonly productId: string = 'prod_S1PP1zfIAIwheC'; // Updated product ID
+  private readonly priceId: string = 'price_1R7MaqGbCHvHfqXFimcCzvlo'; // Updated price ID
 
   constructor(
     @InjectRepository(Payment)
@@ -30,16 +30,16 @@ export class StripeService {
     
     this.stripe = new Stripe(secretKey, {
       apiVersion: '2023-10-16' as any,
-      timeout: 30000, // Reduced timeout to 30 seconds
-      maxNetworkRetries: 3, // Reduced retries to prevent long waiting times
+      timeout: 10000, // Further reduced timeout
+      maxNetworkRetries: 2, // Further reduced retries
       httpAgent: new https.Agent({ 
-        keepAlive: true,
-        timeout: 30000, // Match the Stripe timeout
+        keepAlive: false, // Disable keep-alive which might cause issues
+        timeout: 10000,
         rejectUnauthorized: true,
       }),
     });
     
-    this.logger.log('Stripe service initialized');
+    this.logger.log('Stripe service initialized with minimal configuration');
   }
 
   /**
@@ -111,64 +111,46 @@ export class StripeService {
       const successUrl = dto.successUrl || `${this.frontendDomain}/payment/success?session_id={CHECKOUT_SESSION_ID}`;
       const cancelUrl = dto.cancelUrl || `${this.frontendDomain}/payment/cancel`;
       
-      // Default to the test priceId if not provided
-      const priceId = dto.priceId || this.priceId;
-      let session;
+      // Simplest version - use direct price data only, no price ID lookups
+      this.logger.log('Creating subscription with direct price data');
       
-      try {
-        // Try to create session using price ID
-        session = await this.stripe.checkout.sessions.create({
-          payment_method_types: ['card'],
-          customer_email: dto.customerEmail,
-          line_items: [
-            {
-              price: priceId,
-              quantity: 1,
-            },
-          ],
-          mode: 'subscription',
-          success_url: successUrl,
-          cancel_url: cancelUrl,
-        });
-      } catch (priceError) {
-        // If using price ID fails, try with price_data as fallback
-        this.logger.warn(`Failed to create session with price ID: ${priceError.message}`);
-        this.logger.log('Attempting to create subscription with direct price data');
-        
-        // Create session with direct price data
-        session = await this.stripe.checkout.sessions.create({
-          payment_method_types: ['card'],
-          customer_email: dto.customerEmail,
-          line_items: [
-            {
-              price_data: {
-                currency: 'eur',
-                product: this.productId,
-                unit_amount: 1000, // 10.00 EUR
-                recurring: {
-                  interval: 'month',
-                },
+      // Create very simple request with minimal data
+      const createParams: Stripe.Checkout.SessionCreateParams = {
+        payment_method_types: ['card'],
+        customer_email: dto.customerEmail,
+        line_items: [
+          {
+            price_data: {
+              currency: 'eur',
+              product: this.productId, 
+              unit_amount: 1000, // 10.00 EUR
+              recurring: {
+                interval: 'month' as Stripe.Checkout.SessionCreateParams.LineItem.PriceData.Recurring.Interval,
               },
-              quantity: 1,
             },
-          ],
-          mode: 'subscription',
-          success_url: successUrl,
-          cancel_url: cancelUrl,
-        });
-      }
+            quantity: 1,
+          },
+        ],
+        mode: 'subscription' as Stripe.Checkout.SessionCreateParams.Mode,
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+      };
+      
+      this.logger.log('Sending simplified request to Stripe');
+      const session = await this.stripe.checkout.sessions.create(createParams);
+      this.logger.log(`Session created successfully with ID: ${session.id}`);
       
       // Save the payment record in our database
       const payment = this.paymentRepo.create({
         stripeSessionId: session.id,
         stripeCustomerId: null, // Will be updated when checkout completes
-        stripePriceId: priceId,
+        stripePriceId: dto.priceId || this.priceId,
         customerEmail: dto.customerEmail,
-        amountTotal: 0, // Will be updated when checkout completes
-        currency: 'eur', // Default currency, will be updated when checkout completes
+        amountTotal: 10.00, // Hardcoded amount for now
+        currency: 'eur', // Default currency
         status: PaymentStatus.PENDING,
         type: PaymentType.SUBSCRIPTION,
-        description: dto.description,
+        description: dto.description || 'FutboLink Subscription',
       });
 
       await this.paymentRepo.save(payment);
@@ -182,6 +164,12 @@ export class StripeService {
       };
     } catch (error) {
       this.logger.error(`Error creating subscription session: ${error.message}`, error);
+      
+      // Provide more detailed error information
+      if (error.type === 'StripeConnectionError') {
+        this.logger.error('This is a network connectivity issue with Stripe');
+      }
+      
       throw new InternalServerErrorException(`Failed to create subscription session: ${error.message}`);
     }
   }

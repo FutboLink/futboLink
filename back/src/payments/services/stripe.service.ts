@@ -27,7 +27,12 @@ export class StripeService {
     
     this.stripe = new Stripe(secretKey, {
       apiVersion: '2023-10-16' as any,
+      timeout: 30000,
+      maxNetworkRetries: 5,
+      httpAgent: new (require('http').Agent)({ keepAlive: true }),
     });
+    
+    this.logger.log('Stripe service initialized with enhanced connection settings');
   }
 
   /**
@@ -102,11 +107,28 @@ export class StripeService {
       const cancelUrl = dto.cancelUrl || `${this.frontendDomain}/payment/cancel`;
       
       // First try to retrieve the price to validate it exists
+      let validPriceId = dto.priceId;
+      
       try {
-        await this.stripe.prices.retrieve(dto.priceId);
+        await this.stripe.prices.retrieve(validPriceId);
+        this.logger.log(`Successfully validated price ID: ${validPriceId}`);
       } catch (priceError) {
-        this.logger.error(`Invalid price ID: ${dto.priceId}. Error: ${priceError.message}`);
-        throw new InternalServerErrorException(`Invalid price ID. Please check your Stripe price configuration.`);
+        this.logger.warn(`Invalid price ID: ${validPriceId}. Error: ${priceError.message}`);
+        this.logger.warn('Attempting to use fallback price ID instead...');
+        
+        // Try to list all prices and use the first available one as fallback
+        try {
+          const prices = await this.stripe.prices.list({ limit: 5 });
+          if (prices.data.length > 0) {
+            validPriceId = prices.data[0].id;
+            this.logger.log(`Using fallback price ID: ${validPriceId}`);
+          } else {
+            throw new Error('No prices available in Stripe account');
+          }
+        } catch (listError) {
+          this.logger.error(`Failed to list prices: ${listError.message}`);
+          throw new InternalServerErrorException(`Could not find any valid price IDs. Please check your Stripe configuration.`);
+        }
       }
       
       // Get product information
@@ -120,12 +142,13 @@ export class StripeService {
         this.logger.warn(`Could not retrieve product details: ${productError.message}`);
       }
       
+      this.logger.log(`Creating checkout session with price ID: ${validPriceId}`);
       const session = await this.stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         customer_email: dto.customerEmail,
         line_items: [
           {
-            price: dto.priceId,
+            price: validPriceId,
             quantity: 1,
           },
         ],
@@ -135,12 +158,12 @@ export class StripeService {
       });
 
       // Get price details to populate our database record
-      const price = await this.stripe.prices.retrieve(dto.priceId);
+      const price = await this.stripe.prices.retrieve(validPriceId);
       
       // Save the payment in our database
       const payment = this.paymentRepo.create({
         stripeSessionId: session.id,
-        stripePriceId: dto.priceId,
+        stripePriceId: validPriceId,
         customerEmail: dto.customerEmail,
         amountTotal: price.unit_amount / 100, // Convert cents to main currency unit
         currency: price.currency,

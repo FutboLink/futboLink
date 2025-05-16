@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { UserContext } from "@/components/Context/UserContext";
@@ -11,7 +11,8 @@ import NavbarAdmin from "@/components/navbar/navbarAdmin";
 import Image from "next/image";
 import NavbarRoles from "@/components/navbar/navbarRoles";
 import ClientsSection from "@/components/Clients/client";
-import { FaGlobe } from "react-icons/fa";
+import { useEffect } from "react";
+import LanguageToggle from "@/components/LanguageToggle/LanguageToggle";
 
 // Swiper
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -23,22 +24,9 @@ import "swiper/css/effect-fade";
 import futA from "../../../public/buscador_ydamak.jpg";
 import futB from "../../../public/publicarOfertas2.jpg";
 import futC from "../../../public/cursosYformaciones2.jpg";
-// Tipado global de Google Translate
-declare global {
-  interface Window {
-    googleTranslateElementInit: () => void;
-    google: {
-      translate: {
-        TranslateElement: new (options: object, elementId: string) => void;
-      };
-    };
-  }
-}
 
 const Home = () => {
   const { role } = useContext(UserContext);
-  const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState("es");
 
   const images = [
     {
@@ -57,64 +45,14 @@ const Home = () => {
 
   useEffect(() => {
     AOS.init({ duration: 1000, once: false });
-
-    const script = document.createElement("script");
-    script.src =
-      "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
-    script.async = true;
-    document.body.appendChild(script);
-
-    window.googleTranslateElementInit = () => {
-      new window.google.translate.TranslateElement(
-        {
-          pageLanguage: "es",
-          includedLanguages: "it,es",
-          autoDisplay: false,
-        },
-        "google_translate_element"
-      );
-      setIsGoogleLoaded(true);
-    };
   }, []);
-
-  const toggleLanguage = () => {
-    if (!isGoogleLoaded) {
-      alert("Google Translate aún no ha cargado.");
-      return;
-    }
-
-    const select = document.querySelector(
-      ".goog-te-combo"
-    ) as HTMLSelectElement;
-    if (select) {
-      const newLanguage = currentLanguage === "es" ? "it" : "es";
-      select.value = newLanguage;
-      select.dispatchEvent(new Event("change"));
-      setCurrentLanguage(newLanguage);
-    }
-  };
 
   return (
     <main className="bg-verde-oscuro text-white relative overflow-hidden">
       {role === "ADMIN" ? <NavbarAdmin /> : <NavbarRoles />}
 
-      <div id="google_translate_element" className="hidden"></div>
-
-      <style>
-        {`
-          .goog-te-banner-frame { display: none !important; }
-          body { top: 0px !important; }
-          .goog-te-gadget { display: none !important; }
-        `}
-      </style>
-
-      <button
-        onClick={toggleLanguage}
-        className="fixed top-4 right-4 mt-28 bg-white text-black p-2 rounded-full shadow-lg flex items-center gap-2 hover:bg-gray-200 transition duration-300 z-50"
-      >
-        <FaGlobe size={20} />
-        <span>{currentLanguage === "es" ? "Italiano" : "Español"}</span>
-      </button>
+      {/* Language Toggle Button */}
+      <LanguageToggle />
 
       {/* Carrusel con Swiper */}
       <header

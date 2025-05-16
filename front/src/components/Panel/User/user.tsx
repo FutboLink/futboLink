@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FaBolt, FaCog, FaUser, FaYoutube, FaRegIdCard, FaRegCreditCard } from "react-icons/fa";
 import { checkUserSubscription, refreshUserSubscription, clearSubscriptionCache, cancelUserSubscription, SubscriptionInfo } from "@/services/SubscriptionService";
+import LanguageToggle from "@/components/LanguageToggle/LanguageToggle";
 
 const UserProfile = () => {
   const { token, logOut } = useContext(UserContext);
@@ -267,6 +268,9 @@ const UserProfile = () => {
           Cerrar sesión
         </button>
       </div>
+
+      {/* Language Toggle Button */}
+      <LanguageToggle />
 
       {/* Si hay un error, mostramos un mensaje */}
       {error && (

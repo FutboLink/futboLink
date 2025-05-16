@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation"; // Importar usePathname
 import { metadata } from "../app/metada"; // Importar metadata desde el archivo separado
 import SocialButton from "@/components/SocialButton/SocialButton";
 import { UserProvider } from "@/components/Context/UserContext";
+import { TranslationProvider } from "@/components/Context/TranslationContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,10 +46,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased hover:scale`}
       >
         <UserProvider>
-          <Navbar />
-          <div>{children}</div>
-          <SocialButton />
-          <Footer />
+          <TranslationProvider>
+            <Navbar />
+            <div>{children}</div>
+            <SocialButton />
+            <Footer />
+          </TranslationProvider>
         </UserProvider>
       </body>
     </html>

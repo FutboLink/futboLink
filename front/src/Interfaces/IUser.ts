@@ -34,7 +34,7 @@ export interface IProfileData {
   categoriaEquipo?: string;
   nivelCompetencia?: string;
   logros?: string;
-  // Renamed from career to trayectorias to match backend
+  // Use trayectorias instead of career to match backend entity
   trayectorias?: {
     club: string;
     fechaInicio: string;

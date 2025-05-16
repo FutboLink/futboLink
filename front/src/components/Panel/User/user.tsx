@@ -518,29 +518,33 @@ const UserProfile = () => {
                     <h4 className="font-semibold text-lg text-gray-800">{experience.club || "Club no especificado"}</h4>
                     <div className="flex flex-wrap gap-4 mt-2 text-gray-700">
                       {experience.fechaInicio && (
-                        <p className="bg-white px-3 py-1 rounded-md border border-gray-200">
-                          <span className="font-semibold">Inicio:</span> {experience.fechaInicio}
+                        <p className="bg-white px-3 py-1 rounded-full text-sm">
+                          <span className="font-medium">Inicio:</span> {new Date(experience.fechaInicio).toLocaleDateString()}
                         </p>
                       )}
+                      
                       {experience.fechaFinalizacion && (
-                        <p className="bg-white px-3 py-1 rounded-md border border-gray-200">
-                          <span className="font-semibold">Fin:</span> {experience.fechaFinalizacion}
+                        <p className="bg-white px-3 py-1 rounded-full text-sm">
+                          <span className="font-medium">Fin:</span> {new Date(experience.fechaFinalizacion).toLocaleDateString()}
                         </p>
                       )}
+                      
                       {experience.categoriaEquipo && (
-                        <p className="bg-white px-3 py-1 rounded-md border border-gray-200">
-                          <span className="font-semibold">Categoría:</span> {experience.categoriaEquipo}
+                        <p className="bg-white px-3 py-1 rounded-full text-sm">
+                          <span className="font-medium">Categoría:</span> {experience.categoriaEquipo}
                         </p>
                       )}
+                      
                       {experience.nivelCompetencia && (
-                        <p className="bg-white px-3 py-1 rounded-md border border-gray-200">
-                          <span className="font-semibold">Nivel:</span> {experience.nivelCompetencia}
+                        <p className="bg-white px-3 py-1 rounded-full text-sm">
+                          <span className="font-medium">Nivel:</span> {experience.nivelCompetencia}
                         </p>
                       )}
                     </div>
+                    
                     {experience.logros && (
-                      <div className="mt-3 bg-white p-3 rounded-md border border-gray-200">
-                        <p className="font-semibold">Logros:</p>
+                      <div className="mt-3 bg-white p-3 rounded-md">
+                        <p className="font-medium text-gray-800">Logros:</p>
                         <p className="text-gray-700">{experience.logros}</p>
                       </div>
                     )}
@@ -548,7 +552,45 @@ const UserProfile = () => {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 italic">No hay información de trayectoria disponible</p>
+              userData?.club ? (
+                <div className="border border-[#1d5126] bg-[#f5f5f5] p-4 rounded-md shadow-sm">
+                  <h4 className="font-semibold text-lg text-gray-800">{userData.club || "Club no especificado"}</h4>
+                  <div className="flex flex-wrap gap-4 mt-2 text-gray-700">
+                    {userData.fechaInicio && (
+                      <p className="bg-white px-3 py-1 rounded-full text-sm">
+                        <span className="font-medium">Inicio:</span> {new Date(userData.fechaInicio).toLocaleDateString()}
+                      </p>
+                    )}
+                    
+                    {userData.fechaFinalizacion && (
+                      <p className="bg-white px-3 py-1 rounded-full text-sm">
+                        <span className="font-medium">Fin:</span> {new Date(userData.fechaFinalizacion).toLocaleDateString()}
+                      </p>
+                    )}
+                    
+                    {userData.categoriaEquipo && (
+                      <p className="bg-white px-3 py-1 rounded-full text-sm">
+                        <span className="font-medium">Categoría:</span> {userData.categoriaEquipo}
+                      </p>
+                    )}
+                    
+                    {userData.nivelCompetencia && (
+                      <p className="bg-white px-3 py-1 rounded-full text-sm">
+                        <span className="font-medium">Nivel:</span> {userData.nivelCompetencia}
+                      </p>
+                    )}
+                  </div>
+                  
+                  {userData.logros && (
+                    <div className="mt-3 bg-white p-3 rounded-md">
+                      <p className="font-medium text-gray-800">Logros:</p>
+                      <p className="text-gray-700">{userData.logros}</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-gray-500 italic">No hay información de trayectoria disponible</p>
+              )
             )}
           </div>
         )}

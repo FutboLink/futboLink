@@ -637,10 +637,14 @@ export class StripeService {
         return { hasActiveSubscription: false, subscriptionType: 'Amateur' };
       }
       
-      // Check if subscription is active
-      const isActive = payment.status === PaymentStatus.SUCCEEDED && 
-                       (payment.subscriptionStatus === 'active' || 
-                        payment.subscriptionStatus === 'trialing');
+      this.logger.log(`Found payment record for ${userEmail}: status=${payment.status}, subscriptionStatus=${payment.subscriptionStatus}, priceId=${payment.stripePriceId}`);
+      
+      // Check if subscription is active - include more subscription statuses
+      const isActive = payment.status === PaymentStatus.SUCCEEDED || 
+                      (payment.subscriptionStatus === 'active' || 
+                       payment.subscriptionStatus === 'trialing' ||
+                       payment.subscriptionStatus === 'incomplete' ||
+                       payment.subscriptionStatus === 'past_due');
       
       // Determine subscription type based on price ID
       let subscriptionType = 'Amateur';
@@ -652,13 +656,18 @@ export class StripeService {
         } else if (payment.stripePriceId === 'price_1RP80ZGbCHvHfqXF9CqoLtnt') {
           subscriptionType = 'Profesional';
         }
+        
+        this.logger.log(`Mapped price ID ${payment.stripePriceId} to subscription type: ${subscriptionType}`);
       }
       
-      this.logger.log(`Subscription for ${userEmail} is ${isActive ? 'active' : 'inactive'} (${subscriptionType})`);
-      return { 
+      // Always return the subscription type if there's a payment record, even if not active
+      const result = { 
         hasActiveSubscription: isActive,
-        subscriptionType: isActive ? subscriptionType : 'Amateur' // Only return type if subscription is active
+        subscriptionType: isActive || payment.status !== PaymentStatus.CANCELED ? subscriptionType : 'Amateur'
       };
+      
+      this.logger.log(`Subscription for ${userEmail} is ${isActive ? 'active' : 'inactive'} (${result.subscriptionType})`);
+      return result;
     } catch (error) {
       this.logger.error(`Error checking subscription for ${userEmail}: ${error.message}`, error);
       return { hasActiveSubscription: false, subscriptionType: 'Amateur' }; // Fail closed - if there's an error, assume no subscription

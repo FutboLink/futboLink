@@ -617,7 +617,7 @@ export class StripeService {
   /**
    * Checks if a user has an active subscription based on their email
    */
-  async checkUserSubscription(userEmail: string): Promise<boolean> {
+  async checkUserSubscription(userEmail: string): Promise<{ hasActiveSubscription: boolean, subscriptionType?: string }> {
     try {
       this.logger.log(`Checking subscription status for user: ${userEmail}`);
       
@@ -634,7 +634,7 @@ export class StripeService {
       
       if (!payment) {
         this.logger.log(`No subscription found for user: ${userEmail}`);
-        return false;
+        return { hasActiveSubscription: false, subscriptionType: 'Amateur' };
       }
       
       // Check if subscription is active
@@ -642,11 +642,26 @@ export class StripeService {
                        (payment.subscriptionStatus === 'active' || 
                         payment.subscriptionStatus === 'trialing');
       
-      this.logger.log(`Subscription for ${userEmail} is ${isActive ? 'active' : 'inactive'}`);
-      return isActive;
+      // Determine subscription type based on price ID
+      let subscriptionType = 'Amateur';
+      
+      if (payment.stripePriceId) {
+        // Map price IDs to subscription types
+        if (payment.stripePriceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
+          subscriptionType = 'Semiprofesional';
+        } else if (payment.stripePriceId === 'price_1RP80ZGbCHvHfqXF9CqoLtnt') {
+          subscriptionType = 'Profesional';
+        }
+      }
+      
+      this.logger.log(`Subscription for ${userEmail} is ${isActive ? 'active' : 'inactive'} (${subscriptionType})`);
+      return { 
+        hasActiveSubscription: isActive,
+        subscriptionType: isActive ? subscriptionType : 'Amateur' // Only return type if subscription is active
+      };
     } catch (error) {
       this.logger.error(`Error checking subscription for ${userEmail}: ${error.message}`, error);
-      return false; // Fail closed - if there's an error, assume no subscription
+      return { hasActiveSubscription: false, subscriptionType: 'Amateur' }; // Fail closed - if there's an error, assume no subscription
     }
   }
 } 

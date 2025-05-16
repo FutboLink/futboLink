@@ -114,7 +114,8 @@ export class PaymentsController {
     schema: {
       type: 'object',
       properties: {
-        hasActiveSubscription: { type: 'boolean', description: 'Whether the user has an active subscription' }
+        hasActiveSubscription: { type: 'boolean', description: 'Whether the user has an active subscription' },
+        subscriptionType: { type: 'string', description: 'Type of subscription (based on price ID)' }
       }
     }
   })
@@ -123,7 +124,7 @@ export class PaymentsController {
       throw new BadRequestException('Email is required');
     }
     
-    const hasActiveSubscription = await this.stripeService.checkUserSubscription(email);
-    return { hasActiveSubscription };
+    const subscriptionInfo = await this.stripeService.checkUserSubscription(email);
+    return subscriptionInfo;
   }
 } 

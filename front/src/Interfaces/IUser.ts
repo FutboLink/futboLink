@@ -27,12 +27,22 @@ export interface IProfileData {
   birthday: string;
   height: number;
   weight: number;
-  club:string;
-  fechaInicio: string;
-  fechaFinalizacion: string;
-  categoriaEquipo: string;
-  nivelCompetencia: string;
-  logros: string;
+  // Legacy properties (kept for backward compatibility)
+  club?: string;
+  fechaInicio?: string;
+  fechaFinalizacion?: string;
+  categoriaEquipo?: string;
+  nivelCompetencia?: string;
+  logros?: string;
+  // New career array for multiple experiences
+  career?: {
+    club: string;
+    fechaInicio: string;
+    fechaFinalizacion: string;
+    categoriaEquipo: string;
+    nivelCompetencia: string;
+    logros: string;
+  }[];
   pasaporteUe?: PasaporteUe;
   skillfulFoot: string;
   bodyStructure: string;

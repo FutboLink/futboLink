@@ -506,14 +506,52 @@ const UserProfile = () => {
             </div>
             <div className="bg-gray-300 h-px my-6"></div>
             <h3 className="text-xl font-semibold text-[#1d5126] border-b pb-2 mb-4">Trayectoria</h3>
-            <div className="border border-[#1d5126] bg-[#f5f5f5] p-4 rounded-md shadow-sm">
-              <h4 className="font-semibold text-lg text-gray-800">Club Almagro</h4>
-              <div className="flex flex-wrap gap-4 mt-2 text-gray-700">
-                <p className="bg-white px-3 py-1 rounded-md shadow-sm">1-03-2020</p>
-                <p className="bg-white px-3 py-1 rounded-md shadow-sm">1-03-2022</p>
-                <p className="bg-white px-3 py-1 rounded-md shadow-sm">Semiprofesional</p>
+            
+            {userData?.career && userData.career.length > 0 ? (
+              <div className="space-y-4">
+                {userData.career.map((experience, index) => (
+                  <div key={index} className="border border-[#1d5126] bg-[#f5f5f5] p-4 rounded-md shadow-sm mb-4">
+                    <h4 className="font-semibold text-lg text-gray-800">{experience.club || "Club no especificado"}</h4>
+                    <div className="flex flex-wrap gap-4 mt-2 text-gray-700">
+                      {experience.fechaInicio && (
+                        <p className="bg-white px-3 py-1 rounded-md shadow-sm">
+                          {new Date(experience.fechaInicio).toLocaleDateString('es-ES', { year: 'numeric', month: 'numeric', day: 'numeric' })}
+                        </p>
+                      )}
+                      {experience.fechaFinalizacion && (
+                        <p className="bg-white px-3 py-1 rounded-md shadow-sm">
+                          {new Date(experience.fechaFinalizacion).toLocaleDateString('es-ES', { year: 'numeric', month: 'numeric', day: 'numeric' })}
+                        </p>
+                      )}
+                      {experience.nivelCompetencia && (
+                        <p className="bg-white px-3 py-1 rounded-md shadow-sm">{experience.nivelCompetencia}</p>
+                      )}
+                      {experience.categoriaEquipo && (
+                        <p className="bg-white px-3 py-1 rounded-md shadow-sm">{experience.categoriaEquipo}</p>
+                      )}
+                    </div>
+                    {experience.logros && (
+                      <div className="mt-2">
+                        <span className="text-sm font-semibold">Logros:</span>
+                        <p className="bg-white p-2 rounded-md mt-1 text-sm">{experience.logros}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            </div>
+            ) : userData?.club ? (
+              // Legacy format support
+              <div className="border border-[#1d5126] bg-[#f5f5f5] p-4 rounded-md shadow-sm">
+                <h4 className="font-semibold text-lg text-gray-800">{userData.club}</h4>
+                <div className="flex flex-wrap gap-4 mt-2 text-gray-700">
+                  {userData.fechaInicio && <p className="bg-white px-3 py-1 rounded-md shadow-sm">{userData.fechaInicio}</p>}
+                  {userData.fechaFinalizacion && <p className="bg-white px-3 py-1 rounded-md shadow-sm">{userData.fechaFinalizacion}</p>}
+                  {userData.nivelCompetencia && <p className="bg-white px-3 py-1 rounded-md shadow-sm">{userData.nivelCompetencia}</p>}
+                </div>
+              </div>
+            ) : (
+              <p className="text-gray-500 italic">No hay información de trayectoria disponible</p>
+            )}
           </div>
         )}
 

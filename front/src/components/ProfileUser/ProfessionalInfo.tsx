@@ -4,6 +4,7 @@ import { IProfileData } from "@/Interfaces/IUser";
 import { fetchUserData, updateUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { UserContext } from "../Context/UserContext";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
+import { FaPlus, FaTrash } from "react-icons/fa";
 
 const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const { token } = useContext(UserContext);
@@ -26,6 +27,46 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = () => {
       setLoading(true); // Iniciar carga
       fetchUserData(token)
         .then((data) => {
+          // Initialize career array if it doesn't exist
+          if (!data.career) {
+            data.career = [{
+              club: '',
+              fechaInicio: '',
+              fechaFinalizacion: '',
+              categoriaEquipo: '',
+              nivelCompetencia: '',
+              logros: ''
+            }];
+          } else if (data.career.length === 0) {
+            // Ensure there's at least one empty experience
+            data.career.push({
+              club: '',
+              fechaInicio: '',
+              fechaFinalizacion: '',
+              categoriaEquipo: '',
+              nivelCompetencia: '',
+              logros: ''
+            });
+          }
+          
+          // Handle legacy data format (single experience)
+          if (data.club && !data.career?.some((c: { club: string }) => c.club === data.club)) {
+            const legacyExperience = {
+              club: data.club || '',
+              fechaInicio: data.fechaInicio || '',
+              fechaFinalizacion: data.fechaFinalizacion || '',
+              categoriaEquipo: data.categoriaEquipo || '',
+              nivelCompetencia: data.nivelCompetencia || '',
+              logros: data.logros || ''
+            };
+            
+            if (data.career) {
+              data.career.unshift(legacyExperience);
+            } else {
+              data.career = [legacyExperience];
+            }
+          }
+          
           setFetchedProfileData(data); // Establecer los datos obtenidos
         })
         .catch((err) => {
@@ -45,7 +86,55 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = () => {
     });
   };
 
- 
+  // Handle changes to career experience fields
+  const handleCareerChange = (index: number, field: string, value: string) => {
+    if (!fetchedProfileData || !fetchedProfileData.career) return;
+    
+    const updatedCareer = [...fetchedProfileData.career];
+    updatedCareer[index] = {
+      ...updatedCareer[index],
+      [field]: value
+    };
+    
+    setFetchedProfileData({
+      ...fetchedProfileData,
+      career: updatedCareer
+    });
+  };
+  
+  // Add a new empty experience
+  const addExperience = () => {
+    if (!fetchedProfileData) return;
+    
+    const newExperience = {
+      club: '',
+      fechaInicio: '',
+      fechaFinalizacion: '',
+      categoriaEquipo: '',
+      nivelCompetencia: '',
+      logros: ''
+    };
+    
+    setFetchedProfileData({
+      ...fetchedProfileData,
+      career: [...(fetchedProfileData.career || []), newExperience]
+    });
+  };
+  
+  // Remove an experience at specified index
+  const removeExperience = (index: number) => {
+    if (!fetchedProfileData || !fetchedProfileData.career) return;
+    
+    // Don't remove if it's the only experience
+    if (fetchedProfileData.career.length <= 1) return;
+    
+    const updatedCareer = fetchedProfileData.career.filter((_, i) => i !== index);
+    
+    setFetchedProfileData({
+      ...fetchedProfileData,
+      career: updatedCareer
+    });
+  };
 
   const handleSubmit = async () => {
     if (!token || !fetchedProfileData) return;
@@ -165,99 +254,120 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = () => {
             </div>
   
             {/* Trayectoria */}
-            <h2 className="text-sm font-semibold mt-2 text-center p-2 bg-gray-100 text-gray-700">Trayectoria</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-  
-              {/* Nombre del Club */}
-              <div>
-                <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Nombre del Club</label>
-                <input
-                  type="text"
-                  name="club"
-                  value={fetchedProfileData.club || ""}
-                  onChange={handleChange}
-                  className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
-                />
-              </div>
-  
-             {/* Fecha de Inicio */}
-<div>
-  <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Fecha de Inicio</label>
-  <input
-    type="date"  // Usamos "date" para mostrar un calendario
-    name="fechaInicio"
-    value={fetchedProfileData.fechaInicio || ""}  
-    className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
-  />
-</div>
-
-{/* Fecha de Finalización */}
-<div>
-  <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Fecha de Finalización</label>
-  <input
-    type="date"  // Usamos "date" para mostrar un calendario
-    name="fechaFinalizacion"
-    value={fetchedProfileData.fechaFinalizacion || ""} 
-    onChange={handleChange}
-    className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
-  />
-</div>
-
-  
-              {/* Categoría de equipo */}
-              <div>
-                <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Categoría de equipo</label>
-                <select
-                  name="categoriaEquipo"
-                  value={fetchedProfileData.categoriaEquipo|| ""}
-                  onChange={handleChange}
-                  className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
+            <div className="mt-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-sm font-semibold text-center p-2 bg-gray-100 text-gray-700 flex-grow">Trayectoria</h2>
+                <button 
+                  type="button" 
+                  onClick={addExperience}
+                  className="ml-2 bg-verde-oscuro text-white p-2 rounded-md hover:bg-green-700 flex items-center"
                 >
-                  <option value="">Seleccione una opción</option>
-                  <option value="Primer equipo">Primer equipo</option>
-                  <option value="Reserva">Reserva</option>
-                  <option value="Infantil">Infantil</option>
-                  <option value="Juvenil">Juvenil</option>
-                  <option value="Fútbol base">Fútbol base</option>
-                  <option value="Fútbol sala">Fútbol sala</option>
-                  <option value="Femenino">Femenino</option>
-                </select>
+                  <FaPlus className="mr-1" /> Agregar experiencia
+                </button>
               </div>
-  
-              {/* Nivel de competencia */}
-              <div>
-                <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Nivel de competencia</label>
-                <select
-                  name="nivelCompetencia"
-                  value={fetchedProfileData.nivelCompetencia || ""}
-                  onChange={handleChange}
-                  className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
-                >
-                  <option value="">Seleccione una opción</option>
-                  <option value="Profesional">Profesional</option>
-                  <option value="Semiprofesional">Semiprofesional</option>
-                  <option value="Amateur">Amateur</option>
-                </select>
-              </div>
-  
-              {/* Logros */}
-              <div>
-                <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Logros</label>
-                <input
-                  type="text"
-                  name="logros"
-                  value={fetchedProfileData.logros || ""}
-                  onChange={handleChange}
-                  className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
-                />
-              </div>
-  
+              
+              {fetchedProfileData.career?.map((experience, index) => (
+                <div key={index} className="mt-4 p-4 border border-gray-200 rounded-lg">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-semibold text-gray-700">Experiencia {index + 1}</h3>
+                    {fetchedProfileData.career && fetchedProfileData.career.length > 1 && (
+                      <button 
+                        type="button" 
+                        onClick={() => removeExperience(index)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <FaTrash />
+                      </button>
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Nombre del Club */}
+                    <div>
+                      <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Nombre del Club</label>
+                      <input
+                        type="text"
+                        value={experience.club || ""}
+                        onChange={(e) => handleCareerChange(index, 'club', e.target.value)}
+                        className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
+                      />
+                    </div>
+                
+                    {/* Fecha de Inicio */}
+                    <div>
+                      <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Fecha de Inicio</label>
+                      <input
+                        type="date"
+                        value={experience.fechaInicio || ""}
+                        onChange={(e) => handleCareerChange(index, 'fechaInicio', e.target.value)}
+                        className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
+                      />
+                    </div>
+                
+                    {/* Fecha de Finalización */}
+                    <div>
+                      <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Fecha de Finalización</label>
+                      <input
+                        type="date"
+                        value={experience.fechaFinalizacion || ""}
+                        onChange={(e) => handleCareerChange(index, 'fechaFinalizacion', e.target.value)}
+                        className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
+                      />
+                    </div>
+                
+                    {/* Categoría de equipo */}
+                    <div>
+                      <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Categoría de equipo</label>
+                      <select
+                        value={experience.categoriaEquipo || ""}
+                        onChange={(e) => handleCareerChange(index, 'categoriaEquipo', e.target.value)}
+                        className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
+                      >
+                        <option value="">Seleccione una opción</option>
+                        <option value="Primer equipo">Primer equipo</option>
+                        <option value="Reserva">Reserva</option>
+                        <option value="Infantil">Infantil</option>
+                        <option value="Juvenil">Juvenil</option>
+                        <option value="Fútbol base">Fútbol base</option>
+                        <option value="Fútbol sala">Fútbol sala</option>
+                        <option value="Femenino">Femenino</option>
+                      </select>
+                    </div>
+                
+                    {/* Nivel de competencia */}
+                    <div>
+                      <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Nivel de competencia</label>
+                      <select
+                        value={experience.nivelCompetencia || ""}
+                        onChange={(e) => handleCareerChange(index, 'nivelCompetencia', e.target.value)}
+                        className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
+                      >
+                        <option value="">Seleccione una opción</option>
+                        <option value="Profesional">Profesional</option>
+                        <option value="Semiprofesional">Semiprofesional</option>
+                        <option value="Amateur">Amateur</option>
+                      </select>
+                    </div>
+                
+                    {/* Logros */}
+                    <div>
+                      <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Logros</label>
+                      <input
+                        type="text"
+                        value={experience.logros || ""}
+                        onChange={(e) => handleCareerChange(index, 'logros', e.target.value)}
+                        className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
   
             {/* Botón Guardar Cambios */}
             <button
               onClick={handleSubmit}
-              className="mt-3 w-full bg-verde-oscuro text-white p-2 rounded hover:bg-green-700 text-sm"
+              className="mt-6 w-full bg-verde-oscuro text-white p-2 rounded hover:bg-green-700 text-sm"
               disabled={loading}
             >
               {loading ? "Guardando..." : "Guardar cambios"}

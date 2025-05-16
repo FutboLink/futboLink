@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect, useContext } from "react";
-import { IProfileData } from "@/Interfaces/IUser";
+import { IProfileData, PasaporteUe } from "@/Interfaces/IUser";
 import { fetchUserData, updateUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { UserContext } from "../Context/UserContext";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
@@ -32,6 +32,8 @@ const PUESTO_PRINCIPAL_OPTIONS = [
   "Otro"
 ];
 const PASAPORTE_UE_OPTIONS = ["Sí", "No"];
+const ESTRUCTURA_CORPORAL_OPTIONS = ["Ectomorfo", "Mesomorfo", "Endomorfo", "Atlética", "Musculosa", "Robusta", "Delgada"];
+const PIE_HABIL_OPTIONS = ["Derecho", "Izquierdo", "Ambidiestro"];
 
 const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData }) => {
   const { token } = useContext(UserContext);
@@ -42,17 +44,27 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
   const [errorMessage, setErrorMessage] = useState('');
   const [formData, setFormData] = useState<IProfileData>(profileData);
 
-  // Initialize with an empty experience with new fields
+  // Initialize with an empty experience
   const emptyExperience = {
     club: '',
     fechaInicio: '',
     fechaFinalizacion: '',
     categoriaEquipo: CATEGORIAS_OPTIONS[0],
     nivelCompetencia: NIVEL_COMPETENCIA_OPTIONS[0],
-    puestoPrincipal: PUESTO_PRINCIPAL_OPTIONS[0],
-    pasaporteUE: PASAPORTE_UE_OPTIONS[1],
     logros: ''
   };
+
+  // Información general del perfil
+  const [primaryPosition, setPrimaryPosition] = useState<string>(profileData.primaryPosition || PUESTO_PRINCIPAL_OPTIONS[0]);
+  const [pasaporteUE, setPasaporteUE] = useState<string>(
+    profileData.pasaporteUe === PasaporteUe.SI ? 'Sí' : 'No'
+  );
+  
+  // Datos físicos
+  const [estructuraCorporal, setEstructuraCorporal] = useState<string>(profileData.bodyStructure || ESTRUCTURA_CORPORAL_OPTIONS[0]);
+  const [pieHabil, setPieHabil] = useState<string>(profileData.skillfulFoot || PIE_HABIL_OPTIONS[0]);
+  const [altura, setAltura] = useState<number>(profileData.height || 0);
+  const [peso, setPeso] = useState<number>(profileData.weight || 0);
 
   // State for experiences (trayectorias)
   const [experiences, setExperiences] = useState<Array<{
@@ -61,8 +73,6 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
     fechaFinalizacion: string;
     categoriaEquipo: string;
     nivelCompetencia: string;
-    puestoPrincipal: string;
-    pasaporteUE: string;
     logros: string;
   }>>([emptyExperience]);
 
@@ -71,17 +81,25 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
     if (profileData) {
       setFormData(profileData);
       
+      // Initialize general profile information
+      setPrimaryPosition(profileData.primaryPosition || PUESTO_PRINCIPAL_OPTIONS[0]);
+      setPasaporteUE(profileData.pasaporteUe === PasaporteUe.SI ? 'Sí' : 'No');
+      
+      // Initialize physical data
+      setEstructuraCorporal(profileData.bodyStructure || ESTRUCTURA_CORPORAL_OPTIONS[0]);
+      setPieHabil(profileData.skillfulFoot || PIE_HABIL_OPTIONS[0]);
+      setAltura(profileData.height || 0);
+      setPeso(profileData.weight || 0);
+      
       // Initialize experiences from trayectorias
       if (profileData.trayectorias && Array.isArray(profileData.trayectorias) && profileData.trayectorias.length > 0) {
-        // Map existing experiences and add the new fields if they don't exist
+        // Map existing experiences
         const updatedExperiences = profileData.trayectorias.map(exp => ({
           club: exp.club || '',
           fechaInicio: exp.fechaInicio || '',
           fechaFinalizacion: exp.fechaFinalizacion || '',
           categoriaEquipo: exp.categoriaEquipo || CATEGORIAS_OPTIONS[0],
           nivelCompetencia: exp.nivelCompetencia || NIVEL_COMPETENCIA_OPTIONS[0],
-          puestoPrincipal: exp.puestoPrincipal || PUESTO_PRINCIPAL_OPTIONS[0],
-          pasaporteUE: exp.pasaporteUE || PASAPORTE_UE_OPTIONS[1],
           logros: exp.logros || ''
         }));
         
@@ -94,8 +112,6 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
           fechaFinalizacion: profileData.fechaFinalizacion || '',
           categoriaEquipo: profileData.categoriaEquipo || CATEGORIAS_OPTIONS[0],
           nivelCompetencia: profileData.nivelCompetencia || NIVEL_COMPETENCIA_OPTIONS[0],
-          puestoPrincipal: profileData.primaryPosition || PUESTO_PRINCIPAL_OPTIONS[0],
-          pasaporteUE: profileData.pasaporteUe === 'SI' ? PASAPORTE_UE_OPTIONS[0] : PASAPORTE_UE_OPTIONS[1],
           logros: profileData.logros || ''
         };
         
@@ -129,9 +145,15 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
       // Filter out empty experiences
       const validExperiences = experiences.filter(exp => exp.club.trim() !== '');
       
-      // Prepare the updated data with trayectorias as a properly formatted array
+      // Prepare the updated data
       const updatedData = {
         ...formData,
+        primaryPosition: primaryPosition,
+        pasaporteUe: pasaporteUE === 'Sí' ? PasaporteUe.SI : PasaporteUe.NO,
+        bodyStructure: estructuraCorporal,
+        skillfulFoot: pieHabil,
+        height: altura,
+        weight: peso,
         trayectorias: validExperiences
       };
 
@@ -162,10 +184,113 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold mb-4 text-[#1d5126]">Trayectoria Profesional</h2>
+      <h2 className="text-2xl font-semibold mb-4 text-[#1d5126]">Información Profesional</h2>
       <form onSubmit={handleSubmit}>
+        {/* Sección de información general del perfil */}
+        <div className="mb-6 p-4 border border-gray-200 rounded-lg">
+          <h3 className="text-xl font-medium mb-4 text-[#1d5126]">Datos Generales</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Puesto Principal
+              </label>
+              <select
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                value={primaryPosition}
+                onChange={(e) => setPrimaryPosition(e.target.value)}
+              >
+                {PUESTO_PRINCIPAL_OPTIONS.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Pasaporte UE
+              </label>
+              <select
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                value={pasaporteUE}
+                onChange={(e) => setPasaporteUE(e.target.value)}
+              >
+                {PASAPORTE_UE_OPTIONS.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        {/* Sección de datos físicos */}
+        <div className="mb-6 p-4 border border-gray-200 rounded-lg">
+          <h3 className="text-xl font-medium mb-4 text-[#1d5126]">Datos Físicos</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Estructura Corporal
+              </label>
+              <select
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                value={estructuraCorporal}
+                onChange={(e) => setEstructuraCorporal(e.target.value)}
+              >
+                {ESTRUCTURA_CORPORAL_OPTIONS.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Pie Hábil
+              </label>
+              <select
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                value={pieHabil}
+                onChange={(e) => setPieHabil(e.target.value)}
+              >
+                {PIE_HABIL_OPTIONS.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Altura (cm)
+              </label>
+              <input
+                type="number"
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                value={altura}
+                min="0"
+                max="250"
+                onChange={(e) => setAltura(parseInt(e.target.value) || 0)}
+              />
+            </div>
+            
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Peso (kg)
+              </label>
+              <input
+                type="number"
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                value={peso}
+                min="0"
+                max="150"
+                onChange={(e) => setPeso(parseInt(e.target.value) || 0)}
+              />
+            </div>
+          </div>
+        </div>
+        
+        {/* Sección de trayectoria */}
         <div className="mb-6">
-          <h3 className="text-xl font-medium mb-4 text-[#1d5126]">Experiencias</h3>
+          <h3 className="text-xl font-medium mb-4 text-[#1d5126]">Trayectoria</h3>
           
           {experiences.map((exp, index) => (
             <div key={index} className="mb-6 p-4 border border-gray-200 rounded-lg">
@@ -243,36 +368,6 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
                     onChange={(e) => handleExperienceChange(index, 'nivelCompetencia', e.target.value)}
                   >
                     {NIVEL_COMPETENCIA_OPTIONS.map((option) => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Puesto Principal
-                  </label>
-                  <select
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    value={exp.puestoPrincipal}
-                    onChange={(e) => handleExperienceChange(index, 'puestoPrincipal', e.target.value)}
-                  >
-                    {PUESTO_PRINCIPAL_OPTIONS.map((option) => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Pasaporte UE
-                  </label>
-                  <select
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    value={exp.pasaporteUE}
-                    onChange={(e) => handleExperienceChange(index, 'pasaporteUE', e.target.value)}
-                  >
-                    {PASAPORTE_UE_OPTIONS.map((option) => (
                       <option key={option} value={option}>{option}</option>
                     ))}
                   </select>

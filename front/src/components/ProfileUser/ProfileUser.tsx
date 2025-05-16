@@ -17,7 +17,26 @@ const Profile = () => {
   useEffect(() => {
     if (token) {
       fetchUserData(token)
-        .then((data) => setUserData(data))
+        .then((data) => {
+          // Ensure trayectorias is initialized as an array if it doesn't exist
+          if (!data.trayectorias) {
+            // If there's legacy data, convert it to the new format
+            if (data.club) {
+              data.trayectorias = [{
+                club: data.club || '',
+                fechaInicio: data.fechaInicio || '',
+                fechaFinalizacion: data.fechaFinalizacion || '',
+                categoriaEquipo: data.categoriaEquipo || '',
+                nivelCompetencia: data.nivelCompetencia || '',
+                logros: data.logros || ''
+              }];
+            } else {
+              // Initialize with empty array if no legacy data
+              data.trayectorias = [];
+            }
+          }
+          setUserData(data);
+        })
         .catch(() => setError("Error al cargar los datos."));
     }
   }, [token]);

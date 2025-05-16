@@ -6,6 +6,33 @@ import { UserContext } from "../Context/UserContext";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
 import { FaPlus, FaTrash } from "react-icons/fa";
 
+// Define options for the dropdown fields
+const CATEGORIAS_OPTIONS = ["Primer Equipo", "Reserva", "Inferiores", "Otra"];
+const NIVEL_COMPETENCIA_OPTIONS = ["Profesional", "Amateur"];
+const PUESTO_PRINCIPAL_OPTIONS = [
+  "Delantero Centro", 
+  "Extremo Derecho",
+  "Extremo Izquierdo",
+  "Mediocampista Ofensivo",
+  "Mediocampista Central",
+  "Mediocampista Defensivo",
+  "Lateral Derecho",
+  "Lateral Izquierdo",
+  "Defensor Central",
+  "Arquero",
+  "Preparador Físico",
+  "Entrenador",
+  "Asistente Técnico",
+  "Analista Táctico",
+  "Utilero",
+  "Médico",
+  "Fisioterapeuta",
+  "Nutricionista",
+  "Psicólogo Deportivo",
+  "Otro"
+];
+const PASAPORTE_UE_OPTIONS = ["Sí", "No"];
+
 const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData }) => {
   const { token } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
@@ -15,13 +42,15 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
   const [errorMessage, setErrorMessage] = useState('');
   const [formData, setFormData] = useState<IProfileData>(profileData);
 
-  // Initialize with an empty experience
+  // Initialize with an empty experience with new fields
   const emptyExperience = {
     club: '',
     fechaInicio: '',
     fechaFinalizacion: '',
-    categoriaEquipo: '',
-    nivelCompetencia: '',
+    categoriaEquipo: CATEGORIAS_OPTIONS[0],
+    nivelCompetencia: NIVEL_COMPETENCIA_OPTIONS[0],
+    puestoPrincipal: PUESTO_PRINCIPAL_OPTIONS[0],
+    pasaporteUE: PASAPORTE_UE_OPTIONS[1],
     logros: ''
   };
 
@@ -32,6 +61,8 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
     fechaFinalizacion: string;
     categoriaEquipo: string;
     nivelCompetencia: string;
+    puestoPrincipal: string;
+    pasaporteUE: string;
     logros: string;
   }>>([emptyExperience]);
 
@@ -42,15 +73,29 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
       
       // Initialize experiences from trayectorias
       if (profileData.trayectorias && Array.isArray(profileData.trayectorias) && profileData.trayectorias.length > 0) {
-        setExperiences(profileData.trayectorias);
+        // Map existing experiences and add the new fields if they don't exist
+        const updatedExperiences = profileData.trayectorias.map(exp => ({
+          club: exp.club || '',
+          fechaInicio: exp.fechaInicio || '',
+          fechaFinalizacion: exp.fechaFinalizacion || '',
+          categoriaEquipo: exp.categoriaEquipo || CATEGORIAS_OPTIONS[0],
+          nivelCompetencia: exp.nivelCompetencia || NIVEL_COMPETENCIA_OPTIONS[0],
+          puestoPrincipal: exp.puestoPrincipal || PUESTO_PRINCIPAL_OPTIONS[0],
+          pasaporteUE: exp.pasaporteUE || PASAPORTE_UE_OPTIONS[1],
+          logros: exp.logros || ''
+        }));
+        
+        setExperiences(updatedExperiences);
       } else if (profileData.club) {
         // Handle legacy data format (single experience)
         const legacyExperience = {
           club: profileData.club || '',
           fechaInicio: profileData.fechaInicio || '',
           fechaFinalizacion: profileData.fechaFinalizacion || '',
-          categoriaEquipo: profileData.categoriaEquipo || '',
-          nivelCompetencia: profileData.nivelCompetencia || '',
+          categoriaEquipo: profileData.categoriaEquipo || CATEGORIAS_OPTIONS[0],
+          nivelCompetencia: profileData.nivelCompetencia || NIVEL_COMPETENCIA_OPTIONS[0],
+          puestoPrincipal: profileData.primaryPosition || PUESTO_PRINCIPAL_OPTIONS[0],
+          pasaporteUE: profileData.pasaporteUe === 'SI' ? PASAPORTE_UE_OPTIONS[0] : PASAPORTE_UE_OPTIONS[1],
           logros: profileData.logros || ''
         };
         
@@ -139,7 +184,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Club
+                    Club/Institución
                   </label>
                   <input
                     type="text"
@@ -177,24 +222,60 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
                   <label className="block text-gray-700 text-sm font-bold mb-2">
                     Categoría del Equipo
                   </label>
-                  <input
-                    type="text"
+                  <select
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     value={exp.categoriaEquipo}
                     onChange={(e) => handleExperienceChange(index, 'categoriaEquipo', e.target.value)}
-                  />
+                  >
+                    {CATEGORIAS_OPTIONS.map((option) => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
                 </div>
                 
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2">
                     Nivel de Competencia
                   </label>
-                  <input
-                    type="text"
+                  <select
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     value={exp.nivelCompetencia}
                     onChange={(e) => handleExperienceChange(index, 'nivelCompetencia', e.target.value)}
-                  />
+                  >
+                    {NIVEL_COMPETENCIA_OPTIONS.map((option) => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Puesto Principal
+                  </label>
+                  <select
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    value={exp.puestoPrincipal}
+                    onChange={(e) => handleExperienceChange(index, 'puestoPrincipal', e.target.value)}
+                  >
+                    {PUESTO_PRINCIPAL_OPTIONS.map((option) => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Pasaporte UE
+                  </label>
+                  <select
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    value={exp.pasaporteUE}
+                    onChange={(e) => handleExperienceChange(index, 'pasaporteUE', e.target.value)}
+                  >
+                    {PASAPORTE_UE_OPTIONS.map((option) => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
                 </div>
                 
                 <div className="mb-4 md:col-span-2">

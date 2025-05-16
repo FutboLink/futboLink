@@ -127,4 +127,27 @@ export class PaymentsController {
     const subscriptionInfo = await this.stripeService.checkUserSubscription(email);
     return subscriptionInfo;
   }
+  
+  @Post('subscription/cancel')
+  @ApiOperation({ summary: 'Cancel a user subscription' })
+  @ApiResponse({ 
+    status: HttpStatus.OK, 
+    description: 'Subscription cancellation result',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', description: 'Whether the cancellation was successful' },
+        message: { type: 'string', description: 'Message describing the result' }
+      }
+    }
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid input data' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Error canceling subscription' })
+  async cancelSubscription(@Body('email') email: string) {
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
+    
+    return this.stripeService.cancelSubscription(email);
+  }
 } 

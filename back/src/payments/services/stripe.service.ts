@@ -675,4 +675,60 @@ export class StripeService {
       return { hasActiveSubscription: false, subscriptionType: 'Amateur' }; // Fail closed - if there's an error, assume no subscription
     }
   }
+  
+  /**
+   * Cancels a user's subscription
+   * @param userEmail The email of the user whose subscription to cancel
+   * @returns Object with success status and message
+   */
+  async cancelSubscription(userEmail: string): Promise<{ success: boolean, message: string }> {
+    try {
+      this.logger.log(`Attempting to cancel subscription for user: ${userEmail}`);
+      
+      // Find the payment record with the subscription ID
+      const payment = await this.paymentRepo.findOne({
+        where: {
+          customerEmail: userEmail,
+          type: PaymentType.SUBSCRIPTION,
+        },
+        order: {
+          updatedAt: 'DESC' // Get the most recent one
+        }
+      });
+      
+      if (!payment) {
+        this.logger.log(`No subscription found for user: ${userEmail}`);
+        return { success: false, message: 'No se encontró ninguna suscripción activa para este usuario.' };
+      }
+      
+      if (!payment.stripeSubscriptionId) {
+        this.logger.log(`Payment record found but no subscription ID for user: ${userEmail}`);
+        return { success: false, message: 'No se encontró un ID de suscripción válido.' };
+      }
+      
+      // Cancel the subscription in Stripe
+      const subscription = await this.stripe.subscriptions.cancel(payment.stripeSubscriptionId);
+      
+      // Update the payment record
+      payment.subscriptionStatus = subscription.status;
+      payment.status = PaymentStatus.CANCELED;
+      await this.paymentRepo.save(payment);
+      
+      this.logger.log(`Successfully canceled subscription for user: ${userEmail}`);
+      return { 
+        success: true, 
+        message: 'Suscripción cancelada exitosamente. Tu acceso permanecerá activo hasta el final del período de facturación.' 
+      };
+      
+    } catch (error) {
+      this.logger.error(`Error canceling subscription for ${userEmail}: ${error.message}`, error);
+      
+      // Check for specific Stripe errors
+      if (error.type === 'StripeInvalidRequestError') {
+        return { success: false, message: 'No se pudo cancelar la suscripción: ID de suscripción inválido o ya cancelada.' };
+      }
+      
+      return { success: false, message: `Error al cancelar la suscripción: ${error.message}` };
+    }
+  }
 } 

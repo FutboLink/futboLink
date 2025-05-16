@@ -41,8 +41,6 @@ export interface IProfileData {
     fechaFinalizacion: string;
     categoriaEquipo: string;
     nivelCompetencia: string;
-    puestoPrincipal: string;
-    pasaporteUE: string;
     logros: string;
   }[];
   pasaporteUe?: PasaporteUe;

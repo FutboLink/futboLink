@@ -82,20 +82,30 @@ export const fetchUserId = async (userId: string) => {
 };
 
 export const updateUserData = async (
-  userId: number,
+  userId: string | number,
   formData: IProfileData
 ) => {
   try {
+    // Create a copy of the data to avoid modifying the original
+    const dataToSend = { ...formData };
+    
+    // Make sure trayectorias is properly formatted for the backend
+    if (dataToSend.trayectorias) {
+      // Filter out empty entries
+      dataToSend.trayectorias = dataToSend.trayectorias.filter(exp => exp.club.trim() !== '');
+    }
+    
     const response = await fetch(`${apiUrl}/user/${userId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(dataToSend),
     });
 
     if (!response.ok) {
-      throw new Error("Error al actualizar los datos.");
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Error al actualizar los datos.");
     }
 
     return await response.json();

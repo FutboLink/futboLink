@@ -73,6 +73,24 @@ export class UserService {
     if (Object.keys(user).length === 0) {
       throw new BadRequestException('No update values provided');
     }
+    
+    // Handle trayectorias array properly
+    if (user.trayectorias) {
+      try {
+        // Make sure it's a valid array
+        if (!Array.isArray(user.trayectorias)) {
+          // If it's a string, try to parse it
+          if (typeof user.trayectorias === 'string') {
+            user.trayectorias = JSON.parse(user.trayectorias);
+          } else {
+            throw new BadRequestException('Trayectorias must be an array');
+          }
+        }
+      } catch (error) {
+        throw new BadRequestException(`Error processing trayectorias: ${error.message}`);
+      }
+    }
+    
     await this.userRepository.update(id, user);
     const updateUser = await this.userRepository.findOneBy({ id });
 

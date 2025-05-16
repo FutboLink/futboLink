@@ -6,35 +6,14 @@ import { UserContext } from "../Context/UserContext";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
 import { FaPlus, FaTrash } from "react-icons/fa";
 
-const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = () => {
+const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData }) => {
   const { token } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
   const [showErrorNotification, setShowErrorNotification] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [formData, setFormData] = useState<IProfileData>({
-    name: '',
-    lastname: '',
-    age: '',
-    nameAgency: '',
-    email: '',
-    puesto: '',
-    role: 'PLAYER' as any,
-    imgUrl: '',
-    phone: '',
-    nationality: '',
-    location: '',
-    birthday: '',
-    height: 0,
-    weight: 0,
-    skillfulFoot: '',
-    bodyStructure: '',
-    habilities: [],
-    videoUrl: '',
-    primaryPosition: '',
-    secondaryPosition: '',
-  });
+  const [formData, setFormData] = useState<IProfileData>(profileData);
 
   // Initialize with an empty experience
   const emptyExperience = {
@@ -57,43 +36,28 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = () => {
   }>>([emptyExperience]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        if (token) {
-          const data = await fetchUserData(token);
-          if (data) {
-            setFormData({
-              ...data,
-              birthday: data.birthday || '',
-            });
-            
-            // Initialize experiences from trayectorias
-            if (data.trayectorias && Array.isArray(data.trayectorias) && data.trayectorias.length > 0) {
-              setExperiences(data.trayectorias);
-            }
-            
-            // Handle legacy data format (single experience)
-            if (data.club && !data.trayectorias?.some((c: { club: string }) => c.club === data.club)) {
-              const legacyExperience = {
-                club: data.club || '',
-                fechaInicio: data.fechaInicio || '',
-                fechaFinalizacion: data.fechaFinalizacion || '',
-                categoriaEquipo: data.categoriaEquipo || '',
-                nivelCompetencia: data.nivelCompetencia || '',
-                logros: data.logros || ''
-              };
-              
-              setExperiences([legacyExperience]);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
+    // Initialize experiences from profileData
+    if (profileData) {
+      setFormData(profileData);
+      
+      // Initialize experiences from trayectorias
+      if (profileData.trayectorias && Array.isArray(profileData.trayectorias) && profileData.trayectorias.length > 0) {
+        setExperiences(profileData.trayectorias);
+      } else if (profileData.club) {
+        // Handle legacy data format (single experience)
+        const legacyExperience = {
+          club: profileData.club || '',
+          fechaInicio: profileData.fechaInicio || '',
+          fechaFinalizacion: profileData.fechaFinalizacion || '',
+          categoriaEquipo: profileData.categoriaEquipo || '',
+          nivelCompetencia: profileData.nivelCompetencia || '',
+          logros: profileData.logros || ''
+        };
+        
+        setExperiences([legacyExperience]);
       }
-    };
-
-    fetchData();
-  }, [token]);
+    }
+  }, [profileData]);
 
   const handleExperienceChange = (index: number, field: string, value: string) => {
     const updatedExperiences = [...experiences];
@@ -117,24 +81,32 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = () => {
     setLoading(true);
 
     try {
-      // Prepare the updated data with trayectorias
+      // Filter out empty experiences
+      const validExperiences = experiences.filter(exp => exp.club.trim() !== '');
+      
+      // Prepare the updated data with trayectorias as a properly formatted array
       const updatedData = {
         ...formData,
-        trayectorias: experiences
+        trayectorias: validExperiences
       };
 
       if (token) {
-        await updateUserData(token, updatedData);
+        // Extract userId from token
+        const userId = JSON.parse(atob(token.split(".")[1])).id;
+        
+        console.log("Sending data:", JSON.stringify(updatedData));
+        
+        await updateUserData(userId, updatedData);
         setShowNotification(true);
         setNotificationMessage('Información profesional actualizada correctamente');
         setTimeout(() => {
           setShowNotification(false);
         }, 3000);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating professional info:', error);
       setShowErrorNotification(true);
-      setErrorMessage('Error al actualizar la información profesional');
+      setErrorMessage(`Error al actualizar la información profesional: ${error.message || 'Error desconocido'}`);
       setTimeout(() => {
         setShowErrorNotification(false);
       }, 3000);

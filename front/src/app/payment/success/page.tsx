@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { refreshUserSubscription, clearSubscriptionCache } from '@/services/SubscriptionService';
 
-export default function PaymentSuccessPage() {
+// Create a client component that uses useSearchParams
+function PaymentSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -83,51 +84,74 @@ export default function PaymentSuccessPage() {
   };
   
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-white">
-      <div className="w-full max-w-md space-y-8 text-center">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-verde-oscuro">
-            ¡Pago completado con éxito!
-          </h2>
-        </div>
-        
-        {loading ? (
-          <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-verde-oscuro"></div>
-          </div>
-        ) : (
-          <div className="bg-gray-50 px-4 py-5 sm:px-6 rounded-lg shadow">
-            <p className="text-lg text-gray-700 mb-4">
-              Gracias por tu suscripción a futboLink. Tu cuenta ha sido actualizada.
-            </p>
-            
-            {paymentDetails && (
-              <div className="text-sm text-gray-600 mt-4 text-left">
-                <p><strong>ID de transacción:</strong> {paymentDetails.id}</p>
-                <p><strong>Monto:</strong> {paymentDetails.amountTotal} {paymentDetails.currency}</p>
-                <p><strong>Estado:</strong> {paymentDetails.status}</p>
-                <p><strong>Fecha:</strong> {new Date(paymentDetails.createdAt).toLocaleString()}</p>
-              </div>
-            )}
-            
-            <div className="mt-8">
-              {refreshingSubscription ? (
-                <div className="flex justify-center mb-4">
-                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-verde-oscuro mr-2"></div>
-                  <span className="text-sm text-gray-600">Actualizando tu suscripción...</span>
-                </div>
-              ) : (
-                <button 
-                  onClick={handleGoToProfile}
-                  className="inline-block rounded-md border border-transparent bg-verde-claro py-2 px-4 text-base font-medium text-white hover:bg-verde-oscuro"
-                >
-                  Ir a mi perfil
-                </button>
-              )}
-            </div>
-          </div>
-        )}
+    <div className="w-full max-w-md space-y-8 text-center">
+      <div>
+        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-verde-oscuro">
+          ¡Pago completado con éxito!
+        </h2>
       </div>
+      
+      {loading ? (
+        <div className="flex justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-verde-oscuro"></div>
+        </div>
+      ) : (
+        <div className="bg-gray-50 px-4 py-5 sm:px-6 rounded-lg shadow">
+          <p className="text-lg text-gray-700 mb-4">
+            Gracias por tu suscripción a futboLink. Tu cuenta ha sido actualizada.
+          </p>
+          
+          {paymentDetails && (
+            <div className="text-sm text-gray-600 mt-4 text-left">
+              <p><strong>ID de transacción:</strong> {paymentDetails.id}</p>
+              <p><strong>Monto:</strong> {paymentDetails.amountTotal} {paymentDetails.currency}</p>
+              <p><strong>Estado:</strong> {paymentDetails.status}</p>
+              <p><strong>Fecha:</strong> {new Date(paymentDetails.createdAt).toLocaleString()}</p>
+            </div>
+          )}
+          
+          <div className="mt-8">
+            {refreshingSubscription ? (
+              <div className="flex justify-center mb-4">
+                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-verde-oscuro mr-2"></div>
+                <span className="text-sm text-gray-600">Actualizando tu suscripción...</span>
+              </div>
+            ) : (
+              <button 
+                onClick={handleGoToProfile}
+                className="inline-block rounded-md border border-transparent bg-verde-claro py-2 px-4 text-base font-medium text-white hover:bg-verde-oscuro"
+              >
+                Ir a mi perfil
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Loading fallback component
+function LoadingPayment() {
+  return (
+    <div className="w-full max-w-md space-y-8 text-center">
+      <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-verde-oscuro">
+        Cargando información de pago...
+      </h2>
+      <div className="flex justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-verde-oscuro"></div>
+      </div>
+    </div>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function PaymentSuccessPage() {
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-white">
+      <Suspense fallback={<LoadingPayment />}>
+        <PaymentSuccessContent />
+      </Suspense>
     </div>
   );
 } 

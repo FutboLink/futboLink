@@ -180,6 +180,9 @@ export class StripeService {
         };
       }
       
+      console.log('Customer email: ', dto.customerEmail);
+      this.logger.log(`Creating subscription with customer email: ${dto.customerEmail}`);
+      
       this.logger.log('Sending simplified request to Stripe');
       const session = await this.stripe.checkout.sessions.create(createParams);
       this.logger.log(`Session created successfully with ID: ${session.id}`);
@@ -608,6 +611,42 @@ export class StripeService {
       }
     } catch (error) {
       this.logger.error(`Error handling invoice.payment_failed: ${error.message}`, error);
+    }
+  }
+
+  /**
+   * Checks if a user has an active subscription based on their email
+   */
+  async checkUserSubscription(userEmail: string): Promise<boolean> {
+    try {
+      this.logger.log(`Checking subscription status for user: ${userEmail}`);
+      
+      // Find the most recent payment for this user's subscription
+      const payment = await this.paymentRepo.findOne({
+        where: {
+          customerEmail: userEmail,
+          type: PaymentType.SUBSCRIPTION,
+        },
+        order: {
+          updatedAt: 'DESC' // Get the most recent one
+        }
+      });
+      
+      if (!payment) {
+        this.logger.log(`No subscription found for user: ${userEmail}`);
+        return false;
+      }
+      
+      // Check if subscription is active
+      const isActive = payment.status === PaymentStatus.SUCCEEDED && 
+                       (payment.subscriptionStatus === 'active' || 
+                        payment.subscriptionStatus === 'trialing');
+      
+      this.logger.log(`Subscription for ${userEmail} is ${isActive ? 'active' : 'inactive'}`);
+      return isActive;
+    } catch (error) {
+      this.logger.error(`Error checking subscription for ${userEmail}: ${error.message}`, error);
+      return false; // Fail closed - if there's an error, assume no subscription
     }
   }
 } 

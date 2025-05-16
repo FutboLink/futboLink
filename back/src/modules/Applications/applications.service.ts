@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Application } from './entities/applications.entity';
@@ -6,6 +6,7 @@ import { User } from '../user/entities/user.entity';
 import { Job } from '../Jobs/entities/jobs.entity';
 import { UserType } from '../user/roles.enum';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { StripeService } from '../../payments/services/stripe.service';
 
 @ApiTags('Applications')
 @Injectable()
@@ -19,21 +20,33 @@ export class ApplicationService {
 
     @InjectRepository(Job)
     private readonly jobRepository: Repository<Job>,
+    
+    private readonly stripeService: StripeService,
   ) {}
 
   @ApiOperation({ summary: 'Aplicar a un trabajo' })
   @ApiResponse({ status: 201, description: 'Aplicación creada exitosamente.' })
   @ApiResponse({ status: 404, description: 'Jugador o trabajo no encontrado.' })
   @ApiResponse({ status: 409, description: 'Aplicación duplicada.' })
+  @ApiResponse({ status: 403, description: 'Se requiere una suscripción activa para aplicar a trabajos.' })
   async apply(playerId: string, jobId: string, message: string): Promise<Application> {
+    // Find the player
     const player = await this.userRepository.findOne({
       where: { id: String(playerId), role: UserType.PLAYER },
     });
     if (!player) throw new NotFoundException('El usuario no es jugador');
 
+    // Check if player has an active subscription
+    const hasActiveSubscription = await this.stripeService.checkUserSubscription(player.email);
+    if (!hasActiveSubscription) {
+      throw new ForbiddenException('Se requiere una suscripción activa para aplicar a trabajos. Por favor, suscríbete para continuar.');
+    }
+
+    // Find the job
     const job = await this.jobRepository.findOne({ where: { id: String(jobId) } });
     if (!job) throw new NotFoundException('Trabajo no encontrado');
 
+    // Check for duplicate applications
     const existingApplication = await this.applicationRepository.findOne({
       where: {
         player: { id: String(playerId) },
@@ -42,6 +55,7 @@ export class ApplicationService {
     });
     if (existingApplication) throw new ConflictException('Aplicación duplicada');
 
+    // Create and save the application
     const application = this.applicationRepository.create({ player, job, message });
     return this.applicationRepository.save(application);
   }

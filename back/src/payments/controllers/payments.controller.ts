@@ -9,7 +9,9 @@ import {
   Post, 
   RawBodyRequest, 
   Req, 
-  Res 
+  Res,
+  Query,
+  BadRequestException
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ApiBody, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -102,5 +104,26 @@ export class PaymentsController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Error retrieving payment' })
   async getPaymentBySessionId(@Param('sessionId') sessionId: string) {
     return this.stripeService.getPaymentBySessionId(sessionId);
+  }
+  
+  @Get('subscription/check')
+  @ApiOperation({ summary: 'Check if a user has an active subscription' })
+  @ApiResponse({ 
+    status: HttpStatus.OK, 
+    description: 'Subscription status check result',
+    schema: {
+      type: 'object',
+      properties: {
+        hasActiveSubscription: { type: 'boolean', description: 'Whether the user has an active subscription' }
+      }
+    }
+  })
+  async checkSubscription(@Query('email') email: string) {
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
+    
+    const hasActiveSubscription = await this.stripeService.checkUserSubscription(email);
+    return { hasActiveSubscription };
   }
 } 

@@ -37,8 +37,17 @@ function Subs() {
 
     try {
       // Get the user email from local storage or context
-      // For this example, we'll use a default email
       const userEmail = localStorage.getItem('userEmail') || 'usuario@example.com';
+      
+      // Get the product ID if available
+      const option = subscriptionOptions[index];
+      const productId = option.productId;
+      
+      console.log(`Creating subscription with price ID: ${priceId}`);
+      if (productId) {
+        console.log(`Using product ID: ${productId}`);
+      }
+      console.log(`API URL: ${apiUrl}/payments/subscription`);
       
       const response = await fetch(
         `${apiUrl}/payments/subscription`,
@@ -52,25 +61,30 @@ function Subs() {
             customerEmail: userEmail,
             successUrl: `${window.location.origin}/payment/success`, 
             cancelUrl: `${window.location.origin}/payment/cancel`,
-            description: "Suscripción a FutboLink"
+            description: "Suscripción a FutboLink",
+            ...(productId && { productId }), // Solo incluir productId si existe
           }),
         }
       );
 
       if (!response.ok) {
-        throw new Error(`Error HTTP: ${response.status}`);
+        const errorData = await response.text();
+        console.error("Error response:", errorData);
+        throw new Error(`Error HTTP: ${response.status}. ${errorData}`);
       }
 
-      const { url } = await response.json();
+      const data = await response.json();
       
-      if (url) {
-        window.location.href = url;
+      if (data.url) {
+        console.log(`Redirecting to: ${data.url}`);
+        window.location.href = data.url;
       } else {
+        console.error("Response data:", data);
         throw new Error("No se recibió URL de pago");
       }
     } catch (error) {
       console.error("Error al crear la sesión de pago:", error);
-      alert("Error al procesar el pago. Por favor, inténtelo de nuevo más tarde.");
+      alert(`Error al procesar el pago: ${error instanceof Error ? error.message : 'Desconocido'}. Por favor, inténtelo de nuevo más tarde.`);
     } finally {
       setIsLoading({ ...isLoading, [index]: false });
     }
@@ -133,6 +147,11 @@ function Subs() {
                         <span className={styles.unavailable}>✘</span>
                       )}
                       {feature.text}
+                      {feature.highlight && (
+                        <span className="ml-1 inline-block bg-yellow-300 text-yellow-800 text-xs px-2 py-0.5 rounded-full">
+                          Destacado
+                        </span>
+                      )}
                     </li>
                   ))}
                 </ul>

@@ -62,6 +62,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
         };
 
         localStorage.setItem("user", JSON.stringify(userData));
+        
+        // Also store email directly for more reliable access
+        localStorage.setItem("userEmail", credentials.email);
+        console.log("Stored user email in localStorage:", credentials.email);
 
         setToken(data.token);
         setIsLogged(true);
@@ -103,7 +107,20 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
     if (storedAuthData) {
       try {
-        const { token, role, id } = JSON.parse(storedAuthData);
+        const parsedData = JSON.parse(storedAuthData);
+        const { token, role, id } = parsedData;
+        
+        // Get email from dedicated storage or from user object
+        let email = localStorage.getItem("userEmail");
+        if (!email && parsedData.email) {
+          email = parsedData.email;
+          // Store it in dedicated storage for future use
+          if (email) {
+            localStorage.setItem("userEmail", email);
+            console.log("Stored email from user object:", email);
+          }
+        }
+        
         const payload = JSON.parse(atob(token.split(".")[1]));
         const isTokenExpired = payload.exp * 1000 < Date.now();
 
@@ -115,16 +132,20 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
           setIsLogged(true);
           setIsAdmin(role === "ADMIN");
           setRole(role);
+          
+          console.log("Setting user with email:", email);
           setUser({
             token,
             role,
             id,
-            name: "",
-            lastname: "",
-            email: "",
+            name: parsedData.name || "",
+            lastname: parsedData.lastname || "",
+            email: email || "",
             password: "",
-            imgUrl: "",
-          }); // Se actualiza correctamente con valores predeterminados
+            imgUrl: parsedData.imgUrl || "",
+            applications: parsedData.applications || [],
+            jobs: parsedData.jobs || [],
+          });
         }
       } catch (error) {
         console.error("Error verificando token:", error);
@@ -137,17 +158,28 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     if (token) {
       const storedAuthData = localStorage.getItem("user");
       if (storedAuthData) {
-        const { role, id } = JSON.parse(storedAuthData);
+        const parsedData = JSON.parse(storedAuthData);
+        const { role, id } = parsedData;
+        
+        // Get email from dedicated storage or from user object
+        let email = localStorage.getItem("userEmail");
+        if (!email && parsedData.email) {
+          email = parsedData.email;
+        }
+        
+        console.log("Token changed, setting user with email:", email);
         setUser({
           token,
           role,
           id,
-          name: "",
-          lastname: "",
-          email: "",
+          name: parsedData.name || "",
+          lastname: parsedData.lastname || "",
+          email: email || "",
           password: "",
-          imgUrl: "",
-        }); // Se actualiza correctamente
+          imgUrl: parsedData.imgUrl || "",
+          applications: parsedData.applications || [],
+          jobs: parsedData.jobs || [],
+        });
       }
     }
   }, [token]);
@@ -155,6 +187,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   const logOut = () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("user");
+      localStorage.removeItem("userEmail");
       setUser(null);
       setToken(null);
       setIsLogged(false);

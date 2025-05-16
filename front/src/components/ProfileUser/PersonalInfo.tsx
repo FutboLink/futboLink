@@ -8,6 +8,8 @@ import useNationalities from "../Forms/FormUser/useNationalitys";
 import { FaChevronDown } from "react-icons/fa";
 import ImageUpload from "../Cloudinary/ImageUpload";
 import Image from "next/image";
+import { checkUserSubscription, refreshUserSubscription, clearSubscriptionCache, SubscriptionInfo } from "../../services/SubscriptionService";
+import Link from "next/link";
 
 const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const { token } = useContext(UserContext);
@@ -18,6 +20,11 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const [notificationMessage, setNotificationMessage] = useState('');
   const [showErrorNotification, setShowErrorNotification] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [subscriptionInfo, setSubscriptionInfo] = useState<SubscriptionInfo>({ 
+    hasActiveSubscription: false,
+    subscriptionType: 'Amateur'
+  });
+  const [loadingSubscription, setLoadingSubscription] = useState(false);
   
   // Nationality related state
   const { nationalities, loading: nationalitiesLoading, error: nationalitiesError } = useNationalities();
@@ -40,6 +47,20 @@ useEffect(() => {
   };
 }, []);
 
+  // Check for cached subscription data
+  useEffect(() => {
+    try {
+      const cachedSubscription = localStorage.getItem('subscriptionInfo');
+      if (cachedSubscription) {
+        const parsedData = JSON.parse(cachedSubscription);
+        console.log('Found cached subscription data:', parsedData);
+        setSubscriptionInfo(parsedData);
+      }
+    } catch (err) {
+      console.error('Error reading cached subscription data:', err);
+    }
+  }, []);
+
   // Fetch user data when token changes
   useEffect(() => {
     if (token) {
@@ -47,6 +68,34 @@ useEffect(() => {
       fetchUserData(token)
         .then((data) => {
           setFetchedProfileData(data); // Ensure socialMedia data is included here
+          
+          // After fetching user data, check subscription status
+          if (data.email) {
+            setLoadingSubscription(true);
+            
+            // Use the refresh function to ensure we get the latest data
+            refreshUserSubscription(data.email)
+              .then(subInfo => {
+                setSubscriptionInfo(subInfo);
+                // Update the cache
+                localStorage.setItem('subscriptionInfo', JSON.stringify(subInfo));
+              })
+              .catch(err => {
+                console.error("Error checking subscription:", err);
+                
+                // Fallback to regular check if refresh fails
+                checkUserSubscription(data.email)
+                  .then(regularInfo => {
+                    setSubscriptionInfo(regularInfo);
+                  })
+                  .catch(regularErr => {
+                    console.error("Error with fallback subscription check:", regularErr);
+                  });
+              })
+              .finally(() => {
+                setLoadingSubscription(false);
+              });
+          }
         })
         .catch((err) => {
           console.error("Error al cargar los datos:", err);
@@ -129,7 +178,24 @@ useEffect(() => {
     }
   };
 
-  
+  // Add a function to manually refresh subscription status
+  const handleRefreshSubscription = async () => {
+    if (!fetchedProfileData?.email) return;
+    
+    setLoadingSubscription(true);
+    try {
+      // Clear cache first to ensure we get fresh data
+      clearSubscriptionCache();
+      const freshData = await refreshUserSubscription(fetchedProfileData.email);
+      setSubscriptionInfo(freshData);
+      localStorage.setItem('subscriptionInfo', JSON.stringify(freshData));
+    } catch (err) {
+      console.error("Error refreshing subscription:", err);
+    } finally {
+      setLoadingSubscription(false);
+    }
+  };
+
   return (
     <div className="p-2 border border-gray-300 shadow-sm rounded-lg"> {/* Reducir padding */}
       <h2 className="text-sm font-semibold mt-2 text-center p-2 bg-gray-100 text-gray-700">Información Personal</h2>
@@ -140,6 +206,58 @@ useEffect(() => {
         <p className="text-red-600">{error}</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3"> {/* Reducir gap entre los inputs */}
+          {/* Subscription Information */}
+          <div className="sm:col-span-2 mb-4">
+            <div className={`p-3 text-black rounded-lg ${
+              subscriptionInfo.hasActiveSubscription 
+                ? 'bg-green-50 border border-green-200' 
+                : 'bg-gray-50 border border-gray-200'
+            }`}>
+              <div className="flex justify-between items-center mb-1">
+                <h3 className="text-lg font-semibold">Estado de Suscripción</h3>
+                <button 
+                  onClick={handleRefreshSubscription} 
+                  disabled={loadingSubscription}
+                  className="text-xs text-verde-oscuro hover:underline"
+                >
+                  {loadingSubscription ? 'Actualizando...' : 'Actualizar estado'}
+                </button>
+              </div>
+              {loadingSubscription ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-verde-oscuro mr-2"></div>
+                  <p className="text-sm text-gray-600">Verificando suscripción...</p>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center mb-2">
+                    <div className={`w-3 h-3 rounded-full mr-2 ${
+                      subscriptionInfo.hasActiveSubscription ? 'bg-green-500' : 'bg-gray-400'
+                    }`}></div>
+                    <span className="font-medium">
+                      {subscriptionInfo.hasActiveSubscription 
+                        ? 'Suscripción Activa' 
+                        : 'Sin Suscripción Activa'}
+                    </span>
+                  </div>
+                  <p className="text-sm mb-2">
+                    Plan: <span className="font-semibold">{subscriptionInfo.subscriptionType}</span>
+                  </p>
+                  {!subscriptionInfo.hasActiveSubscription && (
+                    <div className="mt-2">
+                      <Link 
+                        href="/subs" 
+                        className="text-sm text-white bg-verde-oscuro hover:bg-verde-claro px-4 py-1 rounded-md transition-colors duration-200"
+                      >
+                        Ver planes de suscripción
+                      </Link>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
           {/* Name */}
           <div className="flex flex-col">
              <input

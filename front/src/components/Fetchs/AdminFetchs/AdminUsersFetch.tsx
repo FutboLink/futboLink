@@ -23,23 +23,27 @@ export const getUsers =  async (): Promise<IProfileData[]> => {
   
 
   export const fetchApplications = async (application: IApplication) => {
- 
-  
-    const response = await fetch(`${apiUrl}/applications`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(application),
-    });
-  
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Error desconocido");
+    try {
+      const response = await fetch(`${apiUrl}/applications`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(application),
+      });
+    
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error applying:", errorData);
+        throw new Error(errorData.message || "Error desconocido");
+      }
+    
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error in fetchApplications:", error);
+      throw error;
     }
-  
-    const data = await response.json();
-    return data;
   };
 
  //Eliminar usuarios

@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 
 export interface INotificationProps {
     message: string;
+    isError?: boolean;
   }
 
-export const NotificationsForms: React.FC<INotificationProps> = ({ message }) => {
+export const NotificationsForms: React.FC<INotificationProps> = ({ message, isError = false }) => {
  
   const [isVisible, setIsVisible] = useState(true);
 
@@ -14,11 +15,12 @@ export const NotificationsForms: React.FC<INotificationProps> = ({ message }) =>
   };
 
   return (
-
     isVisible && (
       <div 
         role="alert" 
-        className="fixed top-28 right-4 rounded-xl border bg-gray-400 text-white p-4 shadow-lg"
+        className={`fixed top-28 right-4 rounded-xl border p-4 shadow-lg ${
+          isError ? 'bg-red-500 text-white' : 'bg-gray-400 text-white'
+        }`}
       >
         <div className="flex items-start gap-4">
           <div className="flex-1">

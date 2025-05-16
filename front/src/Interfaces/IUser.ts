@@ -34,8 +34,8 @@ export interface IProfileData {
   categoriaEquipo?: string;
   nivelCompetencia?: string;
   logros?: string;
-  // New career array for multiple experiences
-  career?: {
+  // Use trayectorias instead of career to match the backend entity
+  trayectorias?: {
     club: string;
     fechaInicio: string;
     fechaFinalizacion: string;

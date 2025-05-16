@@ -507,50 +507,86 @@ const UserProfile = () => {
             <div className="bg-gray-300 h-px my-6"></div>
             <h3 className="text-xl font-semibold text-[#1d5126] border-b pb-2 mb-4">Trayectoria</h3>
             
-            {userData?.career && userData.career.length > 0 ? (
+            {userData?.trayectorias && userData.trayectorias.length > 0 ? (
               <div className="space-y-4">
-                {userData.career.map((experience, index) => (
+                {userData.trayectorias.map((experience, index) => (
                   <div key={index} className="border border-[#1d5126] bg-[#f5f5f5] p-4 rounded-md shadow-sm mb-4">
                     <h4 className="font-semibold text-lg text-gray-800">{experience.club || "Club no especificado"}</h4>
                     <div className="flex flex-wrap gap-4 mt-2 text-gray-700">
                       {experience.fechaInicio && (
-                        <p className="bg-white px-3 py-1 rounded-md shadow-sm">
-                          {new Date(experience.fechaInicio).toLocaleDateString('es-ES', { year: 'numeric', month: 'numeric', day: 'numeric' })}
+                        <p className="bg-white px-3 py-1 rounded-full text-sm">
+                          <span className="font-medium">Inicio:</span> {new Date(experience.fechaInicio).toLocaleDateString()}
                         </p>
                       )}
+                      
                       {experience.fechaFinalizacion && (
-                        <p className="bg-white px-3 py-1 rounded-md shadow-sm">
-                          {new Date(experience.fechaFinalizacion).toLocaleDateString('es-ES', { year: 'numeric', month: 'numeric', day: 'numeric' })}
+                        <p className="bg-white px-3 py-1 rounded-full text-sm">
+                          <span className="font-medium">Fin:</span> {new Date(experience.fechaFinalizacion).toLocaleDateString()}
                         </p>
                       )}
-                      {experience.nivelCompetencia && (
-                        <p className="bg-white px-3 py-1 rounded-md shadow-sm">{experience.nivelCompetencia}</p>
-                      )}
+                      
                       {experience.categoriaEquipo && (
-                        <p className="bg-white px-3 py-1 rounded-md shadow-sm">{experience.categoriaEquipo}</p>
+                        <p className="bg-white px-3 py-1 rounded-full text-sm">
+                          <span className="font-medium">Categoría:</span> {experience.categoriaEquipo}
+                        </p>
+                      )}
+                      
+                      {experience.nivelCompetencia && (
+                        <p className="bg-white px-3 py-1 rounded-full text-sm">
+                          <span className="font-medium">Nivel:</span> {experience.nivelCompetencia}
+                        </p>
                       )}
                     </div>
+                    
                     {experience.logros && (
-                      <div className="mt-2">
-                        <span className="text-sm font-semibold">Logros:</span>
-                        <p className="bg-white p-2 rounded-md mt-1 text-sm">{experience.logros}</p>
+                      <div className="mt-3 bg-white p-3 rounded-md">
+                        <p className="font-medium text-gray-800">Logros:</p>
+                        <p className="text-gray-700">{experience.logros}</p>
                       </div>
                     )}
                   </div>
                 ))}
               </div>
-            ) : userData?.club ? (
-              // Legacy format support
-              <div className="border border-[#1d5126] bg-[#f5f5f5] p-4 rounded-md shadow-sm">
-                <h4 className="font-semibold text-lg text-gray-800">{userData.club}</h4>
-                <div className="flex flex-wrap gap-4 mt-2 text-gray-700">
-                  {userData.fechaInicio && <p className="bg-white px-3 py-1 rounded-md shadow-sm">{userData.fechaInicio}</p>}
-                  {userData.fechaFinalizacion && <p className="bg-white px-3 py-1 rounded-md shadow-sm">{userData.fechaFinalizacion}</p>}
-                  {userData.nivelCompetencia && <p className="bg-white px-3 py-1 rounded-md shadow-sm">{userData.nivelCompetencia}</p>}
-                </div>
-              </div>
             ) : (
-              <p className="text-gray-500 italic">No hay información de trayectoria disponible</p>
+              userData?.club ? (
+                <div className="border border-[#1d5126] bg-[#f5f5f5] p-4 rounded-md shadow-sm">
+                  <h4 className="font-semibold text-lg text-gray-800">{userData.club || "Club no especificado"}</h4>
+                  <div className="flex flex-wrap gap-4 mt-2 text-gray-700">
+                    {userData.fechaInicio && (
+                      <p className="bg-white px-3 py-1 rounded-full text-sm">
+                        <span className="font-medium">Inicio:</span> {new Date(userData.fechaInicio).toLocaleDateString()}
+                      </p>
+                    )}
+                    
+                    {userData.fechaFinalizacion && (
+                      <p className="bg-white px-3 py-1 rounded-full text-sm">
+                        <span className="font-medium">Fin:</span> {new Date(userData.fechaFinalizacion).toLocaleDateString()}
+                      </p>
+                    )}
+                    
+                    {userData.categoriaEquipo && (
+                      <p className="bg-white px-3 py-1 rounded-full text-sm">
+                        <span className="font-medium">Categoría:</span> {userData.categoriaEquipo}
+                      </p>
+                    )}
+                    
+                    {userData.nivelCompetencia && (
+                      <p className="bg-white px-3 py-1 rounded-full text-sm">
+                        <span className="font-medium">Nivel:</span> {userData.nivelCompetencia}
+                      </p>
+                    )}
+                  </div>
+                  
+                  {userData.logros && (
+                    <div className="mt-3 bg-white p-3 rounded-md">
+                      <p className="font-medium text-gray-800">Logros:</p>
+                      <p className="text-gray-700">{userData.logros}</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-gray-500 italic">No hay información de trayectoria disponible</p>
+              )
             )}
           </div>
         )}

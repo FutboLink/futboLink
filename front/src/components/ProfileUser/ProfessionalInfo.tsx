@@ -12,389 +12,269 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
   const [showErrorNotification, setShowErrorNotification] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  
+  const [errorMessage, setErrorMessage] = useState('');
+  const [formData, setFormData] = useState<IProfileData>({
+    name: '',
+    lastname: '',
+    age: '',
+    nameAgency: '',
+    email: '',
+    puesto: '',
+    role: 'PLAYER' as any,
+    imgUrl: '',
+    phone: '',
+    nationality: '',
+    location: '',
+    birthday: '',
+    height: 0,
+    weight: 0,
+    skillfulFoot: '',
+    bodyStructure: '',
+    habilities: [],
+    videoUrl: '',
+    primaryPosition: '',
+    secondaryPosition: '',
+  });
 
-  // Variable de estado para almacenar los datos obtenidos y modificados
-  const [fetchedProfileData, setFetchedProfileData] = useState<IProfileData | null>(null);
+  // Initialize with an empty experience
+  const emptyExperience = {
+    club: '',
+    fechaInicio: '',
+    fechaFinalizacion: '',
+    categoriaEquipo: '',
+    nivelCompetencia: '',
+    logros: ''
+  };
 
-  
+  // State for experiences (trayectorias)
+  const [experiences, setExperiences] = useState<Array<{
+    club: string;
+    fechaInicio: string;
+    fechaFinalizacion: string;
+    categoriaEquipo: string;
+    nivelCompetencia: string;
+    logros: string;
+  }>>([emptyExperience]);
 
-  // useEffect para hacer la solicitud a la API cuando el token cambia
   useEffect(() => {
-    if (token) {
-      setLoading(true); // Iniciar carga
-      fetchUserData(token)
-        .then((data) => {
-          // Initialize career array if it doesn't exist
-          if (!data.career) {
-            data.career = [{
-              club: '',
-              fechaInicio: '',
-              fechaFinalizacion: '',
-              categoriaEquipo: '',
-              nivelCompetencia: '',
-              logros: ''
-            }];
-          } else if (data.career.length === 0) {
-            // Ensure there's at least one empty experience
-            data.career.push({
-              club: '',
-              fechaInicio: '',
-              fechaFinalizacion: '',
-              categoriaEquipo: '',
-              nivelCompetencia: '',
-              logros: ''
+    const fetchData = async () => {
+      try {
+        if (token) {
+          const data = await fetchUserData(token);
+          if (data) {
+            setFormData({
+              ...data,
+              birthday: data.birthday || '',
             });
-          }
-          
-          // Handle legacy data format (single experience)
-          if (data.club && !data.career?.some((c: { club: string }) => c.club === data.club)) {
-            const legacyExperience = {
-              club: data.club || '',
-              fechaInicio: data.fechaInicio || '',
-              fechaFinalizacion: data.fechaFinalizacion || '',
-              categoriaEquipo: data.categoriaEquipo || '',
-              nivelCompetencia: data.nivelCompetencia || '',
-              logros: data.logros || ''
-            };
             
-            if (data.career) {
-              data.career.unshift(legacyExperience);
-            } else {
-              data.career = [legacyExperience];
+            // Initialize experiences from trayectorias
+            if (data.trayectorias && Array.isArray(data.trayectorias) && data.trayectorias.length > 0) {
+              setExperiences(data.trayectorias);
+            }
+            
+            // Handle legacy data format (single experience)
+            if (data.club && !data.trayectorias?.some((c: { club: string }) => c.club === data.club)) {
+              const legacyExperience = {
+                club: data.club || '',
+                fechaInicio: data.fechaInicio || '',
+                fechaFinalizacion: data.fechaFinalizacion || '',
+                categoriaEquipo: data.categoriaEquipo || '',
+                nivelCompetencia: data.nivelCompetencia || '',
+                logros: data.logros || ''
+              };
+              
+              setExperiences([legacyExperience]);
             }
           }
-          
-          setFetchedProfileData(data); // Establecer los datos obtenidos
-        })
-        .catch((err) => {
-          console.error("Error al cargar los datos:", err);
-          setError("Error al cargar los datos.");
-        })
-        .finally(() => {
-          setLoading(false); // Finalizar carga
-        });
-    }
-  }, [token]); // Ejecuta solo cuando el token cambia
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFetchedProfileData({
-      ...fetchedProfileData!,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  // Handle changes to career experience fields
-  const handleCareerChange = (index: number, field: string, value: string) => {
-    if (!fetchedProfileData || !fetchedProfileData.career) return;
-    
-    const updatedCareer = [...fetchedProfileData.career];
-    updatedCareer[index] = {
-      ...updatedCareer[index],
-      [field]: value
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
     };
-    
-    setFetchedProfileData({
-      ...fetchedProfileData,
-      career: updatedCareer
-    });
+
+    fetchData();
+  }, [token]);
+
+  const handleExperienceChange = (index: number, field: string, value: string) => {
+    const updatedExperiences = [...experiences];
+    updatedExperiences[index] = { ...updatedExperiences[index], [field]: value };
+    setExperiences(updatedExperiences);
   };
-  
-  // Add a new empty experience
+
   const addExperience = () => {
-    if (!fetchedProfileData) return;
-    
-    const newExperience = {
-      club: '',
-      fechaInicio: '',
-      fechaFinalizacion: '',
-      categoriaEquipo: '',
-      nivelCompetencia: '',
-      logros: ''
-    };
-    
-    setFetchedProfileData({
-      ...fetchedProfileData,
-      career: [...(fetchedProfileData.career || []), newExperience]
-    });
+    setExperiences([...experiences, { ...emptyExperience }]);
   };
-  
-  // Remove an experience at specified index
+
   const removeExperience = (index: number) => {
-    if (!fetchedProfileData || !fetchedProfileData.career) return;
-    
-    // Don't remove if it's the only experience
-    if (fetchedProfileData.career.length <= 1) return;
-    
-    const updatedCareer = fetchedProfileData.career.filter((_, i) => i !== index);
-    
-    setFetchedProfileData({
-      ...fetchedProfileData,
-      career: updatedCareer
-    });
+    if (experiences.length > 1) {
+      const updatedExperiences = experiences.filter((_, i) => i !== index);
+      setExperiences(updatedExperiences);
+    }
   };
 
-  const handleSubmit = async () => {
-    if (!token || !fetchedProfileData) return;
-
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
-    setError(null);
 
     try {
-      const userId = JSON.parse(atob(token.split(".")[1])).id;
-      await updateUserData(userId, fetchedProfileData);
-      setNotificationMessage("Datos actualizados correctamente");
-      setShowNotification(true);
+      // Prepare the updated data with trayectorias
+      const updatedData = {
+        ...formData,
+        trayectorias: experiences
+      };
+
+      if (token) {
+        await updateUserData(token, updatedData);
+        setShowNotification(true);
+        setNotificationMessage('Información profesional actualizada correctamente');
+        setTimeout(() => {
+          setShowNotification(false);
+        }, 3000);
+      }
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Ocurrió un error.");
+      console.error('Error updating professional info:', error);
       setShowErrorNotification(true);
+      setErrorMessage('Error al actualizar la información profesional');
+      setTimeout(() => {
+        setShowErrorNotification(false);
+      }, 3000);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="p-6 border border-gray-300 shadow-lg rounded-lg">
-      {loading ? (
-        <p>Cargando los datos...</p>
-      ) : error ? (
-        <p className="text-red-600">{error}</p>
-      ) : (
-        fetchedProfileData ? (
-          <>
-            {/* Datos Generales */}
-            <h2 className="text-sm font-semibold mt-2 text-center p-2 bg-gray-100 text-gray-700">Datos Generales</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              
-              {/* Puesto Principal */}
-              <div>
-                <label className="font-semibold text-gray-700">Puesto Principal</label>
-                <select 
-                name="primaryPosition" 
-                value={fetchedProfileData.primaryPosition || ""} 
-                onChange={handleChange} 
-                className="border rounded-md p-2 mt-2 w-full text-gray-700"
-              >
-                <option value="">Selecciona tu puesto principal</option>
-                <option value="Arquero">Arquero</option>
-                <option value="Defensa central">Defensa central</option>
-                <option value="Defensa lateral">Defensa lateral</option>
-                <option value="Centrocampista">Centrocampista</option>
-                <option value="Delantero">Delantero</option>
-              </select>
-
-              </div>
-  
-              {/* Puesto Secundario */}
-              <div>
-                <label className="font-semibold mt-4 text-gray-700">Puesto Secundario</label>
-                <select className="border rounded-md p-2 mt-2 w-full text-gray-700"
-                name="secondaryPosition" 
-                value={fetchedProfileData.secondaryPosition || ""} 
-                onChange={handleChange} >
-                  <option value="">Selecciona tu puesto secundario</option>
-                  <option value="Arquero">Arquero</option>
-                  <option value="Defensa central">Defensa central</option>
-                  <option value="Defensa lateral">Defensa lateral</option>
-                  <option value="Centrocampista">Centrocampista</option>
-                  <option value="Delantero">Delantero</option>
-                </select>
-              </div>
-  
-              {/* Pasaporte UE */}
-              <div>
-                <label className="font-semibold mt-4 text-gray-700">Pasaporte UE</label>
-                <select 
-                name="pasaporteUe"
-                value={fetchedProfileData.pasaporteUe || ""}
-                onChange={handleChange}
-                 className="border rounded-md p-2 mt-2 w-full text-gray-700">
-                  <option value="">¿Tienes pasaporte UE?</option>
-                  <option value="Si">Sí</option>
-                  <option value="No">No</option>
-                </select>
-              </div>
-  
-            </div>
-  
-            {/* Datos Físicos */}
-            <h2 className="text-sm font-semibold mt-2 text-center p-2 bg-gray-100 text-gray-700">Datos Físicos</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block mt-1 p-1 text-sm text-gray-700 font-semibold">Estructura Corporal</label>
-                <select
-                  name="bodyStructure"
-                  value={fetchedProfileData.bodyStructure || ""}
-                  onChange={handleChange}
-                  className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
-                >
-                  <option value="">Seleccione una opción</option>
-                  <option value="Endomorfo">Endomorfo</option>
-                  <option value="Ectomorfo">Ectomorfo</option>
-                  <option value="Mesomorfo">Mesomorfo</option>
-                </select>
-              </div>
-  
-              <div>
-                <label className="block mt-1 p-1 text-sm text-gray-700 font-semibold">Pie Hábil</label>
-                <select
-                  name="skillfulFoot"
-                  value={fetchedProfileData.skillfulFoot || ""}
-                  onChange={handleChange}
-                  className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
-                >
-                  <option value="">Seleccione una opción</option>
-                  <option value="Derecho">Derecho</option>
-                  <option value="Izquierdo">Izquierdo</option>
-                  <option value="Ambidiestro">Ambidiestro</option>
-                </select>
-              </div>
-            </div>
-  
-            {/* Trayectoria */}
-            <div className="mt-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-sm font-semibold text-center p-2 bg-gray-100 text-gray-700 flex-grow">Trayectoria</h2>
+    <div className="bg-white p-6 rounded-lg shadow-md">
+      <h2 className="text-2xl font-semibold mb-4 text-[#1d5126]">Trayectoria Profesional</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-6">
+          <h3 className="text-xl font-medium mb-4 text-[#1d5126]">Experiencias</h3>
+          
+          {experiences.map((exp, index) => (
+            <div key={index} className="mb-6 p-4 border border-gray-200 rounded-lg">
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="text-lg font-medium">Experiencia {index + 1}</h4>
                 <button 
                   type="button" 
-                  onClick={addExperience}
-                  className="ml-2 bg-verde-oscuro text-white p-2 rounded-md hover:bg-green-700 flex items-center"
+                  onClick={() => removeExperience(index)}
+                  className="text-red-500 hover:text-red-700"
+                  disabled={experiences.length === 1}
                 >
-                  <FaPlus className="mr-1" /> Agregar experiencia
+                  <FaTrash />
                 </button>
               </div>
               
-              {fetchedProfileData.career?.map((experience, index) => (
-                <div key={index} className="mt-4 p-4 border border-gray-200 rounded-lg">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-semibold text-gray-700">Experiencia {index + 1}</h3>
-                    {fetchedProfileData.career && fetchedProfileData.career.length > 1 && (
-                      <button 
-                        type="button" 
-                        onClick={() => removeExperience(index)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <FaTrash />
-                      </button>
-                    )}
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Nombre del Club */}
-                    <div>
-                      <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Nombre del Club</label>
-                      <input
-                        type="text"
-                        value={experience.club || ""}
-                        onChange={(e) => handleCareerChange(index, 'club', e.target.value)}
-                        className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
-                      />
-                    </div>
-                
-                    {/* Fecha de Inicio */}
-                    <div>
-                      <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Fecha de Inicio</label>
-                      <input
-                        type="date"
-                        value={experience.fechaInicio || ""}
-                        onChange={(e) => handleCareerChange(index, 'fechaInicio', e.target.value)}
-                        className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
-                      />
-                    </div>
-                
-                    {/* Fecha de Finalización */}
-                    <div>
-                      <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Fecha de Finalización</label>
-                      <input
-                        type="date"
-                        value={experience.fechaFinalizacion || ""}
-                        onChange={(e) => handleCareerChange(index, 'fechaFinalizacion', e.target.value)}
-                        className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
-                      />
-                    </div>
-                
-                    {/* Categoría de equipo */}
-                    <div>
-                      <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Categoría de equipo</label>
-                      <select
-                        value={experience.categoriaEquipo || ""}
-                        onChange={(e) => handleCareerChange(index, 'categoriaEquipo', e.target.value)}
-                        className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
-                      >
-                        <option value="">Seleccione una opción</option>
-                        <option value="Primer equipo">Primer equipo</option>
-                        <option value="Reserva">Reserva</option>
-                        <option value="Infantil">Infantil</option>
-                        <option value="Juvenil">Juvenil</option>
-                        <option value="Fútbol base">Fútbol base</option>
-                        <option value="Fútbol sala">Fútbol sala</option>
-                        <option value="Femenino">Femenino</option>
-                      </select>
-                    </div>
-                
-                    {/* Nivel de competencia */}
-                    <div>
-                      <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Nivel de competencia</label>
-                      <select
-                        value={experience.nivelCompetencia || ""}
-                        onChange={(e) => handleCareerChange(index, 'nivelCompetencia', e.target.value)}
-                        className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
-                      >
-                        <option value="">Seleccione una opción</option>
-                        <option value="Profesional">Profesional</option>
-                        <option value="Semiprofesional">Semiprofesional</option>
-                        <option value="Amateur">Amateur</option>
-                      </select>
-                    </div>
-                
-                    {/* Logros */}
-                    <div>
-                      <label className="block mt-1 p-2 text-sm text-gray-700 font-semibold">Logros</label>
-                      <input
-                        type="text"
-                        value={experience.logros || ""}
-                        onChange={(e) => handleCareerChange(index, 'logros', e.target.value)}
-                        className="w-full p-2 text-sm border rounded mt-1 text-gray-700"
-                      />
-                    </div>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Club
+                  </label>
+                  <input
+                    type="text"
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    value={exp.club}
+                    onChange={(e) => handleExperienceChange(index, 'club', e.target.value)}
+                  />
                 </div>
-              ))}
+                
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Fecha de Inicio
+                  </label>
+                  <input
+                    type="date"
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    value={exp.fechaInicio}
+                    onChange={(e) => handleExperienceChange(index, 'fechaInicio', e.target.value)}
+                  />
+                </div>
+                
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Fecha de Finalización
+                  </label>
+                  <input
+                    type="date"
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    value={exp.fechaFinalizacion}
+                    onChange={(e) => handleExperienceChange(index, 'fechaFinalizacion', e.target.value)}
+                  />
+                </div>
+                
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Categoría del Equipo
+                  </label>
+                  <input
+                    type="text"
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    value={exp.categoriaEquipo}
+                    onChange={(e) => handleExperienceChange(index, 'categoriaEquipo', e.target.value)}
+                  />
+                </div>
+                
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Nivel de Competencia
+                  </label>
+                  <input
+                    type="text"
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    value={exp.nivelCompetencia}
+                    onChange={(e) => handleExperienceChange(index, 'nivelCompetencia', e.target.value)}
+                  />
+                </div>
+                
+                <div className="mb-4 md:col-span-2">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Logros
+                  </label>
+                  <textarea
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    rows={3}
+                    value={exp.logros}
+                    onChange={(e) => handleExperienceChange(index, 'logros', e.target.value)}
+                  />
+                </div>
+              </div>
             </div>
-  
-            {/* Botón Guardar Cambios */}
-            <button
-              onClick={handleSubmit}
-              className="mt-6 w-full bg-verde-oscuro text-white p-2 rounded hover:bg-green-700 text-sm"
-              disabled={loading}
-            >
-              {loading ? "Guardando..." : "Guardar cambios"}
-            </button>
-  
-            {/* Error Notification */}
-            {showErrorNotification && (
-              <div className="absolute top-20 left-0 right-0 mx-auto w-max bg-red-600 text-white p-2 rounded-md">
-                <p>{errorMessage}</p>
-              </div>
-            )}
-  
-            {/* Success Notification */}
-            {showNotification && (
-              <div className="absolute top-10 left-0 right-0 mx-auto w-max">
-                <NotificationsForms message={notificationMessage} />
-              </div>
-            )}
-          </>
-        ) : (
-          <p className="text-sm text-gray-600">Cargando los datos...</p>
-        )
+          ))}
+          
+          <button
+            type="button"
+            onClick={addExperience}
+            className="flex items-center gap-2 bg-[#1d5126] text-white py-2 px-4 rounded hover:bg-[#143a1b] transition-colors"
+          >
+            <FaPlus /> Agregar Experiencia
+          </button>
+        </div>
+        
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            className="bg-[#1d5126] text-white py-2 px-6 rounded hover:bg-[#143a1b] transition-colors"
+            disabled={loading}
+          >
+            {loading ? 'Guardando...' : 'Guardar Cambios'}
+          </button>
+        </div>
+      </form>
+      
+      {showNotification && (
+        <NotificationsForms
+          message={notificationMessage}
+          isError={false}
+        />
+      )}
+      
+      {showErrorNotification && (
+        <NotificationsForms
+          message={errorMessage}
+          isError={true}
+        />
       )}
     </div>
   );
-  
 };
-
 
 export default ProfessionalInfo;

@@ -640,7 +640,7 @@ export class StripeService {
       this.logger.log(`Found payment record for ${userEmail}: status=${payment.status}, subscriptionStatus=${payment.subscriptionStatus}, priceId=${payment.stripePriceId}`);
       
       // Check if subscription is active - include more subscription statuses
-      const isActive = payment.status === PaymentStatus.SUCCEEDED || 
+      let isActive = payment.status === PaymentStatus.SUCCEEDED || 
                       (payment.subscriptionStatus === 'active' || 
                        payment.subscriptionStatus === 'trialing' ||
                        payment.subscriptionStatus === 'incomplete' ||
@@ -653,8 +653,10 @@ export class StripeService {
         // Map price IDs to subscription types
         if (payment.stripePriceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
           subscriptionType = 'Semiprofesional';
+          isActive = true; // If we have a valid price ID for a paid plan, consider it active
         } else if (payment.stripePriceId === 'price_1RP80ZGbCHvHfqXF9CqoLtnt') {
           subscriptionType = 'Profesional';
+          isActive = true; // If we have a valid price ID for a paid plan, consider it active
         }
         
         this.logger.log(`Mapped price ID ${payment.stripePriceId} to subscription type: ${subscriptionType}`);

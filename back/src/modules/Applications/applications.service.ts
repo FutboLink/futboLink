@@ -37,9 +37,11 @@ export class ApplicationService {
     if (!player) throw new NotFoundException('El usuario no es jugador');
 
     // Check if player has an active subscription
-    const hasActiveSubscription = await this.stripeService.checkUserSubscription(player.email);
-    if (!hasActiveSubscription) {
-      throw new ForbiddenException('Se requiere una suscripción activa para aplicar a trabajos. Por favor, suscríbete para continuar.');
+    const subscriptionStatus = await this.stripeService.checkUserSubscription(player.email);
+    
+    // Check if subscription is active and not Amateur plan
+    if (!subscriptionStatus.hasActiveSubscription || subscriptionStatus.subscriptionType === 'Amateur') {
+      throw new ForbiddenException('Se requiere una suscripción activa Semiprofesional o Profesional para aplicar a trabajos. Por favor, suscríbete para continuar.');
     }
 
     // Find the job

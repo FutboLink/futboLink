@@ -74,31 +74,52 @@ export class UserService {
       throw new BadRequestException('No update values provided');
     }
     
-    // Handle trayectorias array properly
-    if (user.trayectorias) {
+    // Create a clean copy of the user object for the update
+    const updateData = { ...user };
+    
+    // Handle trayectorias array properly for PostgreSQL
+    if (updateData.trayectorias) {
       try {
         // Make sure it's a valid array
-        if (!Array.isArray(user.trayectorias)) {
+        if (!Array.isArray(updateData.trayectorias)) {
           // If it's a string, try to parse it
-          if (typeof user.trayectorias === 'string') {
-            user.trayectorias = JSON.parse(user.trayectorias);
+          if (typeof updateData.trayectorias === 'string') {
+            updateData.trayectorias = JSON.parse(updateData.trayectorias);
           } else {
             throw new BadRequestException('Trayectorias must be an array');
           }
         }
+        
+        // For PostgreSQL jsonb array type, we need to use the specific update syntax
+        // Remove trayectorias from the update object, we'll handle it separately
+        delete updateData.trayectorias;
+        
+        // First update all other fields
+        if (Object.keys(updateData).length > 0) {
+          await this.userRepository.update(id, updateData);
+        }
+        
+        // Then update the trayectorias field directly with SQL to ensure proper format
+        // This ensures PostgreSQL correctly understands the array format
+        await this.userRepository.query(
+          `UPDATE users SET trayectorias = $1 WHERE id = $2`,
+          [JSON.stringify(user.trayectorias), id]
+        );
       } catch (error) {
         throw new BadRequestException(`Error processing trayectorias: ${error.message}`);
       }
+    } else {
+      // If no trayectorias array, just do a normal update
+      await this.userRepository.update(id, updateData);
     }
     
-    await this.userRepository.update(id, user);
-    const updateUser = await this.userRepository.findOneBy({ id });
+    const updatedUser = await this.userRepository.findOneBy({ id });
 
-    if (!updateUser) {
+    if (!updatedUser) {
       throw new NotFoundException(`Usuario con id ${id} no encontrado`);
     }
 
-    const { password, ...userNoSensitiveInfo } = updateUser;
+    const { password, ...userNoSensitiveInfo } = updatedUser;
 
     return userNoSensitiveInfo;
   }

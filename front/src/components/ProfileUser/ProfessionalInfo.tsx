@@ -4,7 +4,8 @@ import { IProfileData, PasaporteUe } from "@/Interfaces/IUser";
 import { fetchUserData, updateUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { UserContext } from "../Context/UserContext";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
-import { FaPlus, FaTrash } from "react-icons/fa";
+import { FaPlus, FaTrash, FaFilePdf, FaFileWord, FaFile, FaDownload } from "react-icons/fa";
+import FileUpload from "../Cloudinary/FileUpload";
 
 // Define options for the dropdown fields
 const CATEGORIAS_OPTIONS = ["Primer Equipo", "Reserva", "Infantil", "Juvenil", "Futbol Base", "Futbol Sala", "Femenino"];
@@ -43,6 +44,9 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
   const [showErrorNotification, setShowErrorNotification] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [formData, setFormData] = useState<IProfileData>(profileData);
+  const [cvInfo, setCvInfo] = useState<{ url: string; filename: string } | null>(
+    profileData.cv ? { url: profileData.cv, filename: "CV" } : null
+  );
 
   // Initialize with an empty experience
   const emptyExperience = {
@@ -93,6 +97,11 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
       setAltura(profileData.height || 0);
       setPeso(profileData.weight || 0);
       
+      // Initialize CV information if exists
+      if (profileData.cv) {
+        setCvInfo({ url: profileData.cv, filename: "CV" });
+      }
+      
       // Initialize experiences from trayectorias
       if (profileData.trayectorias && Array.isArray(profileData.trayectorias) && profileData.trayectorias.length > 0) {
         // Map existing experiences
@@ -139,6 +148,21 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
     }
   };
 
+  const handleCvUpload = (fileInfo: { url: string; filename: string }) => {
+    setCvInfo(fileInfo);
+    setFormData(prev => ({
+      ...prev,
+      cv: fileInfo.url
+    }));
+  };
+
+  const handleDownloadCv = async () => {
+    if (cvInfo?.url) {
+      // Open CV in new tab
+      window.open(cvInfo.url, '_blank');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -167,7 +191,8 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
         skillfulFoot: pieHabil,
         height: altura,
         weight: peso,
-        trayectorias: formattedExperiences
+        trayectorias: formattedExperiences,
+        cv: cvInfo?.url || undefined
       };
 
       if (token) {
@@ -314,6 +339,50 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
               />
             </div>
           </div>
+        </div>
+        
+        {/* Sección de CV */}
+        <div className="mb-6 p-4 border border-gray-200 rounded-lg">
+          <h3 className="text-xl font-medium mb-4 text-[#1d5126]">Currículum Vitae</h3>
+          
+          {cvInfo ? (
+            <div className="mb-4">
+              <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                <div className="text-verde-oscuro">
+                  {cvInfo.filename.toLowerCase().endsWith('.pdf') ? (
+                    <FaFilePdf size={24} />
+                  ) : cvInfo.filename.toLowerCase().match(/\.(doc|docx)$/) ? (
+                    <FaFileWord size={24} />
+                  ) : (
+                    <FaFile size={24} />
+                  )}
+                </div>
+                <div className="ml-3 flex-1">
+                  <p className="text-sm font-medium text-gray-700 truncate">
+                    {cvInfo.filename.length > 20 ? cvInfo.filename.substring(0, 20) + '...' : cvInfo.filename}
+                  </p>
+                  <p className="text-xs text-gray-500">CV subido correctamente</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleDownloadCv}
+                  className="ml-4 text-verde-oscuro hover:text-verde-claro"
+                  title="Descargar CV"
+                >
+                  <FaDownload size={18} />
+                </button>
+              </div>
+              <div className="mt-3">
+                <p className="text-sm text-gray-600 mb-2">¿Quieres reemplazar tu CV actual?</p>
+                <FileUpload onUpload={handleCvUpload} fileType="cv" />
+              </div>
+            </div>
+          ) : (
+            <div>
+              <p className="text-sm text-gray-600 mb-2">Sube tu currículum en formato PDF, DOC o DOCX.</p>
+              <FileUpload onUpload={handleCvUpload} fileType="cv" />
+            </div>
+          )}
         </div>
         
         {/* Sección de trayectoria */}

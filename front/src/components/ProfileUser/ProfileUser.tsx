@@ -19,21 +19,31 @@ const Profile = () => {
       fetchUserData(token)
         .then((data) => {
           // Ensure trayectorias is initialized as an array if it doesn't exist
-          if (!data.trayectorias) {
+          if (!data.trayectorias || !Array.isArray(data.trayectorias)) {
             // If there's legacy data, convert it to the new format
             if (data.club) {
               data.trayectorias = [{
-                club: data.club || '',
-                fechaInicio: data.fechaInicio || '',
-                fechaFinalizacion: data.fechaFinalizacion || '',
-                categoriaEquipo: data.categoriaEquipo || '',
-                nivelCompetencia: data.nivelCompetencia || '',
-                logros: data.logros || ''
+                club: String(data.club || ''),
+                fechaInicio: String(data.fechaInicio || ''),
+                fechaFinalizacion: String(data.fechaFinalizacion || ''),
+                categoriaEquipo: String(data.categoriaEquipo || ''),
+                nivelCompetencia: String(data.nivelCompetencia || ''),
+                logros: String(data.logros || '')
               }];
             } else {
               // Initialize with empty array if no legacy data
               data.trayectorias = [];
             }
+          } else {
+            // Ensure each property is properly formatted
+            data.trayectorias = data.trayectorias.map((exp: any) => ({
+              club: String(exp.club || ''),
+              fechaInicio: String(exp.fechaInicio || ''),
+              fechaFinalizacion: String(exp.fechaFinalizacion || ''),
+              categoriaEquipo: String(exp.categoriaEquipo || ''),
+              nivelCompetencia: String(exp.nivelCompetencia || ''),
+              logros: String(exp.logros || '')
+            }));
           }
           setUserData(data);
         })

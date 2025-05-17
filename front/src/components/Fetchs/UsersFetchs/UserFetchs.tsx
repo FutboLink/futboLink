@@ -93,6 +93,16 @@ export const updateUserData = async (
     if (dataToSend.trayectorias) {
       // Filter out empty entries
       dataToSend.trayectorias = dataToSend.trayectorias.filter(exp => exp.club.trim() !== '');
+      
+      // Ensure each property is properly formatted
+      dataToSend.trayectorias = dataToSend.trayectorias.map(exp => ({
+        club: String(exp.club || ''),
+        fechaInicio: String(exp.fechaInicio || ''),
+        fechaFinalizacion: String(exp.fechaFinalizacion || ''),
+        categoriaEquipo: String(exp.categoriaEquipo || ''),
+        nivelCompetencia: String(exp.nivelCompetencia || ''),
+        logros: String(exp.logros || '')
+      }));
     }
     
     const response = await fetch(`${apiUrl}/user/${userId}`, {

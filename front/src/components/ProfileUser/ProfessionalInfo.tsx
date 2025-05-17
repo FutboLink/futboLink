@@ -7,7 +7,7 @@ import { NotificationsForms } from "../Notifications/NotificationsForms";
 import { FaPlus, FaTrash } from "react-icons/fa";
 
 // Define options for the dropdown fields
-const CATEGORIAS_OPTIONS = ["Primer Equipo", "Reserva", "Inferiores", "Otra"];
+const CATEGORIAS_OPTIONS = ["Primer Equipo", "Reserva", "Infantil", "Juvenil", "Futbol Base", "Futbol Sala", "Femenino"];
 const NIVEL_COMPETENCIA_OPTIONS = ["Profesional", "Amateur"];
 const PUESTO_PRINCIPAL_OPTIONS = [
   "Delantero Centro", 
@@ -56,6 +56,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
 
   // Información general del perfil
   const [primaryPosition, setPrimaryPosition] = useState<string>(profileData.primaryPosition || PUESTO_PRINCIPAL_OPTIONS[0]);
+  const [secondaryPosition, setSecondaryPosition] = useState<string>(profileData.secondaryPosition || PUESTO_PRINCIPAL_OPTIONS[0]);
   const [pasaporteUE, setPasaporteUE] = useState<string>(
     profileData.pasaporteUe === PasaporteUe.SI ? 'Sí' : 'No'
   );
@@ -83,6 +84,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
       
       // Initialize general profile information
       setPrimaryPosition(profileData.primaryPosition || PUESTO_PRINCIPAL_OPTIONS[0]);
+      setSecondaryPosition(profileData.secondaryPosition || PUESTO_PRINCIPAL_OPTIONS[0]);
       setPasaporteUE(profileData.pasaporteUe === PasaporteUe.SI ? 'Sí' : 'No');
       
       // Initialize physical data
@@ -145,16 +147,27 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
       // Filter out empty experiences
       const validExperiences = experiences.filter(exp => exp.club.trim() !== '');
       
+      // Format each experience properly
+      const formattedExperiences = validExperiences.map(exp => ({
+        club: String(exp.club || ''),
+        fechaInicio: String(exp.fechaInicio || ''),
+        fechaFinalizacion: String(exp.fechaFinalizacion || ''),
+        categoriaEquipo: String(exp.categoriaEquipo || ''),
+        nivelCompetencia: String(exp.nivelCompetencia || ''),
+        logros: String(exp.logros || '')
+      }));
+      
       // Prepare the updated data
       const updatedData = {
         ...formData,
         primaryPosition: primaryPosition,
+        secondaryPosition: secondaryPosition,
         pasaporteUe: pasaporteUE === 'Sí' ? PasaporteUe.SI : PasaporteUe.NO,
         bodyStructure: estructuraCorporal,
         skillfulFoot: pieHabil,
         height: altura,
         weight: peso,
-        trayectorias: validExperiences
+        trayectorias: formattedExperiences
       };
 
       if (token) {
@@ -199,6 +212,21 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 value={primaryPosition}
                 onChange={(e) => setPrimaryPosition(e.target.value)}
+              >
+                {PUESTO_PRINCIPAL_OPTIONS.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Puesto Secundario
+              </label>
+              <select
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                value={secondaryPosition}
+                onChange={(e) => setSecondaryPosition(e.target.value)}
               >
                 {PUESTO_PRINCIPAL_OPTIONS.map((option) => (
                   <option key={option} value={option}>{option}</option>

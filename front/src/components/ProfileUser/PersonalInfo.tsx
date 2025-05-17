@@ -487,6 +487,28 @@ useEffect(() => {
               className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
             />
           </div>
+
+          {/* Primary Position */}
+          <div className="flex flex-col">
+            <label className="text-gray-700 font-semibold text-sm pl-2">Puesto Principal:</label>
+            <input
+              type="text"
+              value={fetchedProfileData?.primaryPosition || ""}
+              readOnly
+              className="w-full p-1.5 border rounded mt-2 bg-gray-50 focus:outline-none text-gray-700"
+            />
+          </div>
+
+          {/* Secondary Position */}
+          <div className="flex flex-col">
+            <label className="text-gray-700 font-semibold text-sm pl-2">Puesto Secundario:</label>
+            <input
+              type="text"
+              value={fetchedProfileData?.secondaryPosition || ""}
+              readOnly
+              className="w-full p-1.5 border rounded mt-2 bg-gray-50 focus:outline-none text-gray-700"
+            />
+          </div>
        
         </div>
       )}

@@ -507,6 +507,22 @@ const UserProfile = () => {
                   </p>
                 </div>
               )}
+              {userData?.height && (
+                <div>
+                  <h4 className="font-semibold text-lg text-gray-800 mb-2">Altura</h4>
+                  <p className="border border-[#1d5126] bg-[#f5f5f5] text-gray-700 p-3 rounded-md shadow-sm">
+                    {userData.height} cm
+                  </p>
+                </div>
+              )}
+              {userData?.weight && (
+                <div>
+                  <h4 className="font-semibold text-lg text-gray-800 mb-2">Peso</h4>
+                  <p className="border border-[#1d5126] bg-[#f5f5f5] text-gray-700 p-3 rounded-md shadow-sm">
+                    {userData.weight} kg
+                  </p>
+                </div>
+              )}
             </div>
             <div className="bg-gray-300 h-px my-6"></div>
             <h3 className="text-xl font-semibold text-[#1d5126] border-b pb-2 mb-4">Trayectoria</h3>

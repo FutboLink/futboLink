@@ -99,11 +99,12 @@ export class UserService {
           await this.userRepository.update(id, updateData);
         }
         
-        // Then update the trayectorias field directly with SQL to ensure proper format
-        // This ensures PostgreSQL correctly understands the array format
+        // Then update the trayectorias field directly with SQL to ensure proper jsonb format
+        // This ensures PostgreSQL correctly understands the jsonb format
+        const trayectoriasJson = JSON.stringify(user.trayectorias);
         await this.userRepository.query(
-          `UPDATE users SET trayectorias = $1 WHERE id = $2`,
-          [JSON.stringify(user.trayectorias), id]
+          `UPDATE users SET trayectorias = $1::jsonb WHERE id = $2`,
+          [trayectoriasJson, id]
         );
       } catch (error) {
         throw new BadRequestException(`Error processing trayectorias: ${error.message}`);

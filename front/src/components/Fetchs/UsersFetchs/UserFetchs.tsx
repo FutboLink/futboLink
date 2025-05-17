@@ -226,33 +226,7 @@ export const contact = async (email: string, name: string, mensaje: string) => {
     console.error(error);
     return { success: false, message: "Error al conectar con el servidor." };
   }
-
-
-
 };
-
-export const uploadCv = async (userId: string, file: File) => {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  try {
-    const response = await fetch(`${apiUrl}/user/${userId}/upload-cv`, {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to upload CV");
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error uploading CV:", error);
-    throw error;
-  }
-};
-
 
 export const getCv = async (filename: string) => {
   try {

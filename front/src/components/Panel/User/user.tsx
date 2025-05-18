@@ -11,6 +11,17 @@ import Link from "next/link";
 import { FaBolt, FaCog, FaUser, FaYoutube, FaRegIdCard, FaRegCreditCard } from "react-icons/fa";
 import { checkUserSubscription, refreshUserSubscription, clearSubscriptionCache, cancelUserSubscription, SubscriptionInfo } from "@/services/SubscriptionService";
 import LanguageToggle from "@/components/LanguageToggle/LanguageToggle";
+import { fetchUserData } from "@/components/Fetchs/UsersFetchs/UserFetchs";
+
+// Añadimos una interfaz para las trayectorias
+interface Trayectoria {
+  club: string;
+  fechaInicio: string;
+  fechaFinalizacion: string;
+  categoriaEquipo: string;
+  nivelCompetencia: string;
+  logros: string;
+}
 
 const UserProfile = () => {
   const { token, logOut } = useContext(UserContext);
@@ -24,6 +35,7 @@ const UserProfile = () => {
   const [loadingSubscription, setLoadingSubscription] = useState(false);
   const [cancellingSubscription, setCancellingSubscription] = useState(false);
   const [cancelMessage, setCancelMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [localTrayectorias, setLocalTrayectorias] = useState<Trayectoria[]>([]);
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const router = useRouter();
@@ -37,11 +49,31 @@ const UserProfile = () => {
   };
 
   const getYouTubeEmbedUrl = (url: string) => {
-    if (!url) return ""; // Retorna vacío si no hay URL
-  
-    const regex = /(?:youtube\.com\/(?:.*v=|embed\/)|youtu\.be\/)([\w-]+)/;
-    const match = url.match(regex);
-    return match ? `https://www.youtube.com/embed/${match[1]}` : "";
+    if (!url) return "";
+    
+    try {
+      // Handle different YouTube URL formats
+      let videoId = null;
+      
+      if (url.includes('youtu.be/')) {
+        // Short URL format: https://youtu.be/VIDEO_ID
+        videoId = url.split('youtu.be/')[1].split('?')[0];
+      } else if (url.includes('/watch?v=')) {
+        // Standard URL format: https://www.youtube.com/watch?v=VIDEO_ID
+        videoId = new URL(url).searchParams.get('v');
+      } else if (url.includes('/embed/')) {
+        // Embed URL format: https://www.youtube.com/embed/VIDEO_ID
+        videoId = url.split('/embed/')[1].split('?')[0];
+      }
+      
+      if (videoId) {
+        return `https://www.youtube.com/embed/${videoId}`;
+      }
+    } catch (error) {
+      console.error('Error parsing YouTube URL:', error);
+    }
+    
+    return "";
   };
   
   // Check for cached subscription data
@@ -60,59 +92,63 @@ const UserProfile = () => {
 
   useEffect(() => {
     if (token) {
-      try {
-        const userId = JSON.parse(atob(token.split(".")[1])).id;
-
-        if (userId) {
-          fetch(`${apiUrl}/user/${userId}`)
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error("Failed to fetch user data");
-              }
-              return response.json();
-            })
-            .then((data) => {
-              setUserData(data);
-              
-              // After fetching user data, check subscription status
-              if (data.email) {
-                setLoadingSubscription(true);
+      // Use fetchUserData to get the data with properly processed trayectorias
+      fetchUserData(token)
+        .then((data) => {
+          // Ensure trayectorias is initialized correctly
+          if (!data.trayectorias || !Array.isArray(data.trayectorias)) {
+            // If there's legacy data, convert it to the new format
+            if (data.club) {
+              data.trayectorias = [{
+                club: String(data.club || ''),
+                fechaInicio: String(data.fechaInicio || ''),
+                fechaFinalizacion: String(data.fechaFinalizacion || ''),
+                categoriaEquipo: String(data.categoriaEquipo || ''),
+                nivelCompetencia: String(data.nivelCompetencia || ''),
+                logros: String(data.logros || '')
+              }];
+            } else {
+              // Initialize with empty array if no legacy data
+              data.trayectorias = [];
+            }
+          }
+          console.log("User data including trayectorias:", data);
+          setUserData(data);
+          
+          // After fetching user data, check subscription status
+          if (data.email) {
+            setLoadingSubscription(true);
+            
+            // Use the refresh function to ensure we get the latest data
+            refreshUserSubscription(data.email)
+              .then(subInfo => {
+                setSubscriptionInfo(subInfo);
+                // Update the cache
+                localStorage.setItem('subscriptionInfo', JSON.stringify(subInfo));
+              })
+              .catch(err => {
+                console.error("Error checking subscription:", err);
                 
-                // Use the refresh function to ensure we get the latest data
-                refreshUserSubscription(data.email)
-                  .then(subInfo => {
-                    setSubscriptionInfo(subInfo);
-                    // Update the cache
-                    localStorage.setItem('subscriptionInfo', JSON.stringify(subInfo));
+                // Fallback to regular check if refresh fails
+                checkUserSubscription(data.email)
+                  .then(regularInfo => {
+                    setSubscriptionInfo(regularInfo);
                   })
-                  .catch(err => {
-                    console.error("Error checking subscription:", err);
-                    
-                    // Fallback to regular check if refresh fails
-                    checkUserSubscription(data.email)
-                      .then(regularInfo => {
-                        setSubscriptionInfo(regularInfo);
-                      })
-                      .catch(regularErr => {
-                        console.error("Error with fallback subscription check:", regularErr);
-                      });
-                  })
-                  .finally(() => {
-                    setLoadingSubscription(false);
+                  .catch(regularErr => {
+                    console.error("Error with fallback subscription check:", regularErr);
                   });
-              }
-            })
-            .catch((error) => {
-              console.error("Error fetching user data:", error);
-              setError("Failed to load user data.");
-            });
-        }
-      } catch (error) {
-        setError("Error decoding token or fetching user data.");
-        console.error("Error:", error);
-      }
+              })
+              .finally(() => {
+                setLoadingSubscription(false);
+              });
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+          setError("Failed to load user data.");
+        });
     }
-  }, [token, apiUrl]);
+  }, [token]);
 
   // Inicializamos AOS cuando el componente se monta
   useEffect(() => {
@@ -169,6 +205,20 @@ const UserProfile = () => {
       setCancellingSubscription(false);
     }
   };
+
+  // Intentar cargar trayectorias desde localStorage
+  useEffect(() => {
+    try {
+      const storedTrayectorias = localStorage.getItem('userTrayectorias');
+      if (storedTrayectorias) {
+        const parsedTrayectorias = JSON.parse(storedTrayectorias);
+        console.log('Trayectorias encontradas en localStorage:', parsedTrayectorias);
+        setLocalTrayectorias(parsedTrayectorias);
+      }
+    } catch (err) {
+      console.error('Error al leer trayectorias desde localStorage:', err);
+    }
+  }, []);
 
   return (
     <div className="flex min-h-screen mt-24 text-black bg-gray-50 flex-col sm:flex-row">
@@ -527,6 +577,7 @@ const UserProfile = () => {
             <div className="bg-gray-300 h-px my-6"></div>
             <h3 className="text-xl font-semibold text-[#1d5126] border-b pb-2 mb-4">Trayectoria</h3>
             
+            {/* Primero intentamos mostrar las trayectorias de la API, si no hay usamos las de localStorage */}
             {userData?.trayectorias && userData.trayectorias.length > 0 ? (
               <div className="space-y-4">
                 {userData.trayectorias.map((experience, index) => (
@@ -535,13 +586,13 @@ const UserProfile = () => {
                     <div className="flex flex-wrap gap-4 mt-2 text-gray-700">
                       {experience.fechaInicio && (
                         <p className="bg-white px-3 py-1 rounded-full text-sm">
-                          <span className="font-medium">Inicio:</span> {new Date(experience.fechaInicio).toLocaleDateString()}
+                          <span className="font-medium">Inicio:</span> {new Date(experience.fechaInicio).toLocaleDateString('es-ES')}
                         </p>
                       )}
                       
                       {experience.fechaFinalizacion && (
                         <p className="bg-white px-3 py-1 rounded-full text-sm">
-                          <span className="font-medium">Fin:</span> {new Date(experience.fechaFinalizacion).toLocaleDateString()}
+                          <span className="font-medium">Fin:</span> {new Date(experience.fechaFinalizacion).toLocaleDateString('es-ES')}
                         </p>
                       )}
                       
@@ -567,46 +618,91 @@ const UserProfile = () => {
                   </div>
                 ))}
               </div>
-            ) : (
-              userData?.club ? (
-                <div className="border border-[#1d5126] bg-[#f5f5f5] p-4 rounded-md shadow-sm">
-                  <h4 className="font-semibold text-lg text-gray-800">{userData.club || "Club no especificado"}</h4>
-                  <div className="flex flex-wrap gap-4 mt-2 text-gray-700">
-                    {userData.fechaInicio && (
-                      <p className="bg-white px-3 py-1 rounded-full text-sm">
-                        <span className="font-medium">Inicio:</span> {new Date(userData.fechaInicio).toLocaleDateString()}
-                      </p>
-                    )}
+            ) : localTrayectorias && localTrayectorias.length > 0 ? (
+              // Si no hay trayectorias en la API, mostramos las que están en localStorage
+              <div className="space-y-4">
+                <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-200 mb-4">
+                  <p className="text-yellow-700 text-sm">
+                    <strong>Nota:</strong> Esta información se está mostrando desde el almacenamiento local debido a un problema temporal con el servidor.
+                  </p>
+                </div>
+                
+                {localTrayectorias.map((experience, index) => (
+                  <div key={index} className="border border-[#1d5126] bg-[#f5f5f5] p-4 rounded-md shadow-sm mb-4">
+                    <h4 className="font-semibold text-lg text-gray-800">{experience.club || "Club no especificado"}</h4>
+                    <div className="flex flex-wrap gap-4 mt-2 text-gray-700">
+                      {experience.fechaInicio && (
+                        <p className="bg-white px-3 py-1 rounded-full text-sm">
+                          <span className="font-medium">Inicio:</span> {experience.fechaInicio ? new Date(experience.fechaInicio).toLocaleDateString('es-ES') : ""}
+                        </p>
+                      )}
+                      
+                      {experience.fechaFinalizacion && (
+                        <p className="bg-white px-3 py-1 rounded-full text-sm">
+                          <span className="font-medium">Fin:</span> {experience.fechaFinalizacion ? new Date(experience.fechaFinalizacion).toLocaleDateString('es-ES') : ""}
+                        </p>
+                      )}
+                      
+                      {experience.categoriaEquipo && (
+                        <p className="bg-white px-3 py-1 rounded-full text-sm">
+                          <span className="font-medium">Categoría:</span> {experience.categoriaEquipo}
+                        </p>
+                      )}
+                      
+                      {experience.nivelCompetencia && (
+                        <p className="bg-white px-3 py-1 rounded-full text-sm">
+                          <span className="font-medium">Nivel:</span> {experience.nivelCompetencia}
+                        </p>
+                      )}
+                    </div>
                     
-                    {userData.fechaFinalizacion && (
-                      <p className="bg-white px-3 py-1 rounded-full text-sm">
-                        <span className="font-medium">Fin:</span> {new Date(userData.fechaFinalizacion).toLocaleDateString()}
-                      </p>
-                    )}
-                    
-                    {userData.categoriaEquipo && (
-                      <p className="bg-white px-3 py-1 rounded-full text-sm">
-                        <span className="font-medium">Categoría:</span> {userData.categoriaEquipo}
-                      </p>
-                    )}
-                    
-                    {userData.nivelCompetencia && (
-                      <p className="bg-white px-3 py-1 rounded-full text-sm">
-                        <span className="font-medium">Nivel:</span> {userData.nivelCompetencia}
-                      </p>
+                    {experience.logros && (
+                      <div className="mt-3 bg-white p-3 rounded-md">
+                        <p className="font-medium text-gray-800">Logros:</p>
+                        <p className="text-gray-700">{experience.logros}</p>
+                      </div>
                     )}
                   </div>
+                ))}
+              </div>
+            ) : userData?.club ? (
+              <div className="border border-[#1d5126] bg-[#f5f5f5] p-4 rounded-md shadow-sm">
+                <h4 className="font-semibold text-lg text-gray-800">{userData.club || "Club no especificado"}</h4>
+                <div className="flex flex-wrap gap-4 mt-2 text-gray-700">
+                  {userData.fechaInicio && (
+                    <p className="bg-white px-3 py-1 rounded-full text-sm">
+                      <span className="font-medium">Inicio:</span> {new Date(userData.fechaInicio).toLocaleDateString('es-ES')}
+                    </p>
+                  )}
                   
-                  {userData.logros && (
-                    <div className="mt-3 bg-white p-3 rounded-md">
-                      <p className="font-medium text-gray-800">Logros:</p>
-                      <p className="text-gray-700">{userData.logros}</p>
-                    </div>
+                  {userData.fechaFinalizacion && (
+                    <p className="bg-white px-3 py-1 rounded-full text-sm">
+                      <span className="font-medium">Fin:</span> {new Date(userData.fechaFinalizacion).toLocaleDateString('es-ES')}
+                    </p>
+                  )}
+                  
+                  {userData.categoriaEquipo && (
+                    <p className="bg-white px-3 py-1 rounded-full text-sm">
+                      <span className="font-medium">Categoría:</span> {userData.categoriaEquipo}
+                    </p>
+                  )}
+                  
+                  {userData.nivelCompetencia && (
+                    <p className="bg-white px-3 py-1 rounded-full text-sm">
+                      <span className="font-medium">Nivel:</span> {userData.nivelCompetencia}
+                    </p>
                   )}
                 </div>
-              ) : (
-                <p className="text-gray-500 italic">No hay información de trayectoria disponible</p>
-              )
+                
+                {userData.logros && (
+                  <div className="mt-3 bg-white p-3 rounded-md">
+                    <p className="font-medium text-gray-800">Logros:</p>
+                    <p className="text-gray-700">{userData.logros}</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-gray-500 italic">No hay información de trayectoria disponible</p>
             )}
           </div>
         )}

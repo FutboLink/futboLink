@@ -62,7 +62,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
         };
 
         localStorage.setItem("user", JSON.stringify(userData));
-        
+
         // Also store email directly for more reliable access
         localStorage.setItem("userEmail", credentials.email);
         console.log("Stored user email in localStorage:", credentials.email);

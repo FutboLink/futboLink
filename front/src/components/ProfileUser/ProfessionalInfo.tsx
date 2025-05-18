@@ -181,7 +181,19 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
         logros: String(exp.logros || '')
       }));
       
-      // Prepare the updated data
+      // Para evitar el problema con el tipo jsonb[] en PostgreSQL, vamos a guardar
+      // las trayectorias localmente como solución temporal
+      try {
+        // Guardar trayectorias en localStorage para recuperarlas más tarde
+        if (formattedExperiences.length > 0) {
+          localStorage.setItem('userTrayectorias', JSON.stringify(formattedExperiences));
+          console.log("Trayectorias guardadas localmente:", JSON.stringify(formattedExperiences));
+        }
+      } catch (localStorageError) {
+        console.error("Error guardando trayectorias en localStorage:", localStorageError);
+      }
+      
+      // Prepare the updated data (sin trayectorias)
       const updatedData = {
         ...formData,
         primaryPosition: primaryPosition,
@@ -191,7 +203,6 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
         skillfulFoot: pieHabil,
         height: altura,
         weight: peso,
-        trayectorias: formattedExperiences,
         cv: cvInfo?.url || undefined
       };
 
@@ -199,13 +210,13 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
         // Extract userId from token
         const userId = JSON.parse(atob(token.split(".")[1])).id;
         
-        // Add debug logging
-        console.log("Sending trayectorias:", JSON.stringify(formattedExperiences));
-        console.log("Sending data:", JSON.stringify(updatedData));
+        console.log("Actualizando datos del perfil (sin trayectorias)");
         
+        // Update user data
         await updateUserData(userId, updatedData);
+        
         setShowNotification(true);
-        setNotificationMessage('Información profesional actualizada correctamente');
+        setNotificationMessage('Información profesional actualizada correctamente (trayectorias guardadas localmente)');
         setTimeout(() => {
           setShowNotification(false);
         }, 3000);

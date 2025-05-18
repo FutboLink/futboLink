@@ -89,48 +89,67 @@ export const updateUserData = async (
     // Create a copy of the data to avoid modifying the original
     const dataToSend = { ...formData };
     
-    // Make sure trayectorias is properly formatted for the backend
-    if (dataToSend.trayectorias) {
-      // Filter out empty entries
-      const validTrayectorias = dataToSend.trayectorias.filter(exp => exp.club.trim() !== '');
+    // Verificar si hay trayectorias para formatear correctamente
+    if (dataToSend.trayectorias && Array.isArray(dataToSend.trayectorias)) {
+      // Formatear cada trayectoria correctamente
+      const formattedTrayectorias = dataToSend.trayectorias
+        .filter(exp => exp.club && exp.club.trim() !== '')
+        .map(exp => ({
+          club: String(exp.club || ''),
+          fechaInicio: String(exp.fechaInicio || ''),
+          fechaFinalizacion: String(exp.fechaFinalizacion || ''),
+          categoriaEquipo: String(exp.categoriaEquipo || ''),
+          nivelCompetencia: String(exp.nivelCompetencia || ''),
+          logros: String(exp.logros || '')
+        }));
       
-      // Ensure each property is properly formatted
-      const formattedTrayectorias = validTrayectorias.map(exp => ({
-        club: String(exp.club || ''),
-        fechaInicio: String(exp.fechaInicio || ''),
-        fechaFinalizacion: String(exp.fechaFinalizacion || ''),
-        categoriaEquipo: String(exp.categoriaEquipo || ''),
-        nivelCompetencia: String(exp.nivelCompetencia || ''),
-        logros: String(exp.logros || '')
-      }));
-      
-      // PostgreSQL expects a specific format for jsonb arrays
-      // Since the column is defined as jsonb, we send it as a stringified JSON
+      // Para PostgreSQL, debemos formatear las trayectorias como un arreglo
+      // pero enviarlo como un string para que el servidor pueda convertirlo a jsonb[]
       dataToSend.trayectorias = formattedTrayectorias;
       
-      // Log the formatted data for debugging
-      console.log("Formatted trayectorias:", JSON.stringify(dataToSend.trayectorias));
+      console.log("Trayectorias formateadas:", JSON.stringify(dataToSend.trayectorias));
     }
     
-    // Deep clone and stringify nested objects for proper JSON serialization
-    const stringifiedData = JSON.stringify(dataToSend);
-    const finalData = JSON.parse(stringifiedData);
-    
-    console.log("Final data being sent:", stringifiedData);
-    
-    const response = await fetch(`${apiUrl}/user/${userId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: stringifiedData, // Use the properly stringified data
+    // Remove any undefined values that might cause issues
+    Object.keys(dataToSend).forEach(key => {
+      if ((dataToSend as any)[key] === undefined) {
+        delete (dataToSend as any)[key];
+      }
     });
-
+    
+    console.log("Enviando datos completos:", JSON.stringify(dataToSend));
+    
+    // Vamos a acceder directamente a la ruta del backend para la actualización
+    // Esto evita cualquier transformación intermedia que pueda estar causando problemas
+    const fullApiUrl = `${apiUrl}/user/${userId}`;
+    console.log("Enviando petición a:", fullApiUrl);
+    
+    const headers = {
+      "Content-Type": "application/json",
+      // Añadir un header personalizado para indicar al backend que debe tratar las trayectorias
+      // como un array de jsonb, en caso de que el backend esté configurado para leer este header
+      "X-Special-Array-Format": "jsonb-array"
+    };
+    
+    // Enviar la solicitud con los datos completos
+    const response = await fetch(fullApiUrl, {
+      method: "PUT",
+      headers: headers,
+      body: JSON.stringify(dataToSend)
+    });
+    
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Error al actualizar los datos.");
+      // Si obtenemos un error, intentar leer el mensaje de error
+      try {
+        const errorData = await response.json();
+        console.error("Error de respuesta:", errorData);
+        throw new Error(errorData.message || "Error al actualizar los datos.");
+      } catch (parseError) {
+        // Si no pudimos parsear el error, lanzar uno genérico
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
     }
-
+    
     return await response.json();
   } catch (error) {
     console.error("Error actualizando los datos:", error);

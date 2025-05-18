@@ -100,12 +100,23 @@ export class UserService {
         }
         
         // Then update the trayectorias field directly with SQL to ensure proper jsonb format
-        // This ensures PostgreSQL correctly understands the jsonb format
-        const trayectoriasJson = JSON.stringify(user.trayectorias);
-        await this.userRepository.query(
-          `UPDATE users SET trayectorias = $1::jsonb[] WHERE id = $2`,
-          [trayectoriasJson, id]
-        );
+        if (Array.isArray(user.trayectorias) && user.trayectorias.length > 0) {
+          // If we have items in the array, we'll convert each item to a jsonb object
+          const trayectoriasItems = user.trayectorias.map(item => 
+            `'${JSON.stringify(item).replace(/'/g, "''")}'::jsonb`
+          ).join(',');
+          
+          await this.userRepository.query(
+            `UPDATE users SET trayectorias = ARRAY[${trayectoriasItems}]::jsonb[] WHERE id = $1`,
+            [id]
+          );
+        } else {
+          // For empty arrays, use a direct empty array cast
+          await this.userRepository.query(
+            `UPDATE users SET trayectorias = ARRAY[]::jsonb[] WHERE id = $1`,
+            [id]
+          );
+        }
       } catch (error) {
         throw new BadRequestException(`Error processing trayectorias: ${error.message}`);
       }

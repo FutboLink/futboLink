@@ -54,18 +54,18 @@ export function Subscription() {
         { text: "Accede a entrenamientos con descuento", available: true },
         { text: "Perfil Destacado", available: true },
       ],
-      monthlyPrice: "€9,95",
-      yearlyPrice: "€95,88 Anual (-20%)",
+      monthlyPrice: "€7,95",
+      yearlyPrice: "€75,95 Anual (-20%)",
       buttonLabel: "Contratar",
       bgColor: "bg-gradient-to-b from-[#255b2d] to-[#1d5126]",
       textColor: "text-white",
       borderColor: "border-verde-oscuro",
       buttonColor: "bg-white text-verde-oscuro hover:bg-gray-100",
       priceId: {
-        monthly: "price_1RP80ZGbCHvHfqXF9CqoLtnt",
-        yearly: "price_1RP80ZGbCHvHfqXF9CqoLtnt" 
+        monthly: "price_1R7MaqGbCHvHfqXFimcCzvlo",
+        yearly: "price_1R7MbgGbCHvHfqXFYECGw8S9" 
       },
-      productId: "prod_SJlX3qKmAGTGw6",
+      productId: "prod_S1PP1zfIAIwheC",
       recommended: true,
     },
   ];

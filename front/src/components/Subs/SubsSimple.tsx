@@ -100,8 +100,8 @@ export default function SubsSimple() {
         },
         body: JSON.stringify({
           customerEmail: userEmail,
-          priceId: 'price_1RP80ZGbCHvHfqXF9CqoLtnt',
-          productId: 'prod_SJlX3qKmAGTGw6',
+          priceId: 'price_1R7MaqGbCHvHfqXFimcCzvlo',
+          productId: 'prod_S1PP1zfIAIwheC',
           description: 'FutboLink Premium Subscription',
           successUrl: `${window.location.origin}/payment/success`,
           cancelUrl: `${window.location.origin}/payment/cancel`,
@@ -139,7 +139,7 @@ export default function SubsSimple() {
       <h1 className="text-2xl font-bold text-center mb-6">Premium Subscription</h1>
       
       <div className="mb-6 text-center">
-        <p className="text-lg font-semibold">€10.00/month</p>
+        <p className="text-lg font-semibold">€7.95/month</p>
         <p className="text-gray-600">Access to all premium features</p>
       </div>
       

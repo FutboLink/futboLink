@@ -8,6 +8,7 @@ import "swiper/css/pagination";
 import { ISuccessCase } from "@/Interfaces/ISuccessCase";
 import { fetchAllSuccessCases } from "../Fetchs/SuccessCasesFetchs";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 // Datos de ejemplo por si falla la API
 const fallbackData = [
@@ -57,7 +58,7 @@ const ClientsSwiper: React.FC = () => {
   const [successCases, setSuccessCases] = useState<ISuccessCase[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCase, setSelectedCase] = useState<ISuccessCase | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const loadSuccessCases = async () => {
@@ -71,7 +72,6 @@ const ClientsSwiper: React.FC = () => {
         setSuccessCases(publishedCases.length > 0 ? publishedCases : fallbackData);
       } catch (err) {
         console.error("Error al cargar casos de éxito:", err);
-        setError("No se pudieron cargar los casos de éxito");
         setSuccessCases(fallbackData);
       } finally {
         setLoading(false);
@@ -81,21 +81,10 @@ const ClientsSwiper: React.FC = () => {
     loadSuccessCases();
   }, []);
 
-  // Función para abrir el modal de detalles
-  const openCaseDetails = (successCase: ISuccessCase) => {
-    setSelectedCase(successCase);
-    
-    // Desplazar al usuario a la parte superior de la pantalla
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    // Evitar scroll del body cuando el modal está abierto
-    document.body.style.overflow = 'hidden';
-  };
-
-  // Función para cerrar el modal
-  const closeModal = () => {
-    setSelectedCase(null);
-    document.body.style.overflow = 'auto';
+  // Función para navegar a la página de detalles
+  const navigateToCase = (caseId: string | undefined) => {
+    if (!caseId) return;
+    router.push(`/casos-de-exito/${caseId}`);
   };
 
   if (loading) {
@@ -157,7 +146,7 @@ const ClientsSwiper: React.FC = () => {
                 <img
                   src={successCase.imgUrl}
                   alt={successCase.name}
-                  className="object-cover rounded-xl w-full h-full"
+                  className="object-contain rounded-xl w-full h-full"
                 />
               </div>
               <h3 className="text-lg font-semibold text-[#1d5126] mt-2">
@@ -168,7 +157,7 @@ const ClientsSwiper: React.FC = () => {
                 {successCase.testimonial}
               </p>
               <button
-                onClick={() => openCaseDetails(successCase)}
+                onClick={() => navigateToCase(successCase.id)}
                 className="mt-4 px-4 py-2 bg-[#1d5126] text-white rounded-md hover:bg-[#3e7c27] transition-colors"
               >
                 Leer más
@@ -178,68 +167,6 @@ const ClientsSwiper: React.FC = () => {
         </Swiper>
         <div className="swiper-pagination mt-8"></div>
       </div>
-
-      {/* Modal de detalles */}
-      {selectedCase && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div className="relative">
-              <button
-                onClick={closeModal}
-                className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full bg-[#1d5126] text-white hover:bg-[#3e7c27] transition-colors"
-              >
-                &times;
-              </button>
-              
-              <div className="p-6">
-                <div className="flex flex-col md:flex-row gap-6">
-                  <div className="md:w-1/3">
-                    <div className="w-full h-64 overflow-hidden rounded-lg">
-                      <img
-                        src={selectedCase.imgUrl}
-                        alt={selectedCase.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="md:w-2/3">
-                    <h2 className="text-2xl font-bold text-[#1d5126] mb-2">{selectedCase.name}</h2>
-                    <p className="text-gray-600 mb-4">{selectedCase.role}</p>
-                    
-                    <div className="prose max-w-none">
-                      <p className="text-gray-800 italic mb-6">
-                        "{selectedCase.testimonial}"
-                      </p>
-                      
-                      {selectedCase.longDescription ? (
-                        <div className="mt-4 text-gray-700">
-                          {selectedCase.longDescription.split('\n').map((paragraph, i) => (
-                            <p key={i} className="mb-4">{paragraph}</p>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-gray-700">
-                          Esta historia de éxito muestra cómo FutboLink puede ayudar a los jugadores a alcanzar sus metas y conectar con oportunidades en todo el mundo.
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="mt-8 flex justify-end">
-                  <button
-                    onClick={closeModal}
-                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
-                  >
-                    Cerrar
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 };

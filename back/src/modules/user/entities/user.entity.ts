@@ -133,13 +133,13 @@ export class User {
   @ApiProperty({ example: [{ club: "FC Barcelona", fechaInicio: "2020-01-01", fechaFinalizacion: "2023-01-01", categoriaEquipo: "Primer Equipo", nivelCompetencia: "Profesional", logros: "Campeón liga" }], description: 'Trayectorias del usuario', nullable: true })
   @Column('jsonb', { nullable: true, default: () => "'[]'" })
   trayectorias?: {
-    club: string;
-    fechaInicio: string;
-    fechaFinalizacion: string;
-    categoriaEquipo: string;
-    nivelCompetencia: string;
-    logros: string;
-  }[];
+  club: string;
+  fechaInicio: string;
+  fechaFinalizacion: string;
+  categoriaEquipo: string;
+  nivelCompetencia: string;
+  logros: string;
+ }[];
 
 
   @ApiProperty({

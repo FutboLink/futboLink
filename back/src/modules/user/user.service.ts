@@ -103,7 +103,7 @@ export class UserService {
         // This ensures PostgreSQL correctly understands the jsonb format
         const trayectoriasJson = JSON.stringify(user.trayectorias);
         await this.userRepository.query(
-          `UPDATE users SET trayectorias = $1::jsonb WHERE id = $2`,
+          `UPDATE users SET trayectorias = $1::jsonb[] WHERE id = $2`,
           [trayectoriasJson, id]
         );
       } catch (error) {

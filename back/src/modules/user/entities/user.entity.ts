@@ -131,7 +131,7 @@ export class User {
   videoUrl?: string;
 
   @ApiProperty({ example: [{ club: "FC Barcelona", fechaInicio: "2020-01-01", fechaFinalizacion: "2023-01-01", categoriaEquipo: "Primer Equipo", nivelCompetencia: "Profesional", logros: "Campeón liga" }], description: 'Trayectorias del usuario', nullable: true })
-  @Column('jsonb', { array: true, nullable: true, default: () => "'[]'" })
+  @Column('jsonb', { array: true, nullable: true, default: () => "ARRAY[]::jsonb[]" })
   trayectorias?: {
   club: string;
   fechaInicio: string;

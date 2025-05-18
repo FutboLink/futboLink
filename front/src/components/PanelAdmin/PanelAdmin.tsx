@@ -13,6 +13,7 @@ import Offer from "./Ofertas/Offer";
 import AllApplications from "./Applications/AllApplications";
 import { PiSoccerBall } from "react-icons/pi";
 import { FaX } from "react-icons/fa6";
+import SuccessCasesAdmin from "./SuccessCasesAdmin";
 
 const PanelAdmin = () => {
   const {token,logOut} = useContext(UserContext);
@@ -126,7 +127,15 @@ const PanelAdmin = () => {
 
               </button>
             </li>
-           
+            <li>
+              <button
+                onClick={() => handleSectionChange("successCases")}
+                className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
+                >
+                <PiSoccerBall className="text-white text-lg" />
+                <span className="text-white">Casos de Éxito</span>
+              </button>
+            </li>
           </ul>
         </nav>
         <button
@@ -198,40 +207,40 @@ const PanelAdmin = () => {
           </Link>
         </div>
       </div>
-
-
+      
+      {/* Otras secciones del perfil */}
+      
     </div>
-
-
-    
-
-
   </div>
 )}
 
-        {/* Sección de Habilidades */}
-        {activeSection === "postulaciones" && (
-          <div
-            className="bg-white p-6 rounded-lg shadow-lg mb-6"
-            data-aos="fade-up"
-          >
-          <AllApplications/>
+{/* Sección de Postulaciones */}
+{activeSection === "postulaciones" && (
+  <div
+    className="bg-white p-6 rounded-xl shadow-lg"
+    data-aos="fade-up"
+  >
+    <AllApplications />
+  </div>
+)}
 
-          </div>
-        )}
+{/* Sección de Estadísticas de Ofertas */}
+{activeSection === "appliedOffers" && (
+  <div
+    className="bg-white p-6 rounded-xl shadow-lg"
+    data-aos="fade-up"
+  >
+    <Offer />
+  </div>
+)}
 
-        {/* Sección de Ofertas Aplicadas */}
-        {activeSection === "appliedOffers" && (
-          <div
-            className="bg-white p-6 rounded-lg shadow-lg mb-6"
-            data-aos="fade-up"
-          >
-          <Offer/>
-          </div>
-        )}
-
-       
-       </div>
+{/* Sección de Casos de Éxito */}
+{activeSection === "successCases" && (
+  <div className="bg-white p-6 rounded-xl shadow-lg">
+    <SuccessCasesAdmin />
+  </div>
+)}
+</div>
    
     </div>
   );

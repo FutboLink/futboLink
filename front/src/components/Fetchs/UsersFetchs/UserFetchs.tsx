@@ -92,10 +92,10 @@ export const updateUserData = async (
     // Make sure trayectorias is properly formatted for the backend
     if (dataToSend.trayectorias) {
       // Filter out empty entries
-      dataToSend.trayectorias = dataToSend.trayectorias.filter(exp => exp.club.trim() !== '');
+      const validTrayectorias = dataToSend.trayectorias.filter(exp => exp.club.trim() !== '');
       
       // Ensure each property is properly formatted
-      dataToSend.trayectorias = dataToSend.trayectorias.map(exp => ({
+      const formattedTrayectorias = validTrayectorias.map(exp => ({
         club: String(exp.club || ''),
         fechaInicio: String(exp.fechaInicio || ''),
         fechaFinalizacion: String(exp.fechaFinalizacion || ''),
@@ -103,14 +103,27 @@ export const updateUserData = async (
         nivelCompetencia: String(exp.nivelCompetencia || ''),
         logros: String(exp.logros || '')
       }));
+      
+      // PostgreSQL expects a specific format for jsonb arrays
+      // Since the column is defined as jsonb, we send it as a stringified JSON
+      dataToSend.trayectorias = formattedTrayectorias;
+      
+      // Log the formatted data for debugging
+      console.log("Formatted trayectorias:", JSON.stringify(dataToSend.trayectorias));
     }
+    
+    // Deep clone and stringify nested objects for proper JSON serialization
+    const stringifiedData = JSON.stringify(dataToSend);
+    const finalData = JSON.parse(stringifiedData);
+    
+    console.log("Final data being sent:", stringifiedData);
     
     const response = await fetch(`${apiUrl}/user/${userId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(dataToSend),
+      body: stringifiedData, // Use the properly stringified data
     });
 
     if (!response.ok) {

@@ -199,6 +199,8 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
         // Extract userId from token
         const userId = JSON.parse(atob(token.split(".")[1])).id;
         
+        // Add debug logging
+        console.log("Sending trayectorias:", JSON.stringify(formattedExperiences));
         console.log("Sending data:", JSON.stringify(updatedData));
         
         await updateUserData(userId, updatedData);

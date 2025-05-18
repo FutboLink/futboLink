@@ -9,9 +9,9 @@ interface FileUploadProps {
 
 // Get Cloudinary configuration from environment with fallbacks
 const getCloudinaryConfig = () => {
-  // First check client-side env
-  let cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  let uploadPreset = process.env.NEXT_PUBLIC_UPLOAD_PRESET;
+  // Get values from environment variables
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const uploadPreset = process.env.NEXT_PUBLIC_UPLOAD_PRESET;
   
   // Log available values for debugging
   console.log("Environment variables:", {
@@ -19,68 +19,13 @@ const getCloudinaryConfig = () => {
     uploadPreset
   });
   
-  // Default fallbacks - these values need to be verified in Cloudinary dashboard
-  if (!cloudName) cloudName = "futbolink"; // Updated with correct cloud name
-  if (!uploadPreset) uploadPreset = "futbolink_upload"; // Updated with correct upload preset
-  
   return { cloudName, uploadPreset };
 };
 
-// Test Cloudinary configuration by making a small request
-const testCloudinaryConfig = async () => {
+// Simplified function to just check if a config exists
+const hasCloudinaryConfig = () => {
   const { cloudName, uploadPreset } = getCloudinaryConfig();
-  
-  // Try to fetch the Cloudinary API to check configuration
-  try {
-    const infoUrl = `https://api.cloudinary.com/v1_1/${cloudName}/usage`;
-    const response = await fetch(infoUrl);
-    
-    // This will likely fail without API key/secret, but it allows us to check if the cloud_name exists
-    // If we get a 404, the cloud_name is invalid
-    // If we get a 401, the cloud_name exists but we need auth (expected)
-    
-    if (response.status === 404) {
-      console.error("Cloudinary configuration error: Invalid cloud name");
-      return { valid: false, message: "El nombre de nube de Cloudinary no es válido" };
-    }
-    
-    // For the upload preset, we need to make a different check
-    // Create a tiny test file (1x1 transparent pixel as base64)
-    const tinyPixel = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-    const blob = await (await fetch(tinyPixel)).blob();
-    const testFile = new File([blob], "test-pixel.gif", { type: "image/gif" });
-    
-    // Create form data for a test upload
-    const formData = new FormData();
-    formData.append("file", testFile);
-    formData.append("upload_preset", uploadPreset);
-    
-    // Attempt to upload the test pixel
-    const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
-    const uploadResponse = await fetch(uploadUrl, {
-      method: "POST",
-      body: formData
-    });
-    
-    const uploadData = await uploadResponse.json();
-    
-    if (!uploadResponse.ok) {
-      if (uploadData.error && uploadData.error.message.includes("Upload preset not found")) {
-        console.error("Cloudinary configuration error: Invalid upload preset", uploadData);
-        return { valid: false, message: "El preset de subida de Cloudinary no es válido" };
-      }
-      
-      console.error("Cloudinary configuration error during test upload:", uploadData);
-      return { valid: false, message: `Error en la configuración de Cloudinary: ${uploadData.error?.message || "Error desconocido"}` };
-    }
-    
-    console.log("Cloudinary configuration test successful");
-    return { valid: true };
-    
-  } catch (error) {
-    console.error("Error testing Cloudinary configuration:", error);
-    return { valid: false, message: "No se pudo verificar la configuración de Cloudinary" };
-  }
+  return Boolean(cloudName && uploadPreset);
 };
 
 const FileUpload: React.FC<FileUploadProps> = ({ onUpload, fileType = "cv" }) => {
@@ -93,27 +38,21 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUpload, fileType = "cv" }) =>
   const [error, setError] = useState<string | null>(null);
   const [urlError, setUrlError] = useState<string | null>(null);
   const [debug, setDebug] = useState<string | null>(null);
-  const [cloudinaryConfigValid, setCloudinaryConfigValid] = useState<boolean | null>(null);
+  const [cloudinaryConfigValid, setCloudinaryConfigValid] = useState<boolean>(true);
   
-  // Test Cloudinary configuration on component mount
+  // No need for the test anymore, just check if config exists
   useEffect(() => {
-    const checkConfig = async () => {
-      try {
-        const configTest = await testCloudinaryConfig();
-        setCloudinaryConfigValid(configTest.valid);
-        
-        if (!configTest.valid) {
-          setError(`Error de configuración de Cloudinary: ${configTest.message}`);
-          console.error("Cloudinary configuration is invalid:", configTest.message);
-        }
-      } catch (err) {
-        console.error("Error checking Cloudinary config:", err);
-        setCloudinaryConfigValid(false);
-        setError("No se pudo verificar la configuración de Cloudinary");
-      }
-    };
+    const hasConfig = hasCloudinaryConfig();
+    setCloudinaryConfigValid(hasConfig);
     
-    checkConfig();
+    if (!hasConfig) {
+      setError("La configuración de Cloudinary no está disponible. Usa la opción de URL directa.");
+      console.error("Cloudinary configuration missing. Check your .env.local file for NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME and NEXT_PUBLIC_UPLOAD_PRESET");
+    } else {
+      // Display configuration in console for debugging
+      const { cloudName, uploadPreset } = getCloudinaryConfig();
+      console.log(`Cloudinary config loaded: cloudName=${cloudName}, preset=${uploadPreset}`);
+    }
   }, []);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -232,8 +171,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUpload, fileType = "cv" }) =>
       return;
     }
     
-    if (cloudinaryConfigValid === false) {
-      setError("La configuración de Cloudinary no es válida. Por favor, contacta al administrador.");
+    if (!cloudinaryConfigValid) {
+      setError("La configuración de Cloudinary no es válida. Por favor, usa la opción de URL directa.");
       return;
     }
 
@@ -271,21 +210,31 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUpload, fileType = "cv" }) =>
       // Get Cloudinary configuration with fallbacks
       const { cloudName, uploadPreset } = getCloudinaryConfig();
       
-      // Validate configuration
-      if (!cloudName || !uploadPreset) {
-        throw new Error('La configuración de Cloudinary es incorrecta. Por favor, contacta al administrador.');
-      }
-      
       setDebug(`Usando Cloudinary: ${cloudName} / ${uploadPreset}`);
       
-      const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
+      // Try with 'image' endpoint first, which sometimes works better for file uploads
+      let cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+      
+      if (file.type.includes('pdf') || file.type.includes('word')) {
+        // Use 'auto' or 'raw' for non-image files
+        cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
+      }
       
       // Create form data for the file upload
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("upload_preset", uploadPreset);
+      
+      // Ensure uploadPreset is a string
+      if (uploadPreset) {
+        formData.append("upload_preset", uploadPreset);
+      } else {
+        throw new Error("Upload preset no configurado. Por favor, verifica la configuración de Cloudinary.");
+      }
+      
       formData.append("folder", "cvs"); // Store in 'cvs' folder
-      formData.append("resource_type", "auto"); // Auto-detect resource type
+      
+      // Try without resource_type which sometimes can cause issues
+      // formData.append("resource_type", "auto"); 
 
       // Upload to Cloudinary
       setDebug(`Enviando archivo a ${cloudinaryUrl}...`);
@@ -304,6 +253,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUpload, fileType = "cv" }) =>
         
         // Log the data for debugging
         console.log("Cloudinary response:", data);
+        console.log("Cloudinary error details:", JSON.stringify(data));
         
         if (!response.ok) {
           console.error("Cloudinary error - status not OK:", data);
@@ -311,13 +261,14 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUpload, fileType = "cv" }) =>
           // Special handling for common errors
           if (data.error && data.error.message) {
             if (data.error.message.includes("Upload preset not found")) {
-              throw new Error("El preset de subida de Cloudinary no es válido. Por favor, contacta al administrador.");
+              console.error(`Cloudinary error: Upload preset "${uploadPreset}" not found. Please create this preset in your Cloudinary dashboard.`);
+              throw new Error("El preset de subida de Cloudinary no existe. Necesitas crear un 'Upload Preset' sin firma en tu dashboard de Cloudinary.");
             }
             
             throw new Error(`Error de Cloudinary: ${data.error.message}`);
           }
           
-          throw new Error(`Error ${response.status}: ${data.error?.message || "Error desconocido"}`);
+          throw new Error(`Error ${response.status}: ${JSON.stringify(data)}`);
         }
         
         if (!data.secure_url) {
@@ -363,16 +314,12 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUpload, fileType = "cv" }) =>
 
   return (
     <div className="mb-4">
-      {cloudinaryConfigValid === null && (
-        <p className="text-blue-500 text-xs mb-2">Verificando configuración de Cloudinary...</p>
-      )}
-      
       <input
         type="file"
         accept={fileType === "cv" ? ".pdf,.doc,.docx" : "*/*"}
         onChange={handleFileChange}
         className="block w-full text-sm text-gray-700 border border-gray-200 rounded-lg p-2"
-        disabled={cloudinaryConfigValid === false}
+        disabled={!cloudinaryConfigValid}
       />
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
       {debug && <p className="text-blue-500 text-xs mt-1">{debug}</p>}
@@ -380,19 +327,85 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUpload, fileType = "cv" }) =>
       
       <button
         onClick={uploadFile}
-        disabled={uploading || !file || cloudinaryConfigValid === false}
+        disabled={uploading || !file || !cloudinaryConfigValid}
         className={`mt-2 w-2/5 rounded-lg p-2 text-white ${
-          uploading || !file || cloudinaryConfigValid === false ? "bg-gray-400" : "bg-verde-oscuro hover:bg-verde-claro"
+          uploading || !file || !cloudinaryConfigValid ? "bg-gray-400" : "bg-verde-oscuro hover:bg-verde-claro"
         }`}
       >
         {uploading ? "Subiendo..." : "Subir Archivo"}
       </button>
       
-      {cloudinaryConfigValid === false && (
+      {!cloudinaryConfigValid && (
         <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-red-600 text-xs font-medium">
-            No se puede subir archivos porque la configuración de Cloudinary no es válida. 
-            Como alternativa, puedes usar la opción de URL directa a continuación.
+            No se puede subir archivos porque la configuración de Cloudinary no está disponible. 
+            Por favor usa la opción de URL directa a continuación.
+          </p>
+        </div>
+      )}
+      
+      {error && error.includes("Cloudinary") && (
+        <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-yellow-700 text-xs font-medium">
+            Hay problemas con la subida directa de archivos. Te recomendamos estas alternativas:
+          </p>
+          <ul className="list-disc pl-5 text-xs text-yellow-600 mt-2">
+            <li className="mb-1">
+              <a 
+                href="https://drive.google.com/drive/my-drive" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                Sube tu CV a Google Drive
+              </a> y luego comparte un enlace público
+            </li>
+            <li className="mb-1">
+              <a 
+                href="https://www.dropbox.com/home" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                Sube tu CV a Dropbox
+              </a> y obtén un enlace compartido
+            </li>
+            <li>Usa cualquier otro servicio de alojamiento de archivos y copia la URL directa abajo</li>
+          </ul>
+        </div>
+      )}
+      
+      {error && error.includes("preset") && (
+        <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-yellow-700 text-xs font-medium">
+            Para que funcione la subida de archivos, debes configurar Cloudinary correctamente:
+          </p>
+          <ol className="list-decimal pl-5 text-xs text-yellow-600 mt-2">
+            <li className="mb-1">
+              Ingresa a tu <a 
+                href="https://console.cloudinary.com/settings/upload" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                Cloudinary Dashboard → Settings → Upload
+              </a>
+            </li>
+            <li className="mb-1">
+              Busca la sección "Upload presets" y haz clic en "Add upload preset"
+            </li>
+            <li className="mb-1">
+              En "Preset name", escribe <strong>futbolink_preset</strong> (el mismo que está en tu .env.local)
+            </li>
+            <li className="mb-1">
+              En "Signing Mode", selecciona <strong>Unsigned</strong>
+            </li>
+            <li className="mb-1">
+              Guarda el preset y vuelve a intentar subir tu archivo
+            </li>
+          </ol>
+          <p className="text-xs text-yellow-700 mt-2 font-medium">
+            Mientras tanto, puedes usar las alternativas sugeridas abajo ↓
           </p>
         </div>
       )}

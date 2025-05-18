@@ -23,7 +23,7 @@ export default function PaymentCancelPage() {
           </p>
           
           <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
-            <Link href="/subs" className="inline-block rounded-md border border-transparent bg-verde-claro py-2 px-4 text-base font-medium text-white hover:bg-verde-oscuro">
+            <Link href="/Subs" className="inline-block rounded-md border border-transparent bg-verde-claro py-2 px-4 text-base font-medium text-white hover:bg-verde-oscuro">
               Volver a planes
             </Link>
             

@@ -6,7 +6,10 @@ import ModalApplication from "@/components/Applications/ModalApplications";
 import { UserContext } from "@/components/Context/UserContext";
 import Notification from "./Notification";
 
-const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
+const CardOffer: React.FC<{ 
+  offer: IOfferCard;
+  handleApplyClick?: () => void;
+}> = ({ offer, handleApplyClick }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showNotification, setShowNotification] = useState(false); 
   const { token } = useContext(UserContext);
@@ -25,7 +28,14 @@ const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
 
   const userId = token ? decodeToken(token).id : null;
 
-  const handleApplyClick = () => {
+  const handleApplyClickInternal = () => {
+    if (handleApplyClick) {
+      // Use the passed prop if available
+      handleApplyClick();
+      return;
+    }
+    
+    // Default behavior if no prop is passed
     if (!token) {
       setShowNotification(true); // Mostrar la notificación si no hay token
       return;
@@ -98,7 +108,7 @@ const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
             Ver más
           </Link>
           <button
-            onClick={handleApplyClick}
+            onClick={handleApplyClickInternal}
             className="text-center py-2 text-xs font-bold rounded-md bg-gray-100 text-[#26441b] border-2 border-[#3e7c27] hover:bg-[#4e6d43] hover:text-white transition"
           >
             Aplicar

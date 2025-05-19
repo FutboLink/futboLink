@@ -2,15 +2,18 @@ import React, { useState } from 'react';
 import { fetchApplications } from '../Fetchs/AdminFetchs/AdminUsersFetch';
 import { NotificationsForms } from '../Notifications/NotificationsForms';
 import Link from 'next/link';
+import { IOfferCard } from '@/Interfaces/IOffer';
 
 type ModalApplicationProps = {
   jobId: string;
   userId: string; 
   jobTitle: string;
   onClose: () => void;
+  isOffer?: IOfferCard;
+  typeMessage?: boolean;
 };
 
-const ModalApplication: React.FC<ModalApplicationProps> = ({ jobId, userId, jobTitle, onClose }) => {
+const ModalApplication: React.FC<ModalApplicationProps> = ({ jobId, userId, jobTitle, onClose, isOffer, typeMessage }) => {
   const message = "Mensaje de aplicación";
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showNotification, setShowNotification] = useState(false);

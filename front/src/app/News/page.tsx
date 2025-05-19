@@ -53,7 +53,7 @@ const NoticeSection = () => {
       <div className="flex justify-center mt-6">
         <Link href="/Notices">
           <button className="px-6 py-3 text-verde-oscuro hover:text-green-700 rounded-lg hover:bg-green-100 transition duration-300">
-            Ver Más Noticias
+            Ver Todas las Noticias
           </button>
         </Link>
       </div>

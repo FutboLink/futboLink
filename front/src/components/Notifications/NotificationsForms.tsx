@@ -1,13 +1,13 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 export interface INotificationProps {
-    message: string;
-    isError?: boolean;
-  }
+  message: string;
+}
 
-export const NotificationsForms: React.FC<INotificationProps> = ({ message, isError = false }) => {
- 
+export const NotificationsForms: React.FC<INotificationProps> = ({
+  message,
+}) => {
   const [isVisible, setIsVisible] = useState(true);
 
   const handleClose = () => {
@@ -16,22 +16,19 @@ export const NotificationsForms: React.FC<INotificationProps> = ({ message, isEr
 
   return (
     isVisible && (
-      <div 
-        role="alert" 
-        className={`fixed top-28 right-4 rounded-xl border p-4 shadow-lg ${
-          isError ? 'bg-red-500 text-white' : 'bg-gray-400 text-white'
-        }`}
+      <div
+        role="alert"
+        className="fixed top-12 right-8 rounded-xl border border-green-800 bg-[#ffffff8f] text-green-800 p-4 shadow-lg"
       >
-        <div className="flex items-start gap-4">
+        <div className="flex items-center gap-4">
           <div className="flex-1">
-            <p className="mt-1 text-sm text-white">{message}</p>
+            <p className="text-sm font-bold text-green-800">{message}</p>
           </div>
 
-          <button 
-            onClick={handleClose} 
-            className="text-white transition hover:text-gray-600"
+          <button
+            onClick={handleClose}
+            className="text-green-800 transition hover:text-green-600"
           >
-            
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -40,7 +37,11 @@ export const NotificationsForms: React.FC<INotificationProps> = ({ message, isEr
               stroke="currentColor"
               className="size-6"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>

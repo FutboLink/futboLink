@@ -9,7 +9,7 @@ import FileUpload from "../Cloudinary/FileUpload";
 
 // Define options for the dropdown fields
 const CATEGORIAS_OPTIONS = ["Primer Equipo", "Reserva", "Infantil", "Juvenil", "Futbol Base", "Futbol Sala", "Femenino"];
-const NIVEL_COMPETENCIA_OPTIONS = ["Profesional", "Amateur"];
+const NIVEL_COMPETENCIA_OPTIONS = ["Profesional","semiprofesional", "Amateur"];
 const PUESTO_PRINCIPAL_OPTIONS = [
   "Delantero Centro", 
   "Extremo Derecho",

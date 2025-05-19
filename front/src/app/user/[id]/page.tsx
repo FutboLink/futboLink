@@ -30,9 +30,10 @@ const UserProfilePage = () => {
     getUserProfile();
   }, [id]);
 
-  if (loading) return <p className="text-center text-gray-600">Cargando perfil...</p>;
-  if (!profile) return <p className="text-center text-red-500">No se encontró el perfil</p>;
-
+  if (loading)
+    return <p className="text-center text-gray-600">Cargando perfil...</p>;
+  if (!profile)
+    return <p className="text-center text-red-500">No se encontró el perfil</p>;
   return (
     <div>
       <CardProfile profile={profile} />

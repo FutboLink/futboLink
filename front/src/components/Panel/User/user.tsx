@@ -12,6 +12,7 @@ import { FaBolt, FaCog, FaUser, FaYoutube, FaRegIdCard, FaRegCreditCard } from "
 import { checkUserSubscription, refreshUserSubscription, clearSubscriptionCache, cancelUserSubscription, SubscriptionInfo } from "@/services/SubscriptionService";
 import LanguageToggle from "@/components/LanguageToggle/LanguageToggle";
 import { fetchUserData, getCv } from "@/components/Fetchs/UsersFetchs/UserFetchs";
+import dynamic from 'next/dynamic';
 
 // Añadimos una interfaz para las trayectorias
 interface Trayectoria {
@@ -22,6 +23,20 @@ interface Trayectoria {
   nivelCompetencia: string;
   logros: string;
 }
+
+// Client-side only component for YouTube embed
+const YouTubeEmbed = dynamic(() => Promise.resolve(({ url }: { url: string }) => {
+  return (
+    <div className="aspect-w-16 aspect-h-9">
+      <iframe
+        src={url}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        className="w-full h-full rounded-lg shadow-md"
+      ></iframe>
+    </div>
+  );
+}), { ssr: false });
 
 const UserProfile = () => {
   const { token, logOut } = useContext(UserContext);
@@ -37,9 +52,16 @@ const UserProfile = () => {
   const [cancelMessage, setCancelMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [localTrayectorias, setLocalTrayectorias] = useState<Trayectoria[]>([]);
   const [loadingCv, setLoadingCv] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const router = useRouter();
+  
+  // Set isClient to true once component is mounted
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const handleSectionChange = (section: string) => {
     setActiveSection(section);
   };
@@ -79,6 +101,8 @@ const UserProfile = () => {
   
   // Check for cached subscription data
   useEffect(() => {
+    if (!isClient) return; // Only run on client
+
     try {
       const cachedSubscription = localStorage.getItem('subscriptionInfo');
       if (cachedSubscription) {
@@ -89,7 +113,7 @@ const UserProfile = () => {
     } catch (err) {
       console.error('Error reading cached subscription data:', err);
     }
-  }, []);
+  }, [isClient]); // Add isClient as dependency
 
   useEffect(() => {
     if (token) {
@@ -153,12 +177,13 @@ const UserProfile = () => {
 
   // Inicializamos AOS cuando el componente se monta
   useEffect(() => {
+    if (!isClient) return;
     AOS.init();
-  }, []);
+  }, [isClient]);
 
   // Function to manually refresh subscription status
   const handleRefreshSubscription = async () => {
-    if (!userData?.email) return;
+    if (!userData?.email || !isClient) return;
     
     setLoadingSubscription(true);
     try {
@@ -166,7 +191,9 @@ const UserProfile = () => {
       clearSubscriptionCache();
       const freshData = await refreshUserSubscription(userData.email);
       setSubscriptionInfo(freshData);
-      localStorage.setItem('subscriptionInfo', JSON.stringify(freshData));
+      if (isClient) {
+        localStorage.setItem('subscriptionInfo', JSON.stringify(freshData));
+      }
     } catch (err) {
       console.error("Error refreshing subscription:", err);
     } finally {
@@ -176,7 +203,7 @@ const UserProfile = () => {
 
   // Function to cancel subscription
   const handleCancelSubscription = async () => {
-    if (!userData?.email) return;
+    if (!userData?.email || !isClient) return;
     
     // Ask for confirmation
     const confirmed = window.confirm('¿Estás seguro que deseas cancelar tu suscripción? Perderás acceso a las funciones premium al finalizar el período actual de facturación.');
@@ -209,6 +236,8 @@ const UserProfile = () => {
 
   // Intentar cargar trayectorias desde localStorage
   useEffect(() => {
+    if (!isClient) return; // Only run on client
+
     try {
       const storedTrayectorias = localStorage.getItem('userTrayectorias');
       if (storedTrayectorias) {
@@ -219,10 +248,10 @@ const UserProfile = () => {
     } catch (err) {
       console.error('Error al leer trayectorias desde localStorage:', err);
     }
-  }, []);
+  }, [isClient]); // Add isClient as dependency
 
   const handleViewCV = async () => {
-    if (!userData?.cv) return;
+    if (!userData?.cv || !isClient) return;
     
     try {
       setLoadingCv(true);
@@ -267,7 +296,7 @@ const UserProfile = () => {
               height={110}
               className="rounded-full mb-4 md:mb-0 border-4 border-white shadow-md object-cover"
             />
-            {subscriptionInfo.hasActiveSubscription && (
+            {isClient && subscriptionInfo.hasActiveSubscription && (
               <div className="absolute -bottom-2 -right-2 bg-green-500 text-white p-1 rounded-full w-8 h-8 flex items-center justify-center shadow-md">
                 <FaRegCreditCard className="text-sm" />
               </div>
@@ -362,540 +391,542 @@ const UserProfile = () => {
           </p>
         </div>
         
-        {activeSection === "profile" && (
-          <div className="p-6 bg-gray-50 text-gray-700 rounded-lg shadow-sm mt-4" data-aos="fade-up">
-            {/* Subscription Information */}
-            <div className="mb-6">
-              <div className={`p-4 rounded-lg shadow-sm ${
-                subscriptionInfo.hasActiveSubscription 
-                  ? 'bg-green-50 border-l-4 border-green-500' 
-                  : 'bg-gray-50 border-l-4 border-gray-400'
-              }`}>
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-lg font-semibold text-[#1d5126] flex items-center">
-                    <FaRegCreditCard className="mr-2" />
-                    Estado de Suscripción
-                  </h3>
-                  <button 
-                    onClick={handleRefreshSubscription} 
-                    disabled={loadingSubscription}
-                    className="text-xs text-[#1d5126] hover:underline flex items-center"
-                  >
-                    {loadingSubscription ? 'Actualizando...' : 'Actualizar estado'}
-                  </button>
-                </div>
-                {loadingSubscription ? (
-                  <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-[#1d5126] mr-2"></div>
-                    <p className="text-sm text-gray-600">Verificando suscripción...</p>
-                  </div>
-                ) : (
-                  <>
-                    <div className="flex items-center mb-2">
-                      <div className={`w-3 h-3 rounded-full mr-2 ${
-                        subscriptionInfo.hasActiveSubscription ? 'bg-green-500' : 'bg-gray-400'
-                      }`}></div>
-                      <span className="font-medium">
-                        {subscriptionInfo.hasActiveSubscription 
-                          ? 'Suscripción Activa' 
-                          : 'Sin Suscripción Activa'}
-                      </span>
-                    </div>
-                    <p className="text-sm mb-3">
-                      Plan: <span className="font-semibold">{subscriptionInfo.subscriptionType}</span>
-                    </p>
-                    {!subscriptionInfo.hasActiveSubscription && (
-                      <div className="mt-2">
-                        <Link 
-                          href="/Subs" 
-                          className="text-sm text-white bg-[#1d5126] hover:bg-[#3e7c27] px-4 py-2 rounded-md transition-colors duration-200 inline-flex items-center"
-                        >
-                          <FaRegCreditCard className="mr-1" />
-                          Ver planes de suscripción
-                        </Link>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-
-            <h3 className="text-2xl font-semibold mb-6 text-[#1d5126] border-b pb-2">Información Personal</h3>
-
-            {/* Contenedor Principal con Flex */}
-            <div className="flex flex-col sm:flex-col md:flex-row justify-between gap-6">
-              
-              {/* Sección de Información y Redes Sociales */}
-              <div className="md:w-1/2">
-                <div className="flex items-start">
-                  <Image
-                    src={userData?.imgUrl || "https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png"}
-                    alt={userData?.name || "Foto de perfil"}
-                    width={100}
-                    height={100}
-                    className="rounded-full mb-4 md:mb-0 border-2 border-[#1d5126] object-cover"
-                  />
-                  <div className="ml-4">
-                    <h2 className="text-xl font-semibold text-[#1d5126]">
-                      {userData?.name} {userData?.lastname}
-                    </h2>
-                    <div className="text-gray-700 mt-2">
-                      <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
-                        <strong>Nacionalidad:</strong> {userData?.nationality || "No disponible"}
-                      </p>
-                      <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
-                        <strong>Ubicación actual:</strong> {userData?.ubicacionActual || "No disponible"}
-                      </p>
-          
-                      <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
-                        <strong>Fecha de Nacimiento:</strong> {userData?.birthday || "No disponible"}
-                      </p>
-                      <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
-                        <strong>Edad:</strong> {userData?.age} años
-                      </p>
-                      <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
-                        <strong>Género:</strong> {userData?.genre}
-                      </p>
-                      <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
-                        <strong>Teléfono:</strong> {userData?.phone}
-                      </p>
-            
-
-                      {/* Redes Sociales */}
-                      <div className="mt-4">
-                        <strong className="text-[#1d5126]">Redes Sociales:</strong>
-                        <div className="flex space-x-4 mt-2 items-center">
-                          {userData?.socialMedia?.x && (
-                            <a href={`https://x.com/${userData.socialMedia.x}`} target="_blank" rel="noopener noreferrer"
-                              className="hover:opacity-80 transition-opacity">
-                              <Image 
-                                src="/logoX.png" 
-                                alt="Logo X Futbolink" 
-                                width={30} 
-                                height={30} 
-                                className="w-6 h-6 p-2 rounded-md bg-black shadow-sm" 
-                              />
-                            </a>
-                          )}
-                          {userData?.socialMedia?.youtube && (
-                            <a href={`https://www.youtube.com/${userData.socialMedia.youtube}`} target="_blank" rel="noopener noreferrer"
-                              className="text-red-600 hover:text-red-800 transition-colors">
-                              <FaYoutube size={24} />
-                            </a>
-                          )}
-                          {userData?.socialMedia?.transfermarkt && (
-                            <a
-                              href={`https://www.transfermarkt.com/${userData.socialMedia.transfermarkt}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="hover:opacity-80 transition-opacity"
-                            >
-                              <Image
-                                src="/transfermarkt.png"
-                                alt="Transfermarkt"
-                                width={60}
-                                height={60}
-                                className="shadow-sm rounded-sm"
-                              />
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Botón Editar Perfil */}
-                <Link href={"/profile"}>
-                  <div className="rounded border-2 md:w-1/2 text-center bg-[#1d5126] hover:bg-white hover:text-[#1d5126] hover:border-2 hover:border-[#1d5126] cursor-pointer p-2.5 text-white font-bold mt-4 transition-all duration-300 shadow-sm">
-                    Editar Perfil
-                  </div>
-                </Link>
-              </div>
-              
-              {/* Video de Presentación */}
-              <div className="md:w-1/2">
-                <span className="font-medium text-lg mb-4 text-[#1d5126] block border-b pb-1">
-                  Video de Presentación
-                </span>
-                <div className="relative w-full h-[250px] overflow-hidden rounded-lg bg-black shadow-md mt-2">
-                  {userData?.videoUrl ? (
-                    <iframe
-                      className="absolute top-0 left-0 w-full h-full"
-                      src={getYouTubeEmbedUrl(userData.videoUrl)}
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      referrerPolicy="strict-origin-when-cross-origin"
-                      allowFullScreen
-                    ></iframe>
-                  ) : (
-                    <div className="flex items-center justify-center h-full">
-                      <p className="text-white text-center p-4">No hay video disponible</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-            
-            {/* CV Section */}
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold mb-4 text-[#1d5126] border-b pb-2">Curriculum Vitae</h3>
-              <div className="flex flex-col items-start">
-                {userData?.cv ? (
-                  <div className="border border-[#1d5126] bg-[#f5f5f5] p-4 rounded-md w-full md:w-1/2 mb-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="bg-[#1d5126] text-white p-2 rounded-lg mr-3">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
-                            <path d="M4.603 14.087a.81.81 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.68 7.68 0 0 1 1.482-.645 19.697 19.697 0 0 0 1.062-2.227 7.269 7.269 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.188-.012.396-.047.614-.084.51-.27 1.134-.52 1.794a10.954 10.954 0 0 0 .98 1.686 5.753 5.753 0 0 1 1.334.05c.364.066.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.856.856 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.712 5.712 0 0 1-.911-.95 11.651 11.651 0 0 0-1.997.406 11.307 11.307 0 0 1-1.02 1.51c-.292.35-.609.656-.927.787a.793.793 0 0 1-.58.029zm1.379-1.901c-.166.076-.32.156-.459.238-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361.01.022.02.036.026.044a.266.266 0 0 0 .035-.012c.137-.056.355-.235.635-.572a8.18 8.18 0 0 0 .45-.606zm1.64-1.33a12.71 12.71 0 0 1 1.01-.193 11.744 11.744 0 0 1-.51-.858 20.801 20.801 0 0 1-.5 1.05zm2.446.45c.15.163.296.3.435.41.24.19.407.253.498.256a.107.107 0 0 0 .07-.015.307.307 0 0 0 .094-.125.436.436 0 0 0 .059-.2.095.095 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a3.876 3.876 0 0 0-.612-.053zM8.078 7.8a6.7 6.7 0 0 0 .2-.828c.031-.188.043-.343.038-.465a.613.613 0 0 0-.032-.198.517.517 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822.024.111.054.227.09.346z"/>
-                          </svg>
-                        </div>
-                        <div>
-                          <p className="font-medium text-[#1d5126]">Curriculum Vitae</p>
-                          <p className="text-xs text-gray-500">Documento PDF/DOC</p>
-                        </div>
-                      </div>
-                      <button 
-                        onClick={handleViewCV}
-                        disabled={loadingCv}
-                        className="bg-[#1d5126] hover:bg-[#3e7c27] text-white px-3 py-1.5 rounded-md text-sm transition-colors duration-200 flex items-center"
-                      >
-                        {loadingCv ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-                            Cargando...
-                          </>
-                        ) : "Ver CV"}
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="border border-gray-300 bg-gray-50 p-4 rounded-md w-full md:w-1/2 mb-4">
-                    <div className="flex items-center">
-                      <div className="bg-gray-200 text-gray-500 p-2 rounded-lg mr-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                          <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
-                          <path d="M4.603 14.087a.81.81 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.68 7.68 0 0 1 1.482-.645 19.697 19.697 0 0 0 1.062-2.227 7.269 7.269 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.188-.012.396-.047.614-.084.51-.27 1.134-.52 1.794a10.954 10.954 0 0 0 .98 1.686 5.753 5.753 0 0 1 1.334.05c.364.066.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.856.856 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.712 5.712 0 0 1-.911-.95 11.651 11.651 0 0 0-1.997.406 11.307 11.307 0 0 1-1.02 1.51c-.292.35-.609.656-.927.787a.793.793 0 0 1-.58.029zm1.379-1.901c-.166.076-.32.156-.459.238-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361.01.022.02.036.026.044a.266.266 0 0 0 .035-.012c.137-.056.355-.235.635-.572a8.18 8.18 0 0 0 .45-.606zm1.64-1.33a12.71 12.71 0 0 1 1.01-.193 11.744 11.744 0 0 1-.51-.858 20.801 20.801 0 0 1-.5 1.05zm2.446.45c.15.163.296.3.435.41.24.19.407.253.498.256a.107.107 0 0 0 .07-.015.307.307 0 0 0 .094-.125.436.436 0 0 0 .059-.2.095.095 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a3.876 3.876 0 0 0-.612-.053zM8.078 7.8a6.7 6.7 0 0 0 .2-.828c.031-.188.043-.343.038-.465a.613.613 0 0 0-.032-.198.517.517 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822.024.111.054.227.09.346z"/>
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-500">No hay CV disponible</p>
-                        <p className="text-xs text-gray-500">Puedes agregar tu CV en la sección de editar perfil</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                <Link href={"/profile"}>
-                  <div className="bg-[#1d5126] hover:bg-[#3e7c27] text-white px-4 py-2 rounded-md text-sm transition-colors duration-200 cursor-pointer inline-flex items-center">
-                    <svg className="mr-2" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                      <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                    </svg>
-                    {userData?.cv ? 'Actualizar CV' : 'Agregar CV'}
-                  </div>
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Sección de Habilidades */}
-        {activeSection === "skills" && (
-          <div className="flex-1 p-6 bg-gray-50 text-gary-700 transition-opacity duration-300 rounded-lg shadow-sm mt-4" data-aos="fade-up">
-            <h3 className="text-xl font-semibold text-[#1d5126] border-b pb-2 mb-4">Datos Generales</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-              <div>
-                <h4 className="font-semibold text-lg text-gray-800 mb-2">Puesto Principal</h4>
-                <p className="border border-[#1d5126] text-gray-700 bg-[#f5f5f5] p-3 rounded-md shadow-sm">
-                  {userData?.primaryPosition || "No especificado"}
-                </p>
-              </div>
-              <div>
-                <h4 className="font-semibold text-lg text-gray-800 mb-2">Puesto Secundario</h4>
-                <p className="border border-[#1d5126] text-gray-700 bg-[#f5f5f5] p-3 rounded-md shadow-sm">
-                  {userData?.secondaryPosition || "No especificado"}
-                </p>
-              </div>
-              <div>
-                <h4 className="font-semibold text-lg text-gray-800 mb-2">Pasaporte UE</h4>
-                <p className="border border-[#1d5126] text-gray-700 bg-[#f5f5f5] p-3 rounded-md shadow-sm">
-                  {userData?.pasaporteUe || "No especificado"}
-                </p>
-              </div>
-            </div>
-            <div className="bg-gray-300 h-px my-6"></div>
-            <h3 className="text-xl font-semibold text-[#1d5126] border-b pb-2 mb-4">Datos Físicos</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-              {userData?.skillfulFoot && (
-                <div>
-                  <h4 className="font-semibold text-lg text-gray-800 mb-2">Pie Hábil</h4>
-                  <p className="border border-[#1d5126] text-gray-700 bg-[#f5f5f5] p-3 rounded-md shadow-sm">
-                    {userData.skillfulFoot}
-                  </p>
-                </div>
-              )}
-              {userData?.bodyStructure && (
-                <div>
-                  <h4 className="font-semibold text-lg text-gray-800 mb-2">Estructura Corporal</h4>
-                  <p className="border border-[#1d5126] bg-[#f5f5f5] text-gray-700 p-3 rounded-md shadow-sm">
-                    {userData.bodyStructure}
-                  </p>
-                </div>
-              )}
-              {userData?.height && (
-                <div>
-                  <h4 className="font-semibold text-lg text-gray-800 mb-2">Altura</h4>
-                  <p className="border border-[#1d5126] bg-[#f5f5f5] text-gray-700 p-3 rounded-md shadow-sm">
-                    {userData.height} cm
-                  </p>
-                </div>
-              )}
-              {userData?.weight && (
-                <div>
-                  <h4 className="font-semibold text-lg text-gray-800 mb-2">Peso</h4>
-                  <p className="border border-[#1d5126] bg-[#f5f5f5] text-gray-700 p-3 rounded-md shadow-sm">
-                    {userData.weight} kg
-                  </p>
-                </div>
-              )}
-            </div>
-            <div className="bg-gray-300 h-px my-6"></div>
-            <h3 className="text-xl font-semibold text-[#1d5126] border-b pb-2 mb-4">Trayectoria</h3>
-            
-            {/* Primero intentamos mostrar las trayectorias de la API, si no hay usamos las de localStorage */}
-            {userData?.trayectorias && userData.trayectorias.length > 0 ? (
-              <div className="space-y-4">
-                {userData.trayectorias.map((experience, index) => (
-                  <div key={index} className="border border-[#1d5126] bg-[#f5f5f5] p-4 rounded-md shadow-sm mb-4">
-                    <h4 className="font-semibold text-lg text-gray-800">{experience.club || "Club no especificado"}</h4>
-                    <div className="flex flex-wrap gap-4 mt-2 text-gray-700">
-                      {experience.fechaInicio && (
-                        <p className="bg-white px-3 py-1 rounded-full text-sm">
-                          <span className="font-medium">Inicio:</span> {new Date(experience.fechaInicio).toLocaleDateString('es-ES')}
-                        </p>
-                      )}
-                      
-                      {experience.fechaFinalizacion && (
-                        <p className="bg-white px-3 py-1 rounded-full text-sm">
-                          <span className="font-medium">Fin:</span> {new Date(experience.fechaFinalizacion).toLocaleDateString('es-ES')}
-                        </p>
-                      )}
-                      
-                      {experience.categoriaEquipo && (
-                        <p className="bg-white px-3 py-1 rounded-full text-sm">
-                          <span className="font-medium">Categoría:</span> {experience.categoriaEquipo}
-                        </p>
-                      )}
-                      
-                      {experience.nivelCompetencia && (
-                        <p className="bg-white px-3 py-1 rounded-full text-sm">
-                          <span className="font-medium">Nivel:</span> {experience.nivelCompetencia}
-                        </p>
-                      )}
-                    </div>
-                    
-                    {experience.logros && (
-                      <div className="mt-3 bg-white p-3 rounded-md">
-                        <p className="font-medium text-gray-800">Logros:</p>
-                        <p className="text-gray-700">{experience.logros}</p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : localTrayectorias && localTrayectorias.length > 0 ? (
-              // Si no hay trayectorias en la API, mostramos las que están en localStorage
-              <div className="space-y-4">
-               
-                
-                {localTrayectorias.map((experience, index) => (
-                  <div key={index} className="border border-[#1d5126] bg-[#f5f5f5] p-4 rounded-md shadow-sm mb-4">
-                    <h4 className="font-semibold text-lg text-gray-800">{experience.club || "Club no especificado"}</h4>
-                    <div className="flex flex-wrap gap-4 mt-2 text-gray-700">
-                      {experience.fechaInicio && (
-                        <p className="bg-white px-3 py-1 rounded-full text-sm">
-                          <span className="font-medium">Inicio:</span> {experience.fechaInicio ? new Date(experience.fechaInicio).toLocaleDateString('es-ES') : ""}
-                        </p>
-                      )}
-                      
-                      {experience.fechaFinalizacion && (
-                        <p className="bg-white px-3 py-1 rounded-full text-sm">
-                          <span className="font-medium">Fin:</span> {experience.fechaFinalizacion ? new Date(experience.fechaFinalizacion).toLocaleDateString('es-ES') : ""}
-                        </p>
-                      )}
-                      
-                      {experience.categoriaEquipo && (
-                        <p className="bg-white px-3 py-1 rounded-full text-sm">
-                          <span className="font-medium">Categoría:</span> {experience.categoriaEquipo}
-                        </p>
-                      )}
-                      
-                      {experience.nivelCompetencia && (
-                        <p className="bg-white px-3 py-1 rounded-full text-sm">
-                          <span className="font-medium">Nivel:</span> {experience.nivelCompetencia}
-                        </p>
-                      )}
-                    </div>
-                    
-                    {experience.logros && (
-                      <div className="mt-3 bg-white p-3 rounded-md">
-                        <p className="font-medium text-gray-800">Logros:</p>
-                        <p className="text-gray-700">{experience.logros}</p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : userData?.club ? (
-              <div className="border border-[#1d5126] bg-[#f5f5f5] p-4 rounded-md shadow-sm">
-                <h4 className="font-semibold text-lg text-gray-800">{userData.club || "Club no especificado"}</h4>
-                <div className="flex flex-wrap gap-4 mt-2 text-gray-700">
-                  {userData.fechaInicio && (
-                    <p className="bg-white px-3 py-1 rounded-full text-sm">
-                      <span className="font-medium">Inicio:</span> {new Date(userData.fechaInicio).toLocaleDateString('es-ES')}
-                    </p>
-                  )}
-                  
-                  {userData.fechaFinalizacion && (
-                    <p className="bg-white px-3 py-1 rounded-full text-sm">
-                      <span className="font-medium">Fin:</span> {new Date(userData.fechaFinalizacion).toLocaleDateString('es-ES')}
-                    </p>
-                  )}
-                  
-                  {userData.categoriaEquipo && (
-                    <p className="bg-white px-3 py-1 rounded-full text-sm">
-                      <span className="font-medium">Categoría:</span> {userData.categoriaEquipo}
-                    </p>
-                  )}
-                  
-                  {userData.nivelCompetencia && (
-                    <p className="bg-white px-3 py-1 rounded-full text-sm">
-                      <span className="font-medium">Nivel:</span> {userData.nivelCompetencia}
-                    </p>
-                  )}
-                </div>
-                
-                {userData.logros && (
-                  <div className="mt-3 bg-white p-3 rounded-md">
-                    <p className="font-medium text-gray-800">Logros:</p>
-                    <p className="text-gray-700">{userData.logros}</p>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <p className="text-gray-500 italic">No hay información de trayectoria disponible</p>
-            )}
-          </div>
-        )}
-
-        {/* Sección de Configuración */}
-        {activeSection === "config" && (
-          <div
-            className="bg-white p-6 rounded-lg shadow-sm mb-6 mt-4"
-            data-aos="fade-up"
-          >
-            <h3 className="text-xl font-semibold mb-6 text-[#1d5126] border-b pb-2">Configuración</h3>
-            <div className="space-y-8">
-              <div className="bg-gray-50 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                <Link className="group" href="/forgotPassword">
-                  <h4 className="font-semibold text-lg group-hover:underline text-[#1d5126] flex items-center">
-                    <FaCog className="mr-2" />
-                    Cambiar contraseña
-                  </h4>
-                  <p className="text-gray-600 mt-1 text-sm">Actualiza tu contraseña para mayor seguridad</p>
-                </Link>
-              </div>
-
-              <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
-                <h4 className="font-semibold text-lg text-[#1d5126] flex items-center">
-                  <FaUser className="mr-2" />
-                  Idioma
-                </h4>
-                <p className="text-gray-600 mt-1">Español (por defecto)</p>
-              </div>
-
-              <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
-                <h4 className="font-semibold text-lg text-[#1d5126] flex items-center">
-                  <FaRegCreditCard className="mr-2" />
-                  Suscripción
-                </h4>
-                <div className="mt-3">
-                  <div className={`p-4 rounded-lg ${
+        {/* Only render complex content after client-side hydration */}
+        {isClient ? (
+          <>
+            {activeSection === "profile" && (
+              <div className="p-6 bg-gray-50 text-gray-700 rounded-lg shadow-sm mt-4" data-aos="fade-up">
+                {/* Subscription Information */}
+                <div className="mb-6">
+                  <div className={`p-4 rounded-lg shadow-sm ${
                     subscriptionInfo.hasActiveSubscription 
                       ? 'bg-green-50 border-l-4 border-green-500' 
-                      : 'bg-gray-100 border-l-4 border-gray-400'
+                      : 'bg-gray-50 border-l-4 border-gray-400'
                   }`}>
-                    <div className="flex items-center mb-2">
-                      <div className={`w-3 h-3 rounded-full mr-2 ${
-                        subscriptionInfo.hasActiveSubscription ? 'bg-green-500' : 'bg-gray-400'
-                      }`}></div>
-                      <span className="font-medium">
-                        {subscriptionInfo.hasActiveSubscription 
-                          ? 'Suscripción Activa' 
-                          : 'Sin Suscripción Activa'}
-                      </span>
-                    </div>
-                    <p className="text-sm mb-3">
-                      Plan actual: <span className="font-semibold">{subscriptionInfo.subscriptionType}</span>
-                    </p>
-                    
-                    {/* Cancel message */}
-                    {cancelMessage && (
-                      <div className={`p-3 rounded-md mb-3 ${
-                        cancelMessage.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {cancelMessage.text}
-                      </div>
-                    )}
-                    
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <Link 
-                        href="/Subs" 
-                        className="text-sm text-white bg-[#1d5126] hover:bg-[#3e7c27] px-4 py-2 rounded-md transition-colors duration-200 inline-flex items-center"
-                      >
-                        {subscriptionInfo.hasActiveSubscription 
-                          ? 'Administrar suscripción' 
-                          : 'Ver planes de suscripción'}
-                      </Link>
-                      <button
-                        onClick={handleRefreshSubscription}
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="text-lg font-semibold text-[#1d5126] flex items-center">
+                        <FaRegCreditCard className="mr-2" />
+                        Estado de Suscripción
+                      </h3>
+                      <button 
+                        onClick={handleRefreshSubscription} 
                         disabled={loadingSubscription}
-                        className="text-sm text-[#1d5126] border border-[#1d5126] hover:bg-[#f0f8f0] px-4 py-2 rounded-md transition-colors duration-200 inline-flex items-center"
+                        className="text-xs text-[#1d5126] hover:underline flex items-center"
                       >
-                        {loadingSubscription ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-[#1d5126] mr-2"></div>
-                            Actualizando...
-                          </>
-                        ) : (
-                          'Actualizar estado'
-                        )}
+                        {loadingSubscription ? 'Actualizando...' : 'Actualizar estado'}
                       </button>
-                      
-                      {/* Cancel subscription button - only show for active paid subscriptions */}
-                      {subscriptionInfo.hasActiveSubscription && 
-                       subscriptionInfo.subscriptionType !== 'Amateur' && (
-                        <button
-                          onClick={handleCancelSubscription}
-                          disabled={cancellingSubscription}
-                          className="text-sm text-red-600 border border-red-600 hover:bg-red-50 px-4 py-2 rounded-md transition-colors duration-200 inline-flex items-center"
-                        >
-                          {cancellingSubscription ? (
-                            <>
-                              <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-red-600 mr-2"></div>
-                              Cancelando...
-                            </>
-                          ) : (
-                            'Dar de baja suscripción'
-                          )}
-                        </button>
+                    </div>
+                    {loadingSubscription ? (
+                      <div className="flex items-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-[#1d5126] mr-2"></div>
+                        <p className="text-sm text-gray-600">Verificando suscripción...</p>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center mb-2">
+                          <div className={`w-3 h-3 rounded-full mr-2 ${
+                            subscriptionInfo.hasActiveSubscription ? 'bg-green-500' : 'bg-gray-400'
+                          }`}></div>
+                          <span className="font-medium">
+                            {subscriptionInfo.hasActiveSubscription 
+                              ? 'Suscripción Activa' 
+                              : 'Sin Suscripción Activa'}
+                          </span>
+                        </div>
+                        <p className="text-sm mb-3">
+                          Plan: <span className="font-semibold">{subscriptionInfo.subscriptionType}</span>
+                        </p>
+                        {!subscriptionInfo.hasActiveSubscription && (
+                          <div className="mt-2">
+                            <Link 
+                              href="/Subs" 
+                              className="text-sm text-white bg-[#1d5126] hover:bg-[#3e7c27] px-4 py-2 rounded-md transition-colors duration-200 inline-flex items-center"
+                            >
+                              <FaRegCreditCard className="mr-1" />
+                              Ver planes de suscripción
+                            </Link>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <h3 className="text-2xl font-semibold mb-6 text-[#1d5126] border-b pb-2">Información Personal</h3>
+
+                {/* Contenedor Principal con Flex */}
+                <div className="flex flex-col sm:flex-col md:flex-row justify-between gap-6">
+                  
+                  {/* Sección de Información y Redes Sociales */}
+                  <div className="md:w-1/2">
+                    <div className="flex items-start">
+                      <Image
+                        src={userData?.imgUrl || "https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png"}
+                        alt={userData?.name || "Foto de perfil"}
+                        width={100}
+                        height={100}
+                        className="rounded-full mb-4 md:mb-0 border-2 border-[#1d5126] object-cover"
+                      />
+                      <div className="ml-4">
+                        <h2 className="text-xl font-semibold text-[#1d5126]">
+                          {userData?.name} {userData?.lastname}
+                        </h2>
+                        <div className="text-gray-700 mt-2">
+                          <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
+                            <strong>Nacionalidad:</strong> {userData?.nationality || "No disponible"}
+                          </p>
+                          <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
+                            <strong>Ubicación actual:</strong> {userData?.ubicacionActual || "No disponible"}
+                          </p>
+                
+                          <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
+                            <strong>Fecha de Nacimiento:</strong> {userData?.birthday || "No disponible"}
+                          </p>
+                          <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
+                            <strong>Edad:</strong> {userData?.age} años
+                          </p>
+                          <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
+                            <strong>Género:</strong> {userData?.genre}
+                          </p>
+                          <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
+                            <strong>Teléfono:</strong> {userData?.phone}
+                          </p>
+                
+
+                          {/* Redes Sociales */}
+                          <div className="mt-4">
+                            <strong className="text-[#1d5126]">Redes Sociales:</strong>
+                            <div className="flex space-x-4 mt-2 items-center">
+                              {userData?.socialMedia?.x && (
+                                <a href={`https://x.com/${userData.socialMedia.x}`} target="_blank" rel="noopener noreferrer"
+                                  className="hover:opacity-80 transition-opacity">
+                                  <Image 
+                                    src="/logoX.png" 
+                                    alt="Logo X Futbolink" 
+                                    width={30} 
+                                    height={30} 
+                                    className="w-6 h-6 p-2 rounded-md bg-black shadow-sm" 
+                                  />
+                                </a>
+                              )}
+                              {userData?.socialMedia?.youtube && (
+                                <a href={`https://www.youtube.com/${userData.socialMedia.youtube}`} target="_blank" rel="noopener noreferrer"
+                                  className="text-red-600 hover:text-red-800 transition-colors">
+                                  <FaYoutube size={24} />
+                                </a>
+                              )}
+                              {userData?.socialMedia?.transfermarkt && (
+                                <a
+                                  href={`https://www.transfermarkt.com/${userData.socialMedia.transfermarkt}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="hover:opacity-80 transition-opacity"
+                                >
+                                  <Image
+                                    src="/transfermarkt.png"
+                                    alt="Transfermarkt"
+                                    width={60}
+                                    height={60}
+                                    className="shadow-sm rounded-sm"
+                                  />
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Botón Editar Perfil */}
+                    <Link href={"/profile"}>
+                      <div className="rounded border-2 md:w-1/2 text-center bg-[#1d5126] hover:bg-white hover:text-[#1d5126] hover:border-2 hover:border-[#1d5126] cursor-pointer p-2.5 text-white font-bold mt-4 transition-all duration-300 shadow-sm">
+                        Editar Perfil
+                      </div>
+                    </Link>
+                  </div>
+                  
+                  {/* Video de Presentación */}
+                  <div className="md:w-1/2">
+                    <span className="font-medium text-lg mb-4 text-[#1d5126] block border-b pb-1">
+                      Video de Presentación
+                    </span>
+                    <div className="relative w-full h-[250px] overflow-hidden rounded-lg bg-black shadow-md mt-2">
+                      {isClient && userData?.videoUrl ? (
+                        <YouTubeEmbed url={getYouTubeEmbedUrl(userData.videoUrl)} />
+                      ) : (
+                        <div className="flex items-center justify-center h-full">
+                          <p className="text-white text-center p-4">No hay video disponible</p>
+                        </div>
                       )}
                     </div>
                   </div>
                 </div>
+                
+                {/* CV Section */}
+                <div className="mt-6">
+                  <h3 className="text-lg font-semibold mb-4 text-[#1d5126] border-b pb-2">Curriculum Vitae</h3>
+                  <div className="flex flex-col items-start">
+                    {userData?.cv ? (
+                      <div className="border border-[#1d5126] bg-[#f5f5f5] p-4 rounded-md w-full md:w-1/2 mb-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <div className="bg-[#1d5126] text-white p-2 rounded-lg mr-3">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+                                <path d="M4.603 14.087a.81.81 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.68 7.68 0 0 1 1.482-.645 19.697 19.697 0 0 0 1.062-2.227 7.269 7.269 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.188-.012.396-.047.614-.084.51-.27 1.134-.52 1.794a10.954 10.954 0 0 0 .98 1.686 5.753 5.753 0 0 1 1.334.05c.364.066.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.856.856 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.712 5.712 0 0 1-.911-.95 11.651 11.651 0 0 0-1.997.406 11.307 11.307 0 0 1-1.02 1.51c-.292.35-.609.656-.927.787a.793.793 0 0 1-.58.029zm1.379-1.901c-.166.076-.32.156-.459.238-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361.01.022.02.036.026.044a.266.266 0 0 0 .035-.012c.137-.056.355-.235.635-.572a8.18 8.18 0 0 0 .45-.606zm1.64-1.33a12.71 12.71 0 0 1 1.01-.193 11.744 11.744 0 0 1-.51-.858 20.801 20.801 0 0 1-.5 1.05zm2.446.45c.15.163.296.3.435.41.24.19.407.253.498.256a.107.107 0 0 0 .07-.015.307.307 0 0 0 .094-.125.436.436 0 0 0 .059-.2.095.095 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a3.876 3.876 0 0 0-.612-.053zM8.078 7.8a6.7 6.7 0 0 0 .2-.828c.031-.188.043-.343.038-.465a.613.613 0 0 0-.032-.198.517.517 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822.024.111.054.227.09.346z"/>
+                              </svg>
+                            </div>
+                            <div>
+                              <p className="font-medium text-[#1d5126]">Curriculum Vitae</p>
+                              <p className="text-xs text-gray-500">Documento PDF/DOC</p>
+                            </div>
+                          </div>
+                          <button 
+                            onClick={handleViewCV}
+                            disabled={loadingCv}
+                            className="bg-[#1d5126] hover:bg-[#3e7c27] text-white px-3 py-1.5 rounded-md text-sm transition-colors duration-200 flex items-center"
+                          >
+                            {loadingCv ? (
+                              <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                                Cargando...
+                              </>
+                            ) : "Ver CV"}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="border border-gray-300 bg-gray-50 p-4 rounded-md w-full md:w-1/2 mb-4">
+                        <div className="flex items-center">
+                          <div className="bg-gray-200 text-gray-500 p-2 rounded-lg mr-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                              <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+                              <path d="M4.603 14.087a.81.81 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.68 7.68 0 0 1 1.482-.645 19.697 19.697 0 0 0 1.062-2.227 7.269 7.269 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.188-.012.396-.047.614-.084.51-.27 1.134-.52 1.794a10.954 10.954 0 0 0 .98 1.686 5.753 5.753 0 0 1 1.334.05c.364.066.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.856.856 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.712 5.712 0 0 1-.911-.95 11.651 11.651 0 0 0-1.997.406 11.307 11.307 0 0 1-1.02 1.51c-.292.35-.609.656-.927.787a.793.793 0 0 1-.58.029zm1.379-1.901c-.166.076-.32.156-.459.238-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361.01.022.02.036.026.044a.266.266 0 0 0 .035-.012c.137-.056.355-.235.635-.572a8.18 8.18 0 0 0 .45-.606zm1.64-1.33a12.71 12.71 0 0 1 1.01-.193 11.744 11.744 0 0 1-.51-.858 20.801 20.801 0 0 1-.5 1.05zm2.446.45c.15.163.296.3.435.41.24.19.407.253.498.256a.107.107 0 0 0 .07-.015.307.307 0 0 0 .094-.125.436.436 0 0 0 .059-.2.095.095 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a3.876 3.876 0 0 0-.612-.053zM8.078 7.8a6.7 6.7 0 0 0 .2-.828c.031-.188.043-.343.038-.465a.613.613 0 0 0-.032-.198.517.517 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822.024.111.054.227.09.346z"/>
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-500">No hay CV disponible</p>
+                            <p className="text-xs text-gray-500">Puedes agregar tu CV en la sección de editar perfil</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <Link href={"/profile"}>
+                      <div className="bg-[#1d5126] hover:bg-[#3e7c27] text-white px-4 py-2 rounded-md text-sm transition-colors duration-200 cursor-pointer inline-flex items-center">
+                        <svg className="mr-2" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                          <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                        </svg>
+                        {userData?.cv ? 'Actualizar CV' : 'Agregar CV'}
+                      </div>
+                    </Link>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Sección de Habilidades */}
+            {activeSection === "skills" && (
+              <div className="flex-1 p-6 bg-gray-50 text-gary-700 transition-opacity duration-300 rounded-lg shadow-sm mt-4" data-aos="fade-up">
+                <h3 className="text-xl font-semibold text-[#1d5126] border-b pb-2 mb-4">Datos Generales</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                  <div>
+                    <h4 className="font-semibold text-lg text-gray-800 mb-2">Puesto Principal</h4>
+                    <p className="border border-[#1d5126] text-gray-700 bg-[#f5f5f5] p-3 rounded-md shadow-sm">
+                      {userData?.primaryPosition || "No especificado"}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-lg text-gray-800 mb-2">Puesto Secundario</h4>
+                    <p className="border border-[#1d5126] text-gray-700 bg-[#f5f5f5] p-3 rounded-md shadow-sm">
+                      {userData?.secondaryPosition || "No especificado"}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-lg text-gray-800 mb-2">Pasaporte UE</h4>
+                    <p className="border border-[#1d5126] text-gray-700 bg-[#f5f5f5] p-3 rounded-md shadow-sm">
+                      {userData?.pasaporteUe || "No especificado"}
+                    </p>
+                  </div>
+                </div>
+                <div className="bg-gray-300 h-px my-6"></div>
+                <h3 className="text-xl font-semibold text-[#1d5126] border-b pb-2 mb-4">Datos Físicos</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                  {userData?.skillfulFoot && (
+                    <div>
+                      <h4 className="font-semibold text-lg text-gray-800 mb-2">Pie Hábil</h4>
+                      <p className="border border-[#1d5126] text-gray-700 bg-[#f5f5f5] p-3 rounded-md shadow-sm">
+                        {userData.skillfulFoot}
+                      </p>
+                    </div>
+                  )}
+                  {userData?.bodyStructure && (
+                    <div>
+                      <h4 className="font-semibold text-lg text-gray-800 mb-2">Estructura Corporal</h4>
+                      <p className="border border-[#1d5126] bg-[#f5f5f5] text-gray-700 p-3 rounded-md shadow-sm">
+                        {userData.bodyStructure}
+                      </p>
+                    </div>
+                  )}
+                  {userData?.height && (
+                    <div>
+                      <h4 className="font-semibold text-lg text-gray-800 mb-2">Altura</h4>
+                      <p className="border border-[#1d5126] bg-[#f5f5f5] text-gray-700 p-3 rounded-md shadow-sm">
+                        {userData.height} cm
+                      </p>
+                    </div>
+                  )}
+                  {userData?.weight && (
+                    <div>
+                      <h4 className="font-semibold text-lg text-gray-800 mb-2">Peso</h4>
+                      <p className="border border-[#1d5126] bg-[#f5f5f5] text-gray-700 p-3 rounded-md shadow-sm">
+                        {userData.weight} kg
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <div className="bg-gray-300 h-px my-6"></div>
+                <h3 className="text-xl font-semibold text-[#1d5126] border-b pb-2 mb-4">Trayectoria</h3>
+                
+                {/* Primero intentamos mostrar las trayectorias de la API, si no hay usamos las de localStorage */}
+                {userData?.trayectorias && userData.trayectorias.length > 0 ? (
+                  <div className="space-y-4">
+                    {userData.trayectorias.map((experience, index) => (
+                      <div key={index} className="border border-[#1d5126] bg-[#f5f5f5] p-4 rounded-md shadow-sm mb-4">
+                        <h4 className="font-semibold text-lg text-gray-800">{experience.club || "Club no especificado"}</h4>
+                        <div className="flex flex-wrap gap-4 mt-2 text-gray-700">
+                          {experience.fechaInicio && (
+                            <p className="bg-white px-3 py-1 rounded-full text-sm">
+                              <span className="font-medium">Inicio:</span> {new Date(experience.fechaInicio).toLocaleDateString('es-ES')}
+                            </p>
+                          )}
+                          
+                          {experience.fechaFinalizacion && (
+                            <p className="bg-white px-3 py-1 rounded-full text-sm">
+                              <span className="font-medium">Fin:</span> {new Date(experience.fechaFinalizacion).toLocaleDateString('es-ES')}
+                            </p>
+                          )}
+                          
+                          {experience.categoriaEquipo && (
+                            <p className="bg-white px-3 py-1 rounded-full text-sm">
+                              <span className="font-medium">Categoría:</span> {experience.categoriaEquipo}
+                            </p>
+                          )}
+                          
+                          {experience.nivelCompetencia && (
+                            <p className="bg-white px-3 py-1 rounded-full text-sm">
+                              <span className="font-medium">Nivel:</span> {experience.nivelCompetencia}
+                            </p>
+                          )}
+                        </div>
+                        
+                        {experience.logros && (
+                          <div className="mt-3 bg-white p-3 rounded-md">
+                            <p className="font-medium text-gray-800">Logros:</p>
+                            <p className="text-gray-700">{experience.logros}</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : localTrayectorias && localTrayectorias.length > 0 ? (
+                  // Si no hay trayectorias en la API, mostramos las que están en localStorage
+                  <div className="space-y-4">
+                   
+                    
+                    {localTrayectorias.map((experience, index) => (
+                      <div key={index} className="border border-[#1d5126] bg-[#f5f5f5] p-4 rounded-md shadow-sm mb-4">
+                        <h4 className="font-semibold text-lg text-gray-800">{experience.club || "Club no especificado"}</h4>
+                        <div className="flex flex-wrap gap-4 mt-2 text-gray-700">
+                          {experience.fechaInicio && (
+                            <p className="bg-white px-3 py-1 rounded-full text-sm">
+                              <span className="font-medium">Inicio:</span> {experience.fechaInicio ? new Date(experience.fechaInicio).toLocaleDateString('es-ES') : ""}
+                            </p>
+                          )}
+                          
+                          {experience.fechaFinalizacion && (
+                            <p className="bg-white px-3 py-1 rounded-full text-sm">
+                              <span className="font-medium">Fin:</span> {experience.fechaFinalizacion ? new Date(experience.fechaFinalizacion).toLocaleDateString('es-ES') : ""}
+                            </p>
+                          )}
+                          
+                          {experience.categoriaEquipo && (
+                            <p className="bg-white px-3 py-1 rounded-full text-sm">
+                              <span className="font-medium">Categoría:</span> {experience.categoriaEquipo}
+                            </p>
+                          )}
+                          
+                          {experience.nivelCompetencia && (
+                            <p className="bg-white px-3 py-1 rounded-full text-sm">
+                              <span className="font-medium">Nivel:</span> {experience.nivelCompetencia}
+                            </p>
+                          )}
+                        </div>
+                        
+                        {experience.logros && (
+                          <div className="mt-3 bg-white p-3 rounded-md">
+                            <p className="font-medium text-gray-800">Logros:</p>
+                            <p className="text-gray-700">{experience.logros}</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : userData?.club ? (
+                  <div className="border border-[#1d5126] bg-[#f5f5f5] p-4 rounded-md shadow-sm">
+                    <h4 className="font-semibold text-lg text-gray-800">{userData.club || "Club no especificado"}</h4>
+                    <div className="flex flex-wrap gap-4 mt-2 text-gray-700">
+                      {userData.fechaInicio && (
+                        <p className="bg-white px-3 py-1 rounded-full text-sm">
+                          <span className="font-medium">Inicio:</span> {new Date(userData.fechaInicio).toLocaleDateString('es-ES')}
+                        </p>
+                      )}
+                      
+                      {userData.fechaFinalizacion && (
+                        <p className="bg-white px-3 py-1 rounded-full text-sm">
+                          <span className="font-medium">Fin:</span> {new Date(userData.fechaFinalizacion).toLocaleDateString('es-ES')}
+                        </p>
+                      )}
+                      
+                      {userData.categoriaEquipo && (
+                        <p className="bg-white px-3 py-1 rounded-full text-sm">
+                          <span className="font-medium">Categoría:</span> {userData.categoriaEquipo}
+                        </p>
+                      )}
+                      
+                      {userData.nivelCompetencia && (
+                        <p className="bg-white px-3 py-1 rounded-full text-sm">
+                          <span className="font-medium">Nivel:</span> {userData.nivelCompetencia}
+                        </p>
+                      )}
+                    </div>
+                    
+                    {userData.logros && (
+                      <div className="mt-3 bg-white p-3 rounded-md">
+                        <p className="font-medium text-gray-800">Logros:</p>
+                        <p className="text-gray-700">{userData.logros}</p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 italic">No hay información de trayectoria disponible</p>
+                )}
+              </div>
+            )}
+
+            {/* Sección de Configuración */}
+            {activeSection === "config" && (
+              <div
+                className="bg-white p-6 rounded-lg shadow-sm mb-6 mt-4"
+                data-aos="fade-up"
+              >
+                <h3 className="text-xl font-semibold mb-6 text-[#1d5126] border-b pb-2">Configuración</h3>
+                <div className="space-y-8">
+                  <div className="bg-gray-50 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                    <Link className="group" href="/forgotPassword">
+                      <h4 className="font-semibold text-lg group-hover:underline text-[#1d5126] flex items-center">
+                        <FaCog className="mr-2" />
+                        Cambiar contraseña
+                      </h4>
+                      <p className="text-gray-600 mt-1 text-sm">Actualiza tu contraseña para mayor seguridad</p>
+                    </Link>
+                  </div>
+
+                  <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <h4 className="font-semibold text-lg text-[#1d5126] flex items-center">
+                      <FaUser className="mr-2" />
+                      Idioma
+                    </h4>
+                    <p className="text-gray-600 mt-1">Español (por defecto)</p>
+                  </div>
+
+                  <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <h4 className="font-semibold text-lg text-[#1d5126] flex items-center">
+                      <FaRegCreditCard className="mr-2" />
+                      Suscripción
+                    </h4>
+                    <div className="mt-3">
+                      <div className={`p-4 rounded-lg ${
+                        subscriptionInfo.hasActiveSubscription 
+                          ? 'bg-green-50 border-l-4 border-green-500' 
+                          : 'bg-gray-100 border-l-4 border-gray-400'
+                      }`}>
+                        <div className="flex items-center mb-2">
+                          <div className={`w-3 h-3 rounded-full mr-2 ${
+                            subscriptionInfo.hasActiveSubscription ? 'bg-green-500' : 'bg-gray-400'
+                          }`}></div>
+                          <span className="font-medium">
+                            {subscriptionInfo.hasActiveSubscription 
+                              ? 'Suscripción Activa' 
+                              : 'Sin Suscripción Activa'}
+                          </span>
+                        </div>
+                        <p className="text-sm mb-3">
+                          Plan actual: <span className="font-semibold">{subscriptionInfo.subscriptionType}</span>
+                        </p>
+                        
+                        {/* Cancel message */}
+                        {cancelMessage && (
+                          <div className={`p-3 rounded-md mb-3 ${
+                            cancelMessage.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {cancelMessage.text}
+                          </div>
+                        )}
+                        
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <Link 
+                            href="/Subs" 
+                            className="text-sm text-white bg-[#1d5126] hover:bg-[#3e7c27] px-4 py-2 rounded-md transition-colors duration-200 inline-flex items-center"
+                          >
+                            {subscriptionInfo.hasActiveSubscription 
+                              ? 'Administrar suscripción' 
+                              : 'Ver planes de suscripción'}
+                          </Link>
+                          <button
+                            onClick={handleRefreshSubscription}
+                            disabled={loadingSubscription}
+                            className="text-sm text-[#1d5126] border border-[#1d5126] hover:bg-[#f0f8f0] px-4 py-2 rounded-md transition-colors duration-200 inline-flex items-center"
+                          >
+                            {loadingSubscription ? (
+                              <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-[#1d5126] mr-2"></div>
+                                Actualizando...
+                              </>
+                            ) : (
+                              'Actualizar estado'
+                            )}
+                          </button>
+                          
+                          {/* Cancel subscription button - only show for active paid subscriptions */}
+                          {subscriptionInfo.hasActiveSubscription && 
+                           subscriptionInfo.subscriptionType !== 'Amateur' && (
+                            <button
+                              onClick={handleCancelSubscription}
+                              disabled={cancellingSubscription}
+                              className="text-sm text-red-600 border border-red-600 hover:bg-red-50 px-4 py-2 rounded-md transition-colors duration-200 inline-flex items-center"
+                            >
+                              {cancellingSubscription ? (
+                                <>
+                                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-red-600 mr-2"></div>
+                                  Cancelando...
+                                </>
+                              ) : (
+                                'Dar de baja suscripción'
+                              )}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="p-6 bg-white rounded-lg shadow-sm mt-4 flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1d5126]"></div>
           </div>
         )}
       </div>

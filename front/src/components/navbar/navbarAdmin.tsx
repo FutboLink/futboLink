@@ -36,10 +36,10 @@ function NavbarAdmin() {
 
   const menuItems = [
     { label: "Ofertas", path: "/jobs" },
-    { label: "Noticias", path: "/News" },
+    { label: "Noticias", path: "/PanelAdmin/News" },
     { label: "Suscripciones", path: "/Subs" },
     { label: "Ayuda", path: "/Help" },
-    { label: "Entrenamiento", path: "/cursos" },
+    { label: "Entrenamiento", path: "/PanelAdmin/Cursos" },
     { label: "Contacto", path: "/Contact" },
   ];
 
@@ -47,11 +47,14 @@ function NavbarAdmin() {
     if (!isLogged || !role) return null;
 
     let targetPath = "";
-     if (role === "ADMIN") targetPath = "/PanelAdmin";
+    if (role === "ADMIN") targetPath = "/PanelAdmin";
 
     return (
-      <button onClick={() => navigateTo(targetPath)}>
-        <FaUser className="text-verde-oscuro hover:text-verde-mas-claro hover:scale-110" />
+      <button
+        className="w-[1.5rem] h-[1.5rem]"
+        onClick={() => navigateTo(targetPath)}
+      >
+        <FaUser className="w-full h-full text-verde-oscuro hover:text-verde-mas-claro hover:scale-110" />
       </button>
     );
   };
@@ -81,47 +84,48 @@ function NavbarAdmin() {
               />
             </Link>
 
-            <ul className="hidden sm:flex gap-6 text-lg text-verde-oscuro">
-  {menuItems.map((item) => (
-    <li
-      key={item.path}
-      onClick={() => navigateTo(item.path)}
-      className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
-    >
-      {item.label}
-    </li>
-  ))}
-</ul>
+            <ul className="hidden lg:flex gap-6 text-lg text-verde-oscuro">
+              {menuItems.map((item) => (
+                <li
+                  key={item.path}
+                  onClick={() => navigateTo(item.path)}
+                  className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
+                >
+                  {item.label}
+                </li>
+              ))}
+            </ul>
 
-{/* Botones de sesión fuera del loop */}
-<div>
-  {!isLogged && (
-    <>
-      <Link href={"/Login"}>
-        <button
-          onClick={() => setIsDropdownOpen(false)}
-          className="w-full bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
-        >
-          Iniciar sesión
-        </button>
-      </Link>
-      <button
-        onClick={() => navigateTo("/OptionUsers")}
-        className="w-full bg-white text-verde-oscuro px-4 py-2 rounded-md mt-2 hover:bg-gray-200"
-      >
-        Registrarse
-      </button>
-    </>
-  )}
-</div>
-
+            {/* Botones de sesión fuera del loop */}
+            <div>
+              {!isLogged && (
+                <>
+                  <Link href={"/Login"}>
+                    <button
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="w-full bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
+                    >
+                      Iniciar sesión
+                    </button>
+                  </Link>
+                  <button
+                    onClick={() => navigateTo("/OptionUsers")}
+                    className="w-full bg-white text-verde-oscuro px-4 py-2 rounded-md mt-2 hover:bg-gray-200"
+                  >
+                    Registrarse
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
           {/* Icono de usuario en escritorio */}
-          <div className="hidden sm:flex items-center gap-4">{renderUserIcon()}</div>
+          <div className="hidden lg:flex items-center gap-4">
+            {renderUserIcon()}
+          </div>
 
           {/* Menú móvil: hamburguesa + ícono de usuario */}
-          <div className="flex items-center gap-4 sm:hidden">
+          <div className="flex items-center gap-4 lg:hidden">
             {renderUserIcon()}
             <button
               onClick={toggleMobileMenu}
@@ -148,7 +152,7 @@ function NavbarAdmin() {
 
         {/* Menú desplegable móvil */}
         {isMobileMenuOpen && (
-          <div className="sm:hidden bg-white text-verde-oscuro text-lg p-4">
+          <div className="lg:hidden bg-white text-verde-oscuro text-lg p-4">
             <ul>
               {menuItems.map((item) => (
                 <li

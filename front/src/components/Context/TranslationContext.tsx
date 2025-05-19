@@ -62,12 +62,37 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
         }
         
         setIsTranslateReady(true);
+        
+        // Apply styles again after everything is initialized
+        setTimeout(() => {
+          addTranslateStyles();
+        }, 500);
       } catch (error) {
         console.error("Error setting up translation:", error);
       }
     };
 
     setupTranslation();
+    
+    // Re-apply styles whenever window is resized (can trigger Google Translate to reappear)
+    const handleResize = () => {
+      addTranslateStyles();
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  // Periodically check and re-apply styles to ensure Google widget stays hidden
+  useEffect(() => {
+    const interval = setInterval(() => {
+      addTranslateStyles();
+    }, 2000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const setLanguage = async (language: string) => {
@@ -84,6 +109,11 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
         setCurrentLanguage(language);
         // Store the language preference
         localStorage.setItem('preferredLanguage', language);
+        
+        // Re-apply styles to hide Google elements that might reappear
+        setTimeout(() => {
+          addTranslateStyles();
+        }, 300);
       } else {
         console.error("Failed to change language");
       }
@@ -104,7 +134,7 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
         getLanguageName,
       }}
     >
-      <div id="google_translate_element" className="hidden"></div>
+      <div id="google_translate_element" className="hidden" style={{ display: 'none', visibility: 'hidden', width: 0, height: 0, overflow: 'hidden' }}></div>
       {children}
     </TranslationContext.Provider>
   );

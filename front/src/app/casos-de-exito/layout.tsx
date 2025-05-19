@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import ClientSuccessCaseWrapper from '@/components/SuccessCase/ClientSuccessCaseWrapper';
 
 export const metadata: Metadata = {
   title: 'Casos de Éxito | FutboLink',
@@ -13,6 +14,7 @@ export default function SuccessCasesLayout({
   return (
     <>
       {children}
+      <ClientSuccessCaseWrapper />
     </>
   )
 } 

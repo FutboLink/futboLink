@@ -7,11 +7,23 @@ import Link from 'next/link';
 import Navbar from "@/components/navbar/navbar";
 import Footer from '@/components/Footer/footer';
 
+// Correct params type definition for Next.js App Router
+interface SuccessCaseDetailsProps {
+  params: {
+    id: string;
+  };
+}
+
 // Componente para mostrar los detalles completos de un caso de éxito
-export default function SuccessCaseDetails({ params }: { params: { id: string } }) {
+export default function SuccessCaseDetails({ params }: SuccessCaseDetailsProps) {
   const [successCase, setSuccessCase] = useState<ISuccessCase | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     const loadSuccessCase = async () => {
@@ -19,6 +31,11 @@ export default function SuccessCaseDetails({ params }: { params: { id: string } 
         setLoading(true);
         const data = await fetchSuccessCaseById(params.id);
         setSuccessCase(data);
+        
+        // Set document title when data is loaded (client-side only)
+        if (data && typeof window !== 'undefined') {
+          document.title = `${data.name} - Casos de Éxito | FutboLink`;
+        }
       } catch (err) {
         console.error("Error al cargar el caso de éxito:", err);
         setError("No se pudo cargar el caso de éxito");
@@ -32,7 +49,7 @@ export default function SuccessCaseDetails({ params }: { params: { id: string } 
     }
   }, [params.id]);
 
-  if (loading) {
+  if (loading && !isClient) {
     return (
       <>
         <Navbar />
@@ -177,4 +194,7 @@ export default function SuccessCaseDetails({ params }: { params: { id: string } 
       <Footer />
     </>
   );
-} 
+}
+
+// Tell Next.js this is a dynamic route that should be rendered on-demand
+export const dynamic = 'force-dynamic'; 

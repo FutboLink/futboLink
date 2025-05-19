@@ -178,7 +178,7 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
                 Volver a casos de éxito
               </Link>
               <Link 
-                href="/register" 
+                href="/Subs" 
                 className="px-4 py-2 bg-[#1d5126] text-white rounded-md hover:bg-[#3e7c27] transition-colors"
               >
                 ¿Quieres ser el próximo?

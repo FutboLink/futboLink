@@ -187,7 +187,6 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
           </div>
         </div>
       </main>
-      <Footer />
     </>
   );
 } 

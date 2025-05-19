@@ -6,21 +6,24 @@ import {
   initGoogleTranslate, 
   changeLanguage, 
   addTranslateStyles, 
-  getCurrentLanguage 
+  getCurrentLanguage,
+  getLanguageName
 } from "@/services/TranslationService";
 
 interface TranslationContextType {
   currentLanguage: string;
   isTranslateReady: boolean;
   isTranslating: boolean;
-  toggleLanguage: () => Promise<void>;
+  setLanguage: (language: string) => Promise<void>;
+  getLanguageName: (code: string) => string;
 }
 
 const TranslationContext = createContext<TranslationContextType>({
   currentLanguage: "es",
   isTranslateReady: false,
   isTranslating: false,
-  toggleLanguage: async () => {},
+  setLanguage: async () => {},
+  getLanguageName: () => "",
 });
 
 export const useTranslation = () => useContext(TranslationContext);
@@ -67,7 +70,7 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
     setupTranslation();
   }, []);
 
-  const toggleLanguage = async () => {
+  const setLanguage = async (language: string) => {
     if (!isTranslateReady || isTranslating) {
       return;
     }
@@ -75,18 +78,17 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
     setIsTranslating(true);
     
     try {
-      const newLanguage = currentLanguage === "es" ? "it" : "es";
-      const success = await changeLanguage(newLanguage);
+      const success = await changeLanguage(language);
       
       if (success) {
-        setCurrentLanguage(newLanguage);
+        setCurrentLanguage(language);
         // Store the language preference
-        localStorage.setItem('preferredLanguage', newLanguage);
+        localStorage.setItem('preferredLanguage', language);
       } else {
         console.error("Failed to change language");
       }
     } catch (error) {
-      console.error("Error toggling language:", error);
+      console.error("Error changing language:", error);
     } finally {
       setIsTranslating(false);
     }
@@ -98,7 +100,8 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
         currentLanguage,
         isTranslateReady,
         isTranslating,
-        toggleLanguage,
+        setLanguage,
+        getLanguageName,
       }}
     >
       <div id="google_translate_element" className="hidden"></div>

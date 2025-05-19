@@ -7,6 +7,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { UserContext } from "../Context/UserContext";
 import { FaUser } from "react-icons/fa";
+import LanguageDropdown from "../LanguageToggle/LanguageDropdown";
 
 function NavbarRoles() {
   const router = useRouter();
@@ -100,8 +101,11 @@ function NavbarRoles() {
             </ul>
           </div>
 
-          {/* Botones de sesión alineados a la derecha */}
+          {/* Language dropdown and login buttons */}
           <div className="hidden sm:flex ml-auto items-center gap-4">
+            {/* Language Dropdown */}
+            <LanguageDropdown />
+
             {!isLogged && (
               <>
                 <Link href={"/Login"}>
@@ -127,6 +131,9 @@ function NavbarRoles() {
 
           {/* Menú móvil: hamburguesa + ícono de usuario */}
           <div className="flex items-center justify-end space-x-3 sm:hidden">
+            {/* Language Dropdown (Mobile) */}
+            <LanguageDropdown />
+            
             {isLogged && (
               <div className="flex-shrink-0">
                 {renderUserIcon()}

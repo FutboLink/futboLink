@@ -11,6 +11,20 @@ declare global {
 }
 
 /**
+ * Gets the language name from language code
+ * @param code The language code
+ * @returns The language name
+ */
+export const getLanguageName = (code: string): string => {
+  const languages: Record<string, string> = {
+    es: 'Español',
+    en: 'English',
+    it: 'Italiano'
+  };
+  return languages[code] || 'Español';
+};
+
+/**
  * Loads the Google Translate script
  * @returns Promise that resolves when the script is loaded
  */
@@ -54,7 +68,7 @@ export const initGoogleTranslate = (): Promise<void> => {
       new window.google.translate.TranslateElement(
         {
           pageLanguage: 'es',
-          includedLanguages: 'it,es',
+          includedLanguages: 'en,it,es',
           autoDisplay: false
         },
         'google_translate_element'
@@ -66,7 +80,7 @@ export const initGoogleTranslate = (): Promise<void> => {
 
 /**
  * Changes the page language
- * @param language The language code to change to ('es' or 'it')
+ * @param language The language code to change to ('es', 'en', or 'it')
  * @returns Promise that resolves when the language is changed
  */
 export const changeLanguage = async (language: string): Promise<boolean> => {

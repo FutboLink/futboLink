@@ -13,7 +13,7 @@ export const fetchAllSuccessCases = async (token?: string) => {
       headers.Authorization = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${apiUrl}/success-cases`, {
+    const response = await fetch(`${apiUrl}/testimonials`, {
       headers,
     });
 
@@ -31,7 +31,7 @@ export const fetchAllSuccessCases = async (token?: string) => {
 // Obtener un caso de éxito por ID
 export const fetchSuccessCaseById = async (id: string) => {
   try {
-    const response = await fetch(`${apiUrl}/success-cases/${id}`);
+    const response = await fetch(`${apiUrl}/testimonials/${id}`);
     
     if (!response.ok) {
       throw new Error("Error al obtener el caso de éxito");
@@ -47,7 +47,7 @@ export const fetchSuccessCaseById = async (id: string) => {
 // Crear un nuevo caso de éxito (requiere token de admin)
 export const createSuccessCase = async (token: string, successCase: ISuccessCase) => {
   try {
-    const response = await fetch(`${apiUrl}/success-cases`, {
+    const response = await fetch(`${apiUrl}/testimonials`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -71,7 +71,7 @@ export const createSuccessCase = async (token: string, successCase: ISuccessCase
 // Actualizar un caso de éxito existente (requiere token de admin)
 export const updateSuccessCase = async (token: string, id: string, successCase: Partial<ISuccessCase>) => {
   try {
-    const response = await fetch(`${apiUrl}/success-cases/${id}`, {
+    const response = await fetch(`${apiUrl}/testimonials/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -95,7 +95,7 @@ export const updateSuccessCase = async (token: string, id: string, successCase: 
 // Eliminar un caso de éxito (requiere token de admin)
 export const deleteSuccessCase = async (token: string, id: string) => {
   try {
-    const response = await fetch(`${apiUrl}/success-cases/${id}`, {
+    const response = await fetch(`${apiUrl}/testimonials/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -116,7 +116,7 @@ export const deleteSuccessCase = async (token: string, id: string) => {
 // Publicar o despublicar un caso de éxito (requiere token de admin)
 export const toggleSuccessCasePublish = async (token: string, id: string, isPublished: boolean) => {
   try {
-    const response = await fetch(`${apiUrl}/success-cases/${id}/publish`, {
+    const response = await fetch(`${apiUrl}/testimonials/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

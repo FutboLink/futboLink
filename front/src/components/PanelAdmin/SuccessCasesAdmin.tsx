@@ -11,6 +11,7 @@ import {
 } from "../Fetchs/SuccessCasesFetchs";
 import { UserContext } from "../Context/UserContext";
 import { FaEdit, FaTrash, FaEye, FaEyeSlash, FaPlus } from "react-icons/fa";
+import CloudinaryWidget from "../Cloudinary/CloudinaryWidget";
 
 const SuccessCasesAdmin: React.FC = () => {
   const { token } = useContext(UserContext);
@@ -153,7 +154,16 @@ const SuccessCasesAdmin: React.FC = () => {
     
     try {
       const newStatus = !currentStatus;
-      await toggleSuccessCasePublish(token, id, newStatus);
+      
+      try {
+        // Intentar usar la función específica de publicación primero
+        await toggleSuccessCasePublish(token, id, newStatus);
+      } catch (err) {
+        console.warn("El endpoint de publicación específico falló, usando actualización normal:", err);
+        
+        // Fallback: Usar la función de actualización regular como alternativa
+        await updateSuccessCase(token, id, { isPublished: newStatus });
+      }
       
       // Actualizar lista local
       setSuccessCases(
@@ -168,16 +178,8 @@ const SuccessCasesAdmin: React.FC = () => {
   };
 
   // Manejar cambio de imagen
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Aquí se implementaría el código para subir la imagen a Cloudinary
-    // Por ahora solo simulamos actualizar la URL
-    if (!e.target.files || e.target.files.length === 0) return;
-    
-    const file = e.target.files[0];
-    // Simular subida exitosa con URL temporal
-    setFormImgUrl(URL.createObjectURL(file));
-    
-    // Aquí se integraría con el sistema de subida de archivos existente
+  const handleImageUpload = (url: string) => {
+    setFormImgUrl(url);
   };
 
   // Limpiar mensajes después de un tiempo
@@ -392,34 +394,28 @@ const SuccessCasesAdmin: React.FC = () => {
                   <label className="block text-gray-700 text-sm font-bold mb-2">
                     URL de imagen *
                   </label>
-                  <div className="flex">
+                  <div className="flex flex-col">
                     <input
                       type="text"
                       value={formImgUrl}
                       onChange={(e) => setFormImgUrl(e.target.value)}
-                      className="shadow appearance-none border rounded-l w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-2"
                       placeholder="URL de la imagen"
                       required
                     />
-                    <label className="cursor-pointer bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded-r">
-                      Subir
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                      />
-                    </label>
-                  </div>
-                  {formImgUrl && (
-                    <div className="mt-2 w-full h-40 overflow-hidden rounded">
-                      <img
-                        src={formImgUrl}
-                        alt="Vista previa"
-                        className="w-full h-full object-cover"
-                      />
+                    <div className="mb-2">
+                      <CloudinaryWidget onUploadSuccess={handleImageUpload} resourceType="image" />
                     </div>
-                  )}
+                    {formImgUrl && (
+                      <div className="mt-2 w-full h-40 overflow-hidden rounded">
+                        <img
+                          src={formImgUrl}
+                          alt="Vista previa"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
                 
                 <div className="mb-6">

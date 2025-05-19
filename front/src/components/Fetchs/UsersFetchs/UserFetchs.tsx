@@ -103,8 +103,7 @@ export const updateUserData = async (
           logros: String(exp.logros || '')
         }));
       
-      // Para PostgreSQL, debemos formatear las trayectorias como un arreglo
-      // pero enviarlo como un string para que el servidor pueda convertirlo a jsonb[]
+      // Asignamos las trayectorias formateadas de vuelta al objeto
       dataToSend.trayectorias = formattedTrayectorias;
       
       console.log("Trayectorias formateadas:", JSON.stringify(dataToSend.trayectorias));
@@ -120,15 +119,11 @@ export const updateUserData = async (
     console.log("Enviando datos completos:", JSON.stringify(dataToSend));
     
     // Vamos a acceder directamente a la ruta del backend para la actualización
-    // Esto evita cualquier transformación intermedia que pueda estar causando problemas
     const fullApiUrl = `${apiUrl}/user/${userId}`;
     console.log("Enviando petición a:", fullApiUrl);
     
     const headers = {
-      "Content-Type": "application/json",
-      // Añadir un header personalizado para indicar al backend que debe tratar las trayectorias
-      // como un array de jsonb, en caso de que el backend esté configurado para leer este header
-      "X-Special-Array-Format": "jsonb-array"
+      "Content-Type": "application/json"
     };
     
     // Enviar la solicitud con los datos completos

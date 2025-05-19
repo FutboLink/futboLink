@@ -104,6 +104,8 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
       
       // Initialize experiences from trayectorias
       if (profileData.trayectorias && Array.isArray(profileData.trayectorias) && profileData.trayectorias.length > 0) {
+        console.log("Inicializando trayectorias desde el perfil:", JSON.stringify(profileData.trayectorias));
+        
         // Map existing experiences
         const updatedExperiences = profileData.trayectorias.map(exp => ({
           club: exp.club || '',
@@ -181,19 +183,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
         logros: String(exp.logros || '')
       }));
       
-      // Para evitar el problema con el tipo jsonb[] en PostgreSQL, vamos a guardar
-      // las trayectorias localmente como solución temporal
-      try {
-        // Guardar trayectorias en localStorage para recuperarlas más tarde
-        if (formattedExperiences.length > 0) {
-          localStorage.setItem('userTrayectorias', JSON.stringify(formattedExperiences));
-          console.log("Trayectorias guardadas localmente:", JSON.stringify(formattedExperiences));
-        }
-      } catch (localStorageError) {
-        console.error("Error guardando trayectorias en localStorage:", localStorageError);
-      }
-      
-      // Prepare the updated data (sin trayectorias)
+      // Prepare the updated data (including trayectorias)
       const updatedData = {
         ...formData,
         primaryPosition: primaryPosition,
@@ -203,20 +193,21 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
         skillfulFoot: pieHabil,
         height: altura,
         weight: peso,
-        cv: cvInfo?.url || undefined
+        cv: cvInfo?.url || undefined,
+        trayectorias: formattedExperiences
       };
 
       if (token) {
         // Extract userId from token
         const userId = JSON.parse(atob(token.split(".")[1])).id;
         
-        console.log("Actualizando datos del perfil (sin trayectorias)");
+        console.log("Actualizando datos del perfil incluyendo trayectorias:", JSON.stringify(updatedData.trayectorias));
         
         // Update user data
         await updateUserData(userId, updatedData);
         
         setShowNotification(true);
-        setNotificationMessage('Información profesional actualizada correctamente (trayectorias guardadas localmente)');
+        setNotificationMessage('Información profesional actualizada correctamente');
         setTimeout(() => {
           setShowNotification(false);
         }, 3000);

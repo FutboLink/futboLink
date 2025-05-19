@@ -11,7 +11,6 @@ import {
 } from "../Fetchs/SuccessCasesFetchs";
 import { UserContext } from "../Context/UserContext";
 import { FaEdit, FaTrash, FaEye, FaEyeSlash, FaPlus } from "react-icons/fa";
-import FileUpload from "../Cloudinary/FileUpload";
 
 const SuccessCasesAdmin: React.FC = () => {
   const { token } = useContext(UserContext);
@@ -34,9 +33,6 @@ const SuccessCasesAdmin: React.FC = () => {
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Agregar estado para subida de imagen
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
-
   // Cargar casos de éxito al iniciar
   useEffect(() => {
     const loadSuccessCases = async () => {
@@ -45,47 +41,13 @@ const SuccessCasesAdmin: React.FC = () => {
       try {
         setLoading(true);
         const data = await fetchAllSuccessCases(token);
-        console.log("Respuesta de la API de testimonials:", data);
-        
-        // Manejar diferentes formatos de respuesta
         if (Array.isArray(data)) {
           setSuccessCases(data);
-        } else if (data && typeof data === 'object') {
-          // Intentar encontrar un array en cualquier propiedad
-          let foundArray = null;
-          
-          // Caso 1: data.testimonials
-          if (data.testimonials && Array.isArray(data.testimonials)) {
-            foundArray = data.testimonials;
-          } 
-          // Caso 2: data.data
-          else if (data.data && Array.isArray(data.data)) {
-            foundArray = data.data;
-          } 
-          // Caso 3: data.results
-          else if (data.results && Array.isArray(data.results)) {
-            foundArray = data.results;
-          }
-          // Caso 4: data.items
-          else if (data.items && Array.isArray(data.items)) {
-            foundArray = data.items;
-          }
-          
-          if (foundArray) {
-            setSuccessCases(foundArray);
-          } else {
-            console.error("No se encontró un array en la respuesta:", data);
-            setSuccessCases([]);
-            setError("Formato de datos incorrecto");
-          }
         } else {
-          console.error("Formato de datos incorrecto:", data);
-          setSuccessCases([]);
           setError("Formato de datos incorrecto");
         }
       } catch (err) {
         console.error("Error al cargar casos de éxito:", err);
-        setSuccessCases([]);
         setError("No se pudieron cargar los casos de éxito");
       } finally {
         setLoading(false);
@@ -146,37 +108,25 @@ const SuccessCasesAdmin: React.FC = () => {
     };
 
     try {
-      console.log("Enviando datos:", caseData);
-      
       if (isNewCase) {
         // Crear nuevo caso de éxito
         const newCase = await createSuccessCase(token, caseData);
-        console.log("Respuesta al crear:", newCase);
-        
-        if (newCase) {
-          setSuccessCases([...successCases, newCase]);
-          setSuccessMessage("Caso de éxito creado correctamente");
-          // Cerrar modal después de guardar
-          setIsModalOpen(false);
-        }
+        setSuccessCases([...successCases, newCase]);
+        setSuccessMessage("Caso de éxito creado correctamente");
       } else if (currentCase?.id) {
         // Actualizar caso existente
         const updatedCase = await updateSuccessCase(token, currentCase.id, caseData);
-        console.log("Respuesta al actualizar:", updatedCase);
-        
-        if (updatedCase) {
-          setSuccessCases(
-            successCases.map(c => c.id === currentCase.id ? updatedCase : c)
-          );
-          setSuccessMessage("Caso de éxito actualizado correctamente");
-          // Cerrar modal después de guardar
-          setIsModalOpen(false);
-        }
+        setSuccessCases(
+          successCases.map(c => c.id === currentCase.id ? updatedCase : c)
+        );
+        setSuccessMessage("Caso de éxito actualizado correctamente");
       }
+      
+      // Cerrar modal después de guardar
+      setIsModalOpen(false);
     } catch (err) {
       console.error("Error al guardar:", err);
-      const errorMessage = err instanceof Error ? err.message : "Error desconocido";
-      setFormError("Error al guardar: " + errorMessage);
+      setFormError("Error al guardar: " + (err instanceof Error ? err.message : "desconocido"));
     } finally {
       setIsUploading(false);
     }
@@ -217,9 +167,17 @@ const SuccessCasesAdmin: React.FC = () => {
     }
   };
 
-  // Actualizar el componente de subida de imagen
-  const handleImageUpload = (fileInfo: { url: string; filename: string }) => {
-    setFormImgUrl(fileInfo.url);
+  // Manejar cambio de imagen
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Aquí se implementaría el código para subir la imagen a Cloudinary
+    // Por ahora solo simulamos actualizar la URL
+    if (!e.target.files || e.target.files.length === 0) return;
+    
+    const file = e.target.files[0];
+    // Simular subida exitosa con URL temporal
+    setFormImgUrl(URL.createObjectURL(file));
+    
+    // Aquí se integraría con el sistema de subida de archivos existente
   };
 
   // Limpiar mensajes después de un tiempo
@@ -434,19 +392,24 @@ const SuccessCasesAdmin: React.FC = () => {
                   <label className="block text-gray-700 text-sm font-bold mb-2">
                     URL de imagen *
                   </label>
-                  <div className="flex flex-col">
+                  <div className="flex">
                     <input
                       type="text"
                       value={formImgUrl}
                       onChange={(e) => setFormImgUrl(e.target.value)}
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-2"
+                      className="shadow appearance-none border rounded-l w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       placeholder="URL de la imagen"
                       required
                     />
-                    <div className="mt-2">
-                      <p className="text-sm text-gray-600 mb-2">O sube una imagen directamente:</p>
-                      <FileUpload onUpload={handleImageUpload} fileType="document" />
-                    </div>
+                    <label className="cursor-pointer bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded-r">
+                      Subir
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                      />
+                    </label>
                   </div>
                   {formImgUrl && (
                     <div className="mt-2 w-full h-40 overflow-hidden rounded">

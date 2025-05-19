@@ -16,6 +16,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { mailConfig } from './modules/config/mail.config';
 import { EmailController } from './modules/Mailing/email.controller';
 import { EmailService } from './modules/Mailing/email.service';
+import { SuccessCasesModule } from './modules/SuccessCases/success-cases.module';
 
 @Module({
   imports: [
@@ -35,8 +36,8 @@ import { EmailService } from './modules/Mailing/email.service';
     ContractsModule,
     NewsModule,
     CursoModule,
-    PaymentsModule
-   
+    PaymentsModule,
+    SuccessCasesModule
   ],
   
   controllers: [AppController,EmailController],

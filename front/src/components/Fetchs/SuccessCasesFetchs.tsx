@@ -1,7 +1,6 @@
 import { ISuccessCase } from "@/Interfaces/ISuccessCase";
 
-// Instead of using the external API, use our Next.js API routes
-const apiBaseUrl = '/api';
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 // Obtener todos los casos de éxito
 export const fetchAllSuccessCases = async (token?: string) => {
@@ -14,12 +13,15 @@ export const fetchAllSuccessCases = async (token?: string) => {
       headers.Authorization = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${apiBaseUrl}/testimonials`, {
+    console.log(`Fetching success cases from: ${apiUrl}/success-cases`);
+    const response = await fetch(`${apiUrl}/success-cases`, {
       headers,
     });
 
     if (!response.ok) {
-      throw new Error("Error al obtener los casos de éxito");
+      const errorData = await response.json().catch(() => ({}));
+      console.error("API response error:", response.status, errorData);
+      throw new Error(errorData.message || "Error al obtener los casos de éxito");
     }
 
     return await response.json();
@@ -29,13 +31,35 @@ export const fetchAllSuccessCases = async (token?: string) => {
   }
 };
 
+// Obtener los casos de éxito publicados (para mostrar al público)
+export const fetchPublishedSuccessCases = async () => {
+  try {
+    console.log(`Fetching published success cases from: ${apiUrl}/success-cases/published`);
+    const response = await fetch(`${apiUrl}/success-cases/published`);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("API response error:", response.status, errorData);
+      throw new Error(errorData.message || "Error al obtener los casos de éxito publicados");
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Error al obtener los casos de éxito publicados:", error);
+    throw error;
+  }
+};
+
 // Obtener un caso de éxito por ID
 export const fetchSuccessCaseById = async (id: string) => {
   try {
-    const response = await fetch(`${apiBaseUrl}/testimonials/${id}`);
+    console.log(`Fetching success case by ID from: ${apiUrl}/success-cases/${id}`);
+    const response = await fetch(`${apiUrl}/success-cases/${id}`);
     
     if (!response.ok) {
-      throw new Error("Error al obtener el caso de éxito");
+      const errorData = await response.json().catch(() => ({}));
+      console.error("API response error:", response.status, errorData);
+      throw new Error(errorData.message || "Error al obtener el caso de éxito");
     }
     
     return await response.json();
@@ -48,7 +72,10 @@ export const fetchSuccessCaseById = async (id: string) => {
 // Crear un nuevo caso de éxito (requiere token de admin)
 export const createSuccessCase = async (token: string, successCase: ISuccessCase) => {
   try {
-    const response = await fetch(`${apiBaseUrl}/testimonials`, {
+    console.log(`Creating success case at: ${apiUrl}/success-cases`);
+    console.log("Data being sent:", JSON.stringify(successCase));
+    
+    const response = await fetch(`${apiUrl}/success-cases`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -58,7 +85,8 @@ export const createSuccessCase = async (token: string, successCase: ISuccessCase
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json().catch(() => ({}));
+      console.error("API response error:", response.status, errorData);
       throw new Error(errorData.message || "Error al crear el caso de éxito");
     }
 
@@ -72,7 +100,10 @@ export const createSuccessCase = async (token: string, successCase: ISuccessCase
 // Actualizar un caso de éxito existente (requiere token de admin)
 export const updateSuccessCase = async (token: string, id: string, successCase: Partial<ISuccessCase>) => {
   try {
-    const response = await fetch(`${apiBaseUrl}/testimonials/${id}`, {
+    console.log(`Updating success case at: ${apiUrl}/success-cases/${id}`);
+    console.log("Data being sent:", JSON.stringify(successCase));
+    
+    const response = await fetch(`${apiUrl}/success-cases/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -82,7 +113,8 @@ export const updateSuccessCase = async (token: string, id: string, successCase: 
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json().catch(() => ({}));
+      console.error("API response error:", response.status, errorData);
       throw new Error(errorData.message || "Error al actualizar el caso de éxito");
     }
 
@@ -96,7 +128,9 @@ export const updateSuccessCase = async (token: string, id: string, successCase: 
 // Eliminar un caso de éxito (requiere token de admin)
 export const deleteSuccessCase = async (token: string, id: string) => {
   try {
-    const response = await fetch(`${apiBaseUrl}/testimonials/${id}`, {
+    console.log(`Deleting success case at: ${apiUrl}/success-cases/${id}`);
+    
+    const response = await fetch(`${apiUrl}/success-cases/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -104,7 +138,9 @@ export const deleteSuccessCase = async (token: string, id: string) => {
     });
 
     if (!response.ok) {
-      throw new Error("Error al eliminar el caso de éxito");
+      const errorData = await response.json().catch(() => ({}));
+      console.error("API response error:", response.status, errorData);
+      throw new Error(errorData.message || "Error al eliminar el caso de éxito");
     }
 
     return true;
@@ -117,7 +153,10 @@ export const deleteSuccessCase = async (token: string, id: string) => {
 // Publicar o despublicar un caso de éxito (requiere token de admin)
 export const toggleSuccessCasePublish = async (token: string, id: string, isPublished: boolean) => {
   try {
-    const response = await fetch(`${apiBaseUrl}/testimonials/${id}/publish`, {
+    console.log(`Toggling publish status at: ${apiUrl}/success-cases/${id}/publish`);
+    console.log("Data being sent:", JSON.stringify({ isPublished }));
+    
+    const response = await fetch(`${apiUrl}/success-cases/${id}/publish`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -127,7 +166,9 @@ export const toggleSuccessCasePublish = async (token: string, id: string, isPubl
     });
 
     if (!response.ok) {
-      throw new Error("Error al cambiar el estado de publicación");
+      const errorData = await response.json().catch(() => ({}));
+      console.error("API response error:", response.status, errorData);
+      throw new Error(errorData.message || "Error al cambiar el estado de publicación");
     }
 
     return await response.json();

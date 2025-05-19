@@ -1,6 +1,7 @@
 import { ISuccessCase } from "@/Interfaces/ISuccessCase";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+// Instead of using the external API, use our Next.js API routes
+const apiBaseUrl = '/api';
 
 // Obtener todos los casos de éxito
 export const fetchAllSuccessCases = async (token?: string) => {
@@ -13,7 +14,7 @@ export const fetchAllSuccessCases = async (token?: string) => {
       headers.Authorization = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${apiUrl}/testimonials`, {
+    const response = await fetch(`${apiBaseUrl}/testimonials`, {
       headers,
     });
 
@@ -31,7 +32,7 @@ export const fetchAllSuccessCases = async (token?: string) => {
 // Obtener un caso de éxito por ID
 export const fetchSuccessCaseById = async (id: string) => {
   try {
-    const response = await fetch(`${apiUrl}/testimonials/${id}`);
+    const response = await fetch(`${apiBaseUrl}/testimonials/${id}`);
     
     if (!response.ok) {
       throw new Error("Error al obtener el caso de éxito");
@@ -47,7 +48,7 @@ export const fetchSuccessCaseById = async (id: string) => {
 // Crear un nuevo caso de éxito (requiere token de admin)
 export const createSuccessCase = async (token: string, successCase: ISuccessCase) => {
   try {
-    const response = await fetch(`${apiUrl}/testimonials`, {
+    const response = await fetch(`${apiBaseUrl}/testimonials`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -71,7 +72,7 @@ export const createSuccessCase = async (token: string, successCase: ISuccessCase
 // Actualizar un caso de éxito existente (requiere token de admin)
 export const updateSuccessCase = async (token: string, id: string, successCase: Partial<ISuccessCase>) => {
   try {
-    const response = await fetch(`${apiUrl}/testimonials/${id}`, {
+    const response = await fetch(`${apiBaseUrl}/testimonials/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -95,7 +96,7 @@ export const updateSuccessCase = async (token: string, id: string, successCase: 
 // Eliminar un caso de éxito (requiere token de admin)
 export const deleteSuccessCase = async (token: string, id: string) => {
   try {
-    const response = await fetch(`${apiUrl}/testimonials/${id}`, {
+    const response = await fetch(`${apiBaseUrl}/testimonials/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -116,9 +117,7 @@ export const deleteSuccessCase = async (token: string, id: string) => {
 // Publicar o despublicar un caso de éxito (requiere token de admin)
 export const toggleSuccessCasePublish = async (token: string, id: string, isPublished: boolean) => {
   try {
-    // En lugar de usar un endpoint específico para publicar/despublicar,
-    // simplemente actualizamos el documento con el nuevo estado de publicación
-    const response = await fetch(`${apiUrl}/testimonials/${id}`, {
+    const response = await fetch(`${apiBaseUrl}/testimonials/${id}/publish`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

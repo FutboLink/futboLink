@@ -198,21 +198,54 @@ export const fetchEditJob = async (
 
 
 export const resetPassword = async (token: string, password: string) => {
-  console.log("Token desde fetch", { token, password });
   try {
-    const res = await fetch(`${apiUrl}/login/reset-password`, {
+    console.log(`Intentando restablecer contraseña con token: ${token.substring(0, 10)}...`);
+    console.log(`URL de API: ${apiUrl}/login/reset-password`);
+    
+    const response = await fetch(`${apiUrl}/login/reset-password`, {
       method: "POST",
-      body: JSON.stringify({ token, newPassword: password }),  // Enviar tanto el token como la nueva contraseña en el cuerpo
       headers: { 
         "Content-Type": "application/json",
+        "Accept": "application/json"
       },
+      body: JSON.stringify({ 
+        token,
+        newPassword: password 
+      }),
+      credentials: 'include',
+      mode: 'cors'
     });
 
-    const data = await res.json();
-    return { success: res.ok, message: data.message };
+    const data = await response.json();
+    console.log("Respuesta del servidor:", response.status, data);
+    
+    if (!response.ok) {
+      console.error("Error en resetPassword:", data);
+      return { 
+        success: false, 
+        message: data.message || "Error al restablecer la contraseña. Por favor, intenta nuevamente."
+      };
+    }
+    
+    return { 
+      success: true, 
+      message: data.message || "Contraseña restablecida exitosamente." 
+    };
   } catch (error) {
-    console.error(error);
-    return { success: false, message: "Error al conectar con el servidor." };
+    console.error("Error en la solicitud resetPassword:", error);
+    
+    // Mensaje específico para errores de CORS o de red
+    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+      return { 
+        success: false, 
+        message: "No se pudo conectar con el servidor. Esto podría deberse a un problema de CORS o a que el servidor no está disponible."
+      };
+    }
+    
+    return { 
+      success: false, 
+      message: "Error al conectar con el servidor. Verifica tu conexión e intenta nuevamente."
+    };
   }
 };
 
@@ -222,16 +255,26 @@ export const forgotPassword = async (email: string) => {
     const res = await fetch(`${apiUrl}/login/forgot-password`, {
       method: "POST",
       body: JSON.stringify({ email }),
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      credentials: 'include',
+      mode: 'cors'
     });
 
     const data = await res.json();
     return { success: res.ok, message: data.message };
   } catch (error) {
-    console.error(error);
+    console.error("Error en forgotPassword:", error);
+    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+      return { 
+        success: false, 
+        message: "No se pudo conectar con el servidor. Esto podría deberse a un problema de CORS o a que el servidor no está disponible." 
+      };
+    }
     return { success: false, message: "Error al conectar con el servidor." };
   }
-
 }
 
 export const contact = async (email: string, name: string, mensaje: string) => {

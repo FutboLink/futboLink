@@ -15,6 +15,14 @@ const sections = ["Perfil", "Datos Físicos", "Trayectoria"];
 const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
   const [activeSection, setActiveSection] = useState<string>(sections[0]);
 
+  const getYouTubeEmbedUrl = (url: string) => {
+    if (!url) return ""; // Retorna vacío si no hay URL
+
+    const regex = /(?:youtube\.com\/(?:.*v=|embed\/)|youtu\.be\/)([\w-]+)/;
+    const match = url.match(regex);
+    return match ? `https://www.youtube.com/embed/${match[1]}` : "";
+  };
+
   return (
     <div className="flex min-h-screen mt-24 text-black bg-gray-50 flex-col sm:flex-row">
       {/* Barra Lateral */}
@@ -32,7 +40,7 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
           />
           <div className="space-y-2 text-center">
             <h2 className="text-2xl font-semibold">
-            {profile.name} {profile.lastname}
+              {profile.name} {profile.lastname}
             </h2>
             <h2 className="text-xl font-medium">{profile.puesto}</h2>
             <p className="text-sm">{profile.phone}</p>
@@ -67,10 +75,10 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
       </div>
 
       {/* Contenido Principal */}
-      <div className="flex-1 p-6 bg-gray-50 text-black">
+      <div className="flex-1 p-6 bg-gray-50 text-black ">
         {activeSection === "Perfil" && (
-          <div className="transition-opacity duration-300">
-            <div className="flex items-start">
+          <div className="flex flex-col sm:flex-col lg:flex-row justify-between gap-6 transition-opacity duration-300">
+            <div className="flex items-start lg:w-1/2">
               <Image
                 src={
                   profile?.imgUrl ||
@@ -97,7 +105,7 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
                   </p>
                   <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                     <strong>Nacionalidad:</strong> {profile.nationality}
-                  </p> 
+                  </p>
                   <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                     <strong>Ciudad:</strong> {profile.location}
                   </p>
@@ -125,12 +133,11 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
                         href={profile.socialMedia?.x || "#"}
                         target="_blank"
                         rel="noopener noreferrer"
-                     
                       >
                         <FaX size={24} />
                       </a>
                       <a
-                        href={profile.socialMedia?.youtube || "#"}
+                        href={profile.videoUrl || "#"}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-red-600 hover:text-red-800"
@@ -143,16 +150,38 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
                         rel="noopener noreferrer"
                         className="text-green-600 hover:text-green-800"
                       >
-                                  <Image
-      src="/transfermarkt.png"
-      alt="Transfermarkt"
-      width={60}
-      height={60}
-    />
+                        <Image
+                          src="/transfermarkt.png"
+                          alt="Transfermarkt"
+                          width={60}
+                          height={60}
+                        />
                       </a>
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+            {/* Video de Presentación */}
+            <div className="lg:w-1/2">
+              <span className="font-medium text-lg mb-4 text-gray-500 block">
+                Video de Presentación:
+              </span>
+              <div className="relative max-w-[26rem] h-[16rem] overflow-hidden rounded-lg bg-black">
+                {profile?.videoUrl ? (
+                  <iframe
+                    className="absolute top-0 left-0 w-full h-full"
+                    src={getYouTubeEmbedUrl(profile.videoUrl)}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    allowFullScreen
+                  ></iframe>
+                ) : (
+                  <p className="text-white text-center p-4">
+                    No hay video disponible
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -172,14 +201,27 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
                 className="rounded-full mb-4 md:mb-0"
               />
               <div className="ml-4">
-                <h2 className="text-xl font-semibold text-[#1d5126]">
+              
+                   <h2 className="text-xl font-semibold text-[#1d5126]">Datos Generales</h2>
+                  <div className="text-gray-700">
+                  <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
+                    <strong>Posición principal:</strong> {profile.primaryPosition}
+                  </p>
+                  <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
+                    <strong>Puesto secundario:</strong> {profile.secondaryPosition}
+                  </p>
+                   <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
+                    <strong>Pasaporte UE:</strong> {profile.pasaporteUe}
+                  </p> 
+                  </div>
+                   <h2 className="text-xl font-semibold text-[#1d5126]">
                   Datos Físicos
                 </h2>
                 <div className="text-gray-700">
-                  <p>
+                  <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                     <strong>Pierna hábil:</strong> {profile.skillfulFoot}
                   </p>
-                  <p>
+                  <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md">
                     <strong>Estructura corporal:</strong>{" "}
                     {profile.bodyStructure}
                   </p>

@@ -7,23 +7,31 @@ import { INotice } from "@/Interfaces/INews";
 
 const AllNoticesPage = () => {
   const [news, setNews] = useState<INotice[]>([]); 
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null); 
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState<number>(1);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+
+  const fetchNews = async (pageNumber: number) => {
+    setLoading(true);
+    try {
+      const response = await getNews(pageNumber);
+      if (response.length < 8) setHasMore(false);
+      setNews((prev) => [...prev, ...response]);
+    } catch (error) {
+      setError("Error al obtener las noticias.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchNews = async () => {
-      try {
-        const response = await getNews(); 
-        setNews(response);
-        setLoading(false); 
-      } catch (error) {
-        setError("Error al obtener las noticias.");
-        setLoading(false);
-      }
-    };
+    fetchNews(page);
+  }, [page]);
 
-    fetchNews();
-  }, []);
+  const handleLoadMore = () => {
+    setPage((prev) => prev + 1);
+  };
 
   return (
     <div className="container mx-auto pt-24 pb-16 px-4">
@@ -31,7 +39,7 @@ const AllNoticesPage = () => {
         Todas las Noticias
       </h1>
 
-      {loading ? (
+      {loading && news.length === 0 ? (
         <div className="flex justify-center items-center h-96">
           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-green-700"></div>
         </div>
@@ -46,6 +54,23 @@ const AllNoticesPage = () => {
           {news.map((newsItem) => (
             <CardNews key={newsItem.id} notice={newsItem} />
           ))}
+        </div>
+      )}
+
+      {hasMore && !loading && (
+        <div className="flex justify-center mt-10">
+          <button
+            onClick={handleLoadMore}
+            className="px-6 py-3 bg-verde-oscuro text-white rounded-lg hover:bg-green-700 transition duration-300"
+          >
+            Cargar más noticias
+          </button>
+        </div>
+      )}
+
+      {loading && news.length > 0 && (
+        <div className="flex justify-center mt-4">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-green-700"></div>
         </div>
       )}
     </div>

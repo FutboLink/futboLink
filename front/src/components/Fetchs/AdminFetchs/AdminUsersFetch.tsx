@@ -73,9 +73,10 @@ export const getUsers =  async (): Promise<IProfileData[]> => {
   
 
 // Función para obtener las noticias
-export const getNews =  async (): Promise<INotice[]> => {
+export const getNews = async (page?: number): Promise<INotice[]> => {
   try {
-    const response = await fetch(`${apiUrl}/News`); 
+    const url = page ? `${apiUrl}/News?page=${page}` : `${apiUrl}/News`;
+    const response = await fetch(url); 
     if (!response.ok) {
       throw new Error('Error al obtener las noticias');
     }

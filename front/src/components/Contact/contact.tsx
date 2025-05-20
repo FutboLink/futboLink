@@ -4,7 +4,7 @@ import Image from "next/image";
 import logo from "../../../public/logoD.png";
 import Head from "next/head";
 import AOS from "aos";
-import "aos/dist/aos.css"; 
+import "aos/dist/aos.css";
 import React, { useState } from "react";
 import { contact } from "../Fetchs/UsersFetchs/UserFetchs";
 
@@ -24,14 +24,14 @@ function Contact() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     if (!email || !name || !mensaje) {
       setMessage("⚠️ Por favor, completa todos los campos.");
       return;
     }
 
     setLoading(true);
-    setMessage(""); 
+    setMessage("");
 
     const { success } = await contact(email, name, mensaje);
 
@@ -40,13 +40,16 @@ function Contact() {
     if (success) {
       setSuccess(true);
       setMessage("✅ Se ha enviado tu mensaje.");
+      setEmail("");
+      setName("");
+      setMensaje("");
     } else {
       setMessage("❌ Ocurrió un error al enviar el mensaje.");
     }
   };
 
   return (
-    <div className="mt-16 overflow-x-hidden">
+    <div className="mt-16 overflow-hidden">
       <Head>
         <title>Contacto - Futbolink</title>
         <meta
@@ -95,69 +98,85 @@ function Contact() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-12">
             {/* Formulario de contacto */}
-          <div className="bg-white p-6 sm:p-8 rounded-lg shadow-lg">
-            <h2 className="text-2xl sm:text-3xl font-semibold text-verde-oscuro mb-6">
-              Contáctanos
-            </h2>
-            <form onSubmit={handleSubmit} className="text-gray-800 space-y-4 sm:space-y-6">
-              {/* Nombre */}
-              <div>
-                <label htmlFor="name" className="block text-lg font-medium text-gray-700">
-                  Nombre
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  value={name} // Vinculamos el estado de `name` con el input
-                  onChange={(e) => setName(e.target.value)} // Actualizamos el estado con el valor del input
-                  placeholder="Tu nombre"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-oscuro"
-                />
-              </div>
-
-              {/* Correo electrónico */}
-              <div>
-                <label htmlFor="email" className="block text-lg font-medium text-gray-700">
-                  Correo electrónico
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={email} // Vinculamos el estado de `email` con el input
-                  onChange={(e) => setEmail(e.target.value)} // Actualizamos el estado con el valor del input
-                  placeholder="Tu correo electrónico"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-oscuro"
-                />
-              </div>
-
-              {/* Mensaje */}
-              <div>
-                <label htmlFor="message" className="block text-lg font-medium text-gray-700">
-                  Mensaje
-                </label>
-                <textarea
-                  id="message"
-                  value={mensaje} 
-                  onChange={(e) => setMensaje(e.target.value)} 
-                  rows={4}
-                  placeholder="Tu mensaje"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-oscuro"
-                />
-              </div>
-
-              {/* Botón de envío */}
-              <button
-                type="submit"
-                className="w-full py-3 bg-verde-oscuro text-white text-lg font-semibold rounded-md hover:bg-green-700 transition-colors"
-                disabled={loading} 
+            <div className="bg-white p-6 sm:p-8 rounded-lg shadow-lg">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-verde-oscuro mb-6">
+                Contáctanos
+              </h2>
+              <form
+                onSubmit={handleSubmit}
+                className="text-gray-800 space-y-4 sm:space-y-6"
               >
-                {loading ? "Enviando..." : "Enviar mensaje"}
-              </button>
-            </form>
+                {/* Nombre */}
+                <div>
+                  <label
+                    htmlFor="name"
+                    className="block text-lg font-medium text-gray-700"
+                  >
+                    Nombre
+                  </label>
+                  <input
+                    id="name"
+                    type="text"
+                    value={name} // Vinculamos el estado de `name` con el input
+                    onChange={(e) => setName(e.target.value)} // Actualizamos el estado con el valor del input
+                    placeholder="Tu nombre"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-oscuro"
+                  />
+                </div>
 
-            {/* Mensaje de estado */}
-            {message && <p className="text-gray-800 mt-4 text-center text-xl">{message}</p>}
-          </div>
+                {/* Correo electrónico */}
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-lg font-medium text-gray-700"
+                  >
+                    Correo electrónico
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email} // Vinculamos el estado de `email` con el input
+                    onChange={(e) => setEmail(e.target.value)} // Actualizamos el estado con el valor del input
+                    placeholder="Tu correo electrónico"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-oscuro"
+                  />
+                </div>
+
+                {/* Mensaje */}
+                <div>
+                  <label
+                    htmlFor="message"
+                    className="block text-lg font-medium text-gray-700"
+                  >
+                    Mensaje
+                  </label>
+                  <textarea
+                    id="message"
+                    value={mensaje}
+                    onChange={(e) => setMensaje(e.target.value)}
+                    rows={4}
+                    placeholder="Tu mensaje"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-oscuro"
+                  />
+                </div>
+
+                {/* Botón de envío */}
+                <button
+                  type="submit"
+                  className="w-full py-3 bg-verde-oscuro text-white text-lg font-semibold rounded-md hover:bg-green-700 transition-colors"
+                  disabled={loading}
+                >
+                  {loading ? "Enviando..." : "Enviar mensaje"}
+                </button>
+              </form>
+
+              {/* Mensaje de estado */}
+              {message && (
+                <p className="text-gray-800 mt-4 text-center text-xl">
+                  {message}
+                </p>
+              )}
+            </div>
 
             {/* Sección de ubicación */}
             <div
@@ -173,22 +192,22 @@ function Contact() {
                 jugadores, representantes y agencias de todo el mundo.
               </p>
               <div className="relative rounded-lg overflow-hidden shadow-lg">
-  <iframe
-    src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d12578.187595244646!2d18.174808!3d40.350853!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses!2sit!4v1714500000000!5m2!1ses!2sit"
-    width="600"
-    height="400"
-    allowFullScreen
-    loading="lazy"
-    className="w-full h-[400px] rounded-lg border-0"
-  ></iframe>
-</div>
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d12578.187595244646!2d18.174808!3d40.350853!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses!2sit!4v1714500000000!5m2!1ses!2sit"
+                  width="600"
+                  height="400"
+                  allowFullScreen
+                  loading="lazy"
+                  className="w-full h-[400px] rounded-lg border-0"
+                ></iframe>
+              </div>
 
               <div className="mt-6">
                 <h3 className="text-xl font-semibold text-verde-oscuro">
                   Dirección:
                 </h3>
                 <p className="text-lg text-gray-700">
-                Lecce, Apulia, Italia, 73100
+                  Lecce, Apulia, Italia, 73100
                 </p>
 
                 <h3 className="text-xl font-semibold text-verde-oscuro mt-4">
@@ -200,8 +219,8 @@ function Contact() {
                   Correo electrónico:
                 </h3>
                 <p className="text-lg text-gray-700">
-                futbolink.contacto@gmail.com
-                    </p>
+                  futbolink.contacto@gmail.com
+                </p>
               </div>
             </div>
           </div>

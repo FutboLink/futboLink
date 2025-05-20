@@ -159,7 +159,7 @@ const OfferList: React.FC = () => {
           <select
             value={contractTypeFilter}
             onChange={(e) => setContractTypeFilter(e.target.value)}
-            className="w-full md:max-w-[15rem] md:min-w-[12rem] p-2 border border-gray-300 rounded-md text-gray-700 cursor-pointer"
+            className="w-full md:max-w-[15rem] md:min-w-[12rem] p-2 border border-gray-300 rounded-md text-gray-700"
           >
             <option value="">Tipo de contrato</option>
             {contractTypes.map((contractType) => (
@@ -174,7 +174,7 @@ const OfferList: React.FC = () => {
           <select
             value={positionFilter}
             onChange={(e) => setPositionFilter(e.target.value)}
-            className="w-full md:max-w-[15rem] md:min-w-[12rem] p-2 border border-gray-300 rounded-md text-gray-700 cursor-pointer"
+            className="w-full md:max-w-[15rem] md:min-w-[12rem] p-2 border border-gray-300 rounded-md text-gray-700"
           >
             <option value="">Posición</option>
             {positions.map((position) => (

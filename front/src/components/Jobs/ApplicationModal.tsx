@@ -17,7 +17,11 @@ interface ApplicantModalProps {
   applicantId: string;
 }
 
-const ApplicantModal: React.FC<ApplicantModalProps> = ({ isOpen, onClose, applicantId }) => {
+const ApplicantModal: React.FC<ApplicantModalProps> = ({
+  isOpen,
+  onClose,
+  applicantId,
+}) => {
   const [applicant, setApplicant] = useState<Applicant | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -52,26 +56,34 @@ const ApplicantModal: React.FC<ApplicantModalProps> = ({ isOpen, onClose, applic
           &times;
         </button>
 
-        <h2 className="text-xl font-bold mb-4 bg-verde-oscuro text-center mt-2 text-white p-2 rounded">Datos del Postulante</h2>
+        <h2 className="text-xl font-bold mb-4 bg-verde-oscuro text-center mt-2 text-white p-2 rounded">
+          Datos del Postulante
+        </h2>
 
         {loading ? (
           <p className="text-gray-600">Cargando...</p>
         ) : applicant ? (
           <>
-            <p className="text-gray-700"><strong>Nombre:</strong> {applicant.name} {applicant.lastname}</p>
-            <p className="text-gray-700"><strong>Nacionalidad:</strong> {applicant.nationality}</p>
-            <p className="text-gray-700"><strong>Ubicación actual:</strong> {applicant.ubicacionActual}</p>
-            <p className="text-gray-700"><strong>Género:</strong> {applicant.genre}</p>
+            <p className="text-gray-700">
+              <strong>Nombre:</strong> {applicant.name} {applicant.lastname}
+            </p>
+            <p className="text-gray-700">
+              <strong>Nacionalidad:</strong> {applicant.nationality}
+            </p>
+            <p className="text-gray-700">
+              <strong>Ubicación actual:</strong> {applicant.ubicacionActual}
+            </p>
+            <p className="text-gray-700">
+              <strong>Género:</strong> {applicant.genre}
+            </p>
             {/* Botón de Link para redirigir */}
             <div className="mt-4 text-center">
-            <Link
-  href={`/user/${applicantId}`}
-  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 shadow-sm shadow-gray-400 font-semibold border-2 rounded-lg hover:font-bold transition"
->
-  Ver perfil
-</Link>
-
-
+              <Link
+                href={`/user/${applicantId}`}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 shadow-sm shadow-gray-400 font-semibold border-2 rounded-lg hover:font-bold transition"
+              >
+                Ver perfil
+              </Link>
             </div>
           </>
         ) : (

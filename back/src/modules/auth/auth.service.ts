@@ -35,17 +35,30 @@ export class AuthService {
 
   
   async requestPasswordReset(email: string) {
-    const user = await this.usersService.findOneByEmail(email);
-    if (!user) {
-      throw new NotFoundException('Usuario no encontrado');
+    try {
+      const user = await this.usersService.findOneByEmail(email);
+      if (!user) {
+        throw new NotFoundException('Usuario no encontrado');
+      }
+
+      const payload = { sub: user.id, email: user.email };
+      const resetToken = this.jwtService.sign(payload, { expiresIn: '24h' });
+
+      // Ya no enviamos email, simplemente devolvemos el token
+      console.log(`Generated reset token for ${email}`);
+
+      return { 
+        message: 'Token de recuperación generado correctamente',
+        token: resetToken, // Incluir el token en la respuesta
+        userId: user.id
+      };
+    } catch (error) {
+      console.error('Error en requestPasswordReset:', error);
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new BadRequestException('Error al procesar la solicitud');
     }
-
-    const payload = { sub: user.id, email: user.email };
-    const resetToken = this.jwtService.sign(payload, { expiresIn: '1h' });
-
-    await this.mailerService.sendPasswordResetEmail(user.email, resetToken);
-
-    return { message: 'Correo de recuperación enviado' };
   }
 
   async resetPassword(token: string, newPassword: string) {
@@ -64,6 +77,7 @@ export class AuthService {
 
       return { message: 'Contraseña actualizada con éxito' };
     } catch (error) {
+      console.error('Error en resetPassword:', error);
       throw new BadRequestException(
         error.message.includes('invalid signature')
           ? 'Token inválido'

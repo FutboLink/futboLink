@@ -74,16 +74,23 @@ export interface ICreateJobOffer {
 
 export interface IJobApplication {
   id?: string;
-  appliedAt:string;
-  message:string;
-  player:{
-    id:string;
+  appliedAt: string;
+  message: string;
+  player: {
+    id: string;
+    name?: string;
+    lastname?: string;
+    imgUrl?: string;
+    nationality?: string;
+    ubicacionActual?: string;
+    genre?: string;
+    subscription?: boolean;
   }
   nationality: string;
   location: string;
   position: string;
   category: string;
-  sportGenres:string;
+  sportGenres: string;
   sport: string;
   transport: string[];
   age: number;
@@ -91,7 +98,6 @@ export interface IJobApplication {
   euPassport: YesOrNo;
   gmail?: string;
   minExperience: string;
-
 }
 
 export enum JobStatus {

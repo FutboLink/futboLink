@@ -8,6 +8,8 @@ import CursoCard from "./CursoCard";
 import { useRouter } from "next/navigation";
 import { contact } from "../Fetchs/UsersFetchs/UserFetchs";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const CursosList = () => {
   const [cursos, setCursos] = useState<ICurso[]>([]);
@@ -33,6 +35,9 @@ const CursosList = () => {
   const modalitys = ["Presencial", "Online", "Presencial + Online"];
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      AOS.init();
+    }
     const fetchCursos = async () => {
       try {
         const cursosData = await getCursos();
@@ -246,7 +251,11 @@ const CursosList = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 max-w-[100rem] mx-auto sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+      <div
+        data-aos="fade-up"
+        data-aos-duration="1000"
+        className="grid grid-cols-1 max-w-[100rem] mx-auto sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4"
+      >
         {filteredCursos.length ? (
           filteredCursos.map((curso, index) => (
             <CursoCard

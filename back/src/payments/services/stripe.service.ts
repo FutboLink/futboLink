@@ -28,18 +28,13 @@ export class StripeService {
       throw new InternalServerErrorException('Stripe secret key not configured');
     }
     
+    // Configure Stripe with optimizations for webhook performance
     this.stripe = new Stripe(secretKey, {
       apiVersion: '2023-10-16' as any,
-      timeout: 10000, // Further reduced timeout
-      maxNetworkRetries: 2, // Further reduced retries
-      httpAgent: new https.Agent({ 
-        keepAlive: false, // Disable keep-alive which might cause issues
-        timeout: 10000,
-        rejectUnauthorized: true,
-      }),
+      maxNetworkRetries: 0, // No retries for webhooks
     });
     
-    this.logger.log('Stripe service initialized with minimal configuration');
+    this.logger.log('Stripe service initialized with webhook-optimized configuration');
   }
 
   /**
@@ -276,9 +271,10 @@ export class StripeService {
   }
   
   /**
-   * Handles Stripe webhook events
+   * Verifies the signature of a Stripe webhook event and returns the event object
+   * without processing it (for fast response)
    */
-  async handleWebhookEvent(rawBody: string, signature: string) {
+  async verifyWebhookEvent(rawBody: string, signature: string): Promise<Stripe.Event> {
     const webhookSecret = this.configService.get<string>('STRIPE_WEBHOOK_SECRET');
     
     if (!webhookSecret) {
@@ -287,11 +283,23 @@ export class StripeService {
     }
 
     try {
-      // Verify and construct the event
+      // Only verify and construct the event - no processing yet
       const event = this.stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
-      
-      this.logger.log(`Processing webhook event: ${event.type}`);
+      this.logger.log(`Verified webhook event: ${event.type}`);
+      return event;
+    } catch (error) {
+      this.logger.error(`Webhook verification error: ${error.message}`, error);
+      throw new InternalServerErrorException(`Webhook verification error: ${error.message}`);
+    }
+  }
 
+  /**
+   * Processes a Stripe webhook event asynchronously after verification
+   */
+  async processWebhookEventAsync(event: Stripe.Event): Promise<void> {
+    this.logger.log(`Processing webhook event asynchronously: ${event.type}`);
+
+    try {
       // Handle different event types
       switch (event.type) {
         case 'checkout.session.completed':
@@ -329,11 +337,28 @@ export class StripeService {
         default:
           this.logger.log(`Unhandled webhook event type: ${event.type}`);
       }
+      
+      this.logger.log(`Successfully processed webhook event: ${event.type}`);
+    } catch (error) {
+      this.logger.error(`Error processing webhook event: ${error.message}`, error);
+      // We don't rethrow here since this is already in an async context
+    }
+  }
 
+  // Keep the existing handleWebhookEvent for backwards compatibility
+  async handleWebhookEvent(rawBody: string, signature: string) {
+    const event = await this.verifyWebhookEvent(rawBody, signature);
+    
+    // For compatibility, process synchronously but with a note
+    this.logger.warn('Using deprecated synchronous webhook handler - consider switching to the async version');
+    
+    try {
+      // Process synchronously for backward compatibility
+      await this.processWebhookEventAsync(event);
       return { received: true, type: event.type };
     } catch (error) {
-      this.logger.error(`Webhook error: ${error.message}`, error);
-      throw new InternalServerErrorException(`Webhook error: ${error.message}`);
+      this.logger.error(`Webhook processing error: ${error.message}`, error);
+      throw new InternalServerErrorException(`Webhook processing error: ${error.message}`);
     }
   }
 

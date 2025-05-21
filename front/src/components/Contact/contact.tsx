@@ -21,30 +21,52 @@ function Contact() {
   const [message, setMessage] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // Reset states
+    setMessage("");
+    setSuccess(false);
+    setError(false);
+
+    // Form validation
     if (!email || !name || !mensaje) {
       setMessage("⚠️ Por favor, completa todos los campos.");
+      setError(true);
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setMessage("⚠️ Por favor, introduce un correo electrónico válido.");
+      setError(true);
       return;
     }
 
     setLoading(true);
-    setMessage("");
 
-    const { success } = await contact(email, name, mensaje);
+    try {
+      const response = await contact(email, name, mensaje);
 
-    setLoading(false);
-
-    if (success) {
-      setSuccess(true);
-      setMessage("✅ Se ha enviado tu mensaje.");
-      setEmail("");
-      setName("");
-      setMensaje("");
-    } else {
-      setMessage("❌ Ocurrió un error al enviar el mensaje.");
+      if (response.success) {
+        setSuccess(true);
+        setMessage("✅ Se ha enviado tu mensaje. Nos pondremos en contacto pronto.");
+        setEmail("");
+        setName("");
+        setMensaje("");
+      } else {
+        setError(true);
+        setMessage(`❌ ${response.message || "Ocurrió un error al enviar el mensaje. Por favor, intenta de nuevo más tarde."}`);
+      }
+    } catch (err) {
+      console.error("Error submitting contact form:", err);
+      setError(true);
+      setMessage("❌ No se pudo conectar con el servidor. Por favor, intenta de nuevo más tarde.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -117,10 +139,11 @@ function Contact() {
                   <input
                     id="name"
                     type="text"
-                    value={name} // Vinculamos el estado de `name` con el input
-                    onChange={(e) => setName(e.target.value)} // Actualizamos el estado con el valor del input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     placeholder="Tu nombre"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-oscuro"
+                    disabled={loading}
                   />
                 </div>
 
@@ -135,10 +158,11 @@ function Contact() {
                   <input
                     id="email"
                     type="email"
-                    value={email} // Vinculamos el estado de `email` con el input
-                    onChange={(e) => setEmail(e.target.value)} // Actualizamos el estado con el valor del input
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="Tu correo electrónico"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-oscuro"
+                    disabled={loading}
                   />
                 </div>
 
@@ -157,24 +181,38 @@ function Contact() {
                     rows={4}
                     placeholder="Tu mensaje"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-oscuro"
+                    disabled={loading}
                   />
                 </div>
 
                 {/* Botón de envío */}
                 <button
                   type="submit"
-                  className="w-full py-3 bg-verde-oscuro text-white text-lg font-semibold rounded-md hover:bg-green-700 transition-colors"
+                  className="w-full py-3 bg-verde-oscuro text-white text-lg font-semibold rounded-md hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                   disabled={loading}
                 >
-                  {loading ? "Enviando..." : "Enviar mensaje"}
+                  {loading ? (
+                    <span className="flex items-center justify-center">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Enviando...
+                    </span>
+                  ) : "Enviar mensaje"}
                 </button>
               </form>
 
               {/* Mensaje de estado */}
               {message && (
-                <p className="text-gray-800 mt-4 text-center text-xl">
-                  {message}
-                </p>
+                <div className={`mt-4 p-3 rounded-md ${success ? 'bg-green-100 text-green-800' : error ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}`}>
+                  <p className="text-center text-md font-medium">{message}</p>
+                  {success && (
+                    <p className="text-center text-sm mt-2">
+                      Te responderemos a la brevedad a la dirección de correo proporcionada.
+                    </p>
+                  )}
+                </div>
               )}
             </div>
 

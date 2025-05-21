@@ -10,9 +10,14 @@ async function bootstrap() {
 
   // Configure CORS with allowable origins
   app.enableCors({
-    origin: process.env.FRONTEND_DOMAIN || ['http://localhost:3000', 'https://futbolink.com'],
-    methods: 'GET,POST,PUT,DELETE',
+    origin: ['http://localhost:3000', 'https://futbolink.com', 'https://www.futbolink.com', 
+             'https://futbolink.it', 'https://www.futbolink.it', 
+             process.env.FRONTEND_DOMAIN].filter(Boolean),
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
+    allowedHeaders: 'Content-Type,Accept,Authorization,Origin,X-Requested-With',
+    preflightContinue: false,
+    optionsSuccessStatus: 204
   });
 
   // Body parser middleware setup

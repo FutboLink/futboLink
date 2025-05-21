@@ -70,7 +70,7 @@ const UserProfile = () => {
     logOut();
     router.push("/");
   };
-
+  
   const getYouTubeEmbedUrl = (url: string) => {
     if (!url) return "";
     
@@ -167,12 +167,12 @@ const UserProfile = () => {
                 setLoadingSubscription(false);
               });
           }
-        })
-        .catch((error) => {
-          console.error("Error fetching user data:", error);
-          setError("Failed to load user data.");
-        });
-    }
+            })
+            .catch((error) => {
+              console.error("Error fetching user data:", error);
+              setError("Failed to load user data.");
+            });
+        }
   }, [token]);
 
   // Inicializamos AOS cuando el componente se monta
@@ -280,18 +280,18 @@ const UserProfile = () => {
       <div className="w-full sm:w-72 bg-gradient-to-r from-[#1d5126] to-[#3e7c27] text-white p-6 rounded-t-lg sm:rounded-l-lg shadow-lg sm:shadow-none sm:mr-4">
         <div className="mb-8 flex flex-col items-center space-y-4">
           <div className="relative">
-            <Image
-              src={
-                userData
-                  ? userData.imgUrl ||
-                    (userData.genre === "Masculino"
-                      ? "https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png"
-                      : userData.genre === "Femenino"
-                      ? "https://res.cloudinary.com/dagcofbhm/image/upload/v1740487974/Captura_de_pantalla_2025-02-25_095231_yf60vs.png"
-                      : "https://res.cloudinary.com/dagcofbhm/image/upload/v1740488144/Captura_de_pantalla_2025-02-25_095529_gxe0gx.png")
-                  : "https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png"
+          <Image
+            src={
+              userData
+                ? userData.imgUrl ||
+                  (userData.genre === "Masculino"
+                    ? "https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png"
+                    : userData.genre === "Femenino"
+                    ? "https://res.cloudinary.com/dagcofbhm/image/upload/v1740487974/Captura_de_pantalla_2025-02-25_095231_yf60vs.png"
+                    : "https://res.cloudinary.com/dagcofbhm/image/upload/v1740488144/Captura_de_pantalla_2025-02-25_095529_gxe0gx.png")
+                : "https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png"
               }
-              alt={userData?.name || "Foto de perfil"}
+            alt={userData?.name || "Foto de perfil"}
               width={110}
               height={110}
               className="rounded-full mb-4 md:mb-0 border-4 border-white shadow-md object-cover"
@@ -324,50 +324,58 @@ const UserProfile = () => {
         {/* Barra de navegación (pestañas) */}
         <nav className="space-y-2">
           <ul className="space-y-1">
-            <li>
-              <button
-                onClick={() => handleSectionChange("profile")}
+  <li>
+    <button
+      onClick={() => handleSectionChange("profile")}
                 className={`w-full py-2.5 px-4 flex items-center space-x-2 text-left rounded-lg transition duration-200 ${
                   activeSection === "profile" 
                     ? "bg-white bg-opacity-20 shadow-sm" 
                     : "hover:bg-green-700 hover:bg-opacity-50"
                 }`}
-              >
-                <FaUser className="text-white text-lg" />
-                <span className="text-white">Mi Perfil</span>
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => handleSectionChange("skills")}
+    >
+      <FaUser className="text-white text-lg" />
+      <span className="text-white">Mi Perfil</span>
+    </button>
+  </li>
+  <li>
+    <button
+      onClick={() => handleSectionChange("skills")}
                 className={`w-full py-2.5 px-4 flex items-center space-x-2 text-left rounded-lg transition duration-200 ${
                   activeSection === "skills" 
                     ? "bg-white bg-opacity-20 shadow-sm" 
                     : "hover:bg-green-700 hover:bg-opacity-50"
                 }`}
-              >
-                <FaBolt className="text-white text-lg" />
-                <span className="text-white">Información Profesional</span>
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => handleSectionChange("config")}
+    >
+      <FaBolt className="text-white text-lg" />
+      <span className="text-white">Información Profesional</span>
+    </button>
+  </li>
+  <li>
+    <button
+      onClick={() => handleSectionChange("config")}
                 className={`w-full py-2.5 px-4 flex items-center space-x-2 text-left rounded-lg transition duration-200 ${
                   activeSection === "config" 
                     ? "bg-white bg-opacity-20 shadow-sm" 
                     : "hover:bg-green-700 hover:bg-opacity-50"
                 }`}
-              >
-                <FaCog className="text-white text-lg" />
-                <span className="text-white">Configuración</span>
-              </button>
-            </li>
-          </ul>
+    >
+      <FaCog className="text-white text-lg" />
+      <span className="text-white">Configuración</span>
+    </button>
+  </li>
+</ul>
         </nav>
+        
+        {/* Botón Editar Perfil */}
+        <Link href={"/profile"}>
+          <div className="mt-8 w-full py-2.5 rounded-lg text-white text-center font-bold border-2 border-white hover:bg-white hover:text-gray-700 transition-all duration-300 shadow-sm">
+            Editar Perfil
+          </div>
+        </Link>
+        
         <button
           onClick={handleLogOut}
-          className="mt-8 w-full py-2.5 rounded-lg text-white text-center font-bold border-2 border-white hover:bg-white hover:text-gray-700 transition-all duration-300"
+          className="mt-3 w-full py-2.5 rounded-lg text-white text-center font-bold border-2 border-white hover:bg-white hover:text-gray-700 transition-all duration-300"
         >
           Cerrar sesión
         </button>
@@ -394,174 +402,166 @@ const UserProfile = () => {
         {/* Only render complex content after client-side hydration */}
         {isClient ? (
           <>
-            {activeSection === "profile" && (
+        {activeSection === "profile" && (
               <div className="p-6 bg-gray-50 text-gray-700 rounded-lg shadow-sm mt-4" data-aos="fade-up">
-                {/* Subscription Information */}
-                <div className="mb-6">
-                  <div className={`p-4 rounded-lg shadow-sm ${
-                    subscriptionInfo.hasActiveSubscription 
-                      ? 'bg-green-50 border-l-4 border-green-500' 
-                      : 'bg-gray-50 border-l-4 border-gray-400'
-                  }`}>
-                    <div className="flex justify-between items-center mb-2">
-                      <h3 className="text-lg font-semibold text-[#1d5126] flex items-center">
-                        <FaRegCreditCard className="mr-2" />
-                        Estado de Suscripción
-                      </h3>
-                      <button 
-                        onClick={handleRefreshSubscription} 
-                        disabled={loadingSubscription}
-                        className="text-xs text-[#1d5126] hover:underline flex items-center"
-                      >
-                        {loadingSubscription ? 'Actualizando...' : 'Actualizar estado'}
-                      </button>
-                    </div>
-                    {loadingSubscription ? (
-                      <div className="flex items-center">
-                        <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-[#1d5126] mr-2"></div>
-                        <p className="text-sm text-gray-600">Verificando suscripción...</p>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="flex items-center mb-2">
-                          <div className={`w-3 h-3 rounded-full mr-2 ${
-                            subscriptionInfo.hasActiveSubscription ? 'bg-green-500' : 'bg-gray-400'
-                          }`}></div>
-                          <span className="font-medium">
-                            {subscriptionInfo.hasActiveSubscription 
-                              ? 'Suscripción Activa' 
-                              : 'Sin Suscripción Activa'}
-                          </span>
-                        </div>
-                        <p className="text-sm mb-3">
-                          Plan: <span className="font-semibold">{subscriptionInfo.subscriptionType}</span>
-                        </p>
-                        {!subscriptionInfo.hasActiveSubscription && (
-                          <div className="mt-2">
-                            <Link 
-                              href="/Subs" 
-                              className="text-sm text-white bg-[#1d5126] hover:bg-[#3e7c27] px-4 py-2 rounded-md transition-colors duration-200 inline-flex items-center"
-                            >
-                              <FaRegCreditCard className="mr-1" />
-                              Ver planes de suscripción
-                            </Link>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-
                 <h3 className="text-2xl font-semibold mb-6 text-[#1d5126] border-b pb-2">Información Personal</h3>
 
-                {/* Contenedor Principal con Flex */}
-                <div className="flex flex-col sm:flex-col md:flex-row justify-between gap-6">
-                  
-                  {/* Sección de Información y Redes Sociales */}
-                  <div className="md:w-1/2">
-                    <div className="flex items-start">
-                      <Image
-                        src={userData?.imgUrl || "https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png"}
-                        alt={userData?.name || "Foto de perfil"}
-                        width={100}
-                        height={100}
-                        className="rounded-full mb-4 md:mb-0 border-2 border-[#1d5126] object-cover"
-                      />
-                      <div className="ml-4">
-                        <h2 className="text-xl font-semibold text-[#1d5126]">
-                          {userData?.name} {userData?.lastname}
-                        </h2>
+    {/* Contenedor Principal con Flex */}
+    <div className="flex flex-col sm:flex-col md:flex-row justify-between gap-6">
+      
+      {/* Sección de Información y Redes Sociales */}
+      <div className="md:w-1/2">
+        <div className="flex items-start">
+                     
+          <div className="ml-4">
+            <h2 className="text-xl font-semibold text-[#1d5126]">
+              {userData?.name} {userData?.lastname}
+            </h2>
                         <div className="text-gray-700 mt-2">
                           <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
-                            <strong>Nacionalidad:</strong> {userData?.nationality || "No disponible"}
-                          </p>
+                <strong>Nacionalidad:</strong> {userData?.nationality || "No disponible"}
+              </p>
                           <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
-                            <strong>Ubicación actual:</strong> {userData?.ubicacionActual || "No disponible"}
-                          </p>
-                
+                <strong>Ubicación actual:</strong> {userData?.ubicacionActual || "No disponible"}
+              </p>
+  
                           <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
-                            <strong>Fecha de Nacimiento:</strong> {userData?.birthday || "No disponible"}
-                          </p>
+                <strong>Fecha de Nacimiento:</strong> {userData?.birthday || "No disponible"}
+              </p>
                           <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
-                            <strong>Edad:</strong> {userData?.age} años
-                          </p>
+                <strong>Edad:</strong> {userData?.age} años
+              </p>
                           <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
-                            <strong>Género:</strong> {userData?.genre}
-                          </p>
+                <strong>Género:</strong> {userData?.genre}
+              </p>
                           <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
-                            <strong>Teléfono:</strong> {userData?.phone}
-                          </p>
-                
+                <strong>Teléfono:</strong> {userData?.phone}
+              </p>
+    
 
-                          {/* Redes Sociales */}
-                          <div className="mt-4">
+              {/* Redes Sociales */}
+              <div className="mt-4">
                             <strong className="text-[#1d5126]">Redes Sociales:</strong>
-                            <div className="flex space-x-4 mt-2 items-center">
-                              {userData?.socialMedia?.x && (
-                                <a href={`https://x.com/${userData.socialMedia.x}`} target="_blank" rel="noopener noreferrer"
+                <div className="flex space-x-4 mt-2 items-center">
+                  {userData?.socialMedia?.x && (
+                    <a href={`https://x.com/${userData.socialMedia.x}`} target="_blank" rel="noopener noreferrer"
                                   className="hover:opacity-80 transition-opacity">
-                                  <Image 
-                                    src="/logoX.png" 
-                                    alt="Logo X Futbolink" 
-                                    width={30} 
-                                    height={30} 
+                       <Image 
+    src="/logoX.png" 
+    alt="Logo X Futbolink" 
+    width={30} 
+    height={30} 
                                     className="w-6 h-6 p-2 rounded-md bg-black shadow-sm" 
-                                  />
-                                </a>
-                              )}
-                              {userData?.socialMedia?.youtube && (
-                                <a href={`https://www.youtube.com/${userData.socialMedia.youtube}`} target="_blank" rel="noopener noreferrer"
+  />
+                    </a>
+                  )}
+                  {userData?.socialMedia?.youtube && (
+                    <a href={`https://www.youtube.com/${userData.socialMedia.youtube}`} target="_blank" rel="noopener noreferrer"
                                   className="text-red-600 hover:text-red-800 transition-colors">
-                                  <FaYoutube size={24} />
-                                </a>
-                              )}
-                              {userData?.socialMedia?.transfermarkt && (
-                                <a
-                                  href={`https://www.transfermarkt.com/${userData.socialMedia.transfermarkt}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
+                      <FaYoutube size={24} />
+                    </a>
+                  )}
+                 {userData?.socialMedia?.transfermarkt && (
+  <a
+    href={`https://www.transfermarkt.com/${userData.socialMedia.transfermarkt}`}
+    target="_blank"
+    rel="noopener noreferrer"
                                   className="hover:opacity-80 transition-opacity"
-                                >
-                                  <Image
-                                    src="/transfermarkt.png"
-                                    alt="Transfermarkt"
-                                    width={60}
-                                    height={60}
+  >
+    <Image
+      src="/transfermarkt.png"
+      alt="Transfermarkt"
+      width={60}
+      height={60}
                                     className="shadow-sm rounded-sm"
-                                  />
-                                </a>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+    />
+  </a>
+)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-                    {/* Botón Editar Perfil */}
-                    <Link href={"/profile"}>
-                      <div className="rounded border-2 md:w-1/2 text-center bg-[#1d5126] hover:bg-white hover:text-[#1d5126] hover:border-2 hover:border-[#1d5126] cursor-pointer p-2.5 text-white font-bold mt-4 transition-all duration-300 shadow-sm">
-                        Editar Perfil
-                      </div>
-                    </Link>
+                   
                   </div>
                   
-                  {/* Video de Presentación */}
+                  {/* Columna Derecha: Estado de Suscripción y Video */}
                   <div className="md:w-1/2">
-                    <span className="font-medium text-lg mb-4 text-[#1d5126] block border-b pb-1">
-                      Video de Presentación
-                    </span>
-                    <div className="relative w-full h-[250px] overflow-hidden rounded-lg bg-black shadow-md mt-2">
-                      {isClient && userData?.videoUrl ? (
-                        <YouTubeEmbed url={getYouTubeEmbedUrl(userData.videoUrl)} />
-                      ) : (
-                        <div className="flex items-center justify-center h-full">
-                          <p className="text-white text-center p-4">No hay video disponible</p>
+                    {/* Subscription Information */}
+                    <div className="mb-4">
+                      <div className={`p-4 rounded-lg shadow-sm ${
+                        subscriptionInfo.hasActiveSubscription 
+                          ? 'bg-green-50 border-l-4 border-green-500' 
+                          : 'bg-gray-50 border-l-4 border-gray-400'
+                      }`}>
+                        <div className="flex justify-between items-center mb-2">
+                          <h3 className="text-lg font-semibold text-[#1d5126] flex items-center">
+                            <FaRegCreditCard className="mr-2" />
+                            Estado de Suscripción
+                          </h3>
+                          <button 
+                            onClick={handleRefreshSubscription} 
+                            disabled={loadingSubscription}
+                            className="text-xs text-[#1d5126] hover:underline flex items-center"
+                          >
+                            {loadingSubscription ? 'Actualizando...' : 'Actualizar estado'}
+                          </button>
                         </div>
-                      )}
+                        {loadingSubscription ? (
+                          <div className="flex items-center">
+                            <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-[#1d5126] mr-2"></div>
+                            <p className="text-sm text-gray-600">Verificando suscripción...</p>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex items-center mb-2">
+                              <div className={`w-3 h-3 rounded-full mr-2 ${
+                                subscriptionInfo.hasActiveSubscription ? 'bg-green-500' : 'bg-gray-400'
+                              }`}></div>
+                              <span className="font-medium">
+                                {subscriptionInfo.hasActiveSubscription 
+                                  ? 'Suscripción Activa' 
+                                  : 'Sin Suscripción Activa'}
+                              </span>
+          </div>
+                            <p className="text-sm mb-3">
+                              Plan: <span className="font-semibold">{subscriptionInfo.subscriptionType}</span>
+                            </p>
+                            {!subscriptionInfo.hasActiveSubscription && (
+                              <div className="mt-2">
+                                <Link 
+                                  href="/Subs" 
+                                  className="text-sm text-white bg-[#1d5126] hover:bg-[#3e7c27] px-4 py-2 rounded-md transition-colors duration-200 inline-flex items-center"
+                                >
+                                  <FaRegCreditCard className="mr-1" />
+                                  Ver planes de suscripción
+        </Link>
+      </div>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </div>
-                
+
+{/* Video de Presentación */}
+                    <div>
+                      <span className="font-medium text-lg mb-4 text-[#1d5126] block border-b pb-1">
+                        Video de Presentación
+  </span>
+                      <div className="relative w-full h-[250px] overflow-hidden rounded-lg bg-black shadow-md mt-2">
+                        {isClient && userData?.videoUrl ? (
+                          <YouTubeEmbed url={getYouTubeEmbedUrl(userData.videoUrl)} />
+                        ) : (
+                          <div className="flex items-center justify-center h-full">
+      <p className="text-white text-center p-4">No hay video disponible</p>
+                          </div>
+    )}
+                      </div>
+                    </div>
+  </div>
+</div>
+
                 {/* CV Section */}
                 <div className="mt-6">
                   <h3 className="text-lg font-semibold mb-4 text-[#1d5126] border-b pb-2">Curriculum Vitae</h3>
@@ -608,10 +608,10 @@ const UserProfile = () => {
                             <p className="font-medium text-gray-500">No hay CV disponible</p>
                             <p className="text-xs text-gray-500">Puedes agregar tu CV en la sección de editar perfil</p>
                           </div>
-                        </div>
-                      </div>
-                    )}
-                    
+    </div>
+  </div>
+)}
+
                     <Link href={"/profile"}>
                       <div className="bg-[#1d5126] hover:bg-[#3e7c27] text-white px-4 py-2 rounded-md text-sm transition-colors duration-200 cursor-pointer inline-flex items-center">
                         <svg className="mr-2" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
@@ -625,49 +625,49 @@ const UserProfile = () => {
               </div>
             )}
 
-            {/* Sección de Habilidades */}
-            {activeSection === "skills" && (
+     {/* Sección de Habilidades */}
+{activeSection === "skills" && (
               <div className="flex-1 p-6 bg-gray-50 text-gary-700 transition-opacity duration-300 rounded-lg shadow-sm mt-4" data-aos="fade-up">
                 <h3 className="text-xl font-semibold text-[#1d5126] border-b pb-2 mb-4">Datos Generales</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                  <div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+      <div>
                     <h4 className="font-semibold text-lg text-gray-800 mb-2">Puesto Principal</h4>
                     <p className="border border-[#1d5126] text-gray-700 bg-[#f5f5f5] p-3 rounded-md shadow-sm">
                       {userData?.primaryPosition || "No especificado"}
-                    </p>
-                  </div>
-                  <div>
+        </p>
+      </div>
+      <div>
                     <h4 className="font-semibold text-lg text-gray-800 mb-2">Puesto Secundario</h4>
                     <p className="border border-[#1d5126] text-gray-700 bg-[#f5f5f5] p-3 rounded-md shadow-sm">
                       {userData?.secondaryPosition || "No especificado"}
-                    </p>
-                  </div>
-                  <div>
+        </p>
+      </div>
+      <div>
                     <h4 className="font-semibold text-lg text-gray-800 mb-2">Pasaporte UE</h4>
                     <p className="border border-[#1d5126] text-gray-700 bg-[#f5f5f5] p-3 rounded-md shadow-sm">
                       {userData?.pasaporteUe || "No especificado"}
-                    </p>
-                  </div>
-                </div>
+        </p>
+      </div>
+    </div>
                 <div className="bg-gray-300 h-px my-6"></div>
                 <h3 className="text-xl font-semibold text-[#1d5126] border-b pb-2 mb-4">Datos Físicos</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                  {userData?.skillfulFoot && (
-                    <div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+      {userData?.skillfulFoot && (
+        <div>
                       <h4 className="font-semibold text-lg text-gray-800 mb-2">Pie Hábil</h4>
                       <p className="border border-[#1d5126] text-gray-700 bg-[#f5f5f5] p-3 rounded-md shadow-sm">
-                        {userData.skillfulFoot}
-                      </p>
-                    </div>
-                  )}
-                  {userData?.bodyStructure && (
-                    <div>
+            {userData.skillfulFoot}
+          </p>
+        </div>
+      )}
+      {userData?.bodyStructure && (
+        <div>
                       <h4 className="font-semibold text-lg text-gray-800 mb-2">Estructura Corporal</h4>
                       <p className="border border-[#1d5126] bg-[#f5f5f5] text-gray-700 p-3 rounded-md shadow-sm">
-                        {userData.bodyStructure}
-                      </p>
-                    </div>
-                  )}
+            {userData.bodyStructure}
+          </p>
+        </div>
+      )}
                   {userData?.height && (
                     <div>
                       <h4 className="font-semibold text-lg text-gray-800 mb-2">Altura</h4>
@@ -681,10 +681,10 @@ const UserProfile = () => {
                       <h4 className="font-semibold text-lg text-gray-800 mb-2">Peso</h4>
                       <p className="border border-[#1d5126] bg-[#f5f5f5] text-gray-700 p-3 rounded-md shadow-sm">
                         {userData.weight} kg
-                      </p>
-                    </div>
-                  )}
-                </div>
+          </p>
+        </div>
+      )}
+    </div>
                 <div className="bg-gray-300 h-px my-6"></div>
                 <h3 className="text-xl font-semibold text-[#1d5126] border-b pb-2 mb-4">Trayectoria</h3>
                 
@@ -718,14 +718,14 @@ const UserProfile = () => {
                               <span className="font-medium">Nivel:</span> {experience.nivelCompetencia}
                             </p>
                           )}
-                        </div>
+    </div>
                         
                         {experience.logros && (
                           <div className="mt-3 bg-white p-3 rounded-md">
                             <p className="font-medium text-gray-800">Logros:</p>
                             <p className="text-gray-700">{experience.logros}</p>
-                          </div>
-                        )}
+  </div>
+)}
                       </div>
                     ))}
                   </div>
@@ -814,22 +814,22 @@ const UserProfile = () => {
               </div>
             )}
 
-            {/* Sección de Configuración */}
-            {activeSection === "config" && (
-              <div
+        {/* Sección de Configuración */}
+        {activeSection === "config" && (
+          <div
                 className="bg-white p-6 rounded-lg shadow-sm mb-6 mt-4"
-                data-aos="fade-up"
-              >
+            data-aos="fade-up"
+          >
                 <h3 className="text-xl font-semibold mb-6 text-[#1d5126] border-b pb-2">Configuración</h3>
                 <div className="space-y-8">
                   <div className="bg-gray-50 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
                     <Link className="group" href="/forgotPassword">
                       <h4 className="font-semibold text-lg group-hover:underline text-[#1d5126] flex items-center">
                         <FaCog className="mr-2" />
-                        Cambiar contraseña
-                      </h4>
+    Cambiar contraseña
+  </h4>
                       <p className="text-gray-600 mt-1 text-sm">Actualiza tu contraseña para mayor seguridad</p>
-                    </Link>
+</Link>
                   </div>
 
                   <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
@@ -921,7 +921,7 @@ const UserProfile = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+            </div>
             )}
           </>
         ) : (

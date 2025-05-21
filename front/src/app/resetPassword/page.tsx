@@ -46,16 +46,13 @@ export default function ResetPassword() {
 
   // Función para validar la contraseña en tiempo real
   const validatePassword = (value: string) => {
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,15}$/;
-    
     if (!value) {
       setErrors((prev) => ({ ...prev, password: "Debes ingresar una contraseña" }));
       return false;
-    } else if (!passwordRegex.test(value)) {
+    } else if (value.length < 8) {
       setErrors((prev) => ({
         ...prev,
-        password: "Debe tener 8-15 caracteres, una mayúscula, una minúscula, un número y un carácter especial (!@#$%^&*)",
+        password: "La contraseña debe tener al menos 8 caracteres",
       }));
       return false;
     } else {
@@ -229,6 +226,44 @@ export default function ResetPassword() {
     }
   };
 
+  // Function to request a new token directly from this page
+  const requestNewToken = async () => {
+    const email = localStorage.getItem('resetPasswordEmail');
+    
+    if (!email) {
+      setMessage("No hay email guardado para solicitar un nuevo token. Por favor, vuelve al inicio del proceso.");
+      setStatusType("error");
+      return;
+    }
+    
+    setMessage(`Solicitando nuevo token para ${email}...`);
+    setStatusType("info");
+    setIsSubmitting(true);
+    
+    try {
+      // Importar dynamically la función que necesitamos
+      const { forgotPassword } = await import('@/components/Fetchs/UsersFetchs/UserFetchs');
+      
+      // Solicitar nuevo token
+      const response = await forgotPassword(email);
+      
+      if (response.success && response.token) {
+        setToken(response.token);
+        setMessage("Nuevo token generado correctamente. Intenta cambiar la contraseña ahora.");
+        setStatusType("success");
+      } else {
+        setMessage(response.message || "No se pudo generar un nuevo token. Intenta desde la página de recuperación.");
+        setStatusType("error");
+      }
+    } catch (error) {
+      console.error("Error al solicitar nuevo token:", error);
+      setMessage("Error al conectar con el servidor. Intenta desde la página de recuperación.");
+      setStatusType("error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="mx-auto mt-20 max-w-screen-xl px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-lg">
@@ -339,11 +374,11 @@ export default function ResetPassword() {
                 
                 <button
                   type="button"
-                  disabled={isSubmitting || !token}
-                  onClick={resetPasswordDirectly}
-                  className="w-full py-2 px-4 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
+                  disabled={isSubmitting}
+                  onClick={requestNewToken}
+                  className="w-full py-2 px-4 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition-colors"
                 >
-                  Método Alternativo
+                  Generar Nuevo Token
                 </button>
                 
                 {token === null && (

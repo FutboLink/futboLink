@@ -27,12 +27,12 @@ interface Trayectoria {
 // Client-side only component for YouTube embed
 const YouTubeEmbed = dynamic(() => Promise.resolve(({ url }: { url: string }) => {
   return (
-    <div className="aspect-w-16 aspect-h-9">
+    <div className="relative w-full pt-[56.25%]">
       <iframe
         src={url}
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen
-        className="w-full h-full rounded-lg shadow-md"
+        className="absolute top-0 left-0 w-full h-full rounded-lg shadow-md"
       ></iframe>
     </div>
   );
@@ -549,11 +549,11 @@ const UserProfile = () => {
                       <span className="font-medium text-lg mb-4 text-[#1d5126] block border-b pb-1">
                         Video de Presentación
   </span>
-                      <div className="relative w-full h-[250px] overflow-hidden rounded-lg bg-black shadow-md mt-2">
+                      <div className="relative w-full bg-black shadow-md mt-2 rounded-lg overflow-hidden">
                         {isClient && userData?.videoUrl ? (
                           <YouTubeEmbed url={getYouTubeEmbedUrl(userData.videoUrl)} />
                         ) : (
-                          <div className="flex items-center justify-center h-full">
+                          <div className="flex items-center justify-center h-[200px]">
       <p className="text-white text-center p-4">No hay video disponible</p>
                           </div>
     )}

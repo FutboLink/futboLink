@@ -8,11 +8,14 @@ import { EmailService } from '../Mailing/email.service';
 import { UserService } from '../user/user.service';
 import { JwtStrategy } from './jwt.strategy';
 
+// JWT Secret hardcoded for development - in production this should be an env variable
+const JWT_SECRET = 'futbolinkSecureJwtSecret2023';
+
 @Module({
   imports: [
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '1h' },
+      secret: process.env.JWT_SECRET || JWT_SECRET,
+      signOptions: { expiresIn: '7d' }, // Extended to 7 days to allow more time for password reset
     }),
     TypeOrmModule.forFeature([User]),
   ],

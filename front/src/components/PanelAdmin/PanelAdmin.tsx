@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState, useEffect, useContext } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css"; 
-import {  FaBolt, FaChartBar, FaCog, FaInstagram, FaUser, FaYoutube } from "react-icons/fa";
+import {  FaBolt, FaChartBar, FaCog, FaInstagram, FaUser, FaUserCog, FaUsers, FaYoutube } from "react-icons/fa";
 import { IProfileData} from "@/Interfaces/IUser";
 import { UserContext } from "@/components/Context/UserContext";
 import { useRouter } from "next/navigation";
@@ -14,6 +14,7 @@ import AllApplications from "./Applications/AllApplications";
 import { PiSoccerBall } from "react-icons/pi";
 import { FaX } from "react-icons/fa6";
 import SuccessCasesAdmin from "./SuccessCasesAdmin";
+import UsersComponent from "./Users/UsersComponent";
 
 const PanelAdmin = () => {
   const {token,logOut} = useContext(UserContext);
@@ -119,6 +120,15 @@ const PanelAdmin = () => {
             </li>
             <li>
               <button
+                onClick={() => handleSectionChange("users")}
+                className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
+                >
+                <FaUsers className="text-white text-lg" />
+                <span className="text-white">Usuarios</span>
+              </button>
+            </li>
+            <li>
+              <button
                 onClick={() => handleSectionChange("appliedOffers")}
                 className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
                 >
@@ -136,6 +146,7 @@ const PanelAdmin = () => {
                 <span className="text-white">Casos de Éxito</span>
               </button>
             </li>
+            
           </ul>
         </nav>
         <button
@@ -221,6 +232,19 @@ const PanelAdmin = () => {
     data-aos="fade-up"
   >
     <AllApplications />
+  </div>
+)}
+
+{/* Sección de Usuarios */}
+{activeSection === "users" && (
+  <div
+    className="bg-white p-6 rounded-xl shadow-lg"
+    data-aos="fade-up"
+  >
+    <h3 className="text-2xl font-semibold mb-6 text-gray-800">
+      Gestión de Usuarios
+    </h3>
+    <UsersComponent />
   </div>
 )}
 

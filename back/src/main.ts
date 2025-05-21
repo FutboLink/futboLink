@@ -2,40 +2,17 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
-import { Logger } from '@nestjs/common';
+
 
 async function bootstrap() {
-  const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
 
-  // Configure CORS with allowable origins
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://futbolink.com', 'https://www.futbolink.com', 
-             'https://futbolink.it', 'https://www.futbolink.it', 
-             process.env.FRONTEND_DOMAIN].filter(Boolean),
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    origin: '*',
+    methods: 'GET,POST,PUT,DELETE',
     credentials: true,
-    allowedHeaders: 'Content-Type,Accept,Authorization,Origin,X-Requested-With',
-    preflightContinue: false,
-    optionsSuccessStatus: 204
   });
 
-  // Body parser middleware setup
-  // Use raw body parser for Stripe webhook routes
-  app.use('/stripe/webhook', 
-    bodyParser.raw({ type: 'application/json' })
-  );
-  
-  // To ensure backward compatibility, support the legacy webhook URL
-  app.use('/payments/webhook',
-    bodyParser.raw({ type: 'application/json' })
-  );
-  
-  // Use regular JSON body parser for other routes
-  app.use(bodyParser.json({ limit: '10mb' }));
-  app.use(bodyParser.urlencoded({ extended: true }));
-
-  // Swagger documentation setup
   const config = new DocumentBuilder()
     .setTitle('API Futbolink')
     .setDescription('Documentación del back')
@@ -46,8 +23,11 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  const port = process.env.PORT || 3000;
-  await app.listen(port);
-  logger.log(`Application is running on port ${port}`);
+  app.use(
+    '/stripe/webhook',
+    bodyParser.raw({ type: 'application/json' }) 
+  );
+
+  await app.listen(3000);
 }
 bootstrap();

@@ -16,6 +16,7 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
+  const [dataAttempted, setDataAttempted] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -37,6 +38,7 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
         setError("No se pudo cargar el caso de éxito");
       } finally {
         setLoading(false);
+        setDataAttempted(true);
       }
     };
 
@@ -45,7 +47,8 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
     }
   }, [id]);
 
-  if (loading && !isClient) {
+  // Show loading state during initial load
+  if (loading || !isClient) {
     return (
       <>
         <Navbar />
@@ -59,7 +62,8 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
     );
   }
 
-  if (error || !successCase) {
+  // Only show error if we've actually tried to load data and failed
+  if (dataAttempted && (error || !successCase)) {
     return (
       <>
         <Navbar />
@@ -90,7 +94,7 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
           <div 
             className="absolute inset-0 bg-cover bg-center" 
             style={{ 
-              backgroundImage: `url(${successCase.imgUrl})`,
+              backgroundImage: `url(${successCase?.imgUrl})`,
               backgroundPosition: 'center 25%',
               backgroundSize: 'cover',
               filter: 'blur(2px)',
@@ -99,10 +103,10 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
           ></div>
           <div className="container relative mx-auto px-4 h-full flex flex-col justify-end pb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 drop-shadow-lg">
-              {successCase.name}
+              {successCase?.name}
             </h1>
             <p className="text-xl text-white mb-4 drop-shadow-md">
-              {successCase.role}
+              {successCase?.role}
             </p>
           </div>
         </div>
@@ -115,8 +119,8 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
               <div className="md:w-1/3">
                 <div className="overflow-hidden rounded-lg shadow-md">
                   <img 
-                    src={successCase.imgUrl} 
-                    alt={successCase.name} 
+                    src={successCase?.imgUrl} 
+                    alt={successCase?.name} 
                     className="w-full h-auto object-cover"
                   />
                 </div>
@@ -124,7 +128,7 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
               
               <div className="md:w-2/3">
                 <blockquote className="text-xl italic text-gray-700 border-l-4 border-[#1d5126] pl-4 py-2 mb-6">
-                  "{successCase.testimonial}"
+                  "{successCase?.testimonial}"
                 </blockquote>
                 
                 <div className="flex items-center mt-4">
@@ -136,7 +140,7 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
             
             {/* Contenido detallado */}
             <div className="prose prose-lg max-w-none">
-              {successCase.longDescription ? (
+              {successCase?.longDescription ? (
                 <div className="mt-6">
                   {successCase.longDescription.split('\n').map((paragraph, i) => (
                     <p key={i} className="mb-4 text-gray-700 leading-relaxed">
@@ -150,7 +154,7 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
                     De nuestros testimonios a tu historia
                   </h2>
                   <p className="mb-4 text-gray-700 leading-relaxed">
-                    {successCase.name} es uno de los muchos talentos que han encontrado su camino 
+                    {successCase?.name} es uno de los muchos talentos que han encontrado su camino 
                     gracias a FutboLink, la plataforma que conecta profesionales del fútbol con 
                     oportunidades reales en todo el mundo.
                   </p>

@@ -139,19 +139,22 @@ const PanelManager = () => {
           <div className="p-6 bg-white text-gray-700 rounded-xl shadow-md" data-aos="fade-up">
             <h3 className="text-2xl font-semibold mb-6 text-[#1d5126] border-b border-gray-200 pb-2">Información Personal</h3>
       
-            {/* Contenedor Principal con Flex */}
+            {/* Contenedor Principal con dos columnas */}
             <div className="flex flex-col md:flex-row justify-between gap-8">
               
-              {/* Sección de Información y Redes Sociales */}
+              {/* Columna Izquierda */}
               <div className="md:w-1/2">
                 <div className="flex items-start">
-                  <div>
+                  <div className="w-full">
                     <h2 className="text-xl font-semibold text-[#1d5126] mb-4">
                       {userData?.name} {userData?.lastname}
                     </h2>
                     <div className="text-gray-700 mt-2 space-y-3">
                       <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
                         <strong className="text-[#1d5126]">Nombre de la entidad:</strong> <span>{userData?.nameAgency || "No disponible"}</span>
+                      </p>
+                      <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
+                        <strong className="text-[#1d5126]">Email:</strong> <span>{userData?.email}</span>
                       </p>
                       <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
                         <strong className="text-[#1d5126]">Tipo de organización:</strong> <span>{userData?.puesto}</span>
@@ -162,121 +165,67 @@ const PanelManager = () => {
                       <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
                         <strong className="text-[#1d5126]">Región:</strong> <span>{userData?.location}</span>
                       </p>
-                      <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                        <strong className="text-[#1d5126]">Teléfono:</strong> <span>{userData?.phone}</span>
-                      </p>
-                      <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                        <strong className="text-[#1d5126]">Nacionalidad:</strong> <span>{userData?.nationality || "No disponible"}</span>
-                      </p>
-                      <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                        <strong className="text-[#1d5126]">Ubicación actual:</strong> <span>{userData?.ubicacionActual || "No disponible"}</span>
-                      </p>
-                      <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                        <strong className="text-[#1d5126]">Email:</strong> <span>{userData?.email}</span>
-                      </p>
-      
-                      {/* Redes Sociales */}
-                      <div className="mt-6">
-                        <strong className="text-[#1d5126] text-lg">Redes Sociales:</strong>
-                        <div className="flex space-x-4 mt-3 items-center p-3 bg-gray-50 rounded-lg">
-                          {userData?.socialMedia?.x && (
-                            <a href={`https://x.com/${userData.socialMedia.x}`} target="_blank" rel="noopener noreferrer"
-                              className="hover:opacity-80 transition-opacity">
-                              <Image 
-                                src="/logoX.png" 
-                                alt="Logo X Futbolink" 
-                                width={30} 
-                                height={30} 
-                                className="w-8 h-8 p-1 rounded-md bg-black shadow-sm hover:shadow-md transition-all" 
-                              />
-                            </a>
-                          )}
-                          {userData?.socialMedia?.youtube && (
-                            <a href={`https://www.youtube.com/${userData.socialMedia.youtube}`} target="_blank" rel="noopener noreferrer"
-                              className="text-red-600 hover:text-red-700 transition-colors">
-                              <FaYoutube size={28} className="hover:scale-110 transition-transform" />
-                            </a>
-                          )}
-                          {userData?.socialMedia?.transfermarkt && (
-                            <a href={`https://www.transfermarkt.com/${userData.socialMedia.transfermarkt}`} target="_blank" rel="noopener noreferrer"
-                              className="hover:opacity-80 transition-opacity">
-                              <Image
-                                src="/transfermarkt.png"
-                                alt="Transfermarkt"
-                                width={60}
-                                height={60}
-                                className="shadow-sm rounded-sm hover:shadow-md transition-all"
-                              />
-                            </a>
-                          )}
-                          {userData?.socialMedia?.website && (
-                            <a href={userData.socialMedia.website} target="_blank" rel="noopener noreferrer"
-                              className="text-blue-600 hover:text-blue-800 transition-colors">
-                              <FaGlobe size={26} className="hover:scale-110 transition-transform" />
-                            </a>
-                          )}
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </div>
               </div>
                       
-              {/* Columna Derecha: Información profesional */}
+              {/* Columna Derecha */}
               <div className="md:w-1/2">
-                <div className="bg-gray-50 p-5 rounded-xl shadow-sm border-l-4 border-[#1d5126] mb-6">
-                  <h3 className="text-lg font-semibold text-[#1d5126] mb-4 flex items-center">
-                    <FaBolt className="mr-2" />
-                    Datos Profesionales
-                  </h3>
-                  
-                  <div className="space-y-3">
-                    <p className="bg-white p-3 rounded-lg shadow-sm flex justify-between">
-                      <strong className="text-[#1d5126]">Puesto Principal:</strong> 
-                      <span>{userData?.primaryPosition || "No especificado"}</span>
+                <div className="mt-1">
+                  <div className="text-gray-700 space-y-3">
+                    <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
+                      <strong className="text-[#1d5126]">Teléfono:</strong> <span>{userData?.phone}</span>
                     </p>
-                    <p className="bg-white p-3 rounded-lg shadow-sm flex justify-between">
-                      <strong className="text-[#1d5126]">Puesto Secundario:</strong> 
-                      <span>{userData?.secondaryPosition || "No especificado"}</span>
+                    <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
+                      <strong className="text-[#1d5126]">Nacionalidad:</strong> <span>{userData?.nationality || "No disponible"}</span>
                     </p>
-                    <p className="bg-white p-3 rounded-lg shadow-sm flex justify-between">
-                      <strong className="text-[#1d5126]">Pasaporte UE:</strong> 
-                      <span>{userData?.pasaporteUe || "No especificado"}</span>
+                    <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
+                      <strong className="text-[#1d5126]">Ubicación actual:</strong> <span>{userData?.ubicacionActual || "No disponible"}</span>
                     </p>
-                  </div>
-                </div>
-                
-                <div className="bg-gray-50 p-5 rounded-xl shadow-sm border-l-4 border-[#1d5126]">
-                  <h3 className="text-lg font-semibold text-[#1d5126] mb-4 flex items-center">
-                    <FaBolt className="mr-2" />
-                    Datos Físicos
-                  </h3>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    {userData?.skillfulFoot && (
-                      <p className="bg-white p-3 rounded-lg shadow-sm">
-                        <strong className="text-[#1d5126] block">Pie Hábil:</strong>
-                        <span>{userData.skillfulFoot}</span>
-                      </p>
-                    )}
-                    {userData?.bodyStructure && (
-                      <p className="bg-white p-3 rounded-lg shadow-sm">
-                        <strong className="text-[#1d5126] block">Estructura Corporal:</strong>
-                        <span>{userData.bodyStructure}</span>
-                      </p>
-                    )}
-                    {userData?.height && (
-                      <p className="bg-white p-3 rounded-lg shadow-sm">
-                        <strong className="text-[#1d5126] block">Altura:</strong>
-                        <span>{userData.height} cm</span>
-                      </p>
-                    )}
-                    {userData?.weight && (
-                      <p className="bg-white p-3 rounded-lg shadow-sm">
-                        <strong className="text-[#1d5126] block">Peso:</strong>
-                        <span>{userData.weight} kg</span>
-                      </p>
-                    )}
+                    
+                    {/* Redes Sociales */}
+                    <div className="mt-6">
+                      <strong className="text-[#1d5126] text-lg">Redes Sociales:</strong>
+                      <div className="flex space-x-4 mt-3 items-center p-3 bg-gray-50 rounded-lg">
+                        {userData?.socialMedia?.x && (
+                          <a href={`https://x.com/${userData.socialMedia.x}`} target="_blank" rel="noopener noreferrer"
+                            className="hover:opacity-80 transition-opacity">
+                            <Image 
+                              src="/logoX.png" 
+                              alt="Logo X Futbolink" 
+                              width={30} 
+                              height={30} 
+                              className="w-8 h-8 p-1 rounded-md bg-black shadow-sm hover:shadow-md transition-all" 
+                            />
+                          </a>
+                        )}
+                        {userData?.socialMedia?.youtube && (
+                          <a href={`https://www.youtube.com/${userData.socialMedia.youtube}`} target="_blank" rel="noopener noreferrer"
+                            className="text-red-600 hover:text-red-700 transition-colors">
+                            <FaYoutube size={28} className="hover:scale-110 transition-transform" />
+                          </a>
+                        )}
+                        {userData?.socialMedia?.transfermarkt && (
+                          <a href={`https://www.transfermarkt.com/${userData.socialMedia.transfermarkt}`} target="_blank" rel="noopener noreferrer"
+                            className="hover:opacity-80 transition-opacity">
+                            <Image
+                              src="/transfermarkt.png"
+                              alt="Transfermarkt"
+                              width={60}
+                              height={60}
+                              className="shadow-sm rounded-sm hover:shadow-md transition-all"
+                            />
+                          </a>
+                        )}
+                        {userData?.socialMedia?.website && (
+                          <a href={userData.socialMedia.website} target="_blank" rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 transition-colors">
+                            <FaGlobe size={26} className="hover:scale-110 transition-transform" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -328,52 +277,6 @@ const PanelManager = () => {
                       </a>
                     </div>
                   </div>
-                </div>
-              </div>
-            )}
-      
-            {/* Trayectoria - If available */}
-            {userData?.trayectorias && userData.trayectorias.length > 0 && (
-              <div className="mt-8 pt-4 border-t border-gray-200">
-                <h3 className="text-lg font-semibold mb-4 text-[#1d5126]">Trayectoria</h3>
-                <div className="space-y-4">
-                  {userData.trayectorias.map((experience, index) => (
-                    <div key={index} className="border border-gray-200 bg-gray-50 p-4 rounded-lg shadow-sm mb-4">
-                      <h4 className="font-semibold text-lg text-gray-800">{experience.club || "Club no especificado"}</h4>
-                      <div className="flex flex-wrap gap-4 mt-2 text-gray-700">
-                        {experience.fechaInicio && (
-                          <p className="bg-white px-3 py-1 rounded-full text-sm">
-                            <span className="font-medium">Inicio:</span> {new Date(experience.fechaInicio).toLocaleDateString('es-ES')}
-                          </p>
-                        )}
-                        
-                        {experience.fechaFinalizacion && (
-                          <p className="bg-white px-3 py-1 rounded-full text-sm">
-                            <span className="font-medium">Fin:</span> {new Date(experience.fechaFinalizacion).toLocaleDateString('es-ES')}
-                          </p>
-                        )}
-                        
-                        {experience.categoriaEquipo && (
-                          <p className="bg-white px-3 py-1 rounded-full text-sm">
-                            <span className="font-medium">Categoría:</span> {experience.categoriaEquipo}
-                          </p>
-                        )}
-                        
-                        {experience.nivelCompetencia && (
-                          <p className="bg-white px-3 py-1 rounded-full text-sm">
-                            <span className="font-medium">Nivel:</span> {experience.nivelCompetencia}
-                          </p>
-                        )}
-                      </div>
-                      
-                      {experience.logros && (
-                        <div className="mt-3 bg-white p-3 rounded-md">
-                          <p className="font-medium text-gray-800">Logros:</p>
-                          <p className="text-gray-700">{experience.logros}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
                 </div>
               </div>
             )}

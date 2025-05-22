@@ -15,7 +15,7 @@ export interface CancelSubscriptionResult {
 /**
  * Checks if a user has an active subscription
  * @param email User's email
- * @returns Object with subscription status and type
+ * @returns Object with subscription status and type (amateur, semiprofesional, profesional)
  */
 export const checkUserSubscription = async (email: string): Promise<SubscriptionInfo> => {
   try {

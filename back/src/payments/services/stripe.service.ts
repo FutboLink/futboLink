@@ -12,8 +12,8 @@ export class StripeService {
   private stripe: Stripe;
   private readonly logger = new Logger(StripeService.name);
   private readonly frontendDomain: string;
-  private readonly productId: string = 'prod_SJlX3qKmAGTGw6'; // Semiprofesional product ID
-  private readonly priceId: string = 'price_1RP80ZGbCHvHfqXF9CqoLtnt'; // Semiprofesional price ID
+  private readonly productId: string = 'prod_S1PExFzjXvaE7E'; // Semiprofesional product ID
+  private readonly priceId: string = 'price_1R7MPlGbCHvHfqXFNjW8oj2k'; // Semiprofesional price ID
 
   constructor(
     @InjectRepository(Payment)
@@ -654,7 +654,7 @@ export class StripeService {
         if (payment.stripePriceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
           subscriptionType = 'Profesional';
           isActive = true; // If we have a valid price ID for a paid plan, consider it active
-        } else if (payment.stripePriceId === 'price_1RP80ZGbCHvHfqXF9CqoLtnt') {
+        } else if (payment.stripePriceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
           subscriptionType = 'Semiprofesional';
           isActive = true; // If we have a valid price ID for a paid plan, consider it active
         }
@@ -741,7 +741,7 @@ export class StripeService {
       // Find all payments for Semiprofesional subscription
       const semiproPayments = await this.paymentRepo.find({
         where: { 
-          stripePriceId: 'price_1RP80ZGbCHvHfqXF9CqoLtnt',
+          stripePriceId: 'price_1R7MPlGbCHvHfqXFNjW8oj2k',
           type: PaymentType.SUBSCRIPTION
         }
       });

@@ -704,6 +704,65 @@ export class StripeService {
       
       this.logger.log(`Found payment record for ${userEmail}: status=${payment.status}, subscriptionStatus=${payment.subscriptionStatus}, priceId=${payment.stripePriceId}, subscriptionType=${payment.subscriptionType}`);
       
+      // Si tenemos un ID de suscripción de Stripe, verificar el estado directamente desde Stripe
+      if (payment.stripeSubscriptionId) {
+        try {
+          this.logger.log(`Verificando suscripción directamente en Stripe: ${payment.stripeSubscriptionId}`);
+          const stripeSubscription = await this.stripe.subscriptions.retrieve(payment.stripeSubscriptionId);
+          
+          // Actualizar el estado en nuestra base de datos si es diferente
+          if (payment.subscriptionStatus !== stripeSubscription.status) {
+            payment.subscriptionStatus = stripeSubscription.status;
+            this.logger.log(`Actualizando estado de suscripción en DB: ${stripeSubscription.status}`);
+            
+            // También actualizar el precio si ha cambiado
+            if (stripeSubscription.items.data.length > 0) {
+              const priceId = stripeSubscription.items.data[0].price.id;
+              if (payment.stripePriceId !== priceId) {
+                payment.stripePriceId = priceId;
+                
+                // Actualizar el tipo de suscripción basado en el ID de precio
+                if (priceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo' || 
+                    priceId === 'price_1R7MbgGbCHvHfqXFYECGw8S9') {
+                  payment.subscriptionType = SubscriptionPlan.PROFESIONAL;
+                } else if (priceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k' || 
+                          priceId === 'price_1R7MPlGbCHvHfqXFapD8MeOw') {
+                  payment.subscriptionType = SubscriptionPlan.SEMIPROFESIONAL;
+                }
+              }
+            }
+            
+            // Actualizar el estado del pago según el estado de la suscripción
+            if (stripeSubscription.status === 'active' || stripeSubscription.status === 'trialing') {
+              payment.status = PaymentStatus.SUCCEEDED;
+            } else if (stripeSubscription.status === 'past_due' || stripeSubscription.status === 'unpaid') {
+              payment.status = PaymentStatus.PAYMENT_REQUIRED;
+            } else if (stripeSubscription.status === 'canceled') {
+              payment.status = PaymentStatus.CANCELED;
+            }
+            
+            // Guardar los cambios en la base de datos
+            await this.paymentRepo.save(payment);
+          }
+          
+          // Comprobar si la suscripción está activa basado en el estado de Stripe
+          const isActive = stripeSubscription.status === 'active' || stripeSubscription.status === 'trialing';
+          let subscriptionType = payment.subscriptionType || 'Amateur';
+          
+          const result = { 
+            hasActiveSubscription: isActive,
+            subscriptionType: isActive ? subscriptionType : 'Amateur'
+          };
+          
+          this.logger.log(`Subscription for ${userEmail} is ${isActive ? 'active' : 'inactive'} (${result.subscriptionType}) [Stripe verification]`);
+          return result;
+        } catch (stripeError) {
+          this.logger.error(`Error checking subscription with Stripe: ${stripeError.message}`, stripeError);
+          // Continuar con la verificación basada en la base de datos
+        }
+      }
+      
+      // Si no pudimos verificar con Stripe o no hay ID de suscripción, usar los datos de la base de datos
       // Check if subscription is active - include more subscription statuses
       let isActive = payment.status === PaymentStatus.SUCCEEDED && 
                       (payment.subscriptionStatus === 'active' || 
@@ -735,7 +794,7 @@ export class StripeService {
         subscriptionType: isActive ? subscriptionType : 'Amateur'
       };
       
-      this.logger.log(`Subscription for ${userEmail} is ${isActive ? 'active' : 'inactive'} (${result.subscriptionType})`);
+      this.logger.log(`Subscription for ${userEmail} is ${isActive ? 'active' : 'inactive'} (${result.subscriptionType}) [DB verification]`);
       return result;
     } catch (error) {
       this.logger.error(`Error checking subscription for ${userEmail}: ${error.message}`, error);

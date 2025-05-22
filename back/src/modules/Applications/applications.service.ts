@@ -46,8 +46,13 @@ export class ApplicationService {
     if (!subscriptionStatus.hasActiveSubscription || 
         (subscriptionStatus.subscriptionType !== 'Semiprofesional' && 
          subscriptionStatus.subscriptionType !== 'Profesional')) {
+         
+      console.log(`User ${player.email} has subscription type ${subscriptionStatus.subscriptionType} with active status ${subscriptionStatus.hasActiveSubscription}, which is not valid for applying`);
+         
       throw new ForbiddenException('Se requiere una suscripción activa Semiprofesional o Profesional para aplicar a trabajos. Por favor, suscríbete para continuar.');
     }
+    
+    console.log(`User ${player.email} with subscription type ${subscriptionStatus.subscriptionType} is allowed to apply`);
 
     // Find the job
     const job = await this.jobRepository.findOne({ where: { id: String(jobId) } });

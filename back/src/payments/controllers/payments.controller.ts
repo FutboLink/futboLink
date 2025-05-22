@@ -216,4 +216,32 @@ export class PaymentsController {
       };
     }
   }
+
+  @Post('subscription/force-update')
+  @ApiOperation({ summary: 'Force update subscription for a user with a known subscription ID' })
+  @ApiResponse({ 
+    status: HttpStatus.OK, 
+    description: 'Subscription update result',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', description: 'Whether the update was successful' },
+        message: { type: 'string', description: 'Message describing the result' },
+        subscriptionType: { type: 'string', description: 'Updated subscription type' }
+      }
+    }
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid input data' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Error updating subscription' })
+  async forceUpdateSubscription(@Body() body: { email: string, subscriptionId: string }): Promise<any> {
+    if (!body.email) {
+      throw new BadRequestException('Email is required');
+    }
+    
+    if (!body.subscriptionId) {
+      throw new BadRequestException('Subscription ID is required');
+    }
+    
+    return this.stripeService.forceUpdateSubscription(body.email, body.subscriptionId);
+  }
 } 

@@ -999,4 +999,96 @@ export class StripeService {
       throw new InternalServerErrorException(`Failed to refresh subscription types: ${error.message}`);
     }
   }
+
+  /**
+   * Directly updates a user's subscription type based on subscription details
+   * This is used when webhook events fail to properly update subscription status
+   */
+  async forceUpdateSubscription(userEmail: string, subscriptionId: string): Promise<{ success: boolean, message: string, subscriptionType?: string }> {
+    try {
+      this.logger.log(`Force updating subscription for user: ${userEmail}, subscriptionId: ${subscriptionId}`);
+      
+      // Get subscription details from Stripe
+      const subscription = await this.stripe.subscriptions.retrieve(subscriptionId);
+      this.logger.log(`Retrieved subscription from Stripe: ${subscription.id}, status: ${subscription.status}`);
+      
+      if (subscription.status !== 'active' && subscription.status !== 'trialing') {
+        return { 
+          success: false, 
+          message: `Subscription is not active (status: ${subscription.status})` 
+        };
+      }
+      
+      // Get subscription items to determine the price/plan
+      if (!subscription.items.data.length) {
+        return { 
+          success: false, 
+          message: 'No subscription items found' 
+        };
+      }
+      
+      const priceId = subscription.items.data[0].price.id;
+      this.logger.log(`Price ID from subscription: ${priceId}`);
+      
+      // Determine subscription type from price ID
+      let subscriptionType = SubscriptionPlan.AMATEUR;
+      if (priceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
+        subscriptionType = SubscriptionPlan.SEMIPROFESIONAL;
+      } else if (priceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
+        subscriptionType = SubscriptionPlan.PROFESIONAL;
+      }
+      
+      // Find existing payment record
+      let payment = await this.paymentRepo.findOne({
+        where: {
+          customerEmail: userEmail,
+          type: PaymentType.SUBSCRIPTION,
+        },
+        order: {
+          updatedAt: 'DESC'
+        }
+      });
+      
+      // Create new payment record if none exists
+      if (!payment) {
+        this.logger.log(`No payment record found for ${userEmail}, creating new record`);
+        payment = this.paymentRepo.create({
+          stripeSessionId: 'force_updated',
+          stripeSubscriptionId: subscription.id,
+          customerEmail: userEmail,
+          amountTotal: 0, // Will be updated later
+          currency: 'eur',
+          status: PaymentStatus.SUCCEEDED,
+          type: PaymentType.SUBSCRIPTION,
+          description: 'FutboLink Subscription (force updated)',
+          subscriptionType: subscriptionType,
+          subscriptionStatus: subscription.status,
+          stripePriceId: priceId
+        });
+      } else {
+        // Update existing payment record
+        payment.stripeSubscriptionId = subscription.id;
+        payment.subscriptionStatus = subscription.status;
+        payment.status = PaymentStatus.SUCCEEDED;
+        payment.subscriptionType = subscriptionType;
+        payment.stripePriceId = priceId;
+      }
+      
+      // Save the payment record
+      await this.paymentRepo.save(payment);
+      this.logger.log(`Updated subscription for ${userEmail} to ${subscriptionType}`);
+      
+      return {
+        success: true,
+        message: `Subscription successfully updated to ${subscriptionType}`,
+        subscriptionType: subscriptionType
+      };
+    } catch (error) {
+      this.logger.error(`Error force updating subscription: ${error.message}`, error);
+      return {
+        success: false,
+        message: `Error updating subscription: ${error.message}`
+      };
+    }
+  }
 } 

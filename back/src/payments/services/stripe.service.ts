@@ -691,26 +691,41 @@ export class StripeService {
       if (payment.subscriptionType) {
         subscriptionType = payment.subscriptionType;
         this.logger.log(`Using explicit subscription type: ${subscriptionType}`);
-        isActive = isActive || (subscriptionType !== 'Amateur'); // If we have a subscription type other than Amateur, consider it active
+        // Only consider it active if it's either Semiprofesional or Profesional and status indicates active
+        isActive = isActive && (subscriptionType === 'Semiprofesional' || subscriptionType === 'Profesional');
       }
       // Fallback to price ID mapping if subscriptionType is not set
       else if (payment.stripePriceId) {
         // Map price IDs to subscription types
         if (payment.stripePriceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
           subscriptionType = 'Profesional';
-          isActive = true; // If we have a valid price ID for a paid plan, consider it active
+          isActive = payment.status === PaymentStatus.SUCCEEDED || 
+                    (payment.subscriptionStatus && 
+                     ['active', 'trialing', 'incomplete', 'past_due'].includes(payment.subscriptionStatus));
         } else if (payment.stripePriceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
           subscriptionType = 'Semiprofesional';
-          isActive = true; // If we have a valid price ID for a paid plan, consider it active
+          isActive = payment.status === PaymentStatus.SUCCEEDED || 
+                    (payment.subscriptionStatus && 
+                     ['active', 'trialing', 'incomplete', 'past_due'].includes(payment.subscriptionStatus));
+        } else {
+          subscriptionType = 'Amateur';
+          isActive = false; // Amateur subscription is not considered active for premium features
         }
         
         this.logger.log(`Mapped price ID ${payment.stripePriceId} to subscription type: ${subscriptionType}`);
       }
       
+      // If subscription is canceled, always consider it inactive and amateur
+      if (payment.status === PaymentStatus.CANCELED || payment.subscriptionStatus === 'canceled') {
+        isActive = false;
+        subscriptionType = 'Amateur';
+        this.logger.log(`Subscription is canceled, setting to inactive Amateur`);
+      }
+      
       // Always return the subscription type if there's a payment record, even if not active
       const result = { 
         hasActiveSubscription: isActive,
-        subscriptionType: isActive || payment.status !== PaymentStatus.CANCELED ? subscriptionType : 'Amateur'
+        subscriptionType: isActive ? subscriptionType : 'Amateur'
       };
       
       this.logger.log(`Subscription for ${userEmail} is ${isActive ? 'active' : 'inactive'} (${result.subscriptionType})`);

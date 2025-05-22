@@ -39,8 +39,13 @@ export class ApplicationService {
     // Check if player has an active subscription
     const subscriptionStatus = await this.stripeService.checkUserSubscription(player.email);
     
-    // Check if subscription is active and not Amateur plan
-    if (!subscriptionStatus.hasActiveSubscription || subscriptionStatus.subscriptionType === 'Amateur') {
+    console.log(`Subscription status for ${player.email}: `, subscriptionStatus);
+    
+    // Check if player has a valid subscription for applying to jobs
+    // Valid subscriptions are 'Semiprofesional' or 'Profesional' with hasActiveSubscription=true
+    if (!subscriptionStatus.hasActiveSubscription || 
+        (subscriptionStatus.subscriptionType !== 'Semiprofesional' && 
+         subscriptionStatus.subscriptionType !== 'Profesional')) {
       throw new ForbiddenException('Se requiere una suscripción activa Semiprofesional o Profesional para aplicar a trabajos. Por favor, suscríbete para continuar.');
     }
 
@@ -69,7 +74,6 @@ export class ApplicationService {
       where: { job: { id: String(jobId) } },
       relations: ['player'],
     });
-   
   }
 
   @ApiOperation({ summary: 'Actualizar estado de una aplicación' })

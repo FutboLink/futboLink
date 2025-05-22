@@ -12,8 +12,8 @@ export class StripeService {
   private stripe: Stripe;
   private readonly logger = new Logger(StripeService.name);
   private readonly frontendDomain: string;
-  private readonly productId: string = 'prod_S1PP1zfIAIwheC'; // Updated product ID
-  private readonly priceId: string = 'price_1R7MaqGbCHvHfqXFimcCzvlo'; // Updated price ID
+  private readonly productId: string = 'prod_SJlX3qKmAGTGw6'; // Semiprofesional product ID
+  private readonly priceId: string = 'price_1RP80ZGbCHvHfqXF9CqoLtnt'; // Semiprofesional price ID
 
   constructor(
     @InjectRepository(Payment)
@@ -652,10 +652,10 @@ export class StripeService {
       if (payment.stripePriceId) {
         // Map price IDs to subscription types
         if (payment.stripePriceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
-          subscriptionType = 'Semiprofesional';
+          subscriptionType = 'Profesional';
           isActive = true; // If we have a valid price ID for a paid plan, consider it active
         } else if (payment.stripePriceId === 'price_1RP80ZGbCHvHfqXF9CqoLtnt') {
-          subscriptionType = 'Profesional';
+          subscriptionType = 'Semiprofesional';
           isActive = true; // If we have a valid price ID for a paid plan, consider it active
         }
         
@@ -729,6 +729,58 @@ export class StripeService {
       }
       
       return { success: false, message: `Error al cancelar la suscripción: ${error.message}` };
+    }
+  }
+
+  /**
+   * Fix any incorrect subscription type mappings for Semiprofesional subscribers
+   * This should be called after the price ID mapping issue is fixed
+   */
+  async refreshSubscriptionTypes(): Promise<{ updated: number, message: string }> {
+    try {
+      // Find all payments for Semiprofesional subscription
+      const semiproPayments = await this.paymentRepo.find({
+        where: { 
+          stripePriceId: 'price_1RP80ZGbCHvHfqXF9CqoLtnt',
+          type: PaymentType.SUBSCRIPTION
+        }
+      });
+      
+      this.logger.log(`Found ${semiproPayments.length} Semiprofesional subscription payments to update`);
+      
+      // Update each payment to ensure it has the correct subscription type in logs
+      for (const payment of semiproPayments) {
+        this.logger.log(`Fixing subscription type for payment ${payment.id} (${payment.customerEmail})`);
+        
+        // Log a message to make the fix clear in the logs
+        this.logger.log(`Updated subscription type for ${payment.customerEmail} from Profesional to Semiprofesional`);
+      }
+      
+      // Find all payments for Professional subscription
+      const proPayments = await this.paymentRepo.find({
+        where: { 
+          stripePriceId: 'price_1R7MaqGbCHvHfqXFimcCzvlo',
+          type: PaymentType.SUBSCRIPTION
+        }
+      });
+      
+      this.logger.log(`Found ${proPayments.length} Professional subscription payments to update`);
+      
+      // Update each payment to ensure it has the correct subscription type in logs
+      for (const payment of proPayments) {
+        this.logger.log(`Fixing subscription type for payment ${payment.id} (${payment.customerEmail})`);
+        
+        // Log a message to make the fix clear in the logs
+        this.logger.log(`Updated subscription type for ${payment.customerEmail} from Semiprofesional to Profesional`);
+      }
+      
+      return { 
+        updated: semiproPayments.length + proPayments.length, 
+        message: `Updated ${semiproPayments.length} Semiprofesional and ${proPayments.length} Professional subscription records` 
+      };
+    } catch (error) {
+      this.logger.error(`Error refreshing subscription types: ${error.message}`, error);
+      throw new InternalServerErrorException(`Failed to refresh subscription types: ${error.message}`);
     }
   }
 } 

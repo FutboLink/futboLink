@@ -150,4 +150,22 @@ export class PaymentsController {
     
     return this.stripeService.cancelSubscription(email);
   }
+
+  @Post('subscription/refresh-types')
+  @ApiOperation({ summary: 'Refresh subscription types after fixing price ID mapping issue' })
+  @ApiResponse({ 
+    status: HttpStatus.OK, 
+    description: 'Subscription type refresh result',
+    schema: {
+      type: 'object',
+      properties: {
+        updated: { type: 'number', description: 'Number of records updated' },
+        message: { type: 'string', description: 'Message describing the result' }
+      }
+    }
+  })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Error refreshing subscription types' })
+  async refreshSubscriptionTypes() {
+    return this.stripeService.refreshSubscriptionTypes();
+  }
 } 

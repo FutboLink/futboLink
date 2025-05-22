@@ -19,7 +19,7 @@ export class Application {
   id: string;
 
   @ApiProperty({ type: () => User, description: 'Usuario que aplica' })
-  @ManyToOne(() => User, (user) => user.applications)
+  @ManyToOne(() => User, (user) => user.applications, { onDelete: 'CASCADE' })
   player: User;
 
   @ApiProperty({

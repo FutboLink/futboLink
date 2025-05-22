@@ -47,9 +47,6 @@ export class AppController {
         });
       }
       
-      // Log the raw webhook payload for debugging
-      this.logger.log(`Webhook payload: ${rawBody.substring(0, 500)}...`);
-      
       // First, immediately respond to Stripe to acknowledge receipt
       res.status(HttpStatus.OK).json({ received: true });
       

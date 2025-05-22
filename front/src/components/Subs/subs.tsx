@@ -43,9 +43,9 @@ function Subs() {
       const option = subscriptionOptions[index];
       const productId = option.productId;
       
-      console.log(`Iniciando proceso de suscripción con ID de precio: ${priceId}`);
+      console.log(`Creating subscription with price ID: ${priceId}`);
       if (productId) {
-        console.log(`Usando ID de producto: ${productId}`);
+        console.log(`Using product ID: ${productId}`);
       }
       console.log(`API URL: ${apiUrl}/payments/subscription`);
       
@@ -59,7 +59,8 @@ function Subs() {
           body: JSON.stringify({ 
             priceId,
             customerEmail: userEmail,
-            successUrl: `${window.location.origin}/payment/success`, 
+            // Redirect to the success URL so subscription can be updated only after successful payment
+            successUrl: `${window.location.origin}/payment/success?session_id={CHECKOUT_SESSION_ID}&email=${encodeURIComponent(userEmail)}&plan=${encodeURIComponent(option.title)}`, 
             cancelUrl: `${window.location.origin}/payment/cancel`,
             description: "Suscripción a FutboLink",
             ...(productId && { productId }), // Solo incluir productId si existe
@@ -76,9 +77,7 @@ function Subs() {
       const data = await response.json();
       
       if (data.url) {
-        console.log(`Redirigiendo a la página de pago: ${data.url}`);
-        // Mostrar mensaje de redirección antes de redirigir
-        alert("Serás redirigido a la página de pago. Tu suscripción se activará después de completar el pago con éxito.");
+        console.log(`Redirecting to: ${data.url}`);
         window.location.href = data.url;
       } else {
         console.error("Response data:", data);

@@ -28,12 +28,13 @@ export const checkUserSubscription = async (email: string): Promise<Subscription
     const data = await response.json();
     const subscriptionType = data.subscriptionType || 'Amateur';
     
-    // Only consider active if explicitly marked as active
-    const isActive = data.hasActiveSubscription === true;
+    // If subscription type is not Amateur, it should be considered active
+    const isActive = data.hasActiveSubscription || 
+                    (subscriptionType !== 'Amateur' && subscriptionType !== '');
     
     return {
       hasActiveSubscription: isActive,
-      subscriptionType: isActive ? subscriptionType : 'Amateur'
+      subscriptionType: subscriptionType
     };
   } catch (error) {
     console.error('Error checking subscription:', error);
@@ -60,9 +61,7 @@ export const refreshUserSubscription = async (email: string): Promise<Subscripti
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
           'Expires': '0'
-        },
-        // Force a network request, don't use any cached response
-        cache: 'no-store'
+        }
       }
     );
     
@@ -75,12 +74,13 @@ export const refreshUserSubscription = async (email: string): Promise<Subscripti
     
     const subscriptionType = data.subscriptionType || 'Amateur';
     
-    // Only consider active if explicitly marked as active
-    const isActive = data.hasActiveSubscription === true;
+    // If subscription type is not Amateur, it should be considered active
+    const isActive = data.hasActiveSubscription || 
+                    (subscriptionType !== 'Amateur' && subscriptionType !== '');
     
     return {
       hasActiveSubscription: isActive,
-      subscriptionType: isActive ? subscriptionType : 'Amateur'
+      subscriptionType: subscriptionType
     };
   } catch (error) {
     console.error('Error refreshing subscription:', error);

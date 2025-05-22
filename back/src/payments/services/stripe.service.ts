@@ -209,10 +209,11 @@ export class StripeService {
           customerEmail: dto.customerEmail,
           amountTotal: finalPrice,
           currency: realCurrency,
-          status: PaymentStatus.PENDING,
+          status: PaymentStatus.PENDING, // Explicitly set to PENDING initially
           type: PaymentType.SUBSCRIPTION,
           description: dto.description || 'FutboLink Subscription',
-          subscriptionType: SubscriptionPlan.AMATEUR // Always start as AMATEUR until payment is confirmed
+          subscriptionType: subscriptionType, // Store the subscription type explicitly
+          subscriptionStatus: 'incomplete' // Set initial subscription status to incomplete
         });
 
         await this.paymentRepo.save(payment);
@@ -356,6 +357,8 @@ export class StripeService {
    */
   private async handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
     try {
+      this.logger.log(`Processing checkout.session.completed event for session ${session.id}`);
+      
       // Find the payment in our database
       const payment = await this.paymentRepo.findOne({ 
         where: { stripeSessionId: session.id } 
@@ -377,27 +380,37 @@ export class StripeService {
       if (session.subscription) {
         payment.stripeSubscriptionId = session.subscription as string;
         
+        // Get subscription details if available
         try {
-          // Get the subscription details to set the correct subscription type
-          const subscription = await this.stripe.subscriptions.retrieve(session.subscription as string);
+          const subscriptionDetails = await this.stripe.subscriptions.retrieve(session.subscription as string);
+          payment.subscriptionStatus = subscriptionDetails.status;
           
-          if (subscription.items.data.length > 0) {
-            const priceId = subscription.items.data[0].price.id;
+          // Now that payment is confirmed, set the correct subscription status
+          if (subscriptionDetails.status === 'active' || subscriptionDetails.status === 'trialing') {
+            payment.status = PaymentStatus.SUCCEEDED;
+            this.logger.log(`Subscription ${session.subscription} is now active for customer ${payment.customerEmail}`);
+          } else {
+            this.logger.log(`Subscription ${session.subscription} has status ${subscriptionDetails.status}`);
+          }
+          
+          // Update subscription type based on price ID if available
+          if (subscriptionDetails.items.data.length > 0) {
+            const priceId = subscriptionDetails.items.data[0].price.id;
             payment.stripePriceId = priceId;
             
             // Set the subscription type based on price ID
-            if (priceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k' || 
-                priceId === 'price_1R7MPlGbCHvHfqXFapD8MeOw') {
+            if (priceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
               payment.subscriptionType = SubscriptionPlan.SEMIPROFESIONAL;
-              this.logger.log(`Set subscription type to Semiprofesional based on completed payment`);
-            } else if (priceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo' || 
-                      priceId === 'price_1R7MbgGbCHvHfqXFYECGw8S9') {
+            } else if (priceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
               payment.subscriptionType = SubscriptionPlan.PROFESIONAL;
-              this.logger.log(`Set subscription type to Profesional based on completed payment`);
+            } else {
+              payment.subscriptionType = SubscriptionPlan.AMATEUR;
             }
+            
+            this.logger.log(`Set subscription type to ${payment.subscriptionType} based on price ID ${priceId}`);
           }
-        } catch (error) {
-          this.logger.error(`Error getting subscription details: ${error.message}`, error);
+        } catch (subscriptionError) {
+          this.logger.error(`Error retrieving subscription details: ${subscriptionError.message}`, subscriptionError);
         }
       }
       
@@ -507,11 +520,9 @@ export class StripeService {
         payment.stripePriceId = priceId;
         
         // Set the subscription type based on price ID
-        if (priceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k' || 
-            priceId === 'price_1R7MPlGbCHvHfqXFapD8MeOw') {  // Include both monthly and yearly price IDs
+        if (priceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
           payment.subscriptionType = SubscriptionPlan.SEMIPROFESIONAL;
-        } else if (priceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo' || 
-                  priceId === 'price_1R7MbgGbCHvHfqXFYECGw8S9') {  // Include both monthly and yearly price IDs
+        } else if (priceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
           payment.subscriptionType = SubscriptionPlan.PROFESIONAL;
         } else {
           payment.subscriptionType = SubscriptionPlan.AMATEUR;
@@ -553,12 +564,12 @@ export class StripeService {
         
         // If subscription type is not set, determine it based on price ID
         if (!payment.subscriptionType) {
-          if (priceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo' || 
-              priceId === 'price_1R7MbgGbCHvHfqXFYECGw8S9') {  // Include both monthly and yearly price IDs
-            payment.subscriptionType = SubscriptionPlan.PROFESIONAL;
-          } else if (priceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k' || 
-                    priceId === 'price_1R7MPlGbCHvHfqXFapD8MeOw') {  // Include both monthly and yearly price IDs
+          if (priceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
             payment.subscriptionType = SubscriptionPlan.SEMIPROFESIONAL;
+          } else if (priceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
+            payment.subscriptionType = SubscriptionPlan.PROFESIONAL;
+          } else {
+            payment.subscriptionType = SubscriptionPlan.AMATEUR;
           }
           
           this.logger.log(`Set subscription type to ${payment.subscriptionType} based on price ID ${priceId}`);
@@ -704,85 +715,29 @@ export class StripeService {
       
       this.logger.log(`Found payment record for ${userEmail}: status=${payment.status}, subscriptionStatus=${payment.subscriptionStatus}, priceId=${payment.stripePriceId}, subscriptionType=${payment.subscriptionType}`);
       
-      // Si tenemos un ID de suscripción de Stripe, verificar el estado directamente desde Stripe
-      if (payment.stripeSubscriptionId) {
-        try {
-          this.logger.log(`Verificando suscripción directamente en Stripe: ${payment.stripeSubscriptionId}`);
-          const stripeSubscription = await this.stripe.subscriptions.retrieve(payment.stripeSubscriptionId);
-          
-          // Actualizar el estado en nuestra base de datos si es diferente
-          if (payment.subscriptionStatus !== stripeSubscription.status) {
-            payment.subscriptionStatus = stripeSubscription.status;
-            this.logger.log(`Actualizando estado de suscripción en DB: ${stripeSubscription.status}`);
-            
-            // También actualizar el precio si ha cambiado
-            if (stripeSubscription.items.data.length > 0) {
-              const priceId = stripeSubscription.items.data[0].price.id;
-              if (payment.stripePriceId !== priceId) {
-                payment.stripePriceId = priceId;
-                
-                // Actualizar el tipo de suscripción basado en el ID de precio
-                if (priceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo' || 
-                    priceId === 'price_1R7MbgGbCHvHfqXFYECGw8S9') {
-                  payment.subscriptionType = SubscriptionPlan.PROFESIONAL;
-                } else if (priceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k' || 
-                          priceId === 'price_1R7MPlGbCHvHfqXFapD8MeOw') {
-                  payment.subscriptionType = SubscriptionPlan.SEMIPROFESIONAL;
-                }
-              }
-            }
-            
-            // Actualizar el estado del pago según el estado de la suscripción
-            if (stripeSubscription.status === 'active' || stripeSubscription.status === 'trialing') {
-              payment.status = PaymentStatus.SUCCEEDED;
-            } else if (stripeSubscription.status === 'past_due' || stripeSubscription.status === 'unpaid') {
-              payment.status = PaymentStatus.PAYMENT_REQUIRED;
-            } else if (stripeSubscription.status === 'canceled') {
-              payment.status = PaymentStatus.CANCELED;
-            }
-            
-            // Guardar los cambios en la base de datos
-            await this.paymentRepo.save(payment);
-          }
-          
-          // Comprobar si la suscripción está activa basado en el estado de Stripe
-          const isActive = stripeSubscription.status === 'active' || stripeSubscription.status === 'trialing';
-          let subscriptionType = payment.subscriptionType || 'Amateur';
-          
-          const result = { 
-            hasActiveSubscription: isActive,
-            subscriptionType: isActive ? subscriptionType : 'Amateur'
-          };
-          
-          this.logger.log(`Subscription for ${userEmail} is ${isActive ? 'active' : 'inactive'} (${result.subscriptionType}) [Stripe verification]`);
-          return result;
-        } catch (stripeError) {
-          this.logger.error(`Error checking subscription with Stripe: ${stripeError.message}`, stripeError);
-          // Continuar con la verificación basada en la base de datos
-        }
-      }
-      
-      // Si no pudimos verificar con Stripe o no hay ID de suscripción, usar los datos de la base de datos
       // Check if subscription is active - include more subscription statuses
-      let isActive = payment.status === PaymentStatus.SUCCEEDED && 
+      let isActive = payment.status === PaymentStatus.SUCCEEDED || 
                       (payment.subscriptionStatus === 'active' || 
-                       payment.subscriptionStatus === 'trialing');
+                       payment.subscriptionStatus === 'trialing' ||
+                       payment.subscriptionStatus === 'incomplete' ||
+                       payment.subscriptionStatus === 'past_due');
       
       // First try to use the explicit subscriptionType field if it exists
       let subscriptionType = 'Amateur';
-      if (payment.subscriptionType && isActive) {
+      if (payment.subscriptionType) {
         subscriptionType = payment.subscriptionType;
         this.logger.log(`Using explicit subscription type: ${subscriptionType}`);
+        isActive = isActive || (subscriptionType !== 'Amateur'); // If we have a subscription type other than Amateur, consider it active
       }
-      // Fallback to price ID mapping if subscriptionType is not set or we need to verify
-      else if (payment.stripePriceId && isActive) {
+      // Fallback to price ID mapping if subscriptionType is not set
+      else if (payment.stripePriceId) {
         // Map price IDs to subscription types
-        if (payment.stripePriceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo' || 
-            payment.stripePriceId === 'price_1R7MbgGbCHvHfqXFYECGw8S9') {
+        if (payment.stripePriceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
           subscriptionType = 'Profesional';
-        } else if (payment.stripePriceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k' || 
-                  payment.stripePriceId === 'price_1R7MPlGbCHvHfqXFapD8MeOw') {
+          isActive = true; // If we have a valid price ID for a paid plan, consider it active
+        } else if (payment.stripePriceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
           subscriptionType = 'Semiprofesional';
+          isActive = true; // If we have a valid price ID for a paid plan, consider it active
         }
         
         this.logger.log(`Mapped price ID ${payment.stripePriceId} to subscription type: ${subscriptionType}`);
@@ -791,10 +746,10 @@ export class StripeService {
       // Always return the subscription type if there's a payment record, even if not active
       const result = { 
         hasActiveSubscription: isActive,
-        subscriptionType: isActive ? subscriptionType : 'Amateur'
+        subscriptionType: isActive || payment.status !== PaymentStatus.CANCELED ? subscriptionType : 'Amateur'
       };
       
-      this.logger.log(`Subscription for ${userEmail} is ${isActive ? 'active' : 'inactive'} (${result.subscriptionType}) [DB verification]`);
+      this.logger.log(`Subscription for ${userEmail} is ${isActive ? 'active' : 'inactive'} (${result.subscriptionType})`);
       return result;
     } catch (error) {
       this.logger.error(`Error checking subscription for ${userEmail}: ${error.message}`, error);

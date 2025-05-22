@@ -168,4 +168,52 @@ export class PaymentsController {
   async refreshSubscriptionTypes() {
     return this.stripeService.refreshSubscriptionTypes();
   }
+
+  @Post('subscription/fix')
+  @ApiOperation({ summary: 'Fix subscription status for a user' })
+  @ApiResponse({ 
+    status: HttpStatus.OK, 
+    description: 'Subscription fix result',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', description: 'Whether the fix was successful' },
+        message: { type: 'string', description: 'Message describing the result' },
+        subscriptionInfo: { 
+          type: 'object',
+          properties: {
+            hasActiveSubscription: { type: 'boolean' },
+            subscriptionType: { type: 'string' }
+          }
+        }
+      }
+    }
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid input data' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Error fixing subscription' })
+  async fixUserSubscription(@Body('email') email: string): Promise<any> {
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
+    
+    try {
+      // Force refresh subscription status from Stripe
+      const subscriptionInfo = await this.stripeService.checkUserSubscription(email);
+      
+      return {
+        success: true,
+        message: `Subscription status refreshed successfully for ${email}`,
+        subscriptionInfo
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: `Error refreshing subscription status: ${error.message}`,
+        subscriptionInfo: {
+          hasActiveSubscription: false,
+          subscriptionType: 'Amateur'
+        }
+      };
+    }
+  }
 } 

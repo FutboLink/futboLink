@@ -23,11 +23,16 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
+  // Configure raw body parsing for webhook endpoint
   app.use(
     '/stripe/webhook',
     bodyParser.raw({ type: 'application/json' }) 
   );
+  
+  // Configure JSON body parser for all other routes
+  app.use(bodyParser.json({ limit: '10mb' }));
+  app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
-  await app.listen(3000);
+  await app.listen(3001);
 }
 bootstrap();

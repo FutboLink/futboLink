@@ -32,6 +32,78 @@ function PaymentSuccessContent() {
     }
   };
   
+  // Function to force update subscription status
+  const forceUpdateSubscription = async (email: string, sessionId: string) => {
+    try {
+      console.log('Force updating subscription for:', email);
+      setRefreshingSubscription(true);
+      
+      // First, manually trigger the session verification on the server side
+      const verifyResponse = await fetch(`${apiUrl}/payments/verify-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          sessionId,
+          email 
+        }),
+      });
+      
+      if (!verifyResponse.ok) {
+        const errorData = await verifyResponse.text();
+        console.warn('Session verification warning:', errorData);
+        // Continue anyway - this is just an extra precaution
+      } else {
+        const verifyData = await verifyResponse.json();
+        console.log('Session verification result:', verifyData);
+      }
+      
+      // Wait a moment to allow server processing
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Clear cache first
+      clearSubscriptionCache();
+      
+      // Refresh subscription status
+      const result = await refreshUserSubscription(email);
+      console.log('Subscription status refreshed:', result);
+      
+      // Store updated subscription info in localStorage for immediate use
+      localStorage.setItem('subscriptionInfo', JSON.stringify(result));
+      
+      setRefreshingSubscription(false);
+      return result;
+    } catch (error) {
+      console.error('Error force updating subscription:', error);
+      setRefreshingSubscription(false);
+      return null;
+    }
+  };
+  
+  const refreshSubscriptionStatus = async (email: string) => {
+    try {
+      setRefreshingSubscription(true);
+      console.log('Refreshing subscription status for:', email);
+      
+      // Clear cache first
+      clearSubscriptionCache();
+      
+      // Refresh subscription status
+      const result = await refreshUserSubscription(email);
+      console.log('Subscription status refreshed:', result);
+      
+      // Store updated subscription info in localStorage for immediate use
+      localStorage.setItem('subscriptionInfo', JSON.stringify(result));
+      
+      setRefreshingSubscription(false);
+    } catch (error) {
+      console.error('Error refreshing subscription status:', error);
+      setRefreshingSubscription(false);
+      setVerificationStatus('error');
+    }
+  };
+  
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
     const email = searchParams.get('email') || '';
@@ -59,19 +131,20 @@ function PaymentSuccessContent() {
         // Use email from URL params first, then from payment details
         const userEmail = email || data.customerEmail;
         if (userEmail) {
-          refreshSubscriptionStatus(userEmail);
+          // Use force update instead of simple refresh
+          forceUpdateSubscription(userEmail, sessionId);
         } else {
           // Fallback to localStorage if no email found
           const storedEmail = localStorage.getItem('userEmail');
           const storedUser = localStorage.getItem('user');
           
           if (storedEmail) {
-            refreshSubscriptionStatus(storedEmail);
+            forceUpdateSubscription(storedEmail, sessionId);
           } else if (storedUser) {
             try {
               const userData = JSON.parse(storedUser);
               if (userData.email) {
-                refreshSubscriptionStatus(userData.email);
+                forceUpdateSubscription(userData.email, sessionId);
               }
             } catch (e) {
               console.error('Error parsing user data from localStorage:', e);
@@ -118,7 +191,7 @@ function PaymentSuccessContent() {
             // Use email from URL params first, then from payment details
             const userEmail = email || data.customerEmail;
             if (userEmail) {
-              refreshSubscriptionStatus(userEmail);
+              forceUpdateSubscription(userEmail, sessionId);
             }
           }
         });
@@ -127,34 +200,48 @@ function PaymentSuccessContent() {
       // Clean up interval on component unmount
       return () => clearInterval(intervalId);
     }
-  }, [searchParams, apiUrl]);
-  
-  const refreshSubscriptionStatus = async (email: string) => {
-    try {
-      setRefreshingSubscription(true);
-      console.log('Refreshing subscription status for:', email);
-      
-      // Clear cache first
-      clearSubscriptionCache();
-      
-      // Refresh subscription status
-      const result = await refreshUserSubscription(email);
-      console.log('Subscription status refreshed:', result);
-      
-      // Store updated subscription info in localStorage for immediate use
-      localStorage.setItem('subscriptionInfo', JSON.stringify(result));
-      
-      setRefreshingSubscription(false);
-    } catch (error) {
-      console.error('Error refreshing subscription status:', error);
-      setRefreshingSubscription(false);
-      setVerificationStatus('error');
-    }
-  };
+  }, [searchParams, apiUrl, retryCount, verificationStatus]);
   
   const handleGoToProfile = () => {
     // Force a reload of the profile page to ensure it shows updated subscription status
     router.push('/profile');
+  };
+  
+  const handleManualUpdate = () => {
+    const sessionId = searchParams.get('session_id');
+    const email = searchParams.get('email') || '';
+    
+    if (!sessionId) {
+      alert('No se encontró el ID de sesión');
+      return;
+    }
+    
+    if (!email) {
+      // Try to get email from payment details or localStorage
+      const storedEmail = localStorage.getItem('userEmail');
+      const storedUser = localStorage.getItem('user');
+      
+      if (paymentDetails?.customerEmail) {
+        forceUpdateSubscription(paymentDetails.customerEmail, sessionId);
+      } else if (storedEmail) {
+        forceUpdateSubscription(storedEmail, sessionId);
+      } else if (storedUser) {
+        try {
+          const userData = JSON.parse(storedUser);
+          if (userData.email) {
+            forceUpdateSubscription(userData.email, sessionId);
+          } else {
+            alert('No se pudo encontrar tu email. Por favor, contacta a soporte.');
+          }
+        } catch (e) {
+          alert('Error al leer los datos de usuario. Por favor, contacta a soporte.');
+        }
+      } else {
+        alert('No se pudo encontrar tu email. Por favor, contacta a soporte.');
+      }
+    } else {
+      forceUpdateSubscription(email, sessionId);
+    }
   };
   
   return (
@@ -209,12 +296,23 @@ function PaymentSuccessContent() {
                 <span className="text-sm text-gray-600">Actualizando tu suscripción...</span>
               </div>
             ) : (
-              <button 
-                onClick={handleGoToProfile}
-                className="inline-block rounded-md border border-transparent bg-verde-claro py-2 px-4 text-base font-medium text-white hover:bg-verde-oscuro"
-              >
-                Ir a mi perfil
-              </button>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button 
+                  onClick={handleGoToProfile}
+                  className="inline-block rounded-md border border-transparent bg-verde-claro py-2 px-4 text-base font-medium text-white hover:bg-verde-oscuro"
+                >
+                  Ir a mi perfil
+                </button>
+                
+                {(verificationStatus === 'error' || !paymentDetails?.hasActiveSubscription) && (
+                  <button 
+                    onClick={handleManualUpdate}
+                    className="inline-block rounded-md border border-verde-claro bg-white py-2 px-4 text-base font-medium text-verde-oscuro hover:bg-gray-50"
+                  >
+                    Actualizar suscripción manualmente
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>

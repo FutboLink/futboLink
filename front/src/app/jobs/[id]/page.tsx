@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { UserContext } from "@/components/Context/UserContext";
 import Image from "next/image";
+import { checkUserSubscription } from "@/services/SubscriptionService";
 
 const JobDetail: React.FC = () => {
   const params = useParams();
@@ -15,8 +16,10 @@ const JobDetail: React.FC = () => {
   const [jobId, setJobId] = useState<string | null>(null);
   const [isToken, setIsTokene] = useState(false);
   const [isOffer, setIsOffer] = useState<IOfferCard>();
-  const { token } = useContext(UserContext);
+  const { token, user } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [checkingSubscription, setCheckingSubscription] = useState(false);
 
   useEffect(() => {
     if (params && params.id) {
@@ -24,6 +27,26 @@ const JobDetail: React.FC = () => {
       setJobId(id);
     }
   }, [params]);
+
+  useEffect(() => {
+    // Check subscription status when user data is available
+    const checkSubscription = async () => {
+      if (user && user.email && token) {
+        setCheckingSubscription(true);
+        try {
+          const subData = await checkUserSubscription(user.email);
+          setHasActiveSubscription(subData.hasActiveSubscription);
+          console.log("Subscription status checked:", subData);
+        } catch (error) {
+          console.error("Error checking subscription:", error);
+        } finally {
+          setCheckingSubscription(false);
+        }
+      }
+    };
+    
+    checkSubscription();
+  }, [user, token]);
 
   const decodeToken = (token: string) => {
     const base64Url = token.split(".")[1];
@@ -81,10 +104,6 @@ const JobDetail: React.FC = () => {
     );
   }
 
-  // const handleApplyClick = () => {
-  //   setIsModalOpen(true);
-  // };
-
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
@@ -92,13 +111,14 @@ const JobDetail: React.FC = () => {
   const handleApplyClick = (offer: IOfferCard) => {
     setIsOffer(offer);
 
-    if (token) {
-      setIsModalOpen(true); // Mostrar la notificación si no hay token
-      setIsTokene(false);
+    if (!token) {
+      setIsModalOpen(true);
+      setIsTokene(true);
       return;
     }
+    
     setIsModalOpen(true);
-    setIsTokene(true);
+    setIsTokene(false);
   };
 
   return (
@@ -234,9 +254,46 @@ const JobDetail: React.FC = () => {
           </p>
         )}
 
+        {/* Subscription status information */}
+        {token && (
+          <div className="mb-4 text-sm">
+            {checkingSubscription ? (
+              <p className="text-white opacity-90 bg-[#ffffff20] p-2 rounded-md">
+                Verificando suscripción...
+              </p>
+            ) : hasActiveSubscription ? (
+              <p className="text-white bg-[#ffffff20] p-2 rounded-md flex items-center">
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  className="h-4 w-4 mr-1" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Suscripción activa
+              </p>
+            ) : (
+              <p className="text-white bg-[#ffffff20] p-2 rounded-md flex items-center">
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  className="h-4 w-4 mr-1" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Se requiere suscripción para aplicar
+              </p>
+            )}
+          </div>
+        )}
+
         <button
           onClick={() => handleApplyClick(offer)}
-          className="mt-6 w-full py-2 rounded-lg font-bold border-2 border-white bg-white text-gray-700 hover:bg-transparent hover:text-white transition"
+          className="mt-2 w-full py-2 rounded-lg font-bold border-2 border-white bg-white text-gray-700 hover:bg-transparent hover:text-white transition"
         >
           Aplicar a esta oferta
         </button>
@@ -246,6 +303,21 @@ const JobDetail: React.FC = () => {
             Volver
           </button>
         </Link>
+
+        {!token && (
+          <div className="mt-4 text-center text-sm">
+            <p className="opacity-80">Necesitas iniciar sesión y tener una suscripción para aplicar</p>
+            <div className="flex gap-2 mt-2">
+              <Link href="/Login" className="text-white underline hover:no-underline">
+                Iniciar sesión
+              </Link>
+              <span>•</span>
+              <Link href="/Subs" className="text-white underline hover:no-underline">
+                Ver suscripciones
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Modal */}

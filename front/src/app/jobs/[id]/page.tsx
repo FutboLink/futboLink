@@ -7,7 +7,6 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { UserContext } from "@/components/Context/UserContext";
 import Image from "next/image";
-import { fetchUserData } from "@/components/Fetchs/UsersFetchs/UserFetchs";
 
 const JobDetail: React.FC = () => {
   const params = useParams();
@@ -16,9 +15,8 @@ const JobDetail: React.FC = () => {
   const [jobId, setJobId] = useState<string | null>(null);
   const [isToken, setIsTokene] = useState(false);
   const [isOffer, setIsOffer] = useState<IOfferCard>();
-  const { token, user } = useContext(UserContext);
+  const { token } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(true);
-  const [hasValidSubscription, setHasValidSubscription] = useState(false);
 
   useEffect(() => {
     if (params && params.id) {
@@ -26,26 +24,6 @@ const JobDetail: React.FC = () => {
       setJobId(id);
     }
   }, [params]);
-
-  // Check if user has a valid subscription
-  useEffect(() => {
-    if (user) {
-      // Access subscription through the fetchUserData call since it might not be in the user context
-      if (token) {
-        fetchUserData(token)
-          .then((userData: any) => {
-            const validSubscriptions = ['Semiprofesional', 'Profesional'];
-            const hasValid = validSubscriptions.includes(userData.subscription || 'Amateur');
-            setHasValidSubscription(hasValid);
-            console.log("User subscription status:", userData.subscription, "Valid:", hasValid);
-          })
-          .catch((err: Error) => {
-            console.error("Error fetching user subscription data:", err);
-            setHasValidSubscription(false);
-          });
-      }
-    }
-  }, [user, token]);
 
   const decodeToken = (token: string) => {
     const base64Url = token.split(".")[1];
@@ -114,15 +92,13 @@ const JobDetail: React.FC = () => {
   const handleApplyClick = (offer: IOfferCard) => {
     setIsOffer(offer);
 
-    if (!token) {
-      setIsModalOpen(true);
-      setIsTokene(true);
+    if (token) {
+      setIsModalOpen(true); // Mostrar la notificación si no hay token
+      setIsTokene(false);
       return;
     }
-    
-    // User is logged in
     setIsModalOpen(true);
-    setIsTokene(false);
+    setIsTokene(true);
   };
 
   return (
@@ -273,14 +249,14 @@ const JobDetail: React.FC = () => {
       </div>
 
       {/* Modal */}
-      {isModalOpen && (
+      {isModalOpen && userId && offer.id && (
         <ModalApplication
-          jobId={jobId || ""}
-          userId={userId || ""}
-          jobTitle={offer ? offer.title : ""}
+          jobId={offer.id.toString()}
+          userId={userId.toString()}
+          jobTitle={offer.title}
           onClose={handleCloseModal}
-          typeMessage={isToken}
           isOffer={isOffer}
+          typeMessage={isToken}
         />
       )}
     </div>

@@ -33,25 +33,20 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
   useEffect(() => {
     if (token) {
       fetchUserData(token)
-        .then((data) => {
-          console.log("User subscription data:", data.subscription);
-          setUserPremium(data.subscription);
-        })
-        .catch((error) => console.log("Error al cargar los datos de suscripción:", error));
+        .then((data) => setUserPremium(data.subscription))
+        .catch(() => console.log("Error al cargar los datos."));
     }
   }, [token]);
 
   const handleSubmit = async () => {
-    setIsSubmitting(true);
     setNotificationMessage("Enviando solicitud...");
     setShowNotification(true);
 
     try {
       const application = { message, jobId, userId };
-      console.log("Enviando aplicación:", application);
       await fetchApplications(application);
 
-      setNotificationMessage("¡Tu solicitud ha sido enviada con éxito!");
+      setNotificationMessage("Has enviado la solicitud.");
       setShowNotification(true);
 
       setTimeout(() => {
@@ -59,24 +54,17 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
         onClose(); // Cerrar modal luego del envío exitoso
       }, 2000);
     } catch (error: any) {
-      console.error("Error al enviar la aplicación:", error);
-      
       if (error instanceof Error) {
-        // Error handling for standard JS errors
-        setNotificationMessage(error.message || "Ya has enviado la solicitud anteriormente.");
+        setNotificationMessage("Ya has enviado la solicitud.");
       } else if (error?.status === 403) {
-        // Forbidden error - subscription required
         setNotificationMessage(
-          "Se requiere una suscripción activa Semiprofesional o Profesional para aplicar a esta oferta."
+          "Se requiere una suscripción activa para aplicar"
         );
       } else {
-        // Default error message
-        setNotificationMessage("Error al enviar la solicitud. Por favor intenta nuevamente.");
+        setNotificationMessage("Error desconocido al enviar la solicitud.");
       }
 
       setShowNotification(true);
-      setIsSubmitting(false);
-      
       setTimeout(() => {
         setShowNotification(false);
       }, 5000);

@@ -38,10 +38,10 @@ export function Subscription() {
       borderColor: "border-verde-claro",
       buttonColor: "bg-verde-claro",
       priceId: {
-        monthly: "price_1R7MPlGbCHvHfqXFNjW8oj2k",
+        monthly: "price_1RP80ZGbCHvHfqXF9CqoLtnt",
         yearly: "price_1R7MPlGbCHvHfqXFapD8MeOw",
       },
-      productId: "prod_S1PExFzjXvaE7E",
+      productId: "prod_SJlX3qKmAGTGw6",
     },
     {
       title: "Profesional",

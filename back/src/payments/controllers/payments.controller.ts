@@ -168,4 +168,31 @@ export class PaymentsController {
   async refreshSubscriptionTypes() {
     return this.stripeService.refreshSubscriptionTypes();
   }
+  
+  @Post('verify-session')
+  @ApiOperation({ summary: 'Manually verify a checkout session and update subscription status' })
+  @ApiResponse({ 
+    status: HttpStatus.OK, 
+    description: 'Session verification result',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', description: 'Whether the verification was successful' },
+        message: { type: 'string', description: 'Message describing the result' },
+        subscriptionStatus: { type: 'string', description: 'Current subscription status' }
+      }
+    }
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid input data' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Error verifying session' })
+  async verifySession(@Body() verifySessionDto: { sessionId: string, email: string }) {
+    if (!verifySessionDto.sessionId) {
+      throw new BadRequestException('Session ID is required');
+    }
+    
+    return this.stripeService.verifySessionAndUpdateSubscription(
+      verifySessionDto.sessionId,
+      verifySessionDto.email
+    );
+  }
 } 

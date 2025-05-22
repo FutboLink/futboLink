@@ -894,4 +894,123 @@ export class StripeService {
       throw new InternalServerErrorException(`Failed to refresh subscription types: ${error.message}`);
     }
   }
+  
+  /**
+   * Manually verify a checkout session and update subscription status
+   * This is useful for clients to call when they want to force refresh subscription status
+   */
+  async verifySessionAndUpdateSubscription(sessionId: string, email?: string): Promise<{ success: boolean, message: string, subscriptionStatus?: string }> {
+    try {
+      this.logger.log(`Manually verifying session: ${sessionId}`);
+      
+      // First, retrieve the session from Stripe to get the latest status
+      let session: Stripe.Checkout.Session;
+      try {
+        session = await this.stripe.checkout.sessions.retrieve(sessionId, {
+          expand: ['subscription', 'payment_intent']
+        });
+        this.logger.log(`Retrieved session from Stripe: ${sessionId}, status: ${session.status}, payment_status: ${session.payment_status}`);
+      } catch (stripeError) {
+        this.logger.error(`Error retrieving session from Stripe: ${stripeError.message}`);
+        return { 
+          success: false, 
+          message: `Error retrieving session from Stripe: ${stripeError.message}` 
+        };
+      }
+      
+      // Find the payment record in our database
+      const payment = await this.paymentRepo.findOne({ 
+        where: { stripeSessionId: sessionId } 
+      });
+      
+      if (!payment) {
+        this.logger.warn(`Payment record not found for session ID: ${sessionId}`);
+        return { 
+          success: false, 
+          message: `Payment record not found for session ID: ${sessionId}` 
+        };
+      }
+      
+      // If email is provided and doesn't match, this might be the wrong session
+      if (email && payment.customerEmail && email !== payment.customerEmail) {
+        this.logger.warn(`Email mismatch: provided ${email}, found ${payment.customerEmail}`);
+        // But continue anyway, just log the warning
+      }
+      
+      // Check the session status
+      const isSessionComplete = session.status === 'complete';
+      const isPaymentSuccess = session.payment_status === 'paid';
+      
+      // If session is complete and payment is successful, update payment status
+      if (isSessionComplete && isPaymentSuccess) {
+        // Update payment status if needed
+        if (payment.status !== PaymentStatus.SUCCEEDED) {
+          payment.status = PaymentStatus.SUCCEEDED;
+          this.logger.log(`Updated payment status to SUCCEEDED for session ${sessionId}`);
+        }
+        
+        // If there's a subscription ID in the session, update that too
+        if (session.subscription) {
+          const subscriptionId = typeof session.subscription === 'string' 
+            ? session.subscription 
+            : session.subscription.id;
+            
+          payment.stripeSubscriptionId = subscriptionId;
+          
+          // Try to get subscription details
+          try {
+            const subscription = typeof session.subscription === 'object'
+              ? session.subscription
+              : await this.stripe.subscriptions.retrieve(subscriptionId);
+              
+            payment.subscriptionStatus = subscription.status;
+            
+            // Update subscription type based on price ID if needed
+            if (subscription.items.data.length > 0) {
+              const priceId = subscription.items.data[0].price.id;
+              payment.stripePriceId = priceId;
+              
+              // Set the subscription type based on price ID if not already set
+              if (!payment.subscriptionType || payment.subscriptionType === SubscriptionPlan.AMATEUR) {
+                if (priceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
+                  payment.subscriptionType = SubscriptionPlan.SEMIPROFESIONAL;
+                  this.logger.log(`Set subscription type to SEMIPROFESIONAL based on price ID ${priceId}`);
+                } else if (priceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
+                  payment.subscriptionType = SubscriptionPlan.PROFESIONAL;
+                  this.logger.log(`Set subscription type to PROFESIONAL based on price ID ${priceId}`);
+                }
+              }
+            }
+          } catch (subError) {
+            this.logger.error(`Error retrieving subscription details: ${subError.message}`);
+            // Continue anyway, we've already updated what we can
+          }
+        }
+        
+        // Save the updated payment
+        await this.paymentRepo.save(payment);
+        
+        return { 
+          success: true, 
+          message: 'Session verified and subscription updated successfully', 
+          subscriptionStatus: payment.subscriptionStatus || 'active' 
+        };
+      } else {
+        // Session is not complete or payment not successful
+        this.logger.log(`Session ${sessionId} status: ${session.status}, payment status: ${session.payment_status}`);
+        
+        return { 
+          success: false, 
+          message: `Session not complete or payment not successful. Status: ${session.status}, payment status: ${session.payment_status}`,
+          subscriptionStatus: payment.subscriptionStatus
+        };
+      }
+    } catch (error) {
+      this.logger.error(`Error verifying session: ${error.message}`, error);
+      return { 
+        success: false, 
+        message: `Error verifying session: ${error.message}` 
+      };
+    }
+  }
 } 

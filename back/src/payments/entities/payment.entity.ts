@@ -15,6 +15,12 @@ export enum PaymentType {
   SUBSCRIPTION = 'subscription',
 }
 
+export enum SubscriptionPlan {
+  AMATEUR = 'Amateur',
+  SEMIPROFESIONAL = 'Semiprofesional',
+  PROFESIONAL = 'Profesional',
+}
+
 @Entity('payments')
 export class Payment {
   @PrimaryGeneratedColumn('uuid')
@@ -65,6 +71,13 @@ export class Payment {
 
   @Column({ nullable: true })
   subscriptionStatus?: string;
+
+  @Column({
+    type: 'enum',
+    enum: SubscriptionPlan,
+    nullable: true,
+  })
+  subscriptionType?: SubscriptionPlan;
 
   @Column({ nullable: true })
   failureReason?: string;

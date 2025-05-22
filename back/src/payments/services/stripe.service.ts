@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Payment, PaymentStatus, PaymentType } from '../entities/payment.entity';
+import { Payment, PaymentStatus, PaymentType, SubscriptionPlan } from '../entities/payment.entity';
 import { CreateOneTimePaymentDto, CreateSubscriptionDto } from '../dto';
 import * as https from 'https';
 
@@ -117,6 +117,19 @@ export class StripeService {
         this.logger.log(`Usando producto específico: ${dto.productId}`);
       }
       
+      // Determine subscription type based on product and price IDs
+      let subscriptionType: SubscriptionPlan = SubscriptionPlan.AMATEUR;
+      
+      if (dto.priceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k' || 
+          dto.productId === 'prod_S1PExFzjXvaE7E') {
+        subscriptionType = SubscriptionPlan.SEMIPROFESIONAL;
+        this.logger.log('Creating Semiprofesional subscription');
+      } else if (dto.priceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo' || 
+                dto.productId === 'prod_S1PP1zfIAIwheC') {
+        subscriptionType = SubscriptionPlan.PROFESIONAL;
+        this.logger.log('Creating Profesional subscription');
+      }
+      
       // Intentar obtener información del precio real desde Stripe
       let realPrice = 0;
       let realCurrency = 'eur';
@@ -199,6 +212,7 @@ export class StripeService {
           status: PaymentStatus.PENDING,
           type: PaymentType.SUBSCRIPTION,
           description: dto.description || 'FutboLink Subscription',
+          subscriptionType: subscriptionType // Store the subscription type explicitly
         });
 
         await this.paymentRepo.save(payment);
@@ -466,7 +480,19 @@ export class StripeService {
       
       // Get the first item's price ID if available
       if (subscription.items.data.length > 0) {
-        payment.stripePriceId = subscription.items.data[0].price.id;
+        const priceId = subscription.items.data[0].price.id;
+        payment.stripePriceId = priceId;
+        
+        // Set the subscription type based on price ID
+        if (priceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
+          payment.subscriptionType = SubscriptionPlan.SEMIPROFESIONAL;
+        } else if (priceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
+          payment.subscriptionType = SubscriptionPlan.PROFESIONAL;
+        } else {
+          payment.subscriptionType = SubscriptionPlan.AMATEUR;
+        }
+        
+        this.logger.log(`Set subscription type to ${payment.subscriptionType} based on price ID ${priceId}`);
       }
 
       await this.paymentRepo.save(payment);
@@ -497,7 +523,21 @@ export class StripeService {
       
       // Update price ID if it has changed
       if (subscription.items.data.length > 0) {
-        payment.stripePriceId = subscription.items.data[0].price.id;
+        const priceId = subscription.items.data[0].price.id;
+        payment.stripePriceId = priceId;
+        
+        // If subscription type is not set, determine it based on price ID
+        if (!payment.subscriptionType) {
+          if (priceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
+            payment.subscriptionType = SubscriptionPlan.SEMIPROFESIONAL;
+          } else if (priceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
+            payment.subscriptionType = SubscriptionPlan.PROFESIONAL;
+          } else {
+            payment.subscriptionType = SubscriptionPlan.AMATEUR;
+          }
+          
+          this.logger.log(`Set subscription type to ${payment.subscriptionType} based on price ID ${priceId}`);
+        }
       }
       
       // Update status based on subscription status
@@ -637,7 +677,7 @@ export class StripeService {
         return { hasActiveSubscription: false, subscriptionType: 'Amateur' };
       }
       
-      this.logger.log(`Found payment record for ${userEmail}: status=${payment.status}, subscriptionStatus=${payment.subscriptionStatus}, priceId=${payment.stripePriceId}`);
+      this.logger.log(`Found payment record for ${userEmail}: status=${payment.status}, subscriptionStatus=${payment.subscriptionStatus}, priceId=${payment.stripePriceId}, subscriptionType=${payment.subscriptionType}`);
       
       // Check if subscription is active - include more subscription statuses
       let isActive = payment.status === PaymentStatus.SUCCEEDED || 
@@ -646,10 +686,15 @@ export class StripeService {
                        payment.subscriptionStatus === 'incomplete' ||
                        payment.subscriptionStatus === 'past_due');
       
-      // Determine subscription type based on price ID
+      // First try to use the explicit subscriptionType field if it exists
       let subscriptionType = 'Amateur';
-      
-      if (payment.stripePriceId) {
+      if (payment.subscriptionType) {
+        subscriptionType = payment.subscriptionType;
+        this.logger.log(`Using explicit subscription type: ${subscriptionType}`);
+        isActive = isActive || (subscriptionType !== 'Amateur'); // If we have a subscription type other than Amateur, consider it active
+      }
+      // Fallback to price ID mapping if subscriptionType is not set
+      else if (payment.stripePriceId) {
         // Map price IDs to subscription types
         if (payment.stripePriceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
           subscriptionType = 'Profesional';
@@ -748,12 +793,12 @@ export class StripeService {
       
       this.logger.log(`Found ${semiproPayments.length} Semiprofesional subscription payments to update`);
       
-      // Update each payment to ensure it has the correct subscription type in logs
+      // Update each payment to set the subscriptionType field
       for (const payment of semiproPayments) {
-        this.logger.log(`Fixing subscription type for payment ${payment.id} (${payment.customerEmail})`);
+        payment.subscriptionType = SubscriptionPlan.SEMIPROFESIONAL;
+        await this.paymentRepo.save(payment);
         
-        // Log a message to make the fix clear in the logs
-        this.logger.log(`Updated subscription type for ${payment.customerEmail} from Profesional to Semiprofesional`);
+        this.logger.log(`Updated subscription type for ${payment.customerEmail} to Semiprofesional`);
       }
       
       // Find all payments for Professional subscription
@@ -766,17 +811,35 @@ export class StripeService {
       
       this.logger.log(`Found ${proPayments.length} Professional subscription payments to update`);
       
-      // Update each payment to ensure it has the correct subscription type in logs
+      // Update each payment to set the subscriptionType field
       for (const payment of proPayments) {
-        this.logger.log(`Fixing subscription type for payment ${payment.id} (${payment.customerEmail})`);
+        payment.subscriptionType = SubscriptionPlan.PROFESIONAL;
+        await this.paymentRepo.save(payment);
         
-        // Log a message to make the fix clear in the logs
-        this.logger.log(`Updated subscription type for ${payment.customerEmail} from Semiprofesional to Profesional`);
+        this.logger.log(`Updated subscription type for ${payment.customerEmail} to Profesional`);
+      }
+      
+      // Find all other subscription payments that don't have a subscriptionType
+      const otherPayments = await this.paymentRepo.find({
+        where: { 
+          type: PaymentType.SUBSCRIPTION,
+          subscriptionType: null
+        }
+      });
+      
+      this.logger.log(`Found ${otherPayments.length} other subscription payments to update`);
+      
+      // Update each payment to set the subscriptionType field to Amateur
+      for (const payment of otherPayments) {
+        payment.subscriptionType = SubscriptionPlan.AMATEUR;
+        await this.paymentRepo.save(payment);
+        
+        this.logger.log(`Updated subscription type for ${payment.customerEmail} to Amateur`);
       }
       
       return { 
-        updated: semiproPayments.length + proPayments.length, 
-        message: `Updated ${semiproPayments.length} Semiprofesional and ${proPayments.length} Professional subscription records` 
+        updated: semiproPayments.length + proPayments.length + otherPayments.length, 
+        message: `Updated ${semiproPayments.length} Semiprofesional, ${proPayments.length} Professional, and ${otherPayments.length} Amateur subscription records` 
       };
     } catch (error) {
       this.logger.error(`Error refreshing subscription types: ${error.message}`, error);

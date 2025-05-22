@@ -12,6 +12,8 @@ function PaymentSuccessContent() {
   const [loading, setLoading] = useState(true);
   const [paymentDetails, setPaymentDetails] = useState<any>(null);
   const [refreshingSubscription, setRefreshingSubscription] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string>('pending'); // 'pending', 'success', 'error'
+  const [retryCount, setRetryCount] = useState<number>(0);
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   
   useEffect(() => {
@@ -64,23 +66,71 @@ function PaymentSuccessContent() {
       // Clear cache first
       clearSubscriptionCache();
       
-      // Refresh subscription status
-      const result = await refreshUserSubscription(email);
-      console.log('Subscription status refreshed:', result);
+      // Implementar mecanismo de reintento para asegurar actualización de suscripción
+      let attempts = 0;
+      const maxAttempts = 5;
+      let result = null;
       
-      // Store updated subscription info in localStorage for immediate use
-      localStorage.setItem('subscriptionInfo', JSON.stringify(result));
+      while (attempts < maxAttempts) {
+        attempts++;
+        setRetryCount(attempts);
+        console.log(`Intento ${attempts} de ${maxAttempts} para actualizar suscripción...`);
+        
+        // Esperar un tiempo antes de cada intento (incrementando con cada reintento)
+        if (attempts > 1) {
+          await new Promise(resolve => setTimeout(resolve, 2000 * attempts));
+        }
+        
+        // Refresh subscription status
+        result = await refreshUserSubscription(email);
+        console.log('Resultado de actualización:', result);
+        
+        // Si la suscripción está activa, terminar los reintentos
+        if (result.hasActiveSubscription) {
+          console.log('¡Suscripción activa confirmada!');
+          setSubscriptionStatus('success');
+          break;
+        }
+        
+        console.log('Suscripción aún no activa, reintentando...');
+      }
+      
+      // Almacenar el resultado final, sea cual sea
+      if (result) {
+        console.log('Almacenando información de suscripción final:', result);
+        localStorage.setItem('subscriptionInfo', JSON.stringify(result));
+        
+        // Si después de todos los intentos no se activó la suscripción, marcar como error
+        if (!result.hasActiveSubscription && retryCount >= 5) {
+          setSubscriptionStatus('error');
+        }
+      } else {
+        setSubscriptionStatus('error');
+      }
       
       setRefreshingSubscription(false);
     } catch (error) {
       console.error('Error refreshing subscription status:', error);
       setRefreshingSubscription(false);
+      setSubscriptionStatus('error');
     }
   };
   
   const handleGoToProfile = () => {
     // Force a reload of the profile page to ensure it shows updated subscription status
     router.push('/profile');
+  };
+  
+  const handleManualRetry = async () => {
+    // Get email from payment details or localStorage
+    const email = paymentDetails?.customerEmail || 
+                 localStorage.getItem('userEmail') || 
+                 JSON.parse(localStorage.getItem('user') || '{}').email;
+    
+    if (email) {
+      setSubscriptionStatus('pending');
+      await refreshSubscriptionStatus(email);
+    }
   };
   
   return (
@@ -98,7 +148,7 @@ function PaymentSuccessContent() {
       ) : (
         <div className="bg-gray-50 px-4 py-5 sm:px-6 rounded-lg shadow">
           <p className="text-lg text-gray-700 mb-4">
-            Gracias por tu suscripción a futboLink. Tu cuenta ha sido actualizada.
+            Gracias por tu suscripción a futboLink.
           </p>
           
           {paymentDetails && (
@@ -112,17 +162,59 @@ function PaymentSuccessContent() {
           
           <div className="mt-8">
             {refreshingSubscription ? (
-              <div className="flex justify-center mb-4">
-                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-verde-oscuro mr-2"></div>
-                <span className="text-sm text-gray-600">Actualizando tu suscripción...</span>
+              <div className="flex flex-col items-center mb-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-verde-oscuro mb-2"></div>
+                <span className="text-sm text-gray-600">
+                  Actualizando tu suscripción... (Intento {retryCount} de 5)
+                </span>
+                <p className="text-xs text-gray-500 mt-1">
+                  Este proceso puede tardar unos momentos mientras confirmamos tu pago.
+                </p>
+              </div>
+            ) : subscriptionStatus === 'success' ? (
+              <div className="flex flex-col items-center">
+                <div className="bg-green-100 text-green-700 p-3 rounded-full mb-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <p className="text-green-700 font-medium mb-4">¡Tu cuenta ha sido actualizada correctamente!</p>
+                <button 
+                  onClick={handleGoToProfile}
+                  className="inline-block rounded-md border border-transparent bg-verde-claro py-2 px-4 text-base font-medium text-white hover:bg-verde-oscuro"
+                >
+                  Ir a mi perfil
+                </button>
+              </div>
+            ) : subscriptionStatus === 'error' ? (
+              <div className="flex flex-col items-center">
+                <div className="bg-red-100 text-red-700 p-3 rounded-full mb-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </div>
+                <p className="text-red-700 font-medium mb-2">No pudimos confirmar la actualización de tu suscripción.</p>
+                <p className="text-sm text-gray-600 mb-4">Tu pago fue procesado correctamente, pero puede tomar unos minutos en reflejarse en tu cuenta.</p>
+                <div className="flex space-x-4">
+                  <button 
+                    onClick={handleManualRetry}
+                    className="inline-block rounded-md border border-verde-claro bg-white py-2 px-4 text-base font-medium text-verde-claro hover:bg-gray-50"
+                  >
+                    Reintentar
+                  </button>
+                  <button 
+                    onClick={handleGoToProfile}
+                    className="inline-block rounded-md border border-transparent bg-verde-claro py-2 px-4 text-base font-medium text-white hover:bg-verde-oscuro"
+                  >
+                    Ir a mi perfil
+                  </button>
+                </div>
               </div>
             ) : (
-              <button 
-                onClick={handleGoToProfile}
-                className="inline-block rounded-md border border-transparent bg-verde-claro py-2 px-4 text-base font-medium text-white hover:bg-verde-oscuro"
-              >
-                Ir a mi perfil
-              </button>
+              <div className="flex justify-center mb-4">
+                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-verde-oscuro mr-2"></div>
+                <span className="text-sm text-gray-600">Verificando estado de tu suscripción...</span>
+              </div>
             )}
           </div>
         </div>

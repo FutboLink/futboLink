@@ -43,9 +43,9 @@ function Subs() {
       const option = subscriptionOptions[index];
       const productId = option.productId;
       
-      console.log(`Creating subscription with price ID: ${priceId}`);
+      console.log(`Iniciando proceso de suscripción con ID de precio: ${priceId}`);
       if (productId) {
-        console.log(`Using product ID: ${productId}`);
+        console.log(`Usando ID de producto: ${productId}`);
       }
       console.log(`API URL: ${apiUrl}/payments/subscription`);
       
@@ -76,7 +76,9 @@ function Subs() {
       const data = await response.json();
       
       if (data.url) {
-        console.log(`Redirecting to: ${data.url}`);
+        console.log(`Redirigiendo a la página de pago: ${data.url}`);
+        // Mostrar mensaje de redirección antes de redirigir
+        alert("Serás redirigido a la página de pago. Tu suscripción se activará después de completar el pago con éxito.");
         window.location.href = data.url;
       } else {
         console.error("Response data:", data);

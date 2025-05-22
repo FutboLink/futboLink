@@ -34,8 +34,13 @@ export const getUsers =  async (): Promise<IProfileData[]> => {
   
     if (!response.ok) {
       const errorData = await response.json();
-        console.error("Error applying:", errorData);
-      throw new Error(errorData.message || "Error desconocido");
+      console.error("Error applying:", errorData);
+      
+      // Create an error object with additional status information
+      const error: any = new Error(errorData.message || "Error desconocido");
+      error.status = response.status;
+      error.details = errorData;
+      throw error;
     }
   
     const data = await response.json();

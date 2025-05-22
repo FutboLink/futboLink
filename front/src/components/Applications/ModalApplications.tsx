@@ -33,20 +33,25 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
   useEffect(() => {
     if (token) {
       fetchUserData(token)
-        .then((data) => setUserPremium(data.subscription))
-        .catch(() => console.log("Error al cargar los datos."));
+        .then((data) => {
+          console.log("User subscription data:", data.subscription);
+          setUserPremium(data.subscription);
+        })
+        .catch((error) => console.log("Error al cargar los datos de suscripción:", error));
     }
   }, [token]);
 
   const handleSubmit = async () => {
+    setIsSubmitting(true);
     setNotificationMessage("Enviando solicitud...");
     setShowNotification(true);
 
     try {
       const application = { message, jobId, userId };
+      console.log("Enviando aplicación:", application);
       await fetchApplications(application);
 
-      setNotificationMessage("Has enviado la solicitud.");
+      setNotificationMessage("¡Tu solicitud ha sido enviada con éxito!");
       setShowNotification(true);
 
       setTimeout(() => {
@@ -54,17 +59,24 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
         onClose(); // Cerrar modal luego del envío exitoso
       }, 2000);
     } catch (error: any) {
+      console.error("Error al enviar la aplicación:", error);
+      
       if (error instanceof Error) {
-        setNotificationMessage("Ya has enviado la solicitud.");
+        // Error handling for standard JS errors
+        setNotificationMessage(error.message || "Ya has enviado la solicitud anteriormente.");
       } else if (error?.status === 403) {
+        // Forbidden error - subscription required
         setNotificationMessage(
-          "Se requiere una suscripción activa para aplicar"
+          "Se requiere una suscripción activa Semiprofesional o Profesional para aplicar a esta oferta."
         );
       } else {
-        setNotificationMessage("Error desconocido al enviar la solicitud.");
+        // Default error message
+        setNotificationMessage("Error al enviar la solicitud. Por favor intenta nuevamente.");
       }
 
       setShowNotification(true);
+      setIsSubmitting(false);
+      
       setTimeout(() => {
         setShowNotification(false);
       }, 5000);

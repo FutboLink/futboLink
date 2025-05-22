@@ -26,15 +26,12 @@ export const checkUserSubscription = async (email: string): Promise<Subscription
     }
     
     const data = await response.json();
-    const subscriptionType = data.subscriptionType || 'Amateur';
     
-    // If subscription type is not Amateur, it should be considered active
-    const isActive = data.hasActiveSubscription || 
-                    (subscriptionType !== 'Amateur' && subscriptionType !== '');
-    
+    // IMPORTANT: Trust the server's hasActiveSubscription flag
+    // Do not override it based on subscription type
     return {
-      hasActiveSubscription: isActive,
-      subscriptionType: subscriptionType
+      hasActiveSubscription: data.hasActiveSubscription === true,
+      subscriptionType: data.subscriptionType || 'Amateur'
     };
   } catch (error) {
     console.error('Error checking subscription:', error);
@@ -72,15 +69,11 @@ export const refreshUserSubscription = async (email: string): Promise<Subscripti
     const data = await response.json();
     console.log('Refreshed subscription data:', data);
     
-    const subscriptionType = data.subscriptionType || 'Amateur';
-    
-    // If subscription type is not Amateur, it should be considered active
-    const isActive = data.hasActiveSubscription || 
-                    (subscriptionType !== 'Amateur' && subscriptionType !== '');
-    
+    // IMPORTANT: Trust the server's hasActiveSubscription flag
+    // Do not override it based on subscription type
     return {
-      hasActiveSubscription: isActive,
-      subscriptionType: subscriptionType
+      hasActiveSubscription: data.hasActiveSubscription === true,
+      subscriptionType: data.subscriptionType || 'Amateur'
     };
   } catch (error) {
     console.error('Error refreshing subscription:', error);

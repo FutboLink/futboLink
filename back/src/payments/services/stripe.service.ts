@@ -715,38 +715,50 @@ export class StripeService {
       
       this.logger.log(`Found payment record for ${userEmail}: status=${payment.status}, subscriptionStatus=${payment.subscriptionStatus}, priceId=${payment.stripePriceId}, subscriptionType=${payment.subscriptionType}`);
       
-      // Check if subscription is active - include more subscription statuses
-      let isActive = payment.status === PaymentStatus.SUCCEEDED || 
+      // IMPORTANT: Only consider a subscription active if the payment status is SUCCEEDED
+      // and the subscription status is active or trialing
+      let isActive = payment.status === PaymentStatus.SUCCEEDED && 
                       (payment.subscriptionStatus === 'active' || 
-                       payment.subscriptionStatus === 'trialing' ||
-                       payment.subscriptionStatus === 'incomplete' ||
-                       payment.subscriptionStatus === 'past_due');
-      
-      // First try to use the explicit subscriptionType field if it exists
-      let subscriptionType = 'Amateur';
-      if (payment.subscriptionType) {
-        subscriptionType = payment.subscriptionType;
-        this.logger.log(`Using explicit subscription type: ${subscriptionType}`);
-        isActive = isActive || (subscriptionType !== 'Amateur'); // If we have a subscription type other than Amateur, consider it active
+                       payment.subscriptionStatus === 'trialing');
+                       
+      // Do NOT consider these statuses as active subscriptions
+      if (payment.status === PaymentStatus.PENDING || 
+          payment.status === PaymentStatus.FAILED ||
+          payment.status === PaymentStatus.CANCELED ||
+          payment.subscriptionStatus === 'incomplete' ||
+          payment.subscriptionStatus === 'incomplete_expired' ||
+          payment.subscriptionStatus === 'past_due' ||
+          payment.subscriptionStatus === 'canceled' ||
+          payment.subscriptionStatus === 'unpaid') {
+        isActive = false;
+        this.logger.log(`User ${userEmail} has an inactive subscription with status: ${payment.status}/${payment.subscriptionStatus}`);
       }
-      // Fallback to price ID mapping if subscriptionType is not set
-      else if (payment.stripePriceId) {
+      
+      // Determine subscription type
+      let subscriptionType = 'Amateur';
+      
+      // Get subscription type from the payment record if it exists and payment is active
+      if (payment.subscriptionType && isActive) {
+        subscriptionType = payment.subscriptionType;
+        this.logger.log(`Using explicit subscription type for active subscription: ${subscriptionType}`);
+      }
+      // Only use price ID mapping if the subscription is active
+      else if (payment.stripePriceId && isActive) {
         // Map price IDs to subscription types
         if (payment.stripePriceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
           subscriptionType = 'Profesional';
-          isActive = true; // If we have a valid price ID for a paid plan, consider it active
         } else if (payment.stripePriceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
           subscriptionType = 'Semiprofesional';
-          isActive = true; // If we have a valid price ID for a paid plan, consider it active
         }
         
         this.logger.log(`Mapped price ID ${payment.stripePriceId} to subscription type: ${subscriptionType}`);
+      } else {
+        subscriptionType = 'Amateur';
       }
       
-      // Always return the subscription type if there's a payment record, even if not active
       const result = { 
         hasActiveSubscription: isActive,
-        subscriptionType: isActive || payment.status !== PaymentStatus.CANCELED ? subscriptionType : 'Amateur'
+        subscriptionType: isActive ? subscriptionType : 'Amateur'
       };
       
       this.logger.log(`Subscription for ${userEmail} is ${isActive ? 'active' : 'inactive'} (${result.subscriptionType})`);

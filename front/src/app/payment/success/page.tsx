@@ -13,64 +13,119 @@ function PaymentSuccessContent() {
   const [paymentDetails, setPaymentDetails] = useState<any>(null);
   const [refreshingSubscription, setRefreshingSubscription] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<string>('pending');
+  const [retryCount, setRetryCount] = useState(0);
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  
+  // Function to fetch payment details
+  const fetchPaymentDetails = async (sessionId: string) => {
+    try {
+      const response = await fetch(`${apiUrl}/payments/session/${sessionId}`);
+      if (!response.ok) {
+        throw new Error(`Error fetching payment details: ${response.status}`);
+      }
+      const data = await response.json();
+      setPaymentDetails(data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching payment details:', error);
+      return null;
+    }
+  };
   
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
     const email = searchParams.get('email') || '';
     const plan = searchParams.get('plan') || '';
     
-    if (sessionId) {
-      // Fetch payment details
-      fetch(`${apiUrl}/payments/session/${sessionId}`)
-        .then(res => res.json())
-        .then(data => {
-          setPaymentDetails(data);
-          setLoading(false);
+    if (!sessionId) {
+      setLoading(false);
+      setVerificationStatus('error');
+      return;
+    }
+    
+    // First time fetch
+    fetchPaymentDetails(sessionId).then(data => {
+      setLoading(false);
+      
+      if (!data) {
+        setVerificationStatus('error');
+        return;
+      }
+      
+      // Verify payment status before updating subscription
+      if (data.status === 'succeeded') {
+        setVerificationStatus('success');
+        
+        // Use email from URL params first, then from payment details
+        const userEmail = email || data.customerEmail;
+        if (userEmail) {
+          refreshSubscriptionStatus(userEmail);
+        } else {
+          // Fallback to localStorage if no email found
+          const storedEmail = localStorage.getItem('userEmail');
+          const storedUser = localStorage.getItem('user');
           
-          // Verify payment status before updating subscription
+          if (storedEmail) {
+            refreshSubscriptionStatus(storedEmail);
+          } else if (storedUser) {
+            try {
+              const userData = JSON.parse(storedUser);
+              if (userData.email) {
+                refreshSubscriptionStatus(userData.email);
+              }
+            } catch (e) {
+              console.error('Error parsing user data from localStorage:', e);
+              setVerificationStatus('error');
+            }
+          } else {
+            setVerificationStatus('error');
+          }
+        }
+      } else {
+        // Payment not succeeded yet - set up polling for status updates
+        setVerificationStatus('pending');
+        console.log('Payment status not succeeded yet:', data.status);
+      }
+    });
+    
+    // Set up polling if needed (every 5 seconds, up to 6 times = 30 seconds total)
+    const maxRetries = 6;
+    const retryInterval = 5000;
+    
+    // Only set up polling if we have a sessionId
+    if (sessionId) {
+      const intervalId = setInterval(() => {
+        // Check if we should stop polling
+        if (retryCount >= maxRetries || verificationStatus === 'success') {
+          clearInterval(intervalId);
+          return;
+        }
+        
+        setRetryCount(count => count + 1);
+        console.log(`Checking payment status, attempt ${retryCount + 1} of ${maxRetries}`);
+        
+        // Fetch payment details again
+        fetchPaymentDetails(sessionId).then(data => {
+          if (!data) return;
+          
+          setPaymentDetails(data);
+          
+          // If payment succeeded, update subscription
           if (data.status === 'succeeded') {
             setVerificationStatus('success');
+            clearInterval(intervalId);
             
             // Use email from URL params first, then from payment details
             const userEmail = email || data.customerEmail;
             if (userEmail) {
               refreshSubscriptionStatus(userEmail);
-            } else {
-              // Fallback to localStorage if no email found
-              const storedEmail = localStorage.getItem('userEmail');
-              const storedUser = localStorage.getItem('user');
-              
-              if (storedEmail) {
-                refreshSubscriptionStatus(storedEmail);
-              } else if (storedUser) {
-                try {
-                  const userData = JSON.parse(storedUser);
-                  if (userData.email) {
-                    refreshSubscriptionStatus(userData.email);
-                  }
-                } catch (e) {
-                  console.error('Error parsing user data from localStorage:', e);
-                  setVerificationStatus('error');
-                }
-              } else {
-                setVerificationStatus('error');
-              }
             }
-          } else {
-            // Payment not succeeded yet
-            setVerificationStatus('pending');
-            console.log('Payment status not succeeded yet:', data.status);
           }
-        })
-        .catch((error) => {
-          console.error('Error fetching payment details:', error);
-          setLoading(false);
-          setVerificationStatus('error');
         });
-    } else {
-      setLoading(false);
-      setVerificationStatus('error');
+      }, retryInterval);
+      
+      // Clean up interval on component unmount
+      return () => clearInterval(intervalId);
     }
   }, [searchParams, apiUrl]);
   
@@ -106,7 +161,9 @@ function PaymentSuccessContent() {
     <div className="w-full max-w-md space-y-8 text-center">
       <div>
         <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-verde-oscuro">
-          ¡Pago completado con éxito!
+          {verificationStatus === 'success' 
+            ? '¡Pago completado con éxito!' 
+            : 'Procesando tu pago...'}
         </h2>
       </div>
       
@@ -116,9 +173,20 @@ function PaymentSuccessContent() {
         </div>
       ) : (
         <div className="bg-gray-50 px-4 py-5 sm:px-6 rounded-lg shadow">
-          <p className="text-lg text-gray-700 mb-4">
-            Gracias por tu suscripción a futboLink. Tu cuenta ha sido actualizada.
-          </p>
+          {verificationStatus === 'success' ? (
+            <p className="text-lg text-gray-700 mb-4">
+              Gracias por tu suscripción a futboLink. Tu cuenta ha sido actualizada.
+            </p>
+          ) : verificationStatus === 'pending' ? (
+            <p className="text-lg text-gray-700 mb-4">
+              Estamos procesando tu pago. Por favor, espera unos momentos mientras confirmamos tu transacción.
+              {retryCount > 0 && ` (Intento ${retryCount} de 6)`}
+            </p>
+          ) : (
+            <p className="text-lg text-gray-700 mb-4">
+              No pudimos confirmar el estado de tu pago. Tu cuenta se actualizará automáticamente cuando se complete la transacción.
+            </p>
+          )}
           
           {paymentDetails && (
             <div className="text-sm text-gray-600 mt-4 text-left">

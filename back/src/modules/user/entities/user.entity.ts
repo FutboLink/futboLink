@@ -5,13 +5,6 @@ import { Job } from 'src/modules/Jobs/entities/jobs.entity';
 import { Application } from 'src/modules/Applications/entities/applications.entity';
 import { Subscription } from 'src/modules/Subscriptions/entities/subscription.entity';
 
-// Definir los tipos de planes posibles
-export enum UserPlan {
-  AMATEUR = 'amateur',
-  SEMIPROFESIONAL = 'semiprofesional',
-  PROFESIONAL = 'profesional',
-}
-
 @Entity('users')
 export class User {
   @ApiProperty({
@@ -164,15 +157,6 @@ export class User {
     nullable: true,
   })
 
-
-  @ApiProperty({
-    example: UserPlan.AMATEUR,
-    description: 'Plan de suscripción actual del usuario',
-    enum: UserPlan,
-    default: UserPlan.AMATEUR,
-  })
-  @Column({ type: 'enum', enum: UserPlan, default: UserPlan.AMATEUR })
-  currentPlan: UserPlan;
 
   @OneToOne(() => Subscription, (subscription) => subscription.user, { cascade: true, onDelete: 'CASCADE' })
   @JoinColumn()

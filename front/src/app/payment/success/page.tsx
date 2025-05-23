@@ -68,7 +68,7 @@ function PaymentSuccessContent() {
         }
         
         const verifyResult = await verifyResponse.json();
-        addDebugInfo(`Respuesta del servidor: ${JSON.stringify(verifyResult)}`);
+        addDebugInfo(`Respuesta del servidor (verify-session): ${JSON.stringify(verifyResult)}`);
         
         // Esperar un momento para que se complete la actualización en la base de datos
         addDebugInfo('Esperando para asegurar que los cambios se completen...');
@@ -80,62 +80,51 @@ function PaymentSuccessContent() {
         
         // 3. SIEMPRE crear los datos de suscripción basados en el plan seleccionado
         // Esto asegura que el usuario reciba el plan por el que pagó
-        if (verifyResult.success) {
-          addDebugInfo('Verificación exitosa, creando estado de suscripción para el plan pagado');
+        if (verifyResult.success && verifyResult.subscriptionStatus === 'active') {
+          addDebugInfo('Verificación exitosa y sub activa, creando estado de suscripción local');
           const subscriptionData = {
             hasActiveSubscription: true,
-            subscriptionType: plan || 'Semiprofesional'
+            subscriptionType: plan 
           };
           localStorage.setItem('subscriptionInfo', JSON.stringify(subscriptionData));
-          addDebugInfo(`Datos de suscripción guardados: ${JSON.stringify(subscriptionData)}`);
+          addDebugInfo(`Datos de suscripción (plan de URL) guardados: ${JSON.stringify(subscriptionData)}`);
           setSuccess(true);
-          setLoading(false);
-          return;
-        }
-        
-        // Si la verificación no fue exitosa, intentar actualizar con API
-        if (email) {
-          addDebugInfo(`Actualizando información de suscripción para: ${email}`);
-          try {
-            // Primero forzar el tipo de plan seleccionado incluso si la API devuelve otra cosa
-            const result = await refreshUserSubscription(email);
-            const updatedResult = {
-              ...result,
-              hasActiveSubscription: true,
-              subscriptionType: plan || 'Semiprofesional'
-            };
-            addDebugInfo(`Resultado de actualización forzada a plan: ${JSON.stringify(updatedResult)}`);
-            localStorage.setItem('subscriptionInfo', JSON.stringify(updatedResult));
-          } catch (error) {
-            addDebugInfo(`Error al actualizar suscripción: ${error instanceof Error ? error.message : 'Error desconocido'}`);
-            // Usar datos basados en la selección de plan como fallback
-            const fallbackData = {
-              hasActiveSubscription: true,
-              subscriptionType: plan || 'Semiprofesional'
-            };
-            localStorage.setItem('subscriptionInfo', JSON.stringify(fallbackData));
-            addDebugInfo(`Usando datos fallback con plan: ${JSON.stringify(fallbackData)}`);
+        } else {
+          addDebugInfo('Verificación no totalmente exitosa o estado no activo. Refrescando suscripción...');
+          if (email) {
+            const resultFromRefresh = await refreshUserSubscription(email); // refreshUserSubscription usa plan de URL aquí
+            addDebugInfo(`Resultado de refreshUserSubscription: ${JSON.stringify(resultFromRefresh)}`);
+            localStorage.setItem('subscriptionInfo', JSON.stringify(resultFromRefresh));
+            // Si refreshUserSubscription (con plan de URL) indica activa, es éxito
+            if (resultFromRefresh.hasActiveSubscription) {
+              setSuccess(true);
+            } else {
+              // Si incluso el refresh (que debería forzar el plan) no la activa, podría haber un problema mayor
+              setError('No se pudo activar la suscripción con el plan seleccionado.');
+              setSuccess(false);
+            }
+          } else {
+            setError('Falta email para actualizar suscripción.');
+            setSuccess(false);
           }
         }
         
-        setSuccess(true);
         setLoading(false);
       } catch (error) {
         console.error('Error updating subscription:', error);
-        setError(error instanceof Error ? error.message : 'Error desconocido');
-        addDebugInfo(`ERROR: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+        const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+        setError(errorMessage);
+        addDebugInfo(`ERROR en updateSubscription: ${errorMessage}`);
         
-        // En caso de error, pero estamos en desarrollo, crear datos simulados
-        if (process.env.NODE_ENV === 'development') {
-          const fallbackData = {
-            hasActiveSubscription: true,
-            subscriptionType: plan || 'Semiprofesional'
-          };
-          localStorage.setItem('subscriptionInfo', JSON.stringify(fallbackData));
-          addDebugInfo(`Datos simulados de emergencia: ${JSON.stringify(fallbackData)}`);
-          setSuccess(true);
-        }
-        
+        // Fallback en caso de error, usando el plan de la URL
+        addDebugInfo('Intentando fallback con plan de URL debido a error.');
+        const fallbackData = {
+          hasActiveSubscription: true, // Asumimos que el pago podría haber pasado y el error es de verificación/actualización
+          subscriptionType: plan
+        };
+        localStorage.setItem('subscriptionInfo', JSON.stringify(fallbackData));
+        addDebugInfo(`Datos simulados de emergencia (plan de URL) guardados: ${JSON.stringify(fallbackData)}`);
+        setSuccess(true); // Se asume éxito para el usuario, aunque se loguea el error
         setLoading(false);
       }
     };

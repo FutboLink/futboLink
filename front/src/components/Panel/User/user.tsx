@@ -103,26 +103,31 @@ const UserProfile = () => {
   useEffect(() => {
     if (!isClient) return; // Only run on client
 
+    let initialSubscription: SubscriptionInfo = { hasActiveSubscription: false, subscriptionType: 'Amateur' };
     try {
       const cachedSubscription = localStorage.getItem('subscriptionInfo');
       if (cachedSubscription) {
-        const parsedData = JSON.parse(cachedSubscription);
-        console.log('Found cached subscription data:', parsedData);
-        setSubscriptionInfo(parsedData);
+        const parsedData: SubscriptionInfo = JSON.parse(cachedSubscription);
+        console.log('UserProfile: Found cached subscription data:', parsedData);
+        // Si el cache tiene una suscripción activa y no es Amateur, la usamos inicialmente.
+        if (parsedData.hasActiveSubscription && parsedData.subscriptionType !== 'Amateur') {
+          initialSubscription = parsedData;
+          console.log('UserProfile: Using cached premium subscription as initial state:', initialSubscription);
+        }
       }
     } catch (err) {
-      console.error('Error reading cached subscription data:', err);
+      console.error('UserProfile: Error reading cached subscription data:', err);
     }
-  }, [isClient]); // Add isClient as dependency
+    setSubscriptionInfo(initialSubscription); // Establecer estado inicial
+
+  }, [isClient]); 
 
   useEffect(() => {
-    if (token) {
-      // Use fetchUserData to get the data with properly processed trayectorias
+    if (token && isClient) { // Asegurarse que corre en el cliente
       fetchUserData(token)
         .then((data) => {
-          // Ensure trayectorias is initialized correctly
+          // ... (lógica existente de setUserData y manejo de trayectorias) ...
           if (!data.trayectorias || !Array.isArray(data.trayectorias)) {
-            // If there's legacy data, convert it to the new format
             if (data.club) {
               data.trayectorias = [{
                 club: String(data.club || ''),
@@ -133,67 +138,99 @@ const UserProfile = () => {
                 logros: String(data.logros || '')
               }];
             } else {
-              // Initialize with empty array if no legacy data
               data.trayectorias = [];
             }
           }
-          console.log("User data including trayectorias:", data);
+          console.log("UserProfile: User data including trayectorias:", data);
           setUserData(data);
           
-          // After fetching user data, check subscription status
           if (data.email) {
             setLoadingSubscription(true);
-            
-            // Verificar si el usuario es nuevo (recién registrado)
-            const isNewUser = !data.subscription; // Si no tiene información de suscripción
-            
-            if (isNewUser) {
-              // Si es un usuario nuevo, establecer suscripción por defecto como Amateur
-              console.log("Usuario nuevo detectado, estableciendo plan Amateur por defecto");
-              setSubscriptionInfo({
-                hasActiveSubscription: false,
-                subscriptionType: 'Amateur'
-              });
-              
-              // Guardar en localStorage
-              localStorage.setItem('subscriptionInfo', JSON.stringify({
-                hasActiveSubscription: false,
-                subscriptionType: 'Amateur'
-              }));
-              
-              setLoadingSubscription(false);
-            } else {
-              // Use the refresh function to ensure we get the latest data
-              refreshUserSubscription(data.email)
-                .then(subInfo => {
-                  setSubscriptionInfo(subInfo);
-                  // Update the cache
-                  localStorage.setItem('subscriptionInfo', JSON.stringify(subInfo));
-                })
-                .catch(err => {
-                  console.error("Error checking subscription:", err);
-                  
-                  // Fallback to regular check if refresh fails
-                  checkUserSubscription(data.email)
-                    .then(regularInfo => {
-                      setSubscriptionInfo(regularInfo);
-                    })
-                    .catch(regularErr => {
-                      console.error("Error with fallback subscription check:", regularErr);
-                    });
-                })
-                .finally(() => {
-                  setLoadingSubscription(false);
-                });
+            const isNewUser = !data.subscription;
+
+            // Leer la suscripción de localStorage ANTES de llamar al servidor
+            let cachedSubForRefresh: SubscriptionInfo | null = null;
+            try {
+              const cached = localStorage.getItem('subscriptionInfo');
+              if (cached) cachedSubForRefresh = JSON.parse(cached);
+            } catch (e) { console.error('Error reading sub cache for refresh', e); }
+
+            // Si el cache indica un plan pagado activo, PERO el estado actual es Amateur (o el usuario es nuevo sin sub)
+            // esto sugiere que la página se cargó después de un pago pero antes de que el servidor se actualice.
+            // En este caso, se podría confiar temporalmente en el cache o forzar un refresh que use el plan de la URL si aplica.
+            if (isNewUser || (subscriptionInfo.subscriptionType === 'Amateur' && cachedSubForRefresh?.hasActiveSubscription && cachedSubForRefresh?.subscriptionType !== 'Amateur')) {
+              if (isNewUser) {
+                 console.log("UserProfile: New user detected, setting default Amateur plan, then will refresh.");
+                 const newUserData = { hasActiveSubscription: false, subscriptionType: 'Amateur' };
+                 setSubscriptionInfo(newUserData);
+                 localStorage.setItem('subscriptionInfo', JSON.stringify(newUserData));
+              }
+             // Si el cacheado es premium y el actual es amateur, actualizamos visualmente y luego refrescamos.
+             if (cachedSubForRefresh?.hasActiveSubscription && cachedSubForRefresh?.subscriptionType !== 'Amateur' && subscriptionInfo.subscriptionType === 'Amateur') {
+                console.log("UserProfile: Cached premium sub detected, updating UI before server refresh", cachedSubForRefresh);
+                setSubscriptionInfo(cachedSubForRefresh);
+             }
             }
+
+            refreshUserSubscription(data.email)
+              .then(subInfoFromServer => {
+                console.log("UserProfile: Subscription data from server refresh:", subInfoFromServer);
+                // Comparamos con lo que hay en localStorage (que pudo ser actualizado por /payment/success)
+                let finalSubInfo = subInfoFromServer;
+                try {
+                  const cachedAfterPayment = localStorage.getItem('subscriptionInfo');
+                  if (cachedAfterPayment) {
+                    const parsedCache: SubscriptionInfo = JSON.parse(cachedAfterPayment);
+                    // Si el cache tiene un plan pagado activo Y es diferente del que dice el servidor (Amateur)
+                    // Y el servidor no dice que tiene una suscripción activa con ese plan pagado,
+                    // entonces confiamos en el cache del pago reciente.
+                    if (parsedCache.hasActiveSubscription && 
+                        parsedCache.subscriptionType !== 'Amateur' && 
+                        parsedCache.subscriptionType !== subInfoFromServer.subscriptionType && 
+                        !subInfoFromServer.hasActiveSubscription) {
+                      console.log("UserProfile: Cache from payment success overrides server response for display", parsedCache);
+                      finalSubInfo = parsedCache;
+                    }
+                  }
+                } catch(e) { console.error('Error comparing cache with server for sub', e); }
+                
+                setSubscriptionInfo(finalSubInfo);
+                localStorage.setItem('subscriptionInfo', JSON.stringify(finalSubInfo));
+              })
+              .catch(err => {
+                console.error("UserProfile: Error refreshing subscription:", err);
+                // Si el refresh falla, intentamos checkUserSubscription como fallback
+                // pero si el cache tiene algo mejor, lo preferimos
+                checkUserSubscription(data.email)
+                  .then(regularInfo => {
+                    let fallbackSub = regularInfo;
+                    try {
+                      const cached = localStorage.getItem('subscriptionInfo');
+                      if(cached){
+                        const parsedCacheFallback: SubscriptionInfo = JSON.parse(cached);
+                        if(parsedCacheFallback.hasActiveSubscription && parsedCacheFallback.subscriptionType !== 'Amateur' && !regularInfo.hasActiveSubscription){
+                           fallbackSub = parsedCacheFallback;
+                        }
+                      }
+                    }catch(e){ console.error("Error with fallback sub cache", e);}
+                    setSubscriptionInfo(fallbackSub);
+                    localStorage.setItem('subscriptionInfo', JSON.stringify(fallbackSub));
+                  })
+                  .catch(regularErr => {
+                    console.error("UserProfile: Error with fallback subscription check:", regularErr);
+                  });
+              })
+              .finally(() => {
+                setLoadingSubscription(false);
+              });
           }
         })
         .catch((error) => {
-          console.error("Error fetching user data:", error);
+          console.error("UserProfile: Error fetching user data:", error);
           setError("Failed to load user data.");
         });
     }
-  }, [token]);
+  }, [token, isClient]);
 
   // Inicializamos AOS cuando el componente se monta
   useEffect(() => {

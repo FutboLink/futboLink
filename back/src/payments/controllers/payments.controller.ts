@@ -11,12 +11,17 @@ import {
   Req, 
   Res,
   Query,
-  BadRequestException
+  BadRequestException,
+  NotFoundException,
+  InternalServerErrorException
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ApiBody, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StripeService } from '../services/stripe.service';
 import { CreateOneTimePaymentDto, CreateSubscriptionDto } from '../dto';
+import { UpdateUserPlanDto } from '../dto/update-user-plan.dto';
+import { UserService } from '../../modules/user/user.service';
+import { UserPlan } from '../../modules/user/entities/user.entity';
 import { Logger } from '@nestjs/common';
 
 @ApiTags('Payments')
@@ -24,7 +29,10 @@ import { Logger } from '@nestjs/common';
 export class PaymentsController {
   private readonly logger = new Logger(PaymentsController.name);
 
-  constructor(private readonly stripeService: StripeService) {}
+  constructor(
+    private readonly stripeService: StripeService,
+    private readonly userService: UserService,
+  ) {}
   
   @Post('onetime')
   @ApiOperation({ summary: 'Create a one-time payment checkout session' })
@@ -199,5 +207,33 @@ export class PaymentsController {
       verifySessionDto.sessionId,
       verifySessionDto.email
     );
+  }
+
+  @Post('subscription/update-plan')
+  @ApiOperation({ summary: 'Update a user\'s subscription plan in the database' })
+  @ApiResponse({ 
+    status: HttpStatus.OK, 
+    description: 'User plan updated successfully',
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid input data' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Error updating user plan' })
+  async updateUserSubscriptionPlan(@Body() updateUserPlanDto: UpdateUserPlanDto) {
+    this.logger.log(`Request to update plan for email: ${updateUserPlanDto.email} to ${updateUserPlanDto.newPlan}`);
+    try {
+      const updatedUser = await this.userService.updateUserPlan(updateUserPlanDto.email, updateUserPlanDto.newPlan);
+      return { 
+        success: true, 
+        message: 'User plan updated successfully', 
+        userId: updatedUser.id, 
+        newPlan: updatedUser.currentPlan 
+      };
+    } catch (error) {
+      this.logger.error(`Error updating plan for ${updateUserPlanDto.email}: ${error.message}`, error.stack);
+      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Could not update user plan');
+    }
   }
 } 

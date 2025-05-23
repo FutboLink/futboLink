@@ -12,6 +12,7 @@ import * as bcrypt from 'bcrypt';
 import { join } from 'path';
 import { createReadStream } from 'fs';
 import { Response } from 'express'; 
+import { UserPlan } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
@@ -36,6 +37,7 @@ export class UserService {
       email,
       password: hashedPassword,
       ...otherDetails,
+      currentPlan: UserPlan.AMATEUR,
     });
 
     return this.userRepository.save(newUser);
@@ -146,6 +148,18 @@ export class UserService {
     await this.userRepository.save(user);
   }
 
+  async updateUserPlan(email: string, newPlan: UserPlan): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) {
+      throw new NotFoundException(`User with email ${email} not found`);
+    }
 
+    user.currentPlan = newPlan;
+    // Opcional: Si tienes un campo como subscriptionStatus en User relacionado con el estado de Stripe,
+    // podrías querer actualizarlo también. Ej: user.subscriptionStatus = 'active';
+    // Sin embargo, esto depende de si `currentPlan` es la única fuente de verdad o no.
+
+    return this.userRepository.save(user);
+  }
 
 }

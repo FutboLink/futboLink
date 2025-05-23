@@ -11,6 +11,8 @@ import {
 } from "../Fetchs/SuccessCasesFetchs";
 import { UserContext } from "../Context/UserContext";
 import { FaEdit, FaTrash, FaEye, FaEyeSlash, FaPlus } from "react-icons/fa";
+import Image from "next/image";
+import ImageUpload from "../Cloudinary/ImageUpload";
 
 const SuccessCasesAdmin: React.FC = () => {
   const { token } = useContext(UserContext);
@@ -168,16 +170,8 @@ const SuccessCasesAdmin: React.FC = () => {
   };
 
   // Manejar cambio de imagen
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Aquí se implementaría el código para subir la imagen a Cloudinary
-    // Por ahora solo simulamos actualizar la URL
-    if (!e.target.files || e.target.files.length === 0) return;
-    
-    const file = e.target.files[0];
-    // Simular subida exitosa con URL temporal
-    setFormImgUrl(URL.createObjectURL(file));
-    
-    // Aquí se integraría con el sistema de subida de archivos existente
+  const handleImageUpload = (url: string) => {
+    setFormImgUrl(url);
   };
 
   // Limpiar mensajes después de un tiempo
@@ -237,12 +231,16 @@ const SuccessCasesAdmin: React.FC = () => {
               }`}
             >
               <div className="relative h-48 overflow-hidden">
-                <img
-                  src={successCase.imgUrl}
-                  alt={successCase.name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-2 right-2 flex space-x-2">
+                <div className="relative w-full h-full">
+                  <Image
+                    src={successCase.imgUrl}
+                    alt={successCase.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover"
+                  />
+                </div>
+                <div className="absolute top-2 right-2 flex space-x-2 z-10">
                   <button
                     onClick={() => handleTogglePublish(
                       successCase.id || '', 
@@ -392,31 +390,28 @@ const SuccessCasesAdmin: React.FC = () => {
                   <label className="block text-gray-700 text-sm font-bold mb-2">
                     URL de imagen *
                   </label>
-                  <div className="flex">
+                  <div className="flex flex-col">
                     <input
                       type="text"
                       value={formImgUrl}
                       onChange={(e) => setFormImgUrl(e.target.value)}
-                      className="shadow appearance-none border rounded-l w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-2"
                       placeholder="URL de la imagen"
                       required
                     />
-                    <label className="cursor-pointer bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded-r">
-                      Subir
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                      />
-                    </label>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-600 mb-2">O sube una imagen directamente:</p>
+                      <ImageUpload onUpload={handleImageUpload} />
+                    </div>
                   </div>
                   {formImgUrl && (
-                    <div className="mt-2 w-full h-40 overflow-hidden rounded">
-                      <img
+                    <div className="mt-2 w-full h-40 overflow-hidden rounded relative">
+                      <Image
                         src={formImgUrl}
                         alt="Vista previa"
-                        className="w-full h-full object-cover"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-cover"
                       />
                     </div>
                   )}

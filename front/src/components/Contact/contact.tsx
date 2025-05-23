@@ -22,6 +22,7 @@ function Contact() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [corsError, setCorsError] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,6 +31,7 @@ function Contact() {
     setMessage("");
     setSuccess(false);
     setError(false);
+    setCorsError(false);
 
     // Form validation
     if (!email || !name || !mensaje) {
@@ -57,6 +59,10 @@ function Contact() {
         setEmail("");
         setName("");
         setMensaje("");
+      } else if (response.error === "CORS") {
+        setCorsError(true);
+        setError(true);
+        setMessage("No se pudo enviar el mensaje debido a un error de conexión con el servidor.");
       } else {
         setError(true);
         setMessage(`❌ ${response.message || "Ocurrió un error al enviar el mensaje. Por favor, intenta de nuevo más tarde."}`);
@@ -212,6 +218,21 @@ function Contact() {
                       Te responderemos a la brevedad a la dirección de correo proporcionada.
                     </p>
                   )}
+                </div>
+              )}
+
+              {corsError && (
+                <div className="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-md">
+                  <p className="text-sm text-yellow-800 font-medium">
+                    Parece que hay un problema temporal con nuestro servidor. 
+                    Puedes contactarnos directamente por correo electrónico:
+                  </p>
+                  <a 
+                    href="mailto:futbolink.contacto@gmail.com" 
+                    className="mt-2 inline-block text-blue-600 hover:underline"
+                  >
+                    futbolink.contacto@gmail.com
+                  </a>
                 </div>
               )}
             </div>

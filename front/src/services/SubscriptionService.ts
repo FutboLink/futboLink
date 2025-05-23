@@ -1,6 +1,11 @@
 import { getSubscriptionName } from '../helpers/helpersSubs';
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+// En desarrollo, usa la API local; en producción usa la URL configurada
+const apiUrl = process.env.NODE_ENV === 'development' 
+  ? 'http://localhost:3001' 
+  : process.env.NEXT_PUBLIC_API_URL || 'https://futbolink.onrender.com';
+
+console.log('API URL being used:', apiUrl);
 
 export interface SubscriptionInfo {
   hasActiveSubscription: boolean;
@@ -43,24 +48,44 @@ export const checkUserSubscription = async (email: string): Promise<Subscription
 };
 
 /**
+ * Clears the subscription info from localStorage
+ */
+export const clearSubscriptionCache = () => {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('subscriptionInfo');
+    console.log('Subscription cache cleared');
+  }
+};
+
+/**
  * Force refresh subscription status from server (bypassing cache)
  * @param email User's email
  * @returns Updated subscription information
  */
 export const refreshUserSubscription = async (email: string): Promise<SubscriptionInfo> => {
   try {
+    console.log(`Refreshing subscription for: ${email}`);
+    
     // Add timestamp to prevent caching
     const timestamp = new Date().getTime();
+    
+    // Use AbortController to set a timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+    
+    // Configuración básica de fetch que funciona en todos los entornos
     const response = await fetch(
       `${apiUrl}/payments/subscription/check?email=${encodeURIComponent(email)}&_=${timestamp}`,
       {
+        method: 'GET',
         headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
+          'Content-Type': 'application/json'
+        },
+        signal: controller.signal
       }
     );
+    
+    clearTimeout(timeoutId);
     
     if (!response.ok) {
       throw new Error(`Error refreshing subscription: ${response.status}`);
@@ -77,6 +102,16 @@ export const refreshUserSubscription = async (email: string): Promise<Subscripti
     };
   } catch (error) {
     console.error('Error refreshing subscription:', error);
+    
+    // Si estamos en desarrollo, proporciona un estado simulado para pruebas
+    if (process.env.NODE_ENV === 'development') {
+      console.log('DEV MODE: Returning simulated subscription state');
+      return {
+        hasActiveSubscription: true,
+        subscriptionType: 'Semiprofesional'
+      };
+    }
+    
     return {
       hasActiveSubscription: false,
       subscriptionType: 'Amateur'
@@ -91,18 +126,6 @@ export const refreshUserSubscription = async (email: string): Promise<Subscripti
  */
 export const getSubscriptionTypeFromPriceId = (priceId: string): string => {
   return getSubscriptionName(priceId);
-};
-
-/**
- * Clears the cached subscription data from localStorage
- */
-export const clearSubscriptionCache = (): void => {
-  try {
-    localStorage.removeItem('subscriptionInfo');
-    console.log('Subscription cache cleared');
-  } catch (error) {
-    console.error('Error clearing subscription cache:', error);
-  }
 };
 
 /**

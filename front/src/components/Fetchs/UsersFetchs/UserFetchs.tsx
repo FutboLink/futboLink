@@ -388,8 +388,21 @@ export const contact = async (email: string, name: string, mensaje: string) => {
     const data = await res.json();
     return { success: true, message: data.message || "Mensaje enviado exitosamente." };
   } catch (error) {
-    console.error(error);
-    return { success: false, message: "Error al conectar con el servidor." };
+    console.error("Error en el formulario de contacto:", error);
+    
+    // Verificar si es un error de CORS
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (errorMessage.includes('CORS') || 
+        errorMessage.includes('blocked') || 
+        errorMessage.includes('Access-Control-Allow-Origin')) {
+      return {
+        success: false,
+        message: "Error al enviar el mensaje: No se puede acceder al servidor. Por favor, inténtalo más tarde o contáctanos directamente a futbolink.contacto@gmail.com.",
+        error: "CORS"
+      };
+    }
+    
+    return { success: false, message: "Error al conectar con el servidor. Por favor, inténtalo más tarde." };
   }
 };
 

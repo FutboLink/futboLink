@@ -6,6 +6,7 @@ import { fetchSuccessCaseById } from '@/components/Fetchs/SuccessCasesFetchs';
 import Link from 'next/link';
 import Navbar from "@/components/navbar/navbar";
 import Footer from '@/components/Footer/footer';
+import Image from 'next/image';
 
 interface SuccessCaseDetailProps {
   id: string;
@@ -90,18 +91,25 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
       <main className="bg-gray-50">
         {/* Cabecera con imagen de fondo */}
         <div className="relative h-[300px] md:h-[400px] bg-gray-800">
-          <div className="absolute inset-0 bg-black opacity-40"></div>
-          <div 
-            className="absolute inset-0 bg-cover bg-center" 
-            style={{ 
-              backgroundImage: `url(${successCase?.imgUrl})`,
-              backgroundPosition: 'center 25%',
-              backgroundSize: 'cover',
-              filter: 'blur(2px)',
-              opacity: 0.8
-            }}
-          ></div>
-          <div className="container relative mx-auto px-4 h-full flex flex-col justify-end pb-8">
+          <div className="absolute inset-0 bg-black opacity-40 z-10"></div>
+          {successCase?.imgUrl && (
+            <div className="absolute inset-0">
+              <Image 
+                src={successCase.imgUrl}
+                alt={successCase?.name || "Banner de caso de éxito"}
+                fill
+                sizes="100vw"
+                className="object-cover"
+                style={{
+                  objectPosition: 'center 25%',
+                  filter: 'blur(2px)',
+                  opacity: 0.8
+                }}
+                priority
+              />
+            </div>
+          )}
+          <div className="container relative mx-auto px-4 h-full flex flex-col justify-end pb-8 z-20">
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 drop-shadow-lg">
               {successCase?.name}
             </h1>
@@ -117,12 +125,17 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
             {/* Imagen perfil */}
             <div className="flex flex-col md:flex-row gap-8 mb-8">
               <div className="md:w-1/3">
-                <div className="overflow-hidden rounded-lg shadow-md">
-                  <img 
-                    src={successCase?.imgUrl} 
-                    alt={successCase?.name} 
-                    className="w-full h-auto object-cover"
-                  />
+                <div className="overflow-hidden rounded-lg shadow-md relative h-64 w-full">
+                  {successCase?.imgUrl && (
+                    <Image 
+                      src={successCase.imgUrl} 
+                      alt={successCase?.name || "Caso de éxito"} 
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover"
+                      priority
+                    />
+                  )}
                 </div>
               </div>
               

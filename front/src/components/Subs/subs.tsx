@@ -59,7 +59,7 @@ function Subs() {
           body: JSON.stringify({ 
             priceId,
             customerEmail: userEmail,
-            // Redirect to the success URL so subscription can be updated only after successful payment
+            // Asegurar que el plan esté siempre incluido en la URL
             successUrl: `${window.location.origin}/payment/success?session_id={CHECKOUT_SESSION_ID}&email=${encodeURIComponent(userEmail)}&plan=${encodeURIComponent(option.title)}`, 
             cancelUrl: `${window.location.origin}/payment/cancel`,
             description: "Suscripción a FutboLink",

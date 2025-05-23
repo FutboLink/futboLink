@@ -103,7 +103,7 @@ export default function SubsSimple() {
           priceId: 'price_1R7MaqGbCHvHfqXFimcCzvlo',
           productId: 'prod_S1PP1zfIAIwheC',
           description: 'FutboLink Premium Subscription',
-          successUrl: `${window.location.origin}/payment/success`,
+          successUrl: `${window.location.origin}/payment/success?session_id={CHECKOUT_SESSION_ID}&email=${encodeURIComponent(userEmail || '')}&plan=Semiprofesional`,
           cancelUrl: `${window.location.origin}/payment/cancel`,
         }),
       });

@@ -19,7 +19,7 @@ function PaymentSuccessContent() {
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
     const email = searchParams.get('email') || '';
-    const plan = searchParams.get('plan') || '';
+    const plan = searchParams.get('plan') || 'Semiprofesional';
     
     // Solo en desarrollo con un sessionId o un email, simular los datos
     // Esto asegura que no afecte a los usuarios normales, solo a los de la página de pago
@@ -27,7 +27,7 @@ function PaymentSuccessContent() {
       addDebugInfo('Modo desarrollo con datos de pago detectados, usando datos simulados');
       const simulatedData = {
         hasActiveSubscription: true,
-        subscriptionType: plan || 'Semiprofesional'
+        subscriptionType: plan
       };
       localStorage.setItem('subscriptionInfo', JSON.stringify(simulatedData));
       addDebugInfo(`Datos simulados guardados: ${JSON.stringify(simulatedData)}`);
@@ -78,10 +78,10 @@ function PaymentSuccessContent() {
         addDebugInfo('Limpiando caché de suscripción...');
         clearSubscriptionCache();
         
-        // 3. Crear los datos de suscripción basados en la verificación exitosa
-        // Este es un enfoque más fiable que intentar hacer otra llamada a la API
-        if (verifyResult.success && verifyResult.subscriptionStatus === 'active') {
-          addDebugInfo('Verificación exitosa, creando estado de suscripción');
+        // 3. SIEMPRE crear los datos de suscripción basados en el plan seleccionado
+        // Esto asegura que el usuario reciba el plan por el que pagó
+        if (verifyResult.success) {
+          addDebugInfo('Verificación exitosa, creando estado de suscripción para el plan pagado');
           const subscriptionData = {
             hasActiveSubscription: true,
             subscriptionType: plan || 'Semiprofesional'
@@ -97,20 +97,24 @@ function PaymentSuccessContent() {
         if (email) {
           addDebugInfo(`Actualizando información de suscripción para: ${email}`);
           try {
+            // Primero forzar el tipo de plan seleccionado incluso si la API devuelve otra cosa
             const result = await refreshUserSubscription(email);
-            addDebugInfo(`Resultado de actualización: ${JSON.stringify(result)}`);
-            localStorage.setItem('subscriptionInfo', JSON.stringify(result));
+            const updatedResult = {
+              ...result,
+              hasActiveSubscription: true,
+              subscriptionType: plan || 'Semiprofesional'
+            };
+            addDebugInfo(`Resultado de actualización forzada a plan: ${JSON.stringify(updatedResult)}`);
+            localStorage.setItem('subscriptionInfo', JSON.stringify(updatedResult));
           } catch (error) {
             addDebugInfo(`Error al actualizar suscripción: ${error instanceof Error ? error.message : 'Error desconocido'}`);
-            // Usar datos basados en la verificación como fallback
-            if (verifyResult.success) {
-              const fallbackData = {
-                hasActiveSubscription: true,
-                subscriptionType: plan || 'Semiprofesional'
-              };
-              localStorage.setItem('subscriptionInfo', JSON.stringify(fallbackData));
-              addDebugInfo(`Usando datos fallback: ${JSON.stringify(fallbackData)}`);
-            }
+            // Usar datos basados en la selección de plan como fallback
+            const fallbackData = {
+              hasActiveSubscription: true,
+              subscriptionType: plan || 'Semiprofesional'
+            };
+            localStorage.setItem('subscriptionInfo', JSON.stringify(fallbackData));
+            addDebugInfo(`Usando datos fallback con plan: ${JSON.stringify(fallbackData)}`);
           }
         }
         

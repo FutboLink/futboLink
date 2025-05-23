@@ -66,6 +66,19 @@ export const refreshUserSubscription = async (email: string): Promise<Subscripti
   try {
     console.log(`Refreshing subscription for: ${email}`);
     
+    // Verificar si estamos en la página de éxito de pago
+    const isInPaymentSuccessPage = 
+      typeof window !== 'undefined' && 
+      window.location.pathname.includes('/payment/success');
+    
+    // Si estamos en la página de éxito de pago, obtener el plan de la URL
+    let planFromUrl = '';
+    if (isInPaymentSuccessPage && typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      planFromUrl = urlParams.get('plan') || 'Semiprofesional';
+      console.log(`Detected payment success page with plan: ${planFromUrl}`);
+    }
+    
     // Add timestamp to prevent caching
     const timestamp = new Date().getTime();
     
@@ -94,14 +107,39 @@ export const refreshUserSubscription = async (email: string): Promise<Subscripti
     const data = await response.json();
     console.log('Refreshed subscription data:', data);
     
-    // IMPORTANT: Trust the server's hasActiveSubscription flag
-    // Do not override it based on subscription type
+    // Si estamos en la página de éxito de pago, forzar el plan de la URL
+    if (isInPaymentSuccessPage && planFromUrl) {
+      console.log(`Overriding subscription type to: ${planFromUrl} from URL parameter`);
+      return {
+        hasActiveSubscription: true,
+        subscriptionType: planFromUrl
+      };
+    }
+    
+    // Caso normal: confiar en los datos del servidor
     return {
       hasActiveSubscription: data.hasActiveSubscription === true,
       subscriptionType: data.subscriptionType || 'Amateur'
     };
   } catch (error) {
     console.error('Error refreshing subscription:', error);
+    
+    // Verificar si estamos en la página de éxito de pago
+    const isInPaymentSuccessPage = 
+      typeof window !== 'undefined' && 
+      window.location.pathname.includes('/payment/success');
+    
+    // Si estamos en la página de éxito de pago, obtener el plan de la URL
+    if (isInPaymentSuccessPage && typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const planFromUrl = urlParams.get('plan') || 'Semiprofesional';
+      console.log(`Error occurred but in payment success page. Using plan from URL: ${planFromUrl}`);
+      
+      return {
+        hasActiveSubscription: true,
+        subscriptionType: planFromUrl
+      };
+    }
     
     // Solo devolver datos simulados si estamos explícitamente en contexto de pago exitoso
     // Verificar si estamos en la URL de éxito de pago

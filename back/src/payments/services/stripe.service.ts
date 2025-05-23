@@ -715,8 +715,8 @@ export class StripeService {
       
       this.logger.log(`Found payment record for ${userEmail}: status=${payment.status}, subscriptionStatus=${payment.subscriptionStatus}, priceId=${payment.stripePriceId}, subscriptionType=${payment.subscriptionType}`);
       
-      // IMPORTANT: Only consider a subscription active if the payment status is SUCCEEDED
-      // and the subscription status is active or trialing
+      // IMPORTANTE: Solo considerar una suscripción activa si el estado del pago es SUCCEEDED
+      // y el estado de la suscripción es active o trialing
       let isActive = payment.status === PaymentStatus.SUCCEEDED && 
                       (payment.subscriptionStatus === 'active' || 
                        payment.subscriptionStatus === 'trialing');
@@ -921,7 +921,7 @@ export class StripeService {
       const isSessionComplete = session.status === 'complete';
       const isPaymentSuccess = session.payment_status === 'paid';
       
-      // If session is complete and payment is successful, update payment status
+      // IMPORTANTE: Solo actualizar el estado de la suscripción si la sesión está completa y el pago es exitoso
       if (isSessionComplete && isPaymentSuccess) {
         // Update payment status to SUCCEEDED, which is critical for subscription activation
         payment.status = PaymentStatus.SUCCEEDED;

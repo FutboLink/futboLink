@@ -720,52 +720,32 @@ export class StripeService {
       let isActive = payment.status === PaymentStatus.SUCCEEDED && 
                       (payment.subscriptionStatus === 'active' || 
                        payment.subscriptionStatus === 'trialing');
-                       
-      // Do NOT consider these statuses as active subscriptions
-      if (payment.status === PaymentStatus.PENDING || 
-          payment.status === PaymentStatus.FAILED ||
-          payment.status === PaymentStatus.CANCELED ||
-          payment.subscriptionStatus === 'incomplete' ||
-          payment.subscriptionStatus === 'incomplete_expired' ||
-          payment.subscriptionStatus === 'past_due' ||
-          payment.subscriptionStatus === 'canceled' ||
-          payment.subscriptionStatus === 'unpaid') {
-        isActive = false;
-        this.logger.log(`User ${userEmail} has an inactive subscription with status: ${payment.status}/${payment.subscriptionStatus}`);
-      }
       
-      // Determine subscription type
+      // Determine subscription type based on the stored value or price ID
       let subscriptionType = 'Amateur';
       
-      // Get subscription type from the payment record if it exists and payment is active
-      if (payment.subscriptionType && isActive) {
+      if (payment.subscriptionType) {
+        // If the payment has a subscription type set, use that
         subscriptionType = payment.subscriptionType;
-        this.logger.log(`Using explicit subscription type for active subscription: ${subscriptionType}`);
-      }
-      // Only use price ID mapping if the subscription is active
-      else if (payment.stripePriceId && isActive) {
-        // Map price IDs to subscription types
-        if (payment.stripePriceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
-          subscriptionType = 'Profesional';
-        } else if (payment.stripePriceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
+      } else if (payment.stripePriceId) {
+        // Otherwise, determine from price ID if available
+        if (payment.stripePriceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
           subscriptionType = 'Semiprofesional';
+        } else if (payment.stripePriceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
+          subscriptionType = 'Profesional';
         }
-        
-        this.logger.log(`Mapped price ID ${payment.stripePriceId} to subscription type: ${subscriptionType}`);
-      } else {
-        subscriptionType = 'Amateur';
       }
       
-      const result = { 
-        hasActiveSubscription: isActive,
-        subscriptionType: isActive ? subscriptionType : 'Amateur'
-      };
+      // Log the result of the check
+      this.logger.log(`Subscription check result for ${userEmail}: isActive=${isActive}, type=${subscriptionType}`);
       
-      this.logger.log(`Subscription for ${userEmail} is ${isActive ? 'active' : 'inactive'} (${result.subscriptionType})`);
-      return result;
+      return { 
+        hasActiveSubscription: isActive, 
+        subscriptionType 
+      };
     } catch (error) {
       this.logger.error(`Error checking subscription for ${userEmail}: ${error.message}`, error);
-      return { hasActiveSubscription: false, subscriptionType: 'Amateur' }; // Fail closed - if there's an error, assume no subscription
+      return { hasActiveSubscription: false, subscriptionType: 'Amateur' };
     }
   }
   
@@ -943,11 +923,9 @@ export class StripeService {
       
       // If session is complete and payment is successful, update payment status
       if (isSessionComplete && isPaymentSuccess) {
-        // Update payment status if needed
-        if (payment.status !== PaymentStatus.SUCCEEDED) {
-          payment.status = PaymentStatus.SUCCEEDED;
-          this.logger.log(`Updated payment status to SUCCEEDED for session ${sessionId}`);
-        }
+        // Update payment status to SUCCEEDED, which is critical for subscription activation
+        payment.status = PaymentStatus.SUCCEEDED;
+        this.logger.log(`Updated payment status to SUCCEEDED for session ${sessionId}`);
         
         // If there's a subscription ID in the session, update that too
         if (session.subscription) {
@@ -995,16 +973,16 @@ export class StripeService {
           message: 'Session verified and subscription updated successfully', 
           subscriptionStatus: payment.subscriptionStatus || 'active' 
         };
-      } else {
-        // Session is not complete or payment not successful
-        this.logger.log(`Session ${sessionId} status: ${session.status}, payment status: ${session.payment_status}`);
-        
-        return { 
-          success: false, 
-          message: `Session not complete or payment not successful. Status: ${session.status}, payment status: ${session.payment_status}`,
-          subscriptionStatus: payment.subscriptionStatus
-        };
       }
+      
+      // Session is not complete or payment not successful
+      this.logger.log(`Session ${sessionId} status: ${session.status}, payment status: ${session.payment_status}`);
+      
+      return { 
+        success: false, 
+        message: `Session not complete or payment not successful. Status: ${session.status}, payment status: ${session.payment_status}`,
+        subscriptionStatus: payment.subscriptionStatus
+      };
     } catch (error) {
       this.logger.error(`Error verifying session: ${error.message}`, error);
       return { 

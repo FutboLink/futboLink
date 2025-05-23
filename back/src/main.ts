@@ -8,9 +8,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: '*',
-    methods: 'GET,POST,PUT,DELETE',
+    origin: ['https://www.futbolink.it', 'http://localhost:3000'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
+    allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization',
   });
 
   const config = new DocumentBuilder()

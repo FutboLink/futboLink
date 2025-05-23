@@ -209,11 +209,10 @@ export class StripeService {
           customerEmail: dto.customerEmail,
           amountTotal: finalPrice,
           currency: realCurrency,
-          status: PaymentStatus.PENDING, // Explicitly set to PENDING initially
+          status: PaymentStatus.PENDING,
           type: PaymentType.SUBSCRIPTION,
           description: dto.description || 'FutboLink Subscription',
-          subscriptionType: subscriptionType, // Store the subscription type explicitly
-          subscriptionStatus: 'incomplete' // Set initial subscription status to incomplete
+          subscriptionType: subscriptionType // Store the subscription type explicitly
         });
 
         await this.paymentRepo.save(payment);
@@ -357,8 +356,6 @@ export class StripeService {
    */
   private async handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
     try {
-      this.logger.log(`Processing checkout.session.completed event for session ${session.id}`);
-      
       // Find the payment in our database
       const payment = await this.paymentRepo.findOne({ 
         where: { stripeSessionId: session.id } 
@@ -379,39 +376,6 @@ export class StripeService {
       
       if (session.subscription) {
         payment.stripeSubscriptionId = session.subscription as string;
-        
-        // Get subscription details if available
-        try {
-          const subscriptionDetails = await this.stripe.subscriptions.retrieve(session.subscription as string);
-          payment.subscriptionStatus = subscriptionDetails.status;
-          
-          // Now that payment is confirmed, set the correct subscription status
-          if (subscriptionDetails.status === 'active' || subscriptionDetails.status === 'trialing') {
-            payment.status = PaymentStatus.SUCCEEDED;
-            this.logger.log(`Subscription ${session.subscription} is now active for customer ${payment.customerEmail}`);
-          } else {
-            this.logger.log(`Subscription ${session.subscription} has status ${subscriptionDetails.status}`);
-          }
-          
-          // Update subscription type based on price ID if available
-          if (subscriptionDetails.items.data.length > 0) {
-            const priceId = subscriptionDetails.items.data[0].price.id;
-            payment.stripePriceId = priceId;
-            
-            // Set the subscription type based on price ID
-            if (priceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
-              payment.subscriptionType = SubscriptionPlan.SEMIPROFESIONAL;
-            } else if (priceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
-              payment.subscriptionType = SubscriptionPlan.PROFESIONAL;
-            } else {
-              payment.subscriptionType = SubscriptionPlan.AMATEUR;
-            }
-            
-            this.logger.log(`Set subscription type to ${payment.subscriptionType} based on price ID ${priceId}`);
-          }
-        } catch (subscriptionError) {
-          this.logger.error(`Error retrieving subscription details: ${subscriptionError.message}`, subscriptionError);
-        }
       }
       
       // Get the amount from the session if possible
@@ -715,37 +679,42 @@ export class StripeService {
       
       this.logger.log(`Found payment record for ${userEmail}: status=${payment.status}, subscriptionStatus=${payment.subscriptionStatus}, priceId=${payment.stripePriceId}, subscriptionType=${payment.subscriptionType}`);
       
-      // IMPORTANTE: Solo considerar una suscripción activa si el estado del pago es SUCCEEDED
-      // y el estado de la suscripción es active o trialing
+      // Check if subscription is active - ONLY consider it active if payment is successful AND subscription status is active
       let isActive = payment.status === PaymentStatus.SUCCEEDED && 
                       (payment.subscriptionStatus === 'active' || 
-                       payment.subscriptionStatus === 'trialing');
+                       payment.subscriptionStatus === 'trialing' ||
+                       payment.subscriptionStatus === 'incomplete' ||
+                       payment.subscriptionStatus === 'past_due');
       
-      // Determine subscription type based on the stored value or price ID
+      // Determine subscription type
       let subscriptionType = 'Amateur';
-      
       if (payment.subscriptionType) {
-        // If the payment has a subscription type set, use that
         subscriptionType = payment.subscriptionType;
-      } else if (payment.stripePriceId) {
-        // Otherwise, determine from price ID if available
-        if (payment.stripePriceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
-          subscriptionType = 'Semiprofesional';
-        } else if (payment.stripePriceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
+        this.logger.log(`Using explicit subscription type: ${subscriptionType}`);
+      }
+      // Fallback to price ID mapping if subscriptionType is not set
+      else if (payment.stripePriceId) {
+        // Map price IDs to subscription types
+        if (payment.stripePriceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
           subscriptionType = 'Profesional';
+        } else if (payment.stripePriceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
+          subscriptionType = 'Semiprofesional';
         }
+        
+        this.logger.log(`Mapped price ID ${payment.stripePriceId} to subscription type: ${subscriptionType}`);
       }
       
-      // Log the result of the check
-      this.logger.log(`Subscription check result for ${userEmail}: isActive=${isActive}, type=${subscriptionType}`);
-      
-      return { 
-        hasActiveSubscription: isActive, 
-        subscriptionType 
+      // Return subscription type based on payment status
+      const result = { 
+        hasActiveSubscription: isActive,
+        subscriptionType: payment.status === PaymentStatus.CANCELED ? 'Amateur' : subscriptionType
       };
+      
+      this.logger.log(`Subscription for ${userEmail} is ${isActive ? 'active' : 'inactive'} (${result.subscriptionType})`);
+      return result;
     } catch (error) {
       this.logger.error(`Error checking subscription for ${userEmail}: ${error.message}`, error);
-      return { hasActiveSubscription: false, subscriptionType: 'Amateur' };
+      return { hasActiveSubscription: false, subscriptionType: 'Amateur' }; // Fail closed - if there's an error, assume no subscription
     }
   }
   
@@ -873,168 +842,5 @@ export class StripeService {
       this.logger.error(`Error refreshing subscription types: ${error.message}`, error);
       throw new InternalServerErrorException(`Failed to refresh subscription types: ${error.message}`);
     }
-  }
-  
-  /**
-   * Manually verify a checkout session and update subscription status
-   * This is useful for clients to call when they want to force refresh subscription status
-   */
-  async verifySessionAndUpdateSubscription(sessionId: string, email?: string): Promise<{ success: boolean, message: string, subscriptionStatus?: string }> {
-    try {
-      this.logger.log(`Manually verifying session: ${sessionId}, email: ${email || 'not provided'}`);
-      
-      // First, retrieve the session from Stripe to get the latest status
-      let session: Stripe.Checkout.Session;
-      try {
-        session = await this.stripe.checkout.sessions.retrieve(sessionId, {
-          expand: ['subscription', 'payment_intent']
-        });
-        this.logger.log(`Retrieved session from Stripe: ${sessionId}, status: ${session.status}, payment_status: ${session.payment_status}`);
-      } catch (stripeError) {
-        this.logger.error(`Error retrieving session from Stripe: ${stripeError.message}`);
-        return { 
-          success: false, 
-          message: `Error retrieving session from Stripe: ${stripeError.message}` 
-        };
-      }
-      
-      // Find the payment record in our database
-      const payment = await this.paymentRepo.findOne({ 
-        where: { stripeSessionId: sessionId } 
-      });
-      
-      if (!payment) {
-        this.logger.warn(`Payment record not found for session ID: ${sessionId}`);
-        
-        // Si no encontramos el pago pero el email está disponible, buscamos por email
-        if (email) {
-          this.logger.log(`Attempting to find payment by email: ${email}`);
-          const emailPayment = await this.paymentRepo.findOne({
-            where: { 
-              customerEmail: email,
-              type: PaymentType.SUBSCRIPTION
-            },
-            order: { createdAt: 'DESC' }
-          });
-          
-          if (emailPayment) {
-            this.logger.log(`Found payment via email: ${emailPayment.id}`);
-            // Actualizar el ID de sesión si no coincide
-            if (emailPayment.stripeSessionId !== sessionId) {
-              emailPayment.stripeSessionId = sessionId;
-              await this.paymentRepo.save(emailPayment);
-              this.logger.log(`Updated session ID for payment: ${emailPayment.id}`);
-            }
-            
-            // Continuar con este pago
-            return this.processSessionVerification(session, emailPayment, email);
-          }
-        }
-        
-        return { 
-          success: false, 
-          message: `Payment record not found for session ID: ${sessionId}` 
-        };
-      }
-      
-      return this.processSessionVerification(session, payment, email);
-    } catch (error) {
-      this.logger.error(`Error verifying session: ${error.message}`, error);
-      return { 
-        success: false, 
-        message: `Error verifying session: ${error.message}` 
-      };
-    }
-  }
-  
-  /**
-   * Helper method to process session verification and update payment status
-   * Extracted to avoid code duplication
-   */
-  private async processSessionVerification(
-    session: Stripe.Checkout.Session, 
-    payment: Payment, 
-    email?: string
-  ): Promise<{ success: boolean, message: string, subscriptionStatus?: string }> {
-    // If email is provided and doesn't match, this might be the wrong session
-    if (email && payment.customerEmail && email !== payment.customerEmail) {
-      this.logger.warn(`Email mismatch: provided ${email}, found ${payment.customerEmail}`);
-      // But continue anyway, just log the warning
-    }
-    
-    // Check the session status
-    const isSessionComplete = session.status === 'complete';
-    const isPaymentSuccess = session.payment_status === 'paid';
-    
-    this.logger.log(`Session status: complete=${isSessionComplete}, payment_success=${isPaymentSuccess}`);
-    
-    // IMPORTANTE: Solo actualizar el estado de la suscripción si la sesión está completa y el pago es exitoso
-    if (isSessionComplete && isPaymentSuccess) {
-      // Update payment status to SUCCEEDED, which is critical for subscription activation
-      payment.status = PaymentStatus.SUCCEEDED;
-      this.logger.log(`Updated payment status to SUCCEEDED for session ${session.id}`);
-      
-      // If there's a subscription ID in the session, update that too
-      if (session.subscription) {
-        const subscriptionId = typeof session.subscription === 'string' 
-          ? session.subscription 
-          : session.subscription.id;
-          
-        payment.stripeSubscriptionId = subscriptionId;
-        
-        // Try to get subscription details
-        try {
-          const subscription = typeof session.subscription === 'object'
-            ? session.subscription
-            : await this.stripe.subscriptions.retrieve(subscriptionId);
-            
-          payment.subscriptionStatus = subscription.status;
-          this.logger.log(`Subscription status: ${subscription.status}`);
-          
-          // Update subscription type based on price ID if needed
-          if (subscription.items.data.length > 0) {
-            const priceId = subscription.items.data[0].price.id;
-            payment.stripePriceId = priceId;
-            this.logger.log(`Found price ID: ${priceId}`);
-            
-            // Set the subscription type based on price ID if not already set
-            if (!payment.subscriptionType || payment.subscriptionType === SubscriptionPlan.AMATEUR) {
-              if (priceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
-                payment.subscriptionType = SubscriptionPlan.SEMIPROFESIONAL;
-                this.logger.log(`Set subscription type to SEMIPROFESIONAL based on price ID ${priceId}`);
-              } else if (priceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
-                payment.subscriptionType = SubscriptionPlan.PROFESIONAL;
-                this.logger.log(`Set subscription type to PROFESIONAL based on price ID ${priceId}`);
-              }
-            }
-          }
-        } catch (subError) {
-          this.logger.error(`Error retrieving subscription details: ${subError.message}`);
-          // Continue anyway, we've already updated what we can
-        }
-      }
-      
-      // Save the updated payment
-      await this.paymentRepo.save(payment);
-      this.logger.log(`Saved updated payment to database for session ${session.id}`);
-      
-      // Log current state of subscription
-      this.logger.log(`Final payment status: ${payment.status}, subscription type: ${payment.subscriptionType}, subscription status: ${payment.subscriptionStatus}`);
-      
-      return { 
-        success: true, 
-        message: 'Session verified and subscription updated successfully', 
-        subscriptionStatus: payment.subscriptionStatus || 'active' 
-      };
-    }
-    
-    // Session is not complete or payment not successful
-    this.logger.log(`Session ${session.id} status: ${session.status}, payment status: ${session.payment_status}`);
-    
-    return { 
-      success: false, 
-      message: `Session not complete or payment not successful. Status: ${session.status}, payment status: ${session.payment_status}`,
-      subscriptionStatus: payment.subscriptionStatus
-    };
   }
 } 

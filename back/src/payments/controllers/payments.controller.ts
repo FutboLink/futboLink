@@ -17,13 +17,10 @@ import { Request, Response } from 'express';
 import { ApiBody, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StripeService } from '../services/stripe.service';
 import { CreateOneTimePaymentDto, CreateSubscriptionDto } from '../dto';
-import { Logger } from '@nestjs/common';
 
 @ApiTags('Payments')
 @Controller('payments')
 export class PaymentsController {
-  private readonly logger = new Logger(PaymentsController.name);
-
   constructor(private readonly stripeService: StripeService) {}
   
   @Post('onetime')
@@ -170,34 +167,5 @@ export class PaymentsController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Error refreshing subscription types' })
   async refreshSubscriptionTypes() {
     return this.stripeService.refreshSubscriptionTypes();
-  }
-  
-  @Post('verify-session')
-  @ApiOperation({ summary: 'Manually verify a checkout session and update subscription status' })
-  @ApiResponse({ 
-    status: HttpStatus.OK, 
-    description: 'Session verification result',
-    schema: {
-      type: 'object',
-      properties: {
-        success: { type: 'boolean', description: 'Whether the verification was successful' },
-        message: { type: 'string', description: 'Message describing the result' },
-        subscriptionStatus: { type: 'string', description: 'Current subscription status' }
-      }
-    }
-  })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid input data' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Error verifying session' })
-  async verifySession(@Body() verifySessionDto: { sessionId: string, email: string }) {
-    if (!verifySessionDto.sessionId) {
-      throw new BadRequestException('Session ID is required');
-    }
-    
-    this.logger.log(`Manual verification requested for session: ${verifySessionDto.sessionId}, email: ${verifySessionDto.email || 'not provided'}`);
-    
-    return this.stripeService.verifySessionAndUpdateSubscription(
-      verifySessionDto.sessionId,
-      verifySessionDto.email
-    );
   }
 } 

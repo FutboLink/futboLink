@@ -144,35 +144,55 @@ const UserProfile = () => {
           if (data.email) {
             setLoadingSubscription(true);
             
-            // Use the refresh function to ensure we get the latest data
-            refreshUserSubscription(data.email)
-              .then(subInfo => {
-                setSubscriptionInfo(subInfo);
-                // Update the cache
-                localStorage.setItem('subscriptionInfo', JSON.stringify(subInfo));
-              })
-              .catch(err => {
-                console.error("Error checking subscription:", err);
-                
-                // Fallback to regular check if refresh fails
-                checkUserSubscription(data.email)
-                  .then(regularInfo => {
-                    setSubscriptionInfo(regularInfo);
-                  })
-                  .catch(regularErr => {
-                    console.error("Error with fallback subscription check:", regularErr);
-                  });
-              })
-              .finally(() => {
-                setLoadingSubscription(false);
+            // Verificar si el usuario es nuevo (recién registrado)
+            const isNewUser = !data.subscription; // Si no tiene información de suscripción
+            
+            if (isNewUser) {
+              // Si es un usuario nuevo, establecer suscripción por defecto como Amateur
+              console.log("Usuario nuevo detectado, estableciendo plan Amateur por defecto");
+              setSubscriptionInfo({
+                hasActiveSubscription: false,
+                subscriptionType: 'Amateur'
               });
+              
+              // Guardar en localStorage
+              localStorage.setItem('subscriptionInfo', JSON.stringify({
+                hasActiveSubscription: false,
+                subscriptionType: 'Amateur'
+              }));
+              
+              setLoadingSubscription(false);
+            } else {
+              // Use the refresh function to ensure we get the latest data
+              refreshUserSubscription(data.email)
+                .then(subInfo => {
+                  setSubscriptionInfo(subInfo);
+                  // Update the cache
+                  localStorage.setItem('subscriptionInfo', JSON.stringify(subInfo));
+                })
+                .catch(err => {
+                  console.error("Error checking subscription:", err);
+                  
+                  // Fallback to regular check if refresh fails
+                  checkUserSubscription(data.email)
+                    .then(regularInfo => {
+                      setSubscriptionInfo(regularInfo);
+                    })
+                    .catch(regularErr => {
+                      console.error("Error with fallback subscription check:", regularErr);
+                    });
+                })
+                .finally(() => {
+                  setLoadingSubscription(false);
+                });
+            }
           }
-            })
-            .catch((error) => {
-              console.error("Error fetching user data:", error);
-              setError("Failed to load user data.");
-            });
-        }
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+          setError("Failed to load user data.");
+        });
+    }
   }, [token]);
 
   // Inicializamos AOS cuando el componente se monta

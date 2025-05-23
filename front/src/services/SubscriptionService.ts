@@ -103,15 +103,27 @@ export const refreshUserSubscription = async (email: string): Promise<Subscripti
   } catch (error) {
     console.error('Error refreshing subscription:', error);
     
-    // Si estamos en desarrollo, proporciona un estado simulado para pruebas
-    if (process.env.NODE_ENV === 'development') {
-      console.log('DEV MODE: Returning simulated subscription state');
-      return {
-        hasActiveSubscription: true,
-        subscriptionType: 'Semiprofesional'
-      };
+    // Solo devolver datos simulados si estamos explícitamente en contexto de pago exitoso
+    // Verificar si estamos en la URL de éxito de pago
+    if (process.env.NODE_ENV === 'development' && 
+        typeof window !== 'undefined' && 
+        window.location.pathname.includes('/payment/success')) {
+      console.log('DEV MODE payment success page: Returning simulated subscription state');
+      
+      // Obtener la información del usuario para determinar si es un usuario nuevo o existente
+      const storedUser = localStorage.getItem('user');
+      const isExistingUser = storedUser && JSON.parse(storedUser).id;
+      
+      // Solo simular suscripción premium si es un usuario existente
+      if (isExistingUser) {
+        return {
+          hasActiveSubscription: true,
+          subscriptionType: 'Semiprofesional'
+        };
+      }
     }
     
+    // Default para usuarios nuevos y cualquier otro contexto: Amateur sin suscripción activa
     return {
       hasActiveSubscription: false,
       subscriptionType: 'Amateur'

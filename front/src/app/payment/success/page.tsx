@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { refreshUserSubscription, clearSubscriptionCache } from '@/services/SubscriptionService';
 
-export default function PaymentSuccessPage() {
+// Contenido principal que usa useSearchParams
+function PaymentSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -20,9 +21,10 @@ export default function PaymentSuccessPage() {
     const email = searchParams.get('email') || '';
     const plan = searchParams.get('plan') || '';
     
-    // Si estamos en modo desarrollo y no hay sessionId, usar datos simulados
-    if (process.env.NODE_ENV === 'development' && !sessionId) {
-      addDebugInfo('Modo desarrollo detectado, usando datos simulados');
+    // Solo en desarrollo con un sessionId o un email, simular los datos
+    // Esto asegura que no afecte a los usuarios normales, solo a los de la página de pago
+    if (process.env.NODE_ENV === 'development' && (sessionId || email)) {
+      addDebugInfo('Modo desarrollo con datos de pago detectados, usando datos simulados');
       const simulatedData = {
         hasActiveSubscription: true,
         subscriptionType: plan || 'Semiprofesional'
@@ -44,20 +46,6 @@ export default function PaymentSuccessPage() {
     addDebugInfo(`Procesando sesión: ${sessionId}`);
     if (email) addDebugInfo(`Email: ${email}`);
     if (plan) addDebugInfo(`Plan: ${plan}`);
-    
-    // En desarrollo, podemos simular una verificación exitosa
-    if (process.env.NODE_ENV === 'development') {
-      addDebugInfo('Modo desarrollo: simulando verificación exitosa');
-      const simulatedData = {
-        hasActiveSubscription: true,
-        subscriptionType: plan || 'Semiprofesional'
-      };
-      localStorage.setItem('subscriptionInfo', JSON.stringify(simulatedData));
-      addDebugInfo(`Datos simulados guardados: ${JSON.stringify(simulatedData)}`);
-      setSuccess(true);
-      setLoading(false);
-      return;
-    }
     
     // Verificar y actualizar el estado de la suscripción
     const updateSubscription = async () => {
@@ -163,53 +151,76 @@ export default function PaymentSuccessPage() {
   };
   
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-white">
-      <div className="w-full max-w-md space-y-8 text-center">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-verde-oscuro">
-            {loading ? 'Procesando tu pago...' : success ? '¡Pago completado con éxito!' : 'Error al procesar el pago'}
-          </h2>
-        </div>
-        
-        {loading ? (
-          <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-verde-oscuro"></div>
-          </div>
-        ) : (
-          <div className="bg-gray-50 px-4 py-5 sm:px-6 rounded-lg shadow">
-            {success ? (
-              <p className="text-lg text-gray-700 mb-4">
-                Gracias por tu suscripción a futboLink. Tu cuenta ha sido actualizada.
-              </p>
-            ) : (
-              <p className="text-lg text-red-600 mb-4">
-                {error || 'Hubo un problema al procesar tu pago. Por favor, contacta a soporte.'}
-              </p>
-            )}
-            
-            <div className="mt-6">
-              <button 
-                onClick={handleGoToProfile}
-                className="inline-block rounded-md border border-transparent bg-verde-claro py-2 px-4 text-base font-medium text-white hover:bg-verde-oscuro"
-              >
-                Ir a mi perfil
-              </button>
-            </div>
-          </div>
-        )}
-        
-        {/* Solo mostrar información de depuración en desarrollo */}
-        {process.env.NODE_ENV === 'development' && debugInfo.length > 0 && (
-          <div className="mt-8 p-4 bg-gray-100 rounded-lg text-left text-xs overflow-auto max-h-60">
-            <h3 className="font-bold mb-2">Información de depuración:</h3>
-            <ul className="space-y-1">
-              {debugInfo.map((info, index) => (
-                <li key={index} className="text-gray-700">{info}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+    <div className="w-full max-w-md space-y-8 text-center">
+      <div>
+        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-verde-oscuro">
+          {loading ? 'Procesando tu pago...' : success ? '¡Pago completado con éxito!' : 'Error al procesar el pago'}
+        </h2>
       </div>
+      
+      {loading ? (
+        <div className="flex justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-verde-oscuro"></div>
+        </div>
+      ) : (
+        <div className="bg-gray-50 px-4 py-5 sm:px-6 rounded-lg shadow">
+          {success ? (
+            <p className="text-lg text-gray-700 mb-4">
+              Gracias por tu suscripción a futboLink. Tu cuenta ha sido actualizada.
+            </p>
+          ) : (
+            <p className="text-lg text-red-600 mb-4">
+              {error || 'Hubo un problema al procesar tu pago. Por favor, contacta a soporte.'}
+            </p>
+          )}
+          
+          <div className="mt-6">
+            <button 
+              onClick={handleGoToProfile}
+              className="inline-block rounded-md border border-transparent bg-verde-claro py-2 px-4 text-base font-medium text-white hover:bg-verde-oscuro"
+            >
+              Ir a mi perfil
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* Solo mostrar información de depuración en desarrollo */}
+      {process.env.NODE_ENV === 'development' && debugInfo.length > 0 && (
+        <div className="mt-8 p-4 bg-gray-100 rounded-lg text-left text-xs overflow-auto max-h-60">
+          <h3 className="font-bold mb-2">Información de depuración:</h3>
+          <ul className="space-y-1">
+            {debugInfo.map((info, index) => (
+              <li key={index} className="text-gray-700">{info}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Componente de carga para el Suspense
+function PaymentSuccessLoading() {
+  return (
+    <div className="w-full max-w-md space-y-8 text-center">
+      <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-verde-oscuro">
+        Cargando información de pago...
+      </h2>
+      <div className="flex justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-verde-oscuro"></div>
+      </div>
+    </div>
+  );
+}
+
+// Componente principal con Suspense
+export default function PaymentSuccessPage() {
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-white">
+      <Suspense fallback={<PaymentSuccessLoading />}>
+        <PaymentSuccessContent />
+      </Suspense>
     </div>
   );
 } 

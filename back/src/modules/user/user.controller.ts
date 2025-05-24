@@ -7,6 +7,7 @@ import {
   Delete,
   Put,
   ParseUUIDPipe,
+  Query,
   } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/create-user.dto';
@@ -36,10 +37,6 @@ export class UserController {
   create(@Body() createUserDto: RegisterUserDto) {
     return this.userService.register(createUserDto);
   }
-
-  
-
-  
 
   @ApiOperation({ summary: 'Traer los usuarios' })
   @ApiResponse({ status: 200, description: 'Lista de usuarios', type: [User] })
@@ -71,5 +68,54 @@ export class UserController {
     @Body() user: Partial<User>,
   ) {
     return this.userService.updateUser(id, user);
+  }
+  
+  /**
+   * Actualiza el tipo de suscripción de un usuario
+   */
+  @ApiOperation({ summary: 'Actualizar tipo de suscripción de un usuario' })
+  @ApiResponse({ status: 200, description: 'Suscripción actualizada' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  @Put(':id/subscription')
+  async updateSubscription(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: { subscriptionType: string }
+  ) {
+    return this.userService.updateUserSubscription(id, data.subscriptionType);
+  }
+  
+  /**
+   * Obtiene la información de suscripción de un usuario
+   */
+  @ApiOperation({ summary: 'Obtener información de suscripción de un usuario' })
+  @ApiResponse({ status: 200, description: 'Información de suscripción' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  @Get(':id/subscription')
+  async getSubscription(@Param('id', ParseUUIDPipe) id: string) {
+    return this.userService.getUserSubscription(id);
+  }
+  
+  /**
+   * Actualiza el tipo de suscripción de un usuario por email
+   */
+  @ApiOperation({ summary: 'Actualizar tipo de suscripción por email' })
+  @ApiResponse({ status: 200, description: 'Suscripción actualizada' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  @Put('subscription/update-by-email')
+  async updateSubscriptionByEmail(
+    @Body() data: { email: string, subscriptionType: string }
+  ) {
+    return this.userService.updateUserSubscriptionByEmail(data.email, data.subscriptionType);
+  }
+  
+  /**
+   * Obtiene la información de suscripción de un usuario por email
+   */
+  @ApiOperation({ summary: 'Obtener información de suscripción por email' })
+  @ApiResponse({ status: 200, description: 'Información de suscripción' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  @Get('subscription/check')
+  async getSubscriptionByEmail(@Query('email') email: string) {
+    return this.userService.getUserSubscriptionByEmail(email);
   }
 }

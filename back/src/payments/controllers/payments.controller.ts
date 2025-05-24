@@ -198,38 +198,4 @@ export class PaymentsController {
     
     return this.stripeService.forceSubscriptionSync(email);
   }
-
-  @Post('subscription/activate')
-  @ApiOperation({ summary: 'Activate subscription after successful payment (hardcoded update)' })
-  @ApiResponse({ 
-    status: HttpStatus.OK, 
-    description: 'Subscription activation result',
-    schema: {
-      type: 'object',
-      properties: {
-        success: { type: 'boolean', description: 'Whether the activation was successful' },
-        message: { type: 'string', description: 'Message describing the result' },
-        subscriptionInfo: { 
-          type: 'object',
-          properties: {
-            hasActiveSubscription: { type: 'boolean' },
-            subscriptionType: { type: 'string' }
-          }
-        }
-      }
-    }
-  })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid input data' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Error activating subscription' })
-  async activateSubscription(@Body() body: { email: string, subscriptionType: string, sessionId?: string }) {
-    if (!body.email) {
-      throw new BadRequestException('Email is required');
-    }
-    
-    if (!body.subscriptionType) {
-      throw new BadRequestException('Subscription type is required');
-    }
-    
-    return this.stripeService.activateSubscriptionHardcoded(body.email, body.subscriptionType, body.sessionId);
-  }
 } 

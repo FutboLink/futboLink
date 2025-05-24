@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { PasaporteUe, UserType } from '../roles.enum';
 import { Job } from 'src/modules/Jobs/entities/jobs.entity';
@@ -47,7 +47,7 @@ export class User {
     description: 'Puesto del usuario',
   })
   @Column({ nullable: true })
- puesto?: string;
+  puesto?: string;
 
 
   @ApiProperty({
@@ -174,4 +174,15 @@ export class User {
   @OneToMany(()=>Job,(job) =>job.recruiter)
   jobs :Job[];
   
+  @Column({ default: 'Amateur' })
+  subscriptionType: string;
+
+  @Column({ nullable: true })
+  subscriptionExpiresAt?: Date;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

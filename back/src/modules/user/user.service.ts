@@ -146,6 +146,109 @@ export class UserService {
     await this.userRepository.save(user);
   }
 
+  /**
+   * Actualiza el tipo de suscripción de un usuario
+   * @param userId ID del usuario
+   * @param subscriptionType Nuevo tipo de suscripción (Amateur, Semiprofesional, Profesional)
+   * @returns Usuario actualizado
+   */
+  async updateUserSubscription(userId: string, subscriptionType: string): Promise<User> {
+    const user = await this.findOne(userId);
+    
+    if (!user) {
+      throw new NotFoundException(`Usuario con ID ${userId} no encontrado`);
+    }
+    
+    // Actualizar el tipo de suscripción
+    user.subscriptionType = subscriptionType;
+    
+    // Establecer la fecha de expiración (1 mes desde hoy)
+    const expirationDate = new Date();
+    expirationDate.setMonth(expirationDate.getMonth() + 1);
+    user.subscriptionExpiresAt = expirationDate;
+    
+    // Guardar los cambios
+    return this.userRepository.save(user);
+  }
 
+  /**
+   * Obtiene la información de suscripción de un usuario
+   * @param userId ID del usuario
+   * @returns Información de suscripción
+   */
+  async getUserSubscription(userId: string): Promise<{
+    subscriptionType: string;
+    isActive: boolean;
+    expiresAt?: Date;
+  }> {
+    const user = await this.findOne(userId);
+    
+    if (!user) {
+      throw new NotFoundException(`Usuario con ID ${userId} no encontrado`);
+    }
+    
+    // Verificar si la suscripción está activa
+    const isActive = user.subscriptionType !== 'Amateur' && 
+                     user.subscriptionExpiresAt &&
+                     new Date(user.subscriptionExpiresAt) > new Date();
+    
+    return {
+      subscriptionType: user.subscriptionType,
+      isActive,
+      expiresAt: user.subscriptionExpiresAt
+    };
+  }
 
+  /**
+   * Actualiza el tipo de suscripción de un usuario por email
+   * @param email Email del usuario
+   * @param subscriptionType Nuevo tipo de suscripción
+   * @returns Usuario actualizado
+   */
+  async updateUserSubscriptionByEmail(email: string, subscriptionType: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { email } });
+    
+    if (!user) {
+      throw new NotFoundException(`Usuario con email ${email} no encontrado`);
+    }
+    
+    // Actualizar el tipo de suscripción
+    user.subscriptionType = subscriptionType;
+    
+    // Establecer la fecha de expiración (1 mes desde hoy)
+    const expirationDate = new Date();
+    expirationDate.setMonth(expirationDate.getMonth() + 1);
+    user.subscriptionExpiresAt = expirationDate;
+    
+    // Guardar los cambios
+    return this.userRepository.save(user);
+  }
+  
+  /**
+   * Obtiene la información de suscripción de un usuario por email
+   * @param email Email del usuario
+   * @returns Información de suscripción
+   */
+  async getUserSubscriptionByEmail(email: string): Promise<{
+    subscriptionType: string;
+    isActive: boolean;
+    expiresAt?: Date;
+  }> {
+    const user = await this.userRepository.findOne({ where: { email } });
+    
+    if (!user) {
+      throw new NotFoundException(`Usuario con email ${email} no encontrado`);
+    }
+    
+    // Verificar si la suscripción está activa
+    const isActive = user.subscriptionType !== 'Amateur' && 
+                     user.subscriptionExpiresAt &&
+                     new Date(user.subscriptionExpiresAt) > new Date();
+    
+    return {
+      subscriptionType: user.subscriptionType,
+      isActive,
+      expiresAt: user.subscriptionExpiresAt
+    };
+  }
 }

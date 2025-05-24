@@ -704,10 +704,10 @@ export class StripeService {
         this.logger.log(`Mapped price ID ${payment.stripePriceId} to subscription type: ${subscriptionType}`);
       }
       
-      // Return subscription type based on payment status
+      // Return subscription type based on active status - always return 'Amateur' if not active
       const result = { 
         hasActiveSubscription: isActive,
-        subscriptionType: payment.status === PaymentStatus.CANCELED ? 'Amateur' : subscriptionType
+        subscriptionType: isActive ? subscriptionType : 'Amateur'
       };
       
       this.logger.log(`Subscription for ${userEmail} is ${isActive ? 'active' : 'inactive'} (${result.subscriptionType})`);

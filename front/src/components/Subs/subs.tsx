@@ -43,6 +43,16 @@ function Subs() {
       const option = subscriptionOptions[index];
       const productId = option.productId;
       
+      // Determinar el tipo de plan basado en el nombre del plan
+      const planName = option.title;
+      
+      // En vez de hacer una petición a Stripe, redirigimos directamente a la página de éxito
+      // con el parámetro del tipo de plan
+      window.location.href = `${window.location.origin}/payment/success?plan=${planName}`;
+      
+      return; // Terminamos aquí, ya no necesitamos hacer la petición a Stripe
+      
+      /* El código de abajo ya no se ejecutará
       console.log(`Creating subscription with price ID: ${priceId}`);
       if (productId) {
         console.log(`Using product ID: ${productId}`);
@@ -82,6 +92,7 @@ function Subs() {
         console.error("Response data:", data);
         throw new Error("No se recibió URL de pago");
       }
+      */
     } catch (error) {
       console.error("Error al crear la sesión de pago:", error);
       alert(`Error al procesar el pago: ${error instanceof Error ? error.message : 'Desconocido'}. Por favor, inténtelo de nuevo más tarde.`);

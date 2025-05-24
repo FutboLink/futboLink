@@ -152,42 +152,40 @@ const UserProfile = () => {
           if (data.email) {
             setLoadingSubscription(true);
             
-            // Primero intentamos la sincronización forzada con Stripe
-            forceSyncSubscription(data.email)
-              .then(syncResult => {
-                if (syncResult.success && syncResult.subscriptionInfo) {
-                  setSubscriptionInfo(syncResult.subscriptionInfo);
-                  // Update the cache
-                  localStorage.setItem('subscriptionInfo', JSON.stringify(syncResult.subscriptionInfo));
-                  
-                  // Check for pending subscription in the backend response
-                  if (syncResult.pendingSubscriptionType) {
-                    setPendingSubscriptionType(syncResult.pendingSubscriptionType);
-                    localStorage.setItem('pendingSubscriptionType', syncResult.pendingSubscriptionType);
-                  }
-                } else {
-                  // Fallback a la verificación normal
-                  return refreshUserSubscription(data.email);
+            // Consultar el estado de suscripción directamente desde la nueva API
+            fetch(`${apiUrl}/user/subscription/check?email=${encodeURIComponent(data.email)}`)
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error(`Error checking subscription: ${response.status}`);
                 }
+                return response.json();
               })
-              .then(subInfo => {
-                if (subInfo) {
-                  setSubscriptionInfo(subInfo);
-                  // Update the cache
-                  localStorage.setItem('subscriptionInfo', JSON.stringify(subInfo));
-                }
+              .then(subscriptionData => {
+                console.log('Received subscription data:', subscriptionData);
+                
+                // Actualizar estado de la suscripción
+                setSubscriptionInfo({
+                  hasActiveSubscription: subscriptionData.isActive === true,
+                  subscriptionType: subscriptionData.subscriptionType || 'Amateur'
+                });
+                
+                // Guardar en localStorage para uso futuro
+                localStorage.setItem('subscriptionInfo', JSON.stringify({
+                  hasActiveSubscription: subscriptionData.isActive === true,
+                  subscriptionType: subscriptionData.subscriptionType || 'Amateur'
+                }));
+                
+                // Limpiar cualquier estado pendiente
+                setPendingSubscriptionType(null);
+                localStorage.removeItem('pendingSubscriptionType');
               })
               .catch(err => {
                 console.error("Error checking subscription:", err);
-                
-                // Fallback to regular check if refresh fails
-                checkUserSubscription(data.email)
-                  .then(regularInfo => {
-                    setSubscriptionInfo(regularInfo);
-                  })
-                  .catch(regularErr => {
-                    console.error("Error with fallback subscription check:", regularErr);
-                  });
+                // Mantener valor por defecto
+                setSubscriptionInfo({
+                  hasActiveSubscription: false,
+                  subscriptionType: 'Amateur'
+                });
               })
               .finally(() => {
                 setLoadingSubscription(false);
@@ -217,31 +215,37 @@ const UserProfile = () => {
       clearSubscriptionCache();
       localStorage.removeItem('pendingSubscriptionType');
       
-      // Use force sync to get the most accurate data from Stripe
-      const syncResult = await forceSyncSubscription(userData.email);
+      // Fetch latest subscription data directly from the API
+      const response = await fetch(
+        `${apiUrl}/user/subscription/check?email=${encodeURIComponent(userData.email)}&_=${new Date().getTime()}`,
+        {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        }
+      );
       
-      if (syncResult.success) {
-        if (syncResult.subscriptionInfo) {
-          setSubscriptionInfo(syncResult.subscriptionInfo);
-          localStorage.setItem('subscriptionInfo', JSON.stringify(syncResult.subscriptionInfo));
-        }
-        
-        // Update pending subscription type if available
-        if (syncResult.pendingSubscriptionType) {
-          setPendingSubscriptionType(syncResult.pendingSubscriptionType);
-          localStorage.setItem('pendingSubscriptionType', syncResult.pendingSubscriptionType);
-        } else {
-          setPendingSubscriptionType(null);
-        }
-      } else {
-        // Fallback to regular refresh if force sync fails
-        const freshData = await refreshUserSubscription(userData.email);
-        setSubscriptionInfo(freshData);
-        localStorage.setItem('subscriptionInfo', JSON.stringify(freshData));
-        
-        // Clear pending subscription type since we don't have that info from regular refresh
-        setPendingSubscriptionType(null);
+      if (!response.ok) {
+        throw new Error(`Error refreshing subscription: ${response.status}`);
       }
+      
+      const data = await response.json();
+      console.log('Refreshed subscription data:', data);
+      
+      // Update state with new subscription data
+      const subInfo = {
+        hasActiveSubscription: data.isActive === true,
+        subscriptionType: data.subscriptionType || 'Amateur'
+      };
+      
+      setSubscriptionInfo(subInfo);
+      localStorage.setItem('subscriptionInfo', JSON.stringify(subInfo));
+      
+      // Clear any pending subscription state
+      setPendingSubscriptionType(null);
+      
     } catch (err) {
       console.error("Error refreshing subscription:", err);
     } finally {

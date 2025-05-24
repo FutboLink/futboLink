@@ -1,181 +1,172 @@
 "use client";
 
-import React, { useEffect, useState, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
-import { activateUserSubscription, clearSubscriptionCache } from '@/services/SubscriptionService';
-import { getSubscriptionName } from '@/helpers/helpersSubs';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { UserContext } from '@/components/Context/UserContext';
+import { useContext } from 'react';
+import { updateUserSubscription, clearSubscriptionCache } from '@/services/SubscriptionService';
 
-// Create a client component that uses useSearchParams
+// Componente que usa useSearchParams (debe estar dentro de Suspense)
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
+  const plan = searchParams.get('plan'); // Solo usamos un parámetro 'plan'
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [message, setMessage] = useState('Procesando pago...');
+  const [subscriptionType, setSubscriptionType] = useState('');
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [paymentDetails, setPaymentDetails] = useState<any>(null);
-  const [activatingSubscription, setActivatingSubscription] = useState(false);
-  const [activationMessage, setActivationMessage] = useState<string | null>(null);
-  const [activationSuccess, setActivationSuccess] = useState<boolean>(false);
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  
+  const userContext = useContext(UserContext);
+  const userEmail = userContext?.user?.email; // Acceder al email de manera segura
+
   useEffect(() => {
-    const sessionId = searchParams.get('session_id');
-    
-    if (sessionId) {
-      // Fetch payment details
-      fetch(`${apiUrl}/payments/session/${sessionId}`)
-        .then(res => res.json())
-        .then(data => {
-          setPaymentDetails(data);
-          setLoading(false);
-          
-          // After getting payment details, activate subscription hardcoded
-          if (data.customerEmail && data.stripePriceId) {
-            activateSubscriptionHardcoded(data.customerEmail, data.stripePriceId, sessionId);
-          } else {
-            // Try to get email from localStorage if not in payment details
-            const userEmail = localStorage.getItem('userEmail');
-            const storedUser = localStorage.getItem('user');
-            
-            let email = userEmail;
-            if (!email && storedUser) {
-              try {
-                const userData = JSON.parse(storedUser);
-                email = userData.email;
-              } catch (e) {
-                console.error('Error parsing user data from localStorage:', e);
-              }
-            }
-            
-            if (email && data.stripePriceId) {
-              activateSubscriptionHardcoded(email, data.stripePriceId, sessionId);
-            } else {
-              setActivationMessage("No se pudo determinar el email del usuario o el tipo de suscripción.");
-            }
-          }
-        })
-        .catch((error) => {
-          console.error('Error fetching payment details:', error);
-          setLoading(false);
-          setActivationMessage("Error al obtener los detalles del pago.");
-        });
-    } else {
-      setLoading(false);
-      setActivationMessage("No se encontró ID de sesión de pago.");
-    }
-  }, [searchParams, apiUrl]);
-  
-  const activateSubscriptionHardcoded = async (email: string, priceId: string, sessionId: string) => {
-    try {
-      setActivatingSubscription(true);
-      setActivationMessage("Activando tu suscripción...");
-      console.log('Activating subscription hardcoded for:', email, 'with priceId:', priceId);
-      
-      // Determine subscription type from price ID
-      const subscriptionType = getSubscriptionName(priceId);
-      console.log('Determined subscription type:', subscriptionType);
-      
-      // Activate subscription using hardcoded method
-      const result = await activateUserSubscription(email, subscriptionType, sessionId);
-      console.log('Subscription activation result:', result);
-      
-      if (result.success) {
-        setActivationMessage(`¡Suscripción ${subscriptionType} activada con éxito!`);
-        setActivationSuccess(true);
-      } else {
-        setActivationMessage(`Error: ${result.message}`);
-        setActivationSuccess(false);
+    const processPayment = async () => {
+      // Si no hay plan en los parámetros, intentamos determinar si es un pago por defecto
+      let subType = plan || 'Semiprofesional'; // Valor por defecto si no se especifica
+
+      // Validar que el plan sea uno de los tipos válidos
+      if (!['Amateur', 'Semiprofesional', 'Profesional'].includes(subType)) {
+        subType = 'Semiprofesional'; // Si no es válido, usamos el valor por defecto
       }
       
-      setActivatingSubscription(false);
-    } catch (error) {
-      console.error('Error activating subscription:', error);
-      setActivationMessage("Error al activar la suscripción. Por favor, contacta con soporte.");
-      setActivationSuccess(false);
-      setActivatingSubscription(false);
-    }
-  };
-  
-  const handleGoToProfile = () => {
-    // Force a reload of the profile page to ensure it shows updated subscription status
-    router.push('/PanelUsers/Player');
-  };
-  
-  return (
-    <div className="w-full max-w-md space-y-8 text-center">
-      <div>
-        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-verde-oscuro">
-          ¡Pago completado con éxito!
-        </h2>
-      </div>
+      setSubscriptionType(subType);
       
-      {loading ? (
-        <div className="flex justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-verde-oscuro"></div>
-        </div>
-      ) : (
-        <div className="bg-gray-50 px-4 py-5 sm:px-6 rounded-lg shadow">
-          <p className="text-lg text-gray-700 mb-4">
-            Gracias por tu suscripción a futboLink. Tu cuenta ha sido actualizada.
-          </p>
-          
-          {paymentDetails && (
-            <div className="text-sm text-gray-600 mt-4 text-left">
-              <p><strong>ID de transacción:</strong> {paymentDetails.id}</p>
-              <p><strong>Monto:</strong> {paymentDetails.amountTotal} {paymentDetails.currency}</p>
-              <p><strong>Estado:</strong> {paymentDetails.status}</p>
-              <p><strong>Fecha:</strong> {new Date(paymentDetails.createdAt).toLocaleString()}</p>
-            </div>
-          )}
-          
-          <div className="mt-8">
-            {activatingSubscription ? (
-              <div className="flex justify-center mb-4">
-                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-verde-oscuro mr-2"></div>
-                <span className="text-sm text-gray-600">{activationMessage || 'Activando tu suscripción...'}</span>
-              </div>
-            ) : (
-              <>
-                {activationMessage && (
-                  <p className={`text-sm mb-4 ${activationSuccess ? 'text-green-600' : 'text-red-600'}`}>
-                    {activationMessage}
-                  </p>
-                )}
-                <button 
-                  onClick={handleGoToProfile}
-                  className="inline-block rounded-md border border-transparent bg-verde-claro py-2 px-4 text-base font-medium text-white hover:bg-verde-oscuro"
-                >
-                  Ir a mi perfil
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+      // Verificar que tenemos el email del usuario
+      if (!userEmail) {
+        setStatus('error');
+        setMessage('No se pudo identificar al usuario. Por favor, inicia sesión nuevamente.');
+        return;
+      }
+      
+      try {
+        // Actualizar el tipo de suscripción en la base de datos
+        const result = await updateUserSubscription(userEmail, subType);
+        
+        if (result.success) {
+          // Limpiar caché de suscripción para forzar una recarga
+          clearSubscriptionCache();
+          setStatus('success');
+          setMessage(`¡Tu suscripción al plan ${subType} ha sido activada correctamente!`);
+        } else {
+          setStatus('error');
+          setMessage(`Error al activar la suscripción: ${result.message}`);
+        }
+      } catch (error) {
+        console.error('Error processing payment:', error);
+        setStatus('error');
+        setMessage('Ocurrió un error al procesar el pago. Por favor, contacta a soporte.');
+      }
+    };
 
-// Loading fallback component
-function LoadingPayment() {
+    processPayment();
+  }, [plan, userEmail]);
+
   return (
-    <div className="w-full max-w-md space-y-8 text-center">
-      <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-verde-oscuro">
-        Cargando información de pago...
-      </h2>
-      <div className="flex justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-verde-oscuro"></div>
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
+        {status === 'loading' && (
+          <div className="flex flex-col items-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600 mb-4"></div>
+            <h2 className="text-xl font-semibold text-gray-700 mb-2">Procesando tu pago</h2>
+            <p className="text-gray-500 text-center">
+              Estamos verificando tu pago, por favor espera un momento...
+            </p>
+          </div>
+        )}
+
+        {status === 'success' && (
+          <div className="text-center">
+            <div className="mb-4 flex justify-center">
+              <div className="rounded-full bg-green-100 p-3">
+                <svg className="h-12 w-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">¡Pago exitoso!</h2>
+            <p className="text-gray-600 mb-6">{message}</p>
+            
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+              <h3 className="font-semibold text-green-800 mb-2">Detalles de tu plan</h3>
+              <p className="text-green-700">
+                <span className="font-medium">Plan:</span> {subscriptionType}
+              </p>
+              <p className="text-green-700 mt-1">
+                <span className="font-medium">Estado:</span> Activo
+              </p>
+            </div>
+            
+            <div className="flex flex-col space-y-3">
+              <Link 
+                href="/panel-usuario" 
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200"
+              >
+                Ir a mi perfil
+              </Link>
+              <Link 
+                href="/" 
+                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-lg transition duration-200"
+              >
+                Volver al inicio
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {status === 'error' && (
+          <div className="text-center">
+            <div className="mb-4 flex justify-center">
+              <div className="rounded-full bg-red-100 p-3">
+                <svg className="h-12 w-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Ha ocurrido un problema</h2>
+            <p className="text-gray-600 mb-6">{message}</p>
+            <div className="flex flex-col space-y-3">
+              <Link 
+                href="/Subs" 
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200"
+              >
+                Intentar nuevamente
+              </Link>
+              <Link 
+                href="/" 
+                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-lg transition duration-200"
+              >
+                Volver al inicio
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-// Main page component with Suspense boundary
+// Componente de carga mientras Suspense está activo
+function PaymentSuccessLoading() {
+  return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600 mb-4"></div>
+          <h2 className="text-xl font-semibold text-gray-700 mb-2">Cargando...</h2>
+          <p className="text-gray-500 text-center">
+            Espera un momento mientras procesamos tu solicitud...
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Componente principal que envuelve con Suspense
 export default function PaymentSuccessPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-white">
-      <Suspense fallback={<LoadingPayment />}>
-        <PaymentSuccessContent />
-      </Suspense>
-    </div>
+    <Suspense fallback={<PaymentSuccessLoading />}>
+      <PaymentSuccessContent />
+    </Suspense>
   );
 } 

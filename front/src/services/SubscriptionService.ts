@@ -26,21 +26,17 @@ export interface SyncSubscriptionResult {
  */
 export const checkUserSubscription = async (email: string): Promise<SubscriptionInfo> => {
   try {
-    const response = await fetch(`${apiUrl}/payments/subscription/check?email=${encodeURIComponent(email)}`);
+    const response = await fetch(`${apiUrl}/user/subscription/check?email=${encodeURIComponent(email)}`);
     
     if (!response.ok) {
       throw new Error(`Error checking subscription: ${response.status}`);
     }
     
     const data = await response.json();
-    const subscriptionType = data.subscriptionType || 'Amateur';
-    
-    // ONLY trust the backend's hasActiveSubscription field
-    const isActive = data.hasActiveSubscription === true;
     
     return {
-      hasActiveSubscription: isActive,
-      subscriptionType: subscriptionType
+      hasActiveSubscription: data.isActive === true,
+      subscriptionType: data.subscriptionType || 'Amateur'
     };
   } catch (error) {
     console.error('Error checking subscription:', error);
@@ -61,7 +57,7 @@ export const refreshUserSubscription = async (email: string): Promise<Subscripti
     // Add timestamp to prevent caching
     const timestamp = new Date().getTime();
     const response = await fetch(
-      `${apiUrl}/payments/subscription/check?email=${encodeURIComponent(email)}&_=${timestamp}`,
+      `${apiUrl}/user/subscription/check?email=${encodeURIComponent(email)}&_=${timestamp}`,
       {
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -78,14 +74,9 @@ export const refreshUserSubscription = async (email: string): Promise<Subscripti
     const data = await response.json();
     console.log('Refreshed subscription data:', data);
     
-    const subscriptionType = data.subscriptionType || 'Amateur';
-    
-    // ONLY trust the backend's hasActiveSubscription field
-    const isActive = data.hasActiveSubscription === true;
-    
     return {
-      hasActiveSubscription: isActive,
-      subscriptionType: subscriptionType
+      hasActiveSubscription: data.isActive === true,
+      subscriptionType: data.subscriptionType || 'Amateur'
     };
   } catch (error) {
     console.error('Error refreshing subscription:', error);
@@ -97,37 +88,75 @@ export const refreshUserSubscription = async (email: string): Promise<Subscripti
 };
 
 /**
- * Force synchronize subscription status with Stripe
- * This makes a direct call to Stripe to verify the subscription status
+ * Update user subscription directly in database
+ * @param email User's email
+ * @param subscriptionType New subscription type
+ * @returns Success status
+ */
+export const updateUserSubscription = async (email: string, subscriptionType: string): Promise<SyncSubscriptionResult> => {
+  try {
+    const response = await fetch(`${apiUrl}/user/subscription/update-by-email`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, subscriptionType }),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Error ${response.status}: No se pudo actualizar la suscripción`);
+    }
+    
+    // Obtener la nueva información de suscripción
+    const subInfo = await refreshUserSubscription(email);
+    
+    return {
+      success: true,
+      message: 'Suscripción actualizada correctamente',
+      subscriptionInfo: subInfo
+    };
+  } catch (error: any) {
+    console.error('Error updating subscription:', error);
+    return {
+      success: false,
+      message: error.message || 'Error al actualizar la suscripción. Por favor, intenta de nuevo más tarde.'
+    };
+  }
+};
+
+/**
+ * Force synchronize subscription status with database
  * @param email User's email
  * @returns Result of the synchronization
  */
 export const forceSyncSubscription = async (email: string): Promise<SyncSubscriptionResult> => {
   try {
-    const response = await fetch(`${apiUrl}/payments/subscription/force-sync`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }),
-    });
+    const response = await fetch(`${apiUrl}/user/subscription/check?email=${encodeURIComponent(email)}`);
     
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.message || `Error ${response.status}: No se pudo sincronizar la suscripción`);
     }
     
-    const result = await response.json();
+    const data = await response.json();
+    
+    const subscriptionInfo = {
+      hasActiveSubscription: data.isActive === true,
+      subscriptionType: data.subscriptionType || 'Amateur'
+    };
     
     // Update the local storage with the new subscription info
-    if (result.success && result.subscriptionInfo) {
-      clearSubscriptionCache();
-      localStorage.setItem('subscriptionInfo', JSON.stringify(result.subscriptionInfo));
-    }
+    clearSubscriptionCache();
+    localStorage.setItem('subscriptionInfo', JSON.stringify(subscriptionInfo));
     
-    return result;
+    return {
+      success: true,
+      message: 'Suscripción sincronizada correctamente',
+      subscriptionInfo
+    };
   } catch (error: any) {
-    console.error('Error syncing subscription with Stripe:', error);
+    console.error('Error syncing subscription:', error);
     return {
       success: false,
       message: error.message || 'Error al sincronizar la suscripción. Por favor, intenta de nuevo más tarde.'
@@ -163,12 +192,13 @@ export const clearSubscriptionCache = (): void => {
  */
 export const cancelUserSubscription = async (email: string): Promise<CancelSubscriptionResult> => {
   try {
-    const response = await fetch(`${apiUrl}/payments/subscription/cancel`, {
-      method: 'POST',
+    // En lugar de cancelar en Stripe, simplemente actualizamos a Amateur en nuestra base de datos
+    const response = await fetch(`${apiUrl}/user/subscription/update-by-email`, {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, subscriptionType: 'Amateur' }),
     });
     
     if (!response.ok) {
@@ -176,67 +206,18 @@ export const cancelUserSubscription = async (email: string): Promise<CancelSubsc
       throw new Error(errorData.message || `Error ${response.status}: No se pudo cancelar la suscripción`);
     }
     
-    const result = await response.json();
-    
     // Clear the cache on successful cancellation
-    if (result.success) {
-      clearSubscriptionCache();
-    }
+    clearSubscriptionCache();
     
-    return result;
+    return {
+      success: true,
+      message: 'Suscripción cancelada exitosamente.'
+    };
   } catch (error: any) {
     console.error('Error canceling subscription:', error);
     return {
       success: false,
       message: error.message || 'Error al cancelar la suscripción. Por favor, intenta de nuevo más tarde.'
-    };
-  }
-};
-
-/**
- * Activates a user's subscription after successful payment (hardcoded update)
- * @param email User's email
- * @param subscriptionType Type of subscription to activate
- * @param sessionId Optional session ID to link the activation
- * @returns Object with success status, message, and subscription info
- */
-export const activateUserSubscription = async (
-  email: string, 
-  subscriptionType: string, 
-  sessionId?: string
-): Promise<{
-  success: boolean;
-  message: string;
-  subscriptionInfo?: SubscriptionInfo;
-}> => {
-  try {
-    const response = await fetch(`${apiUrl}/payments/subscription/activate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, subscriptionType, sessionId }),
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `Error ${response.status}: No se pudo activar la suscripción`);
-    }
-    
-    const result = await response.json();
-    
-    // Clear the cache and update with new subscription info on successful activation
-    if (result.success && result.subscriptionInfo) {
-      clearSubscriptionCache();
-      localStorage.setItem('subscriptionInfo', JSON.stringify(result.subscriptionInfo));
-    }
-    
-    return result;
-  } catch (error: any) {
-    console.error('Error activating subscription:', error);
-    return {
-      success: false,
-      message: error.message || 'Error al activar la suscripción. Por favor, intenta de nuevo más tarde.'
     };
   }
 }; 

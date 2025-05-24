@@ -194,19 +194,28 @@ export const cancelUserSubscription = async (email: string): Promise<CancelSubsc
 };
 
 /**
- * Manually activates a subscription without checking Stripe
- * Used to force activate a subscription after payment success
+ * Activates a user's subscription after successful payment (hardcoded update)
  * @param email User's email
- * @returns Result of the manual activation
+ * @param subscriptionType Type of subscription to activate
+ * @param sessionId Optional session ID to link the activation
+ * @returns Object with success status, message, and subscription info
  */
-export const manuallyActivateSubscription = async (email: string): Promise<SyncSubscriptionResult> => {
+export const activateUserSubscription = async (
+  email: string, 
+  subscriptionType: string, 
+  sessionId?: string
+): Promise<{
+  success: boolean;
+  message: string;
+  subscriptionInfo?: SubscriptionInfo;
+}> => {
   try {
-    const response = await fetch(`${apiUrl}/payments/subscription/manual-activate`, {
+    const response = await fetch(`${apiUrl}/payments/subscription/activate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, subscriptionType, sessionId }),
     });
     
     if (!response.ok) {
@@ -216,16 +225,15 @@ export const manuallyActivateSubscription = async (email: string): Promise<SyncS
     
     const result = await response.json();
     
-    // Update the local storage with the new subscription info
+    // Clear the cache and update with new subscription info on successful activation
     if (result.success && result.subscriptionInfo) {
       clearSubscriptionCache();
       localStorage.setItem('subscriptionInfo', JSON.stringify(result.subscriptionInfo));
-      localStorage.removeItem('pendingSubscriptionType'); // Clear pending status as it's now active
     }
     
     return result;
   } catch (error: any) {
-    console.error('Error manually activating subscription:', error);
+    console.error('Error activating subscription:', error);
     return {
       success: false,
       message: error.message || 'Error al activar la suscripción. Por favor, intenta de nuevo más tarde.'

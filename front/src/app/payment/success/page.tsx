@@ -3,9 +3,8 @@
 import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { refreshUserSubscription, clearSubscriptionCache, manuallyActivateSubscription } from '@/services/SubscriptionService';
-import { UserContext } from '@/components/Context/UserContext';
-import { useContext } from 'react';
+import { activateUserSubscription, clearSubscriptionCache } from '@/services/SubscriptionService';
+import { getSubscriptionName } from '@/helpers/helpersSubs';
 
 // Create a client component that uses useSearchParams
 function PaymentSuccessContent() {
@@ -15,53 +14,11 @@ function PaymentSuccessContent() {
   const [paymentDetails, setPaymentDetails] = useState<any>(null);
   const [activatingSubscription, setActivatingSubscription] = useState(false);
   const [activationMessage, setActivationMessage] = useState<string | null>(null);
+  const [activationSuccess, setActivationSuccess] = useState<boolean>(false);
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  
-  // Get user data from context
-  const { user } = useContext(UserContext);
   
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
-    
-    // Automatically activate subscription as soon as the component mounts
-    const activateSubscription = () => {
-      // Try to get user email from multiple sources
-      let userEmail = null;
-      
-      // First, try to get the email from the user context
-      if (user && user.email) {
-        userEmail = user.email;
-      } else {
-        // If not in context, try localStorage
-        const storedEmail = localStorage.getItem('userEmail');
-        if (storedEmail) {
-          userEmail = storedEmail;
-        } else {
-          // Try to get from stored user object
-          const storedUser = localStorage.getItem('user');
-          if (storedUser) {
-            try {
-              const userData = JSON.parse(storedUser);
-              if (userData.email) {
-                userEmail = userData.email;
-              }
-            } catch (e) {
-              console.error('Error parsing user data from localStorage:', e);
-            }
-          }
-        }
-      }
-      
-      // If we found a user email, activate the subscription
-      if (userEmail) {
-        console.log('Automatically activating subscription for:', userEmail);
-        manuallyActivateSubscriptionStatus(userEmail);
-      } else {
-        console.error('No user email found for subscription activation');
-        setActivationMessage("Error: No se pudo identificar el usuario para activar la suscripción");
-        setLoading(false);
-      }
-    };
     
     if (sessionId) {
       // Fetch payment details
@@ -69,95 +26,78 @@ function PaymentSuccessContent() {
         .then(res => res.json())
         .then(data => {
           setPaymentDetails(data);
+          setLoading(false);
           
-          // If payment details contain email, use it to activate subscription
-          if (data.customerEmail) {
-            manuallyActivateSubscriptionStatus(data.customerEmail);
+          // After getting payment details, activate subscription hardcoded
+          if (data.customerEmail && data.stripePriceId) {
+            activateSubscriptionHardcoded(data.customerEmail, data.stripePriceId, sessionId);
           } else {
-            // Otherwise try from other sources
-            activateSubscription();
+            // Try to get email from localStorage if not in payment details
+            const userEmail = localStorage.getItem('userEmail');
+            const storedUser = localStorage.getItem('user');
+            
+            let email = userEmail;
+            if (!email && storedUser) {
+              try {
+                const userData = JSON.parse(storedUser);
+                email = userData.email;
+              } catch (e) {
+                console.error('Error parsing user data from localStorage:', e);
+              }
+            }
+            
+            if (email && data.stripePriceId) {
+              activateSubscriptionHardcoded(email, data.stripePriceId, sessionId);
+            } else {
+              setActivationMessage("No se pudo determinar el email del usuario o el tipo de suscripción.");
+            }
           }
         })
         .catch((error) => {
           console.error('Error fetching payment details:', error);
-          // Even if we can't fetch payment details, try to activate subscription
-          activateSubscription();
+          setLoading(false);
+          setActivationMessage("Error al obtener los detalles del pago.");
         });
     } else {
-      // No session ID, but still try to activate based on stored user info
-      activateSubscription();
+      setLoading(false);
+      setActivationMessage("No se encontró ID de sesión de pago.");
     }
-  }, [searchParams, apiUrl, user]);
+  }, [searchParams, apiUrl]);
   
-  const manuallyActivateSubscriptionStatus = async (email: string) => {
+  const activateSubscriptionHardcoded = async (email: string, priceId: string, sessionId: string) => {
     try {
       setActivatingSubscription(true);
       setActivationMessage("Activando tu suscripción...");
-      console.log('Manually activating subscription for:', email);
+      console.log('Activating subscription hardcoded for:', email, 'with priceId:', priceId);
       
-      // Store email in localStorage for reference
-      localStorage.setItem('userEmail', email);
+      // Determine subscription type from price ID
+      const subscriptionType = getSubscriptionName(priceId);
+      console.log('Determined subscription type:', subscriptionType);
       
-      // Directly activate the subscription in the database
-      const result = await manuallyActivateSubscription(email);
+      // Activate subscription using hardcoded method
+      const result = await activateUserSubscription(email, subscriptionType, sessionId);
       console.log('Subscription activation result:', result);
       
       if (result.success) {
-        setActivationMessage("¡Suscripción activada con éxito!");
-        
-        // Store subscription info in localStorage for immediate use
-        if (result.subscriptionInfo) {
-          localStorage.setItem('subscriptionInfo', JSON.stringify(result.subscriptionInfo));
-        }
-        
-        // Clear any pending subscription status
-        localStorage.removeItem('pendingSubscriptionType');
+        setActivationMessage(`¡Suscripción ${subscriptionType} activada con éxito!`);
+        setActivationSuccess(true);
       } else {
         setActivationMessage(`Error: ${result.message}`);
-        
-        // Fallback to normal refresh if manual activation fails
-        console.log('Falling back to normal refresh...');
-        await refreshSubscriptionStatus(email);
+        setActivationSuccess(false);
       }
       
-      setLoading(false);
       setActivatingSubscription(false);
     } catch (error) {
       console.error('Error activating subscription:', error);
-      setActivationMessage("Error al activar. Intentando método alternativo...");
-      
-      // Try normal refresh as fallback
-      await refreshSubscriptionStatus(email);
-      setLoading(false);
-      setActivatingSubscription(false);
-    }
-  };
-  
-  const refreshSubscriptionStatus = async (email: string) => {
-    try {
-      setActivatingSubscription(true);
-      console.log('Refreshing subscription status for:', email);
-      
-      // Clear cache first
-      clearSubscriptionCache();
-      
-      // Refresh subscription status
-      const result = await refreshUserSubscription(email);
-      console.log('Subscription status refreshed:', result);
-      
-      // Store updated subscription info in localStorage for immediate use
-      localStorage.setItem('subscriptionInfo', JSON.stringify(result));
-      
-      setActivatingSubscription(false);
-    } catch (error) {
-      console.error('Error refreshing subscription status:', error);
+      setActivationMessage("Error al activar la suscripción. Por favor, contacta con soporte.");
+      setActivationSuccess(false);
       setActivatingSubscription(false);
     }
   };
   
   const handleGoToProfile = () => {
     // Force a reload of the profile page to ensure it shows updated subscription status
-    router.push('/profile');
+    router.push('/PanelUsers/Player');
   };
   
   return (
@@ -169,9 +109,8 @@ function PaymentSuccessContent() {
       </div>
       
       {loading ? (
-        <div className="flex flex-col items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-verde-oscuro mb-4"></div>
-          <p className="text-sm text-gray-600">{activationMessage || 'Procesando tu suscripción...'}</p>
+        <div className="flex justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-verde-oscuro"></div>
         </div>
       ) : (
         <div className="bg-gray-50 px-4 py-5 sm:px-6 rounded-lg shadow">
@@ -197,7 +136,9 @@ function PaymentSuccessContent() {
             ) : (
               <>
                 {activationMessage && (
-                  <p className="text-sm text-green-600 mb-4">{activationMessage}</p>
+                  <p className={`text-sm mb-4 ${activationSuccess ? 'text-green-600' : 'text-red-600'}`}>
+                    {activationMessage}
+                  </p>
                 )}
                 <button 
                   onClick={handleGoToProfile}

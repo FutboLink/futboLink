@@ -9,7 +9,7 @@ import { UserContext } from "@/components/Context/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FaBolt, FaCog, FaUser, FaYoutube, FaRegIdCard, FaRegCreditCard } from "react-icons/fa";
-import { checkUserSubscription, refreshUserSubscription, clearSubscriptionCache, cancelUserSubscription, forceSyncSubscription, manuallyActivateSubscription, SubscriptionInfo, SyncSubscriptionResult } from "@/services/SubscriptionService";
+import { checkUserSubscription, refreshUserSubscription, clearSubscriptionCache, cancelUserSubscription, forceSyncSubscription, SubscriptionInfo, SyncSubscriptionResult } from "@/services/SubscriptionService";
 import LanguageToggle from "@/components/LanguageToggle/LanguageToggle";
 import { fetchUserData, getCv } from "@/components/Fetchs/UsersFetchs/UserFetchs";
 import dynamic from 'next/dynamic';
@@ -322,35 +322,6 @@ const UserProfile = () => {
     }
   };
 
-  // Function to manually activate subscription
-  const handleManualActivation = async () => {
-    if (!userData?.email || !isClient) return;
-    
-    setLoadingSubscription(true);
-    try {
-      // Attempt to manually activate the subscription
-      const result = await manuallyActivateSubscription(userData.email);
-      
-      if (result.success && result.subscriptionInfo) {
-        setSubscriptionInfo(result.subscriptionInfo);
-        // Update the cache with new info
-        localStorage.setItem('subscriptionInfo', JSON.stringify(result.subscriptionInfo));
-        // Clear pending status
-        setPendingSubscriptionType(null);
-        localStorage.removeItem('pendingSubscriptionType');
-      } else {
-        // If activation failed, show an error and try refreshing instead
-        console.error("Manual activation failed:", result.message);
-        await handleRefreshSubscription();
-      }
-    } catch (err) {
-      console.error("Error manually activating subscription:", err);
-      await handleRefreshSubscription();
-    } finally {
-      setLoadingSubscription(false);
-    }
-  };
-
   return (
     <div className="flex min-h-screen mt-24 text-black bg-gray-50 flex-col sm:flex-row">
       {/* Panel izquierdo */}
@@ -613,33 +584,14 @@ const UserProfile = () => {
                             </p>
                             {!subscriptionInfo.hasActiveSubscription && (
                               <div className="mt-2">
-                                {pendingSubscriptionType ? (
-                                  <div className="flex flex-wrap gap-2">
-                                    <button
-                                      onClick={handleManualActivation}
-                                      disabled={loadingSubscription}
-                                      className="text-sm text-white bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-md transition-colors duration-200 inline-flex items-center"
-                                    >
-                                      {loadingSubscription ? (
-                                        <>
-                                          <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-                                          Activando...
-                                        </>
-                                      ) : (
-                                        'Activar suscripción pendiente'
-                                      )}
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <Link 
-                                    href="/Subs" 
-                                    className="text-sm text-white bg-[#1d5126] hover:bg-[#3e7c27] px-4 py-2 rounded-md transition-colors duration-200 inline-flex items-center"
-                                  >
-                                    <FaRegCreditCard className="mr-1" />
-                                    Ver planes de suscripción
-                                  </Link>
-                                )}
-                              </div>
+                                <Link 
+                                  href="/Subs" 
+                                  className="text-sm text-white bg-[#1d5126] hover:bg-[#3e7c27] px-4 py-2 rounded-md transition-colors duration-200 inline-flex items-center"
+                                >
+                                  <FaRegCreditCard className="mr-1" />
+                                  Ver planes de suscripción
+        </Link>
+      </div>
                             )}
                           </>
                         )}
@@ -1005,24 +957,6 @@ const UserProfile = () => {
                               'Actualizar estado'
                             )}
                           </button>
-                          
-                          {/* Manual activation button - only show for pending subscriptions */}
-                          {pendingSubscriptionType && !subscriptionInfo.hasActiveSubscription && (
-                            <button
-                              onClick={handleManualActivation}
-                              disabled={loadingSubscription}
-                              className="text-sm text-white bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-md transition-colors duration-200 inline-flex items-center"
-                            >
-                              {loadingSubscription ? (
-                                <>
-                                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-                                  Activando...
-                                </>
-                              ) : (
-                                'Activar suscripción pendiente'
-                              )}
-                            </button>
-                          )}
                           
                           {/* Cancel subscription button - only show for active paid subscriptions */}
                           {subscriptionInfo.hasActiveSubscription && 

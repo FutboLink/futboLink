@@ -191,4 +191,44 @@ export const cancelUserSubscription = async (email: string): Promise<CancelSubsc
       message: error.message || 'Error al cancelar la suscripción. Por favor, intenta de nuevo más tarde.'
     };
   }
+};
+
+/**
+ * Manually activates a subscription without checking Stripe
+ * Used to force activate a subscription after payment success
+ * @param email User's email
+ * @returns Result of the manual activation
+ */
+export const manuallyActivateSubscription = async (email: string): Promise<SyncSubscriptionResult> => {
+  try {
+    const response = await fetch(`${apiUrl}/payments/subscription/manual-activate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Error ${response.status}: No se pudo activar la suscripción`);
+    }
+    
+    const result = await response.json();
+    
+    // Update the local storage with the new subscription info
+    if (result.success && result.subscriptionInfo) {
+      clearSubscriptionCache();
+      localStorage.setItem('subscriptionInfo', JSON.stringify(result.subscriptionInfo));
+      localStorage.removeItem('pendingSubscriptionType'); // Clear pending status as it's now active
+    }
+    
+    return result;
+  } catch (error: any) {
+    console.error('Error manually activating subscription:', error);
+    return {
+      success: false,
+      message: error.message || 'Error al activar la suscripción. Por favor, intenta de nuevo más tarde.'
+    };
+  }
 }; 

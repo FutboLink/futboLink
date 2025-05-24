@@ -856,7 +856,8 @@ export class StripeService {
     subscriptionInfo?: {
       hasActiveSubscription: boolean,
       subscriptionType: string
-    }
+    },
+    pendingSubscriptionType?: string
   }> {
     try {
       this.logger.log(`Force syncing subscription status for user: ${userEmail}`);
@@ -882,6 +883,13 @@ export class StripeService {
             subscriptionType: 'Amateur' 
           }
         };
+      }
+      
+      // Check if there's a pending subscription
+      let pendingSubscriptionType: string | undefined;
+      if (payment.status === PaymentStatus.PENDING && payment.subscriptionType) {
+        pendingSubscriptionType = payment.subscriptionType;
+        this.logger.log(`Found pending subscription: ${pendingSubscriptionType}`);
       }
       
       // If we have a subscription ID, get the latest status from Stripe
@@ -947,7 +955,8 @@ export class StripeService {
       return {
         success: true,
         message: 'Estado de suscripción sincronizado exitosamente con Stripe.',
-        subscriptionInfo
+        subscriptionInfo,
+        pendingSubscriptionType
       };
     } catch (error) {
       this.logger.error(`Error syncing subscription for ${userEmail}: ${error.message}`, error);

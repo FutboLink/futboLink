@@ -128,8 +128,35 @@ function PaymentSuccessContent() {
           setLoading(false);
         });
     } else {
-      setActivationMessage("No se encontró ID de sesión. Por favor, ve a tu perfil para activar manualmente.");
-      setLoading(false);
+      // Si no hay session_id, intentar activar usando el email del usuario directamente
+      console.log('No se encontró ID de sesión. Intentando activar con email almacenado.');
+      
+      // Obtener email del usuario de localStorage
+      const userEmail = localStorage.getItem('userEmail');
+      const storedUser = localStorage.getItem('user');
+      
+      if (userEmail) {
+        setActivationMessage("No se encontró ID de sesión. Activando con email almacenado...");
+        manuallyActivateSubscriptionStatus(userEmail);
+      } else if (storedUser) {
+        try {
+          const userData = JSON.parse(storedUser);
+          if (userData.email) {
+            setActivationMessage("No se encontró ID de sesión. Activando con email almacenado...");
+            manuallyActivateSubscriptionStatus(userData.email);
+          } else {
+            setActivationMessage("No se encontró ID de sesión ni email. Por favor, ve a tu perfil para activar manualmente.");
+            setLoading(false);
+          }
+        } catch (e) {
+          console.error('Error analizando datos de usuario desde localStorage:', e);
+          setActivationMessage("Error al obtener datos de usuario. Por favor, ve a tu perfil para activar manualmente.");
+          setLoading(false);
+        }
+      } else {
+        setActivationMessage("No se encontró ID de sesión ni email. Por favor, ve a tu perfil para activar manualmente.");
+        setLoading(false);
+      }
     }
   }, [searchParams, apiUrl]);
   

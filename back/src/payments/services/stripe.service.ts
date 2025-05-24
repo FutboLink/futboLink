@@ -843,4 +843,122 @@ export class StripeService {
       throw new InternalServerErrorException(`Failed to refresh subscription types: ${error.message}`);
     }
   }
+
+  /**
+   * Force synchronizes a user's subscription status with Stripe
+   * This method directly checks Stripe for the current subscription status
+   * @param userEmail The email of the user whose subscription to sync
+   * @returns Object with success status, message, and subscription info
+   */
+  async forceSubscriptionSync(userEmail: string): Promise<{ 
+    success: boolean, 
+    message: string,
+    subscriptionInfo?: {
+      hasActiveSubscription: boolean,
+      subscriptionType: string
+    }
+  }> {
+    try {
+      this.logger.log(`Force syncing subscription status for user: ${userEmail}`);
+      
+      // Find the most recent payment for this user's subscription
+      const payment = await this.paymentRepo.findOne({
+        where: {
+          customerEmail: userEmail,
+          type: PaymentType.SUBSCRIPTION,
+        },
+        order: {
+          updatedAt: 'DESC' // Get the most recent one
+        }
+      });
+      
+      if (!payment) {
+        this.logger.log(`No subscription found for user: ${userEmail}`);
+        return { 
+          success: false, 
+          message: 'No se encontró ningún registro de suscripción para este usuario.',
+          subscriptionInfo: { 
+            hasActiveSubscription: false, 
+            subscriptionType: 'Amateur' 
+          }
+        };
+      }
+      
+      // If we have a subscription ID, get the latest status from Stripe
+      if (payment.stripeSubscriptionId) {
+        try {
+          // Retrieve the subscription from Stripe
+          const subscription = await this.stripe.subscriptions.retrieve(payment.stripeSubscriptionId);
+          
+          this.logger.log(`Retrieved subscription from Stripe: ${subscription.id}, status=${subscription.status}`);
+          
+          // Update the payment record with the latest status
+          payment.subscriptionStatus = subscription.status;
+          
+          // Update status based on subscription status
+          if (subscription.status === 'active' || subscription.status === 'trialing') {
+            payment.status = PaymentStatus.SUCCEEDED;
+            
+            // Get the price ID from the subscription
+            if (subscription.items.data.length > 0) {
+              const priceId = subscription.items.data[0].price.id;
+              payment.stripePriceId = priceId;
+              
+              // Set the subscription type based on price ID
+              if (priceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
+                payment.subscriptionType = SubscriptionPlan.SEMIPROFESIONAL;
+              } else if (priceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
+                payment.subscriptionType = SubscriptionPlan.PROFESIONAL;
+              } else {
+                payment.subscriptionType = SubscriptionPlan.AMATEUR;
+              }
+            }
+          } else if (subscription.status === 'past_due' || subscription.status === 'unpaid') {
+            payment.status = PaymentStatus.PAYMENT_REQUIRED;
+          } else if (subscription.status === 'canceled') {
+            payment.status = PaymentStatus.CANCELED;
+          }
+          
+          // Save the updated payment record
+          await this.paymentRepo.save(payment);
+          this.logger.log(`Updated payment record with status: ${payment.status}, subscriptionStatus: ${payment.subscriptionStatus}`);
+        } catch (stripeError) {
+          this.logger.error(`Error retrieving subscription from Stripe: ${stripeError.message}`, stripeError);
+          
+          // If Stripe doesn't find the subscription, mark it as canceled
+          if (stripeError.type === 'StripeInvalidRequestError' && stripeError.message.includes('No such subscription')) {
+            payment.status = PaymentStatus.CANCELED;
+            payment.subscriptionStatus = 'canceled';
+            await this.paymentRepo.save(payment);
+            this.logger.log(`Marked subscription as canceled because it no longer exists in Stripe`);
+          }
+        }
+      }
+      
+      // Check subscription status with our normal method
+      const result = await this.checkUserSubscription(userEmail);
+      
+      // Ensure subscriptionType is always a string (not undefined)
+      const subscriptionInfo = {
+        hasActiveSubscription: result.hasActiveSubscription,
+        subscriptionType: result.subscriptionType || 'Amateur'
+      };
+      
+      return {
+        success: true,
+        message: 'Estado de suscripción sincronizado exitosamente con Stripe.',
+        subscriptionInfo
+      };
+    } catch (error) {
+      this.logger.error(`Error syncing subscription for ${userEmail}: ${error.message}`, error);
+      return { 
+        success: false, 
+        message: `Error al sincronizar la suscripción: ${error.message}`,
+        subscriptionInfo: { 
+          hasActiveSubscription: false, 
+          subscriptionType: 'Amateur' 
+        }
+      };
+    }
+  }
 } 

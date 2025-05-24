@@ -168,4 +168,34 @@ export class PaymentsController {
   async refreshSubscriptionTypes() {
     return this.stripeService.refreshSubscriptionTypes();
   }
+
+  @Post('subscription/force-sync')
+  @ApiOperation({ summary: 'Force synchronize subscription status with Stripe' })
+  @ApiResponse({ 
+    status: HttpStatus.OK, 
+    description: 'Subscription status sync result',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', description: 'Whether the sync was successful' },
+        message: { type: 'string', description: 'Message describing the result' },
+        subscriptionInfo: { 
+          type: 'object',
+          properties: {
+            hasActiveSubscription: { type: 'boolean' },
+            subscriptionType: { type: 'string' }
+          }
+        }
+      }
+    }
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid input data' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Error syncing subscription' })
+  async forceSubscriptionSync(@Body('email') email: string) {
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
+    
+    return this.stripeService.forceSubscriptionSync(email);
+  }
 } 

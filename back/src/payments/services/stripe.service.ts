@@ -970,4 +970,70 @@ export class StripeService {
       };
     }
   }
+
+  /**
+   * Manually updates a subscription status in the database without checking Stripe
+   * This is used to force activate a subscription after payment success
+   * @param userEmail The email of the user whose subscription to activate
+   * @returns Object with success status and message
+   */
+  async manuallyActivateSubscription(userEmail: string): Promise<{ 
+    success: boolean, 
+    message: string,
+    subscriptionInfo?: {
+      hasActiveSubscription: boolean,
+      subscriptionType: string
+    }
+  }> {
+    try {
+      this.logger.log(`Manually activating subscription for user: ${userEmail}`);
+      
+      // Find the most recent payment for this user's subscription
+      const payment = await this.paymentRepo.findOne({
+        where: {
+          customerEmail: userEmail,
+          type: PaymentType.SUBSCRIPTION,
+        },
+        order: {
+          updatedAt: 'DESC' // Get the most recent one
+        }
+      });
+      
+      if (!payment) {
+        this.logger.log(`No subscription found for user: ${userEmail}`);
+        return { 
+          success: false, 
+          message: 'No se encontró ningún registro de suscripción para este usuario.'
+        };
+      }
+      
+      // Manually set the subscription as active
+      payment.status = PaymentStatus.SUCCEEDED;
+      payment.subscriptionStatus = 'active';
+      
+      // Set the last payment date to now
+      payment.lastPaymentDate = new Date();
+      
+      // Save the updated payment record
+      await this.paymentRepo.save(payment);
+      
+      this.logger.log(`Manually activated subscription for ${userEmail}: type=${payment.subscriptionType}`);
+      
+      // Return updated subscription info
+      return {
+        success: true,
+        message: 'Suscripción activada manualmente con éxito.',
+        subscriptionInfo: {
+          hasActiveSubscription: true,
+          subscriptionType: payment.subscriptionType || 'Amateur'
+        }
+      };
+    } catch (error) {
+      this.logger.error(`Error activating subscription for ${userEmail}: ${error.message}`, error);
+      return { 
+        success: false, 
+        message: `Error al activar manualmente la suscripción: ${error.message}`
+      };
+    }
+  }
 } 

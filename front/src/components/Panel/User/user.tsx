@@ -9,7 +9,7 @@ import { UserContext } from "@/components/Context/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FaBolt, FaCog, FaUser, FaYoutube, FaRegIdCard, FaRegCreditCard } from "react-icons/fa";
-import { checkUserSubscription, refreshUserSubscription, clearSubscriptionCache, cancelUserSubscription, SubscriptionInfo } from "@/services/SubscriptionService";
+import { checkUserSubscription, refreshUserSubscription, clearSubscriptionCache, cancelUserSubscription, forceSyncSubscription, SubscriptionInfo, SyncSubscriptionResult } from "@/services/SubscriptionService";
 import LanguageToggle from "@/components/LanguageToggle/LanguageToggle";
 import { fetchUserData, getCv } from "@/components/Fetchs/UsersFetchs/UserFetchs";
 import dynamic from 'next/dynamic';
@@ -47,6 +47,7 @@ const UserProfile = () => {
     hasActiveSubscription: false,
     subscriptionType: 'Amateur'
   });
+  const [pendingSubscriptionType, setPendingSubscriptionType] = useState<string | null>(null);
   const [loadingSubscription, setLoadingSubscription] = useState(false);
   const [cancellingSubscription, setCancellingSubscription] = useState(false);
   const [cancelMessage, setCancelMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -103,30 +104,33 @@ const UserProfile = () => {
   useEffect(() => {
     if (!isClient) return; // Only run on client
 
-    let initialSubscription: SubscriptionInfo = { hasActiveSubscription: false, subscriptionType: 'Amateur' };
     try {
       const cachedSubscription = localStorage.getItem('subscriptionInfo');
       if (cachedSubscription) {
-        const parsedData: SubscriptionInfo = JSON.parse(cachedSubscription);
-        console.log('UserProfile: Found cached subscription data:', parsedData);
-        // Si el cache tiene una suscripción activa y no es Amateur, la usamos inicialmente.
-        if (parsedData.hasActiveSubscription && parsedData.subscriptionType !== 'Amateur') {
-          initialSubscription = parsedData;
-          console.log('UserProfile: Using cached premium subscription as initial state:', initialSubscription);
-        }
+        const parsedData = JSON.parse(cachedSubscription);
+        console.log('Found cached subscription data:', parsedData);
+        setSubscriptionInfo(parsedData);
+      }
+      
+      // Check for cached pending subscription type
+      const cachedPendingType = localStorage.getItem('pendingSubscriptionType');
+      if (cachedPendingType) {
+        console.log('Found cached pending subscription type:', cachedPendingType);
+        setPendingSubscriptionType(cachedPendingType);
       }
     } catch (err) {
-      console.error('UserProfile: Error reading cached subscription data:', err);
+      console.error('Error reading cached subscription data:', err);
     }
-    setSubscriptionInfo(initialSubscription); // Establecer estado inicial
-
-  }, [isClient]); 
+  }, [isClient]); // Add isClient as dependency
 
   useEffect(() => {
-    if (token && isClient) {
+    if (token) {
+      // Use fetchUserData to get the data with properly processed trayectorias
       fetchUserData(token)
         .then((data) => {
+          // Ensure trayectorias is initialized correctly
           if (!data.trayectorias || !Array.isArray(data.trayectorias)) {
+            // If there's legacy data, convert it to the new format
             if (data.club) {
               data.trayectorias = [{
                 club: String(data.club || ''),
@@ -137,71 +141,53 @@ const UserProfile = () => {
                 logros: String(data.logros || '')
               }];
             } else {
+              // Initialize with empty array if no legacy data
               data.trayectorias = [];
             }
           }
-          console.log("UserProfile (Token Effect): User data including trayectorias:", data);
+          console.log("User data including trayectorias:", data);
           setUserData(data);
           
+          // After fetching user data, check subscription status
           if (data.email) {
             setLoadingSubscription(true);
-            const userEmail = data.email;
-
-            let cachedSubState: SubscriptionInfo | null = null;
-            try {
-              const cached = localStorage.getItem('subscriptionInfo');
-              if (cached) {
-                cachedSubState = JSON.parse(cached);
-                console.log(`UserProfile (Token Effect): Read from localStorage before server call:`, cachedSubState);
-              }
-            } catch (e) {
-              console.error('UserProfile (Token Effect): Error reading localStorage before server call:', e);
-            }
-
-            if (cachedSubState && cachedSubState.hasActiveSubscription && cachedSubState.subscriptionType !== 'Amateur') {
-              console.log("UserProfile (Token Effect): Temporarily setting UI to cached premium state:", cachedSubState);
-              setSubscriptionInfo(cachedSubState);
-            }
-
-            refreshUserSubscription(userEmail)
-              .then(subInfoFromServer => {
-                console.log(`UserProfile (Token Effect): Subscription from server (refreshUserSubscription):`, subInfoFromServer);
-                let finalSubscription = subInfoFromServer;
-                let currentCachedSub: SubscriptionInfo | null = null;
-                try {
-                    const cached = localStorage.getItem('subscriptionInfo');
-                    if (cached) currentCachedSub = JSON.parse(cached);
-                } catch(e) { /* ignore */ }
-
-                if (currentCachedSub && currentCachedSub.hasActiveSubscription && currentCachedSub.subscriptionType !== 'Amateur') {
-                  if (currentCachedSub.subscriptionType !== subInfoFromServer.subscriptionType || !subInfoFromServer.hasActiveSubscription) {
-                    console.log(`UserProfile (Token Effect): Overriding server info with localStorage. localStorage: ${JSON.stringify(currentCachedSub)}, Server: ${JSON.stringify(subInfoFromServer)}`);
-                    finalSubscription = currentCachedSub;
+            
+            // Primero intentamos la sincronización forzada con Stripe
+            forceSyncSubscription(data.email)
+              .then(syncResult => {
+                if (syncResult.success && syncResult.subscriptionInfo) {
+                  setSubscriptionInfo(syncResult.subscriptionInfo);
+                  // Update the cache
+                  localStorage.setItem('subscriptionInfo', JSON.stringify(syncResult.subscriptionInfo));
+                  
+                  // Check for pending subscription in the backend response
+                  if (syncResult.pendingSubscriptionType) {
+                    setPendingSubscriptionType(syncResult.pendingSubscriptionType);
+                    localStorage.setItem('pendingSubscriptionType', syncResult.pendingSubscriptionType);
                   }
+                } else {
+                  // Fallback a la verificación normal
+                  return refreshUserSubscription(data.email);
                 }
-                
-                if (!data.subscription && !finalSubscription.hasActiveSubscription && finalSubscription.subscriptionType === 'Amateur') {
-                    console.log("UserProfile (Token Effect): New user or no active sub confirmed, ensuring Amateur.");
-                } else if (!data.subscription && finalSubscription.hasActiveSubscription && finalSubscription.subscriptionType !== 'Amateur') {
-                    console.log("UserProfile (Token Effect): New user, but recent payment detected, keeping premium plan.");
+              })
+              .then(subInfo => {
+                if (subInfo) {
+                  setSubscriptionInfo(subInfo);
+                  // Update the cache
+                  localStorage.setItem('subscriptionInfo', JSON.stringify(subInfo));
                 }
-
-                console.log(`UserProfile (Token Effect): Final subscription state determined:`, finalSubscription);
-                setSubscriptionInfo(finalSubscription);
-                localStorage.setItem('subscriptionInfo', JSON.stringify(finalSubscription));
               })
               .catch(err => {
-                console.error("UserProfile (Token Effect): Error in refreshUserSubscription:", err);
-                if (cachedSubState && cachedSubState.hasActiveSubscription && cachedSubState.subscriptionType !== 'Amateur') {
-                  console.log("UserProfile (Token Effect): Error refreshing, using cached premium subscription:", cachedSubState);
-                  setSubscriptionInfo(cachedSubState);
-                  localStorage.setItem('subscriptionInfo', JSON.stringify(cachedSubState));
-                } else {
-                  console.log("UserProfile (Token Effect): Error refreshing, no valid cache, defaulting to Amateur.");
-                  const errorFallbackSub = { hasActiveSubscription: false, subscriptionType: 'Amateur' };
-                  setSubscriptionInfo(errorFallbackSub);
-                  localStorage.setItem('subscriptionInfo', JSON.stringify(errorFallbackSub));
-                }
+                console.error("Error checking subscription:", err);
+                
+                // Fallback to regular check if refresh fails
+                checkUserSubscription(data.email)
+                  .then(regularInfo => {
+                    setSubscriptionInfo(regularInfo);
+                  })
+                  .catch(regularErr => {
+                    console.error("Error with fallback subscription check:", regularErr);
+                  });
               })
               .finally(() => {
                 setLoadingSubscription(false);
@@ -209,11 +195,11 @@ const UserProfile = () => {
           }
         })
         .catch((error) => {
-          console.error("UserProfile: Error fetching user data:", error);
+          console.error("Error fetching user data:", error);
           setError("Failed to load user data.");
         });
     }
-  }, [token, isClient]);
+  }, [token]);
 
   // Inicializamos AOS cuando el componente se monta
   useEffect(() => {
@@ -229,10 +215,32 @@ const UserProfile = () => {
     try {
       // Clear cache first to ensure we get fresh data
       clearSubscriptionCache();
-      const freshData = await refreshUserSubscription(userData.email);
-      setSubscriptionInfo(freshData);
-      if (isClient) {
+      localStorage.removeItem('pendingSubscriptionType');
+      
+      // Use force sync to get the most accurate data from Stripe
+      const syncResult = await forceSyncSubscription(userData.email);
+      
+      if (syncResult.success) {
+        if (syncResult.subscriptionInfo) {
+          setSubscriptionInfo(syncResult.subscriptionInfo);
+          localStorage.setItem('subscriptionInfo', JSON.stringify(syncResult.subscriptionInfo));
+        }
+        
+        // Update pending subscription type if available
+        if (syncResult.pendingSubscriptionType) {
+          setPendingSubscriptionType(syncResult.pendingSubscriptionType);
+          localStorage.setItem('pendingSubscriptionType', syncResult.pendingSubscriptionType);
+        } else {
+          setPendingSubscriptionType(null);
+        }
+      } else {
+        // Fallback to regular refresh if force sync fails
+        const freshData = await refreshUserSubscription(userData.email);
+        setSubscriptionInfo(freshData);
         localStorage.setItem('subscriptionInfo', JSON.stringify(freshData));
+        
+        // Clear pending subscription type since we don't have that info from regular refresh
+        setPendingSubscriptionType(null);
       }
     } catch (err) {
       console.error("Error refreshing subscription:", err);
@@ -562,11 +570,17 @@ const UserProfile = () => {
                               <span className="font-medium">
                                 {subscriptionInfo.hasActiveSubscription 
                                   ? 'Suscripción Activa' 
-                                  : 'Sin Suscripción Activa'}
+                                  : pendingSubscriptionType 
+                                    ? 'Suscripción Pendiente'
+                                    : 'Sin Suscripción Activa'}
                               </span>
-          </div>
+                            </div>
                             <p className="text-sm mb-3">
-                              Plan: <span className="font-semibold">{subscriptionInfo.subscriptionType}</span>
+                              Plan: <span className="font-semibold">
+                                {pendingSubscriptionType && !subscriptionInfo.hasActiveSubscription
+                                  ? `${pendingSubscriptionType} (Pendiente)` 
+                                  : subscriptionInfo.subscriptionType}
+                              </span>
                             </p>
                             {!subscriptionInfo.hasActiveSubscription && (
                               <div className="mt-2">
@@ -898,11 +912,17 @@ const UserProfile = () => {
                           <span className="font-medium">
                             {subscriptionInfo.hasActiveSubscription 
                               ? 'Suscripción Activa' 
-                              : 'Sin Suscripción Activa'}
+                              : pendingSubscriptionType 
+                                ? 'Suscripción Pendiente'
+                                : 'Sin Suscripción Activa'}
                           </span>
                         </div>
                         <p className="text-sm mb-3">
-                          Plan actual: <span className="font-semibold">{subscriptionInfo.subscriptionType}</span>
+                          Plan: <span className="font-semibold">
+                            {pendingSubscriptionType && !subscriptionInfo.hasActiveSubscription
+                              ? `${pendingSubscriptionType} (Pendiente)` 
+                              : subscriptionInfo.subscriptionType}
+                          </span>
                         </p>
                         
                         {/* Cancel message */}

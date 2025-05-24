@@ -1,11 +1,6 @@
 import { getSubscriptionName } from '../helpers/helpersSubs';
 
-// En desarrollo, usa la API local; en producción usa la URL configurada
-const apiUrl = process.env.NODE_ENV === 'development' 
-  ? 'http://localhost:3001' 
-  : process.env.NEXT_PUBLIC_API_URL || 'https://futbolink.onrender.com';
-
-console.log('API URL being used:', apiUrl);
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export interface SubscriptionInfo {
   hasActiveSubscription: boolean;
@@ -17,10 +12,17 @@ export interface CancelSubscriptionResult {
   message: string;
 }
 
+export interface SyncSubscriptionResult {
+  success: boolean;
+  message: string;
+  subscriptionInfo?: SubscriptionInfo;
+  pendingSubscriptionType?: string;
+}
+
 /**
  * Checks if a user has an active subscription
  * @param email User's email
- * @returns Object with subscription status and type (amateur, semiprofesional, profesional)
+ * @returns Object with subscription status and type
  */
 export const checkUserSubscription = async (email: string): Promise<SubscriptionInfo> => {
   try {
@@ -31,12 +33,14 @@ export const checkUserSubscription = async (email: string): Promise<Subscription
     }
     
     const data = await response.json();
+    const subscriptionType = data.subscriptionType || 'Amateur';
     
-    // IMPORTANT: Trust the server's hasActiveSubscription flag
-    // Do not override it based on subscription type
+    // ONLY trust the backend's hasActiveSubscription field
+    const isActive = data.hasActiveSubscription === true;
+    
     return {
-      hasActiveSubscription: data.hasActiveSubscription === true,
-      subscriptionType: data.subscriptionType || 'Amateur'
+      hasActiveSubscription: isActive,
+      subscriptionType: subscriptionType
     };
   } catch (error) {
     console.error('Error checking subscription:', error);
@@ -48,57 +52,24 @@ export const checkUserSubscription = async (email: string): Promise<Subscription
 };
 
 /**
- * Clears the subscription info from localStorage
- */
-export const clearSubscriptionCache = () => {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem('subscriptionInfo');
-    console.log('Subscription cache cleared');
-  }
-};
-
-/**
  * Force refresh subscription status from server (bypassing cache)
  * @param email User's email
  * @returns Updated subscription information
  */
 export const refreshUserSubscription = async (email: string): Promise<SubscriptionInfo> => {
   try {
-    console.log(`Refreshing subscription for: ${email}`);
-    
-    // Verificar si estamos en la página de éxito de pago
-    const isInPaymentSuccessPage = 
-      typeof window !== 'undefined' && 
-      window.location.pathname.includes('/payment/success');
-    
-    // Si estamos en la página de éxito de pago, obtener el plan de la URL
-    let planFromUrl = '';
-    if (isInPaymentSuccessPage && typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      planFromUrl = urlParams.get('plan') || 'Semiprofesional';
-      console.log(`Detected payment success page with plan: ${planFromUrl}`);
-    }
-    
     // Add timestamp to prevent caching
     const timestamp = new Date().getTime();
-    
-    // Use AbortController to set a timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
-    
-    // Configuración básica de fetch que funciona en todos los entornos
     const response = await fetch(
       `${apiUrl}/payments/subscription/check?email=${encodeURIComponent(email)}&_=${timestamp}`,
       {
-        method: 'GET',
         headers: {
-          'Content-Type': 'application/json'
-        },
-        signal: controller.signal
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
       }
     );
-    
-    clearTimeout(timeoutId);
     
     if (!response.ok) {
       throw new Error(`Error refreshing subscription: ${response.status}`);
@@ -107,64 +78,59 @@ export const refreshUserSubscription = async (email: string): Promise<Subscripti
     const data = await response.json();
     console.log('Refreshed subscription data:', data);
     
-    // Si estamos en la página de éxito de pago, forzar el plan de la URL
-    if (isInPaymentSuccessPage && planFromUrl) {
-      console.log(`Overriding subscription type to: ${planFromUrl} from URL parameter`);
-      return {
-        hasActiveSubscription: true,
-        subscriptionType: planFromUrl
-      };
-    }
+    const subscriptionType = data.subscriptionType || 'Amateur';
     
-    // Caso normal: confiar en los datos del servidor
+    // ONLY trust the backend's hasActiveSubscription field
+    const isActive = data.hasActiveSubscription === true;
+    
     return {
-      hasActiveSubscription: data.hasActiveSubscription === true,
-      subscriptionType: data.subscriptionType || 'Amateur'
+      hasActiveSubscription: isActive,
+      subscriptionType: subscriptionType
     };
   } catch (error) {
     console.error('Error refreshing subscription:', error);
-    
-    // Verificar si estamos en la página de éxito de pago
-    const isInPaymentSuccessPage = 
-      typeof window !== 'undefined' && 
-      window.location.pathname.includes('/payment/success');
-    
-    // Si estamos en la página de éxito de pago, obtener el plan de la URL
-    if (isInPaymentSuccessPage && typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const planFromUrl = urlParams.get('plan') || 'Semiprofesional';
-      console.log(`Error occurred but in payment success page. Using plan from URL: ${planFromUrl}`);
-      
-      return {
-        hasActiveSubscription: true,
-        subscriptionType: planFromUrl
-      };
-    }
-    
-    // Solo devolver datos simulados si estamos explícitamente en contexto de pago exitoso
-    // Verificar si estamos en la URL de éxito de pago
-    if (process.env.NODE_ENV === 'development' && 
-        typeof window !== 'undefined' && 
-        window.location.pathname.includes('/payment/success')) {
-      console.log('DEV MODE payment success page: Returning simulated subscription state');
-      
-      // Obtener la información del usuario para determinar si es un usuario nuevo o existente
-      const storedUser = localStorage.getItem('user');
-      const isExistingUser = storedUser && JSON.parse(storedUser).id;
-      
-      // Solo simular suscripción premium si es un usuario existente
-      if (isExistingUser) {
-        return {
-          hasActiveSubscription: true,
-          subscriptionType: 'Semiprofesional'
-        };
-      }
-    }
-    
-    // Default para usuarios nuevos y cualquier otro contexto: Amateur sin suscripción activa
     return {
       hasActiveSubscription: false,
       subscriptionType: 'Amateur'
+    };
+  }
+};
+
+/**
+ * Force synchronize subscription status with Stripe
+ * This makes a direct call to Stripe to verify the subscription status
+ * @param email User's email
+ * @returns Result of the synchronization
+ */
+export const forceSyncSubscription = async (email: string): Promise<SyncSubscriptionResult> => {
+  try {
+    const response = await fetch(`${apiUrl}/payments/subscription/force-sync`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Error ${response.status}: No se pudo sincronizar la suscripción`);
+    }
+    
+    const result = await response.json();
+    
+    // Update the local storage with the new subscription info
+    if (result.success && result.subscriptionInfo) {
+      clearSubscriptionCache();
+      localStorage.setItem('subscriptionInfo', JSON.stringify(result.subscriptionInfo));
+    }
+    
+    return result;
+  } catch (error: any) {
+    console.error('Error syncing subscription with Stripe:', error);
+    return {
+      success: false,
+      message: error.message || 'Error al sincronizar la suscripción. Por favor, intenta de nuevo más tarde.'
     };
   }
 };
@@ -176,6 +142,18 @@ export const refreshUserSubscription = async (email: string): Promise<Subscripti
  */
 export const getSubscriptionTypeFromPriceId = (priceId: string): string => {
   return getSubscriptionName(priceId);
+};
+
+/**
+ * Clears the cached subscription data from localStorage
+ */
+export const clearSubscriptionCache = (): void => {
+  try {
+    localStorage.removeItem('subscriptionInfo');
+    console.log('Subscription cache cleared');
+  } catch (error) {
+    console.error('Error clearing subscription cache:', error);
+  }
 };
 
 /**

@@ -59,8 +59,7 @@ function Subs() {
           body: JSON.stringify({ 
             priceId,
             customerEmail: userEmail,
-            // Asegurar que el plan esté siempre incluido en la URL
-            successUrl: `${window.location.origin}/payment/success?session_id={CHECKOUT_SESSION_ID}&email=${encodeURIComponent(userEmail)}&plan=${encodeURIComponent(option.title)}`, 
+            successUrl: `${window.location.origin}/payment/success`, 
             cancelUrl: `${window.location.origin}/payment/cancel`,
             description: "Suscripción a FutboLink",
             ...(productId && { productId }), // Solo incluir productId si existe

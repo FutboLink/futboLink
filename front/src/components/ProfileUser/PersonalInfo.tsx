@@ -49,21 +49,16 @@ useEffect(() => {
 
   // Check for cached subscription data
   useEffect(() => {
-    let initialSubscription: SubscriptionInfo = { hasActiveSubscription: false, subscriptionType: 'Amateur' };
     try {
       const cachedSubscription = localStorage.getItem('subscriptionInfo');
       if (cachedSubscription) {
-        const parsedData: SubscriptionInfo = JSON.parse(cachedSubscription);
-        console.log('PersonalInfo: Found cached subscription data:', parsedData);
-        if (parsedData.hasActiveSubscription && parsedData.subscriptionType !== 'Amateur') {
-          initialSubscription = parsedData;
-          console.log('PersonalInfo: Using cached premium subscription as initial state:', initialSubscription);
-        }
+        const parsedData = JSON.parse(cachedSubscription);
+        console.log('Found cached subscription data:', parsedData);
+        setSubscriptionInfo(parsedData);
       }
     } catch (err) {
-      console.error('PersonalInfo: Error reading cached subscription data:', err);
+      console.error('Error reading cached subscription data:', err);
     }
-    setSubscriptionInfo(initialSubscription); // Establecer estado inicial
   }, []);
 
   // Fetch user data when token changes
@@ -72,82 +67,30 @@ useEffect(() => {
       setLoading(true);
       fetchUserData(token)
         .then((data) => {
-          setFetchedProfileData(data);
-          console.log('PersonalInfo (Token Effect): Fetched user data:', data);
-
+          setFetchedProfileData(data); // Ensure socialMedia data is included here
+          
+          // After fetching user data, check subscription status
           if (data.email) {
             setLoadingSubscription(true);
-            const userEmail = data.email;
-
-            // 1. Leer el estado MÁS RECIENTE de localStorage
-            let cachedSubState: SubscriptionInfo | null = null;
-            try {
-              const cached = localStorage.getItem('subscriptionInfo');
-              if (cached) {
-                cachedSubState = JSON.parse(cached);
-                console.log(`PersonalInfo (Token Effect): Read from localStorage before server call:`, cachedSubState);
-              }
-            } catch (e) {
-              console.error('PersonalInfo (Token Effect): Error reading localStorage before server call:', e);
-            }
-
-            // Si el cache ya tiene un plan premium, lo usamos para la UI mientras se verifica con el servidor
-            if (cachedSubState && cachedSubState.hasActiveSubscription && cachedSubState.subscriptionType !== 'Amateur') {
-              console.log("PersonalInfo (Token Effect): Temporarily setting UI to cached premium state:", cachedSubState);
-              setSubscriptionInfo(cachedSubState);
-            }
-
-            // 2. Llamar a refreshUserSubscription (que hablará con el backend)
-            refreshUserSubscription(userEmail)
-              .then(subInfoFromServer => {
-                console.log(`PersonalInfo (Token Effect): Subscription from server (refreshUserSubscription):`, subInfoFromServer);
-
-                let finalSubscription = subInfoFromServer; // Por defecto, confiar en el servidor
-
-                // 3. Lógica de decisión:
-                // Si localStorage (leído de nuevo por si acaso, o usamos cachedSubState) tiene una suscripción premium activa
-                // Y es diferente a lo que dice el servidor (o el servidor dice que no está activa pero localStorage sí)
-                // entonces priorizar localStorage porque asumimos que es un pago reciente.
-                let currentCachedSub: SubscriptionInfo | null = null;
-                try {
-                    const cached = localStorage.getItem('subscriptionInfo');
-                    if (cached) currentCachedSub = JSON.parse(cached);
-                } catch(e) { /* ignore */ }
-
-                if (currentCachedSub && currentCachedSub.hasActiveSubscription && currentCachedSub.subscriptionType !== 'Amateur') {
-                  if (currentCachedSub.subscriptionType !== subInfoFromServer.subscriptionType || !subInfoFromServer.hasActiveSubscription) {
-                    console.log(`PersonalInfo (Token Effect): Overriding server info with localStorage. localStorage: ${JSON.stringify(currentCachedSub)}, Server: ${JSON.stringify(subInfoFromServer)}`);
-                    finalSubscription = currentCachedSub;
-                  }
-                }
-                
-                // Asegurar que un usuario nuevo sin info de pago real sea Amateur
-                // data.subscription es el campo de la entidad User, si es null/undefined es nuevo sin sub en BD
-                if (!data.subscription && !finalSubscription.hasActiveSubscription && finalSubscription.subscriptionType === 'Amateur') {
-                    console.log("PersonalInfo (Token Effect): New user or no active sub confirmed, ensuring Amateur.");
-                    // Ya finalSubscription sería {hasActiveSubscription: false, subscriptionType: 'Amateur'} por el servidor o el default
-                } else if (!data.subscription && finalSubscription.hasActiveSubscription && finalSubscription.subscriptionType !== 'Amateur') {
-                    // Este caso es si el usuario es nuevo (sin data.subscription) pero localStorage/pago reciente lo puso premium
-                    console.log("PersonalInfo (Token Effect): New user, but recent payment detected, keeping premium plan from localStorage/payment.");
-                }
-
-                console.log(`PersonalInfo (Token Effect): Final subscription state determined:`, finalSubscription);
-                setSubscriptionInfo(finalSubscription);
-                localStorage.setItem('subscriptionInfo', JSON.stringify(finalSubscription));
+            
+            // Use the refresh function to ensure we get the latest data
+            refreshUserSubscription(data.email)
+              .then(subInfo => {
+                setSubscriptionInfo(subInfo);
+                // Update the cache
+                localStorage.setItem('subscriptionInfo', JSON.stringify(subInfo));
               })
               .catch(err => {
-                console.error("PersonalInfo (Token Effect): Error in refreshUserSubscription:", err);
-                // En caso de error al refrescar, usar el cachedSubState si es premium, sino Amateur.
-                if (cachedSubState && cachedSubState.hasActiveSubscription && cachedSubState.subscriptionType !== 'Amateur') {
-                  console.log("PersonalInfo (Token Effect): Error refreshing, using cached premium subscription:", cachedSubState);
-                  setSubscriptionInfo(cachedSubState);
-                  localStorage.setItem('subscriptionInfo', JSON.stringify(cachedSubState));
-                } else {
-                  console.log("PersonalInfo (Token Effect): Error refreshing, no valid cache, defaulting to Amateur.");
-                  const errorFallbackSub = { hasActiveSubscription: false, subscriptionType: 'Amateur' };
-                  setSubscriptionInfo(errorFallbackSub);
-                  localStorage.setItem('subscriptionInfo', JSON.stringify(errorFallbackSub));
-                }
+                console.error("Error checking subscription:", err);
+                
+                // Fallback to regular check if refresh fails
+                checkUserSubscription(data.email)
+                  .then(regularInfo => {
+                    setSubscriptionInfo(regularInfo);
+                  })
+                  .catch(regularErr => {
+                    console.error("Error with fallback subscription check:", regularErr);
+                  });
               })
               .finally(() => {
                 setLoadingSubscription(false);
@@ -155,7 +98,7 @@ useEffect(() => {
           }
         })
         .catch((err) => {
-          console.error("PersonalInfo: Error al cargar los datos:", err);
+          console.error("Error al cargar los datos:", err);
           setError("Error al cargar los datos.");
         })
         .finally(() => {

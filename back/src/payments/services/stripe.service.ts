@@ -686,7 +686,13 @@ export class StripeService {
                        payment.subscriptionStatus === 'incomplete' ||
                        payment.subscriptionStatus === 'past_due');
       
-      // Determine subscription type
+      // Si la suscripción NO está activa, SIEMPRE devolver Amateur
+      if (!isActive) {
+        this.logger.log(`Subscription for ${userEmail} is inactive, returning Amateur type regardless of stored value`);
+        return { hasActiveSubscription: false, subscriptionType: 'Amateur' };
+      }
+      
+      // Solo determinar el tipo de suscripción si está activa
       let subscriptionType = 'Amateur';
       if (payment.subscriptionType) {
         subscriptionType = payment.subscriptionType;
@@ -704,14 +710,11 @@ export class StripeService {
         this.logger.log(`Mapped price ID ${payment.stripePriceId} to subscription type: ${subscriptionType}`);
       }
       
-      // Return subscription type based on active status - always return 'Amateur' if not active
-      const result = { 
-        hasActiveSubscription: isActive,
-        subscriptionType: isActive ? subscriptionType : 'Amateur'
+      this.logger.log(`Subscription for ${userEmail} is active with type: ${subscriptionType}`);
+      return { 
+        hasActiveSubscription: true,
+        subscriptionType: subscriptionType
       };
-      
-      this.logger.log(`Subscription for ${userEmail} is ${isActive ? 'active' : 'inactive'} (${result.subscriptionType})`);
-      return result;
     } catch (error) {
       this.logger.error(`Error checking subscription for ${userEmail}: ${error.message}`, error);
       return { hasActiveSubscription: false, subscriptionType: 'Amateur' }; // Fail closed - if there's an error, assume no subscription

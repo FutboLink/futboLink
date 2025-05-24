@@ -46,18 +46,14 @@ function Subs() {
       // Determinar el tipo de plan basado en el nombre del plan
       const planName = option.title;
       
-      // En vez de hacer una petición a Stripe, redirigimos directamente a la página de éxito
-      // con el parámetro del tipo de plan
-      window.location.href = `${window.location.origin}/payment/success?plan=${planName}`;
-      
-      return; // Terminamos aquí, ya no necesitamos hacer la petición a Stripe
-      
-      /* El código de abajo ya no se ejecutará
       console.log(`Creating subscription with price ID: ${priceId}`);
       if (productId) {
         console.log(`Using product ID: ${productId}`);
       }
       console.log(`API URL: ${apiUrl}/payments/subscription`);
+      
+      // Crear la URL de éxito que incluye el parámetro del plan
+      const successUrl = `${window.location.origin}/payment/success?plan=${planName}`;
       
       const response = await fetch(
         `${apiUrl}/payments/subscription`,
@@ -69,7 +65,7 @@ function Subs() {
           body: JSON.stringify({ 
             priceId,
             customerEmail: userEmail,
-            successUrl: `${window.location.origin}/payment/success`, 
+            successUrl: successUrl, // URL modificada con el parámetro del plan
             cancelUrl: `${window.location.origin}/payment/cancel`,
             description: "Suscripción a FutboLink",
             ...(productId && { productId }), // Solo incluir productId si existe
@@ -92,7 +88,6 @@ function Subs() {
         console.error("Response data:", data);
         throw new Error("No se recibió URL de pago");
       }
-      */
     } catch (error) {
       console.error("Error al crear la sesión de pago:", error);
       alert(`Error al procesar el pago: ${error instanceof Error ? error.message : 'Desconocido'}. Por favor, inténtelo de nuevo más tarde.`);

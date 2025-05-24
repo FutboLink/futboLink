@@ -89,13 +89,12 @@ export default function SubsSimple() {
         userEmail = 'usuario@example.com';
       }
       
-      console.log('Using email for subscription:', userEmail);
+      // Tipo de plan
+      const planName = 'Profesional';
       
-      // En lugar de crear una sesión de Stripe, redirigimos directamente a la página de éxito
-      // con el parámetro del tipo de plan
-      window.location.href = `${window.location.origin}/payment/success?plan=Profesional`;
+      // URL de éxito con el parámetro del plan
+      const successUrl = `${window.location.origin}/payment/success?plan=${planName}`;
       
-      /* El código antiguo de integración con Stripe ya no se usa
       console.log('Creating subscription with email:', userEmail);
       setDebugInfo(`Using email: ${userEmail}`);
       
@@ -110,7 +109,7 @@ export default function SubsSimple() {
           priceId: 'price_1R7MaqGbCHvHfqXFimcCzvlo',
           productId: 'prod_S1PP1zfIAIwheC',
           description: 'FutboLink Premium Subscription',
-          successUrl: `${window.location.origin}/payment/success`,
+          successUrl: successUrl, // URL modificada con el parámetro del plan
           cancelUrl: `${window.location.origin}/payment/cancel`,
         }),
       });
@@ -133,7 +132,6 @@ export default function SubsSimple() {
       } else {
         throw new Error('No checkout URL in response');
       }
-      */
     } catch (err) {
       console.error('Subscription error:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');

@@ -876,8 +876,8 @@ export class StripeService {
       if (!payment) {
         this.logger.log(`No subscription found for user: ${userEmail}`);
         return { 
-          success: false, 
-          message: 'No se encontró ningún registro de suscripción para este usuario.',
+          success: true, 
+          message: 'Usuario sin suscripción activa. Estado: Amateur.',
           subscriptionInfo: { 
             hasActiveSubscription: false, 
             subscriptionType: 'Amateur' 
@@ -972,12 +972,18 @@ export class StripeService {
   }
 
   /**
-   * Manually updates a subscription status in the database without checking Stripe
-   * This is used to force activate a subscription after payment success
+   * Activates a user's subscription without consulting Stripe (hardcoded update)
+   * This method directly updates the database to mark a subscription as active
    * @param userEmail The email of the user whose subscription to activate
-   * @returns Object with success status and message
+   * @param subscriptionType The type of subscription to activate
+   * @param sessionId Optional session ID to link the activation to a specific payment
+   * @returns Object with success status, message, and subscription info
    */
-  async manuallyActivateSubscription(userEmail: string): Promise<{ 
+  async activateSubscriptionHardcoded(
+    userEmail: string, 
+    subscriptionType: string, 
+    sessionId?: string
+  ): Promise<{ 
     success: boolean, 
     message: string,
     subscriptionInfo?: {
@@ -986,53 +992,82 @@ export class StripeService {
     }
   }> {
     try {
-      this.logger.log(`Manually activating subscription for user: ${userEmail}`);
+      this.logger.log(`Activating subscription hardcoded for user: ${userEmail}, type: ${subscriptionType}`);
       
-      // Find the most recent payment for this user's subscription
-      const payment = await this.paymentRepo.findOne({
-        where: {
-          customerEmail: userEmail,
-          type: PaymentType.SUBSCRIPTION,
-        },
-        order: {
-          updatedAt: 'DESC' // Get the most recent one
-        }
-      });
+      // Find the payment record to update
+      let payment: Payment | null = null;
+      
+      if (sessionId) {
+        // First try to find by session ID if provided
+        payment = await this.paymentRepo.findOne({
+          where: {
+            stripeSessionId: sessionId,
+            customerEmail: userEmail,
+            type: PaymentType.SUBSCRIPTION,
+          }
+        });
+      }
       
       if (!payment) {
-        this.logger.log(`No subscription found for user: ${userEmail}`);
+        // If not found by session ID or no session ID provided, find the most recent subscription payment
+        payment = await this.paymentRepo.findOne({
+          where: {
+            customerEmail: userEmail,
+            type: PaymentType.SUBSCRIPTION,
+          },
+          order: {
+            updatedAt: 'DESC' // Get the most recent one
+          }
+        });
+      }
+      
+      if (!payment) {
+        this.logger.log(`No subscription payment found for user: ${userEmail}`);
         return { 
           success: false, 
-          message: 'No se encontró ningún registro de suscripción para este usuario.'
+          message: 'No se encontró ningún registro de pago de suscripción para este usuario.'
         };
       }
       
-      // Manually set the subscription as active
+      // Map subscription type string to enum
+      let subscriptionPlan: SubscriptionPlan;
+      switch (subscriptionType.toLowerCase()) {
+        case 'semiprofesional':
+          subscriptionPlan = SubscriptionPlan.SEMIPROFESIONAL;
+          break;
+        case 'profesional':
+          subscriptionPlan = SubscriptionPlan.PROFESIONAL;
+          break;
+        case 'amateur':
+        default:
+          subscriptionPlan = SubscriptionPlan.AMATEUR;
+          break;
+      }
+      
+      // Update the payment record to mark subscription as active
       payment.status = PaymentStatus.SUCCEEDED;
       payment.subscriptionStatus = 'active';
-      
-      // Set the last payment date to now
+      payment.subscriptionType = subscriptionPlan;
       payment.lastPaymentDate = new Date();
       
       // Save the updated payment record
       await this.paymentRepo.save(payment);
       
-      this.logger.log(`Manually activated subscription for ${userEmail}: type=${payment.subscriptionType}`);
+      this.logger.log(`Successfully activated subscription for ${userEmail}: ${subscriptionType}`);
       
-      // Return updated subscription info
       return {
         success: true,
-        message: 'Suscripción activada manualmente con éxito.',
+        message: `Suscripción ${subscriptionType} activada exitosamente.`,
         subscriptionInfo: {
           hasActiveSubscription: true,
-          subscriptionType: payment.subscriptionType || 'Amateur'
+          subscriptionType: subscriptionType
         }
       };
     } catch (error) {
       this.logger.error(`Error activating subscription for ${userEmail}: ${error.message}`, error);
       return { 
         success: false, 
-        message: `Error al activar manualmente la suscripción: ${error.message}`
+        message: `Error al activar la suscripción: ${error.message}`
       };
     }
   }

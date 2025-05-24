@@ -199,11 +199,11 @@ export class PaymentsController {
     return this.stripeService.forceSubscriptionSync(email);
   }
 
-  @Post('subscription/manual-activate')
-  @ApiOperation({ summary: 'Manually activate a subscription without checking Stripe' })
+  @Post('subscription/activate')
+  @ApiOperation({ summary: 'Activate subscription after successful payment (hardcoded update)' })
   @ApiResponse({ 
     status: HttpStatus.OK, 
-    description: 'Subscription manual activation result',
+    description: 'Subscription activation result',
     schema: {
       type: 'object',
       properties: {
@@ -221,11 +221,15 @@ export class PaymentsController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid input data' })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Error activating subscription' })
-  async manuallyActivateSubscription(@Body('email') email: string) {
-    if (!email) {
+  async activateSubscription(@Body() body: { email: string, subscriptionType: string, sessionId?: string }) {
+    if (!body.email) {
       throw new BadRequestException('Email is required');
     }
     
-    return this.stripeService.manuallyActivateSubscription(email);
+    if (!body.subscriptionType) {
+      throw new BadRequestException('Subscription type is required');
+    }
+    
+    return this.stripeService.activateSubscriptionHardcoded(body.email, body.subscriptionType, body.sessionId);
   }
 } 

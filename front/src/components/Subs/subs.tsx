@@ -37,32 +37,7 @@ function Subs() {
 
     try {
       // Get the user email from local storage or context
-      const userEmailFromStorage = localStorage.getItem('userEmail');
-      let userEmail = 'usuario@example.com'; // Valor predeterminado como fallback
-      
-      // Si hay email en localStorage, usarlo
-      if (userEmailFromStorage) {
-        userEmail = userEmailFromStorage;
-      } else {
-        // Intentar obtenerlo del objeto user
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-          try {
-            const userData = JSON.parse(storedUser);
-            if (userData.email) {
-              userEmail = userData.email;
-              // Guardar el email para tenerlo disponible en la página de éxito
-              localStorage.setItem('userEmail', userEmail);
-            }
-          } catch (e) {
-            console.error('Error al obtener email del usuario:', e);
-          }
-        }
-      }
-      
-      // Guardar también el tipo de suscripción pendiente
-      const subscriptionType = subscriptionOptions[index].title;
-      localStorage.setItem('pendingSubscriptionType', subscriptionType);
+      const userEmail = localStorage.getItem('userEmail') || 'usuario@example.com';
       
       // Get the product ID if available
       const option = subscriptionOptions[index];
@@ -84,7 +59,7 @@ function Subs() {
           body: JSON.stringify({ 
             priceId,
             customerEmail: userEmail,
-            successUrl: `${window.location.origin}/payment/success?session_id={CHECKOUT_SESSION_ID}`, 
+            successUrl: `${window.location.origin}/payment/success`, 
             cancelUrl: `${window.location.origin}/payment/cancel`,
             description: "Suscripción a FutboLink",
             ...(productId && { productId }), // Solo incluir productId si existe

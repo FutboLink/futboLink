@@ -393,19 +393,58 @@ export const contact = async (email: string, name: string, mensaje: string) => {
   }
 };
 
-export const getCv = async (filename: string) => {
+export const getCv = async (cvPath: string) => {
   try {
-    const response = await fetch(`${apiUrl}/user/cv/${filename}`, {
-      method: "GET",
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch CV");
+    // Si está vacío o es nulo, devolver error
+    if (!cvPath) {
+      throw new Error("CV path is empty or null");
     }
+    
+    // 1. Comprobar si ya es una URL completa (por ejemplo, de Cloudinary)
+    if (cvPath.startsWith('http://') || cvPath.startsWith('https://')) {
+      // Si ya es una URL completa, devolverla directamente
+      return cvPath;
+    }
+    
+    // 2. Comprobar si es una URL de Cloudinary sin el protocolo
+    if (cvPath.includes('cloudinary.com') || cvPath.includes('res.cloudinary.com')) {
+      return `https://${cvPath.replace(/^\/\//, '')}`;
+    }
+    
+    // 3. Si parece ser un ID o path de Cloudinary
+    if (cvPath.includes('upload/') || cvPath.includes('/pdf/')) {
+      // Intentar construir una URL de Cloudinary
+      return `https://res.cloudinary.com/dagcofbhm/${cvPath.startsWith('/') ? cvPath.substring(1) : cvPath}`;
+    }
+    
+    // 4. Si es solo un nombre de archivo, intentar acceder a través del endpoint
+    try {
+      // Extraer solo el nombre del archivo si contiene una ruta
+      const filename = cvPath.split('/').pop() || cvPath;
+      
+      const response = await fetch(`${apiUrl}/user/cv/${filename}`, {
+        method: "GET",
+      });
 
-    const data = await response.blob(); // Leemos la respuesta como un archivo binario
-    const fileURL = URL.createObjectURL(data); // Creamos una URL para el archivo
-    return fileURL; // Retornamos la URL que puede ser utilizada para mostrar el CV
+      if (!response.ok) {
+        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.blob(); // Leemos la respuesta como un archivo binario
+      const fileURL = URL.createObjectURL(data); // Creamos una URL para el archivo
+      return fileURL; // Retornamos la URL que puede ser utilizada para mostrar el CV
+    } catch (endpointError) {
+      console.warn("Endpoint error:", endpointError);
+      
+      // 5. Si todo lo anterior falla, intentar como último recurso una URL directa al bucket/almacenamiento
+      // Esto dependerá de cómo estén configurados tus servicios de almacenamiento
+      if (cvPath.includes('/')) {
+        return `https://storage.futbolink.com/${cvPath}`;
+      }
+      
+      // Si no podemos determinar cómo acceder al CV, lanzar el error original
+      throw endpointError;
+    }
   } catch (error) {
     console.error("Error fetching CV:", error);
     throw error;

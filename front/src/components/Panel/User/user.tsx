@@ -307,20 +307,42 @@ const UserProfile = () => {
     
     try {
       setLoadingCv(true);
-      // Extraer el nombre del archivo de la URL
-      const filename = userData.cv.split('/').pop();
-      if (!filename) {
-        console.error("No se pudo obtener el nombre del archivo");
+      console.log("Intentando abrir CV:", userData.cv);
+      
+      // Si la URL del CV ya es completa, abrirla directamente
+      if (userData.cv.startsWith('http://') || userData.cv.startsWith('https://')) {
+        console.log("CV es una URL completa, abriéndola directamente");
+        window.open(userData.cv, '_blank');
         return;
       }
       
       // Usar getCv para obtener la URL accesible del CV
-      const fileURL = await getCv(filename);
+      console.log("Obteniendo URL para CV:", userData.cv);
+      const fileURL = await getCv(userData.cv);
+      console.log("URL obtenida:", fileURL);
+      
       // Abrir el CV en una nueva pestaña
       window.open(fileURL, '_blank');
     } catch (error) {
       console.error("Error al abrir el CV:", error);
-      alert("No se pudo abrir el CV. Por favor, intenta nuevamente más tarde.");
+      
+      // Determinar el mensaje de error según el tipo de error
+      let errorMessage = "No se pudo abrir el CV.";
+      
+      if (error instanceof Error) {
+        if (error.message.includes("404") || error.message.includes("not found")) {
+          errorMessage = "El archivo CV no se encuentra en el servidor.";
+        } else if (error.message.includes("Failed to fetch")) {
+          errorMessage = "Error de conexión. Por favor, verifica tu conexión a internet.";
+        } else if (error.message.includes("empty or null")) {
+          errorMessage = "La ruta del CV está vacía o no es válida.";
+        } else {
+          errorMessage += " " + error.message;
+        }
+      }
+      
+      // Mostrar un mensaje de error más detallado
+      alert(errorMessage);
     } finally {
       setLoadingCv(false);
     }

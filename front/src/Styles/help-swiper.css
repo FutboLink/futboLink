@@ -1,0 +1,21 @@
+.swiper-button-prev, .swiper-button-next{
+  padding: 6px;
+  background-color: rgba(250, 235, 215, 0.24);
+  border-radius: 50%;
+  height: 2rem;
+  width: 2rem;
+  transition: color 3s ease-in-out;
+  text-align: center;
+}
+.swiper-button-prev::after, .swiper-button-next::after{
+  font-size: 1.2rem !important;
+  color: #eab308;
+}
+
+.swiper-button-prev:hover, .swiper-button-next:hover{
+  background-color: rgb(250, 235, 215);
+}
+
+.swiper-pagination-bullet-active{
+  background-color: #eab308 !important;
+}

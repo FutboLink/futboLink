@@ -302,13 +302,6 @@ const UserProfile = () => {
     }
   }, [isClient]); // Add isClient as dependency
 
-  // Función para visualizar el PDF usando el visor de Google
-  const viewPdfWithGoogleViewer = (pdfUrl: string) => {
-    const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
-    // Abrir en una nueva pestaña
-    window.open(googleViewerUrl, '_blank');
-  };
-
   const handleViewCV = async () => {
     if (!userData?.cv || !isClient) return;
     
@@ -323,49 +316,52 @@ const UserProfile = () => {
       try {
         // Usar getCv para obtener la URL accesible del CV
         console.log("Obteniendo URL para CV:", userData.cv);
-        const fileURL = await getCv(userData.cv);
-        console.log("URL obtenida:", fileURL);
+        const result = await getCv(userData.cv);
+        console.log("Resultado obtenido:", result);
         
-        // Si es un PDF de Cloudinary, podemos ofrecer opciones adicionales
-        if (isPdf && fileURL.includes('cloudinary.com')) {
-          const downloadURL = `${fileURL.replace(/\.pdf$/, '')}/fl_attachment/${fileURL.split('/').pop()}`;
-          console.log("URL de descarga:", downloadURL);
-          
-          // Crear un diálogo con opciones
-          const viewOption = window.confirm(
-            "¿Cómo deseas ver el PDF?\n\n" +
-            "- Presiona OK para intentar abrir directamente\n" +
-            "- Presiona CANCELAR para usar el visor de Google Docs (recomendado si tienes problemas)"
+        // Verificar si el resultado es un objeto con información de PDF
+        if (result && typeof result === 'object' && result.type === 'pdf') {
+          // Es un PDF de Cloudinary, preguntar al usuario cómo desea visualizarlo
+          const viewOption = prompt(
+            "Este PDF podría tener restricciones de acceso directo. ¿Cómo deseas visualizarlo?\n\n" +
+            "1: Intentar ver directamente (podría fallar)\n" +
+            "2: Usar visor de Google Docs (recomendado)\n" +
+            "3: Descargar PDF\n\n" +
+            "Ingresa el número de tu opción (por defecto: 2):"
           );
           
-          if (viewOption) {
-            // Intentar abrir directamente
-            window.open(fileURL, '_blank');
-          } else {
-            // Usar el visor de Google
-            viewPdfWithGoogleViewer(fileURL);
+          switch (viewOption) {
+            case "1":
+              // Intentar abrir directamente
+              window.open(result.directUrl, '_blank');
+              break;
+            case "3":
+              // Descargar el PDF
+              window.location.href = result.downloadUrl;
+              break;
+            case "2":
+            default:
+              // Usar visor de Google Docs (opción predeterminada)
+              window.open(result.googleViewerUrl, '_blank');
+              break;
           }
         } else {
           // Para otros tipos de archivos, simplemente abrir en nueva pestaña
-          window.open(fileURL, '_blank');
+          if (typeof result === 'string') {
+            window.open(result, '_blank');
+          } else {
+            console.error("Formato de resultado inesperado:", result);
+            throw new Error("Formato de URL inesperado");
+          }
         }
       } catch (error) {
         console.error("Error al obtener URL del CV:", error);
         
-        // Si falla, intentar abrir directamente la URL original como último recurso
+        // Si falla, intentar con Google Docs Viewer como última opción
         if (userData.cv.startsWith('http://') || userData.cv.startsWith('https://')) {
-          console.log("Intentando abrir URL original directamente:", userData.cv);
-          
-          const useGoogleViewer = window.confirm(
-            "¿Deseas intentar abrir el PDF con el visor de Google Docs?\n\n" +
-            "Esto puede funcionar mejor en caso de problemas de compatibilidad."
-          );
-          
-          if (useGoogleViewer) {
-            viewPdfWithGoogleViewer(userData.cv);
-          } else {
-            window.open(userData.cv, '_blank');
-          }
+          console.log("Intentando abrir con Google Docs Viewer:", userData.cv);
+          const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(userData.cv)}&embedded=true`;
+          window.open(googleViewerUrl, '_blank');
         } else {
           throw error;
         }
@@ -379,6 +375,8 @@ const UserProfile = () => {
       if (error instanceof Error) {
         if (error.message.includes("404") || error.message.includes("not found")) {
           errorMessage = "El archivo CV no se encuentra en el servidor.";
+        } else if (error.message.includes("401") || error.message.includes("unauthorized")) {
+          errorMessage = "Error 401: No tienes autorización para acceder a este PDF directamente.";
         } else if (error.message.includes("Failed to fetch")) {
           errorMessage = "Error de conexión. Por favor, verifica tu conexión a internet.";
         } else if (error.message.includes("empty or null")) {
@@ -391,7 +389,7 @@ const UserProfile = () => {
       }
       
       // Preguntar si quiere intentar con el visor de Google como último recurso
-      if (userData.cv && userData.cv.includes('cloudinary.com')) {
+      if (userData.cv) {
         const isPdfUrl = userData.cv.toLowerCase().includes('.pdf') || userData.cv.toLowerCase().includes('/pdf/');
         if (isPdfUrl) {
           const tryGoogleViewer = window.confirm(
@@ -399,7 +397,8 @@ const UserProfile = () => {
           );
           
           if (tryGoogleViewer) {
-            viewPdfWithGoogleViewer(userData.cv);
+            const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(userData.cv)}&embedded=true`;
+            window.open(googleViewerUrl, '_blank');
             return;
           }
         }

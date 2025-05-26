@@ -404,13 +404,14 @@ export const getCv = async (cvPath: string) => {
     if (cvPath.match(/^https?:\/\/(res\.)?cloudinary\.com/)) {
       console.log("URL de Cloudinary detectada:", cvPath);
       
-      // Para PDFs de Cloudinary, añadir parámetro fl_attachment para forzar descarga
+      // Para PDFs de Cloudinary, crear una URL para usar con Google Docs Viewer
       if (cvPath.endsWith('.pdf')) {
-        // Opción 1: Añadir fl_attachment para forzar descarga
-        // return `${cvPath.replace(/\.pdf$/, '')}/fl_attachment/${cvPath.split('/').pop()}`;
-        
-        // Opción 2: Simplemente retornar la URL directa para abrir en nueva pestaña
-        return cvPath;
+        return {
+          type: 'pdf',
+          directUrl: cvPath,
+          googleViewerUrl: `https://docs.google.com/viewer?url=${encodeURIComponent(cvPath)}&embedded=true`,
+          downloadUrl: `${cvPath.replace(/\.pdf$/, '')}/fl_attachment/${cvPath.split('/').pop()}`
+        };
       }
       return cvPath;
     }
@@ -419,6 +420,16 @@ export const getCv = async (cvPath: string) => {
     if (cvPath.includes('cloudinary.com') || cvPath.includes('res.cloudinary.com')) {
       const fullUrl = `https://${cvPath.replace(/^\/\//, '')}`;
       console.log("URL de Cloudinary reconstruida:", fullUrl);
+      
+      // Para PDFs de Cloudinary, crear una URL para usar con Google Docs Viewer
+      if (fullUrl.endsWith('.pdf')) {
+        return {
+          type: 'pdf',
+          directUrl: fullUrl,
+          googleViewerUrl: `https://docs.google.com/viewer?url=${encodeURIComponent(fullUrl)}&embedded=true`,
+          downloadUrl: `${fullUrl.replace(/\.pdf$/, '')}/fl_attachment/${fullUrl.split('/').pop()}`
+        };
+      }
       return fullUrl;
     }
     
@@ -427,6 +438,16 @@ export const getCv = async (cvPath: string) => {
       // Intentar construir una URL de Cloudinary
       const cloudinaryUrl = `https://res.cloudinary.com/dagcofbhm/${cvPath.startsWith('/') ? cvPath.substring(1) : cvPath}`;
       console.log("URL de Cloudinary construida:", cloudinaryUrl);
+      
+      // Para PDFs de Cloudinary, crear una URL para usar con Google Docs Viewer
+      if (cloudinaryUrl.endsWith('.pdf')) {
+        return {
+          type: 'pdf',
+          directUrl: cloudinaryUrl,
+          googleViewerUrl: `https://docs.google.com/viewer?url=${encodeURIComponent(cloudinaryUrl)}&embedded=true`,
+          downloadUrl: `${cloudinaryUrl.replace(/\.pdf$/, '')}/fl_attachment/${cloudinaryUrl.split('/').pop()}`
+        };
+      }
       return cloudinaryUrl;
     }
     
@@ -456,6 +477,16 @@ export const getCv = async (cvPath: string) => {
       if (cvPath.includes('v1') || cvPath.includes('upload')) {
         const cloudinaryDirectUrl = `https://res.cloudinary.com/dagcofbhm/image/upload/${cvPath}`;
         console.log("Intentando URL directa de Cloudinary:", cloudinaryDirectUrl);
+        
+        // Para PDFs, devolver también la URL para Google Docs Viewer
+        if (cloudinaryDirectUrl.endsWith('.pdf') || cvPath.includes('/pdf/')) {
+          return {
+            type: 'pdf',
+            directUrl: cloudinaryDirectUrl,
+            googleViewerUrl: `https://docs.google.com/viewer?url=${encodeURIComponent(cloudinaryDirectUrl)}&embedded=true`,
+            downloadUrl: `${cloudinaryDirectUrl.replace(/\.pdf$/, '')}/fl_attachment/${cloudinaryDirectUrl.split('/').pop()}`
+          };
+        }
         return cloudinaryDirectUrl;
       }
       

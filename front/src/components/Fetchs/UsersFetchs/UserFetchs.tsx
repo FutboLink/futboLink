@@ -88,51 +88,54 @@ export const updateUserData = async (
   try {
     // Create a copy of the data to avoid modifying the original
     const dataToSend = { ...formData };
-    
+
     // Verificar si hay trayectorias para formatear correctamente
     if (dataToSend.trayectorias && Array.isArray(dataToSend.trayectorias)) {
       // Formatear cada trayectoria correctamente
       const formattedTrayectorias = dataToSend.trayectorias
-        .filter(exp => exp.club && exp.club.trim() !== '')
-        .map(exp => ({
-          club: String(exp.club || ''),
-          fechaInicio: String(exp.fechaInicio || ''),
-          fechaFinalizacion: String(exp.fechaFinalizacion || ''),
-          categoriaEquipo: String(exp.categoriaEquipo || ''),
-          nivelCompetencia: String(exp.nivelCompetencia || ''),
-          logros: String(exp.logros || '')
+        .filter((exp) => exp.club && exp.club.trim() !== "")
+        .map((exp) => ({
+          club: String(exp.club || ""),
+          fechaInicio: String(exp.fechaInicio || ""),
+          fechaFinalizacion: String(exp.fechaFinalizacion || ""),
+          categoriaEquipo: String(exp.categoriaEquipo || ""),
+          nivelCompetencia: String(exp.nivelCompetencia || ""),
+          logros: String(exp.logros || ""),
         }));
-      
+
       // Asignamos las trayectorias formateadas de vuelta al objeto
       dataToSend.trayectorias = formattedTrayectorias;
-      
-      console.log("Trayectorias formateadas:", JSON.stringify(dataToSend.trayectorias));
+
+      console.log(
+        "Trayectorias formateadas:",
+        JSON.stringify(dataToSend.trayectorias)
+      );
     }
-    
+
     // Remove any undefined values that might cause issues
-    Object.keys(dataToSend).forEach(key => {
+    Object.keys(dataToSend).forEach((key) => {
       if ((dataToSend as any)[key] === undefined) {
         delete (dataToSend as any)[key];
       }
     });
-    
+
     console.log("Enviando datos completos:", JSON.stringify(dataToSend));
-    
+
     // Vamos a acceder directamente a la ruta del backend para la actualización
     const fullApiUrl = `${apiUrl}/user/${userId}`;
     console.log("Enviando petición a:", fullApiUrl);
-    
+
     const headers = {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     };
-    
+
     // Enviar la solicitud con los datos completos
     const response = await fetch(fullApiUrl, {
       method: "PUT",
       headers: headers,
-      body: JSON.stringify(dataToSend)
+      body: JSON.stringify(dataToSend),
     });
-    
+
     if (!response.ok) {
       // Si obtenemos un error, intentar leer el mensaje de error
       try {
@@ -144,7 +147,7 @@ export const updateUserData = async (
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error("Error actualizando los datos:", error);
@@ -170,16 +173,11 @@ export const fetchDeleteJob = async (token: string, jobId: string) => {
 };
 
 // Actualiza la función para aceptar formData
-export const fetchEditJob = async (
- 
-  id: string,
-  formData: object
-) => {
+export const fetchEditJob = async (id: string, formData: object) => {
   try {
     const response = await fetch(`${apiUrl}/jobs/${id}`, {
       method: "PUT",
       headers: {
-       
         "Content-Type": "application/json", // Agregar el tipo de contenido
       },
       body: JSON.stringify(formData), // Enviar formData como cuerpo de la solicitud
@@ -196,38 +194,51 @@ export const fetchEditJob = async (
   }
 };
 
-
 export const resetPassword = async (token: string, password: string) => {
-  console.log(`Iniciando restablecimiento de contraseña. Token: ${token.substring(0, 10)}...`);
-  console.log(`Contraseña a establecer (longitud): ${password.length} caracteres`);
-  
+  console.log(
+    `Iniciando restablecimiento de contraseña. Token: ${token.substring(
+      0,
+      10
+    )}...`
+  );
+  console.log(
+    `Contraseña a establecer (longitud): ${password.length} caracteres`
+  );
+
   try {
     // Crear URL absoluta
     const apiEndpoint = `${apiUrl}/login/reset-password`;
     console.log("Enviando solicitud a:", apiEndpoint);
-    
+
     // Crear el cuerpo de la solicitud
     const requestBody = {
       token: token,
-      newPassword: password
+      newPassword: password,
     };
-    
-    console.log("Enviando datos:", JSON.stringify({
-      token: token.substring(0, 10) + "...",
-      newPassword: "***" // No mostrar la contraseña real
-    }));
-    
+
+    console.log(
+      "Enviando datos:",
+      JSON.stringify({
+        token: token.substring(0, 10) + "...",
+        newPassword: "***", // No mostrar la contraseña real
+      })
+    );
+
     // Hacer la solicitud con configuración simple para evitar problemas CORS
     const response = await fetch(apiEndpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(requestBody)
+      body: JSON.stringify(requestBody),
     });
-    
-    console.log("Estado de la respuesta:", response.status, response.statusText);
-    
+
+    console.log(
+      "Estado de la respuesta:",
+      response.status,
+      response.statusText
+    );
+
     // Intentar leer la respuesta
     let responseData;
     try {
@@ -237,156 +248,173 @@ export const resetPassword = async (token: string, password: string) => {
       console.error("Error al parsear respuesta:", e);
       responseData = { message: "No se pudo leer la respuesta del servidor" };
     }
-    
+
     // Manejar respuesta no exitosa
     if (!response.ok) {
       console.error("Respuesta no exitosa:", response.status, responseData);
-      return { 
-        success: false, 
-        message: responseData.message || `Error ${response.status}: No se pudo restablecer la contraseña`
+      return {
+        success: false,
+        message:
+          responseData.message ||
+          `Error ${response.status}: No se pudo restablecer la contraseña`,
       };
     }
-    
+
     // Respuesta exitosa
     console.log("Restablecimiento exitoso:", responseData);
-    return { 
-      success: true, 
-      message: responseData.message || "Contraseña restablecida exitosamente"
+    return {
+      success: true,
+      message: responseData.message || "Contraseña restablecida exitosamente",
     };
   } catch (error) {
     // Capturar y manejar errores
     console.error("Error en resetPassword:", error);
-    
+
     // Verificar si es un error de CORS
     const errorMessage = error instanceof Error ? error.message : String(error);
-    if (errorMessage.includes('CORS') || 
-        errorMessage.includes('blocked') || 
-        errorMessage.includes('Access-Control-Allow-Origin')) {
+    if (
+      errorMessage.includes("CORS") ||
+      errorMessage.includes("blocked") ||
+      errorMessage.includes("Access-Control-Allow-Origin")
+    ) {
       return {
         success: false,
-        message: "Error de CORS: No se puede acceder al servidor desde esta dirección. Por favor, utiliza la versión desplegada de la aplicación.",
-        error: "CORS"
+        message:
+          "Error de CORS: No se puede acceder al servidor desde esta dirección. Por favor, utiliza la versión desplegada de la aplicación.",
+        error: "CORS",
       };
     }
-    
-    return { 
-      success: false, 
-      message: "Error al conectar con el servidor. Inténtalo más tarde."
+
+    return {
+      success: false,
+      message: "Error al conectar con el servidor. Inténtalo más tarde.",
     };
   }
 };
 
-
 // Función de recuperación de contraseña renovada
 export const forgotPassword = async (email: string) => {
   console.log("Iniciando proceso de recuperación de contraseña para:", email);
-  
+
   try {
     // Crear URL absoluta
     const apiEndpoint = `${apiUrl}/login/forgot-password`;
     console.log("Enviando solicitud a:", apiEndpoint);
-    
+
     // Hacer solicitud simple
     const response = await fetch(apiEndpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email })
+      body: JSON.stringify({ email }),
     });
-    
+
     // Manejar respuesta
     if (!response.ok) {
       console.warn("Respuesta no exitosa:", response.status);
       // Si el status es 404, el usuario no existe
       if (response.status === 404) {
-        return { 
-          success: false, 
-          message: "No existe una cuenta con este correo electrónico."
+        return {
+          success: false,
+          message: "No existe una cuenta con este correo electrónico.",
         };
       }
-      
+
       // Intentar leer el cuerpo de la respuesta para otros errores
       try {
         const errorData = await response.json();
-        return { 
-          success: false, 
-          message: errorData.message || "No se pudo procesar la solicitud"
+        return {
+          success: false,
+          message: errorData.message || "No se pudo procesar la solicitud",
         };
       } catch (jsonError) {
-        return { 
-          success: false, 
-          message: `Error ${response.status}: No se pudo procesar la solicitud`
+        return {
+          success: false,
+          message: `Error ${response.status}: No se pudo procesar la solicitud`,
         };
       }
     }
-    
+
     // Respuesta exitosa - ahora el backend devuelve el token directamente
     const data = await response.json();
     console.log("Respuesta exitosa, token recibido:", data.token ? "Sí" : "No");
-    
+
     if (data.token) {
       // Almacenar el token en localStorage para usarlo en la página de reseteo
-      localStorage.setItem('resetPasswordToken', data.token);
-      localStorage.setItem('resetPasswordEmail', email);
-      
+      localStorage.setItem("resetPasswordToken", data.token);
+      localStorage.setItem("resetPasswordEmail", email);
+
       // Redirigir al usuario a la página de reseteo de contraseña
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         window.location.href = `/resetPassword?token=${data.token}`;
       }
-      
-      return { 
+
+      return {
         success: true,
         directReset: true,
-        message: "Verificación exitosa. Redirigiendo para restablecer contraseña.",
-        token: data.token
+        message:
+          "Verificación exitosa. Redirigiendo para restablecer contraseña.",
+        token: data.token,
       };
     } else {
-      return { 
-        success: true, 
-        message: data.message || "Verificación exitosa. Revise su correo para continuar."
+      return {
+        success: true,
+        message:
+          data.message ||
+          "Verificación exitosa. Revise su correo para continuar.",
       };
     }
   } catch (error) {
     // Capturar errores específicos de red
     console.error("Error en solicitud de recuperación:", error);
-    
+
     // Determinar si es un error de CORS
     const errorMessage = error instanceof Error ? error.message : String(error);
-    const isCorsError = errorMessage.includes('CORS') || 
-                      errorMessage.includes('blocked') || 
-                      errorMessage.includes('Access-Control-Allow-Origin');
-    
+    const isCorsError =
+      errorMessage.includes("CORS") ||
+      errorMessage.includes("blocked") ||
+      errorMessage.includes("Access-Control-Allow-Origin");
+
     if (isCorsError) {
       return {
         success: false,
-        message: "Error de CORS: No se puede acceder al servidor desde esta dirección.",
-        error: "CORS"
+        message:
+          "Error de CORS: No se puede acceder al servidor desde esta dirección.",
+        error: "CORS",
       };
     }
-    
-    return { 
-      success: false, 
-      message: "Error al conectar con el servidor. Inténtalo más tarde."
+
+    return {
+      success: false,
+      message: "Error al conectar con el servidor. Inténtalo más tarde.",
     };
   }
-}
+};
 
 export const contact = async (email: string, name: string, mensaje: string) => {
   try {
-    const res = await fetch(`${apiUrl}/email/contact`, {  
+    const res = await fetch(`${apiUrl}/email/contact`, {
       method: "POST",
-      body: JSON.stringify({ email, name, mensaje }),  
+      body: JSON.stringify({ email, name, mensaje }),
       headers: { "Content-Type": "application/json" },
     });
 
+    console.log("Respuesta de formulario:", res);
+
     if (!res.ok) {
       const errorData = await res.json();
-      return { success: false, message: errorData.message || "Hubo un problema al enviar el mensaje." };
+      return {
+        success: false,
+        message: errorData.message || "Hubo un problema al enviar el mensaje.",
+      };
     }
 
     const data = await res.json();
-    return { success: true, message: data.message || "Mensaje enviado exitosamente." };
+    return {
+      success: true,
+      message: data.message || "Mensaje enviado exitosamente.",
+    };
   } catch (error) {
     console.error(error);
     return { success: false, message: "Error al conectar con el servidor." };

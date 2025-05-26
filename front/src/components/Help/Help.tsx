@@ -3,6 +3,21 @@
 import React, { useState } from "react";
 import Image from "next/image";
 
+// Swiper
+import { Swiper, SwiperSlide } from "swiper/react";
+import {
+  Autoplay,
+  EffectFade,
+  Keyboard,
+  Mousewheel,
+  Navigation,
+  Pagination,
+} from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "../../Styles/help-swiper.css";
+
 const helpData: IHelp[] = [
   {
     section: "Candidatos",
@@ -234,6 +249,90 @@ const HelpPage = () => {
           </div>
         )}
       </div>
+
+      <h2 className="text-green-800 text-[1.8rem] p-2 font-semibold text-center pt-[4rem] pb-[2rem]">
+        Tutoriales útiles
+      </h2>
+      <Swiper
+        slidesPerView={"auto"}
+        spaceBetween={30}
+        pagination={{
+          clickable: true,
+        }}
+        cssMode={true}
+        navigation={true}
+        mousewheel={true}
+        keyboard={true}
+        modules={[Navigation, Pagination, Mousewheel, Keyboard]}
+        loop
+        className="w-full min-h-[20rem] max-w-[100rem] mx-auto"
+      >
+        <SwiperSlide className="!w-fit">
+          <iframe
+            width="560"
+            height="315"
+            src="https://www.youtube.com/embed/HGVwe0oQpoU?si=1P-L-8sRc3WRnm8g"
+            title="YouTube video player"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+            className="w-full rounded-[1.25rem] md:min-w-[35rem]"
+          ></iframe>
+        </SwiperSlide>
+        <SwiperSlide className="!w-fit">
+          <iframe
+            width="560"
+            height="315"
+            src="https://www.youtube.com/embed/FxByNvqjMyE?si=tWadxAYnhqO0WBpt"
+            title="YouTube video player"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+            className="w-full  rounded-[1.25rem] md:min-w-[35rem]"
+          ></iframe>
+        </SwiperSlide>
+        <SwiperSlide className="!w-fit">
+          <iframe
+            width="560"
+            height="315"
+            src="https://www.youtube.com/embed/6BNkrYEQIeQ?si=FGrWTquXasGDuTS3"
+            title="YouTube video player"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+            className="w-full  rounded-[1.25rem] md:min-w-[35rem]"
+          ></iframe>
+        </SwiperSlide>
+        <SwiperSlide className="!w-fit">
+          <iframe
+            width="560"
+            height="315"
+            src="https://www.youtube.com/embed/u9wKO0s0qGg?si=sfyrvdsjkOTo5ry2"
+            title="YouTube video player"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+            className="w-full rounded-[1.25rem] md:min-w-[35rem]"
+          ></iframe>
+        </SwiperSlide>
+        <SwiperSlide className="!w-fit">
+          <iframe
+            width="560"
+            height="315"
+            src="https://www.youtube.com/embed/upidCYmgeOE?si=hDp-VNYJJd0U63tJ"
+            title="YouTube video player"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+            className="w-full rounded-[1.25rem] md:min-w-[35rem]"
+          ></iframe>
+        </SwiperSlide>
+      </Swiper>
     </div>
   );
 };

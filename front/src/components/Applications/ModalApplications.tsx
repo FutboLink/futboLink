@@ -55,35 +55,33 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
   }, [token, user]);
 
   const handleSubmit = async () => {
-    if (!hasActiveSubscription) {
-      setNotificationMessage("Se requiere una suscripción activa para aplicar");
+    // Siempre verificar la suscripción actual antes de intentar aplicar
+    let canApply = false;
+    let subscriptionInfo = null;
+    
+    if (user && user.email) {
+      try {
+        // Comprobar explícitamente el tipo de suscripción antes de enviar
+        subscriptionInfo = await checkUserSubscription(user.email);
+        console.log("Verificando suscripción para aplicar:", subscriptionInfo);
+        
+        // Verificar si el tipo de suscripción es válido (Semiprofesional o Profesional)
+        if (subscriptionInfo.subscriptionType === 'Semiprofesional' || 
+            subscriptionInfo.subscriptionType === 'Profesional') {
+          canApply = true;
+        }
+      } catch (error) {
+        console.error("Error verificando suscripción:", error);
+      }
+    }
+    
+    if (!canApply) {
+      setNotificationMessage("Se requiere una suscripción activa Semiprofesional o Profesional para aplicar a trabajos");
       setShowNotification(true);
       setTimeout(() => {
         setShowNotification(false);
       }, 3000);
       return;
-    }
-    
-    // Verificar si se ha cargado la información de la suscripción
-    if (user && user.email) {
-      try {
-        // Comprobar explícitamente el tipo de suscripción antes de enviar
-        const subInfo = await checkUserSubscription(user.email);
-        console.log("Verificando suscripción para aplicar:", subInfo);
-        
-        if (!subInfo.hasActiveSubscription || 
-            (subInfo.subscriptionType !== 'Semiprofesional' && 
-             subInfo.subscriptionType !== 'Profesional')) {
-          setNotificationMessage("Se requiere una suscripción activa Semiprofesional o Profesional para aplicar a trabajos");
-          setShowNotification(true);
-          setTimeout(() => {
-            setShowNotification(false);
-          }, 3000);
-          return;
-        }
-      } catch (error) {
-        console.error("Error verificando suscripción:", error);
-      }
     }
     
     setIsSubmitting(true);

@@ -321,30 +321,17 @@ const UserProfile = () => {
         
         // Verificar si el resultado es un objeto con información de PDF
         if (result && typeof result === 'object' && result.type === 'pdf') {
-          // Es un PDF de Cloudinary, preguntar al usuario cómo desea visualizarlo
-          const viewOption = prompt(
-            "Este PDF podría tener restricciones de acceso directo. ¿Cómo deseas visualizarlo?\n\n" +
-            "1: Intentar ver directamente (podría fallar)\n" +
-            "2: Usar visor de Google Docs (recomendado)\n" +
-            "3: Descargar PDF\n\n" +
-            "Ingresa el número de tu opción (por defecto: 2):"
-          );
+          // Es un PDF de Cloudinary, usar directamente el visor de Google Docs
+          // ya que funciona sin importar la configuración de Cloudinary
+          window.open(result.googleViewerUrl, '_blank');
           
-          switch (viewOption) {
-            case "1":
-              // Intentar abrir directamente
-              window.open(result.directUrl, '_blank');
-              break;
-            case "3":
-              // Descargar el PDF
-              window.location.href = result.downloadUrl;
-              break;
-            case "2":
-            default:
-              // Usar visor de Google Docs (opción predeterminada)
-              window.open(result.googleViewerUrl, '_blank');
-              break;
-          }
+          // Mostrar mensaje informativo en la consola para ayudar a solucionar
+          // problemas futuros con PDFs de Cloudinary
+          console.info(
+            "NOTA: Si necesita acceder directamente a PDFs alojados en Cloudinary, " +
+            "asegúrese de que la opción 'Allow delivery of PDF and ZIP files' esté habilitada " +
+            "en la configuración de seguridad de su cuenta de Cloudinary."
+          );
         } else {
           // Para otros tipos de archivos, simplemente abrir en nueva pestaña
           if (typeof result === 'string') {
@@ -357,7 +344,30 @@ const UserProfile = () => {
       } catch (error) {
         console.error("Error al obtener URL del CV:", error);
         
-        // Si falla, intentar con Google Docs Viewer como última opción
+        // Si falla con error 401, mostrar mensaje específico
+        if (error instanceof Error && error.message.includes("401")) {
+          alert(
+            "Error 401: No se puede acceder al PDF directamente desde Cloudinary.\n\n" +
+            "Se intentará abrir el PDF con el visor de Google Docs automáticamente."
+          );
+          
+          // Intentar con Google Docs Viewer como alternativa
+          if (userData.cv.startsWith('http://') || userData.cv.startsWith('https://')) {
+            const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(userData.cv)}&embedded=true`;
+            window.open(googleViewerUrl, '_blank');
+            
+            // Mostrar mensaje para administradores en la consola
+            console.info(
+              "INFORMACIÓN PARA ADMINISTRADORES: El error 401 ocurre porque Cloudinary bloquea " +
+              "por defecto el acceso a archivos PDF por razones de seguridad. " +
+              "Para solucionarlo, deberá acceder a su cuenta de Cloudinary y habilitar la opción " +
+              "'Allow delivery of PDF and ZIP files' en la sección Settings > Security."
+            );
+          }
+          return;
+        }
+        
+        // Si es otro error, intentar con Google Docs Viewer como última opción
         if (userData.cv.startsWith('http://') || userData.cv.startsWith('https://')) {
           console.log("Intentando abrir con Google Docs Viewer:", userData.cv);
           const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(userData.cv)}&embedded=true`;
@@ -376,7 +386,7 @@ const UserProfile = () => {
         if (error.message.includes("404") || error.message.includes("not found")) {
           errorMessage = "El archivo CV no se encuentra en el servidor.";
         } else if (error.message.includes("401") || error.message.includes("unauthorized")) {
-          errorMessage = "Error 401: No tienes autorización para acceder a este PDF directamente.";
+          errorMessage = "Error 401: No se puede acceder al PDF directamente desde Cloudinary. Se intentará usar el visor de Google Docs.";
         } else if (error.message.includes("Failed to fetch")) {
           errorMessage = "Error de conexión. Por favor, verifica tu conexión a internet.";
         } else if (error.message.includes("empty or null")) {
@@ -388,19 +398,17 @@ const UserProfile = () => {
         }
       }
       
-      // Preguntar si quiere intentar con el visor de Google como último recurso
+      // Para PDFs, intentar siempre con el visor de Google como último recurso
       if (userData.cv) {
         const isPdfUrl = userData.cv.toLowerCase().includes('.pdf') || userData.cv.toLowerCase().includes('/pdf/');
         if (isPdfUrl) {
-          const tryGoogleViewer = window.confirm(
-            `${errorMessage}\n\n¿Deseas intentar abrir el PDF con el visor de Google Docs como último recurso?`
-          );
+          console.log(`${errorMessage}. Intentando con visor de Google Docs como alternativa.`);
+          const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(userData.cv)}&embedded=true`;
+          window.open(googleViewerUrl, '_blank');
           
-          if (tryGoogleViewer) {
-            const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(userData.cv)}&embedded=true`;
-            window.open(googleViewerUrl, '_blank');
-            return;
-          }
+          // Mostrar mensaje más breve al usuario
+          alert("Se está intentando abrir el PDF con el visor de Google Docs como alternativa.");
+          return;
         }
       }
       

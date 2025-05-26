@@ -26,20 +26,26 @@ export interface SyncSubscriptionResult {
  */
 export const checkUserSubscription = async (email: string): Promise<SubscriptionInfo> => {
   try {
+    console.log(`Verificando suscripción para: ${email}`);
     const response = await fetch(`${apiUrl}/user/subscription/check?email=${encodeURIComponent(email)}`);
     
     if (!response.ok) {
+      console.error(`Error verificando suscripción: ${response.status}`);
       throw new Error(`Error checking subscription: ${response.status}`);
     }
     
     const data = await response.json();
+    console.log('Datos de suscripción recibidos:', data);
     
-    return {
+    const result = {
       hasActiveSubscription: data.isActive === true,
       subscriptionType: data.subscriptionType || 'Amateur'
     };
+    
+    console.log(`Resultado de verificación de suscripción: activa=${result.hasActiveSubscription}, tipo=${result.subscriptionType}`);
+    return result;
   } catch (error) {
-    console.error('Error checking subscription:', error);
+    console.error('Error verificando suscripción:', error);
     return {
       hasActiveSubscription: false,
       subscriptionType: 'Amateur'

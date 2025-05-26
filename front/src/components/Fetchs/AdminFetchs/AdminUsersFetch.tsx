@@ -34,8 +34,19 @@ export const getUsers =  async (): Promise<IProfileData[]> => {
   
     if (!response.ok) {
       const errorData = await response.json();
-        console.error("Error applying:", errorData);
-      throw new Error(errorData.message || "Error desconocido");
+      console.error("Error applying:", errorData);
+      
+      // Si es un error 403, probablemente está relacionado con la suscripción
+      if (response.status === 403) {
+        throw new Error(errorData.message || "Se requiere una suscripción activa Semiprofesional o Profesional para aplicar a trabajos. Por favor, suscríbete para continuar.");
+      }
+      
+      // Si ya existe una aplicación (409 Conflict)
+      if (response.status === 409) {
+        throw new Error("Ya has enviado una solicitud para este trabajo.");
+      }
+      
+      throw new Error(errorData.message || "Error desconocido al enviar la solicitud");
     }
   
     const data = await response.json();

@@ -64,6 +64,28 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
       return;
     }
     
+    // Verificar si se ha cargado la información de la suscripción
+    if (user && user.email) {
+      try {
+        // Comprobar explícitamente el tipo de suscripción antes de enviar
+        const subInfo = await checkUserSubscription(user.email);
+        console.log("Verificando suscripción para aplicar:", subInfo);
+        
+        if (!subInfo.hasActiveSubscription || 
+            (subInfo.subscriptionType !== 'Semiprofesional' && 
+             subInfo.subscriptionType !== 'Profesional')) {
+          setNotificationMessage("Se requiere una suscripción activa Semiprofesional o Profesional para aplicar a trabajos");
+          setShowNotification(true);
+          setTimeout(() => {
+            setShowNotification(false);
+          }, 3000);
+          return;
+        }
+      } catch (error) {
+        console.error("Error verificando suscripción:", error);
+      }
+    }
+    
     setIsSubmitting(true);
     setNotificationMessage("Enviando solicitud...");
     setShowNotification(true);
@@ -80,11 +102,12 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
         onClose(); // Cerrar modal luego del envío exitoso
       }, 2000);
     } catch (error: any) {
+      console.error("Error applying:", error);
       if (error instanceof Error) {
-        setNotificationMessage("Ya has enviado la solicitud.");
+        setNotificationMessage(error.message || "Ya has enviado la solicitud.");
       } else if (error?.status === 403) {
         setNotificationMessage(
-          "Se requiere una suscripción activa para aplicar"
+          "Se requiere una suscripción activa Semiprofesional o Profesional para aplicar"
         );
       } else {
         setNotificationMessage("Error al enviar la solicitud.");

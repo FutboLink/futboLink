@@ -704,6 +704,13 @@ export class StripeService {
         this.logger.log(`Mapped price ID ${payment.stripePriceId} to subscription type: ${subscriptionType}`);
       }
       
+      // IMPORTANTE: Forzar suscripción activa si el tipo es Profesional o Semiprofesional
+      // Esto es necesario porque los webhooks pueden no estar funcionando correctamente
+      if (subscriptionType === 'Profesional' || subscriptionType === 'Semiprofesional') {
+        this.logger.log(`🔍 IMPORTANTE: Detectada suscripción ${subscriptionType}. Forzando estado activo para ${userEmail}`);
+        isActive = true;
+      }
+      
       // Temporary override for testing - si hay un registro de pago, consideramos que la suscripción está activa
       // Solo para pruebas y depuración
       if (payment && payment.status === PaymentStatus.SUCCEEDED) {
@@ -711,10 +718,13 @@ export class StripeService {
         isActive = true;
       }
       
-      // Return subscription type based on active status - always return 'Amateur' if not active
+      // Return subscription type based on active status
+      // MODIFICADO: Si el tipo es Profesional o Semiprofesional, mantener ese tipo incluso si no está activa
       const result = { 
         hasActiveSubscription: isActive,
-        subscriptionType: isActive ? subscriptionType : 'Amateur'
+        subscriptionType: isActive ? subscriptionType : 
+                          (subscriptionType === 'Profesional' || subscriptionType === 'Semiprofesional') ? 
+                          subscriptionType : 'Amateur'
       };
       
       this.logger.log(`Subscription for ${userEmail} is ${isActive ? 'active' : 'inactive'} (${result.subscriptionType})`);

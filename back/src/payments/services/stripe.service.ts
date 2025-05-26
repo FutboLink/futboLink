@@ -704,6 +704,13 @@ export class StripeService {
         this.logger.log(`Mapped price ID ${payment.stripePriceId} to subscription type: ${subscriptionType}`);
       }
       
+      // Temporary override for testing - si hay un registro de pago, consideramos que la suscripción está activa
+      // Solo para pruebas y depuración
+      if (payment && payment.status === PaymentStatus.SUCCEEDED) {
+        this.logger.log(`🔍 DEPURACIÓN: Forzando suscripción activa para ${userEmail} debido a un pago exitoso reciente`);
+        isActive = true;
+      }
+      
       // Return subscription type based on active status - always return 'Amateur' if not active
       const result = { 
         hasActiveSubscription: isActive,

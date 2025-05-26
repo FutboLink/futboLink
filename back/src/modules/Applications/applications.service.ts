@@ -36,11 +36,20 @@ export class ApplicationService {
     });
     if (!player) throw new NotFoundException('El usuario no es jugador');
 
+    console.log(`Verificando suscripción para: ${player.email} (usuario ${playerId})`);
+    
     // Check if player has an active subscription
     const subscriptionStatus = await this.stripeService.checkUserSubscription(player.email);
+    console.log(`Estado de suscripción: ${JSON.stringify(subscriptionStatus)}`);
     
     // Check if subscription is active and not Amateur plan
-    if (!subscriptionStatus.hasActiveSubscription || subscriptionStatus.subscriptionType === 'Amateur') {
+    if (!subscriptionStatus.hasActiveSubscription) {
+      console.log(`Suscripción inactiva para ${player.email}`);
+      throw new ForbiddenException('Se requiere una suscripción activa para aplicar a trabajos. Por favor, suscríbete para continuar.');
+    }
+    
+    if (subscriptionStatus.subscriptionType === 'Amateur') {
+      console.log(`Suscripción tipo Amateur para ${player.email}, no permitida para aplicar`);
       throw new ForbiddenException('Se requiere una suscripción activa Semiprofesional o Profesional para aplicar a trabajos. Por favor, suscríbete para continuar.');
     }
 

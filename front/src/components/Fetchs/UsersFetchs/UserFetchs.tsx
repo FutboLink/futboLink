@@ -400,49 +400,65 @@ export const getCv = async (cvPath: string) => {
       throw new Error("CV path is empty or null");
     }
     
-    // 1. Comprobar si ya es una URL completa (por ejemplo, de Cloudinary)
-    if (cvPath.startsWith('http://') || cvPath.startsWith('https://')) {
-      // Si ya es una URL completa, devolverla directamente
+    // 1. Comprobar si ya es una URL completa de Cloudinary
+    if (cvPath.match(/^https?:\/\/(res\.)?cloudinary\.com/)) {
+      console.log("URL de Cloudinary detectada:", cvPath);
+      
+      // Para PDFs de Cloudinary, añadir parámetro fl_attachment para forzar descarga
+      if (cvPath.endsWith('.pdf')) {
+        // Opción 1: Añadir fl_attachment para forzar descarga
+        // return `${cvPath.replace(/\.pdf$/, '')}/fl_attachment/${cvPath.split('/').pop()}`;
+        
+        // Opción 2: Simplemente retornar la URL directa para abrir en nueva pestaña
+        return cvPath;
+      }
       return cvPath;
     }
     
     // 2. Comprobar si es una URL de Cloudinary sin el protocolo
     if (cvPath.includes('cloudinary.com') || cvPath.includes('res.cloudinary.com')) {
-      return `https://${cvPath.replace(/^\/\//, '')}`;
+      const fullUrl = `https://${cvPath.replace(/^\/\//, '')}`;
+      console.log("URL de Cloudinary reconstruida:", fullUrl);
+      return fullUrl;
     }
     
     // 3. Si parece ser un ID o path de Cloudinary
     if (cvPath.includes('upload/') || cvPath.includes('/pdf/')) {
       // Intentar construir una URL de Cloudinary
-      return `https://res.cloudinary.com/dagcofbhm/${cvPath.startsWith('/') ? cvPath.substring(1) : cvPath}`;
+      const cloudinaryUrl = `https://res.cloudinary.com/dagcofbhm/${cvPath.startsWith('/') ? cvPath.substring(1) : cvPath}`;
+      console.log("URL de Cloudinary construida:", cloudinaryUrl);
+      return cloudinaryUrl;
     }
     
     // 4. Si es solo un nombre de archivo, intentar acceder a través del endpoint
     try {
       // Extraer solo el nombre del archivo si contiene una ruta
       const filename = cvPath.split('/').pop() || cvPath;
+      console.log("Intentando obtener CV a través del endpoint con filename:", filename);
       
       const response = await fetch(`${apiUrl}/user/cv/${filename}`, {
         method: "GET",
       });
 
       if (!response.ok) {
+        console.error(`Error del servidor: ${response.status} ${response.statusText}`);
         throw new Error(`Server returned ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.blob(); // Leemos la respuesta como un archivo binario
       const fileURL = URL.createObjectURL(data); // Creamos una URL para el archivo
+      console.log("URL del blob creada:", fileURL);
       return fileURL; // Retornamos la URL que puede ser utilizada para mostrar el CV
     } catch (endpointError) {
-      console.warn("Endpoint error:", endpointError);
+      console.warn("Error al acceder al endpoint:", endpointError);
       
-      // 5. Si todo lo anterior falla, intentar como último recurso una URL directa al bucket/almacenamiento
-      // Esto dependerá de cómo estén configurados tus servicios de almacenamiento
-      if (cvPath.includes('/')) {
-        return `https://storage.futbolink.com/${cvPath}`;
+      // 5. Intentar como último recurso con la URL directa de Cloudinary
+      if (cvPath.includes('v1') || cvPath.includes('upload')) {
+        const cloudinaryDirectUrl = `https://res.cloudinary.com/dagcofbhm/image/upload/${cvPath}`;
+        console.log("Intentando URL directa de Cloudinary:", cloudinaryDirectUrl);
+        return cloudinaryDirectUrl;
       }
       
-      // Si no podemos determinar cómo acceder al CV, lanzar el error original
       throw endpointError;
     }
   } catch (error) {

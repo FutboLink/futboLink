@@ -302,6 +302,13 @@ const UserProfile = () => {
     }
   }, [isClient]); // Add isClient as dependency
 
+  // Función para visualizar el PDF usando el visor de Google
+  const viewPdfWithGoogleViewer = (pdfUrl: string) => {
+    const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
+    // Abrir en una nueva pestaña
+    window.open(googleViewerUrl, '_blank');
+  };
+
   const handleViewCV = async () => {
     if (!userData?.cv || !isClient) return;
     
@@ -309,20 +316,60 @@ const UserProfile = () => {
       setLoadingCv(true);
       console.log("Intentando abrir CV:", userData.cv);
       
-      // Si la URL del CV ya es completa, abrirla directamente
-      if (userData.cv.startsWith('http://') || userData.cv.startsWith('https://')) {
-        console.log("CV es una URL completa, abriéndola directamente");
-        window.open(userData.cv, '_blank');
-        return;
+      // Verificar si el cv es un PDF
+      const isPdf = userData.cv.toLowerCase().includes('.pdf') || userData.cv.toLowerCase().includes('/pdf/');
+      console.log("¿Es un PDF?", isPdf);
+      
+      try {
+        // Usar getCv para obtener la URL accesible del CV
+        console.log("Obteniendo URL para CV:", userData.cv);
+        const fileURL = await getCv(userData.cv);
+        console.log("URL obtenida:", fileURL);
+        
+        // Si es un PDF de Cloudinary, podemos ofrecer opciones adicionales
+        if (isPdf && fileURL.includes('cloudinary.com')) {
+          const downloadURL = `${fileURL.replace(/\.pdf$/, '')}/fl_attachment/${fileURL.split('/').pop()}`;
+          console.log("URL de descarga:", downloadURL);
+          
+          // Crear un diálogo con opciones
+          const viewOption = window.confirm(
+            "¿Cómo deseas ver el PDF?\n\n" +
+            "- Presiona OK para intentar abrir directamente\n" +
+            "- Presiona CANCELAR para usar el visor de Google Docs (recomendado si tienes problemas)"
+          );
+          
+          if (viewOption) {
+            // Intentar abrir directamente
+            window.open(fileURL, '_blank');
+          } else {
+            // Usar el visor de Google
+            viewPdfWithGoogleViewer(fileURL);
+          }
+        } else {
+          // Para otros tipos de archivos, simplemente abrir en nueva pestaña
+          window.open(fileURL, '_blank');
+        }
+      } catch (error) {
+        console.error("Error al obtener URL del CV:", error);
+        
+        // Si falla, intentar abrir directamente la URL original como último recurso
+        if (userData.cv.startsWith('http://') || userData.cv.startsWith('https://')) {
+          console.log("Intentando abrir URL original directamente:", userData.cv);
+          
+          const useGoogleViewer = window.confirm(
+            "¿Deseas intentar abrir el PDF con el visor de Google Docs?\n\n" +
+            "Esto puede funcionar mejor en caso de problemas de compatibilidad."
+          );
+          
+          if (useGoogleViewer) {
+            viewPdfWithGoogleViewer(userData.cv);
+          } else {
+            window.open(userData.cv, '_blank');
+          }
+        } else {
+          throw error;
+        }
       }
-      
-      // Usar getCv para obtener la URL accesible del CV
-      console.log("Obteniendo URL para CV:", userData.cv);
-      const fileURL = await getCv(userData.cv);
-      console.log("URL obtenida:", fileURL);
-      
-      // Abrir el CV en una nueva pestaña
-      window.open(fileURL, '_blank');
     } catch (error) {
       console.error("Error al abrir el CV:", error);
       
@@ -336,12 +383,28 @@ const UserProfile = () => {
           errorMessage = "Error de conexión. Por favor, verifica tu conexión a internet.";
         } else if (error.message.includes("empty or null")) {
           errorMessage = "La ruta del CV está vacía o no es válida.";
+        } else if (error.message.includes("CORS") || error.message.includes("cross-origin")) {
+          errorMessage = "Error de seguridad CORS. No se puede acceder al PDF desde este dominio.";
         } else {
           errorMessage += " " + error.message;
         }
       }
       
-      // Mostrar un mensaje de error más detallado
+      // Preguntar si quiere intentar con el visor de Google como último recurso
+      if (userData.cv && userData.cv.includes('cloudinary.com')) {
+        const isPdfUrl = userData.cv.toLowerCase().includes('.pdf') || userData.cv.toLowerCase().includes('/pdf/');
+        if (isPdfUrl) {
+          const tryGoogleViewer = window.confirm(
+            `${errorMessage}\n\n¿Deseas intentar abrir el PDF con el visor de Google Docs como último recurso?`
+          );
+          
+          if (tryGoogleViewer) {
+            viewPdfWithGoogleViewer(userData.cv);
+            return;
+          }
+        }
+      }
+      
       alert(errorMessage);
     } finally {
       setLoadingCv(false);

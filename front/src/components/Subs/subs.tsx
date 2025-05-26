@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Subscription } from "../../helpers/helpersSubs";
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -9,11 +9,15 @@ import Line from "../HorizontalDiv/line";
 import styles from "../../Styles/cardSub.module.css";
 import Image from "next/image";
 import Link from "next/link";
+import { UserContext } from "../Context/UserContext";
+import { useRouter } from "next/navigation";
 
 function Subs() {
   const subscriptionOptions = Subscription();
   const [isLoading, setIsLoading] = useState<{ [key: number]: boolean }>({});
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const { isLogged, user } = useContext(UserContext);
+  const router = useRouter();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -33,11 +37,26 @@ function Subs() {
   const handleSubscribe = async (index: number, priceId: string) => {
     if (!priceId) return;
     
+    // Verificar si el usuario está autenticado
+    if (!isLogged || !user) {
+      // Si no está autenticado, redirigir al login
+      console.log("Usuario no autenticado. Redirigiendo al login...");
+      router.push("/Login");
+      return;
+    }
+    
     setIsLoading({ ...isLoading, [index]: true });
 
     try {
-      // Get the user email from local storage or context
-      const userEmail = localStorage.getItem('userEmail') || 'usuario@example.com';
+      // Obtener el email del usuario del contexto
+      const userEmail = user.email || localStorage.getItem('userEmail');
+      
+      if (!userEmail) {
+        console.error("No se pudo obtener el email del usuario");
+        alert("Error: No se pudo obtener el email del usuario. Por favor, inicia sesión nuevamente.");
+        router.push("/Login");
+        return;
+      }
       
       // Get the product ID if available
       const option = subscriptionOptions[index];
@@ -47,6 +66,7 @@ function Subs() {
       const planName = option.title;
       
       console.log(`Creating subscription with price ID: ${priceId}`);
+      console.log(`User email: ${userEmail}`);
       if (productId) {
         console.log(`Using product ID: ${productId}`);
       }

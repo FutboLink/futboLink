@@ -4,13 +4,15 @@ import React, { useState, useContext, useEffect } from 'react';
 import Link from 'next/link';
 import styles from "../../Styles/cardSub.module.css";
 import { UserContext } from "../Context/UserContext";
+import { useRouter } from 'next/navigation';
 
 // Simple subscription component without any external dependencies
 export default function SubsSimple() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
-  const { user } = useContext(UserContext);
+  const { user, isLogged } = useContext(UserContext);
+  const router = useRouter();
   
   // API URL
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -55,19 +57,27 @@ export default function SubsSimple() {
   }, [user]);
   
   const handleSubscribe = async () => {
+    // Verificar si el usuario está autenticado
+    if (!isLogged || !user) {
+      // Si no está autenticado, redirigir al login
+      console.log("Usuario no autenticado. Redirigiendo al login...");
+      router.push("/Login");
+      return;
+    }
+    
     setIsLoading(true);
     setError(null);
     
     try {
-      // First, try to use the dedicated userEmail field in localStorage
-      let userEmail: string | null = localStorage.getItem('userEmail');
+      // Primero usamos el email del contexto de usuario
+      let userEmail: string | null = user.email || null;
       
-      // If not found, try context
-      if (!userEmail && user?.email) {
-        userEmail = user.email;
+      // Si no está disponible, buscamos en localStorage
+      if (!userEmail) {
+        userEmail = localStorage.getItem('userEmail');
       }
       
-      // If still not found, try user object in localStorage
+      // Si todavía no hay email, verificamos el objeto de usuario en localStorage
       if (!userEmail) {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
@@ -78,15 +88,19 @@ export default function SubsSimple() {
           } catch (error) {
             console.error('Failed to parse user data from localStorage:', error);
             setError('Error parsing localStorage data. Please try logging in again.');
+            router.push("/Login");
             return;
           }
         }
       }
       
-      // If still no email, use default but show warning
+      // Si aún no hay email, redirigir al login
       if (!userEmail) {
         setError('No user email found. Please log in again before subscribing.');
-        userEmail = 'usuario@example.com';
+        console.error("No se pudo obtener el email del usuario");
+        alert("Error: No se pudo obtener el email del usuario. Por favor, inicia sesión nuevamente.");
+        router.push("/Login");
+        return;
       }
       
       // Tipo de plan

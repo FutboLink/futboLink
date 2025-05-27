@@ -2,8 +2,8 @@
 // @ts-nocheck
 
 // This is a dynamic page component
-export default function SuccessCasePage(props) {
-  // Extract the case ID from params
+export default async function SuccessCasePage(props) {
+  // Extract the case ID from params (ahora usando async/await correctamente)
   const caseId = props.params?.id;
   
   // Just render a container with data attribute

@@ -6,6 +6,7 @@ import { fetchSuccessCaseById } from '@/components/Fetchs/SuccessCasesFetchs';
 import Link from 'next/link';
 import Navbar from "@/components/navbar/navbar";
 import Footer from '@/components/Footer/footer';
+import Image from 'next/image';
 
 interface SuccessCaseDetailProps {
   id: string;
@@ -17,21 +18,42 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
   const [error, setError] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
   const [dataAttempted, setDataAttempted] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  
+  // Usar una URL externa en lugar de una imagen local que podría no estar cargando bien
+  const fallbackImage = 'https://dummyimage.com/400x400/1d5126/ffffff&text=FutboLink';
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    console.log('SuccessCaseDetail montado con ID:', id);
+  }, [id]);
 
+  // Manejar la carga de datos
   useEffect(() => {
     const loadSuccessCase = async () => {
+      if (!id) return;
+      
       try {
         setLoading(true);
+        console.log("Obteniendo caso de éxito con ID:", id);
+        
         const data = await fetchSuccessCaseById(id);
+        console.log("Datos recibidos:", data);
+        
+        // Validar la URL de la imagen
+        if (data && data.imgUrl) {
+          if (data.imgUrl.startsWith('blob:') || !data.imgUrl.startsWith('http')) {
+            console.warn("URL de imagen inválida detectada:", data.imgUrl);
+            data.imgUrl = ''; // Forzará el uso de la imagen de respaldo
+            setImageError(true);
+          }
+        }
+        
         setSuccessCase(data);
         
         // Set document title when data is loaded (client-side only)
         if (data && typeof window !== 'undefined') {
-          document.title = `${data.name} - Casos de Éxito | FutboLink`;
+          document.title = `${data.name || 'Caso'} - Casos de Éxito | FutboLink`;
         }
       } catch (err) {
         console.error("Error al cargar el caso de éxito:", err);
@@ -42,10 +64,14 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
       }
     };
 
-    if (id) {
-      loadSuccessCase();
-    }
+    loadSuccessCase();
   }, [id]);
+
+  // Manejador de errores de carga de imagen
+  const handleImageError = () => {
+    console.log('Error al cargar la imagen, usando imagen de respaldo');
+    setImageError(true);
+  };
 
   // Show loading state during initial load
   if (loading || !isClient) {
@@ -84,6 +110,9 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
     );
   }
 
+  // Determinar la URL de la imagen a mostrar
+  const imgUrl = imageError || !successCase?.imgUrl ? fallbackImage : successCase.imgUrl;
+
   return (
     <>
       <Navbar />
@@ -94,7 +123,7 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
           <div 
             className="absolute inset-0 bg-cover bg-center" 
             style={{ 
-              backgroundImage: `url(${successCase?.imgUrl})`,
+              backgroundImage: `url(${fallbackImage})`,
               backgroundPosition: 'center 25%',
               backgroundSize: 'cover',
               filter: 'blur(2px)',
@@ -103,10 +132,10 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
           ></div>
           <div className="container relative mx-auto px-4 h-full flex flex-col justify-end pb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 drop-shadow-lg">
-              {successCase?.name}
+              {successCase?.name || 'Caso de Éxito'}
             </h1>
             <p className="text-xl text-white mb-4 drop-shadow-md">
-              {successCase?.role}
+              {successCase?.role || 'Profesional del fútbol'}
             </p>
           </div>
         </div>
@@ -118,17 +147,20 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
             <div className="flex flex-col md:flex-row gap-8 mb-8">
               <div className="md:w-1/3">
                 <div className="overflow-hidden rounded-lg shadow-md">
-                  <img 
-                    src={successCase?.imgUrl} 
-                    alt={successCase?.name} 
-                    className="w-full h-auto object-cover"
-                  />
+                  {isClient && (
+                    <img 
+                      src={imgUrl}
+                      alt={successCase?.name || "Caso de éxito"}
+                      className="w-full h-auto object-cover"
+                      onError={handleImageError}
+                    />
+                  )}
                 </div>
               </div>
               
               <div className="md:w-2/3">
                 <blockquote className="text-xl italic text-gray-700 border-l-4 border-[#1d5126] pl-4 py-2 mb-6">
-                  "{successCase?.testimonial}"
+                  "{successCase?.testimonial || 'Sin testimonio disponible'}"
                 </blockquote>
                 
                 <div className="flex items-center mt-4">
@@ -154,7 +186,7 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
                     De nuestros testimonios a tu historia
                   </h2>
                   <p className="mb-4 text-gray-700 leading-relaxed">
-                    {successCase?.name} es uno de los muchos talentos que han encontrado su camino 
+                    {successCase?.name || 'Este profesional'} es uno de los muchos talentos que han encontrado su camino 
                     gracias a FutboLink, la plataforma que conecta profesionales del fútbol con 
                     oportunidades reales en todo el mundo.
                   </p>
@@ -191,6 +223,7 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
           </div>
         </div>
       </main>
+      <Footer />
     </>
   );
 } 

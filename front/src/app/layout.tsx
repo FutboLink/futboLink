@@ -66,6 +66,10 @@ export default function RootLayout({
         <meta name="msapplication-TileImage" content="/logoD.png" />
         <meta name="msapplication-TileColor" content="#1d5126" />
         <meta name="theme-color" content="#1d5126" />
+        
+        {/* Preconnect con Cloudinary para mejorar carga de imágenes */}
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased hover:scale`}

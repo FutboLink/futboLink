@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Confirmación de Recepción de Mensaje</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 0;
+        color: #333333;
+      }
+      .container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .logo {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .logo img {
+        max-width: 150px;
+        height: auto;
+      }
+      .header {
+        font-size: 22px;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+      .subheader {
+        font-size: 18px;
+        color: #27ae60;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+      .message {
+        font-size: 16px;
+        line-height: 1.6;
+        color: #34495e;
+        margin-bottom: 25px;
+      }
+      .cta-button {
+        display: block;
+        width: 200px;
+        margin: 30px auto;
+        padding: 12px 20px;
+        background-color: #27ae60;
+        color: #ffffff;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+      }
+      .footer {
+        margin-top: 30px;
+        text-align: center;
+        font-size: 14px;
+        color: #7f8c8d;
+        border-top: 1px solid #ecf0f1;
+        padding-top: 20px;
+      }
+      .social {
+        margin-top: 15px;
+        text-align: center;
+      }
+      .social a {
+        display: inline-block;
+        margin: 0 10px;
+        color: #3498db;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">
+        <!-- Logo here -->
+      </div>
+      <div class="header">¡Gracias por contactar con FutboLink!</div>
+      <div class="subheader">Hemos recibido tu mensaje</div>
+      <div class="message">
+        <p>Hola {{name}},</p>
+        <p>Queremos confirmarte que hemos recibido tu mensaje enviado el {{date}}. Uno de nuestros representantes lo revisará y te responderá a la brevedad.</p>
+        <p>En FutboLink, nos dedicamos a conectar jugadores, representantes y agencias de fútbol de todo el mundo. Estamos comprometidos a brindarte el mejor servicio posible.</p>
+        <p>Si tienes alguna consulta adicional, no dudes en responder a este correo electrónico o contactarnos por teléfono.</p>
+      </div>
+      <a href="https://futbolink.vercel.app" class="cta-button">Visitar nuestra web</a>
+      <div class="footer">
+        <p>FutboLink - Conectando el mundo del fútbol</p>
+        <p>Lecce, Apulia, Italia, 73100</p>
+        <p>Teléfono: +393715851071 | Email: futbolink.contacto@gmail.com</p>
+        <div class="social">
+          <a href="https://instagram.com/futbolink">Instagram</a>
+          <a href="https://twitter.com/futbolink">Twitter</a>
+          <a href="https://facebook.com/futbolink">Facebook</a>
+        </div>
+        <p>© {{currentYear}} FutboLink. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </body>
+</html> 

@@ -10,13 +10,14 @@
         background-color: #f9f9f9;
         margin: 0;
         padding: 0;
+        color: #333333;
       }
       .container {
         width: 100%;
         max-width: 600px;
         margin: 0 auto;
         background-color: #ffffff;
-        padding: 20px;
+        padding: 30px;
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
@@ -25,6 +26,26 @@
         font-weight: bold;
         color: #2c3e50;
         margin-bottom: 20px;
+        text-align: center;
+        border-bottom: 2px solid #27ae60;
+        padding-bottom: 15px;
+      }
+      .message-info {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+      .message-info p {
+        margin: 5px 0;
+      }
+      .message-content {
+        background-color: #edf7ed;
+        padding: 20px;
+        border-radius: 5px;
+        border-left: 4px solid #27ae60;
+        margin-top: 20px;
+        margin-bottom: 20px;
       }
       .message {
         font-size: 16px;
@@ -32,10 +53,28 @@
         color: #34495e;
       }
       .footer {
-        margin-top: 20px;
+        margin-top: 30px;
         text-align: center;
         font-size: 14px;
         color: #7f8c8d;
+        border-top: 1px solid #ecf0f1;
+        padding-top: 20px;
+      }
+      .label {
+        font-weight: bold;
+        color: #27ae60;
+      }
+      .reply-button {
+        display: block;
+        width: 200px;
+        margin: 20px auto;
+        padding: 12px 20px;
+        background-color: #27ae60;
+        color: #ffffff;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
       }
     </style>
   </head>
@@ -43,13 +82,25 @@
     <div class="container">
       <div class="header">Nuevo mensaje de contacto recibido</div>
       <div class="message">
-        <p><strong>Nombre:</strong> {{name}}</p>
-        <p><strong>Correo electrónico:</strong> {{email}}</p>
-        <p><strong>Mensaje:</strong></p>
-        <p>{{mensaje}}</p>
+        <p>Se ha recibido un nuevo mensaje a través del formulario de contacto de FutboLink:</p>
+        
+        <div class="message-info">
+          <p><span class="label">Fecha:</span> {{date}}</p>
+          <p><span class="label">Nombre:</span> {{name}}</p>
+          <p><span class="label">Correo electrónico:</span> <a href="mailto:{{email}}">{{email}}</a></p>
+        </div>
+        
+        <p><span class="label">Mensaje:</span></p>
+        <div class="message-content">
+          <p>{{mensaje}}</p>
+        </div>
+        
+        <a href="mailto:{{email}}?subject=Re: Tu mensaje a FutboLink" class="reply-button">Responder a {{name}}</a>
       </div>
+      
       <div class="footer">
-        <p>Este es un correo automático enviado por el formulario de contacto de Futbolink.</p>
+        <p>Este es un correo automático enviado por el formulario de contacto de FutboLink.</p>
+        <p>© FutboLink - Todos los derechos reservados.</p>
       </div>
     </div>
   </body>

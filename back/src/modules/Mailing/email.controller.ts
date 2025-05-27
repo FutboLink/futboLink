@@ -1,8 +1,9 @@
-import { Controller, Post, Body, Logger, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Post, Body, Logger, HttpCode, HttpStatus, HttpException } from '@nestjs/common';
 import { EmailService } from './email.service';
 import { ContactFormDto } from './email.dto';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-
+@ApiTags('Email')
 @Controller('email') 
 export class EmailController {
   private readonly logger = new Logger(EmailController.name);
@@ -10,6 +11,11 @@ export class EmailController {
   constructor(private readonly emailService: EmailService) {}
 
   @Post('contact') 
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Send contact form email' })
+  @ApiResponse({ status: 200, description: 'Email sent successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid form data' })
+  @ApiResponse({ status: 500, description: 'Server error' })
   async sendContactEmail(@Body() contactDto: ContactFormDto) {
     const { email, name, mensaje } = contactDto;
 
@@ -26,16 +32,23 @@ export class EmailController {
     } catch (error) {
       this.logger.error(`Failed to send contact email: ${error.message}`);
       
-      // Return different error message based on the error
+      // Log more detailed error info for debugging
+      this.logger.error(`Error stack: ${error.stack}`);
+      this.logger.error(`Error type: ${error.name}`);
+      
+      // Handle different types of errors
       if (error.message.includes('configuration is incomplete')) {
-        this.logger.error('Mail server configuration is incomplete');
-        throw new InternalServerErrorException('Error de configuración del servidor de correo. Por favor, contacte al administrador.');
+        throw new HttpException({
+          success: false,
+          message: 'Error de configuración del servidor de correo. Por favor, contacte al administrador.'
+        }, HttpStatus.INTERNAL_SERVER_ERROR);
       }
       
-      return { 
-        success: false, 
-        message: 'Error al enviar el mensaje. Por favor, inténtelo más tarde.' 
-      };
+      // General error
+      throw new HttpException({
+        success: false,
+        message: 'Error al enviar el mensaje. Por favor, inténtelo más tarde.'
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

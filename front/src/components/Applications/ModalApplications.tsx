@@ -94,10 +94,10 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
 
       setNotificationMessage("Has enviado la solicitud exitosamente");
       setShowNotification(true);
-
+      onClose(); // Cerrar modal luego del envío exitoso
+      
       setTimeout(() => {
         setShowNotification(false);
-        onClose(); // Cerrar modal luego del envío exitoso
       }, 2000);
     } catch (error: any) {
       console.error("Error applying:", error);

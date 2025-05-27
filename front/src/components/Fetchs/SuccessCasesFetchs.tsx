@@ -54,37 +54,40 @@ export const fetchPublishedSuccessCases = async () => {
 const isValidUrl = (url: string): boolean => {
   if (!url) return false;
   
-  // Rechazar URLs inválidas
-  if (url.startsWith('blob:') || url.startsWith('data:')) {
-    console.warn("URL de tipo blob o data URI rechazada:", url);
-    return false;
-  }
-  
-  // Verificar que la URL comience con http o https
-  if (!url.startsWith('http://') && !url.startsWith('https://')) {
-    console.warn("URL sin protocolo http/https rechazada:", url);
-    return false;
-  }
-  
-  // Verificar si es una URL de Cloudinary
-  const isCloudinary = url.includes('cloudinary.com') || 
-                      url.includes('res.cloudinary.com');
-  
-  // Las URLs de Cloudinary son siempre válidas para nuestro caso
-  if (isCloudinary) {
+  try {
+    // Rechazar URLs inválidas
+    if (url.startsWith('blob:') || url.startsWith('data:')) {
+      console.warn("URL de tipo blob o data URI rechazada:", url);
+      return false;
+    }
+    
+    // Verificar que la URL comience con http o https
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      console.warn("URL sin protocolo http/https rechazada:", url);
+      return false;
+    }
+    
+    // Verificar si es una URL de Cloudinary
+    if (url.includes('cloudinary.com')) {
+      console.log("URL de Cloudinary detectada:", url);
+      return true;
+    }
+    
+    // Para URLs que no son de Cloudinary, comprobamos que sean de dominios permitidos
+    const allowedDomains = ['dummyimage.com', 'img.freepik.com'];
+    const isAllowedDomain = allowedDomains.some(domain => url.includes(domain));
+    
+    if (!isAllowedDomain) {
+      console.warn("URL de dominio no permitido rechazada:", url);
+      return false;
+    }
+    
+    // La URL parece válida
     return true;
-  }
-  
-  // Para URLs que no son de Cloudinary, comprobamos que sean de dominios permitidos
-  const allowedDomains = ['dummyimage.com', 'img.freepik.com'];
-  const isAllowedDomain = allowedDomains.some(domain => url.includes(domain));
-  
-  if (!isAllowedDomain) {
-    console.warn("URL de dominio no permitido rechazada:", url);
+  } catch (error) {
+    console.error("Error al validar URL:", error);
     return false;
   }
-  
-  return true;
 };
 
 // Obtener un caso de éxito por ID
@@ -125,31 +128,15 @@ export const fetchSuccessCaseById = async (id: string) => {
       imgUrl: data.imgUrl || ""
     };
     
-    // Validar que la imgUrl existe y es accesible
+    // Validar que la imgUrl existe y es válida
     if (sanitizedData.imgUrl) {
-      // Verificar si la URL es válida
+      // Verificar si la URL es válida según nuestra función
       if (!isValidUrl(sanitizedData.imgUrl)) {
         console.warn(`URL inválida detectada: ${sanitizedData.imgUrl}. Usando URL alternativa.`);
         // Si la URL no es válida, establecer una cadena vacía para que el componente use la imagen por defecto
         sanitizedData.imgUrl = "";
-      } else {
-        try {
-          // Realizar un pre-fetch de la imagen para verificar si está disponible
-          console.log(`Verificando disponibilidad de la imagen: ${sanitizedData.imgUrl}`);
-          const imgCheck = await fetch(sanitizedData.imgUrl, { 
-            method: 'HEAD',
-            mode: 'no-cors' // Para evitar errores CORS al verificar
-          }).catch(() => ({ ok: false }));
-          
-          if (!imgCheck.ok) {
-            console.warn(`La imagen no está disponible: ${sanitizedData.imgUrl}`);
-            sanitizedData.imgUrl = ""; // Usar imagen por defecto
-          }
-        } catch (imgError) {
-          console.error("Error al verificar la imagen:", imgError);
-          sanitizedData.imgUrl = ""; // En caso de error, usar imagen por defecto
-        }
-      }
+      } 
+      // No hacemos pre-fetch de la imagen para evitar problemas CORS
     }
     
     return sanitizedData;

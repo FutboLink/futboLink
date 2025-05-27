@@ -6,7 +6,6 @@ import { fetchSuccessCaseById } from '@/components/Fetchs/SuccessCasesFetchs';
 import Link from 'next/link';
 import Navbar from "@/components/navbar/navbar";
 import Footer from '@/components/Footer/footer';
-import Image from 'next/image';
 
 interface SuccessCaseDetailProps {
   id: string;
@@ -21,7 +20,7 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
   const [imageError, setImageError] = useState(false);
   
   // Usar una URL externa en lugar de una imagen local que podría no estar cargando bien
-  const fallbackImage = 'https://dummyimage.com/400x400/1d5126/ffffff&text=FutboLink';
+  const fallbackImage = 'https://dummyimage.com/800x600/1d5126/ffffff&text=FutboLink';
 
   useEffect(() => {
     setIsClient(true);
@@ -47,6 +46,9 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
             data.imgUrl = ''; // Forzará el uso de la imagen de respaldo
             setImageError(true);
           }
+        } else {
+          // Si no hay URL de imagen, marcamos como error para usar la de respaldo
+          setImageError(true);
         }
         
         setSuccessCase(data);
@@ -72,6 +74,30 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
     console.log('Error al cargar la imagen, usando imagen de respaldo');
     setImageError(true);
   };
+
+  // Determinar la URL de la imagen a mostrar
+  const imgUrl = imageError || !successCase?.imgUrl ? fallbackImage : successCase.imgUrl;
+  // URL para la imagen de fondo (usar la misma que la imagen principal si está disponible)
+  const bgImgUrl = imageError || !successCase?.imgUrl ? fallbackImage : successCase.imgUrl;
+  // Estado para controlar error en la imagen de fondo
+  const [bgImageError, setBgImageError] = useState(false);
+
+  // Manejar error en la imagen de fondo
+  const handleBgImageError = () => {
+    console.log('Error al cargar la imagen de fondo, usando fallback');
+    setBgImageError(true);
+  };
+
+  // Referencia para precargar la imagen
+  useEffect(() => {
+    if (bgImgUrl && bgImgUrl !== fallbackImage) {
+      // Precargar imagen para el banner
+      const img = new Image();
+      img.src = bgImgUrl;
+      img.onload = () => console.log('Imagen de fondo cargada correctamente');
+      img.onerror = handleBgImageError;
+    }
+  }, [bgImgUrl, fallbackImage]);
 
   // Show loading state during initial load
   if (loading || !isClient) {
@@ -110,9 +136,6 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
     );
   }
 
-  // Determinar la URL de la imagen a mostrar
-  const imgUrl = imageError || !successCase?.imgUrl ? fallbackImage : successCase.imgUrl;
-
   return (
     <>
       <Navbar />
@@ -123,7 +146,7 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
           <div 
             className="absolute inset-0 bg-cover bg-center" 
             style={{ 
-              backgroundImage: `url(${fallbackImage})`,
+              backgroundImage: `url(${bgImageError ? fallbackImage : bgImgUrl})`,
               backgroundPosition: 'center 25%',
               backgroundSize: 'cover',
               filter: 'blur(2px)',

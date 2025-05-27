@@ -85,6 +85,7 @@ export interface IJobApplication {
     ubicacionActual?: string;
     genre?: string;
     subscription?: boolean;
+    subscriptionType?: string;
   }
   nationality: string;
   location: string;

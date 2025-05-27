@@ -32,15 +32,34 @@ const nextConfig = {
   },
   // Otras configuraciones existentes
   async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination:
-          process.env.NODE_ENV === 'development'
-            ? 'http://localhost:3001/api/:path*'
-            : 'https://futbolink.onrender.com/api/:path*',
-      },
-    ];
+    const rewrites = [];
+    
+    // Ruta base de la API
+    const baseUrl = process.env.NODE_ENV === 'development'
+      ? 'http://localhost:3001'
+      : 'https://futbolink.onrender.com';
+    
+    console.log('Next.js rewrite configuration using baseUrl:', baseUrl);
+    
+    // Redirección para API general
+    rewrites.push({
+      source: '/api/:path*',
+      destination: `${baseUrl}/api/:path*`,
+    });
+    
+    // Redirección específica para el endpoint de contacto
+    rewrites.push({
+      source: '/email/contact',
+      destination: `${baseUrl}/email/contact`,
+    });
+    
+    // Redirección específica para las opciones CORS
+    rewrites.push({
+      source: '/email/:path*',
+      destination: `${baseUrl}/email/:path*`,
+    });
+    
+    return rewrites;
   },
 };
 

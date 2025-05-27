@@ -6,7 +6,6 @@ import Head from "next/head";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import React, { useState } from "react";
-import { contact } from "../Fetchs/UsersFetchs/UserFetchs";
 
 function Contact() {
   React.useEffect(() => {
@@ -18,55 +17,58 @@ function Contact() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [mensaje, setMensaje] = useState("");
-  const [message, setMessage] = useState("");
-  const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // Reset states
-    setMessage("");
-    setSuccess(false);
-    setError(false);
-
+    
     // Form validation
     if (!email || !name || !mensaje) {
-      setMessage("⚠️ Por favor, completa todos los campos.");
-      setError(true);
+      setStatus('error');
+      setErrorMessage("Por favor, completa todos los campos.");
       return;
     }
 
-    // Email validation
+    // Email validation with regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setMessage("⚠️ Por favor, introduce un correo electrónico válido.");
-      setError(true);
+      setStatus('error');
+      setErrorMessage("Por favor, introduce un correo electrónico válido.");
       return;
     }
 
-    setLoading(true);
+    setStatus('loading');
 
     try {
-      const response = await contact(email, name, mensaje);
+      // Direct API call to the backend
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://futbolink.onrender.com';
+      
+      // Try the Next.js rewrite first
+      const response = await fetch('/email/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, name, mensaje })
+      });
 
-      if (response.success) {
-        setSuccess(true);
-        setMessage("✅ Se ha enviado tu mensaje. Nos pondremos en contacto pronto.");
+      if (response.ok) {
+        // Success! Clear the form and show success message
+        setStatus('success');
         setEmail("");
         setName("");
         setMensaje("");
       } else {
-        setError(true);
-        setMessage(`❌ ${response.message || "Ocurrió un error al enviar el mensaje. Por favor, intenta de nuevo más tarde."}`);
+        // Handle error response
+        const data = await response.json().catch(() => ({}));
+        setStatus('error');
+        setErrorMessage(data.message || "Error al enviar el mensaje. Por favor, inténtelo más tarde.");
       }
     } catch (err) {
-      console.error("Error submitting contact form:", err);
-      setError(true);
-      setMessage("❌ No se pudo conectar con el servidor. Por favor, intenta de nuevo más tarde.");
-    } finally {
-      setLoading(false);
+      console.error("Error sending message:", err);
+      setStatus('error');
+      setErrorMessage("No se pudo conectar con el servidor. Por favor, intenta más tarde o contacta directamente por correo electrónico.");
     }
   };
 
@@ -143,7 +145,7 @@ function Contact() {
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Tu nombre"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-oscuro"
-                    disabled={loading}
+                    disabled={status === 'loading'}
                   />
                 </div>
 
@@ -162,7 +164,7 @@ function Contact() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Tu correo electrónico"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-oscuro"
-                    disabled={loading}
+                    disabled={status === 'loading'}
                   />
                 </div>
 
@@ -181,7 +183,7 @@ function Contact() {
                     rows={4}
                     placeholder="Tu mensaje"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-oscuro"
-                    disabled={loading}
+                    disabled={status === 'loading'}
                   />
                 </div>
 
@@ -189,9 +191,9 @@ function Contact() {
                 <button
                   type="submit"
                   className="w-full py-3 bg-verde-oscuro text-white text-lg font-semibold rounded-md hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                  disabled={loading}
+                  disabled={status === 'loading'}
                 >
-                  {loading ? (
+                  {status === 'loading' ? (
                     <span className="flex items-center justify-center">
                       <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -203,15 +205,19 @@ function Contact() {
                 </button>
               </form>
 
-              {/* Mensaje de estado */}
-              {message && (
-                <div className={`mt-4 p-3 rounded-md ${success ? 'bg-green-100 text-green-800' : error ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}`}>
-                  <p className="text-center text-md font-medium">{message}</p>
-                  {success && (
-                    <p className="text-center text-sm mt-2">
-                      Te responderemos a la brevedad a la dirección de correo proporcionada.
-                    </p>
-                  )}
+              {/* Status messages */}
+              {status === 'success' && (
+                <div className="mt-4 p-3 bg-green-100 text-green-800 rounded-md">
+                  <p className="text-center text-md font-medium">✅ Mensaje enviado correctamente.</p>
+                  <p className="text-center text-sm mt-2">
+                    Te responderemos a la brevedad a la dirección de correo proporcionada.
+                  </p>
+                </div>
+              )}
+              
+              {status === 'error' && (
+                <div className="mt-4 p-3 bg-red-100 text-red-800 rounded-md">
+                  <p className="text-center text-md font-medium">❌ {errorMessage}</p>
                 </div>
               )}
             </div>

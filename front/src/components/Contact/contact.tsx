@@ -44,14 +44,19 @@ function Contact() {
       // Direct API call to the backend
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://futbolink.onrender.com';
       
-      // Try the Next.js rewrite first
-      const response = await fetch('/email/contact', {
+      // Use the new contact endpoint
+      const response = await fetch(`${apiUrl}/contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify({ email, name, mensaje })
       });
+
+      // Get the response data
+      const data = await response.json().catch(() => ({}));
+      console.log("Respuesta del servidor:", response.status, data);
 
       if (response.ok) {
         // Success! Clear the form and show success message
@@ -61,7 +66,6 @@ function Contact() {
         setMensaje("");
       } else {
         // Handle error response
-        const data = await response.json().catch(() => ({}));
         setStatus('error');
         setErrorMessage(data.message || "Error al enviar el mensaje. Por favor, inténtelo más tarde.");
       }

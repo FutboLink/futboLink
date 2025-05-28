@@ -18,6 +18,18 @@ function PaymentSuccessContent() {
   const router = useRouter();
   const userContext = useContext(UserContext);
   const userEmail = userContext?.user?.email; // Acceder al email de manera segura
+  const userRole = userContext?.role; // Get the user role
+
+  // Determine the correct profile path based on role
+  const getProfilePath = () => {
+    if (!userRole) return '/';
+    
+    if (userRole === 'PLAYER') return '/PanelUsers/Player';
+    if (userRole === 'RECRUITER') return '/PanelUsers/Manager';
+    if (userRole === 'ADMIN') return '/PanelAdmin';
+    
+    return '/'; // Default fallback
+  };
 
   useEffect(() => {
     const processPayment = async () => {
@@ -98,7 +110,7 @@ function PaymentSuccessContent() {
             
             <div className="flex flex-col space-y-3">
               <Link 
-                href="/panel-usuario" 
+                href={getProfilePath()} 
                 className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200"
               >
                 Ir a mi perfil

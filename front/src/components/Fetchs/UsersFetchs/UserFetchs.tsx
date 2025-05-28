@@ -476,3 +476,37 @@ export const getCv = async (cvPath: string) => {
     throw error;
   }
 };
+
+export const contact = async (email: string, name: string, mensaje: string) => {
+  try {
+    console.log("Enviando mensaje de contacto:", { email, name, mensaje });
+    
+    // Create request body
+    const requestBody = {
+      email,
+      name,
+      message: mensaje
+    };
+    
+    // Send request to contact endpoint
+    const response = await fetch(`${apiUrl}/contact`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestBody)
+    });
+    
+    // Check if response is successful
+    if (!response.ok) {
+      console.error("Error al enviar mensaje de contacto:", response.status);
+      return { success: false };
+    }
+    
+    // Return success
+    return { success: true };
+  } catch (error) {
+    console.error("Error en función de contacto:", error);
+    return { success: false };
+  }
+};

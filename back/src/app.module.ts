@@ -11,16 +11,12 @@ import { ApplicationsModule } from './modules/Applications/applications.module';
 import { ContractsModule } from './modules/contracts/contracts.module';
 import { NewsModule } from './modules/News/news.module';
 import { CursoModule } from './modules/Courses/cursos.module';
-import { MailerModule } from '@nestjs-modules/mailer';
 import { PaymentsModule } from './payments/payments.module';
-import { mailConfig } from './modules/config/mail.config';
-import { EmailController } from './modules/Mailing/email.controller';
-import { EmailService } from './modules/Mailing/email.service';
 import { SuccessCasesModule } from './modules/SuccessCases/success-cases.module';
+import { ContactModule } from './modules/Contact/contact.module';
 
 @Module({
   imports: [
-    MailerModule.forRoot(mailConfig),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [typeormConfig],
@@ -37,10 +33,11 @@ import { SuccessCasesModule } from './modules/SuccessCases/success-cases.module'
     NewsModule,
     CursoModule,
     PaymentsModule,
-    SuccessCasesModule
+    SuccessCasesModule,
+    ContactModule
   ],
   
-  controllers: [AppController,EmailController],
-  providers: [AppService, EmailService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

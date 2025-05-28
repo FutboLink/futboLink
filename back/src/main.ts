@@ -83,7 +83,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .addTag('auth', 'Authentication endpoints')
     .addTag('users', 'User management endpoints')
-    .addTag('email', 'Email sending endpoints')
+    .addTag('contact', 'Contact form endpoints')
     .addBearerAuth()
     .build();
 

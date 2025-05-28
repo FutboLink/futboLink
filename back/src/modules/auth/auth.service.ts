@@ -4,7 +4,7 @@ import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
-import { EmailService } from '../Mailing/email.service';
+import { EmailService } from '@modules/Mailing/email.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 
@@ -18,7 +18,7 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly usersService: UserService,
-    private readonly mailerService: EmailService,
+    private readonly emailService: EmailService,
   ) {}
 
 
@@ -60,6 +60,9 @@ export class AuthService {
       );
 
       console.log(`Generated reset token for ${email}`);
+      
+      // Send password reset email
+      await this.emailService.sendPasswordResetEmail(email, resetToken);
       
       return { 
         message: 'Token de recuperación generado correctamente',

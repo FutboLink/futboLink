@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 // Define the API handler for individual success-cases
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  const id = params.id;
+  const id = context.params.id;
   
   try {
     console.log(`API route handler for /api/success-cases/${id}`);

@@ -13,20 +13,17 @@ export async function GET(request: NextRequest) {
     const apiUrl = `${baseUrl}/success-cases/published`;
     console.log(`Forwarding request to backend at: ${apiUrl}`);
     
-    // Forward the request to the backend API
+    // Forward the request to the backend API with minimal options
     const response = await fetch(apiUrl, {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-      },
-      cache: 'no-store',
+        'Content-Type': 'application/json'
+      }
     });
     
     // Check if the response is ok
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`Backend error (${response.status}):`, errorText);
+      console.error(`Backend error (${response.status})`);
       return NextResponse.json(
         { error: 'Failed to fetch published success cases' },
         { status: response.status }
@@ -36,14 +33,8 @@ export async function GET(request: NextRequest) {
     // Get the response data as JSON
     const data = await response.json();
     
-    // Return the data with proper headers
-    return NextResponse.json(data, {
-      status: response.status,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-store, max-age=0',
-      },
-    });
+    // Return the data
+    return NextResponse.json(data);
   } catch (error) {
     console.error('Error in success-cases/published API route:', error);
     return NextResponse.json(

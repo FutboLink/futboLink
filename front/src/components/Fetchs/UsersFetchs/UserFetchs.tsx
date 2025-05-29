@@ -4,11 +4,17 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export const fetchLoginUser = async (credentials: ILoginUser) => {
   try {
-    console.log("Llamando a la API en:", apiUrl);
-    const response = await fetch(`${apiUrl}/login`, {
+    // Use relative URL in production
+    const url = process.env.NODE_ENV === 'production' 
+      ? '/api/login'
+      : `${apiUrl}/login`;
+      
+    console.log("Llamando a la API en:", url);
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        'x-forward-to-backend': '1'
       },
       body: JSON.stringify(credentials),
     });
@@ -28,12 +34,18 @@ export const fetchLoginUser = async (credentials: ILoginUser) => {
 
 // Formulario de Registro
 export const fetchRegisterUser = async (user: IRegisterUser) => {
+  // Use relative URL in production
+  const url = process.env.NODE_ENV === 'production' 
+    ? '/user/register'
+    : `${apiUrl}/user/register`;
+    
   console.log("Datos del usuario a enviar:", user);
-  console.log("Llamando a la ruta:", `${apiUrl}/user/register`);
-  const response = await fetch(`${apiUrl}/user/register`, {
+  console.log("Llamando a la ruta:", url);
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      'x-forward-to-backend': '1'
     },
     body: JSON.stringify(user),
   });
@@ -50,9 +62,15 @@ export const fetchRegisterUser = async (user: IRegisterUser) => {
 export const fetchUserData = async (token: string) => {
   try {
     const userId = JSON.parse(atob(token.split(".")[1])).id;
-    const response = await fetch(`${apiUrl}/user/${userId}`, {
+    // Use relative URL in production
+    const url = process.env.NODE_ENV === 'production' 
+      ? `/user/${userId}`
+      : `${apiUrl}/user/${userId}`;
+      
+    const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${token}`,
+        'x-forward-to-backend': '1'
       },
     });
 
@@ -69,7 +87,16 @@ export const fetchUserData = async (token: string) => {
 
 export const fetchUserId = async (userId: string) => {
   try {
-    const response = await fetch(`${apiUrl}/user/${userId}`);
+    // Use relative URL in production
+    const url = process.env.NODE_ENV === 'production' 
+      ? `/user/${userId}`
+      : `${apiUrl}/user/${userId}`;
+      
+    const response = await fetch(url, {
+      headers: {
+        'x-forward-to-backend': '1'
+      }
+    });
     if (!response.ok) {
       throw new Error("Failed to fetch user data");
     }
@@ -119,15 +146,19 @@ export const updateUserData = async (
     console.log("Enviando datos completos:", JSON.stringify(dataToSend));
     
     // Vamos a acceder directamente a la ruta del backend para la actualización
-    const fullApiUrl = `${apiUrl}/user/${userId}`;
-    console.log("Enviando petición a:", fullApiUrl);
+    const url = process.env.NODE_ENV === 'production'
+      ? `/user/${userId}`
+      : `${apiUrl}/user/${userId}`;
+      
+    console.log("Enviando petición a:", url);
     
     const headers = {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      'x-forward-to-backend': '1'
     };
     
     // Enviar la solicitud con los datos completos
-    const response = await fetch(fullApiUrl, {
+    const response = await fetch(url, {
       method: "PUT",
       headers: headers,
       body: JSON.stringify(dataToSend)
@@ -154,11 +185,16 @@ export const updateUserData = async (
 
 export const fetchDeleteJob = async (token: string, jobId: string) => {
   try {
-    const response = await fetch(`${apiUrl}/jobs/${jobId}`, {
+    const url = process.env.NODE_ENV === 'production'
+      ? `/jobs/${jobId}`
+      : `${apiUrl}/jobs/${jobId}`;
+      
+    const response = await fetch(url, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        'x-forward-to-backend': '1'
       },
     });
 
@@ -171,16 +207,19 @@ export const fetchDeleteJob = async (token: string, jobId: string) => {
 
 // Actualiza la función para aceptar formData
 export const fetchEditJob = async (
- 
   id: string,
   formData: object
 ) => {
   try {
-    const response = await fetch(`${apiUrl}/jobs/${id}`, {
+    const url = process.env.NODE_ENV === 'production'
+      ? `/jobs/${id}`
+      : `${apiUrl}/jobs/${id}`;
+      
+    const response = await fetch(url, {
       method: "PUT",
       headers: {
-       
         "Content-Type": "application/json", // Agregar el tipo de contenido
+        'x-forward-to-backend': '1'
       },
       body: JSON.stringify(formData), // Enviar formData como cuerpo de la solicitud
     });
@@ -203,7 +242,10 @@ export const resetPassword = async (token: string, password: string) => {
   
   try {
     // Crear URL absoluta
-    const apiEndpoint = `${apiUrl}/login/reset-password`;
+    const apiEndpoint = process.env.NODE_ENV === 'production'
+      ? '/api/login/reset-password'
+      : `${apiUrl}/login/reset-password`;
+      
     console.log("Enviando solicitud a:", apiEndpoint);
     
     // Crear el cuerpo de la solicitud
@@ -222,6 +264,7 @@ export const resetPassword = async (token: string, password: string) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        'x-forward-to-backend': '1'
       },
       body: JSON.stringify(requestBody)
     });
@@ -283,7 +326,10 @@ export const forgotPassword = async (email: string) => {
   
   try {
     // Crear URL absoluta
-    const apiEndpoint = `${apiUrl}/login/forgot-password`;
+    const apiEndpoint = process.env.NODE_ENV === 'production'
+      ? '/api/login/forgot-password'
+      : `${apiUrl}/login/forgot-password`;
+      
     console.log("Enviando solicitud a:", apiEndpoint);
     
     // Hacer solicitud simple
@@ -291,6 +337,7 @@ export const forgotPassword = async (email: string) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        'x-forward-to-backend': '1'
       },
       body: JSON.stringify({ email })
     });
@@ -436,8 +483,15 @@ export const getCv = async (cvPath: string) => {
       const filename = cvPath.split('/').pop() || cvPath;
       console.log("Intentando obtener CV a través del endpoint con filename:", filename);
       
-      const response = await fetch(`${apiUrl}/user/cv/${filename}`, {
+      const url = process.env.NODE_ENV === 'production'
+        ? `/user/cv/${filename}`
+        : `${apiUrl}/user/cv/${filename}`;
+        
+      const response = await fetch(url, {
         method: "GET",
+        headers: {
+          'x-forward-to-backend': '1'
+        }
       });
 
       if (!response.ok) {
@@ -489,10 +543,15 @@ export const contact = async (email: string, name: string, mensaje: string) => {
     };
     
     // Send request to contact endpoint
-    const response = await fetch(`${apiUrl}/contact`, {
+    const url = process.env.NODE_ENV === 'production'
+      ? '/contact'
+      : `${apiUrl}/contact`;
+      
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        'x-forward-to-backend': '1'
       },
       body: JSON.stringify(requestBody)
     });

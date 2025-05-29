@@ -40,11 +40,30 @@ const nextConfig = {
       : 'https://futbolink.onrender.com';
     
     console.log('Next.js rewrite configuration using baseUrl:', baseUrl);
+    console.log('Environment:', process.env.NODE_ENV);
+    
+    // Auth specific routes
+    rewrites.push({
+      source: '/api/login',
+      destination: `${baseUrl}/login`,
+    });
+    
+    // More explicit login route
+    rewrites.push({
+      source: '/login',
+      destination: `${baseUrl}/login`,
+    });
     
     // Redirección para API general
     rewrites.push({
       source: '/api/:path*',
-      destination: `${baseUrl}/api/:path*`,
+      destination: `${baseUrl}/:path*`,
+    });
+    
+    // User related endpoints
+    rewrites.push({
+      source: '/user/:path*',
+      destination: `${baseUrl}/user/:path*`,
     });
     
     // Redirección específica para el endpoint de contacto
@@ -83,6 +102,18 @@ const nextConfig = {
     rewrites.push({
       source: '/contact',
       destination: `${baseUrl}/contact`,
+    });
+    
+    // Jobs
+    rewrites.push({
+      source: '/jobs/:path*',
+      destination: `${baseUrl}/jobs/:path*`,
+    });
+    
+    // Applications
+    rewrites.push({
+      source: '/applications/:path*',
+      destination: `${baseUrl}/applications/:path*`,
     });
     
     // Catch-all rewrite for any backend routes

@@ -20,8 +20,8 @@ async function bootstrap() {
     'http://localhost:3000',  // Development frontend
     'http://localhost:3001',  // Possible alternate port
     'https://futbolink.vercel.app',
-    'https://futbolink.it'
-    //   // Production frontend
+    'https://futbolink.it',
+    'https://www.futbolink.it'    // Production frontend with www
   ];
   
   // Add any additional origins from environment variables if configured

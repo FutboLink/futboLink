@@ -7,6 +7,7 @@ export const fetchAllSuccessCases = async (token?: string) => {
   try {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
+      'x-forward-to-backend': '1'
     };
 
     if (token) {
@@ -45,7 +46,11 @@ export const fetchPublishedSuccessCases = async () => {
       : `${apiUrl}/success-cases/published`;
     
     console.log(`Fetching published success cases from: ${url}`);
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        'x-forward-to-backend': '1'
+      }
+    });
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));

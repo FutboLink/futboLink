@@ -46,49 +46,98 @@ const nextConfig = {
     rewrites.push({
       source: '/api/login',
       destination: `${baseUrl}/login`,
+      has: [
+        {
+          type: 'header',
+          key: 'x-forward-to-backend',
+        },
+      ],
     });
     
     // More explicit login route
     rewrites.push({
       source: '/login',
       destination: `${baseUrl}/login`,
+      has: [
+        {
+          type: 'header',
+          key: 'x-forward-to-backend',
+        },
+      ],
     });
     
     // Redirección para API general
     rewrites.push({
       source: '/api/:path*',
       destination: `${baseUrl}/:path*`,
+      has: [
+        {
+          type: 'header',
+          key: 'x-forward-to-backend',
+        },
+      ],
     });
     
     // User related endpoints
     rewrites.push({
       source: '/user/:path*',
       destination: `${baseUrl}/user/:path*`,
+      has: [
+        {
+          type: 'header',
+          key: 'x-forward-to-backend',
+        },
+      ],
     });
     
     // Redirección específica para el endpoint de contacto
     rewrites.push({
       source: '/email/contact',
       destination: `${baseUrl}/email/contact`,
+      has: [
+        {
+          type: 'header',
+          key: 'x-forward-to-backend',
+        },
+      ],
     });
     
     // Redirección específica para las opciones CORS
     rewrites.push({
       source: '/email/:path*',
       destination: `${baseUrl}/email/:path*`,
+      has: [
+        {
+          type: 'header',
+          key: 'x-forward-to-backend',
+        },
+      ],
     });
     
     // Add rewrites for other specific endpoints that are failing
     rewrites.push({
       source: '/News',
       destination: `${baseUrl}/News`,
+      has: [
+        {
+          type: 'header',
+          key: 'x-forward-to-backend',
+        },
+      ],
     });
     
     rewrites.push({
       source: '/News/:path*',
       destination: `${baseUrl}/News/:path*`,
+      has: [
+        {
+          type: 'header',
+          key: 'x-forward-to-backend',
+        },
+      ],
     });
     
+    // Success cases endpoints - enhanced with proper header handling
     rewrites.push({
       source: '/success-cases',
       destination: `${baseUrl}/success-cases`,
@@ -102,18 +151,36 @@ const nextConfig = {
     rewrites.push({
       source: '/contact',
       destination: `${baseUrl}/contact`,
+      has: [
+        {
+          type: 'header',
+          key: 'x-forward-to-backend',
+        },
+      ],
     });
     
     // Jobs
     rewrites.push({
       source: '/jobs/:path*',
       destination: `${baseUrl}/jobs/:path*`,
+      has: [
+        {
+          type: 'header',
+          key: 'x-forward-to-backend',
+        },
+      ],
     });
     
     // Applications
     rewrites.push({
       source: '/applications/:path*',
       destination: `${baseUrl}/applications/:path*`,
+      has: [
+        {
+          type: 'header',
+          key: 'x-forward-to-backend',
+        },
+      ],
     });
     
     // Catch-all rewrite for any backend routes

@@ -59,6 +59,45 @@ const nextConfig = {
       destination: `${baseUrl}/email/:path*`,
     });
     
+    // Add rewrites for other specific endpoints that are failing
+    rewrites.push({
+      source: '/News',
+      destination: `${baseUrl}/News`,
+    });
+    
+    rewrites.push({
+      source: '/News/:path*',
+      destination: `${baseUrl}/News/:path*`,
+    });
+    
+    rewrites.push({
+      source: '/success-cases',
+      destination: `${baseUrl}/success-cases`,
+    });
+    
+    rewrites.push({
+      source: '/success-cases/:path*',
+      destination: `${baseUrl}/success-cases/:path*`,
+    });
+    
+    rewrites.push({
+      source: '/contact',
+      destination: `${baseUrl}/contact`,
+    });
+    
+    // Catch-all rewrite for any backend routes
+    rewrites.push({
+      source: '/:path*',
+      has: [
+        {
+          type: 'header',
+          key: 'x-forward-to-backend',
+          value: '(?<value>.*)',
+        },
+      ],
+      destination: `${baseUrl}/:path*`,
+    });
+    
     return rewrites;
   },
 };

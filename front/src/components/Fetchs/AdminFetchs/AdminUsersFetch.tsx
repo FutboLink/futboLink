@@ -9,7 +9,11 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 // Función para obtener los usuarios
 export const getUsers =  async (): Promise<IProfileData[]> => {
     try {
-      const response = await fetch(`${apiUrl}/user`); 
+      const url = process.env.NODE_ENV === 'production' 
+        ? '/user'
+        : `${apiUrl}/user`;
+      
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error('Error al obtener los usuarios');
       }
@@ -24,10 +28,15 @@ export const getUsers =  async (): Promise<IProfileData[]> => {
 
   export const fetchApplications = async (application: IApplication) => {
     try {
-    const response = await fetch(`${apiUrl}/applications`, {
+    const url = process.env.NODE_ENV === 'production' 
+      ? '/applications'
+      : `${apiUrl}/applications`;
+      
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        'x-forward-to-backend': '1'
       },
       body: JSON.stringify(application),
     });
@@ -60,8 +69,15 @@ export const getUsers =  async (): Promise<IProfileData[]> => {
  //Eliminar usuarios
  export const deleteUser = async (userId: string) => {
   try {
-    const response = await fetch(`${apiUrl}/user/${userId}`, {
+    const url = process.env.NODE_ENV === 'production' 
+      ? `/user/${userId}`
+      : `${apiUrl}/user/${userId}`;
+      
+    const response = await fetch(url, {
       method: "DELETE",
+      headers: {
+        'x-forward-to-backend': '1'
+      }
     });
 
     if (!response.ok) {
@@ -86,8 +102,15 @@ export const getUsers =  async (): Promise<IProfileData[]> => {
 // Función para obtener las noticias
 export const getNews = async (page?: number): Promise<INotice[]> => {
   try {
-    const url = page ? `${apiUrl}/News?page=${page}` : `${apiUrl}/News`;
-    const response = await fetch(url); 
+    const baseUrl = process.env.NODE_ENV === 'production' ? '/News' : `${apiUrl}/News`;
+    const url = page ? `${baseUrl}?page=${page}` : baseUrl;
+    
+    const response = await fetch(url, {
+      headers: {
+        'x-forward-to-backend': '1'
+      }
+    }); 
+    
     if (!response.ok) {
       throw new Error('Error al obtener las noticias');
     }
@@ -102,10 +125,15 @@ export const getNews = async (page?: number): Promise<INotice[]> => {
 export const getNewsById = async (noticeId: string) => {
   try {
     // Realiza la petición GET al endpoint con el noticeId
-    const response = await fetch(`${apiUrl}/News/${noticeId}`, {
+    const url = process.env.NODE_ENV === 'production' 
+      ? `/News/${noticeId}`
+      : `${apiUrl}/News/${noticeId}`;
+      
+    const response = await fetch(url, {
       method: "GET", // Método de la solicitud
       headers: {
         "Content-Type": "application/json",
+        'x-forward-to-backend': '1'
         // Si necesitas enviar un token o algo más en los headers, agrégalo aquí
         // "Authorization": `Bearer ${token}`,
       },
@@ -129,12 +157,15 @@ export const getNewsById = async (noticeId: string) => {
 
 export const getCursosById = async (cursoId: string) => {
   try {
+    const url = process.env.NODE_ENV === 'production' 
+      ? `/cursos/${cursoId}`
+      : `${apiUrl}/cursos/${cursoId}`;
   
-    const response = await fetch(`${apiUrl}/cursos/${cursoId}`, {
+    const response = await fetch(url, {
       method: "GET", // Método de la solicitud
       headers: {
         "Content-Type": "application/json",
-     
+        'x-forward-to-backend': '1'
       },
     });
 
@@ -156,13 +187,16 @@ export const getCursosById = async (cursoId: string) => {
 
 //Formulario crear noticias
 export const fetchCreateNews = async (notice:ICreateNotice, token:string) => {
+  const url = process.env.NODE_ENV === 'production' 
+    ? '/News'
+    : `${apiUrl}/News`;
 
-  const response = await fetch(`${apiUrl}/News`, {
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      
       Authorization: `Bearer ${token}`,
+      'x-forward-to-backend': '1'
     },
     body: JSON.stringify(notice),
   });
@@ -179,7 +213,16 @@ export const fetchCreateNews = async (notice:ICreateNotice, token:string) => {
 // Función para obtener los cursos
 export const getCursos =  async (): Promise<ICurso[]> => {
   try {
-    const response = await fetch(`${apiUrl}/cursos`); 
+    const url = process.env.NODE_ENV === 'production' 
+      ? '/cursos'
+      : `${apiUrl}/cursos`;
+      
+    const response = await fetch(url, {
+      headers: {
+        'x-forward-to-backend': '1'
+      }
+    }); 
+    
     if (!response.ok) {
       throw new Error('Error al obtener las noticias');
     }
@@ -193,11 +236,15 @@ export const getCursos =  async (): Promise<ICurso[]> => {
 
 //Formulario crear cursos
 export const fetchCreateCourse = async (curso:ICreateCurso) => {
+  const url = process.env.NODE_ENV === 'production' 
+    ? '/cursos'
+    : `${apiUrl}/cursos`;
 
-  const response = await fetch(`${apiUrl}/cursos`, {
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      'x-forward-to-backend': '1'
     },
     body: JSON.stringify(curso),
   });
@@ -215,11 +262,16 @@ export const fetchCreateCourse = async (curso:ICreateCurso) => {
  //Eliminar curso
  export const fetchDeleteCurso = async (cursoId: string,token:string) => {
   try {
-    const response = await fetch(`${apiUrl}/cursos/${cursoId}`, {
+    const url = process.env.NODE_ENV === 'production' 
+      ? `/cursos/${cursoId}`
+      : `${apiUrl}/cursos/${cursoId}`;
+      
+    const response = await fetch(url, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`,
+        'x-forward-to-backend': '1'
       },
     });
 
@@ -241,11 +293,16 @@ export const fetchCreateCourse = async (curso:ICreateCurso) => {
 };
 
 export const fetchEditCourse = async (token: string, courseId: string, updatedCourse: ICurso) => {
-  const response = await fetch(`${apiUrl}/cursos/${courseId}`, {
+  const url = process.env.NODE_ENV === 'production' 
+    ? `/cursos/${courseId}`
+    : `${apiUrl}/cursos/${courseId}`;
+    
+  const response = await fetch(url, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`,
+      'x-forward-to-backend': '1'
     },
     body: JSON.stringify(updatedCourse),
   });
@@ -261,11 +318,16 @@ export const fetchEditCourse = async (token: string, courseId: string, updatedCo
 // Eliminar noticia
 export const fetchDeleteNotice = async (noticeId: string, token: string) => {
   try {
-    const response = await fetch(`${apiUrl}/News/${noticeId}`, {
+    const url = process.env.NODE_ENV === 'production' 
+      ? `/News/${noticeId}`
+      : `${apiUrl}/News/${noticeId}`;
+      
+    const response = await fetch(url, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`,
+        'x-forward-to-backend': '1'
       },
     });
 
@@ -288,11 +350,16 @@ export const fetchDeleteNotice = async (noticeId: string, token: string) => {
 
 
 export const fetchEditNotice = async (token: string, noticeId: string, updatedCourse: INotice) => {
-  const response = await fetch(`${apiUrl}/News/${noticeId}`, {
+  const url = process.env.NODE_ENV === 'production' 
+    ? `/News/${noticeId}`
+    : `${apiUrl}/News/${noticeId}`;
+    
+  const response = await fetch(url, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`,
+      'x-forward-to-backend': '1'
     },
     body: JSON.stringify(updatedCourse),
   });

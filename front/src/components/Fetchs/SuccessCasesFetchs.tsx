@@ -13,8 +13,13 @@ export const fetchAllSuccessCases = async (token?: string) => {
       headers.Authorization = `Bearer ${token}`;
     }
 
-    console.log(`Fetching success cases from: ${apiUrl}/success-cases`);
-    const response = await fetch(`${apiUrl}/success-cases`, {
+    // Use relative URL in production
+    const url = process.env.NODE_ENV === 'production' 
+      ? '/success-cases'
+      : `${apiUrl}/success-cases`;
+    
+    console.log(`Fetching success cases from: ${url}`);
+    const response = await fetch(url, {
       headers,
     });
 
@@ -34,8 +39,13 @@ export const fetchAllSuccessCases = async (token?: string) => {
 // Obtener los casos de éxito publicados (para mostrar al público)
 export const fetchPublishedSuccessCases = async () => {
   try {
-    console.log(`Fetching published success cases from: ${apiUrl}/success-cases/published`);
-    const response = await fetch(`${apiUrl}/success-cases/published`);
+    // Use relative URL in production
+    const url = process.env.NODE_ENV === 'production' 
+      ? '/success-cases/published'
+      : `${apiUrl}/success-cases/published`;
+    
+    console.log(`Fetching published success cases from: ${url}`);
+    const response = await fetch(url);
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -93,16 +103,23 @@ const isValidUrl = (url: string): boolean => {
 // Obtener un caso de éxito por ID
 export const fetchSuccessCaseById = async (id: string) => {
   try {
-    console.log(`Fetching success case by ID from: ${apiUrl}/success-cases/${id}`);
+    // Use relative URL in production
+    const url = process.env.NODE_ENV === 'production' 
+      ? `/success-cases/${id}`
+      : `${apiUrl}/success-cases/${id}`;
+    
+    console.log(`Fetching success case by ID from: ${url}`);
     
     // Añadimos cache: 'no-store' para evitar problemas de caché que puedan afectar la carga de imágenes
-    const response = await fetch(`${apiUrl}/success-cases/${id}`, {
+    const response = await fetch(url, {
       method: 'GET',
       cache: 'no-store',
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
-        'Expires': '0'
+        'Expires': '0',
+        // Add x-forward-to-backend header for the catch-all rewrite
+        'x-forward-to-backend': '1'
       }
     });
     
@@ -149,14 +166,21 @@ export const fetchSuccessCaseById = async (id: string) => {
 // Crear un nuevo caso de éxito (requiere token de admin)
 export const createSuccessCase = async (token: string, successCase: ISuccessCase) => {
   try {
-    console.log(`Creating success case at: ${apiUrl}/success-cases`);
+    // Use relative URL in production
+    const url = process.env.NODE_ENV === 'production' 
+      ? '/success-cases'
+      : `${apiUrl}/success-cases`;
+    
+    console.log(`Creating success case at: ${url}`);
     console.log("Data being sent:", JSON.stringify(successCase));
     
-    const response = await fetch(`${apiUrl}/success-cases`, {
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        // Add x-forward-to-backend header for the catch-all rewrite
+        'x-forward-to-backend': '1'
       },
       body: JSON.stringify(successCase),
     });
@@ -177,14 +201,21 @@ export const createSuccessCase = async (token: string, successCase: ISuccessCase
 // Actualizar un caso de éxito existente (requiere token de admin)
 export const updateSuccessCase = async (token: string, id: string, successCase: Partial<ISuccessCase>) => {
   try {
-    console.log(`Updating success case at: ${apiUrl}/success-cases/${id}`);
+    // Use relative URL in production
+    const url = process.env.NODE_ENV === 'production' 
+      ? `/success-cases/${id}`
+      : `${apiUrl}/success-cases/${id}`;
+    
+    console.log(`Updating success case at: ${url}`);
     console.log("Data being sent:", JSON.stringify(successCase));
     
-    const response = await fetch(`${apiUrl}/success-cases/${id}`, {
+    const response = await fetch(url, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        // Add x-forward-to-backend header for the catch-all rewrite
+        'x-forward-to-backend': '1'
       },
       body: JSON.stringify(successCase),
     });
@@ -205,12 +236,19 @@ export const updateSuccessCase = async (token: string, id: string, successCase: 
 // Eliminar un caso de éxito (requiere token de admin)
 export const deleteSuccessCase = async (token: string, id: string) => {
   try {
-    console.log(`Deleting success case at: ${apiUrl}/success-cases/${id}`);
+    // Use relative URL in production
+    const url = process.env.NODE_ENV === 'production' 
+      ? `/success-cases/${id}`
+      : `${apiUrl}/success-cases/${id}`;
     
-    const response = await fetch(`${apiUrl}/success-cases/${id}`, {
+    console.log(`Deleting success case at: ${url}`);
+    
+    const response = await fetch(url, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
+        // Add x-forward-to-backend header for the catch-all rewrite
+        'x-forward-to-backend': '1'
       },
     });
 
@@ -230,14 +268,21 @@ export const deleteSuccessCase = async (token: string, id: string) => {
 // Publicar o despublicar un caso de éxito (requiere token de admin)
 export const toggleSuccessCasePublish = async (token: string, id: string, isPublished: boolean) => {
   try {
-    console.log(`Toggling publish status at: ${apiUrl}/success-cases/${id}/publish`);
+    // Use relative URL in production
+    const url = process.env.NODE_ENV === 'production' 
+      ? `/success-cases/${id}/publish`
+      : `${apiUrl}/success-cases/${id}/publish`;
+    
+    console.log(`Toggling publish status at: ${url}`);
     console.log("Data being sent:", JSON.stringify({ isPublished }));
     
-    const response = await fetch(`${apiUrl}/success-cases/${id}/publish`, {
+    const response = await fetch(url, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        // Add x-forward-to-backend header for the catch-all rewrite
+        'x-forward-to-backend': '1'
       },
       body: JSON.stringify({ isPublished }),
     });

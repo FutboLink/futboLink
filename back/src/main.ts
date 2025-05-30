@@ -20,7 +20,8 @@ async function bootstrap() {
     'http://localhost:3000',  // Development frontend
     'http://localhost:3001',  // Possible alternate port
     'https://futbolink.vercel.app',
-    'https://futbolink.it'
+    'https://futbolink.it',
+    'https://www.futbolink.it'  // Include www subdomain
     //   // Production frontend
   ];
   
@@ -45,12 +46,23 @@ async function bootstrap() {
         return callback(null, true);
       }
       
+      // Allow exact matches
       if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.warn(`Blocked request from disallowed origin: ${origin}`);
-        callback(new Error('Not allowed by CORS'), false);
+        return callback(null, true);
       }
+      
+      // Allow any futbolink.it domain or subdomain
+      if (origin.match(/^https:\/\/(.*\.)?futbolink\.it$/)) {
+        return callback(null, true);
+      }
+      
+      // Allow any futbolink.vercel.app domain
+      if (origin.match(/^https:\/\/(.*\.)?futbolink\.vercel\.app$/)) {
+        return callback(null, true);
+      }
+      
+      console.warn(`Blocked request from disallowed origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'), false);
     },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,

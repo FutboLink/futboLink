@@ -1,6 +1,6 @@
 import { ISuccessCase } from "@/Interfaces/ISuccessCase";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://futbolink.onrender.com';
 
 // Obtener todos los casos de éxito
 export const fetchAllSuccessCases = async (token?: string) => {
@@ -13,10 +13,13 @@ export const fetchAllSuccessCases = async (token?: string) => {
       headers.Authorization = `Bearer ${token}`;
     }
 
-    // Always fetch directly from the backend
-    console.log(`Fetching success cases from: ${apiUrl}/success-cases`);
-    const response = await fetch(`${apiUrl}/success-cases`, {
+    // Always fetch directly from the backend, never use local API
+    const backendUrl = `${apiUrl}/success-cases`;
+    console.log(`Fetching success cases directly from backend: ${backendUrl}`);
+    const response = await fetch(backendUrl, {
       headers,
+      // Add cache control to prevent caching issues
+      cache: 'no-store',
     });
 
     if (!response.ok) {
@@ -35,8 +38,16 @@ export const fetchAllSuccessCases = async (token?: string) => {
 // Obtener los casos de éxito publicados (para mostrar al público)
 export const fetchPublishedSuccessCases = async () => {
   try {
-    console.log(`Fetching published success cases from: ${apiUrl}/success-cases/published`);
-    const response = await fetch(`${apiUrl}/success-cases/published`);
+    const backendUrl = `${apiUrl}/success-cases/published`;
+    console.log(`Fetching published success cases directly from backend: ${backendUrl}`);
+    const response = await fetch(backendUrl, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));

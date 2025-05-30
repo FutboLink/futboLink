@@ -13,12 +13,28 @@ export const fetchAllSuccessCases = async (token?: string) => {
       headers.Authorization = `Bearer ${token}`;
     }
 
-    console.log(`Fetching success cases from: ${apiUrl}/success-cases`);
-    const response = await fetch(`${apiUrl}/success-cases`, {
+    // For client-side requests, try to use relative URL first
+    const isClient = typeof window !== 'undefined';
+    const fetchUrl = isClient ? '/api/success-cases' : `${apiUrl}/success-cases`;
+    
+    console.log(`Fetching success cases from: ${fetchUrl}`);
+    const response = await fetch(fetchUrl, {
       headers,
     });
 
     if (!response.ok) {
+      // If client-side request to local API fails, try the backend directly
+      if (isClient && apiUrl) {
+        console.log(`Retrying with direct API URL: ${apiUrl}/success-cases`);
+        const backendResponse = await fetch(`${apiUrl}/success-cases`, { 
+          headers 
+        });
+        
+        if (backendResponse.ok) {
+          return await backendResponse.json();
+        }
+      }
+      
       const errorData = await response.json().catch(() => ({}));
       console.error("API response error:", response.status, errorData);
       throw new Error(errorData.message || "Error al obtener los casos de éxito");

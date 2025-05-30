@@ -4,41 +4,21 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export const fetchLoginUser = async (credentials: ILoginUser) => {
   try {
-    // Usar la ruta de API local en Next.js para proxying
-    console.log("Llamando a la API local: /api/login");
-    
-    const response = await fetch(`/api/login`, {
+    console.log("Llamando a la API en:", apiUrl);
+    const response = await fetch(`${apiUrl}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(credentials),
-      credentials: 'include', // Incluir cookies y credenciales
     });
 
-    console.log(`Respuesta de autenticación: status=${response.status}`);
-    
-    // Manejar respuesta no exitosa
     if (!response.ok) {
-      let errorMessage = 'Error en la autenticación';
-      
-      try {
-        const errorData = await response.json();
-        console.error("Error detallado:", errorData);
-        
-        if (errorData && errorData.message) {
-          errorMessage = errorData.message;
-        }
-      } catch (e) {
-        console.error("No se pudo parsear respuesta de error:", e);
-      }
-      
-      throw new Error(errorMessage);
+      throw new Error("Error en la autenticación");
     }
 
-    // Parsear respuesta JSON
     const data = await response.json();
-    console.log("Login exitoso, datos recibidos:", Object.keys(data));
+    console.log("Response data from login:", data);
     return data;
   } catch (error) {
     console.error("Error en el login:", error);

@@ -53,17 +53,13 @@ const nextConfig = {
     rewrites.push({ source: '/News/:path*', destination: `${baseUrl}/News/:path*` });
     rewrites.push({ source: '/success-cases', destination: `${baseUrl}/success-cases` });
     rewrites.push({ source: '/success-cases/:path*', destination: `${baseUrl}/success-cases/:path*` });
-    
-    // Prioridad más alta para la ruta de login
-    rewrites.unshift({ 
-      source: '/login', 
-      destination: `${baseUrl}/login`,
-      basePath: false
-    });
+    rewrites.push({ source: '/videos', destination: `${baseUrl}/videos` });
+    rewrites.push({ source: '/videos/:path*', destination: `${baseUrl}/videos/:path*` });
     
     // Additional common endpoints
     rewrites.push({ source: '/user/:path*', destination: `${baseUrl}/user/:path*` });
     rewrites.push({ source: '/login/:path*', destination: `${baseUrl}/login/:path*` });
+    rewrites.push({ source: '/login', destination: `${baseUrl}/login` });
     rewrites.push({ source: '/contact', destination: `${baseUrl}/contact` });
     rewrites.push({ source: '/jobs/:path*', destination: `${baseUrl}/jobs/:path*` });
     rewrites.push({ source: '/jobs', destination: `${baseUrl}/jobs` });
@@ -76,4 +72,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig; // Vercel deployment trigger
+module.exports = nextConfig; 

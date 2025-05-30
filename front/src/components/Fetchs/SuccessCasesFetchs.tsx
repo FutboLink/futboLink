@@ -13,6 +13,7 @@ export const fetchAllSuccessCases = async (token?: string) => {
       headers.Authorization = `Bearer ${token}`;
     }
 
+    // Always fetch directly from the backend
     console.log(`Fetching success cases from: ${apiUrl}/success-cases`);
     const response = await fetch(`${apiUrl}/success-cases`, {
       headers,

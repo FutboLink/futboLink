@@ -3,16 +3,13 @@ import { NextResponse } from 'next/server';
 // Get the API URL from environment variables with a fallback
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://futbolink.onrender.com';
 
-type RouteParams = {
-  id: string;
-};
-
 export async function GET(
   request: Request,
-  { params }: { params: RouteParams }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    // Wait for params to resolve
+    const { id } = await params;
     console.log(`Proxying request to ${apiUrl}/News/${id}`);
     
     // Forward the request to the backend

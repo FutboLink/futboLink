@@ -1,17 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 // Get the API URL from environment variables with a fallback
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://futbolink.onrender.com';
 
-interface NewsParams {
-  params: {
-    id: string;
-  };
-}
+type RouteParams = {
+  id: string;
+};
 
 export async function GET(
-  request: NextRequest,
-  { params }: NewsParams
+  request: Request,
+  { params }: { params: RouteParams }
 ) {
   try {
     const id = params.id;

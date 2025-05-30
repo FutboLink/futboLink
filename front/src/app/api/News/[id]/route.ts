@@ -5,10 +5,10 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://futbolink.onrender.co
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
-    const id = params.id;
+    const id = context.params.id;
     console.log(`Proxying request to ${apiUrl}/News/${id}`);
     
     // Forward the request to the backend

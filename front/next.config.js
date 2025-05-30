@@ -54,6 +54,16 @@ const nextConfig = {
     rewrites.push({ source: '/success-cases', destination: `${baseUrl}/success-cases` });
     rewrites.push({ source: '/success-cases/:path*', destination: `${baseUrl}/success-cases/:path*` });
     
+    // Add redirects for client-side route issues
+    rewrites.push({ 
+      source: '/videos',
+      destination: '/api/videos' 
+    });
+    rewrites.push({ 
+      source: '/videos/:path*',
+      destination: '/api/videos/:path*' 
+    });
+    
     // Additional common endpoints
     rewrites.push({ source: '/user/:path*', destination: `${baseUrl}/user/:path*` });
     rewrites.push({ source: '/login/:path*', destination: `${baseUrl}/login/:path*` });

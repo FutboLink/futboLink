@@ -44,41 +44,60 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const signIn = async (credentials: ILoginUser): Promise<boolean> => {
     try {
+      console.log("Iniciando proceso de login con:", credentials.email);
+      
       const data: ILoginResponse = await fetchLoginUser(credentials);
+      console.log("Respuesta del login recibida, verificando token...");
+      
       if (data?.token) {
-        const payload = JSON.parse(atob(data.token.split(".")[1])); // Decodificamos el JWT
+        console.log("Token recibido, decodificando...");
+        try {
+          const payload = JSON.parse(atob(data.token.split(".")[1])); // Decodificamos el JWT
+          console.log("Token decodificado, ID:", payload.id, "Role:", payload.role);
 
-        const userData: IUserWithToken = {
-          token: data.token,
-          role: payload.role,
-          id: payload.id,
-          name: "", // Deberías obtenerlo del backend si no está en el token
-          lastname: "", // Igualmente, debería obtenerse del backend
-          email: credentials.email,
-          password: credentials.password, // Asegúrate de no guardar la contraseña en producción
-          imgUrl: "", // Obtén esta información del backend
-          applications: [],
-          jobs: [],
-        };
+          const userData: IUserWithToken = {
+            token: data.token,
+            role: payload.role,
+            id: payload.id,
+            name: "", // Deberías obtenerlo del backend si no está en el token
+            lastname: "", // Igualmente, debería obtenerse del backend
+            email: credentials.email,
+            password: credentials.password, // Asegúrate de no guardar la contraseña en producción
+            imgUrl: "", // Obtén esta información del backend
+            applications: [],
+            jobs: [],
+          };
 
-        localStorage.setItem("user", JSON.stringify(userData));
+          // Almacenar en localStorage
+          try {
+            localStorage.setItem("user", JSON.stringify(userData));
+            localStorage.setItem("userEmail", credentials.email);
+            console.log("Datos de usuario almacenados en localStorage");
+          } catch (storageError) {
+            console.error("Error al guardar en localStorage:", storageError);
+          }
 
-        // Also store email directly for more reliable access
-        localStorage.setItem("userEmail", credentials.email);
-        console.log("Stored user email in localStorage:", credentials.email);
+          // Actualizar estado
+          setToken(data.token);
+          setIsLogged(true);
+          setIsAdmin(payload.role === "ADMIN");
+          setRole(payload.role);
+          setUser(userData); // Actualizado con token
 
-        setToken(data.token);
-        setIsLogged(true);
-        setIsAdmin(payload.role === "ADMIN");
-        setRole(payload.role);
-        setUser(userData); // Actualizado con token
-
-        return true;
+          console.log("Login completado con éxito");
+          return true;
+        } catch (tokenError) {
+          console.error("Error al decodificar el token:", tokenError);
+          return false;
+        }
+      } else {
+        console.error("No se recibió token en la respuesta:", data);
+        return false;
       }
     } catch (error) {
-      console.error("Error during sign in:", error);
+      console.error("Error durante el inicio de sesión:", error);
+      return false;
     }
-    return false;
   };
 
   const signUp = async (user: IRegisterUser): Promise<boolean> => {

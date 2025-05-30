@@ -13,6 +13,30 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://futbolink.onrender.co
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const method = request.method;
+  
+  console.log(`Middleware intercepted: ${method} ${pathname}`);
+  
+  // Special handling for API routes to ensure CORS headers
+  if (pathname.startsWith('/api/')) {
+    // For API OPTIONS requests (CORS preflight), add CORS headers
+    if (method === 'OPTIONS') {
+      console.log('Handling CORS preflight for API route:', pathname);
+      return new NextResponse(null, {
+        status: 204,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token',
+          'Access-Control-Max-Age': '86400',
+        },
+      });
+    }
+    
+    // Let API routes be handled by their route handlers
+    console.log('Allowing API request to proceed:', pathname);
+    return NextResponse.next();
+  }
   
   // Check if it's an RSC (React Server Component) request 
   // or a request to a known API route without the /api prefix
@@ -22,12 +46,6 @@ export function middleware(request: NextRequest) {
     
     console.log('Intercepted RSC request for:', pathname);
     
-    // Don't intercept requests that should go to the Next.js API routes
-    if (API_ROUTES.some(route => pathname.startsWith(route))) {
-      console.log('Allowing RSC request to API route:', pathname);
-      return NextResponse.next();
-    }
-    
     // Don't intercept specific path patterns for Next.js internals
     if (pathname.includes('_next') || 
         pathname.includes('favicon.ico') ||
@@ -35,14 +53,17 @@ export function middleware(request: NextRequest) {
       return NextResponse.next();
     }
     
-    // For other paths, like /success-cases, /News, /videos, rewrite to the API route
-    const apiPathname = `/api${pathname}`;
-    console.log(`Rewriting RSC request to API path: ${apiPathname}`);
-    
-    const url = request.nextUrl.clone();
-    url.pathname = apiPathname;
-    
-    return NextResponse.rewrite(url);
+    // For paths like /login, /success-cases, /News, /videos, rewrite to the API route
+    if (pathname === '/login' || pathname.startsWith('/success-cases') || 
+        pathname.startsWith('/News') || pathname.startsWith('/videos')) {
+      const apiPathname = `/api${pathname}`;
+      console.log(`Rewriting request to API path: ${apiPathname}`);
+      
+      const url = request.nextUrl.clone();
+      url.pathname = apiPathname;
+      
+      return NextResponse.rewrite(url);
+    }
   }
   
   return NextResponse.next();
@@ -50,7 +71,9 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Match all paths except _next, assets, etc.
-    '/((?!_next/|api/|assets/|favicon.ico).*)',
+    // Match all paths except static assets
+    '/((?!_next/static|assets/|favicon.ico).*)',
+    // Include API routes for CORS handling
+    '/api/:path*',
   ],
 }; 

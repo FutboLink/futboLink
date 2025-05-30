@@ -1,14 +1,20 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 // Get the API URL from environment variables with a fallback
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://futbolink.onrender.com';
 
+interface SuccessCaseParams {
+  params: {
+    id: string;
+  };
+}
+
 export async function GET(
-  request: Request,
-  context: { params: { id: string } }
+  request: NextRequest,
+  { params }: SuccessCaseParams
 ) {
   try {
-    const id = context.params.id;
+    const id = params.id;
     console.log(`Proxying request to ${apiUrl}/success-cases/${id}`);
     
     // Forward the request to the backend

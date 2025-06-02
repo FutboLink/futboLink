@@ -38,7 +38,7 @@ const CardNews: React.FC<{ notice: INotice }> = ({ notice }) => {
         </p>
 
         <Link
-          href={`/News/${notice.id}`}
+          href={`/news-viewer/${notice.id}`}
           className="mt-auto inline-block text-verde-oscuro hover:text-green-700 font-semibold text-sm border-b-2 border-transparent hover:border-green-700 transition-all pb-1"
           onClick={handleReadMoreClick} 
         >

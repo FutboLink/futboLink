@@ -1,59 +1,33 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation'; 
-import SuccessCaseDetail from './SuccessCaseDetail';
+import React, { useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation'; 
 
 export default function ClientSuccessCaseWrapper() {
-  const [caseId, setCaseId] = useState<string | null>(null);
   const pathname = usePathname();
-  const [isReady, setIsReady] = useState(false);
+  const router = useRouter();
   
   useEffect(() => {
-    // Only run in the browser
+    // Solo se ejecuta en el navegador
     if (typeof window === 'undefined') return;
     
-    // Check if we're on a success case page
+    // Comprobar si estamos en una página de casos de éxito con la ruta antigua
     if (pathname?.startsWith('/casos-de-exito/')) {
       try {
-        // Extract the case ID from the URL or data attribute
-        const container = document.getElementById('success-case-container');
-        if (container) {
-          const id = container.getAttribute('data-case-id');
-          if (id) {
-            console.log('Success case ID found from container:', id);
-            setCaseId(id);
-          }
-        } else {
-          // Fallback to extracting from URL
-          const segments = pathname.split('/');
-          const id = segments[segments.length - 1];
-          if (id) {
-            console.log('Success case ID extracted from URL:', id);
-            setCaseId(id);
-          }
+        // Extraer el ID del caso de la URL
+        const segments = pathname.split('/');
+        const id = segments[segments.length - 1];
+        if (id) {
+          console.log('Redirigiendo caso de éxito con ID:', id);
+          // Redirigir a la nueva ruta
+          router.replace(`/success-case-viewer/${id}`);
         }
       } catch (error) {
-        console.error('Error extracting case ID:', error);
-      } finally {
-        setIsReady(true);
+        console.error('Error al extraer el ID del caso:', error);
       }
-    } else {
-      setIsReady(true);
     }
-  }, [pathname]);
+  }, [pathname, router]);
   
-  // If we're not on a success case page or don't have an ID, don't render anything
-  if (!isReady) {
-    return null;
-  }
-  
-  if (!caseId || !pathname?.startsWith('/casos-de-exito/')) {
-    return null;
-  }
-  
-  console.log('Rendering SuccessCaseDetail with ID:', caseId);
-  
-  // Render the detail component with the ID
-  return <SuccessCaseDetail id={caseId} />;
+  // Este componente no renderiza nada, solo redirige
+  return null;
 } 

@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  
+  // Habilitar explícitamente el uso del sistema de páginas antiguo
+  // junto con el nuevo App Router
+  experimental: {
+    appDir: true, // Mantener el App Router
+  },
+  
+  // Configuración de imágenes
   images: {
     domains: [
       'res.cloudinary.com',  // Dominio principal de Cloudinary
@@ -30,18 +38,27 @@ const nextConfig = {
       },
     ],
   },
-  // Otras configuraciones existentes
+  
+  // Configuración de reescritura de rutas
   async rewrites() {
-    const isProd = process.env.NODE_ENV === 'production';
-    const baseUrl = isProd 
-      ? 'https://futbolink.onrender.com' 
-      : 'http://localhost:3001';
+    // Usar siempre la URL de producción para las API
+    const baseUrl = 'https://futbolink.onrender.com';
     
-    console.log(`Next.js rewrite configuration using baseUrl: ${baseUrl} (${process.env.NODE_ENV} mode)`);
+    console.log(`Next.js rewrite configuration using baseUrl: ${baseUrl}`);
     
     // Define all rewrites
     return [
-      // News endpoints - IMPORTANT: Order matters! More specific routes first
+      // API endpoints
+      {
+        source: '/api/:path*',
+        destination: `${baseUrl}/api/:path*`,
+      },
+      
+      // News endpoints - IMPORTANT: More specific routes first
+      {
+        source: '/News/api/:path*',
+        destination: `${baseUrl}/News/:path*`,
+      },
       {
         source: '/News/:id*',
         destination: `${baseUrl}/News/:id*`,
@@ -49,12 +66,6 @@ const nextConfig = {
       {
         source: '/News',
         destination: `${baseUrl}/News`,
-      },
-      
-      // API endpoints
-      {
-        source: '/api/:path*',
-        destination: `${baseUrl}/api/:path*`,
       },
       
       // Other specific routes

@@ -84,7 +84,7 @@ const ClientsSwiper: React.FC = () => {
   // Función para navegar a la página de detalles
   const navigateToCase = (caseId: string | undefined) => {
     if (!caseId) return;
-    router.push(`/casos-de-exito/${caseId}`);
+    router.push(`/success-case-viewer/${caseId}`);
   };
 
   if (loading) {

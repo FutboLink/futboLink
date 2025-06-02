@@ -101,7 +101,7 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
             </div>
             <div className="text-center">
               <Link
-                href={`/user/${app.player?.id}`}
+                href={`/user-viewer/${app.player?.id}`}
                 className="px-4 py-2 px-6 bg-white font-bold text-green-800 border-2 border-green-800 rounded-md transition-color duration-300 hover:bg-green-800 hover:text-white"
               >
                 Ver perfil

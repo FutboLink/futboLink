@@ -1,44 +1,30 @@
 "use client"; // Asegúrate de que este es un componente cliente
 
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import CardProfile from "@/components/Jobs/CardProfile";
-import { IProfileData } from "@/Interfaces/IUser";
-import { fetchUserId } from "@/components/Fetchs/UsersFetchs/UserFetchs";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-const UserProfilePage = () => {
+const UserProfileRedirector = () => {
   const params = useParams(); // Obtiene el id de la URL
   const id = params?.id as string; // Convierte el id a string
+  const router = useRouter();
   
-  const [profile, setProfile] = useState<IProfileData | null>(null);
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     if (!id) return;
+    
+    // Redirigir a la nueva ruta basada en Pages Router
+    console.log('Redirigiendo a la nueva ruta de visualización de usuario:', id);
+    router.replace(`/user-viewer/${id}`);
+  }, [id, router]);
 
-    const getUserProfile = async () => {
-      try {
-        const data = await fetchUserId(id);
-        setProfile(data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getUserProfile();
-  }, [id]);
-
-  if (loading)
-    return <p className="text-center text-gray-600">Cargando perfil...</p>;
-  if (!profile)
-    return <p className="text-center text-red-500">No se encontró el perfil</p>;
+  // Mostrar un mensaje de carga mientras se redirige
   return (
-    <div>
-      <CardProfile profile={profile} />
+    <div className="flex justify-center items-center min-h-screen">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-verde-oscuro mx-auto"></div>
+        <p className="mt-4 text-gray-600">Cargando perfil...</p>
+      </div>
     </div>
   );
 }  
 
-export default UserProfilePage;
+export default UserProfileRedirector;

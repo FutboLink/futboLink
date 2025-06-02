@@ -79,8 +79,8 @@ const ApplicantModal: React.FC<ApplicantModalProps> = ({
             {/* Botón de Link para redirigir */}
             <div className="mt-4 text-center">
               <Link
-                href={`/user/${applicantId}`}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 shadow-sm shadow-gray-400 font-semibold border-2 rounded-lg hover:font-bold transition"
+                href={`/user-viewer/${applicantId}`}
+                className="text-verde-oscuro hover:text-verde-claro transition-colors"
               >
                 Ver perfil
               </Link>

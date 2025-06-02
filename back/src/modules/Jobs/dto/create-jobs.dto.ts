@@ -85,6 +85,14 @@ export class CreateJobDto {
   contractTypes: string;
 
   @ApiProperty({
+    description: 'Duración del contrato (e.g., temporal, indefinido, etc.)',
+    example: 'Contrato Temporal',
+  })
+  @IsNotEmpty()
+  @IsString()
+  contractDurations: string;
+
+  @ApiProperty({
     description: 'Categoría del trabajo',
     example: 'Profesional',
   })

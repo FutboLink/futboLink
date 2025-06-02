@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
-  const id = params.id;
+export async function GET(
+  request: Request,
+  context: { params: { id: string } }
+) {
+  const id = context.params.id;
   console.log("API route /News/[id] called with id:", id);
   
   try {

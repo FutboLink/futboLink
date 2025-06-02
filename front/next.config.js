@@ -2,12 +2,6 @@
 const nextConfig = {
   reactStrictMode: true,
   
-  // Habilitar explícitamente el uso del sistema de páginas antiguo
-  // junto con el nuevo App Router
-  experimental: {
-    appDir: true, // Mantener el App Router
-  },
-  
   // Configuración de imágenes
   images: {
     domains: [

@@ -21,24 +21,36 @@ export class UserService {
   ) {}
 
   async register(registerUserDto: RegisterUserDto): Promise<User> {
-    const { email, password, ...otherDetails } = registerUserDto;
+    try {
+      console.log("Attempting to register user with data:", JSON.stringify(registerUserDto, null, 2));
+      
+      const { email, password, ...otherDetails } = registerUserDto;
 
-    const existingUser = await this.userRepository.findOne({
-      where: { email },
-    });
-    if (existingUser) {
-      throw new ConflictException('Email already in use');
+      // Check if user already exists
+      const existingUser = await this.userRepository.findOne({
+        where: { email },
+      });
+      if (existingUser) {
+        console.log(`Registration failed: Email ${email} already in use`);
+        throw new ConflictException('Email already in use');
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create new user
+      const newUser = this.userRepository.create({
+        email,
+        password: hashedPassword,
+        ...otherDetails,
+      });
+
+      console.log("User created successfully, saving to database");
+      return this.userRepository.save(newUser);
+    } catch (error) {
+      console.error("Error in register service:", error);
+      throw error;
     }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = this.userRepository.create({
-      email,
-      password: hashedPassword,
-      ...otherDetails,
-    });
-
-    return this.userRepository.save(newUser);
   }
 
   async findAll(): Promise<User[]> {

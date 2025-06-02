@@ -32,43 +32,81 @@ const nextConfig = {
   },
   // Otras configuraciones existentes
   async rewrites() {
-    const rewrites = [];
+    const isProd = process.env.NODE_ENV === 'production';
+    const baseUrl = isProd 
+      ? 'https://futbolink.onrender.com' 
+      : 'http://localhost:3001';
     
-    // Ruta base de la API
-    const baseUrl = process.env.NODE_ENV === 'development'
-      ? 'http://localhost:3001'
-      : 'https://futbolink.onrender.com';
+    console.log(`Next.js rewrite configuration using baseUrl: ${baseUrl} (${process.env.NODE_ENV} mode)`);
     
-    console.log('Next.js rewrite configuration using baseUrl:', baseUrl);
-    
-    // Rewrite ALL backend endpoints to avoid CORS issues in production
-    rewrites.push({
-      source: '/api/:path*',
-      destination: `${baseUrl}/api/:path*`,
-    });
-    
-    // Specific routes that need proxying to avoid CORS
-    // Endpoints seen in the error logs
-    rewrites.push({ source: '/News', destination: `${baseUrl}/News` });
-    rewrites.push({ source: '/News/:path*', destination: `${baseUrl}/News/:path*` });
-    rewrites.push({ source: '/success-cases', destination: `${baseUrl}/success-cases` });
-    rewrites.push({ source: '/success-cases/:path*', destination: `${baseUrl}/success-cases/:path*` });
-    rewrites.push({ source: '/videos', destination: `${baseUrl}/videos` });
-    rewrites.push({ source: '/videos/:path*', destination: `${baseUrl}/videos/:path*` });
-    
-    // Additional common endpoints
-    rewrites.push({ source: '/user/:path*', destination: `${baseUrl}/user/:path*` });
-    rewrites.push({ source: '/login/:path*', destination: `${baseUrl}/login/:path*` });
-    rewrites.push({ source: '/login', destination: `${baseUrl}/login` });
-    rewrites.push({ source: '/contact', destination: `${baseUrl}/contact` });
-    rewrites.push({ source: '/jobs/:path*', destination: `${baseUrl}/jobs/:path*` });
-    rewrites.push({ source: '/jobs', destination: `${baseUrl}/jobs` });
-    
-    // Email endpoints
-    rewrites.push({ source: '/email/contact', destination: `${baseUrl}/email/contact` });
-    rewrites.push({ source: '/email/:path*', destination: `${baseUrl}/email/:path*` });
-    
-    return rewrites;
+    // Define all rewrites
+    return [
+      // News endpoints - IMPORTANT: Order matters! More specific routes first
+      {
+        source: '/News/:id*',
+        destination: `${baseUrl}/News/:id*`,
+      },
+      {
+        source: '/News',
+        destination: `${baseUrl}/News`,
+      },
+      
+      // API endpoints
+      {
+        source: '/api/:path*',
+        destination: `${baseUrl}/api/:path*`,
+      },
+      
+      // Other specific routes
+      {
+        source: '/success-cases/:path*',
+        destination: `${baseUrl}/success-cases/:path*`,
+      },
+      {
+        source: '/success-cases',
+        destination: `${baseUrl}/success-cases`,
+      },
+      {
+        source: '/videos/:path*',
+        destination: `${baseUrl}/videos/:path*`,
+      },
+      {
+        source: '/videos',
+        destination: `${baseUrl}/videos`,
+      },
+      {
+        source: '/user/:path*',
+        destination: `${baseUrl}/user/:path*`,
+      },
+      {
+        source: '/login/:path*',
+        destination: `${baseUrl}/login/:path*`,
+      },
+      {
+        source: '/login',
+        destination: `${baseUrl}/login`,
+      },
+      {
+        source: '/contact',
+        destination: `${baseUrl}/contact`,
+      },
+      {
+        source: '/jobs/:path*',
+        destination: `${baseUrl}/jobs/:path*`,
+      },
+      {
+        source: '/jobs',
+        destination: `${baseUrl}/jobs`,
+      },
+      {
+        source: '/email/contact',
+        destination: `${baseUrl}/email/contact`,
+      },
+      {
+        source: '/email/:path*',
+        destination: `${baseUrl}/email/:path*`,
+      },
+    ];
   },
 };
 

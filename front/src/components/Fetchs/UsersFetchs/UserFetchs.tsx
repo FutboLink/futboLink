@@ -28,23 +28,60 @@ export const fetchLoginUser = async (credentials: ILoginUser) => {
 
 // Formulario de Registro
 export const fetchRegisterUser = async (user: IRegisterUser) => {
-  console.log("Datos del usuario a enviar:", user);
-  console.log("Llamando a la ruta:", `${apiUrl}/user/register`);
-  const response = await fetch(`${apiUrl}/user/register`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(user),
-  });
+  try {
+    // Create a basic registration object with required fields
+    const userToRegister = {
+      name: user.name,
+      lastname: user.lastname,
+      email: user.email,
+      password: user.password,
+      role: user.role || "PLAYER",
+      ubicacionActual: user.ubicacionActual || "",
+      nationality: user.nationality || "",
+      genre: user.genre || "",
+      puesto: user.puesto || "",
+      // Required typed fields with default values
+      imgUrl: "",
+      phone: "",
+      location: "",
+      // Add type-specific fields with proper defaults
+      birthday: new Date(),
+      age: 0,
+      height: 0,
+      weight: 0,
+      skillfulFoot: "",
+      bodyStructure: "",
+      habilities: []
+    };
+    
+    // Log the exact object we're sending
+    console.log("REGISTRO - Datos del usuario a enviar:", JSON.stringify(userToRegister, null, 2));
+    console.log("REGISTRO - Llamando a la ruta:", `${apiUrl}/user/register`);
+    
+    const response = await fetch(`${apiUrl}/user/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userToRegister),
+    });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || "Error desconocido");
+    // Log response details
+    console.log("REGISTRO - Status de respuesta:", response.status, response.statusText);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("REGISTRO - Error completo:", JSON.stringify(errorData, null, 2));
+      throw new Error(errorData.message || "Error desconocido");
+    }
+
+    const data = await response.json();
+    console.log("REGISTRO - Respuesta exitosa:", JSON.stringify(data, null, 2));
+    return data;
+  } catch (error) {
+    console.error("REGISTRO - Error detallado:", error);
+    throw error;
   }
-
-  const data = await response.json();
-  return data;
 };
 
 export const fetchUserData = async (token: string) => {

@@ -3,8 +3,7 @@ import { ICreateNotice, INotice } from "@/Interfaces/INews";
 import { IApplication } from "@/Interfaces/IOffer";
 import { IProfileData } from "@/Interfaces/IUser";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ;
 
 // Función para obtener los usuarios
 export const getUsers =  async (): Promise<IProfileData[]> => {
@@ -100,24 +99,48 @@ export const getNews = async (page?: number): Promise<INotice[]> => {
 };
 
 export const getNewsById = async (noticeId: string) => {
+  // Debug information
+  console.log("==== getNewsById Debug Info ====");
+  console.log("API URL from env:", process.env.NEXT_PUBLIC_API_URL);
+  console.log("Using apiUrl:", apiUrl);
+  console.log("Notice ID:", noticeId);
+  
   try {
+    // Definimos la URL base, con fallback a localhost si no está configurada
+    const baseUrl = apiUrl || 'http://localhost:3001';
+    
+    // Creamos la URL completa para la petición
+    const requestUrl = `${baseUrl}/News/${noticeId}`;
+    console.log(`Making request to: ${requestUrl}`);
+    
+    // Añadimos un timestamp para evitar caché
+    const urlWithNoCache = `${requestUrl}?_t=${Date.now()}`;
+    console.log(`Final URL with cache busting: ${urlWithNoCache}`);
+    
     // Realiza la petición GET al endpoint con el noticeId
-    const response = await fetch(`${apiUrl}/News/${noticeId}`, {
+    const response = await fetch(urlWithNoCache, {
       method: "GET", // Método de la solicitud
       headers: {
         "Content-Type": "application/json",
-        // Si necesitas enviar un token o algo más en los headers, agrégalo aquí
-        // "Authorization": `Bearer ${token}`,
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache",
       },
     });
 
+    // Registramos la respuesta para depuración
+    console.log(`API response status: ${response.status} (${response.statusText})`);
+    console.log("Response headers:", Object.fromEntries([...response.headers.entries()]));
+
     // Verifica si la respuesta es exitosa (status 200)
     if (!response.ok) {
-      throw new Error("Error al obtener la noticia");
+      const errorText = await response.text();
+      console.error(`Error response body: ${errorText}`);
+      throw new Error(`Error al obtener la noticia: ${response.status} ${response.statusText}`);
     }
 
     // Si la respuesta es exitosa, parseamos el JSON de la respuesta
     const data = await response.json();
+    console.log("Response data:", data);
     return data; // Retorna la noticia obtenida
 
   } catch (error) {

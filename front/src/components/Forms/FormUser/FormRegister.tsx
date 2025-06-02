@@ -121,10 +121,25 @@ const RegistrationForm: React.FC = () => {
       return;
     }
 
-    const user: IRegisterUser = { ...userRegister, role: UserType.PLAYER };
+    // Instead of spreading the user object, explicitly select only
+    // the fields we want to send to the backend
+    const registrationData = {
+      name: userRegister.name,
+      lastname: userRegister.lastname,
+      email: userRegister.email,
+      password: userRegister.password,
+      role: UserType.PLAYER,
+      ubicacionActual: userRegister.ubicacionActual || "",
+      nationality: selectedNationality || "",
+      genre: userRegister.genre || "",
+      puesto: userRegister.puesto || "",
+    };
+
+    // Log what we're sending
+    console.log("FormRegister - datos para registro:", JSON.stringify(registrationData, null, 2));
 
     try {
-      const isRegistered = await signUp(user);
+      const isRegistered = await signUp(registrationData);
       if (isRegistered) {
         setNotificationMessage("Registro exitoso");
         setShowNotification(true);

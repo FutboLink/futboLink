@@ -4,6 +4,7 @@ import {
   IRegisterUser,
   ILoginUser,
   IUserResponse,
+  UserType
 } from "@/Interfaces/IUser";
 import { IUserContextType } from "@/Interfaces/IUser";
 import {
@@ -83,7 +84,24 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const signUp = async (user: IRegisterUser): Promise<boolean> => {
     try {
-      const data = await fetchRegisterUser(user);
+      // Create a clean user object without frontend-only properties
+      // Explicitly pick only the fields we want to send to the backend
+      const cleanUserData = {
+        name: user.name,
+        lastname: user.lastname,
+        email: user.email,
+        password: user.password,
+        role: user.role || UserType.PLAYER,
+        ubicacionActual: user.ubicacionActual || "",
+        nationality: user.nationality || "",
+        puesto: user.puesto || "",
+        genre: user.genre || "",
+      };
+      
+      // Log what we're sending to fetchRegisterUser
+      console.log("UserContext - sending to fetchRegisterUser:", JSON.stringify(cleanUserData, null, 2));
+      
+      const data = await fetchRegisterUser(cleanUserData);
       if (data) {
         await signIn({ email: user.email, password: user.password });
         return true;

@@ -33,6 +33,17 @@ const nextConfig = {
     ],
   },
   
+  // Redirects para manejar problemas de sensibilidad a mayúsculas/minúsculas
+  async redirects() {
+    return [
+      {
+        source: '/Contact',
+        destination: '/contact',
+        permanent: true,
+      },
+    ];
+  },
+  
   // Configuración de reescritura de rutas
   async rewrites() {
     // Usar siempre la URL de producción para las API
@@ -42,6 +53,12 @@ const nextConfig = {
     
     // Define all rewrites
     return [
+      // Redirects to solve App Router route handler issues
+      {
+        source: '/api/News/:id',
+        destination: '/news-detail/:id',
+      },
+      
       // API endpoints
       {
         source: '/api/:path*',

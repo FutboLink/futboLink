@@ -5,7 +5,8 @@ import { useParams } from "next/navigation";
 import JobApplications from "@/components/Jobs/JobApplications";
 
 const JobApplicationsPage: React.FC = () => {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id as string | undefined;
   const [jobId, setJobId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 

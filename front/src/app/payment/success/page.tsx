@@ -11,7 +11,7 @@ import { updateUserSubscription, clearSubscriptionCache } from '@/services/Subsc
 // Componente que usa useSearchParams (debe estar dentro de Suspense)
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
-  const plan = searchParams.get('plan'); // Solo usamos un parámetro 'plan'
+  const plan = searchParams?.get('plan') || 'Semiprofesional'; // Valor por defecto si no hay parámetro o searchParams es null
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('Procesando pago...');
   const [subscriptionType, setSubscriptionType] = useState('');
@@ -34,7 +34,7 @@ function PaymentSuccessContent() {
   useEffect(() => {
     const processPayment = async () => {
       // Si no hay plan en los parámetros, intentamos determinar si es un pago por defecto
-      let subType = plan || 'Semiprofesional'; // Valor por defecto si no se especifica
+      let subType = plan;
 
       // Validar que el plan sea uno de los tipos válidos
       if (!['Amateur', 'Semiprofesional', 'Profesional'].includes(subType)) {

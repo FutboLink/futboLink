@@ -197,7 +197,7 @@ const CursosList = () => {
           Descubre nuestra selección de cursos especializados para profesionales
           del fútbol.{" "}
           <Link
-            href="/Contact"
+            href="/contacto"
             className="underline font-medium hover:text-white"
           >
             ¿Tienes dudas? Contáctanos

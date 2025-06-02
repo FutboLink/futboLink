@@ -44,8 +44,10 @@ function Contact() {
       // Direct API call to the backend
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://futbolink.onrender.com';
       
-      // Use the new contact endpoint
-      const response = await fetch(`${apiUrl}/contact`, {
+      console.log("Sending contact form to API endpoint:", `${apiUrl}/api/contact`);
+      
+      // Use the API endpoint with /api prefix
+      const response = await fetch(`${apiUrl}/api/contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

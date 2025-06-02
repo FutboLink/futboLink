@@ -35,12 +35,13 @@ function NavbarAdmin() {
   }, []);
 
   const menuItems = [
-    { label: "Ofertas", path: "/jobs" },
+    { label: "Home", path: "/" },
+    { label: "Cursos", path: "/PanelAdmin/Cursos" },
     { label: "Noticias", path: "/PanelAdmin/News" },
-    { label: "Suscripciones", path: "/Subs" },
-    { label: "Ayuda", path: "/Help" },
-    { label: "Entrenamiento", path: "/PanelAdmin/Cursos" },
-    { label: "Contacto", path: "/Contact" },
+    { label: "Users", path: "/PanelAdmin/Users" },
+    { label: "Aplicaciones", path: "/PanelAdmin/Applications" },
+    { label: "Ofertas", path: "/PanelAdmin/Ofertas" },
+    { label: "Contacto", path: "/contacto" },
   ];
 
   const renderUserIcon = () => {

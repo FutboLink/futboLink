@@ -41,7 +41,7 @@ function NavbarRoles() {
     { label: "Suscripciones", path: "/Subs" },
     { label: "Ayuda", path: "/Help" },
     { label: "Entrenamiento", path: "/cursos" },
-    { label: "Contacto", path: "/Contact" },
+    { label: "Contacto", path: "/contacto" },
   ];
 
   const renderUserIcon = () => {

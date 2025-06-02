@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Contact Links</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .link-container {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    a {
+      display: inline-block;
+      margin: 10px;
+      padding: 10px 15px;
+      background-color: #2e7d32;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    h1, h2 {
+      color: #2e7d32;
+    }
+  </style>
+</head>
+<body>
+  <h1>Test Contact Page Navigation</h1>
+  
+  <div class="link-container">
+    <h2>Direct Links</h2>
+    <a href="/contacto">Página de Contacto (/contacto)</a>
+  </div>
+  
+  <div class="link-container">
+    <h2>JavaScript Navigation</h2>
+    <a href="#" onclick="navigateToContact(); return false;">JS Navigate to /contacto</a>
+  </div>
+  
+  <script>
+    function navigateToContact() {
+      window.location.href = '/contacto';
+    }
+  </script>
+</body>
+</html> 

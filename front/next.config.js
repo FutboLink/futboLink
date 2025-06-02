@@ -33,15 +33,10 @@ const nextConfig = {
     ],
   },
   
-  // Redirects para manejar problemas de sensibilidad a mayúsculas/minúsculas
+  // DISABLED ALL REDIRECTS to fix the redirect loop
   async redirects() {
-    return [
-      {
-        source: '/Contact',
-        destination: '/contact',
-        permanent: true,
-      },
-    ];
+    console.log('ALL REDIRECTS DISABLED to fix redirect loop');
+    return [];
   },
   
   // Configuración de reescritura de rutas
@@ -50,22 +45,17 @@ const nextConfig = {
     const baseUrl = 'https://futbolink.onrender.com';
     
     console.log(`Next.js rewrite configuration using baseUrl: ${baseUrl}`);
+    console.log('Contact path is NOT being rewritten - it should be served from local Pages Router');
     
     // Define all rewrites
     return [
-      // Redirects to solve App Router route handler issues
-      {
-        source: '/api/News/:id',
-        destination: '/news-detail/:id',
-      },
-      
       // API endpoints
       {
         source: '/api/:path*',
         destination: `${baseUrl}/api/:path*`,
       },
       
-      // News endpoints - IMPORTANT: More specific routes first
+      // News endpoints
       {
         source: '/News/api/:path*',
         destination: `${baseUrl}/News/:path*`,
@@ -108,6 +98,7 @@ const nextConfig = {
         source: '/login',
         destination: `${baseUrl}/login`,
       },
+      // Contact API endpoint - direct path as used in the form
       {
         source: '/contact',
         destination: `${baseUrl}/contact`,
@@ -119,10 +110,6 @@ const nextConfig = {
       {
         source: '/jobs',
         destination: `${baseUrl}/jobs`,
-      },
-      {
-        source: '/email/contact',
-        destination: `${baseUrl}/email/contact`,
       },
       {
         source: '/email/:path*',

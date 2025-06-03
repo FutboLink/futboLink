@@ -19,9 +19,17 @@ export const getOfertas =  async (): Promise<IOfferCard[]> => {
 };
 
   
-  export const getOfertaById = async (id: string): Promise<IOfferCard | null> => {
-    const response = await fetch(`${apiUrl}/jobs/${id}`);
-    if (!response.ok) return null;
+export const getOfertaById = async (id: string): Promise<IOfferCard | null> => {
+  try {
+    const response = await fetch(`${apiUrl}/api/jobs/${id}`);
+    if (!response.ok) {
+      console.error('Error fetching job details:', await response.text());
+      return null;
+    }
     return response.json();
-  };
+  } catch (error) {
+    console.error('Exception fetching job details:', error);
+    return null;
+  }
+};
   

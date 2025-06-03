@@ -122,8 +122,8 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
             <div className="text-gray-700 font-semibold"><span>Ubicación:</span> {jobOffer.location}</div>
             <div className="text-gray-700 font-semibold"><span>Salario:</span> {jobOffer.currencyType}{jobOffer.salary}</div>
             <div className="text-gray-700 font-semibold"><span>Género:</span> {jobOffer.sportGenres}</div>
-            <div className="text-gray-700 font-semibold"><span>Países:</span> {jobOffer.nationality}</div>
-            <div className="text-gray-700 font-semibold"><span>Posición:</span> {jobOffer.position}</div>
+            <div className="text-gray-700 font-semibold"><span>Países:</span> {Array.isArray(jobOffer.countries) ? jobOffer.countries.join(', ') : jobOffer.nationality || 'No especificado'}</div>
+            <div className="text-gray-700 font-semibold"><span>Posición:</span> {jobOffer.position || 'No especificado'}</div>
             <div className="text-gray-700 font-semibold"><span>Categoría:</span> {jobOffer.category}</div>
             <div className="text-gray-700 font-semibold"><span>Tipo de contrato:</span> {jobOffer.contractTypes}</div>
             <div className="text-gray-700 font-semibold"><span>Duración del contrato:</span> {jobOffer.contractDurations}</div>
@@ -141,7 +141,7 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
           {/* Extras - Lista */}
           <div className="mb-4">
             <span className="font-semibold text-gray-700">Extras:</span>
-            {jobOffer.extra.length > 0 ? (
+            {jobOffer.extra && jobOffer.extra.length > 0 ? (
               <ul className="list-disc pl-5 text-gray-700 space-y-1">
                 {jobOffer.extra.map((item, index) => (
                   <li key={index}>{item}</li>

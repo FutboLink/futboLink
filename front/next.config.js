@@ -103,9 +103,14 @@ const nextConfig = {
         source: '/contact',
         destination: `${baseUrl}/contact`,
       },
+      // For jobs API endpoints, let's just use the API directly
       {
-        source: '/jobs/:path*',
-        destination: `${baseUrl}/jobs/:path*`,
+        source: '/api/jobs/:id',
+        destination: `${baseUrl}/jobs/:id`,
+      },
+      {
+        source: '/api/jobs',
+        destination: `${baseUrl}/jobs`,
       },
       {
         source: '/jobs',

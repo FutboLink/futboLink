@@ -142,6 +142,7 @@ useEffect(() => {
     setSelectedNationality(value);
     setFormData((prevState) => ({
       ...prevState,
+      nationality: value,
       countries: [...prevState.countries, value]
     }));
     setSearch("");
@@ -216,6 +217,20 @@ useEffect(() => {
       competencies: formData.competencies,
       countries: formData.countries
     };
+    
+    // Only add position, nationality, and extra if they have values in the form
+    if (formData.position) {
+      formDataToSend.position = formData.position;
+    }
+    
+    if (formData.nationality) {
+      formDataToSend.nationality = formData.nationality;
+    }
+    
+    // Use competencies as extra only if competencies has values
+    if (formData.competencies && formData.competencies.length > 0) {
+      formDataToSend.extra = formData.competencies;
+    }
   
     setTimeout(async () => {
       try {
@@ -435,6 +450,24 @@ useEffect(() => {
             {contractDurations.map((duration, index) => (
               <option key={index} value={duration}>
                 {duration}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col">
+        <label className="text-xs font-semibold mb-1">Posición</label>
+          <select
+           className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+            value={formData.position || ""}
+            onChange={(e) =>
+              setFormData({ ...formData, position: e.target.value })
+            }
+          >
+            <option value="">Seleccionar posición</option>
+            {position.map((pos, index) => (
+              <option key={index} value={pos}>
+                {pos}
               </option>
             ))}
           </select>

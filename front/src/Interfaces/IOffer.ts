@@ -35,7 +35,7 @@ export interface IOfferCard {
   nationality: string;
   contractDurations: string;
   minExperience: string;
-    location: string;
+  location: string;
   category: string;
   sport: string;
   description:string;
@@ -44,11 +44,11 @@ export interface IOfferCard {
   extra: string[];
   status: string;
   type: string;
+  countries?: string[];
   recruiter: {
     id: string;
     role: "RECRUITER" | "AGENCY"; // roles posibles para el reclutador
   };
-
 }
 
 
@@ -118,6 +118,9 @@ export interface ICreateJob {
   sport: string;
   contractTypes: string; 
   contractDurations: string;
+  position?: string;
+  nationality?: string;
+  extra?: string[];
   salary: string;
   minAge: number;
   maxAge: number;

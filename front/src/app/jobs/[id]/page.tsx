@@ -1,12 +1,11 @@
 "use client";
 import React, { useState, useEffect, useContext } from "react";
 import { IOfferCard } from "@/Interfaces/IOffer";
-import { getOfertaById } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
-import ModalApplication from "@/components/Applications/ModalApplications";
-import Link from "next/link";
-import { useParams } from "next/navigation";
 import { UserContext } from "@/components/Context/UserContext";
+import { useParams } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
+import ModalApplication from "@/components/Applications/ModalApplications";
 import { checkUserSubscription } from "@/services/SubscriptionService";
 
 const JobDetail: React.FC = () => {
@@ -20,6 +19,9 @@ const JobDetail: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [checkingSubscription, setCheckingSubscription] = useState(false);
+
+  // Use environment variable directly
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
     if (params && params.id) {
@@ -67,7 +69,16 @@ const JobDetail: React.FC = () => {
     const fetchOffer = async () => {
       if (jobId) {
         try {
-          const fetchedOffer = await getOfertaById(jobId);
+          setIsLoading(true);
+          // Use direct API URL to bypass rewrites
+          const response = await fetch(`${apiUrl}/jobs/${jobId}`);
+          
+          if (!response.ok) {
+            console.error("Error fetching job details:", await response.text());
+            throw new Error("Failed to fetch job details");
+          }
+          
+          const fetchedOffer = await response.json();
           setOffer(fetchedOffer);
         } catch (error) {
           console.error("Error al obtener la oferta:", error);
@@ -78,7 +89,7 @@ const JobDetail: React.FC = () => {
     };
 
     fetchOffer();
-  }, [jobId]);
+  }, [jobId, apiUrl]);
 
   if (isLoading) {
     return (
@@ -186,27 +197,46 @@ const JobDetail: React.FC = () => {
               <strong>Género:</strong> {offer.sportGenres}
             </p>
           )}
-          {typeof offer.availabilityToTravel === "boolean" && (
+          {typeof offer.availabilityToTravel === "boolean" || offer.availabilityToTravel === "Si" || offer.availabilityToTravel === "No" ? (
             <p>
               <strong>Disponibilidad para viajar:</strong>{" "}
-              {offer.availabilityToTravel ? "Sí" : "No"}
+              {typeof offer.availabilityToTravel === "boolean" 
+                ? (offer.availabilityToTravel ? "Sí" : "No")
+                : offer.availabilityToTravel
+              }
             </p>
-          )}
-          {typeof offer.euPassport === "boolean" && (
+          ) : null}
+          {typeof offer.euPassport === "boolean" || offer.euPassport === "Si" || offer.euPassport === "No" ? (
             <p>
-              <strong>Pasaporte UE:</strong> {offer.euPassport ? "Sí" : "No"}
+              <strong>Pasaporte UE:</strong>{" "}
+              {typeof offer.euPassport === "boolean"
+                ? (offer.euPassport ? "Sí" : "No")
+                : offer.euPassport
+              }
             </p>
-          )}
-          {offer.salary && offer.currencyType && (
+          ) : null}
+          {offer.salary && (
             <p>
-              <strong>Salario:</strong> {offer.currencyType} {offer.salary}
+              <strong>Salario:</strong> {offer.currencyType || ""} {offer.salary}
             </p>
           )}
           {offer.createdAt && (
             <p>
-              <strong>Fecha de publicación:</strong> {offer.createdAt}
+              <strong>Fecha de publicación:</strong>{" "}
+              {new Date(offer.createdAt).toLocaleDateString()}
             </p>
           )}
+
+          {/* Display countries if available, otherwise use nationality */}
+          {Array.isArray(offer.countries) && offer.countries.length > 0 ? (
+            <p>
+              <strong>Países:</strong> {offer.countries.join(", ")}
+            </p>
+          ) : offer.nationality ? (
+            <p>
+              <strong>Nacionalidad:</strong> {offer.nationality}
+            </p>
+          ) : null}
 
           {Array.isArray(offer.extra) && offer.extra.length > 0 && (
             <div className="col-span-full">

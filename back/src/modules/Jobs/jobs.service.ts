@@ -38,6 +38,12 @@ export class JobsService {
     if (!job) {
       throw new NotFoundException(`Job with ID ${id} not found`);
     }
+    
+    // Ensure compatibility with frontend by adding countries array if it's missing
+    if (!job.countries && job.nationality) {
+      job.countries = [job.nationality];
+    }
+    
     return job;
   }
   

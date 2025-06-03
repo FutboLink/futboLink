@@ -77,6 +77,13 @@ export class Job {
   @Column()
   nationality: string;
 
+  @ApiProperty({ 
+    example: ['USA', 'Spain', 'France'], 
+    description: 'Lista de países donde aplica la oferta' 
+  })
+  @Column('simple-array', { nullable: true })
+  countries: string[];
+
   @ApiProperty({
     example: 'https://example.com/job.png',
     description: 'URL de la imagen del trabajo',

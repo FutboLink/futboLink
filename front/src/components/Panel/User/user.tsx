@@ -9,7 +9,7 @@ import { UserContext } from "@/components/Context/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FaBolt, FaCog, FaUser, FaYoutube, FaRegIdCard, FaRegCreditCard } from "react-icons/fa";
-import { checkUserSubscription, refreshUserSubscription, clearSubscriptionCache, cancelUserSubscription, forceSyncSubscription, SubscriptionInfo, SyncSubscriptionResult } from "@/services/SubscriptionService";
+import { checkUserSubscription, refreshUserSubscription, clearSubscriptionCache, forceSyncSubscription, SubscriptionInfo, SyncSubscriptionResult } from "@/services/SubscriptionService";
 import LanguageToggle from "@/components/LanguageToggle/LanguageToggle";
 import { fetchUserData, getCv } from "@/components/Fetchs/UsersFetchs/UserFetchs";
 import dynamic from 'next/dynamic';
@@ -49,8 +49,6 @@ const UserProfile = () => {
   });
   const [pendingSubscriptionType, setPendingSubscriptionType] = useState<string | null>(null);
   const [loadingSubscription, setLoadingSubscription] = useState(false);
-  const [cancellingSubscription, setCancellingSubscription] = useState(false);
-  const [cancelMessage, setCancelMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [localTrayectorias, setLocalTrayectorias] = useState<Trayectoria[]>([]);
   const [loadingCv, setLoadingCv] = useState(false);
   const [isClient, setIsClient] = useState(false);
@@ -250,39 +248,6 @@ const UserProfile = () => {
       console.error("Error refreshing subscription:", err);
     } finally {
       setLoadingSubscription(false);
-    }
-  };
-
-  // Function to cancel subscription
-  const handleCancelSubscription = async () => {
-    if (!userData?.email || !isClient) return;
-    
-    // Ask for confirmation
-    const confirmed = window.confirm('¿Estás seguro que deseas cancelar tu suscripción? Perderás acceso a las funciones premium al finalizar el período actual de facturación.');
-    
-    if (!confirmed) return;
-    
-    setCancellingSubscription(true);
-    setCancelMessage(null);
-    
-    try {
-      const result = await cancelUserSubscription(userData.email);
-      
-      if (result.success) {
-        setCancelMessage({ type: 'success', text: result.message });
-        // Refresh subscription data to show updated status
-        await handleRefreshSubscription();
-      } else {
-        setCancelMessage({ type: 'error', text: result.message });
-      }
-    } catch (err) {
-      setCancelMessage({ 
-        type: 'error', 
-        text: 'Error al cancelar la suscripción. Por favor, intenta nuevamente más tarde.' 
-      });
-      console.error('Error canceling subscription:', err);
-    } finally {
-      setCancellingSubscription(false);
     }
   };
 
@@ -678,17 +643,6 @@ const UserProfile = () => {
                                   : subscriptionInfo.subscriptionType}
                               </span>
                             </p>
-                            {!subscriptionInfo.hasActiveSubscription && (
-                              <div className="mt-2">
-                                <Link 
-                                  href="/Subs" 
-                                  className="text-sm text-white bg-[#1d5126] hover:bg-[#3e7c27] px-4 py-2 rounded-md transition-colors duration-200 inline-flex items-center"
-                                >
-                                  <FaRegCreditCard className="mr-1" />
-                                  Ver planes de suscripción
-        </Link>
-      </div>
-                            )}
                           </>
                         )}
                       </div>
@@ -1021,15 +975,6 @@ const UserProfile = () => {
                           </span>
                         </p>
                         
-                        {/* Cancel message */}
-                        {cancelMessage && (
-                          <div className={`p-3 rounded-md mb-3 ${
-                            cancelMessage.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          }`}>
-                            {cancelMessage.text}
-                          </div>
-                        )}
-                        
                         <div className="mt-3 flex flex-wrap gap-2">
                           <Link 
                             href="/Subs" 
@@ -1053,25 +998,6 @@ const UserProfile = () => {
                               'Actualizar estado'
                             )}
                           </button>
-                          
-                          {/* Cancel subscription button - only show for active paid subscriptions */}
-                          {subscriptionInfo.hasActiveSubscription && 
-                           subscriptionInfo.subscriptionType !== 'Amateur' && (
-                            <button
-                              onClick={handleCancelSubscription}
-                              disabled={cancellingSubscription}
-                              className="text-sm text-red-600 border border-red-600 hover:bg-red-50 px-4 py-2 rounded-md transition-colors duration-200 inline-flex items-center"
-                            >
-                              {cancellingSubscription ? (
-                                <>
-                                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-red-600 mr-2"></div>
-                                  Cancelando...
-                                </>
-                              ) : (
-                                'Dar de baja suscripción'
-                              )}
-                            </button>
-                          )}
                         </div>
                       </div>
                     </div>

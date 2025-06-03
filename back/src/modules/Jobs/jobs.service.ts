@@ -16,10 +16,16 @@ export class JobsService {
   ) {}
 
   async create(createJobDto: CreateJobDto, recruiterId: string): Promise<Job> {
-    const job = this.jobRepository.create({
+    // Set default values for required database fields if not provided
+    const jobData = {
       ...createJobDto,
-      recruiter: { id: recruiterId }, 
-    });
+      position: createJobDto.position || 'Entrenador', // Default position
+      nationality: createJobDto.nationality || 'España', // Default nationality
+      extra: createJobDto.extra || ['Sueldo fijo'], // Default extra
+      recruiter: { id: recruiterId },
+    };
+    
+    const job = this.jobRepository.create(jobData);
     return await this.jobRepository.save(job);
   }
 

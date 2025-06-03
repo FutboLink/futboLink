@@ -45,7 +45,32 @@ export class CreateJobDto {
   @IsString()
   offerType: string;
 
-
+  @ApiProperty({
+    description: 'Posición para el trabajo',
+    example: 'Entrenador',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  position?: string;
+  
+  @ApiProperty({
+    description: 'Nacionalidad requerida',
+    example: 'España',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  nationality?: string;
+  
+  @ApiProperty({
+    description: 'Extras o beneficios adicionales',
+    example: ['Sueldo fijo', 'Bonos por rendimiento'],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  extra?: string[];
 
   @ApiProperty({
     description: 'El tipo de moneda',

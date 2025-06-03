@@ -26,24 +26,31 @@ export const fetchCreateOffer = async (offer:ICreateJobOffer, token:string) => {
 
 
 //Formulario crear job
-export const fetchCreateJob = async (offer:ICreateJob, token:string) => {
+export const fetchCreateJob = async (offer: ICreateJob, token: string) => {
+  console.log("Sending job offer data:", JSON.stringify(offer, null, 2));
+  
+  try {
+    const response = await fetch(`${apiUrl}/jobs`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(offer),
+    });
 
-  const response = await fetch(`${apiUrl}/jobs`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(offer),
-  });
+    const data = await response.json();
+    
+    if (!response.ok) {
+      console.error("Error response from server:", data);
+      throw new Error(data.message || "Error desconocido al crear oferta");
+    }
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || "Error desconocido");
+    return data;
+  } catch (error) {
+    console.error("Error in fetchCreateJob:", error);
+    throw error;
   }
-
-  const data = await response.json();
-  return data;
 };
 
 

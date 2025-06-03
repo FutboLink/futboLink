@@ -109,25 +109,26 @@ export enum JobStatus {
 
 export interface ICreateJob {
   title: string; 
-  currencyType:string;
+  currencyType: string;
   customCurrencySign?: string;
-  nationality: string;
   location: string;
-  position: string;
-  description:string;
+  description: string;
   category: string;
-  sportGenres:string;
+  sportGenres: string;
   sport: string;
   contractTypes: string; 
   contractDurations: string;
   salary: string;
   minAge: number;
-  maxAge:number;
+  maxAge: number;
   availabilityToTravel: YesOrNotravell;
   euPassport: YesOrNo;
   imgUrl: string;
-  extra: string[];
   minExperience: string;
+  offerType: string;
+  moneda: string;
+  competencies: string[];
+  countries: string[];
 }
 
 

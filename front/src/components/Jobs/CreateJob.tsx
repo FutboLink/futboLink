@@ -94,15 +94,12 @@ const FormComponent = () => {
   
   const [formData, setFormData] = useState<ICreateJob>({
     title: "",
-    nationality: "",
     location: "",
-    position: "Jugador", 
     category: "Amateur", 
     sport: "Fútbol 11",
     contractTypes: "Contrato Profesional",
     contractDurations: "Contrato Temporal",
     salary: "",
-    extra: [],
     minAge: 0,
     description: "",
     currencyType: "EUR",
@@ -113,6 +110,10 @@ const FormComponent = () => {
     availabilityToTravel: YesOrNotravell.SI,
     euPassport: YesOrNo.SI,
     imgUrl: "",
+    offerType: "Contrato Profesional",
+    moneda: "EUR",
+    competencies: [],
+    countries: []
   });
   
 
@@ -138,27 +139,13 @@ useEffect(() => {
  
   // Maneja la selección de una nacionalidad
   const handleSelectNationality = (value: string) => {
-    setSelectedNationality(value); // Actualiza selectedNationality con el valor seleccionado
+    setSelectedNationality(value);
     setFormData((prevState) => ({
       ...prevState,
-      nationality: value, // Actualiza el estado del formulario
+      countries: [...prevState.countries, value]
     }));
-    setSearch(""); // Limpia el campo de búsqueda
-    setIsOpen(false); // Cierra el dropdown una vez se seleccione una opción
-  };
-
-
-  const handleExtraChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    extra: string
-  ) => {
-    const { checked } = e.target;
-    setFormData({
-      ...formData,
-      extra: checked
-        ? [...formData.extra, extra]
-        : formData.extra.filter((item) => item !== extra),
-    });
+    setSearch("");
+    setIsOpen(false);
   };
 
   const isValidImageUrl = (url: string) => {
@@ -177,6 +164,16 @@ useEffect(() => {
       imgUrl: url,
     }));
   };
+
+  const handleCompetencyChange = (value: string, checked: boolean) => {
+    setFormData(prevState => ({
+      ...prevState,
+      competencies: checked 
+        ? [...prevState.competencies, value]
+        : prevState.competencies.filter(item => item !== value)
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log(formData);
@@ -195,14 +192,15 @@ useEffect(() => {
       setLoading(false);
       return;
     }
-  
-    const currencyToSend =
-      formData.currencyType === "Otro"
-        ? formData.customCurrencySign?.trim() ?? ""
-        : formData.currencyType?.trim() ?? "";
-  
-    if (!currencyToSend) {
-      setError("Debes ingresar un tipo de moneda válido.");
+    
+    if (formData.countries.length === 0) {
+      setError("Debes seleccionar al menos un país donde aplica la oferta.");
+      setLoading(false);
+      return;
+    }
+    
+    if (formData.competencies.length === 0) {
+      setError("Debes seleccionar al menos una competencia requerida.");
       setLoading(false);
       return;
     }
@@ -211,7 +209,12 @@ useEffect(() => {
   
     const formDataToSend: ICreateJob = {
       ...restFormData,
-      currencyType: currencyToSend,
+      // Ensure these fields are properly set
+      moneda: formData.moneda || "EUR",
+      offerType: formData.offerType || "Contrato Profesional",
+      contractDurations: formData.contractDurations || "Contrato Temporal",
+      competencies: formData.competencies,
+      countries: formData.countries
     };
   
     setTimeout(async () => {
@@ -219,17 +222,15 @@ useEffect(() => {
         const response = await fetchCreateJob(formDataToSend, token);
         console.log("Oferta creada:", response);
         setSuccessMessage("¡Oferta creada exitosamente!");
+        // Reset the form with empty values
         setFormData({
           title: "",
-          nationality: "",
           location: "",
-          position: "",
           category: "",
           sport: "",
           contractTypes: "",
           contractDurations: "",
           salary: "",
-          extra: [],
           minAge: 0,
           description: "",
           currencyType: "EUR",
@@ -240,6 +241,10 @@ useEffect(() => {
           availabilityToTravel: "Si" as YesOrNotravell,
           euPassport: "Si" as YesOrNo,
           imgUrl: "",
+          offerType: "",
+          moneda: "",
+          competencies: [],
+          countries: []
         });
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : "Error desconocido");
@@ -273,18 +278,14 @@ useEffect(() => {
 
    {/* Ubicación */}
    <div className="flex flex-col relative" ref={dropdownRef}>
-  <label className="text-xs font-semibold mb-1">Ubicación de la oferta</label>
+  <label className="text-xs font-semibold mb-1">Países donde aplica la oferta</label>
   <input
     type="text"
     className="px-2 flex flex-col relative py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-verde-claro"
-    value={formData.nationality}
-    onChange={(e) => {
-      const value = e.target.value;
-      setFormData({ ...formData, nationality: value });
-      setSearch(value);
-      setIsOpen(true);
-    }}
-    placeholder="Lugar del trabajo"
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    onClick={() => setIsOpen(true)}
+    placeholder="Buscar países..."
   />
 
     {/* Ícono de flecha */}
@@ -338,17 +339,17 @@ useEffect(() => {
         </div>
 
 <div className="flex flex-col">
-<label className="text-xs font-semibold mb-1">Posición</label>
+<label className="text-xs font-semibold mb-1">Tipo de oferta</label>
           <select
            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
-            value={formData.position}
+            value={formData.offerType}
             onChange={(e) =>
-              setFormData({ ...formData, position: e.target.value })
+              setFormData({ ...formData, offerType: e.target.value })
             }
           >
-            {position.map((position, index) => (
-              <option key={index} value={position}>
-                {position}
+            {contractTypes.map((contractTypes, index) => (
+              <option key={index} value={contractTypes}>
+                {contractTypes}
               </option>
             ))}
           </select>
@@ -423,9 +424,9 @@ useEffect(() => {
         </div>
 
         <div className="flex flex-col">
-        <label className="text-xs font-semibold mb-1">Tiempo de contrato</label>
+        <label className="text-xs font-semibold mb-1">Duración del contrato</label>
           <select
-            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+           className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.contractDurations}
             onChange={(e) =>
               setFormData({ ...formData, contractDurations: e.target.value })
@@ -440,31 +441,19 @@ useEffect(() => {
         </div>
 
         <div className="flex flex-col">
-        <label className="text-xs font-semibold mb-1">Tipo de Moneda</label>
+        <label className="text-xs font-semibold mb-1">Moneda</label>
         <select
           className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
-          value={formData.currencyType}
-          onChange={(e) =>
-            setFormData({ ...formData, currencyType: e.target.value })
-          }
+          value={formData.moneda}
+          onChange={(e) => setFormData({ ...formData, moneda: e.target.value })}
         >
-          <option value="">Selecciona una moneda</option>
-          <option value="EUR">EUR - Euro</option>
-          <option value="USD">USD - Dólar</option>
-          <option value="Otro">Otro</option>
+          <option value="EUR">Euro (€)</option>
+          <option value="USD">Dólar ($)</option>
+          <option value="GBP">Libra (£)</option>
+          <option value="ARS">Peso Argentino</option>
+          <option value="BRL">Real Brasileño</option>
+          <option value="MXN">Peso Mexicano</option>
         </select>
-
-        {formData.currencyType === "Otro" && (
-          <input
-            type="text"
-            className="mt-2 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
-            placeholder="Ingresa el signo de la moneda"
-            value={formData.customCurrencySign}
-            onChange={(e) =>
-              setFormData({ ...formData, customCurrencySign: e.target.value })
-            }
-          />
-        )}
       </div>
 
       <div className="flex flex-col">
@@ -589,21 +578,20 @@ useEffect(() => {
         </div>
 
         <div className="flex flex-col">
-  <label className="text-xs font-semibold mb-1">Extras al salario</label>
-  <p className="mb-1 text-xs text-gray-500">(Haz clic en las que desees agregar)</p>
-  <div className="flex flex-wrap gap-3">
-    {extras.map((extra, index) => (
+  <label className="text-xs font-semibold mb-1">Competencias requeridas</label>
+  <div className="grid grid-cols-2 gap-2">
+    {extras.map((competency, index) => (
       <div key={index} className="flex items-center">
         <input
           type="checkbox"
-          id={`extra-${index}`}
-          value={extra}
-          checked={formData.extra.includes(extra)}
-          onChange={(e) => handleExtraChange(e, extra)}
-          className="h-4 w-4 text-verde-claro border-gray-300 rounded"
+          id={`competency-${index}`}
+          value={competency}
+          checked={formData.competencies.includes(competency)}
+          onChange={(e) => handleCompetencyChange(competency, e.target.checked)}
+          className="mr-2"
         />
-        <label htmlFor={`extra-${index}`} className="ml-1 text-sm text-gray-700">
-          {extra}
+        <label htmlFor={`competency-${index}`} className="ml-1 text-sm text-gray-700">
+          {competency}
         </label>
       </div>
     ))}

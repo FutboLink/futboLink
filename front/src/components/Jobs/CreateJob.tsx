@@ -338,6 +338,35 @@ useEffect(() => {
       </ul>
     </div>
   )}
+  
+  {/* Lista de países seleccionados */}
+  {formData.countries.length > 0 && (
+    <div className="mt-2 flex flex-wrap gap-1">
+      {formData.countries.map((country, index) => (
+        <div key={index} className="flex items-center bg-gray-200 px-2 py-1 rounded-md text-xs">
+          <span>{country}</span>
+          <button
+            type="button"
+            className="ml-1 text-gray-500 hover:text-gray-700"
+            onClick={() => {
+              setFormData({
+                ...formData,
+                countries: formData.countries.filter((_, i) => i !== index)
+              });
+            }}
+          >
+            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
+      ))}
+    </div>
+  )}
 </div>
 
 <div className="flex flex-col">

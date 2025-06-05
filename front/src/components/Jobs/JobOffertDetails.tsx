@@ -105,6 +105,7 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
       />
       ) : (
         <>
+        
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold text-gray-800">{jobOffer.title}</h2>
             <span className="text-sm text-gray-500">{jobOffer.status}</span>

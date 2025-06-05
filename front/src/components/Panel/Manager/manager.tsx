@@ -313,11 +313,13 @@ const PanelManager = () => {
             {appliedJobs.length === 0 ? (
               <p>No has publicado ninguna oferta.</p>
             ) : (
-              appliedJobs.map((job) => (
-                <div key={job.id} className="cursor-pointer">
-                  <JobOfferDetails jobId={job.id || ""} />
-                </div>
-              ))
+              [...appliedJobs]
+                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                .map((job) => (
+                  <div key={job.id} className="cursor-pointer">
+                    <JobOfferDetails jobId={job.id || ""} />
+                  </div>
+                ))
             )}
           </section>
         )}

@@ -12,6 +12,17 @@ import { IProfileData } from '@/Interfaces/IUser';
 // URL del backend
 const API_URL = 'https://futbolink.onrender.com';
 
+// Función para convertir el rol a un texto más amigable
+const getRoleDisplay = (role: string) => {
+  const roleMap: {[key: string]: string} = {
+    'PLAYER': 'Jugador',
+    'COACH': 'Entrenador',
+    'RECRUITER': 'Reclutador',
+    'ADMIN': 'Administrador'
+  };
+  return roleMap[role] || role;
+};
+
 export default function UserViewer() {
   const router = useRouter();
   const { id } = router.query;
@@ -48,10 +59,15 @@ export default function UserViewer() {
         const data = await response.json();
         console.log('Datos recibidos:', data);
         
-        // Asegurarnos de que el tipo de suscripción se refleje en el campo puesto
-        // para mantener compatibilidad con el componente CardProfile
-        if (data.subscriptionType) {
-          data.puesto = data.subscriptionType;
+        // Guardar el tipo de suscripción para el sidebar
+        data.subscriptionType = data.subscriptionType || 'Amateur';
+        
+        // Asignar el rol del usuario al campo puesto para mostrar en CardProfile
+        if (data.role) {
+          data.puesto = getRoleDisplay(data.role);
+        } else if (data.posicion) {
+          // Si tiene una posición específica (para jugadores), usar esa
+          data.puesto = data.posicion;
         }
         
         // Actualizar estado

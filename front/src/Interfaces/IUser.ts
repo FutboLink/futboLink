@@ -16,6 +16,7 @@ export interface IProfileData {
   email: string;
   password?: string;
   puesto:string;
+  subscriptionType?: string;
   role: UserType.PLAYER;
   imgUrl: string;
   cv?:string;

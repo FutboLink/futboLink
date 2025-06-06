@@ -51,7 +51,7 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
   };
 
   // Determinar si es plan profesional o no (para la badge)
-  const hasPremiumPlan = profile.puesto === "Profesional" || profile.puesto === "Semiprofesional";
+  const hasPremiumPlan = profile.subscriptionType === "Profesional" || profile.subscriptionType === "Semiprofesional";
 
   return (
     <div className="flex min-h-screen mt-24 text-black bg-gray-50 flex-col sm:flex-row">
@@ -94,7 +94,7 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
                 : 'bg-gray-300 text-gray-700'
             }`}>
               <FaRegIdCard className="mr-1" />
-              Plan: {hasPremiumPlan ? profile.puesto : "Amateur"}
+              Plan: {profile.subscriptionType || "Amateur"}
             </div>
           </div>
         </div>

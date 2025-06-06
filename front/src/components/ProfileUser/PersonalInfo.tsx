@@ -1,15 +1,12 @@
 "use client";
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useContext } from "react";
 import { IProfileData } from "@/Interfaces/IUser";
 import { fetchUserData, updateUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { UserContext } from "../Context/UserContext";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
 import useNationalities from "../Forms/FormUser/useNationalitys";
-import { FaChevronDown } from "react-icons/fa";
 import ImageUpload from "../Cloudinary/ImageUpload";
 import Image from "next/image";
-import { checkUserSubscription, refreshUserSubscription, clearSubscriptionCache, SubscriptionInfo } from "../../services/SubscriptionService";
-import Link from "next/link";
 
 const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const { token } = useContext(UserContext);
@@ -20,46 +17,16 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const [notificationMessage, setNotificationMessage] = useState('');
   const [showErrorNotification, setShowErrorNotification] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [subscriptionInfo, setSubscriptionInfo] = useState<SubscriptionInfo>({ 
-    hasActiveSubscription: false,
-    subscriptionType: 'Amateur'
-  });
-  const [loadingSubscription, setLoadingSubscription] = useState(false);
   
   // Nationality related state
   const { nationalities, loading: nationalitiesLoading, error: nationalitiesError } = useNationalities();
-  const [search, setSearch] = useState("");  
-  const [isOpen, setIsOpen] = useState(false); 
-  const [selectedNationality, setSelectedNationality] = useState<string>(''); 
-  
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-useEffect(() => {
-  const handleClickOutside = (event: MouseEvent) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-      setIsOpen(false);
-    }
-  };
-
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, []);
-
-  // Check for cached subscription data
+  // Debug nationalities
   useEffect(() => {
-    try {
-      const cachedSubscription = localStorage.getItem('subscriptionInfo');
-      if (cachedSubscription) {
-        const parsedData = JSON.parse(cachedSubscription);
-        console.log('Found cached subscription data:', parsedData);
-        setSubscriptionInfo(parsedData);
-      }
-    } catch (err) {
-      console.error('Error reading cached subscription data:', err);
-    }
-  }, []);
+    console.log("Nationalities loaded:", nationalities);
+    console.log("Nationalities loading:", nationalitiesLoading);
+    console.log("Nationalities error:", nationalitiesError);
+  }, [nationalities, nationalitiesLoading, nationalitiesError]);
 
   // Fetch user data when token changes
   useEffect(() => {
@@ -68,34 +35,6 @@ useEffect(() => {
       fetchUserData(token)
         .then((data) => {
           setFetchedProfileData(data); // Ensure socialMedia data is included here
-          
-          // After fetching user data, check subscription status
-          if (data.email) {
-            setLoadingSubscription(true);
-            
-            // Use the refresh function to ensure we get the latest data
-            refreshUserSubscription(data.email)
-              .then(subInfo => {
-                setSubscriptionInfo(subInfo);
-                // Update the cache
-                localStorage.setItem('subscriptionInfo', JSON.stringify(subInfo));
-              })
-              .catch(err => {
-                console.error("Error checking subscription:", err);
-                
-                // Fallback to regular check if refresh fails
-                checkUserSubscription(data.email)
-                  .then(regularInfo => {
-                    setSubscriptionInfo(regularInfo);
-                  })
-                  .catch(regularErr => {
-                    console.error("Error with fallback subscription check:", regularErr);
-                  });
-              })
-              .finally(() => {
-                setLoadingSubscription(false);
-              });
-          }
         })
         .catch((err) => {
           console.error("Error al cargar los datos:", err);
@@ -107,7 +46,6 @@ useEffect(() => {
     }
   }, [token]);
   
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (fetchedProfileData) {
       const { name, value } = e.target;
@@ -137,25 +75,6 @@ useEffect(() => {
       imgUrl: imageUrl, // Actualizar la URL de la imagen en fetchedProfileData
     }));
   };
-  
-
-  // Handle nationality selection
-  const handleSelectNationality = (value: string) => {
-    setSelectedNationality(value); // Update selected nationality
-    if (fetchedProfileData) {
-      setFetchedProfileData({
-        ...fetchedProfileData,
-        nationality: value,  // Update nationality in fetched data
-      });
-    }
-    setSearch('');  // Clear search input
-    setIsOpen(false);  // Close the dropdown
-  };
-
-  // Toggle dropdown visibility
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
 
   // Handle form submission
   const handleSubmit = async () => {
@@ -178,24 +97,6 @@ useEffect(() => {
     }
   };
 
-  // Add a function to manually refresh subscription status
-  const handleRefreshSubscription = async () => {
-    if (!fetchedProfileData?.email) return;
-    
-    setLoadingSubscription(true);
-    try {
-      // Clear cache first to ensure we get fresh data
-      clearSubscriptionCache();
-      const freshData = await refreshUserSubscription(fetchedProfileData.email);
-      setSubscriptionInfo(freshData);
-      localStorage.setItem('subscriptionInfo', JSON.stringify(freshData));
-    } catch (err) {
-      console.error("Error refreshing subscription:", err);
-    } finally {
-      setLoadingSubscription(false);
-    }
-  };
-
   return (
     <div className="p-2 border border-gray-300 shadow-sm rounded-lg"> {/* Reducir padding */}
       <h2 className="text-sm font-semibold mt-2 text-center p-2 bg-gray-100 text-gray-700">Información Personal</h2>
@@ -206,58 +107,6 @@ useEffect(() => {
         <p className="text-red-600">{error}</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3"> {/* Reducir gap entre los inputs */}
-          {/* Subscription Information */}
-          <div className="sm:col-span-2 mb-4">
-            <div className={`p-3 text-black rounded-lg ${
-              subscriptionInfo.hasActiveSubscription 
-                ? 'bg-green-50 border border-green-200' 
-                : 'bg-gray-50 border border-gray-200'
-            }`}>
-              <div className="flex justify-between items-center mb-1">
-                <h3 className="text-lg font-semibold">Estado de Suscripción</h3>
-                <button 
-                  onClick={handleRefreshSubscription} 
-                  disabled={loadingSubscription}
-                  className="text-xs text-verde-oscuro hover:underline"
-                >
-                  {loadingSubscription ? 'Actualizando...' : 'Actualizar estado'}
-                </button>
-              </div>
-              {loadingSubscription ? (
-                <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-verde-oscuro mr-2"></div>
-                  <p className="text-sm text-gray-600">Verificando suscripción...</p>
-                </div>
-              ) : (
-                <>
-                  <div className="flex items-center mb-2">
-                    <div className={`w-3 h-3 rounded-full mr-2 ${
-                      subscriptionInfo.hasActiveSubscription ? 'bg-green-500' : 'bg-gray-400'
-                    }`}></div>
-                    <span className="font-medium">
-                      {subscriptionInfo.hasActiveSubscription 
-                        ? 'Suscripción Activa' 
-                        : 'Sin Suscripción Activa'}
-                    </span>
-                  </div>
-                  <p className="text-sm mb-2">
-                    Plan: <span className="font-semibold">{subscriptionInfo.subscriptionType}</span>
-                  </p>
-                  {!subscriptionInfo.hasActiveSubscription && (
-                    <div className="mt-2">
-                      <Link 
-                        href="/subs" 
-                        className="text-sm text-white bg-verde-oscuro hover:bg-verde-claro px-4 py-1 rounded-md transition-colors duration-200"
-                      >
-                        Ver planes de suscripción
-                      </Link>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-
           {/* Name */}
           <div className="flex flex-col">
              <input
@@ -312,63 +161,33 @@ useEffect(() => {
             )}
           </div>
   
-          <div className="relative flex flex-col" ref={dropdownRef}>
-  {/* Nationality Search */}
-  <div className="relative w-full">
-  {/* Nationality Search & Selection in one input */}
-  <label htmlFor="nationalitySearch" className="block text-gray-700 font-semibold text-sm">
-    Nacionalidad
-  </label>
-  <input
-    type="text"
-    id="nationalitySearch"
-    value={search || selectedNationality}
-    onChange={(e) => {
-      setSearch(e.target.value);
-      setSelectedNationality(""); // Limpiar la selección si se empieza a tipear de nuevo
-    }}
-    placeholder="Buscar nacionalidad..."
-    onClick={toggleDropdown}
-    className="w-full border text-gray-700 mt-2 border-gray-300 rounded-lg p-2"
-    readOnly={isOpen === false} // Para evitar edición directa cuando ya está seleccionada
-  />
-  <FaChevronDown
-    className="absolute top-10 right-3 transform -translate-y-1/2 text-gray-500 cursor-pointer"
-    onClick={toggleDropdown}
-  />
-
-  {/* Dropdown */}
-  {isOpen && (
-    <div className="absolute z-10 w-full max-w-[95vw] bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
-      {nationalitiesLoading && <p className="p-2">Cargando nacionalidades...</p>}
-      {nationalitiesError && <p className="text-red-500 p-2">{nationalitiesError}</p>}
-      <ul>
-        {nationalities
-          .filter((nationality) =>
-            nationality.label.toLowerCase().includes(search.toLowerCase())
-          )
-          .map((nationality) => (
-            <li
-              key={nationality.value}
-              className="p-2 cursor-pointer text-gray-700 hover:bg-gray-200"
-              onClick={() => {
-                handleSelectNationality(nationality.label);
-                setSearch(nationality.label); // Mostrarlo en el input
-                setIsOpen(false); // Cerrar dropdown
-              }}
-            >
-              {nationality.label}
-            </li>
-          ))}
-      </ul>
-    </div>
-  )}
-</div>
-
-
-</div>
-
-         
+          {/* Nationality Selector - Fixed version */}
+          <div className="flex flex-col">
+            <label className="text-gray-700 font-semibold text-sm">Nacionalidad:</label>
+            {nationalitiesLoading ? (
+              <p className="text-sm text-gray-500">Cargando nacionalidades...</p>
+            ) : nationalitiesError ? (
+              <p className="text-sm text-red-500">{nationalitiesError}</p>
+            ) : (
+              <select
+                name="nationality"
+                value={fetchedProfileData?.nationality || ""}
+                onChange={handleChange}
+                className="w-full p-2 border mt-2 rounded text-gray-700 focus:outline-none"
+                size={1}
+              >
+                <option value="">Seleccione su nacionalidad</option>
+                {nationalities && nationalities.length > 0 && 
+                  nationalities.map((nationality) => (
+                    <option key={nationality.value} value={nationality.label}>
+                      {nationality.label}
+                    </option>
+                  ))
+                }
+              </select>
+            )}
+           
+          </div>
   
           {/* Location */}
           <div className="flex flex-col">

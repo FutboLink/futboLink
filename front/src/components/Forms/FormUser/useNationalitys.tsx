@@ -246,16 +246,16 @@ const useNationalities = () => {
         // Mapeamos los datos y los ordenamos alfabéticamente
         const nationalityOptions: NationalityOption[] = data
           .filter(country => country && country.name && country.name.common)
-          .map((country) => ({
+        .map((country) => ({
             value: country.name.common,
             label: country.name.common,
-          }))
-          .sort((a, b) => a.label.localeCompare(b.label));
-        
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label));
+      
         console.log("Processed nationalities:", nationalityOptions.length);
         
         if (nationalityOptions.length > 0) {
-          setNationalities(nationalityOptions);
+        setNationalities(nationalityOptions);
         }
         setLoading(false);
       })

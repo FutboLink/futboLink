@@ -18,36 +18,52 @@ const DeleteNotice: React.FC<DeleteNoticeButtonProps> = ({ noticeId, onDelete })
   const [notification, setNotification] = useState<string | null>(null); 
   const [error, setError] = useState<string | null>(null);
 
- const {token} = useContext(UserContext)
+  const { token } = useContext(UserContext);
+
   const handleDelete = async () => {
     setLoading(true);
     setNotification(null);
     setIsSuccess(null);
+    setError(null);
+
+    console.log("Deleting notice with ID:", noticeId);
+    console.log("Using token:", token ? "Token available" : "Token missing");
 
     if (!token) {
-      setError("Token no disponible.");
+      setError("Token no disponible. Debes iniciar sesión como administrador.");
       setLoading(false);
       return;
     }
    
     try {
-      const response = await fetchDeleteNotice(noticeId,token); // Simulación de eliminación de la notificación
+      console.log("Calling fetchDeleteNotice...");
+      const response = await fetchDeleteNotice(noticeId, token);
+      console.log("Delete response:", response);
+      
       if (response.ok || response.status === 200) {
-        setMessage("Notificación eliminada correctamente.");
+        console.log("Delete successful");
+        setMessage("Noticia eliminada correctamente.");
         setIsSuccess(true);
-        onDelete(); // Actualiza la vista después de eliminar
+        setNotification("Noticia eliminada con éxito");
+        // Actualiza la vista después de eliminar
+        onDelete(); 
       } else {
-        throw new Error("Error al eliminar la notificación.");
+        console.log("Delete failed:", response);
+        throw new Error("Error al eliminar la noticia.");
       }
-    } catch {
-      setMessage("Error al eliminar la notificación.");
+    } catch (error) {
+      console.error("Error deleting notice:", error);
+      setMessage("Error al eliminar la noticia.");
       setIsSuccess(false);
+      setError("Ha ocurrido un error al eliminar la noticia. Por favor, inténtalo de nuevo.");
     } finally {
       setLoading(false);
-      setTimeout(() => {
-        setShowConfirm(false);
-        setNotification(null);
-      }, 3000);
+      // No cerramos automáticamente el diálogo en caso de error
+      if (isSuccess) {
+        setTimeout(() => {
+          setShowConfirm(false);
+        }, 2000);
+      }
     }
   };
 
@@ -69,12 +85,14 @@ const DeleteNotice: React.FC<DeleteNoticeButtonProps> = ({ noticeId, onDelete })
           onCancel={() => setShowConfirm(false)}
         />
       )}
-  {error && (
-          <p className="col-span-1 md:col-span-2 lg:col-span-3 text-red-500 mt-4">
-            {error}
-          </p>
-        )}
-      {notification && <Notifi message={notification || "Mensaje vacío"} />}
+      
+      {error && (
+        <div className="fixed bottom-5 right-5 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50">
+          {error}
+        </div>
+      )}
+      
+      {notification && <Notifi message={notification} />}
     </div>
   );
 };

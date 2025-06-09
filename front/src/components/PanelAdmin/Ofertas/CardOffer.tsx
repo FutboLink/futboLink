@@ -15,27 +15,27 @@ const CardOffer: React.FC<{
   };
 
   return (
-    <div className="flex flex-col h-full bg-white border border-gray-200 rounded-lg w-full min-h-[450px] shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-primary">
-      {/* Sección 1: Encabezado */}
-      <div className="flex items-center p-4 border-b border-gray-200 flex-1">
-        <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden mr-4">
+    <div className="flex flex-col bg-white border border-gray-200 rounded-lg w-full min-h-[420px] shadow-md overflow-hidden transform transition-all duration-300 hover:scale-103 hover:shadow-lg hover:border-primary">
+      {/* Encabezado */}
+      <div className="flex items-center p-3 border-b border-gray-200">
+        <div className="w-14 h-14 flex-shrink-0 rounded-md overflow-hidden mr-3">
           <Image
-            width={80}
-            height={80}
+            width={56}
+            height={56}
             src={offer.imgUrl || "/cursosYFormaciones.JPG"}
             alt={offer.title}
             className="w-full h-full object-contain rounded-md"
           />
         </div>
         <div>
-          <h3 className="text-sm font-bold text-gray-800 break-words max-w-[200px] mb-2">
+          <h3 className="text-sm font-bold text-gray-800 break-words max-w-[200px]">
             {offer.title}
           </h3>
         </div>
       </div>
 
-      {/* Sección 2: Datos en columnas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 p-3 gap-2 text-xs text-gray-600 flex-1">
+      {/* Datos en dos columnas */}
+      <div className="grid grid-cols-2 p-3 gap-2 text-xs text-gray-600">
         <div className="space-y-1">
           <p>
             <span className="font-semibold text-gray-800">Posición:</span>{" "}
@@ -78,30 +78,32 @@ const CardOffer: React.FC<{
         </div>
       </div>
 
-      {/* Sección 3: Descripción */}
-      <div className="text-xs text-gray-600 px-4 text-justify overflow-hidden flex-1 flex flex-col justify-start">
+      {/* Descripción con altura limitada y scroll */}
+      <div className="text-xs text-gray-600 px-3 pt-1 text-justify">
         <div className="font-semibold text-xs text-gray-800 mb-1">
           Descripción de la oferta:
         </div>
-        <p className="text-xs whitespace-pre-line">{offer.description}</p>
+        <p className="text-xs whitespace-pre-line max-h-[80px] overflow-y-auto pr-1">
+          {offer.description}
+        </p>
       </div>
 
-      {/* Sección 4: Salario + botones */}
-      <div className="flex flex-col justify-between flex-1 border-t border-gray-200">
-        <div className="py-2 px-4 text-sm font-bold text-green-500 text-center">
+      {/* Salario + botones */}
+      <div className="flex flex-col mt-auto border-t border-gray-200">
+        <div className="py-2 px-3 text-sm font-bold text-green-500 text-center">
           Salario: {offer.currencyType}
           {offer.salary}
         </div>
-        <div className="flex flex-col gap-2 p-4">
+        <div className="flex space-x-2 p-3">
           <Link
             href={`/jobs/${offer.id}`}
-            className="text-center py-2 text-xs font-bold rounded-md text-white bg-[#1d5126] border-2 border-[#1d5126] hover:bg-[#245a2d] hover:text-white transition"
+            className="flex-1 text-center py-1.5 text-xs font-bold rounded-md text-white bg-[#1d5126] border border-[#1d5126] hover:bg-[#245a2d] hover:text-white transition"
           >
             Ver más
           </Link>
           <button
             onClick={handleApplyClick}
-            className="text-center py-2 text-xs font-bold rounded-md bg-gray-100 text-[#26441b] border-2 border-[#3e7c27] hover:bg-[#4e6d43] hover:text-white transition"
+            className="flex-1 text-center py-1.5 text-xs font-bold rounded-md bg-gray-100 text-[#26441b] border border-[#3e7c27] hover:bg-[#4e6d43] hover:text-white transition"
           >
             Aplicar
           </button>

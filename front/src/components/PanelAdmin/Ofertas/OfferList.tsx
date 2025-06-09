@@ -146,20 +146,19 @@ const OfferList: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[80vh] mt-12 p-4 pt-[4rem] sm:p-6 sm:pt-[4rem] lg:p-12">
-      <h1 className="bg-gradient-to-r from-green-400 via-green-500 to-green-600 text-white text-[1.8rem] p-2 font-semibold text-center">
+    <div className="min-h-[80vh] mt-10 p-4 pt-[3.5rem] sm:p-5 sm:pt-[3.5rem] lg:p-10">
+      <h1 className="bg-gradient-to-r from-green-400 via-green-500 to-green-600 text-white text-[1.6rem] p-2 font-semibold text-center">
         OFERTAS LABORALES
       </h1>
 
-      <div className="flex flex-col gap-4 justify-between w-full py-[1.5rem] max-w-[100rem] mx-auto md:flex-row">
+      <div className="flex flex-col gap-4 justify-between w-full py-[1.2rem] max-w-[100rem] mx-auto md:flex-row">
         {/* Filtros */}
-        <div className="flex flex-wrap justify-end gap-4 lg:flex-nowrap">
+        <div className="flex flex-wrap justify-end gap-3 lg:flex-nowrap">
           {/* Filtro por tipo de contrato */}
-
           <select
             value={contractTypeFilter}
             onChange={(e) => setContractTypeFilter(e.target.value)}
-            className="w-full md:max-w-[15rem] md:min-w-[12rem] p-2 border border-gray-300 rounded-md text-gray-700"
+            className="w-full md:max-w-[15rem] md:min-w-[11rem] p-2 border border-gray-300 rounded-md text-gray-700 text-sm"
           >
             <option value="">Tipo de contrato</option>
             {contractTypes.map((contractType) => (
@@ -170,11 +169,10 @@ const OfferList: React.FC = () => {
           </select>
 
           {/* Filtro por posición */}
-
           <select
             value={positionFilter}
             onChange={(e) => setPositionFilter(e.target.value)}
-            className="w-full md:max-w-[15rem] md:min-w-[12rem] p-2 border border-gray-300 rounded-md text-gray-700"
+            className="w-full md:max-w-[15rem] md:min-w-[11rem] p-2 border border-gray-300 rounded-md text-gray-700 text-sm"
           >
             <option value="">Posición</option>
             {positions.map((position) => (
@@ -186,18 +184,18 @@ const OfferList: React.FC = () => {
         </div>
 
         {/* Barra de búsqueda */}
-        <div className="flex justify-center items-center w-full md:max-w-[20rem] sm:text-xs md:text-md lg:text-md">
+        <div className="flex justify-center items-center w-full md:max-w-[20rem] sm:text-xs md:text-sm">
           <input
             type="text"
-            placeholder="Buscar por oferta por título, posición o ubicación..."
+            placeholder="Buscar oferta por título, posición o ubicación..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md text-gray-700"
+            className="w-full p-2 border border-gray-300 rounded-md text-gray-700 text-sm"
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 max-w-[100rem] mx-auto md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 py-4">
+      <div className="grid grid-cols-1 max-w-[100rem] mx-auto md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 py-4">
         {sortedOffers.length > 0 ? (
           sortedOffers.map((offer) => (
             <CardOffer

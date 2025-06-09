@@ -15,7 +15,23 @@ const NoticeSection = () => {
     const fetchNews = async () => {
       try {
         const response = await getNews(); 
-        setNews(response);
+        
+        // Sort news by newest first
+        const sortedNews = [...response].sort((a, b) => {
+          // Use TypeScript's type assertion to safely check for date fields
+          const itemA = a as any;
+          const itemB = b as any;
+          
+          // Try to find a date field in each item
+          if (itemA.createdAt && itemB.createdAt) {
+            return new Date(itemB.createdAt).getTime() - new Date(itemA.createdAt).getTime();
+          }
+          
+          // Fallback to id (assuming higher id = newer)
+          return String(b.id).localeCompare(String(a.id));
+        });
+        
+        setNews(sortedNews);
         setLoading(false); 
       } catch  {
         setError("Error al obtener las noticias.");
@@ -26,7 +42,7 @@ const NoticeSection = () => {
     fetchNews();
   }, []);
 
-  // Solo mostrar las primeras 4 noticias
+  // Solo mostrar las primeras 4 noticias (ya ordenadas por más recientes)
   const firstFourNews = news.slice(0, 4);
 
   return (
@@ -49,7 +65,7 @@ const NoticeSection = () => {
 
       {/* Botón para ver más noticias */}
       <div className="flex justify-center mt-6">
-        <Link href="/Notices">
+        <Link href="/News">
           <button className="px-6 py-3 text-verde-oscuro hover:text-green-700 rounded-lg hover:bg-green-100 transition duration-300">
             Ver Todas las Noticias
           </button>

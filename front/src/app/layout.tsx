@@ -11,6 +11,7 @@ import SocialButton from "@/components/SocialButton/SocialButton";
 import { UserProvider } from "@/components/Context/UserContext";
 import { TranslationProvider } from "@/components/Context/TranslationContext";
 import Head from "next/head";
+import ToastContainer from "@/components/ToastContainer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -80,6 +81,7 @@ export default function RootLayout({
             <div>{children}</div>
             <SocialButton />
             <Footer />
+            <ToastContainer />
           </TranslationProvider>
         </UserProvider>
       </body>

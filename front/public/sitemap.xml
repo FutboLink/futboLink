@@ -2,50 +2,38 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://futbolink.com/</loc>
-    <lastmod>2023-06-01</lastmod>
+    <lastmod>2023-05-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://futbolink.com/jobs</loc>
-    <lastmod>2023-06-01</lastmod>
+    <loc>https://futbolink.com/oferts</loc>
+    <lastmod>2023-05-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://futbolink.com/OptionUsers</loc>
-    <lastmod>2023-06-01</lastmod>
+    <loc>https://futbolink.com/contact</loc>
+    <lastmod>2023-05-30</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://futbolink.com/cursos</loc>
-    <lastmod>2023-06-01</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://futbolink.com/profile</loc>
+    <lastmod>2023-05-30</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://futbolink.com/login</loc>
-    <lastmod>2023-06-01</lastmod>
+    <lastmod>2023-05-30</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://futbolink.com/signup</loc>
-    <lastmod>2023-06-01</lastmod>
+    <loc>https://futbolink.com/register</loc>
+    <lastmod>2023-05-30</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://futbolink.com/about</loc>
-    <lastmod>2023-06-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://futbolink.com/contact</loc>
-    <lastmod>2023-06-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.8</priority>
   </url>
 </urlset> 

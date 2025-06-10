@@ -263,4 +263,32 @@ export class UserService {
       expiresAt: user.subscriptionExpiresAt
     };
   }
+
+  /**
+   * Actualiza el tipo de suscripción de un usuario con una fecha de expiración específica
+   * @param userId ID del usuario
+   * @param subscriptionType Nuevo tipo de suscripción (Amateur, Premium)
+   * @param expirationDate Fecha de expiración específica
+   * @returns Usuario actualizado
+   */
+  async updateUserSubscriptionWithExpiration(
+    userId: string, 
+    subscriptionType: string, 
+    expirationDate: Date
+  ): Promise<User> {
+    const user = await this.findOne(userId);
+    
+    if (!user) {
+      throw new NotFoundException(`Usuario con ID ${userId} no encontrado`);
+    }
+    
+    // Actualizar el tipo de suscripción
+    user.subscriptionType = subscriptionType;
+    
+    // Establecer la fecha de expiración proporcionada
+    user.subscriptionExpiresAt = expirationDate;
+    
+    // Guardar los cambios
+    return this.userRepository.save(user);
+  }
 }

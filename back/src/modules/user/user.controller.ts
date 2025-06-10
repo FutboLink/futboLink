@@ -85,6 +85,26 @@ export class UserController {
   }
   
   /**
+   * Endpoint específico para actualizar la suscripción desde el panel admin
+   */
+  @ApiOperation({ summary: 'Actualizar suscripción de usuario desde el panel admin' })
+  @ApiResponse({ status: 200, description: 'Suscripción actualizada exitosamente' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  @Put('update-subscription/:id')
+  async updateUserSubscriptionAdmin(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: { subscriptionType: string, subscriptionExpiresAt?: Date }
+  ) {
+    const { subscriptionType, subscriptionExpiresAt } = data;
+    // Si se proporciona una fecha de expiración, usarla; de lo contrario, usar lógica predeterminada
+    if (subscriptionExpiresAt) {
+      return this.userService.updateUserSubscriptionWithExpiration(id, subscriptionType, subscriptionExpiresAt);
+    } else {
+      return this.userService.updateUserSubscription(id, subscriptionType);
+    }
+  }
+  
+  /**
    * Obtiene la información de suscripción de un usuario
    */
   @ApiOperation({ summary: 'Obtener información de suscripción de un usuario' })

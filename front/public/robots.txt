@@ -1,6 +1,10 @@
-# Allow all crawlers
+# Permitir a todos los robots rastrear todo el sitio
 User-agent: *
 Allow: /
 
-# Sitemap
+# Bloquear algunos directorios específicos que no queremos que se indexen
+Disallow: /api/
+Disallow: /_next/
+
+# La ubicación del sitemap
 Sitemap: https://futbolink.com/sitemap.xml 

@@ -12,6 +12,8 @@ import { UserProvider } from "@/components/Context/UserContext";
 import { TranslationProvider } from "@/components/Context/TranslationContext";
 import Head from "next/head";
 import ToastContainer from "@/components/ToastContainer";
+import CanonicalUrl from "@/components/SEO/CanonicalUrl";
+import StructuredData from "@/components/SEO/StructuredData";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,6 +36,11 @@ export default function RootLayout({
   const keywordsString = Array.isArray(metadata.keywords) 
     ? metadata.keywords.join(", ") 
     : "fútbol, empleo deportivo, oportunidades fútbol";
+
+  // Determinar la URL base para canonical basado en el entorno
+  const baseUrl = process.env.NODE_ENV === 'production' 
+    ? 'https://futbolink.com' 
+    : 'https://futbolink.com'; // También usar el dominio principal en desarrollo
 
   return (
     <html lang="es">
@@ -82,6 +89,12 @@ export default function RootLayout({
             <SocialButton />
             <Footer />
             <ToastContainer />
+            <CanonicalUrl baseUrl={baseUrl} />
+            <StructuredData 
+              baseUrl={baseUrl}
+              siteName="Futbolink"
+              logoUrl={`${baseUrl}/logoD.png`}
+            />
           </TranslationProvider>
         </UserProvider>
       </body>

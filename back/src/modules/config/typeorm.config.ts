@@ -19,7 +19,7 @@ const config: DataSourceOptions = {
   }, */
   dropSchema: false,
   logging: true,
-  synchronize: true,
+  synchronize: false,
   entities: [
     __dirname + '/../**/*.entity.{js,ts}',
     __dirname + '/../../**/*.entity.{js,ts}',

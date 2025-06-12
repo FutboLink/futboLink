@@ -17,14 +17,14 @@ interface EditNoticeProps {
 const EditNotice: React.FC<EditNoticeProps> = ({ noticeId, token, notice, onCancel, onSuccess }) => {
   const [formData, setFormData] = useState({
     title: notice.title,
-    image: notice.imageUrl,
+    imageUrl: notice.imageUrl,
     description: notice.description,
   });
 
   useEffect(() => {
     setFormData({
         title: notice.title,
-        image: notice.imageUrl,
+        imageUrl: notice.imageUrl,
         description: notice.description,
     });
   }, [notice]);
@@ -40,16 +40,16 @@ const EditNotice: React.FC<EditNoticeProps> = ({ noticeId, token, notice, onCanc
   const handleImageUpload = (imageUrl: string) => {
     setFormData((prev) => ({
       ...prev,
-      image: imageUrl, // Se actualiza la URL de la imagen
+      imageUrl: imageUrl, // Se actualiza la URL de la imagen
     }));
   };
 
   const handleSave = async () => {
     try {
-      const updatedNotice: INotice = {
-        id: notice.id,  
+      // Eliminamos el id del objeto que enviamos al backend
+      const updatedNotice = {
         title: formData.title,
-        imageUrl: formData.image,  
+        imageUrl: formData.imageUrl,  
         description: formData.description,
       };
       const result = await fetchEditNotice(token, noticeId, updatedNotice);

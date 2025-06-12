@@ -20,7 +20,10 @@ export default function ViewNoticias() {
     const getNoticias = async () => {
       try {
         const response = await getNews();
-        setNoticias(response);
+        // Ordenamos las noticias de más reciente a más antigua
+        // Asumiendo que las más recientes vienen al final del array
+        const sortedNoticias = [...response].reverse();
+        setNoticias(sortedNoticias);
         setLoading(false);
       } catch {
         setError("Error al obtener las noticias.");
@@ -45,7 +48,11 @@ export default function ViewNoticias() {
   };
 
   const handleSuccessEdit = (updatedNotice: INotice) => {
-    setNoticias(noticias.map(noticia => noticia.id === updatedNotice.id ? updatedNotice : noticia));
+    // Actualiza la noticia y mantiene el orden actual
+    const updatedNoticias = noticias.map(noticia => 
+      noticia.id === updatedNotice.id ? updatedNotice : noticia
+    );
+    setNoticias(updatedNoticias);
     setIsEditing(false);
   };
 

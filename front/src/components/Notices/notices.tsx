@@ -16,26 +16,15 @@ const NoticeSection = () => {
       try {
         const response = await getNews(); 
         
-        // Sort news by newest first
-        const sortedNews = [...response].sort((a, b) => {
-          // Use TypeScript's type assertion to safely check for date fields
-          const itemA = a as any;
-          const itemB = b as any;
-          
-          // Try to find a date field in each item
-          if (itemA.createdAt && itemB.createdAt) {
-            return new Date(itemB.createdAt).getTime() - new Date(itemA.createdAt).getTime();
-          }
-          
-          // Fallback to id (assuming higher id = newer)
-          return String(b.id).localeCompare(String(a.id));
-        });
+        // Ordenamos las noticias de más reciente a más antigua
+        // Simplemente invertimos el orden del array asumiendo que las más recientes vienen al final
+        const sortedNews = [...response].reverse();
         
         setNews(sortedNews);
         setLoading(false); 
       } catch  {
         setError("Error al obtener las noticias.");
-        setLoading(false); // Cambiar el estado de carga
+        setLoading(false);
       }
     };
 

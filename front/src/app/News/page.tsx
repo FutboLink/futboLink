@@ -18,34 +18,24 @@ const NoticeSection = () => {
       const response = await getNews(pageNumber);
       if (response.length < 8) setHasMore(false);
       
-      // Add new news to the existing array, remove duplicates, and sort
+      // Agregamos nuevas noticias al array existente, eliminamos duplicados y ordenamos
       setNews((prev) => {
-        // Combine previous and new news
-        const allNews = [...prev, ...response];
+        // Invertimos primero la respuesta para asegurar que las más recientes estén primero
+        const reversedResponse = [...response].reverse();
         
-        // Remove duplicates by creating a Map with id as key
+        // Combinamos noticias previas y nuevas (ya invertidas)
+        const allNews = [...prev, ...reversedResponse];
+        
+        // Eliminamos duplicados usando un Map con id como clave
         const uniqueNewsMap = new Map();
         allNews.forEach(item => {
           uniqueNewsMap.set(item.id, item);
         });
         
-        // Convert back to array
+        // Convertimos de vuelta a array
         const uniqueNews = Array.from(uniqueNewsMap.values());
         
-        // Sort newest first, using id as fallback
-        return uniqueNews.sort((a, b) => {
-          // Use TypeScript's type assertion to safely check for date fields
-          const itemA = a as any;
-          const itemB = b as any;
-          
-          // Try to find a date field in each item
-          if (itemA.createdAt && itemB.createdAt) {
-            return new Date(itemB.createdAt).getTime() - new Date(itemA.createdAt).getTime();
-          }
-          
-          // Fallback to id (assuming higher id = newer)
-          return String(b.id).localeCompare(String(a.id));
-        });
+        return uniqueNews;
       });
     } catch {
       setError("Error al obtener las noticias.");

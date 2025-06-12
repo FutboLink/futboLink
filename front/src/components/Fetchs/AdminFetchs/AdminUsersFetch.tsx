@@ -310,19 +310,41 @@ export const fetchDeleteNotice = async (noticeId: string, token: string) => {
 };
 
 
-export const fetchEditNotice = async (token: string, noticeId: string, updatedCourse: INotice) => {
-  const response = await fetch(`${apiUrl}/News/${noticeId}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`,
-    },
-    body: JSON.stringify(updatedCourse),
-  });
+// Definimos un tipo para la actualización que no incluye el id
+type UpdateNoticeData = {
+  title: string;
+  imageUrl: string;
+  description: string;
+};
 
-  if (!response.ok) {
-    throw new Error("Error al actualizar el curso");
+export const fetchEditNotice = async (token: string, noticeId: string, updateData: UpdateNoticeData) => {
+  console.log("Enviando datos al backend:", JSON.stringify(updateData, null, 2));
+  
+  try {
+    const response = await fetch(`${apiUrl}/News/${noticeId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify(updateData),
+    });
+
+    // Capturamos información de la respuesta para depuración
+    console.log("Respuesta del servidor:", {
+      status: response.status,
+      statusText: response.statusText
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Error del servidor:", errorText);
+      throw new Error("Error al actualizar la noticia");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error en fetchEditNotice:", error);
+    throw error;
   }
-
-  return await response.json();
 };

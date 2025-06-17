@@ -7,6 +7,7 @@ import { Job } from '../Jobs/entities/jobs.entity';
 import { UserType } from '../user/roles.enum';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { StripeService } from '../../payments/services/stripe.service';
+import { UserService } from '../user/user.service';
 
 @ApiTags('Applications')
 @Injectable()
@@ -22,6 +23,7 @@ export class ApplicationService {
     private readonly jobRepository: Repository<Job>,
     
     private readonly stripeService: StripeService,
+    private readonly userService: UserService,
   ) {}
 
   @ApiOperation({ summary: 'Aplicar a un trabajo' })
@@ -38,20 +40,28 @@ export class ApplicationService {
 
     console.log(`Verificando suscripción para: ${player.email} (usuario ${playerId})`);
     
-    // Check if player has an active subscription
-    const subscriptionStatus = await this.stripeService.checkUserSubscription(player.email);
-    console.log(`Estado de suscripción: ${JSON.stringify(subscriptionStatus)}`);
-    
-    // Verificar si el usuario tiene una suscripción Semiprofesional o Profesional
-    const validSubscriptionType = subscriptionStatus.subscriptionType === 'Semiprofesional' || 
-                                 subscriptionStatus.subscriptionType === 'Profesional';
-    
-    // Verificar si el usuario puede aplicar
-    if (validSubscriptionType) {
-      console.log(`Usuario ${player.email} tiene suscripción ${subscriptionStatus.subscriptionType}. Permitiendo aplicar.`);
-    } else {
-      console.log(`Suscripción tipo ${subscriptionStatus.subscriptionType || 'no definida'} para ${player.email}, no permitida para aplicar`);
-      throw new ForbiddenException('Se requiere una suscripción activa Semiprofesional o Profesional para aplicar a trabajos. Por favor, suscríbete para continuar.');
+    // Verificar la suscripción usando UserService en lugar de StripeService
+    try {
+      const subscriptionStatus = await this.userService.getUserSubscriptionByEmail(player.email);
+      console.log(`Estado de suscripción desde UserService: ${JSON.stringify(subscriptionStatus)}`);
+      
+      // Verificar si el usuario tiene una suscripción Semiprofesional o Profesional
+      const validSubscriptionType = subscriptionStatus.subscriptionType === 'Semiprofesional' || 
+                                   subscriptionStatus.subscriptionType === 'Profesional';
+      
+      // Verificar si el usuario puede aplicar
+      if (validSubscriptionType) {
+        console.log(`Usuario ${player.email} tiene suscripción ${subscriptionStatus.subscriptionType}. Permitiendo aplicar.`);
+      } else {
+        console.log(`Suscripción tipo ${subscriptionStatus.subscriptionType || 'no definida'} para ${player.email}, no permitida para aplicar`);
+        throw new ForbiddenException('Se requiere una suscripción activa Semiprofesional o Profesional para aplicar a trabajos. Por favor, suscríbete para continuar.');
+      }
+    } catch (error) {
+      if (error instanceof ForbiddenException) {
+        throw error;
+      }
+      console.error(`Error al verificar suscripción: ${error.message}`);
+      throw new ForbiddenException('Error al verificar la suscripción. Por favor, intenta de nuevo más tarde.');
     }
 
     // Find the job

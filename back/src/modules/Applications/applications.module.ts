@@ -8,9 +8,15 @@ import { Job } from '../Jobs/entities/jobs.entity';
 import { Contract } from '../contracts/entities/contract.entity';
 import { PaymentsModule } from '../../payments/payments.module';
 import { StripeService } from '../../payments/services/stripe.service';
+import { UserModule } from '../user/user.module';
+import { UserService } from '../user/user.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Application, User, Job, Contract]), PaymentsModule],
+  imports: [
+    TypeOrmModule.forFeature([Application, User, Job, Contract]), 
+    PaymentsModule,
+    UserModule
+  ],
   controllers: [ApplicationController],
   providers: [ApplicationService],
 })

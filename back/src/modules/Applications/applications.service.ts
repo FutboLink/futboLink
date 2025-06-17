@@ -43,19 +43,15 @@ export class ApplicationService {
     console.log(`Estado de suscripción: ${JSON.stringify(subscriptionStatus)}`);
     
     // Verificar si el usuario tiene una suscripción Semiprofesional o Profesional
-    // Incluso si hasActiveSubscription es false, consideramos el tipo de suscripción
     const validSubscriptionType = subscriptionStatus.subscriptionType === 'Semiprofesional' || 
                                  subscriptionStatus.subscriptionType === 'Profesional';
     
-    // MODIFICADO: Permitir aplicar si tiene tipo de suscripción válida, independientemente de hasActiveSubscription
+    // Verificar si el usuario puede aplicar
     if (validSubscriptionType) {
       console.log(`Usuario ${player.email} tiene suscripción ${subscriptionStatus.subscriptionType}. Permitiendo aplicar.`);
-    } else if (subscriptionStatus.subscriptionType === 'Amateur' || !subscriptionStatus.subscriptionType) {
-      console.log(`Suscripción tipo Amateur para ${player.email}, no permitida para aplicar`);
+    } else {
+      console.log(`Suscripción tipo ${subscriptionStatus.subscriptionType || 'no definida'} para ${player.email}, no permitida para aplicar`);
       throw new ForbiddenException('Se requiere una suscripción activa Semiprofesional o Profesional para aplicar a trabajos. Por favor, suscríbete para continuar.');
-    } else if (!subscriptionStatus.hasActiveSubscription) {
-      console.log(`Suscripción inactiva para ${player.email}`);
-      throw new ForbiddenException('Se requiere una suscripción activa para aplicar a trabajos. Por favor, suscríbete para continuar.');
     }
 
     // Find the job

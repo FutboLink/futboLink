@@ -246,22 +246,29 @@ export class UserService {
     isActive: boolean;
     expiresAt?: Date;
   }> {
+    console.log(`[UserService] Buscando usuario con email: ${email}`);
     const user = await this.userRepository.findOne({ where: { email } });
     
     if (!user) {
+      console.log(`[UserService] Usuario con email ${email} no encontrado`);
       throw new NotFoundException(`Usuario con email ${email} no encontrado`);
     }
+    
+    console.log(`[UserService] Usuario encontrado: ${user.id}, tipo de suscripción: ${user.subscriptionType}, expira: ${user.subscriptionExpiresAt}`);
     
     // Verificar si la suscripción está activa
     const isActive = user.subscriptionType !== 'Amateur' && 
                      user.subscriptionExpiresAt &&
                      new Date(user.subscriptionExpiresAt) > new Date();
     
-    return {
-      subscriptionType: user.subscriptionType,
+    const result = {
+      subscriptionType: user.subscriptionType || 'Amateur',
       isActive,
       expiresAt: user.subscriptionExpiresAt
     };
+    
+    console.log(`[UserService] Resultado de verificación: ${JSON.stringify(result)}`);
+    return result;
   }
 
   /**

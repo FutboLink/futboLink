@@ -40,6 +40,18 @@ export class ApplicationService {
 
     console.log(`Verificando suscripción para: ${player.email} (usuario ${playerId})`);
     
+    // Solución temporal para el usuario específico con problemas
+    if (player.email === 'matiasolguin48@gmail.com') {
+      console.log(`[SOLUCIÓN TEMPORAL] Actualizando manualmente la suscripción para: ${player.email}`);
+      try {
+        // Actualizar manualmente la suscripción del usuario
+        await this.userService.updateUserSubscriptionByEmail(player.email, 'Profesional');
+        console.log(`[SOLUCIÓN TEMPORAL] Suscripción actualizada manualmente a Profesional para: ${player.email}`);
+      } catch (error) {
+        console.error(`[SOLUCIÓN TEMPORAL] Error al actualizar la suscripción: ${error.message}`);
+      }
+    }
+    
     // Verificar la suscripción usando UserService en lugar de StripeService
     try {
       const subscriptionStatus = await this.userService.getUserSubscriptionByEmail(player.email);

@@ -208,7 +208,7 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
                           )}
                           {profile.socialMedia?.transfermarkt && (
                             <a
-                              href={`https://www.transfermarkt.com/${profile.socialMedia.transfermarkt}`}
+                              href={`${profile.socialMedia.transfermarkt}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="hover:opacity-80 transition-opacity"

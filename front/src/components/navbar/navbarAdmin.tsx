@@ -7,6 +7,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { UserContext } from "../Context/UserContext";
 import { FaUser } from "react-icons/fa";
+import NotificationsList from "../Notifications/NotificationsList";
 
 function NavbarAdmin() {
   const router = useRouter();
@@ -120,13 +121,15 @@ function NavbarAdmin() {
             </div>
           </div>
 
-          {/* Icono de usuario en escritorio */}
+          {/* Icono de usuario y notificaciones en escritorio */}
           <div className="hidden lg:flex items-center gap-4">
+            {isLogged && <NotificationsList />}
             {renderUserIcon()}
           </div>
 
-          {/* Menú móvil: hamburguesa + ícono de usuario */}
+          {/* Menú móvil: hamburguesa + ícono de usuario + notificaciones */}
           <div className="flex items-center gap-4 lg:hidden">
+            {isLogged && <NotificationsList />}
             {renderUserIcon()}
             <button
               onClick={toggleMobileMenu}

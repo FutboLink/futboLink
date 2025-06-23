@@ -8,6 +8,7 @@ import Link from "next/link";
 import { UserContext } from "../Context/UserContext";
 import { FaUser } from "react-icons/fa";
 import LanguageDropdown from "../LanguageToggle/LanguageDropdown";
+import NotificationsList from "../Notifications/NotificationsList";
 
 function NavbarRoles() {
   const router = useRouter();
@@ -126,18 +127,24 @@ function NavbarRoles() {
             )}
           </div>
 
-          {/* Icono de usuario en escritorio */}
-          <div className="hidden sm:flex items-center gap-4">{renderUserIcon()}</div>
+          {/* Icono de usuario y notificaciones en escritorio */}
+          <div className="hidden sm:flex items-center gap-4">
+            {isLogged && <NotificationsList />}
+            {renderUserIcon()}
+          </div>
 
-          {/* Menú móvil: hamburguesa + ícono de usuario */}
+          {/* Menú móvil: hamburguesa + ícono de usuario + notificaciones */}
           <div className="flex items-center justify-end space-x-3 sm:hidden">
             {/* Language Dropdown (Mobile) */}
             <LanguageDropdown />
             
             {isLogged && (
-              <div className="flex-shrink-0">
-                {renderUserIcon()}
-              </div>
+              <>
+                <NotificationsList />
+                <div className="flex-shrink-0">
+                  {renderUserIcon()}
+                </div>
+              </>
             )}
             <button
               onClick={toggleMobileMenu}

@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Navbar from '@/components/navbar/navbar';
@@ -8,6 +8,7 @@ import SocialButton from "@/components/SocialButton/SocialButton";
 import Head from 'next/head';
 import CardProfile from '@/components/Jobs/CardProfile';
 import { IProfileData } from '@/Interfaces/IUser';
+import { UserContext } from '@/components/Context/UserContext';
 
 // URL del backend
 const API_URL = 'https://futbolink.onrender.com';
@@ -26,10 +27,48 @@ const getRoleDisplay = (role: string) => {
 export default function UserViewer() {
   const router = useRouter();
   const { id } = router.query;
+  const { user, token, role } = useContext(UserContext);
 
   const [profile, setProfile] = useState<IProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notificationSent, setNotificationSent] = useState(false);
+  
+  // Función para enviar notificación de visualización de perfil
+  const sendProfileViewNotification = async (viewedUserId: string) => {
+    try {
+      // Solo enviar la notificación si el usuario está autenticado y es un ofertante
+      if (!token || !user || !['RECRUITER', 'ADMIN'].includes(role || '')) {
+        console.log('No se envía notificación: usuario no autenticado o no es ofertante');
+        return;
+      }
+      
+      // No enviar notificación si el usuario está viendo su propio perfil
+      if (user.id === viewedUserId) {
+        console.log('No se envía notificación: usuario viendo su propio perfil');
+        return;
+      }
+      
+      // Enviar la notificación al backend
+      const response = await fetch(`${API_URL}/notifications/profile-view`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ viewedUserId })
+      });
+      
+      if (response.ok) {
+        console.log('Notificación de visualización de perfil enviada correctamente');
+        setNotificationSent(true);
+      } else {
+        console.error('Error al enviar la notificación:', await response.text());
+      }
+    } catch (err) {
+      console.error('Error al enviar la notificación:', err);
+    }
+  };
   
   useEffect(() => {
     // Solo cargar datos cuando tengamos un ID válido
@@ -73,6 +112,11 @@ export default function UserViewer() {
         // Actualizar estado
         setProfile(data);
         setLoading(false);
+        
+        // Enviar notificación de visualización de perfil
+        if (!notificationSent) {
+          sendProfileViewNotification(id);
+        }
       } catch (err) {
         console.error('Error:', err);
         setError(err instanceof Error ? err.message : 'Error desconocido');
@@ -81,7 +125,7 @@ export default function UserViewer() {
     };
     
     fetchUserProfile();
-  }, [id]);
+  }, [id, token, notificationSent, user, role]);
 
   // Mostrar carga
   if (loading) {

@@ -12,6 +12,13 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
+export enum ApplicationStatus {
+  PENDING = 'PENDING',
+  SHORTLISTED = 'SHORTLISTED',
+  ACCEPTED = 'ACCEPTED',
+  REJECTED = 'REJECTED',
+}
+
 @Entity()
 export class Application {
   @ApiProperty({ example: 1, description: 'ID de las postulaciones' })
@@ -30,14 +37,14 @@ export class Application {
   message: string;
 
   @ApiProperty({
-    enum: ['PENDING', 'ACCEPTED', 'REJECTED'],
+    enum: ApplicationStatus,
     example: 'PENDING',
     description: 'Estado de la aplicación',
   })
   @Column({
     type: 'enum',
-    enum: ['PENDING', 'ACCEPTED', 'REJECTED'],
-    default: 'PENDING',
+    enum: ApplicationStatus,
+    default: ApplicationStatus.PENDING,
   })
   status: string;
 
@@ -47,6 +54,14 @@ export class Application {
   })
   @CreateDateColumn()
   appliedAt: Date;
+
+  @ApiProperty({
+    example: '2024-12-05T10:00:00Z',
+    description: 'Fecha de selección para evaluación',
+    nullable: true,
+  })
+  @Column({ type: 'timestamp', nullable: true })
+  shortlistedAt: Date;
 
   @OneToOne(() => Contract, (contract) => contract.application)
   @JoinColumn({ name: 'Contracts' })

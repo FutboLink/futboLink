@@ -10,12 +10,14 @@ import { PaymentsModule } from '../../payments/payments.module';
 import { StripeService } from '../../payments/services/stripe.service';
 import { UserModule } from '../user/user.module';
 import { UserService } from '../user/user.service';
+import { NotificationsModule } from '../Notifications/notifications.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Application, User, Job, Contract]), 
     PaymentsModule,
-    UserModule
+    UserModule,
+    NotificationsModule
   ],
   controllers: [ApplicationController],
   providers: [ApplicationService],

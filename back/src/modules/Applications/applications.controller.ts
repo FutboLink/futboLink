@@ -6,6 +6,8 @@ import {
   Param,
   Body,
   ParseIntPipe,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -16,6 +18,7 @@ import {
 
 import { CreateApplicationsDto } from './dto/applications.dto';
 import { ApplicationService } from './applications.service';
+import { AuthGuard } from '../auth/auth.guard';
 
 @ApiTags('Applications')
 @ApiBearerAuth()
@@ -52,5 +55,17 @@ export class ApplicationController {
     @Body('status') status: string,
   ) {
     return this.applicationService.updateStatus(applicationId, status);
+  }
+
+  @Post('/shortlist')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Seleccionar múltiples candidatos para evaluación' })
+  @ApiResponse({ status: 200, description: 'Candidatos seleccionados correctamente' })
+  async shortlistCandidates(
+    @Body('applicationIds') applicationIds: string[],
+    @Req() req: any,
+  ) {
+    const recruiterId = req.user.id;
+    return this.applicationService.shortlistCandidates(applicationIds, recruiterId);
   }
 }

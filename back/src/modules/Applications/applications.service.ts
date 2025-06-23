@@ -1,13 +1,15 @@
 import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Application } from './entities/applications.entity';
+import { Application, ApplicationStatus } from './entities/applications.entity';
 import { User } from '../user/entities/user.entity';
 import { Job } from '../Jobs/entities/jobs.entity';
 import { UserType } from '../user/roles.enum';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { StripeService } from '../../payments/services/stripe.service';
 import { UserService } from '../user/user.service';
+import { NotificationsService } from '../Notifications/notifications.service';
+import { NotificationType } from '../Notifications/entities/notification.entity';
 
 @ApiTags('Applications')
 @Injectable()
@@ -24,6 +26,7 @@ export class ApplicationService {
     
     private readonly stripeService: StripeService,
     private readonly userService: UserService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   @ApiOperation({ summary: 'Aplicar a un trabajo' })
@@ -77,7 +80,10 @@ export class ApplicationService {
     }
 
     // Find the job
-    const job = await this.jobRepository.findOne({ where: { id: String(jobId) } });
+    const job = await this.jobRepository.findOne({ 
+      where: { id: String(jobId) },
+      relations: ['recruiter'],
+    });
     if (!job) throw new NotFoundException('Trabajo no encontrado');
 
     // Check for duplicate applications
@@ -108,10 +114,98 @@ export class ApplicationService {
   @ApiResponse({ status: 200, description: 'Estado actualizado correctamente.' })
   @ApiResponse({ status: 404, description: 'Aplicación no encontrada.' })
   async updateStatus(applicationId: string, status: string): Promise<Application> {
-    const application = await this.applicationRepository.findOne({ where: { id: applicationId } });
+    const application = await this.applicationRepository.findOne({ 
+      where: { id: applicationId },
+      relations: ['player', 'job', 'job.recruiter'],
+    });
     if (!application) throw new NotFoundException('Aplicación no encontrada');
 
+    const oldStatus = application.status;
     application.status = status;
+
+    // Si el estado cambia a SHORTLISTED, registrar la fecha
+    if (status === ApplicationStatus.SHORTLISTED && oldStatus !== ApplicationStatus.SHORTLISTED) {
+      application.shortlistedAt = new Date();
+      
+      // Enviar notificación al postulante
+      if (application.player && application.job?.recruiter) {
+        try {
+          await this.notificationsService.create({
+            message: `Tu perfil ha sido seleccionado para evaluación en la oferta "${application.job.title}"`,
+            type: NotificationType.APPLICATION_SHORTLISTED,
+            userId: application.player.id,
+            sourceUserId: application.job.recruiter.id,
+            metadata: {
+              jobId: application.job.id,
+              jobTitle: application.job.title,
+              applicationId: application.id,
+            }
+          });
+        } catch (error) {
+          console.error('Error al enviar notificación:', error);
+        }
+      }
+    }
+
     return this.applicationRepository.save(application);
+  }
+
+  @ApiOperation({ summary: 'Seleccionar múltiples candidatos para evaluación' })
+  @ApiResponse({ status: 200, description: 'Candidatos seleccionados correctamente.' })
+  async shortlistCandidates(applicationIds: string[], recruiterId: string): Promise<Application[]> {
+    // Verificar que el reclutador existe
+    const recruiter = await this.userRepository.findOne({
+      where: { id: recruiterId }
+    });
+    if (!recruiter) throw new NotFoundException('Reclutador no encontrado');
+    
+    const shortlistedApplications: Application[] = [];
+    
+    for (const applicationId of applicationIds) {
+      const application = await this.applicationRepository.findOne({
+        where: { id: applicationId },
+        relations: ['player', 'job', 'job.recruiter'],
+      });
+      
+      if (!application) {
+        console.warn(`Aplicación con ID ${applicationId} no encontrada`);
+        continue;
+      }
+      
+      // Verificar que el reclutador es el dueño de la oferta
+      if (application.job.recruiter.id !== recruiterId) {
+        console.warn(`El reclutador ${recruiterId} no es el dueño de la oferta de la aplicación ${applicationId}`);
+        continue;
+      }
+      
+      // Actualizar estado y fecha
+      application.status = ApplicationStatus.SHORTLISTED;
+      application.shortlistedAt = new Date();
+      
+      // Guardar la aplicación actualizada
+      const updatedApplication = await this.applicationRepository.save(application);
+      shortlistedApplications.push(updatedApplication);
+      
+      // Enviar notificación al postulante
+      if (application.player) {
+        try {
+          await this.notificationsService.create({
+            message: `Tu perfil ha sido seleccionado para evaluación en la oferta "${application.job.title}"`,
+            type: NotificationType.APPLICATION_SHORTLISTED,
+            userId: application.player.id,
+            sourceUserId: recruiterId,
+            metadata: {
+              jobId: application.job.id,
+              jobTitle: application.job.title,
+              applicationId: application.id,
+            }
+          });
+        } catch (error) {
+          console.error('Error al enviar notificación:', error);
+        }
+      }
+    }
+    
+    return shortlistedApplications;
   }
 }

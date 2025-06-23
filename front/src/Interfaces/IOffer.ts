@@ -71,11 +71,19 @@ export interface ICreateJobOffer {
   type: string;
 }
 
+export enum ApplicationStatus {
+  PENDING = 'PENDING',
+  SHORTLISTED = 'SHORTLISTED',
+  ACCEPTED = 'ACCEPTED',
+  REJECTED = 'REJECTED',
+}
 
 export interface IJobApplication {
-  id?: string;
+  id: string;
   appliedAt: string;
   message: string;
+  status: ApplicationStatus;
+  shortlistedAt?: string;
   player: {
     id: string;
     name?: string;

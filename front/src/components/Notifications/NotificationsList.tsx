@@ -1,11 +1,18 @@
 "use client";
 import React, { useEffect, useState, useContext } from "react";
 import { UserContext } from "../Context/UserContext";
-import { BsFillBellFill, BsCheck } from "react-icons/bs";
+import { BsFillBellFill, BsCheck, BsCheckCircleFill } from "react-icons/bs";
 import Image from "next/image";
+import Link from "next/link";
 
 // URL del backend
-const API_URL = 'https://futbolink.onrender.com';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://futbolink.onrender.com';
+
+interface NotificationMetadata {
+  jobId?: string;
+  jobTitle?: string;
+  applicationId?: string;
+}
 
 interface Notification {
   id: string;
@@ -13,6 +20,7 @@ interface Notification {
   type: string;
   read: boolean;
   createdAt: string;
+  metadata?: NotificationMetadata;
   sourceUser?: {
     id: string;
     name: string;
@@ -112,6 +120,31 @@ export const NotificationsList: React.FC = () => {
     return date.toLocaleDateString();
   };
 
+  // Renderizar contenido adicional según el tipo de notificación
+  const renderNotificationContent = (notification: Notification) => {
+    if (notification.type === 'APPLICATION_SHORTLISTED' && notification.metadata?.jobId && notification.metadata?.jobTitle) {
+      return (
+        <div className="mt-2 p-2 bg-green-50 rounded-md border border-green-200">
+          <div className="flex items-center text-green-800 mb-1">
+            <BsCheckCircleFill className="mr-1" />
+            <span className="text-xs font-medium">Seleccionado para evaluación</span>
+          </div>
+          <p className="text-xs text-gray-700">
+            Oferta: <span className="font-medium">{notification.metadata.jobTitle}</span>
+          </p>
+          <Link 
+            href={`/jobs/${notification.metadata.jobId}`}
+            className="text-xs text-green-800 hover:underline mt-1 inline-block"
+            onClick={() => markAsRead(notification.id)}
+          >
+            Ver oferta
+          </Link>
+        </div>
+      );
+    }
+    return null;
+  };
+
   // Cargar notificaciones al montar el componente y cuando cambie el token
   useEffect(() => {
     if (token) {
@@ -195,6 +228,7 @@ export const NotificationsList: React.FC = () => {
                     <div className="flex-1">
                       <p className="text-sm text-gray-800">{notification.message}</p>
                       <p className="text-xs text-gray-500 mt-1">{formatRelativeTime(notification.createdAt)}</p>
+                      {renderNotificationContent(notification)}
                     </div>
                     {!notification.read && (
                       <button 

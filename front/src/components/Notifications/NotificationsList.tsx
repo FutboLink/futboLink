@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState, useContext } from "react";
 import { UserContext } from "../Context/UserContext";
-import { BsFillBellFill, BsCheck, BsCheckCircleFill } from "react-icons/bs";
+import { BsFillBellFill, BsCheck, BsCheckCircle } from "react-icons/bs";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -126,7 +126,7 @@ export const NotificationsList: React.FC = () => {
       return (
         <div className="mt-2 p-2 bg-green-50 rounded-md border border-green-200">
           <div className="flex items-center text-green-800 mb-1">
-            <BsCheckCircleFill className="mr-1" />
+            <BsCheckCircle className="mr-1" />
             <span className="text-xs font-medium">Seleccionado para evaluación</span>
           </div>
           <p className="text-xs text-gray-700">

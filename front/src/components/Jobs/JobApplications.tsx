@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { fetchApplicationsByJobId } from "../Fetchs/OfertasFetch/OfertasFetchs";
 import { IJobApplication, ApplicationStatus } from "@/Interfaces/IOffer";
-import { BsFillClockFill, BsCheckCircleFill } from "react-icons/bs";
+import { BsFillClockFill, BsCheckCircle } from "react-icons/bs";
 import ApplicantModal from "./ApplicationModal";
 import Link from "next/link";
 import { renderCountryFlag } from "../countryFlag/countryFlag";
@@ -183,7 +183,7 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
                     } flex items-center justify-center`}
                   >
                     {isSelected && (
-                      <BsCheckCircleFill className="text-white" />
+                      <BsCheckCircle className="text-white" />
                     )}
                   </div>
                 </div>

@@ -2,16 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 
-interface EmailOptions {
-  from: string;
-  to: string;
-  subject: string;
-  html: string;
-  cc?: string;
-  bcc?: string;
-  attachments?: any[];
-}
-
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
@@ -39,26 +29,6 @@ export class EmailService {
         this.logger.log('Mail server is ready to send messages');
       }
     });
-  }
-
-  // Método genérico para enviar cualquier tipo de email
-  async sendEmail(options: EmailOptions): Promise<boolean> {
-    try {
-      this.logger.log(`Sending email to: ${options.to}`);
-      
-      // Asegurarse de que el remitente esté configurado
-      if (!options.from) {
-        options.from = `"FutboLink" <${this.configService.get<string>('MAIL_FROM')}>`;
-      }
-      
-      await this.transporter.sendMail(options);
-      this.logger.log(`Email sent successfully to: ${options.to}`);
-      return true;
-    } catch (error) {
-      this.logger.error(`Error sending email: ${error.message}`);
-      this.logger.error(`Stack trace: ${error.stack}`);
-      throw new Error('No se pudo enviar el correo. Por favor, inténtelo más tarde.');
-    }
   }
 
   async sendPasswordResetEmail(email: string, token: string) {
@@ -102,7 +72,9 @@ export class EmailService {
         `
       };
 
-      return this.sendEmail(mailOptions);
+      await this.transporter.sendMail(mailOptions);
+      this.logger.log(`Password reset email sent successfully to: ${email}`);
+      return true;
     } catch (error) {
       this.logger.error(`Error sending password reset email: ${error.message}`);
       this.logger.error(`Stack trace: ${error.stack}`);
@@ -158,7 +130,7 @@ export class EmailService {
         `
       };
 
-      await this.sendEmail(mailOptions);
+      await this.transporter.sendMail(mailOptions);
       this.logger.log(`Contact email sent to admin successfully`);
       
       // Send confirmation email to the user
@@ -210,7 +182,9 @@ export class EmailService {
         `
       };
       
-      return this.sendEmail(mailOptions);
+      await this.transporter.sendMail(mailOptions);
+      this.logger.log(`Confirmation email sent successfully to: ${email}`);
+      return true;
     } catch (error) {
       this.logger.error(`Error sending confirmation email: ${error.message}`);
       // We don't throw here to avoid disrupting the main flow

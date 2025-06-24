@@ -8,6 +8,9 @@ import {
   Put,
   ParseUUIDPipe,
   Query,
+  UseGuards,
+  Req,
+  UnauthorizedException,
   } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/create-user.dto';
@@ -19,6 +22,8 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
+import { SearchPlayersDto } from './dto/search-players.dto';
+import { AuthGuard } from '../auth/auth.guard';
 
 
 @ApiTags('Users')
@@ -137,5 +142,33 @@ export class UserController {
   @Get('subscription/check')
   async getSubscriptionByEmail(@Query('email') email: string) {
     return this.userService.getUserSubscriptionByEmail(email);
+  }
+
+  /**
+   * Busca jugadores con filtros (solo para suscriptores profesionales)
+   */
+  @ApiOperation({ summary: 'Buscar jugadores con filtros (solo para suscriptores profesionales)' })
+  @ApiResponse({ status: 200, description: 'Lista de jugadores filtrados' })
+  @ApiResponse({ status: 401, description: 'No autorizado - Se requiere suscripción profesional' })
+  @UseGuards(AuthGuard)
+  @Get('search/players')
+  async searchPlayers(
+    @Query() searchDto: SearchPlayersDto,
+    @Req() req: any
+  ) {
+    // Verificar que el usuario tiene suscripción profesional
+    const user = req.user;
+    
+    // Obtener la información de suscripción
+    const subscription = await this.userService.getUserSubscription(user.id);
+    
+    // Solo permitir acceso a usuarios con suscripción profesional
+    if (subscription.subscriptionType !== 'Profesional' || !subscription.isActive) {
+      throw new UnauthorizedException(
+        'Se requiere una suscripción profesional activa para acceder a esta funcionalidad'
+      );
+    }
+    
+    return this.userService.searchPlayers(searchDto);
   }
 }

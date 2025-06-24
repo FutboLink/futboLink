@@ -3,6 +3,7 @@
     "@types/nodemailer": "^6.4.17",
     "nodemailer": "^7.0.3",
     "react": "^19.0.0",
+    "react-hot-toast": "^2.5.2",
     "stripe": "^18.1.0"
   }
 }

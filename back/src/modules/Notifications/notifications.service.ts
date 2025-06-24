@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Notification, NotificationType } from './entities/notification.entity';
 import { CreateNotificationDto, UpdateNotificationDto } from './dto/notification.dto';
 import { User } from '../user/entities/user.entity';
+import { EmailService } from '../Mailing/email.service';
 
 @Injectable()
 export class NotificationsService {
@@ -12,6 +13,7 @@ export class NotificationsService {
     private notificationsRepository: Repository<Notification>,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private emailService: EmailService,
   ) {}
 
   async create(createNotificationDto: CreateNotificationDto): Promise<Notification> {
@@ -43,7 +45,17 @@ export class NotificationsService {
       sourceUser,
     });
 
-    return this.notificationsRepository.save(notification);
+    const savedNotification = await this.notificationsRepository.save(notification);
+
+    // Enviar email para notificaciones importantes
+    if (user.email && (
+        notification.type === NotificationType.APPLICATION_SHORTLISTED ||
+        notification.type === NotificationType.PROFILE_VIEW
+      )) {
+      await this.sendNotificationEmail(user, notification, sourceUser);
+    }
+
+    return savedNotification;
   }
 
   async createProfileViewNotification(viewedUserId: string, viewerUserId: string): Promise<Notification> {
@@ -62,7 +74,7 @@ export class NotificationsService {
     }
 
     // Crear mensaje personalizado
-    const message = `${viewerUser.name} ${viewerUser.lastname} ha visto tu perfil`;
+    const message = `Un reclutador ha visto tu solicitud e ingreso a tu perfil, te notificaremos si eres seleccionado`;
 
     // Crear la notificación
     const notification = this.notificationsRepository.create({
@@ -77,7 +89,132 @@ export class NotificationsService {
       },
     });
 
-    return this.notificationsRepository.save(notification);
+    const savedNotification = await this.notificationsRepository.save(notification);
+
+    // Enviar email de notificación
+    if (viewedUser.email) {
+      await this.sendNotificationEmail(viewedUser, savedNotification, viewerUser);
+    }
+
+    return savedNotification;
+  }
+
+  private async sendNotificationEmail(user: User, notification: Notification, sourceUser?: User): Promise<void> {
+    try {
+      let subject = '';
+      let htmlContent = '';
+      const userName = user.name || user.email.split('@')[0];
+      const sourceName = sourceUser ? (sourceUser.name || 'Reclutador') : 'FutboLink';
+
+      // Configurar el contenido según el tipo de notificación
+      switch (notification.type) {
+        case NotificationType.PROFILE_VIEW:
+          subject = '¡Un reclutador ha visto tu perfil! - FutboLink';
+          htmlContent = `
+            <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 5px;">
+              <h2 style="color: #2c3e50; text-align: center;">¡Buenas noticias!</h2>
+              <div style="margin-top: 20px; line-height: 1.6; color: #34495e;">
+                <p>Hola ${userName},</p>
+                <p>Queremos informarte que <strong>${sourceName}</strong> ha visto tu perfil en FutboLink.</p>
+                <p>Esto significa que tu perfil está generando interés. Te mantendremos informado si hay novedades sobre tu aplicación.</p>
+                <p>Recuerda mantener tu perfil actualizado para aumentar tus posibilidades de ser seleccionado.</p>
+              </div>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="https://futbolink.vercel.app/profile" 
+                   style="display: inline-block; padding: 12px 20px; background-color: #27ae60; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                  Ver mi perfil
+                </a>
+              </div>
+              
+              <div style="margin-top: 30px; text-align: center; color: #7f8c8d; border-top: 1px solid #ecf0f1; padding-top: 15px;">
+                <p>FutboLink - Conectando el mundo del fútbol</p>
+                <p>© ${new Date().getFullYear()} FutboLink. Todos los derechos reservados.</p>
+              </div>
+            </div>
+          `;
+          break;
+        
+        case NotificationType.APPLICATION_SHORTLISTED:
+          subject = '¡Has sido seleccionado para evaluación! - FutboLink';
+          
+          // Extraer información adicional del metadata si está disponible
+          const jobTitle = notification.metadata?.jobTitle || 'una oferta';
+          const jobId = notification.metadata?.jobId || '';
+          const jobUrl = jobId ? `https://futbolink.vercel.app/jobs/${jobId}` : 'https://futbolink.vercel.app';
+          
+          htmlContent = `
+            <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 5px;">
+              <h2 style="color: #2c3e50; text-align: center;">¡Felicidades!</h2>
+              <div style="margin-top: 20px; line-height: 1.6; color: #34495e;">
+                <p>Hola ${userName},</p>
+                <p>Tenemos excelentes noticias para ti: <strong>${sourceName}</strong> ha seleccionado tu perfil para evaluación en la oferta "${jobTitle}".</p>
+                <p>Esto significa que tu perfil ha destacado entre los demás candidatos y estás siendo considerado para la posición.</p>
+                <p>El reclutador se pondrá en contacto contigo para los siguientes pasos en el proceso de selección.</p>
+                <p>Te recomendamos mantener actualizada tu información de contacto y estar atento a futuras comunicaciones.</p>
+              </div>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${jobUrl}" 
+                   style="display: inline-block; padding: 12px 20px; background-color: #27ae60; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                  Ver detalles de la oferta
+                </a>
+              </div>
+              
+              <div style="margin-top: 30px; text-align: center; color: #7f8c8d; border-top: 1px solid #ecf0f1; padding-top: 15px;">
+                <p>FutboLink - Conectando el mundo del fútbol</p>
+                <p>© ${new Date().getFullYear()} FutboLink. Todos los derechos reservados.</p>
+              </div>
+            </div>
+          `;
+          break;
+          
+        default:
+          // Para otros tipos de notificaciones, usar un formato genérico
+          subject = 'Nueva notificación - FutboLink';
+          htmlContent = `
+            <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 5px;">
+              <h2 style="color: #2c3e50; text-align: center;">Nueva notificación</h2>
+              <div style="margin-top: 20px; line-height: 1.6; color: #34495e;">
+                <p>Hola ${userName},</p>
+                <p>${notification.message}</p>
+              </div>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="https://futbolink.vercel.app" 
+                   style="display: inline-block; padding: 12px 20px; background-color: #27ae60; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                  Ir a FutboLink
+                </a>
+              </div>
+              
+              <div style="margin-top: 30px; text-align: center; color: #7f8c8d; border-top: 1px solid #ecf0f1; padding-top: 15px;">
+                <p>FutboLink - Conectando el mundo del fútbol</p>
+                <p>© ${new Date().getFullYear()} FutboLink. Todos los derechos reservados.</p>
+              </div>
+            </div>
+          `;
+      }
+
+      // Configurar opciones del email
+      const mailOptions = {
+        from: `"FutboLink" <${process.env.MAIL_FROM || 'notificaciones@futbolink.com'}>`,
+        to: user.email,
+        subject,
+        html: htmlContent
+      };
+
+      // Enviar email utilizando el servicio de email
+      // Usamos try-catch para evitar que un error en el envío de email afecte el flujo principal
+      try {
+        await this.emailService.sendEmail(mailOptions);
+      } catch (error) {
+        console.error(`Error al enviar email de notificación: ${error.message}`);
+        // No lanzamos el error para no interrumpir el flujo principal
+      }
+    } catch (error) {
+      console.error(`Error al preparar email de notificación: ${error.message}`);
+      // No lanzamos el error para no interrumpir el flujo principal
+    }
   }
 
   async findAll(): Promise<Notification[]> {

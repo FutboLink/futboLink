@@ -6,6 +6,7 @@ import BackButton from "../utils/BackButton";
 import { FaX } from "react-icons/fa6";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { getDefaultPlayerImage } from "@/helpers/imageUtils";
 
 interface CardProfileProps {
   profile: IProfileData;
@@ -60,14 +61,7 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
         <div className="mb-8 flex flex-col items-center space-y-4">
           <div className="relative">
             <Image
-              src={
-                profile?.imgUrl ||
-                (profile.genre === "Masculino"
-                  ? "https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png"
-                  : profile.genre === "Femenino"
-                  ? "https://res.cloudinary.com/dagcofbhm/image/upload/v1740487974/Captura_de_pantalla_2025-02-25_095231_yf60vs.png"
-                  : "https://res.cloudinary.com/dagcofbhm/image/upload/v1740488144/Captura_de_pantalla_2025-02-25_095529_gxe0gx.png")
-              }
+              src={profile?.imgUrl || getDefaultPlayerImage(profile.genre)}
               alt={profile?.name || "Foto de perfil"}
               width={110}
               height={110}

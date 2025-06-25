@@ -6,22 +6,40 @@ import { useRouter } from "next/navigation";
 import Head from "next/head";
 import Link from "next/link";
 import { UserContext } from "../Context/UserContext";
-import { FaUser } from "react-icons/fa";
+import { FaUser, FaSearch } from "react-icons/fa";
 import LanguageDropdown from "../LanguageToggle/LanguageDropdown";
 import NotificationsList from "../Notifications/NotificationsList";
+import axios from "axios";
 
 function NavbarRoles() {
   const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [hasProfessionalSubscription, setHasProfessionalSubscription] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { isLogged, role } = useContext(UserContext);
+  const { isLogged, role, user, token } = useContext(UserContext);
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const navigateTo = (path: string) => {
     router.push(path);
     setIsMobileMenuOpen(false);
   };
+
+  // Verificar si el usuario tiene suscripción profesional
+  useEffect(() => {
+    if (isLogged && user && token) {
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/${user.id}/subscription`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(response => {
+          const { subscriptionType, isActive } = response.data;
+          setHasProfessionalSubscription(subscriptionType === 'Profesional' && isActive);
+        })
+        .catch(error => {
+          console.error('Error al verificar suscripción:', error);
+        });
+    }
+  }, [isLogged, user, token]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -45,6 +63,11 @@ function NavbarRoles() {
     { label: "Contacto", path: "/contacto" },
   ];
 
+  // Añadir el elemento de búsqueda de jugadores si el usuario tiene suscripción profesional
+  if (hasProfessionalSubscription) {
+    menuItems.push({ label: "Buscar Jugadores", path: "/player-search" });
+  }
+
   const renderUserIcon = () => {
     if (!isLogged || !role) return null;
 
@@ -60,6 +83,21 @@ function NavbarRoles() {
       >
         <FaUser className="text-lg" />
         <span className="font-medium">Perfil</span>
+      </button>
+    );
+  };
+
+  // Renderizar botón de búsqueda de jugadores para móviles
+  const renderPlayerSearchButton = () => {
+    if (!hasProfessionalSubscription) return null;
+
+    return (
+      <button 
+        onClick={() => navigateTo("/player-search")}
+        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all whitespace-nowrap"
+      >
+        <FaSearch className="text-lg" />
+        <span className="font-medium">Buscar Jugadores</span>
       </button>
     );
   };
@@ -219,6 +257,17 @@ function NavbarRoles() {
                       <FaUser className="text-lg" />
                       <span className="font-medium">Ir a mi Perfil</span>
                     </button>
+                    
+                    {/* Botón de búsqueda de jugadores para usuarios con suscripción profesional */}
+                    {hasProfessionalSubscription && (
+                      <button
+                        onClick={() => navigateTo("/player-search")}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all mt-2"
+                      >
+                        <FaSearch className="text-lg" />
+                        <span className="font-medium">Buscar Jugadores</span>
+                      </button>
+                    )}
                   </div>
                 </>
               )}

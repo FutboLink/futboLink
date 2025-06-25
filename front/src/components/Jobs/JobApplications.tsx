@@ -9,6 +9,7 @@ import { renderCountryFlag } from "../countryFlag/countryFlag";
 import Image from "next/image";
 import { UserContext } from "../Context/UserContext";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
+import { getDefaultPlayerImage } from "@/helpers/imageUtils";
 
 interface JobApplicationsProps {
   jobId: string;
@@ -215,10 +216,7 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
               )}
               <div className="flex flex-col items-center w-full gap-2">
                 <Image
-                  src={
-                    app.player?.imgUrl ||
-                    "https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png"
-                  }
+                  src={app.player?.imgUrl || getDefaultPlayerImage(app.player?.genre)}
                   alt={app.player?.name || "Foto de perfil"}
                   width={100}
                   height={100}

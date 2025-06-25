@@ -13,6 +13,7 @@ import { checkUserSubscription, refreshUserSubscription, clearSubscriptionCache,
 import LanguageToggle from "@/components/LanguageToggle/LanguageToggle";
 import { fetchUserData, getCv } from "@/components/Fetchs/UsersFetchs/UserFetchs";
 import dynamic from 'next/dynamic';
+import { getDefaultPlayerImage } from "@/helpers/imageUtils";
 
 // Añadimos una interfaz para las trayectorias
 interface Trayectoria {
@@ -390,20 +391,11 @@ const UserProfile = () => {
         <div className="mb-8 flex flex-col items-center space-y-4">
           <div className="relative">
           <Image
-            src={
-              userData
-                ? userData.imgUrl ||
-                  (userData.genre === "Masculino"
-                    ? "https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png"
-                    : userData.genre === "Femenino"
-                    ? "https://res.cloudinary.com/dagcofbhm/image/upload/v1740487974/Captura_de_pantalla_2025-02-25_095231_yf60vs.png"
-                    : "https://res.cloudinary.com/dagcofbhm/image/upload/v1740488144/Captura_de_pantalla_2025-02-25_095529_gxe0gx.png")
-                : "https://res.cloudinary.com/dagcofbhm/image/upload/v1740486272/Captura_de_pantalla_2025-02-25_092301_sg5xim.png"
-              }
+            src={userData ? userData.imgUrl || getDefaultPlayerImage(userData.genre) : getDefaultPlayerImage()}
             alt={userData?.name || "Foto de perfil"}
-              width={110}
-              height={110}
-              className="rounded-full mb-4 md:mb-0 border-4 border-white shadow-md object-cover"
+            width={110}
+            height={110}
+            className="rounded-full mb-4 md:mb-0 border-4 border-white shadow-md object-cover"
             />
             {isClient && subscriptionInfo.hasActiveSubscription && (
               <div className="absolute -bottom-2 -right-2 bg-green-500 text-white p-1 rounded-full w-8 h-8 flex items-center justify-center shadow-md">

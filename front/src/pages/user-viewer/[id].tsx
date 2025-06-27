@@ -98,8 +98,17 @@ export default function UserViewer() {
         const data = await response.json();
         console.log('Datos recibidos:', data);
         
-        // Guardar el tipo de suscripción para el sidebar
-        data.subscriptionType = data.subscriptionType || 'Amateur';
+        // Determinar el tipo de suscripción correcto
+        // Primero verificar subscriptionType, luego subscription, y finalmente usar Amateur como fallback
+        if (!data.subscriptionType && data.subscription) {
+          console.log('Usando valor de subscription:', data.subscription);
+          data.subscriptionType = data.subscription;
+        } else if (!data.subscriptionType) {
+          console.log('No se encontró tipo de suscripción, usando Amateur como predeterminado');
+          data.subscriptionType = 'Amateur';
+        } else {
+          console.log('Usando subscriptionType existente:', data.subscriptionType);
+        }
         
         // Asignar el rol del usuario al campo puesto para mostrar en CardProfile
         if (data.role) {

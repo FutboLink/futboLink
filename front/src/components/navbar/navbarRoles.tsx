@@ -179,9 +179,9 @@ function NavbarRoles() {
             {isLogged && (
               <>
                 <NotificationsList />
-                <div className="flex-shrink-0">
-                  {renderUserIcon()}
-                </div>
+              <div className="flex-shrink-0">
+                {renderUserIcon()}
+              </div>
               </>
             )}
             <button

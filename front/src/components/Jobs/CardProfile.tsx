@@ -51,8 +51,21 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
     return "";
   };
 
+  // Determinar el tipo de suscripción correcto
+  const getSubscriptionType = () => {
+    // Verificar primero subscriptionType, luego subscription
+    if (profile.subscriptionType) {
+      return profile.subscriptionType;
+    } else if (profile.subscription) {
+      return profile.subscription;
+    } else {
+      return "Amateur";
+    }
+  };
+
   // Determinar si es plan profesional o no (para la badge)
-  const hasPremiumPlan = profile.subscriptionType === "Profesional" || profile.subscriptionType === "Semiprofesional";
+  const subscriptionType = getSubscriptionType();
+  const hasPremiumPlan = subscriptionType === "Profesional" || subscriptionType === "Semiprofesional" || subscriptionType === "Semi";
 
   return (
     <div className="flex min-h-screen mt-24 text-black bg-gray-50 flex-col sm:flex-row">
@@ -88,7 +101,7 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
                 : 'bg-gray-300 text-gray-700'
             }`}>
               <FaRegIdCard className="mr-1" />
-              Plan: {profile.subscriptionType || "Amateur"}
+              Plan: {subscriptionType}
             </div>
           </div>
         </div>

@@ -71,6 +71,20 @@ function NavbarRoles() {
     else if (role === "RECRUITER") targetPath = "/PanelUsers/Manager";
     else if (role === "ADMIN") targetPath = "/PanelAdmin";
 
+    // Si el usuario está autenticado, mostrar su perfil
+    if (user && user.id) {
+      return (
+        <button 
+          onClick={() => navigateTo(`/user-viewer/${user.id}`)}
+          className="flex items-center gap-2 px-4 py-2 bg-verde-oscuro text-white rounded-md hover:bg-verde-mas-claro transition-all whitespace-nowrap"
+        >
+          <FaUser className="text-lg" />
+          <span className="font-medium">Perfil</span>
+        </button>
+      );
+    }
+
+    // Fallback al panel genérico si no hay ID de usuario
     return (
       <button 
         onClick={() => navigateTo(targetPath)}

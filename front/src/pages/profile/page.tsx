@@ -4,7 +4,7 @@ import { useEffect, useContext } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserContext } from '@/components/Context/UserContext';
 
-export default function ManagerPanel() {
+export default function ProfileRedirect() {
   const router = useRouter();
   const { user, isLogged } = useContext(UserContext);
 
@@ -15,6 +15,9 @@ export default function ManagerPanel() {
     } else if (!isLogged) {
       // Si no está logueado, redirigir a inicio de sesión
       router.push('/Login');
+    } else {
+      // Si está logueado pero no tiene ID, ir a la página de inicio
+      router.push('/');
     }
   }, [isLogged, user, router]);
 
@@ -26,4 +29,4 @@ export default function ManagerPanel() {
       </div>
     </div>
   );
-}
+} 

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Head from "next/head";
 import Link from "next/link";
 import { UserContext } from "../Context/UserContext";
-import { FaUser, FaSearch } from "react-icons/fa";
+import { FaUser, FaSearch, FaUsers, FaNetworkWired } from "react-icons/fa";
 import LanguageDropdown from "../LanguageToggle/LanguageDropdown";
 import NotificationsList from "../Notifications/NotificationsList";
 import axios from "axios";
@@ -63,11 +63,6 @@ function NavbarRoles() {
     { label: "Contacto", path: "/contacto" },
   ];
 
-  // Añadir el elemento de búsqueda de jugadores si el usuario tiene suscripción profesional
-  if (hasProfessionalSubscription) {
-    menuItems.push({ label: "Buscar Jugadores", path: "/player-search" });
-  }
-
   const renderUserIcon = () => {
     if (!isLogged || !role) return null;
 
@@ -94,10 +89,10 @@ function NavbarRoles() {
     return (
       <button 
         onClick={() => navigateTo("/player-search")}
-        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all whitespace-nowrap"
+        className="flex items-center gap-2 px-4 py-2 border-2 border-verde-oscuro text-verde-oscuro rounded-md hover:bg-green-700 transition-all whitespace-nowrap"
       >
-        <FaSearch className="text-lg" />
-        <span className="font-medium">Buscar Jugadores</span>
+        <FaUsers size={18} className="text-black" />
+        <span className="font-medium">Mi red</span>
       </button>
     );
   };
@@ -132,7 +127,7 @@ function NavbarRoles() {
                 <li
                   key={item.path}
                   onClick={() => navigateTo(item.path)}
-                  className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
+                  className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer flex items-center gap-2"
                 >
                   {item.label}
                 </li>
@@ -168,6 +163,7 @@ function NavbarRoles() {
           {/* Icono de usuario y notificaciones en escritorio */}
           <div className="hidden sm:flex items-center gap-4">
             {isLogged && <NotificationsList />}
+            {isLogged && hasProfessionalSubscription && renderPlayerSearchButton()}
             {renderUserIcon()}
           </div>
 
@@ -215,7 +211,7 @@ function NavbarRoles() {
                 <li
                   key={item.path}
                   onClick={() => navigateTo(item.path)}
-                  className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer"
+                  className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer flex items-center gap-2"
                 >
                   {item.label}
                 </li>
@@ -264,8 +260,8 @@ function NavbarRoles() {
                         onClick={() => navigateTo("/player-search")}
                         className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all mt-2"
                       >
-                        <FaSearch className="text-lg" />
-                        <span className="font-medium">Buscar Jugadores</span>
+                        <FaUsers size={18} className="text-white" />
+                        <span className="font-medium">Mi red</span>
                       </button>
                     )}
                   </div>

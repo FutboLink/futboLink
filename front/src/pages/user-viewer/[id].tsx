@@ -336,11 +336,7 @@ export default function UserViewer() {
                 <span className="mx-2">|</span>
                 <span>{profile.subscriptionType}</span>
                 
-                {/* Valoración (simulada) */}
-                <div className="ml-auto bg-gray-100 rounded-full px-3 py-1 flex items-center shadow-sm">
-                  <span className="text-gray-500 mr-1">©</span>
-                  <span className="font-bold text-gray-800">6.0 M</span>
-                </div>
+              
               </div>
               
               {/* Botones de acción */}

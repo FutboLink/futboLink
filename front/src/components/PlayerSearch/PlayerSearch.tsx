@@ -615,7 +615,7 @@ const PlayerSearch: React.FC = () => {
       <h1 className="mb-6 text-blue-900 text-center">{t('playerSearch')}</h1>
       
       {/* Formulario de búsqueda */}
-      <div className="mb-8 bg-gray-50 rounded-lg p-4 shadow-sm">
+      <div className="mb-8 bg rounded-lg p-4 shadow-sm">
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col md:flex-row gap-4 items-end">
             <div className="flex-1">

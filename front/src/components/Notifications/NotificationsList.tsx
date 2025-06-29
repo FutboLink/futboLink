@@ -185,7 +185,7 @@ export const NotificationsList: React.FC = () => {
       </button>
       
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg z-50 max-h-96 overflow-y-auto">
+        <div className="fixed sm:absolute left-4 sm:left-auto right-4 sm:right-0 top-16 sm:top-auto sm:mt-2 w-auto sm:w-80 bg-white rounded-md shadow-lg z-50 max-h-[80vh] sm:max-h-96 overflow-y-auto">
           <div className="p-3 border-b border-gray-200 flex justify-between items-center">
             <h3 className="font-semibold text-gray-700">Notificaciones</h3>
             {unreadCount > 0 && (

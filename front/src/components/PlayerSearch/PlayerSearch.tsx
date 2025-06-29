@@ -615,49 +615,43 @@ const PlayerSearch: React.FC = () => {
       <h1 className="mb-6 text-blue-900 text-center">{t('playerSearch')}</h1>
       
       {/* Formulario de búsqueda */}
-      <div className="mb-8 bg rounded-lg p-4 shadow-sm">
+      <div className="mb-8 bg-gray-50 rounded-lg p-4 shadow-sm">
         <form onSubmit={handleSubmit}>
-          <div className="flex flex-col md:flex-row gap-4 items-end">
-            <div className="flex-1">
-              <label htmlFor="searchQuery" className="block mb-2 font-medium text-gray-600">{t('nameOrLastname')}</label>
-              <input
-                type="text"
-                id="searchQuery"
-                value={searchQuery}
-                onChange={handleSearchQueryChange}
-                placeholder={t('searchByName')}
-                className="w-full p-2 border text-black border-gray-200 rounded text-base"
-              />
-             
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <label htmlFor="searchQuery" className="block mb-2 font-medium text-gray-600">{t('nameOrLastname')}</label>
+                <input
+                  type="text"
+                  id="searchQuery"
+                  value={searchQuery}
+                  onChange={handleSearchQueryChange}
+                  placeholder={t('searchByName')}
+                  className="w-full p-2 border text-black border-gray-200 rounded text-base"
+                />
+              </div>
+              <div className="flex-1">
+                <label htmlFor="positionFilter" className="block mb-2 font-medium text-gray-600">Filtrar por posición</label>
+                <select
+                  id="positionFilter"
+                  name="primaryPosition"
+                  value={filters.primaryPosition || ''}
+                  onChange={handleFilterChange}
+                  className="w-full p-2 text-black border border-gray-200 rounded text-base"
+                >
+                  <option value="">Todas las posiciones</option>
+                  {positions.map(position => (
+                    <option key={position} value={position}>{position}</option>
+                  ))}
+                </select>
+              </div>
             </div>
-            <div className="flex-1">
-              <label htmlFor="positionFilter" className="block mb-2 font-medium text-gray-600">Filtrar por posición</label>
-              <select
-                id="positionFilter"
-                name="primaryPosition"
-                value={filters.primaryPosition || ''}
-                onChange={handleFilterChange}
-                className="w-full p-2 text-black border border-gray-200 rounded text-base"
-              >
-                <option value="">Todas las posiciones</option>
-                {positions.map(position => (
-                  <option key={position} value={position}>{position}</option>
-                ))}
-              </select>
-            </div>
-            <div className="flex gap-2">
+            <div className="flex justify-center">
               <button 
                 type="submit" 
-                className="bg-green-800 text-white border-none py-2 px-4 rounded font-medium hover:bg-green-700 transition-colors"
+                className="bg-green-800 text-white border-none py-2 px-8 rounded font-medium hover:bg-green-700 transition-colors w-full md:w-auto"
               >
                 {t('search')}
-              </button>
-              <button 
-                type="button" 
-                onClick={clearFilters} 
-                className="bg-gray-200 text-gray-600 border-none py-2 px-4 rounded font-medium hover:bg-gray-300 transition-colors"
-              >
-                {t('clearFilters')}
               </button>
             </div>
           </div>

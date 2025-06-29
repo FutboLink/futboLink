@@ -434,7 +434,7 @@ export default function UserViewer() {
                   rel="noopener noreferrer"
                   className="block w-full bg-green-600 text-white py-3 px-8 rounded-lg font-medium shadow-md hover:bg-green-700 transition-colors text-center"
                 >
-                  Contactar
+                  Contactar por WhatsApp
                 </a>
               )}
               {!isOwnProfile && !profile.phone && (

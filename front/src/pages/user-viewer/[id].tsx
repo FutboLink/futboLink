@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Navbar from '@/components/navbar/navbar';
@@ -8,7 +8,7 @@ import SocialButton from "@/components/SocialButton/SocialButton";
 import Head from 'next/head';
 import { IProfileData } from '@/Interfaces/IUser';
 import { UserContext } from '@/components/Context/UserContext';
-import { FaArrowLeft, FaThumbsUp, FaBookmark, FaShare, FaEllipsisV, FaCog } from 'react-icons/fa';
+import { FaArrowLeft, FaCog, FaHeart, FaRegHeart, FaShareAlt, FaEllipsisH } from 'react-icons/fa';
 import { renderCountryFlag } from '@/components/countryFlag/countryFlag';
 import { getDefaultPlayerImage } from '@/helpers/imageUtils';
 import ProfileUser from '@/components/ProfileUser/ProfileUser';
@@ -66,6 +66,32 @@ export default function UserViewer() {
   const [notificationSent, setNotificationSent] = useState(false);
   const [activeTab, setActiveTab] = useState<'info' | 'stats' | 'career'>('info');
   const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [urlCopied, setUrlCopied] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [showShareOptions, setShowShareOptions] = useState(false);
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
+  
+  // Referencias para los menús desplegables
+  const shareMenuRef = useRef<HTMLDivElement>(null);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
+  
+  // Efecto para cerrar los menús al hacer clic fuera de ellos
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Cerrar menú de compartir
+      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target as Node)) {
+        setShowShareOptions(false);
+      }
+      
+      // Cerrar menú de opciones
+      if (moreMenuRef.current && !moreMenuRef.current.contains(event.target as Node)) {
+        setShowMoreOptions(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   
   // Función para enviar notificación de visualización de perfil
   const sendProfileViewNotification = async (viewedUserId: string) => {
@@ -340,23 +366,131 @@ export default function UserViewer() {
               </div>
               
               {/* Botones de acción */}
-              <div className="flex justify-between border-t border-gray-200 pt-2">
-                <button className="flex flex-col items-center justify-center p-2">
-                  <FaThumbsUp className="text-gray-500" />
-                  <span className="text-xs text-gray-500 mt-1">Me gusta</span>
+              <div className="flex justify-between border-t border-gray-200 pt-3">
+                <button 
+                  className="flex flex-col items-center justify-center p-2 transition-colors duration-200 hover:bg-gray-50 rounded-lg"
+                  onClick={() => setLiked(!liked)}
+                >
+                  {liked ? (
+                    <FaHeart className="text-red-500 text-lg" />
+                  ) : (
+                    <FaRegHeart className="text-gray-500 text-lg" />
+                  )}
+                  <span className={`text-xs ${liked ? 'text-red-500' : 'text-gray-500'} mt-1 font-medium`}>Me gusta</span>
                 </button>
-                <button className="flex flex-col items-center justify-center p-2">
-                  <FaBookmark className="text-gray-500" />
-                  <span className="text-xs text-gray-500 mt-1">Guardar</span>
+                
+                <button 
+                  className="flex flex-col items-center justify-center p-2 transition-colors duration-200 hover:bg-gray-50 rounded-lg"
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    setUrlCopied(true);
+                    setTimeout(() => setUrlCopied(false), 2000);
+                  }}
+                >
+                  {urlCopied ? (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-xs text-green-500 mt-1 font-medium">¡Copiado!</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                      <span className="text-xs text-gray-500 mt-1 font-medium">Copiar URL</span>
+                    </>
+                  )}
                 </button>
-                <button className="flex flex-col items-center justify-center p-2">
-                  <FaShare className="text-gray-500" />
-                  <span className="text-xs text-gray-500 mt-1">Compartir</span>
+                
+                <button 
+                  className="flex flex-col items-center justify-center p-2 transition-colors duration-200 hover:bg-gray-50 rounded-lg"
+                  onClick={() => setShowShareOptions(!showShareOptions)}
+                >
+                  <FaShareAlt className="text-gray-500 text-lg" />
+                  <span className="text-xs text-gray-500 mt-1 font-medium">Compartir</span>
                 </button>
-                <button className="flex flex-col items-center justify-center p-2">
-                  <FaEllipsisV className="text-gray-500" />
-                  <span className="text-xs text-gray-500 mt-1">Más</span>
-                </button>
+                
+                {/* Menú desplegable de compartir */}
+                {showShareOptions && (
+                  <div ref={shareMenuRef} className="absolute right-20 bottom-16 bg-white rounded-lg shadow-lg p-2 z-10 border border-gray-200">
+                    <div className="flex flex-col gap-2">
+                      <a 
+                        href={`https://wa.me/?text=${encodeURIComponent(`¡Mira este perfil en FutboLink! ${window.location.href}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md"
+                      >
+                        <svg className="w-5 h-5 text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                          <path fill="currentColor" d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/>
+                        </svg>
+                        <span className="text-sm">WhatsApp</span>
+                      </a>
+                      <a 
+                        href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`¡Mira este perfil en FutboLink!`)}&url=${encodeURIComponent(window.location.href)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md"
+                      >
+                        <svg className="w-5 h-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                          <path fill="currentColor" d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"/>
+                        </svg>
+                        <span className="text-sm">X (Twitter)</span>
+                      </a>
+                      <a 
+                        href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md"
+                      >
+                        <svg className="w-5 h-5 text-blue-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+                          <path fill="currentColor" d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z"/>
+                        </svg>
+                        <span className="text-sm">Facebook</span>
+                      </a>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="relative group" ref={moreMenuRef}>
+                  <button 
+                    className="flex flex-col items-center justify-center p-2 transition-colors duration-200 hover:bg-gray-50 rounded-lg"
+                    onClick={() => setShowMoreOptions(!showMoreOptions)}
+                  >
+                    <FaEllipsisH className="text-gray-500 text-lg" />
+                    <span className="text-xs text-gray-500 mt-1 font-medium">Opciones</span>
+                  </button>
+                  
+                  {/* Menú desplegable de opciones */}
+                  {showMoreOptions && (
+                    <div className="absolute right-0 bottom-16 bg-white rounded-lg shadow-lg p-2 z-10 border border-gray-200 w-48">
+                      <div className="flex flex-col gap-1">
+                        <button 
+                          className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md text-left w-full"
+                          onClick={() => {
+                            // Aquí puedes implementar la lógica para reportar
+                            alert('Función de reporte no implementada');
+                          }}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-sm">Reportar perfil</span>
+                        </button>
+                        {isOwnProfile && (
+                          <button 
+                            className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md text-left w-full"
+                            onClick={() => router.push(`/user-viewer/${id}?edit=true`)}
+                          >
+                            <FaCog className="h-5 w-5 text-gray-600" />
+                            <span className="text-sm">Editar perfil</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             
@@ -387,39 +521,138 @@ export default function UserViewer() {
                 </div>
               </div>
             )}
+
+            
             
             {/* Estadísticas principales */}
             <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mb-4">
               <div className="flex justify-between items-center">
+
+                   
+                {/* Pie hábil */}
                 <div className="flex flex-col items-center">
-                  <div className="w-8 h-8 mb-2">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="12" cy="12" r="10" stroke="#22C55E" strokeWidth="2"/>
-                      <line x1="12" y1="6" x2="12" y2="18" stroke="#22C55E" strokeWidth="2"/>
-                      <line x1="6" y1="12" x2="18" y2="12" stroke="#22C55E" strokeWidth="2"/>
-                    </svg>
+                  <div className="w-12 h-12 mb-2 relative flex items-center justify-center">
+                    {profile.skillfulFoot === 'Izquierdo' ? (
+                      <Image
+                        src="/icons-positions/pie izquierdo.png"
+                        alt="Pie izquierdo"
+                        width={48}
+                        height={48}
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
+                      <Image
+                        src="/icons-positions/pie derecho.png"
+                        alt="Pie derecho"
+                        width={48}
+                        height={48}
+                        className="object-cover w-full h-full"
+                      />
+                    )}
                   </div>
-                  <span className="text-sm text-gray-600">{profile.primaryPosition}</span>
-                  <span className="text-xs text-gray-500">{profile.primaryPosition}</span>
-                </div>
-                
-                <div className="flex flex-col items-center">
-                  <div className="w-8 h-8 mb-2">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M4 12H20" stroke="#22C55E" strokeWidth="2" strokeLinecap="round"/>
-                      <path d="M4 12C4 15.3137 6.68629 18 10 18H14C17.3137 18 20 15.3137 20 12C20 8.68629 17.3137 6 14 6H10C6.68629 6 4 8.68629 4 12Z" stroke="#22C55E" strokeWidth="2"/>
-                      <path d="M12 12C12 13.1046 11.1046 14 10 14C8.89543 14 8 13.1046 8 12C8 10.8954 8.89543 10 10 10C11.1046 10 12 10.8954 12 12Z" fill="#22C55E"/>
-                    </svg>
-                  </div>
-                  <span className="text-sm text-gray-600">{profile.skillfulFoot || 'DER'}</span>
+                  <span className="text-sm font-medium text-gray-700">{profile.skillfulFoot || 'DER'}</span>
                   <span className="text-xs text-gray-500">Pie</span>
                 </div>
-                
+
+
+                {/* Posición */}
                 <div className="flex flex-col items-center">
-                  <div className="w-8 h-8 mb-2 flex justify-center items-center text-2xl font-bold text-green-600">
-                    {profile.height ? (profile.height / 100).toFixed(2) : '1.67'}
+                  <div className="w-20 h-12 mb-2 relative flex items-center justify-center">
+                    {profile.primaryPosition === 'Portero' ? (
+                      <Image
+                        src="/icons-positions/portero.png"
+                        alt="Portero"
+                        width={88}
+                        height={48}
+                        className="object-cover w-full h-full"
+                      />
+                    ) : profile.primaryPosition === 'Defensor Central' ? (
+                      <Image
+                        src="/icons-positions/defensor central.png"
+                        alt="Defensor central"
+                        width={88}
+                        height={48}
+                        className="object-cover w-full h-full"
+                      />
+                    ) : profile.primaryPosition === 'Lateral Derecho' ? (
+                      <Image
+                        src="/icons-positions/lateral derecho.png"
+                        alt="Lateral derecho"
+                        width={88}
+                        height={48}
+                        className="object-cover w-full h-full"
+                      />
+                    ) : profile.primaryPosition === 'Lateral Izquierdo' ? (
+                      <Image
+                        src="/icons-positions/lateral izquierdo.png"
+                        alt="Lateral izquierdo"
+                        width={88}
+                        height={48}
+                        className="object-cover w-full h-full"
+                      />
+                    ) : profile.primaryPosition === 'Mediocampista Ofensivo' ? (
+                      <Image
+                        src="/icons-positions/mediocampista.png"
+                        alt="Mediocampista"
+                        width={88}
+                        height={48}
+                        className="object-cover w-full h-full"
+                      />
+                    ) : profile.primaryPosition === 'Mediocampista Central' ? (
+                      <Image
+                        src="/icons-positions/mediocampista central.png"
+                        alt="Mediocampista central"
+                        width={88}
+                        height={48}
+                        className="object-cover w-full h-full"
+                      />
+                    ) : profile.primaryPosition === 'Extremo Derecho' ? (
+                      <Image
+                        src="/icons-positions/extremo derecho.png"
+                        alt="Extremo derecho"
+                        width={88}
+                        height={48}
+                        className="object-cover w-full h-full"
+                      />
+                    ) : profile.primaryPosition === 'Extremo Izquierdo' ? (
+                      <Image
+                        src="/icons-positions/extremo izquierdo.png"
+                        alt="Extremo izquierdo"
+                        width={88}
+                        height={48}
+                        className="object-cover w-full h-full"
+                      />
+                    ) : profile.primaryPosition === 'Delantero Centro' ? (
+                      <Image
+                        src="/icons-positions/delantero centro.png"
+                        alt="Delantero centro"
+                        width={88}
+                        height={48}
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
+                      <Image
+                        src="/icons-positions/portero.png"
+                        alt="Posición"
+                        width={88}
+                        height={48}
+                        className="object-cover w-full h-full"
+                      />
+                    )}
                   </div>
-                  <span className="text-sm text-gray-600">Mts</span>
+                  <span className="text-sm font-medium text-gray-700">{profile.primaryPosition || 'N/A'}</span>
+                  <span className="text-xs text-gray-500">Posición</span>
+                </div>
+             
+                
+                {/* Altura */}
+                <div className="flex flex-col items-center">
+                  <div className="w-12 h-12 mb-2 flex justify-center items-center">
+                    <span className="text-2xl font-bold text-green-600">
+                      {profile.height ? (profile.height / 100).toFixed(2) : '1.67'}
+                    </span>
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">Mts</span>
                   <span className="text-xs text-gray-500">Altura</span>
                 </div>
               </div>
@@ -434,7 +667,7 @@ export default function UserViewer() {
                   rel="noopener noreferrer"
                   className="block w-full bg-green-600 text-white py-3 px-8 rounded-lg font-medium shadow-md hover:bg-green-700 transition-colors text-center"
                 >
-                  Contactar por WhatsApp
+                  Contactar
                 </a>
               )}
               {!isOwnProfile && !profile.phone && (

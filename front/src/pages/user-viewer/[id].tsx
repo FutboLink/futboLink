@@ -8,7 +8,7 @@ import SocialButton from "@/components/SocialButton/SocialButton";
 import Head from 'next/head';
 import { IProfileData } from '@/Interfaces/IUser';
 import { UserContext } from '@/components/Context/UserContext';
-import { FaArrowLeft, FaCog, FaHeart, FaRegHeart, FaShareAlt, FaEllipsisH } from 'react-icons/fa';
+import { FaArrowLeft, FaCog, FaHeart, FaRegHeart, FaShareAlt, FaEllipsisH, FaSignOutAlt } from 'react-icons/fa';
 import { renderCountryFlag } from '@/components/countryFlag/countryFlag';
 import { getDefaultPlayerImage } from '@/helpers/imageUtils';
 import ProfileUser from '@/components/ProfileUser/ProfileUser';
@@ -74,6 +74,19 @@ export default function UserViewer() {
   // Referencias para los menús desplegables
   const shareMenuRef = useRef<HTMLDivElement>(null);
   const moreMenuRef = useRef<HTMLDivElement>(null);
+  
+  // Función para cerrar sesión
+  const handleLogout = () => {
+    // Limpiar el token del localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    
+    // Redirigir al usuario a la página de inicio
+    router.push('/');
+    
+    // Opcional: recargar la página para asegurar que todos los estados se reseteen
+    window.location.reload();
+  };
   
   // Efecto para cerrar los menús al hacer clic fuera de ellos
   useEffect(() => {
@@ -319,7 +332,13 @@ export default function UserViewer() {
         
         {/* Botón de edición (solo visible si es el propio perfil) */}
         {isOwnProfile && (
-          <div className="flex justify-end mb-4">
+          <div className="flex justify-end mb-4 gap-2">
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors flex items-center"
+            >
+              <FaSignOutAlt className="mr-2" /> Cerrar sesión
+            </button>
             <button
               onClick={() => router.push(`/user-viewer/${id}?edit=true`)}
               className="bg-verde-oscuro text-white py-2 px-4 rounded-md hover:bg-verde-mas-claro transition-colors flex items-center"
@@ -480,7 +499,7 @@ export default function UserViewer() {
                   
                   {/* Menú desplegable de opciones */}
                   {showMoreOptions && (
-                    <div className="absolute right-0 bottom-16 bg-white rounded-lg shadow-lg p-2 z-10 border border-gray-200 w-48">
+                    <div className="absolute right-0 bottom-16 bg-white rounded-lg shadow-lg p-2 z-50 border border-gray-200 w-48">
                       <div className="flex flex-col gap-1">
                         <button 
                           className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md text-left w-full"
@@ -501,6 +520,15 @@ export default function UserViewer() {
                           >
                             <FaCog className="h-5 w-5 text-gray-600" />
                             <span className="text-sm">Editar perfil</span>
+                          </button>
+                        )}
+                        {isOwnProfile && (
+                          <button 
+                            className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md text-left w-full"
+                            onClick={handleLogout}
+                          >
+                            <FaSignOutAlt className="h-5 w-5 text-red-600" />
+                            <span className="text-sm">Cerrar sesión</span>
                           </button>
                         )}
                       </div>

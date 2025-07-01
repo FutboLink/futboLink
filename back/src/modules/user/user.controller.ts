@@ -24,6 +24,7 @@ import {
 import { User } from './entities/user.entity';
 import { SearchPlayersDto } from './dto/search-players.dto';
 import { AuthGuard } from '../auth/auth.guard';
+import { PortfolioRequestDto } from './dto/portfolio-request.dto';
 
 
 @ApiTags('Users')
@@ -170,5 +171,67 @@ export class UserController {
     }
     
     return this.userService.searchPlayers(searchDto);
+  }
+
+  @ApiOperation({ summary: 'Añadir un jugador a la cartera del reclutador' })
+  @ApiResponse({
+    status: 200,
+    description: 'Jugador añadido a la cartera correctamente',
+  })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @ApiResponse({ status: 404, description: 'Jugador o reclutador no encontrado' })
+  @UseGuards(AuthGuard)
+  @Post(':id/portfolio')
+  async addPlayerToPortfolio(
+    @Param('id', ParseUUIDPipe) recruiterId: string,
+    @Body() portfolioRequestDto: PortfolioRequestDto,
+    @Req() req: any,
+  ) {
+    // Verificar que el usuario autenticado es el mismo reclutador o un admin
+    if (req.user.id !== recruiterId && req.user.role !== 'ADMIN') {
+      throw new UnauthorizedException('No tienes permiso para modificar esta cartera');
+    }
+    
+    return this.userService.addPlayerToPortfolio(recruiterId, portfolioRequestDto.playerId);
+  }
+
+  @ApiOperation({ summary: 'Eliminar un jugador de la cartera del reclutador' })
+  @ApiResponse({
+    status: 200,
+    description: 'Jugador eliminado de la cartera correctamente',
+  })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @ApiResponse({ status: 404, description: 'Jugador o reclutador no encontrado' })
+  @UseGuards(AuthGuard)
+  @Delete(':id/portfolio/:playerId')
+  async removePlayerFromPortfolio(
+    @Param('id', ParseUUIDPipe) recruiterId: string,
+    @Param('playerId', ParseUUIDPipe) playerId: string,
+    @Req() req: any,
+  ) {
+    // Verificar que el usuario autenticado es el mismo reclutador o un admin
+    if (req.user.id !== recruiterId && req.user.role !== 'ADMIN') {
+      throw new UnauthorizedException('No tienes permiso para modificar esta cartera');
+    }
+    
+    return this.userService.removePlayerFromPortfolio(recruiterId, playerId);
+  }
+
+  @ApiOperation({ summary: 'Obtener la cartera de jugadores del reclutador' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de jugadores en la cartera',
+    type: [User],
+  })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @ApiResponse({ status: 404, description: 'Reclutador no encontrado' })
+  @UseGuards(AuthGuard)
+  @Get(':id/portfolio')
+  async getPortfolioPlayers(
+    @Param('id', ParseUUIDPipe) recruiterId: string,
+    @Req() req: any,
+  ) {
+    // Cualquier usuario autenticado puede ver la cartera
+    return this.userService.getPortfolioPlayers(recruiterId);
   }
 }

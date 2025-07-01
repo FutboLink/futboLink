@@ -11,7 +11,8 @@ import { RegisterUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { join } from 'path';
 import { createReadStream } from 'fs';
-import { Response } from 'express'; 
+import { Response } from 'express';
+import { UserType } from '../user/roles.enum';
 
 @Injectable()
 export class UserService {
@@ -395,5 +396,96 @@ export class UserService {
       players: sanitizedPlayers as User[], 
       total 
     };
+  }
+
+  /**
+   * Añade un jugador a la cartera del reclutador
+   * @param recruiterId ID del reclutador
+   * @param playerId ID del jugador a añadir
+   * @returns El usuario reclutador actualizado
+   */
+  async addPlayerToPortfolio(recruiterId: string, playerId: string): Promise<User> {
+    // Verificar que el reclutador existe y es de tipo RECRUITER
+    const recruiter = await this.userRepository.findOne({
+      where: { id: recruiterId, role: UserType.RECRUITER },
+      relations: ['portfolioPlayers']
+    });
+    
+    if (!recruiter) {
+      throw new NotFoundException('Reclutador no encontrado o no tiene permisos');
+    }
+    
+    // Verificar que el jugador existe y es de tipo PLAYER
+    const player = await this.userRepository.findOne({
+      where: { id: playerId, role: UserType.PLAYER }
+    });
+    
+    if (!player) {
+      throw new NotFoundException('Jugador no encontrado');
+    }
+    
+    // Verificar si el jugador ya está en la cartera
+    if (!recruiter.portfolioPlayers) {
+      recruiter.portfolioPlayers = [];
+    }
+    
+    const playerExists = recruiter.portfolioPlayers.some(p => p.id === playerId);
+    
+    if (!playerExists) {
+      recruiter.portfolioPlayers.push(player);
+      await this.userRepository.save(recruiter);
+    }
+    
+    return recruiter;
+  }
+
+  /**
+   * Elimina un jugador de la cartera del reclutador
+   * @param recruiterId ID del reclutador
+   * @param playerId ID del jugador a eliminar
+   * @returns El usuario reclutador actualizado
+   */
+  async removePlayerFromPortfolio(recruiterId: string, playerId: string): Promise<User> {
+    // Verificar que el reclutador existe
+    const recruiter = await this.userRepository.findOne({
+      where: { id: recruiterId, role: UserType.RECRUITER },
+      relations: ['portfolioPlayers']
+    });
+    
+    if (!recruiter) {
+      throw new NotFoundException('Reclutador no encontrado o no tiene permisos');
+    }
+    
+    // Verificar si el jugador está en la cartera
+    if (!recruiter.portfolioPlayers) {
+      throw new NotFoundException('El jugador no está en la cartera');
+    }
+    
+    // Filtrar el jugador de la cartera
+    recruiter.portfolioPlayers = recruiter.portfolioPlayers.filter(
+      player => player.id !== playerId
+    );
+    
+    await this.userRepository.save(recruiter);
+    
+    return recruiter;
+  }
+
+  /**
+   * Obtiene la lista de jugadores en la cartera del reclutador
+   * @param recruiterId ID del reclutador
+   * @returns Lista de jugadores en la cartera
+   */
+  async getPortfolioPlayers(recruiterId: string): Promise<User[]> {
+    const recruiter = await this.userRepository.findOne({
+      where: { id: recruiterId, role: UserType.RECRUITER },
+      relations: ['portfolioPlayers']
+    });
+    
+    if (!recruiter) {
+      throw new NotFoundException('Reclutador no encontrado o no tiene permisos');
+    }
+    
+    return recruiter.portfolioPlayers || [];
   }
 }

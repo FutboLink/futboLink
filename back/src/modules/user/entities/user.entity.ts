@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { PasaporteUe, UserType } from '../roles.enum';
 import { Job } from 'src/modules/Jobs/entities/jobs.entity';
@@ -185,4 +185,23 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+  
+  // Relación para la cartera de jugadores de un reclutador
+  @ApiProperty({
+    type: () => [User],
+    description: 'Jugadores en la cartera del reclutador',
+  })
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'recruiter_portfolio',
+    joinColumn: {
+      name: 'recruiterId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'playerId',
+      referencedColumnName: 'id',
+    },
+  })
+  portfolioPlayers: User[];
 }

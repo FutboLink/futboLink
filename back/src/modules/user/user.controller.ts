@@ -146,21 +146,26 @@ export class UserController {
   }
 
   /**
-   * Busca jugadores con filtros (solo para suscriptores profesionales)
+   * Busca jugadores con filtros (para suscriptores profesionales y reclutadores)
    */
-  @ApiOperation({ summary: 'Buscar jugadores con filtros (solo para suscriptores profesionales)' })
+  @ApiOperation({ summary: 'Buscar jugadores con filtros (para suscriptores profesionales y reclutadores)' })
   @ApiResponse({ status: 200, description: 'Lista de jugadores filtrados' })
-  @ApiResponse({ status: 401, description: 'No autorizado - Se requiere suscripción profesional' })
+  @ApiResponse({ status: 401, description: 'No autorizado - Se requiere suscripción profesional o ser reclutador' })
   @UseGuards(AuthGuard)
   @Get('search/players')
   async searchPlayers(
     @Query() searchDto: SearchPlayersDto,
     @Req() req: any
   ) {
-    // Verificar que el usuario tiene suscripción profesional
+    // Verificar que el usuario tiene suscripción profesional o es un reclutador
     const user = req.user;
     
-    // Obtener la información de suscripción
+    // Permitir acceso directo a reclutadores
+    if (user.role === 'RECRUITER' || user.role === 'ADMIN') {
+      return this.userService.searchPlayers(searchDto);
+    }
+    
+    // Para otros roles, verificar suscripción profesional
     const subscription = await this.userService.getUserSubscription(user.id);
     
     // Solo permitir acceso a usuarios con suscripción profesional

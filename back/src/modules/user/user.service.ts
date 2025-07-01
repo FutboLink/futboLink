@@ -13,18 +13,12 @@ import { join } from 'path';
 import { createReadStream } from 'fs';
 import { Response } from 'express';
 import { UserType } from '../user/roles.enum';
-import { Job } from '../Jobs/entities/jobs.entity';
-import { Application } from '../Applications/entities/applications.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(Job)
-    private readonly jobRepository: Repository<Job>,
-    @InjectRepository(Application)
-    private readonly applicationRepository: Repository<Application>,
   ) {
     // Intentar crear la tabla de cartera de reclutadores si no existe
     this.createPortfolioTableIfNotExists();

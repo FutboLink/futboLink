@@ -405,38 +405,56 @@ export class UserService {
    * @returns El usuario reclutador actualizado
    */
   async addPlayerToPortfolio(recruiterId: string, playerId: string): Promise<User> {
-    // Verificar que el reclutador existe y es de tipo RECRUITER
-    const recruiter = await this.userRepository.findOne({
-      where: { id: recruiterId, role: UserType.RECRUITER },
-      relations: ['portfolioPlayers']
-    });
-    
-    if (!recruiter) {
-      throw new NotFoundException('Reclutador no encontrado o no tiene permisos');
-    }
-    
-    // Verificar que el jugador existe y es de tipo PLAYER
-    const player = await this.userRepository.findOne({
-      where: { id: playerId, role: UserType.PLAYER }
-    });
-    
-    if (!player) {
-      throw new NotFoundException('Jugador no encontrado');
-    }
-    
-    // Verificar si el jugador ya está en la cartera
-    if (!recruiter.portfolioPlayers) {
-      recruiter.portfolioPlayers = [];
-    }
-    
-    const playerExists = recruiter.portfolioPlayers.some(p => p.id === playerId);
-    
-    if (!playerExists) {
+    try {
+      console.log(`Intentando añadir jugador ${playerId} a la cartera del reclutador ${recruiterId}`);
+      
+      // Verificar que el reclutador existe y es de tipo RECRUITER
+      const recruiter = await this.userRepository.findOne({
+        where: { id: recruiterId, role: UserType.RECRUITER },
+        relations: ['portfolioPlayers']
+      });
+      
+      if (!recruiter) {
+        console.log(`Reclutador no encontrado o no tiene permisos: ${recruiterId}`);
+        throw new NotFoundException('Reclutador no encontrado o no tiene permisos');
+      }
+      
+      // Verificar que el jugador existe y es de tipo PLAYER
+      const player = await this.userRepository.findOne({
+        where: { id: playerId, role: UserType.PLAYER }
+      });
+      
+      if (!player) {
+        console.log(`Jugador no encontrado: ${playerId}`);
+        throw new NotFoundException('Jugador no encontrado');
+      }
+      
+      console.log(`Reclutador y jugador encontrados correctamente`);
+      
+      // Verificar si el jugador ya está en la cartera
+      if (!recruiter.portfolioPlayers) {
+        console.log('Inicializando array de portfolioPlayers');
+        recruiter.portfolioPlayers = [];
+      }
+      
+      const playerExists = recruiter.portfolioPlayers.some(p => p.id === playerId);
+      
+      if (playerExists) {
+        console.log(`El jugador ${playerId} ya está en la cartera del reclutador ${recruiterId}`);
+        return recruiter;
+      }
+      
+      console.log(`Añadiendo jugador ${playerId} a la cartera`);
       recruiter.portfolioPlayers.push(player);
-      await this.userRepository.save(recruiter);
+      
+      const result = await this.userRepository.save(recruiter);
+      console.log(`Jugador añadido correctamente a la cartera`);
+      
+      return result;
+    } catch (error) {
+      console.error('Error al añadir jugador a la cartera:', error);
+      throw error;
     }
-    
-    return recruiter;
   }
 
   /**

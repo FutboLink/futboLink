@@ -123,7 +123,7 @@ function NavbarHome() {
         </button>
       ) : role === "RECRUITER" ? (
         <button onClick={() => navigateTo("/PanelUsers/Manager")}>
-          <FaUser className="text-verde-claro" />
+          <FaUser className="text-verde-claro hover:text-verde-oscuro hover:transition-all hover:scale-125" />
         </button>
       ) : role === "ADMIN" ? (
         <button onClick={() => navigateTo("/PanelAdmin")}>
@@ -174,15 +174,15 @@ function NavbarHome() {
     role ? ( // Verifica si `role` tiene un valor antes de renderizar
       role === "PLAYER" ? (
         <button onClick={() => navigateTo("/PanelUsers/Player")}>
-          <FaUser className="text-green-700" />
+          <FaUser className="text-green-700 hover:text-verde-claro hover:transition-all hover:scale-125" />
         </button>
       ) : role === "RECRUITER" ? (
         <button onClick={() => navigateTo("/PanelUsers/Manager")}>
-          <FaUser className="text-verde-claro" />
+          <FaUser className="text-verde-claro hover:text-verde-oscuro hover:transition-all hover:scale-125" />
         </button>
       ) : role === "ADMIN" ? (
         <button onClick={() => navigateTo("/PanelAdmin")}>
-          <FaUser className="text-verde-claro" />
+          <FaUser className="text-verde-claro hover:text-verde-oscuro hover:transition-all hover:scale-125" />
         </button>
       ) : null
     ) : (

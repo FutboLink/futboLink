@@ -73,6 +73,20 @@ function NavbarRoles() {
 
     // Si el usuario está autenticado, mostrar su perfil
     if (user && user.id) {
+      // Para RECRUITER, redirigir al panel de gestión
+      if (role === "RECRUITER") {
+        return (
+          <button 
+            onClick={() => navigateTo("/PanelUsers/Manager")}
+            className="flex items-center gap-2 px-4 py-2 bg-verde-oscuro text-white rounded-md hover:bg-verde-mas-claro transition-all whitespace-nowrap"
+          >
+            <FaUser className="text-lg" />
+            <span className="font-medium">Panel de Gestión</span>
+          </button>
+        );
+      }
+      
+      // Para otros roles, mantener el comportamiento actual
       return (
         <button 
           onClick={() => navigateTo(`/user-viewer/${user.id}`)}

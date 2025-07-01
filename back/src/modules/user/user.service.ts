@@ -13,13 +13,73 @@ import { join } from 'path';
 import { createReadStream } from 'fs';
 import { Response } from 'express';
 import { UserType } from '../user/roles.enum';
+import { Job } from '../Jobs/entities/jobs.entity';
+import { Application } from '../Applications/entities/applications.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) {}
+    @InjectRepository(Job)
+    private readonly jobRepository: Repository<Job>,
+    @InjectRepository(Application)
+    private readonly applicationRepository: Repository<Application>,
+  ) {
+    // Intentar crear la tabla de cartera de reclutadores si no existe
+    this.createPortfolioTableIfNotExists();
+  }
+
+  /**
+   * Crea la tabla de cartera de reclutadores si no existe
+   */
+  private async createPortfolioTableIfNotExists() {
+    try {
+      const queryRunner = this.userRepository.manager.connection.createQueryRunner();
+      await queryRunner.connect();
+
+      // Verificar si la tabla ya existe
+      const tableExists = await queryRunner.hasTable('recruiter_portfolio');
+      if (!tableExists) {
+        console.log('Creando tabla recruiter_portfolio...');
+        
+        // Crear la tabla
+        await queryRunner.query(`
+          CREATE TABLE "recruiter_portfolio" (
+            "recruiterId" uuid NOT NULL,
+            "playerId" uuid NOT NULL,
+            "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
+            CONSTRAINT "PK_recruiter_portfolio" PRIMARY KEY ("recruiterId", "playerId")
+          )
+        `);
+        
+        // Añadir restricciones de clave foránea
+        await queryRunner.query(`
+          ALTER TABLE "recruiter_portfolio" 
+          ADD CONSTRAINT "FK_recruiter_portfolio_recruiter" 
+          FOREIGN KEY ("recruiterId") 
+          REFERENCES "users"("id") 
+          ON DELETE CASCADE
+        `);
+        
+        await queryRunner.query(`
+          ALTER TABLE "recruiter_portfolio" 
+          ADD CONSTRAINT "FK_recruiter_portfolio_player" 
+          FOREIGN KEY ("playerId") 
+          REFERENCES "users"("id") 
+          ON DELETE CASCADE
+        `);
+        
+        console.log('Tabla recruiter_portfolio creada correctamente');
+      } else {
+        console.log('La tabla recruiter_portfolio ya existe');
+      }
+      
+      await queryRunner.release();
+    } catch (error) {
+      console.error('Error al crear la tabla recruiter_portfolio:', error);
+    }
+  }
 
   async register(registerUserDto: RegisterUserDto): Promise<User> {
     try {

@@ -336,4 +336,32 @@ export class EmailService {
       return false;
     }
   }
+
+  async sendRepresentationRequestEmail(
+    email: string, 
+    playerName: string, 
+    recruiterName: string, 
+    recruiterLastname: string,
+    recruiterAgency: string,
+    message: string
+  ): Promise<boolean> {
+    try {
+      const subject = 'Nueva solicitud de representación en FutboLink';
+      
+      return await this.sendEmail({
+        to: email,
+        subject,
+        template: 'representation-request',
+        context: {
+          name: playerName,
+          recruiterName: `${recruiterName} ${recruiterLastname}`,
+          recruiterAgency,
+          message
+        }
+      });
+    } catch (error) {
+      this.logger.error(`Error sending representation request email: ${error.message}`);
+      return false;
+    }
+  }
 }

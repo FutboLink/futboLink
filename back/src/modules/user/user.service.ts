@@ -637,78 +637,100 @@ export class UserService {
     recruiterId: string,
     createRepresentationRequestDto: CreateRepresentationRequestDto,
   ): Promise<RepresentationRequest> {
-    try {
-      console.log(`Intentando enviar solicitud de representación del reclutador ${recruiterId} al jugador ${createRepresentationRequestDto.playerId}`);
-      
-      // Verificar que el reclutador existe y es de tipo RECRUITER
-      const recruiter = await this.userRepository.findOne({
-        where: { id: recruiterId, role: UserType.RECRUITER }
-      });
-      
-      if (!recruiter) {
-        console.log(`Reclutador no encontrado o no tiene permisos: ${recruiterId}`);
-        throw new NotFoundException('Reclutador no encontrado o no tiene permisos');
-      }
-      
-      // Verificar que el jugador existe y es de tipo PLAYER
-      const player = await this.userRepository.findOne({
-        where: { id: createRepresentationRequestDto.playerId, role: UserType.PLAYER }
-      });
-      
-      if (!player) {
-        console.log(`Jugador no encontrado: ${createRepresentationRequestDto.playerId}`);
-        throw new NotFoundException('Jugador no encontrado');
-      }
-      
-      // Verificar si ya existe una solicitud pendiente
-      const existingRequest = await this.entityManager.findOne(RepresentationRequest, {
-        where: {
-          recruiterId,
-          playerId: createRepresentationRequestDto.playerId,
-          status: RepresentationRequestStatus.PENDING
-        }
-      });
-      
-      if (existingRequest) {
-        console.log(`Ya existe una solicitud pendiente para este jugador`);
-        throw new ConflictException('Ya existe una solicitud pendiente para este jugador');
-      }
-      
-      // Crear la solicitud
-      const request = this.entityManager.create(RepresentationRequest, {
-        recruiterId,
-        playerId: createRepresentationRequestDto.playerId,
-        message: createRepresentationRequestDto.message,
-        status: RepresentationRequestStatus.PENDING
-      });
-      
-      const savedRequest = await this.entityManager.save(request);
-      
-      // Enviar email al jugador
-      try {
-        await this.emailService.sendEmail({
-          to: player.email,
-          subject: 'Nueva solicitud de representación',
-          template: 'contact', // Usar una plantilla existente por ahora
-          context: {
-            name: player.name,
-            recruiterName: `${recruiter.name} ${recruiter.lastname}`,
-            message: createRepresentationRequestDto.message || 'Me gustaría representarte como agente.',
-            requestId: savedRequest.id
-          }
-        });
-        console.log(`Email de solicitud enviado a ${player.email}`);
-      } catch (emailError) {
-        console.error('Error al enviar email de solicitud:', emailError);
-        // No lanzamos error aquí para no interrumpir el flujo si el email falla
-      }
-      
-      console.log(`Solicitud de representación creada correctamente`);
-      return savedRequest;
-    } catch (error) {
-      console.error('Error al enviar solicitud de representación:', error);
-      throw error;
+    const { playerId, message } = createRepresentationRequestDto;
+
+    // Verificar que el reclutador existe
+    const recruiter = await this.userRepository.findOne({
+      where: { id: recruiterId },
+    });
+    if (!recruiter) {
+      throw new NotFoundException(`Reclutador con ID ${recruiterId} no encontrado`);
     }
+
+    // Verificar que el reclutador es de tipo RECRUITER
+    if (recruiter.role !== UserType.RECRUITER) {
+      throw new BadRequestException('Solo los reclutadores pueden enviar solicitudes de representación');
+    }
+
+    // Verificar que el jugador existe
+    const player = await this.userRepository.findOne({
+      where: { id: playerId },
+    });
+    if (!player) {
+      throw new NotFoundException(`Jugador con ID ${playerId} no encontrado`);
+    }
+
+    // Verificar que el jugador es de tipo PLAYER
+    if (player.role !== UserType.PLAYER) {
+      throw new BadRequestException('Solo se pueden enviar solicitudes de representación a jugadores');
+    }
+
+    // Verificar si ya existe una solicitud pendiente
+    const existingRequest = await this.entityManager.findOne(RepresentationRequest, {
+      where: {
+        recruiterId,
+        playerId,
+        status: RepresentationRequestStatus.PENDING,
+      },
+    });
+
+    if (existingRequest) {
+      throw new BadRequestException('Ya existe una solicitud de representación pendiente para este jugador');
+    }
+
+    // Crear la solicitud
+    const request = this.entityManager.create(RepresentationRequest, {
+      recruiterId,
+      playerId,
+      message,
+      status: RepresentationRequestStatus.PENDING,
+    });
+
+    const savedRequest = await this.entityManager.save(request);
+
+    // Enviar email de notificación
+    try {
+      await this.emailService.sendRepresentationRequestEmail(
+        player.email,
+        player.name || 'Jugador',
+        recruiter.name || 'Reclutador',
+        recruiter.lastname || '',
+        recruiter.nameAgency || 'Agente independiente',
+        message || 'Me gustaría representarte como agente'
+      );
+    } catch (error) {
+      console.error('Error al enviar email de solicitud de representación:', error);
+      // No bloqueamos el proceso si falla el envío del email
+    }
+
+    // Crear notificación para el jugador
+    try {
+      // Intentamos crear la notificación usando una consulta SQL directa para evitar dependencias circulares
+      await this.entityManager.query(`
+        INSERT INTO notifications (message, type, "userId", "sourceUserId", metadata)
+        VALUES (
+          $1, 
+          'REPRESENTATION_REQUEST', 
+          $2, 
+          $3, 
+          $4
+        )
+      `, [
+        message || `${recruiter.name} ${recruiter.lastname} quiere representarte como agente`,
+        playerId,
+        recruiterId,
+        JSON.stringify({
+          requestId: savedRequest.id,
+          recruiterName: `${recruiter.name} ${recruiter.lastname}`,
+          recruiterAgency: recruiter.nameAgency || '',
+        })
+      ]);
+    } catch (error) {
+      console.error('Error al crear notificación de solicitud de representación:', error);
+      // No bloqueamos el proceso si falla la creación de la notificación
+    }
+
+    return savedRequest;
   }
 
   /**

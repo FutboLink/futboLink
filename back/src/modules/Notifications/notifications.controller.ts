@@ -1,14 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, BadRequestException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto, UpdateNotificationDto } from './dto/notification.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
-import { Notification } from './entities/notification.entity';
+import { Notification, NotificationType } from './entities/notification.entity';
+import { UserService } from '../user/user.service';
+import { RepresentationRequestStatus } from '../user/entities/representation-request.entity';
 
 @ApiTags('Notifications')
 @Controller('notifications')
 export class NotificationsController {
-  constructor(private readonly notificationsService: NotificationsService) {}
+  constructor(
+    private readonly notificationsService: NotificationsService,
+    private readonly userService: UserService
+  ) {}
 
   @Post()
   @UseGuards(AuthGuard)
@@ -114,5 +119,55 @@ export class NotificationsController {
   @ApiResponse({ status: 200, description: 'Notificación eliminada' })
   remove(@Param('id') id: string) {
     return this.notificationsService.remove(id);
+  }
+
+  @Post(':id/respond-representation-request')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Responder a una solicitud de representación desde una notificación' })
+  @ApiResponse({ status: 200, description: 'Solicitud respondida correctamente' })
+  async respondToRepresentationRequest(
+    @Param('id') notificationId: string,
+    @Body() body: { status: 'ACCEPTED' | 'REJECTED' },
+    @Req() req: any
+  ) {
+    // Verificar que el usuario autenticado es el destinatario de la notificación
+    const notification = await this.notificationsService.findOne(notificationId);
+    
+    if (!notification) {
+      throw new NotFoundException('Notificación no encontrada');
+    }
+    
+    // Verificar que la notificación es del tipo correcto
+    if (notification.type !== NotificationType.REPRESENTATION_REQUEST) {
+      throw new BadRequestException('Esta notificación no corresponde a una solicitud de representación');
+    }
+    
+    // Verificar que el usuario autenticado es el destinatario de la notificación
+    if (notification.userId !== req.user.id) {
+      throw new UnauthorizedException('No tienes permiso para responder a esta notificación');
+    }
+    
+    // Verificar que la notificación contiene el ID de la solicitud
+    if (!notification.metadata || !notification.metadata.requestId) {
+      throw new BadRequestException('La notificación no contiene información sobre la solicitud');
+    }
+    
+    // Responder a la solicitud
+    const result = await this.userService.respondToRepresentationRequest(
+      notification.metadata.requestId,
+      req.user.id,
+      { status: body.status }
+    );
+    
+    // Marcar la notificación como leída
+    await this.notificationsService.markAsRead(notificationId);
+    
+    return {
+      message: body.status === RepresentationRequestStatus.ACCEPTED 
+        ? 'Solicitud de representación aceptada correctamente' 
+        : 'Solicitud de representación rechazada',
+      status: result.status
+    };
   }
 } 

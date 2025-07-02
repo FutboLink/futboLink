@@ -279,4 +279,106 @@ export class NotificationsService {
       where: { userId, read: false },
     });
   }
+
+  async createRepresentationRequestNotification(
+    playerId: string, 
+    recruiterId: string, 
+    requestId: string,
+    message?: string
+  ): Promise<Notification> {
+    // Verificar que ambos usuarios existen
+    const [player, recruiter] = await Promise.all([
+      this.usersRepository.findOne({ where: { id: playerId } }),
+      this.usersRepository.findOne({ where: { id: recruiterId } }),
+    ]);
+
+    if (!player) {
+      throw new NotFoundException(`Usuario con ID ${playerId} no encontrado`);
+    }
+
+    if (!recruiter) {
+      throw new NotFoundException(`Usuario con ID ${recruiterId} no encontrado`);
+    }
+
+    // Crear mensaje personalizado si no se proporciona uno
+    const notificationMessage = message || `${recruiter.name} ${recruiter.lastname} quiere representarte como agente`;
+
+    // Crear la notificación
+    const notification = this.notificationsRepository.create({
+      message: notificationMessage,
+      type: NotificationType.REPRESENTATION_REQUEST,
+      user: player,
+      userId: playerId,
+      sourceUser: recruiter,
+      sourceUserId: recruiterId,
+      metadata: {
+        requestId,
+        recruiterName: `${recruiter.name} ${recruiter.lastname}`,
+        recruiterAgency: recruiter.nameAgency || '',
+      },
+    });
+
+    const savedNotification = await this.notificationsRepository.save(notification);
+
+    // Enviar email de notificación
+    if (player.email) {
+      await this.sendRepresentationRequestEmail(
+        player.email,
+        player.name || 'Jugador',
+        `${recruiter.name} ${recruiter.lastname}`,
+        recruiter.nameAgency || 'Agente independiente',
+        requestId,
+        message || 'Me gustaría representarte como agente'
+      );
+    }
+
+    return savedNotification;
+  }
+
+  // Método para enviar email cuando se recibe una solicitud de representación
+  private async sendRepresentationRequestEmail(
+    email: string, 
+    playerName: string, 
+    recruiterName: string, 
+    recruiterAgency: string,
+    requestId: string,
+    message: string
+  ) {
+    try {
+      const subject = 'Nueva solicitud de representación en FutboLink';
+      const html = `
+        <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 5px;">
+          <h2 style="color: #2c3e50; text-align: center;">Nueva Solicitud de Representación</h2>
+          
+          <div style="margin-top: 20px; line-height: 1.6; color: #34495e;">
+            <p>Hola ${playerName},</p>
+            <p><strong>${recruiterName}</strong> de <strong>${recruiterAgency}</strong> está interesado en representarte como agente.</p>
+            <p>Mensaje del reclutador:</p>
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #27ae60;">
+              <p>${message}</p>
+            </div>
+          </div>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="https://futbolink.vercel.app/PanelUsers/Player" 
+               style="display: inline-block; padding: 12px 20px; background-color: #27ae60; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+              Responder a la solicitud
+            </a>
+          </div>
+          
+          <div style="margin-top: 30px; text-align: center; color: #7f8c8d; border-top: 1px solid #ecf0f1; padding-top: 15px;">
+            <p>FutboLink - Conectando el mundo del fútbol</p>
+            <p>© ${new Date().getFullYear()} FutboLink. Todos los derechos reservados.</p>
+          </div>
+        </div>
+      `;
+
+      await this.sendEmail(email, subject, html);
+      return true;
+    } catch (error) {
+      console.error(`Error sending representation request email: ${error.message}`);
+      // No lanzamos el error para no interrumpir el flujo principal
+      return false;
+    }
+  }
 } 

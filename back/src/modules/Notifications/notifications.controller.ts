@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, BadRequestException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, BadRequestException, NotFoundException, UnauthorizedException, Inject, forwardRef } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto, UpdateNotificationDto } from './dto/notification.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
@@ -12,6 +12,7 @@ import { RepresentationRequestStatus } from '../user/entities/representation-req
 export class NotificationsController {
   constructor(
     private readonly notificationsService: NotificationsService,
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService
   ) {}
 

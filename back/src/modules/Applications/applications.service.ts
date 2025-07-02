@@ -208,4 +208,107 @@ export class ApplicationService {
     
     return shortlistedApplications;
   }
+
+  @ApiOperation({ summary: 'Reclutador postula a un jugador de su cartera a una oferta' })
+  @ApiResponse({ status: 201, description: 'Aplicación creada exitosamente.' })
+  @ApiResponse({ status: 404, description: 'Jugador, trabajo o reclutador no encontrado.' })
+  @ApiResponse({ status: 409, description: 'Aplicación duplicada.' })
+  @ApiResponse({ status: 403, description: 'El jugador no está en la cartera del reclutador.' })
+  async applyForPlayer(recruiterId: string, playerId: string, jobId: string, recruiterMessage: string, playerMessage?: string): Promise<Application> {
+    // Verificar que el reclutador existe
+    const recruiter = await this.userRepository.findOne({
+      where: { id: recruiterId, role: UserType.RECRUITER },
+      relations: ['portfolioPlayers']
+    });
+    
+    if (!recruiter) {
+      throw new NotFoundException('Reclutador no encontrado');
+    }
+    
+    // Verificar que el jugador existe
+    const player = await this.userRepository.findOne({
+      where: { id: playerId, role: UserType.PLAYER }
+    });
+    
+    if (!player) {
+      throw new NotFoundException('Jugador no encontrado');
+    }
+    
+    // Verificar que el jugador está en la cartera del reclutador
+    const isPlayerInPortfolio = recruiter.portfolioPlayers?.some(p => p.id === playerId);
+    
+    if (!isPlayerInPortfolio) {
+      throw new ForbiddenException('El jugador no está en la cartera del reclutador');
+    }
+    
+    // Verificar que el trabajo existe
+    const job = await this.jobRepository.findOne({
+      where: { id: jobId }
+    });
+    
+    if (!job) {
+      throw new NotFoundException('Trabajo no encontrado');
+    }
+    
+    // Verificar si ya existe una aplicación para este jugador y trabajo
+    const existingApplication = await this.applicationRepository.findOne({
+      where: {
+        player: { id: playerId },
+        job: { id: jobId }
+      }
+    });
+    
+    if (existingApplication) {
+      throw new ConflictException('Ya existe una aplicación para este jugador y trabajo');
+    }
+    
+    // Verificar la suscripción del jugador
+    try {
+      const subscriptionStatus = await this.userService.getUserSubscription(playerId);
+      const validSubscriptionType = subscriptionStatus.subscriptionType === 'Semiprofesional' || 
+                                   subscriptionStatus.subscriptionType === 'Profesional';
+      
+      if (!validSubscriptionType) {
+        throw new ForbiddenException('El jugador requiere una suscripción activa Semiprofesional o Profesional para aplicar a trabajos');
+      }
+    } catch (error) {
+      if (error instanceof ForbiddenException) {
+        throw error;
+      }
+      console.error(`Error al verificar suscripción del jugador: ${error.message}`);
+      // Si hay un error al verificar la suscripción, continuamos de todas formas ya que el reclutador está aplicando por el jugador
+    }
+    
+    // Crear la aplicación
+    const application = this.applicationRepository.create({
+      player,
+      job,
+      message: playerMessage || `Aplicación enviada por mi representante: ${recruiter.name} ${recruiter.lastname}`,
+      appliedByRecruiter: true,
+      recruiter,
+      recruiterMessage
+    });
+    
+    const savedApplication = await this.applicationRepository.save(application);
+    
+    // Enviar notificación al jugador
+    try {
+      await this.notificationsService.create({
+        message: `Tu representante ${recruiter.name} ${recruiter.lastname} te ha postulado a una oferta: "${job.title}"`,
+        type: NotificationType.PROFILE_VIEW, // Usamos un tipo existente
+        userId: playerId,
+        sourceUserId: recruiterId,
+        metadata: {
+          jobId: jobId,
+          jobTitle: job.title,
+          applicationId: savedApplication.id,
+          isApplicationByRecruiter: true
+        }
+      });
+    } catch (error) {
+      console.error('Error al enviar notificación al jugador:', error);
+    }
+    
+    return savedApplication;
+  }
 }

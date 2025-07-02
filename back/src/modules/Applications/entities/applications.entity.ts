@@ -63,6 +63,31 @@ export class Application {
   @Column({ type: 'timestamp', nullable: true })
   shortlistedAt: Date;
 
+  @ApiProperty({
+    example: false,
+    description: 'Indica si la aplicación fue creada por un reclutador',
+    default: false,
+  })
+  @Column({ default: false })
+  appliedByRecruiter: boolean;
+
+  @ApiProperty({
+    type: () => User,
+    description: 'Reclutador que aplicó en nombre del jugador (si appliedByRecruiter es true)',
+    nullable: true,
+  })
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'recruiterId' })
+  recruiter: User;
+
+  @ApiProperty({
+    example: 'El jugador tiene las habilidades perfectas para esta posición.',
+    description: 'Mensaje del reclutador (si appliedByRecruiter es true)',
+    nullable: true,
+  })
+  @Column('text', { nullable: true })
+  recruiterMessage: string;
+
   @OneToOne(() => Contract, (contract) => contract.application)
   @JoinColumn({ name: 'Contracts' })
   contract: Contract;

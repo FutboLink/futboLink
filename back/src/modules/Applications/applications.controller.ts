@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   UseGuards,
   Req,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -17,8 +18,10 @@ import {
 } from '@nestjs/swagger';
 
 import { CreateApplicationsDto } from './dto/applications.dto';
+import { RecruiterApplicationDto } from './dto/recruiter-application.dto';
 import { ApplicationService } from './applications.service';
 import { AuthGuard } from '../auth/auth.guard';
+import { UserType } from '../user/roles.enum';
 
 @ApiTags('Applications')
 @ApiBearerAuth()
@@ -38,6 +41,32 @@ export class ApplicationController {
     console.log(jobId);
 
     return this.applicationService.apply(playerId, jobid, message);
+  }
+
+  @Post('/recruiter-apply')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Reclutador postula a un jugador de su cartera a una oferta' })
+  @ApiResponse({ status: 201, description: 'Aplicación creada exitosamente' })
+  @ApiResponse({ status: 403, description: 'No autorizado o el jugador no está en la cartera del reclutador' })
+  async applyForPlayer(
+    @Body() recruiterApplicationDto: RecruiterApplicationDto,
+    @Req() req: any,
+  ) {
+    // Verificar que el usuario autenticado es un reclutador
+    if (req.user.role !== UserType.RECRUITER) {
+      throw new ForbiddenException('Solo los reclutadores pueden usar esta función');
+    }
+
+    const recruiterId = req.user.id;
+    const { playerId, jobId, message, playerMessage } = recruiterApplicationDto;
+
+    return this.applicationService.applyForPlayer(
+      recruiterId,
+      playerId,
+      jobId,
+      message,
+      playerMessage
+    );
   }
 
   @Get('/jobs/:id')

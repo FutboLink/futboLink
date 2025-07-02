@@ -706,6 +706,19 @@ export class UserService {
     // Crear notificación para el jugador
     try {
       // Intentamos crear la notificación usando una consulta SQL directa para evitar dependencias circulares
+      console.log('Creando notificación para el jugador:', playerId);
+      console.log('Datos de la notificación:', {
+        message: message || `${recruiter.name} ${recruiter.lastname} quiere representarte como agente`,
+        type: 'REPRESENTATION_REQUEST',
+        userId: playerId,
+        sourceUserId: recruiterId,
+        metadata: {
+          requestId: savedRequest.id,
+          recruiterName: `${recruiter.name} ${recruiter.lastname}`,
+          recruiterAgency: recruiter.nameAgency || '',
+        }
+      });
+      
       await this.entityManager.query(`
         INSERT INTO notifications (message, type, "userId", "sourceUserId", metadata)
         VALUES (
@@ -725,6 +738,8 @@ export class UserService {
           recruiterAgency: recruiter.nameAgency || '',
         })
       ]);
+      
+      console.log('Notificación creada correctamente');
     } catch (error) {
       console.error('Error al crear notificación de solicitud de representación:', error);
       // No bloqueamos el proceso si falla la creación de la notificación

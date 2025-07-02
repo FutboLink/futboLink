@@ -12,6 +12,10 @@ interface NotificationMetadata {
   jobId?: string;
   jobTitle?: string;
   applicationId?: string;
+  requestId?: string;
+  recruiterName?: string;
+  recruiterAgency?: string;
+  isRepresentationRequest?: boolean;
 }
 
 interface Notification {
@@ -50,6 +54,14 @@ export const NotificationsList: React.FC = () => {
       
       if (response.ok) {
         const data = await response.json();
+        console.log('Notificaciones recibidas:', data);
+        
+        // Verificar si hay notificaciones de tipo REPRESENTATION_REQUEST
+        const representationRequests = data.filter(
+          (n: Notification) => n.type === 'REPRESENTATION_REQUEST'
+        );
+        console.log('Solicitudes de representación:', representationRequests);
+        
         setNotifications(data);
         setUnreadCount(data.filter((n: Notification) => !n.read).length);
       }
@@ -106,6 +118,47 @@ export const NotificationsList: React.FC = () => {
     }
   };
 
+  // Función para responder a una solicitud de representación
+  const respondToRepresentationRequest = async (notificationId: string, requestId: string, status: 'ACCEPTED' | 'REJECTED') => {
+    if (!token) return;
+    
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_URL}/notifications/${notificationId}/respond-representation-request`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status })
+      });
+      
+      if (response.ok) {
+        // Actualizar el estado local
+        setNotifications(notifications.map(n => 
+          n.id === notificationId ? { ...n, read: true } : n
+        ));
+        setUnreadCount(prev => Math.max(0, prev - 1));
+        
+        // Mostrar mensaje de éxito
+        alert(status === 'ACCEPTED' 
+          ? 'Has aceptado la solicitud de representación' 
+          : 'Has rechazado la solicitud de representación');
+        
+        // Recargar las notificaciones
+        fetchNotifications();
+      } else {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.message || 'No se pudo procesar la solicitud'}`);
+      }
+    } catch (error) {
+      console.error("Error al responder a la solicitud:", error);
+      alert('Ocurrió un error al procesar tu respuesta');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Formatear fecha relativa
   const formatRelativeTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -122,6 +175,16 @@ export const NotificationsList: React.FC = () => {
 
   // Renderizar contenido adicional según el tipo de notificación
   const renderNotificationContent = (notification: Notification) => {
+    console.log('Renderizando contenido para notificación:', notification);
+    
+    // Verificar si es una solicitud de representación por el tipo o por el campo isRepresentationRequest en los metadatos
+    const isRepresentationRequest = 
+      notification.type === 'REPRESENTATION_REQUEST' || 
+      (notification.metadata && (
+        notification.metadata.requestId !== undefined || 
+        notification.metadata.isRepresentationRequest === true
+      ));
+    
     if (notification.type === 'APPLICATION_SHORTLISTED' && notification.metadata?.jobId && notification.metadata?.jobTitle) {
       return (
         <div className="mt-2 p-2 bg-green-50 rounded-md border border-green-200">
@@ -139,6 +202,45 @@ export const NotificationsList: React.FC = () => {
           >
             Ver oferta
           </Link>
+        </div>
+      );
+    } else if (isRepresentationRequest && notification.metadata?.requestId) {
+      console.log('Renderizando solicitud de representación:', notification.metadata);
+      
+      // Asegurarnos de que requestId existe y no es undefined
+      const requestId = notification.metadata.requestId;
+      
+      return (
+        <div className="mt-2 p-2 bg-blue-50 rounded-md border border-blue-200">
+          <div className="flex items-center text-blue-800 mb-1">
+            <span className="text-xs font-medium">Solicitud de representación</span>
+          </div>
+          {notification.metadata.recruiterAgency && (
+            <p className="text-xs text-gray-700">
+              Agencia: <span className="font-medium">{notification.metadata.recruiterAgency}</span>
+            </p>
+          )}
+          {notification.metadata.recruiterName && (
+            <p className="text-xs text-gray-700">
+              Reclutador: <span className="font-medium">{notification.metadata.recruiterName}</span>
+            </p>
+          )}
+          {!notification.read && (
+            <div className="mt-2 flex space-x-2">
+              <button 
+                onClick={() => respondToRepresentationRequest(notification.id, requestId, 'ACCEPTED')}
+                className="text-xs bg-green-600 hover:bg-green-700 text-white py-1 px-2 rounded"
+              >
+                Aceptar
+              </button>
+              <button 
+                onClick={() => respondToRepresentationRequest(notification.id, requestId, 'REJECTED')}
+                className="text-xs bg-red-600 hover:bg-red-700 text-white py-1 px-2 rounded"
+              >
+                Rechazar
+              </button>
+            </div>
+          )}
         </div>
       );
     }

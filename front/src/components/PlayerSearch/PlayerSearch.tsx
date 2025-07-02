@@ -169,6 +169,16 @@ const PlayerSearch: React.FC = () => {
     'professional', 'semi', 'amateur'
   ]);
 
+  // Agregar estados para manejar la adición a la cartera a nivel del componente principal
+  const [isAddingToPortfolio, setIsAddingToPortfolio] = useState<string | null>(null);
+
+  // Agregar una función para obtener la URL de la API
+  const getApiUrl = () => {
+    return process.env.NODE_ENV === 'development' 
+      ? 'http://localhost:3000' 
+      : process.env.NEXT_PUBLIC_API_URL;
+  };
+
   // Verificar si el usuario tiene suscripción profesional
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -179,8 +189,21 @@ const PlayerSearch: React.FC = () => {
       return;
     }
     
-    // Verificar tipo de suscripción
-    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/${user.id}/subscription`)
+    console.log('Token disponible:', !!token); // Verificar si el token existe
+    
+    // Permitir acceso a usuarios con rol RECRUITER sin verificar suscripción
+    if (user.role === 'RECRUITER') {
+      // Cargar jugadores iniciales directamente
+      searchPlayers();
+      return;
+    }
+    
+    // Para otros roles, verificar tipo de suscripción
+    axios.get(`${getApiUrl()}/user/${user.id}/subscription`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
       .then(response => {
         const { subscriptionType, isActive } = response.data;
         if (subscriptionType !== 'Profesional' || !isActive) {
@@ -198,20 +221,55 @@ const PlayerSearch: React.FC = () => {
       });
   }, [user, token, router]);
 
+  // Agregar una función para verificar y refrescar el token
+  const verifyToken = async (): Promise<string | null> => {
+    if (!token) {
+      console.error('No hay token disponible');
+      toast.error(t('needLogin'));
+      router.push('/Login');
+      return null;
+    }
+    
+    // Verificar si el token está en localStorage
+    const userData = localStorage.getItem('user');
+    if (!userData) {
+      console.error('No hay datos de usuario en localStorage');
+      toast.error(t('needLogin'));
+      router.push('/Login');
+      return null;
+    }
+    
+    try {
+      const parsedUserData = JSON.parse(userData);
+      const localToken = parsedUserData.token;
+      
+      if (localToken && localToken !== token) {
+        console.log('Usando token de localStorage');
+        return localToken;
+      }
+      
+      return token;
+    } catch (error) {
+      console.error('Error al parsear datos de usuario:', error);
+      return token;
+    }
+  };
+
   // Función para buscar jugadores
   const searchPlayers = async () => {
-    if (!token) return;
+    const currentToken = await verifyToken();
+    if (!currentToken) return;
     
     setLoading(true);
     try {
       // Si estamos en la primera página, necesitamos cargar primero todos los profesionales y semiprofesionales
       if (page === 0) {
-        await loadPriorityProfiles();
+        await loadPriorityProfiles(currentToken);
         return;
       }
       
       // Para páginas posteriores, cargar normalmente
-      await loadRegularProfiles();
+      await loadRegularProfiles(currentToken);
       
     } catch (error) {
       console.error('Error al buscar jugadores:', error);
@@ -222,7 +280,7 @@ const PlayerSearch: React.FC = () => {
   };
   
   // Función para cargar perfiles prioritarios (profesionales y semiprofesionales)
-  const loadPriorityProfiles = async () => {
+  const loadPriorityProfiles = async (currentToken: string) => {
     try {
       // Cargar perfiles en lotes más pequeños para evitar errores 400
       const BATCH_SIZE = 50; // Tamaño de lote que el backend acepta
@@ -233,6 +291,7 @@ const PlayerSearch: React.FC = () => {
       let batchCount = 0;
       
       console.log('Cargando perfiles prioritarios...');
+      console.log('Token usado para la petición:', currentToken ? 'Disponible' : 'No disponible');
       
       // Cargar perfiles en lotes hasta que no haya más o alcancemos el máximo
       while (hasMoreToLoad && batchCount < MAX_BATCHES) {
@@ -243,9 +302,9 @@ const PlayerSearch: React.FC = () => {
         console.log(`Cargando lote ${batchCount + 1}/${MAX_BATCHES}...`);
         
         try {
-          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/search/players?${params.toString()}`, {
+          const response = await axios.get(`${getApiUrl()}/user/search/players?${params.toString()}`, {
             headers: {
-              Authorization: `Bearer ${token}`
+              Authorization: `Bearer ${currentToken}`
             }
           });
           
@@ -310,7 +369,7 @@ const PlayerSearch: React.FC = () => {
   };
   
   // Función para cargar perfiles regulares (para paginación después de la primera página)
-  const loadRegularProfiles = async () => {
+  const loadRegularProfiles = async (currentToken: string) => {
     try {
       // Si tenemos amateurs precargados, usarlos para paginación
       if (allPlayersLoaded.length > 0) {
@@ -331,9 +390,9 @@ const PlayerSearch: React.FC = () => {
       
       console.log('Cargando más perfiles...');
       
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/search/players?${params.toString()}`, {
+      const response = await axios.get(`${getApiUrl()}/user/search/players?${params.toString()}`, {
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${currentToken}`
         }
       });
       
@@ -474,6 +533,70 @@ const PlayerSearch: React.FC = () => {
     setPage(prevPage => prevPage + 1);
   };
 
+  // Función para enviar solicitud de representación
+  const handleAddToPortfolio = async (playerId: string) => {
+    const currentToken = await verifyToken();
+    if (!currentToken || !user) {
+      toast.error(t('needLogin'));
+      return;
+    }
+    
+    try {
+      setIsAddingToPortfolio(playerId);
+      console.log(`Intentando enviar solicitud de representación al jugador ${playerId} desde el reclutador ${user.id}`);
+      console.log(`URL: ${getApiUrl()}/user/${user.id}/representation-request`);
+      console.log(`Token disponible: ${!!currentToken}`);
+      
+      // Mostrar un diálogo para que el reclutador pueda escribir un mensaje
+      const message = window.prompt('Escribe un mensaje para el jugador explicando por qué quieres representarlo:');
+      
+      // Si el usuario cancela el prompt, no enviamos la solicitud
+      if (message === null) {
+        setIsAddingToPortfolio(null);
+        return;
+      }
+      
+      const response = await axios.post(
+        `${getApiUrl()}/user/${user.id}/representation-request`,
+        { 
+          playerId,
+          message: message || 'Me gustaría representarte como agente.' 
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${currentToken}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      console.log('Respuesta del servidor:', response.data);
+      toast.success('Solicitud de representación enviada correctamente');
+    } catch (error: any) {
+      console.error('Error al enviar solicitud de representación:', error);
+      if (error.response) {
+        // El servidor respondió con un código de estado diferente de 2xx
+        console.error('Datos de la respuesta de error:', error.response.data);
+        console.error('Estado HTTP:', error.response.status);
+        console.error('Cabeceras:', error.response.headers);
+        
+        // Mostrar mensaje de error específico si está disponible
+        const errorMessage = error.response.data?.message || 'Error al enviar solicitud de representación';
+        toast.error(errorMessage);
+      } else if (error.request) {
+        // La solicitud se hizo pero no se recibió respuesta
+        console.error('No se recibió respuesta del servidor');
+        toast.error('No se pudo conectar con el servidor');
+      } else {
+        // Algo sucedió al configurar la solicitud
+        console.error('Error al configurar la solicitud:', error.message);
+        toast.error('Error al procesar la solicitud');
+      }
+    } finally {
+      setIsAddingToPortfolio(null);
+    }
+  };
+
   // Renderizar tarjeta de jugador
   const renderPlayerCard = (player: Player) => {
     // Determinar tipo de suscripción usando el campo subscriptionType
@@ -494,6 +617,9 @@ const PlayerSearch: React.FC = () => {
       'semi': t('semi'),
       'amateur': t('amateur')
     }[subscriptionType];
+    
+    // Verificar si este jugador está siendo añadido a la cartera
+    const isBeingAddedToPortfolio = isAddingToPortfolio === player.id;
     
     return (
       <div key={player.id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all relative">
@@ -595,16 +721,49 @@ const PlayerSearch: React.FC = () => {
             )}
           </div>
           
-          {/* Botón de conexión */}
-          <Link 
-            href={`/user-viewer/${player.id}`} 
-            className="flex items-center justify-center w-full py-1.5 px-3 border border-blue-600 text-blue-600 rounded-full text-sm font-medium hover:bg-blue-50 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-            </svg>
-            {t('viewProfile')}
-          </Link>
+          {/* Botones de acción */}
+          <div className="flex flex-col space-y-2">
+            {/* Botón de ver perfil */}
+            <Link 
+              href={`/user-viewer/${player.id}`} 
+              className="flex items-center justify-center w-full py-1.5 px-3 border border-blue-600 text-blue-600 rounded-full text-sm font-medium hover:bg-blue-50 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+              {t('viewProfile')}
+            </Link>
+            
+            {/* Botón de añadir a cartera (solo visible para reclutadores) */}
+            {user && user.role === 'RECRUITER' && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleAddToPortfolio(player.id);
+                }}
+                disabled={isBeingAddedToPortfolio}
+                className="flex items-center justify-center w-full py-1.5 px-3 border border-green-600 text-green-600 rounded-full text-sm font-medium hover:bg-green-50 transition-colors"
+              >
+                {isBeingAddedToPortfolio ? (
+                  <span className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Enviando...
+                  </span>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                    Enviar solicitud
+                  </>
+                )}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );

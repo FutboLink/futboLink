@@ -2,6 +2,13 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 
+interface EmailOptions {
+  to: string;
+  subject: string;
+  template: string;
+  context: any;
+}
+
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
@@ -29,6 +36,143 @@ export class EmailService {
         this.logger.log('Mail server is ready to send messages');
       }
     });
+  }
+
+  // Método genérico para enviar emails
+  async sendEmail(options: EmailOptions): Promise<boolean> {
+    try {
+      this.logger.log(`Sending email to: ${options.to}, subject: ${options.subject}`);
+      
+      let htmlContent = '';
+      
+      // Generar contenido HTML según la plantilla
+      switch (options.template) {
+        case 'contact':
+          htmlContent = this.generateContactTemplate(options.context);
+          break;
+        case 'representation-request':
+          htmlContent = this.generateRepresentationRequestTemplate(options.context);
+          break;
+        case 'representation-response':
+          htmlContent = this.generateRepresentationResponseTemplate(options.context);
+          break;
+        default:
+          htmlContent = this.generateDefaultTemplate(options.context);
+      }
+      
+      const mailOptions = {
+        from: `"FutboLink" <${this.configService.get<string>('MAIL_FROM')}>`,
+        to: options.to,
+        subject: options.subject,
+        html: htmlContent
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      this.logger.log(`Email sent successfully to: ${options.to}`);
+      return true;
+    } catch (error) {
+      this.logger.error(`Error sending email: ${error.message}`);
+      this.logger.error(`Stack trace: ${error.stack}`);
+      return false;
+    }
+  }
+
+  // Plantilla para solicitudes de representación
+  private generateRepresentationRequestTemplate(context: any): string {
+    return `
+      <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 5px;">
+        <h2 style="color: #2c3e50; text-align: center;">Nueva Solicitud de Representación</h2>
+        <div style="margin-top: 20px; line-height: 1.6; color: #34495e;">
+          <p>Hola ${context.name},</p>
+          <p>El reclutador <strong>${context.recruiterName}</strong> está interesado en representarte.</p>
+          <p>Mensaje del reclutador:</p>
+          <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #27ae60;">
+            <p>${context.message}</p>
+          </div>
+          <p>Para responder a esta solicitud, inicia sesión en tu cuenta de FutboLink.</p>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="https://futbolink.vercel.app/PanelUsers/Player" 
+             style="display: inline-block; padding: 12px 20px; background-color: #27ae60; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Ir a mi cuenta
+          </a>
+        </div>
+        
+        <div style="margin-top: 30px; text-align: center; color: #7f8c8d; border-top: 1px solid #ecf0f1; padding-top: 15px;">
+          <p>FutboLink - Conectando el mundo del fútbol</p>
+          <p>© ${new Date().getFullYear()} FutboLink. Todos los derechos reservados.</p>
+        </div>
+      </div>
+    `;
+  }
+
+  // Plantilla para respuestas a solicitudes de representación
+  private generateRepresentationResponseTemplate(context: any): string {
+    return `
+      <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 5px;">
+        <h2 style="color: #2c3e50; text-align: center;">Respuesta a tu Solicitud de Representación</h2>
+        <div style="margin-top: 20px; line-height: 1.6; color: #34495e;">
+          <p>Hola ${context.name},</p>
+          <p>El jugador <strong>${context.playerName}</strong> ha respondido a tu solicitud de representación.</p>
+          <p>${context.message}</p>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="https://futbolink.vercel.app/PanelUsers/Manager" 
+             style="display: inline-block; padding: 12px 20px; background-color: #27ae60; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Ir a mi cuenta
+          </a>
+        </div>
+        
+        <div style="margin-top: 30px; text-align: center; color: #7f8c8d; border-top: 1px solid #ecf0f1; padding-top: 15px;">
+          <p>FutboLink - Conectando el mundo del fútbol</p>
+          <p>© ${new Date().getFullYear()} FutboLink. Todos los derechos reservados.</p>
+        </div>
+      </div>
+    `;
+  }
+
+  // Plantilla de contacto
+  private generateContactTemplate(context: any): string {
+    return `
+      <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 5px;">
+        <h2 style="color: #2c3e50; text-align: center;">Mensaje de FutboLink</h2>
+        <div style="margin-top: 20px; line-height: 1.6; color: #34495e;">
+          <p>Hola ${context.name},</p>
+          <p>${context.message}</p>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="https://futbolink.vercel.app" 
+             style="display: inline-block; padding: 12px 20px; background-color: #27ae60; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Visitar FutboLink
+          </a>
+        </div>
+        
+        <div style="margin-top: 30px; text-align: center; color: #7f8c8d; border-top: 1px solid #ecf0f1; padding-top: 15px;">
+          <p>FutboLink - Conectando el mundo del fútbol</p>
+          <p>© ${new Date().getFullYear()} FutboLink. Todos los derechos reservados.</p>
+        </div>
+      </div>
+    `;
+  }
+
+  // Plantilla por defecto
+  private generateDefaultTemplate(context: any): string {
+    return `
+      <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 5px;">
+        <h2 style="color: #2c3e50; text-align: center;">Mensaje de FutboLink</h2>
+        <div style="margin-top: 20px; line-height: 1.6; color: #34495e;">
+          <p>${context.message || 'Gracias por usar FutboLink.'}</p>
+        </div>
+        
+        <div style="margin-top: 30px; text-align: center; color: #7f8c8d; border-top: 1px solid #ecf0f1; padding-top: 15px;">
+          <p>FutboLink - Conectando el mundo del fútbol</p>
+          <p>© ${new Date().getFullYear()} FutboLink. Todos los derechos reservados.</p>
+        </div>
+      </div>
+    `;
   }
 
   async sendPasswordResetEmail(email: string, token: string) {

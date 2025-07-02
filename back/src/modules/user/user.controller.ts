@@ -25,6 +25,8 @@ import { User } from './entities/user.entity';
 import { SearchPlayersDto } from './dto/search-players.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { PortfolioRequestDto } from './dto/portfolio-request.dto';
+import { CreateRepresentationRequestDto, UpdateRepresentationRequestDto } from './dto/representation-request.dto';
+import { RepresentationRequest } from './entities/representation-request.entity';
 
 
 @ApiTags('Users')
@@ -238,5 +240,97 @@ export class UserController {
   ) {
     // Cualquier usuario autenticado puede ver la cartera
     return this.userService.getPortfolioPlayers(recruiterId);
+  }
+
+  @ApiOperation({ summary: 'Enviar solicitud de representación a un jugador' })
+  @ApiResponse({
+    status: 201,
+    description: 'Solicitud enviada correctamente',
+    type: RepresentationRequest,
+  })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @ApiResponse({ status: 404, description: 'Jugador o reclutador no encontrado' })
+  @ApiResponse({ status: 409, description: 'Ya existe una solicitud pendiente' })
+  @UseGuards(AuthGuard)
+  @Post(':id/representation-request')
+  async sendRepresentationRequest(
+    @Param('id', ParseUUIDPipe) recruiterId: string,
+    @Body() createRepresentationRequestDto: CreateRepresentationRequestDto,
+    @Req() req: any,
+  ) {
+    // Verificar que el usuario autenticado es el mismo que envía la solicitud
+    if (req.user.id !== recruiterId) {
+      throw new UnauthorizedException('No tienes permiso para realizar esta acción');
+    }
+    
+    return this.userService.sendRepresentationRequest(
+      recruiterId,
+      createRepresentationRequestDto,
+    );
+  }
+
+  @ApiOperation({ summary: 'Responder a una solicitud de representación' })
+  @ApiResponse({
+    status: 200,
+    description: 'Solicitud respondida correctamente',
+    type: RepresentationRequest,
+  })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @ApiResponse({ status: 404, description: 'Solicitud no encontrada' })
+  @UseGuards(AuthGuard)
+  @Put('representation-request/:requestId')
+  async respondToRepresentationRequest(
+    @Param('requestId', ParseUUIDPipe) requestId: string,
+    @Body() updateRepresentationRequestDto: UpdateRepresentationRequestDto,
+    @Req() req: any,
+  ) {
+    // El jugador que responde debe ser el destinatario de la solicitud
+    return this.userService.respondToRepresentationRequest(
+      requestId,
+      req.user.id,
+      updateRepresentationRequestDto,
+    );
+  }
+
+  @ApiOperation({ summary: 'Obtener solicitudes de representación enviadas por un reclutador' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de solicitudes enviadas',
+    type: [RepresentationRequest],
+  })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @UseGuards(AuthGuard)
+  @Get(':id/sent-requests')
+  async getRecruiterSentRequests(
+    @Param('id', ParseUUIDPipe) recruiterId: string,
+    @Req() req: any,
+  ) {
+    // Verificar que el usuario autenticado es el mismo que consulta
+    if (req.user.id !== recruiterId) {
+      throw new UnauthorizedException('No tienes permiso para realizar esta acción');
+    }
+    
+    return this.userService.getRecruiterSentRequests(recruiterId);
+  }
+
+  @ApiOperation({ summary: 'Obtener solicitudes de representación recibidas por un jugador' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de solicitudes recibidas',
+    type: [RepresentationRequest],
+  })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @UseGuards(AuthGuard)
+  @Get(':id/received-requests')
+  async getPlayerReceivedRequests(
+    @Param('id', ParseUUIDPipe) playerId: string,
+    @Req() req: any,
+  ) {
+    // Verificar que el usuario autenticado es el mismo que consulta
+    if (req.user.id !== playerId) {
+      throw new UnauthorizedException('No tienes permiso para realizar esta acción');
+    }
+    
+    return this.userService.getPlayerReceivedRequests(playerId);
   }
 }

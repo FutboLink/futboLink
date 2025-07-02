@@ -13,15 +13,23 @@ import { join } from 'path';
 import { createReadStream } from 'fs';
 import { Response } from 'express';
 import { UserType } from '../user/roles.enum';
+import { RepresentationRequest, RepresentationRequestStatus } from './entities/representation-request.entity';
+import { EmailService } from '../Mailing/email.service';
+import { CreateRepresentationRequestDto, UpdateRepresentationRequestDto } from './dto/representation-request.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(RepresentationRequest)
+    private readonly representationRequestRepository: Repository<RepresentationRequest>,
+    private readonly emailService: EmailService,
   ) {
     // Intentar crear la tabla de cartera de reclutadores si no existe
     this.createPortfolioTableIfNotExists();
+    // Intentar crear la tabla de solicitudes de representación si no existe
+    this.createRepresentationRequestsTableIfNotExists();
   }
 
   /**
@@ -72,6 +80,65 @@ export class UserService {
       await queryRunner.release();
     } catch (error) {
       console.error('Error al crear la tabla recruiter_portfolio:', error);
+    }
+  }
+
+  /**
+   * Crea la tabla de solicitudes de representación si no existe
+   */
+  private async createRepresentationRequestsTableIfNotExists() {
+    try {
+      const queryRunner = this.userRepository.manager.connection.createQueryRunner();
+      await queryRunner.connect();
+
+      // Verificar si la tabla ya existe
+      const tableExists = await queryRunner.hasTable('representation_requests');
+      if (!tableExists) {
+        console.log('Creando tabla representation_requests...');
+        
+        // Crear el tipo enum para el estado de la solicitud
+        await queryRunner.query(`
+          CREATE TYPE "public"."representation_request_status_enum" AS ENUM('PENDING', 'ACCEPTED', 'REJECTED');
+        `);
+        
+        // Crear la tabla de solicitudes de representación
+        await queryRunner.query(`
+          CREATE TABLE "representation_requests" (
+            "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+            "recruiterId" uuid NOT NULL,
+            "playerId" uuid NOT NULL,
+            "status" "public"."representation_request_status_enum" NOT NULL DEFAULT 'PENDING',
+            "message" text,
+            "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
+            CONSTRAINT "PK_representation_requests" PRIMARY KEY ("id")
+          )
+        `);
+        
+        // Añadir restricciones de clave foránea
+        await queryRunner.query(`
+          ALTER TABLE "representation_requests" 
+          ADD CONSTRAINT "FK_representation_requests_recruiter" 
+          FOREIGN KEY ("recruiterId") 
+          REFERENCES "users"("id") 
+          ON DELETE CASCADE
+        `);
+        
+        await queryRunner.query(`
+          ALTER TABLE "representation_requests" 
+          ADD CONSTRAINT "FK_representation_requests_player" 
+          FOREIGN KEY ("playerId") 
+          REFERENCES "users"("id") 
+          ON DELETE CASCADE
+        `);
+        
+        console.log('Tabla representation_requests creada correctamente');
+      } else {
+        console.log('La tabla representation_requests ya existe');
+      }
+      
+      await queryRunner.release();
+    } catch (error) {
+      console.error('Error al crear la tabla representation_requests:', error);
     }
   }
 
@@ -559,5 +626,191 @@ export class UserService {
     }
     
     return recruiter.portfolioPlayers || [];
+  }
+
+  /**
+   * Envía una solicitud de representación a un jugador
+   * @param recruiterId ID del reclutador
+   * @param createRepresentationRequestDto DTO con los datos de la solicitud
+   * @returns La solicitud creada
+   */
+  async sendRepresentationRequest(
+    recruiterId: string,
+    createRepresentationRequestDto: CreateRepresentationRequestDto,
+  ): Promise<RepresentationRequest> {
+    try {
+      console.log(`Intentando enviar solicitud de representación del reclutador ${recruiterId} al jugador ${createRepresentationRequestDto.playerId}`);
+      
+      // Verificar que el reclutador existe y es de tipo RECRUITER
+      const recruiter = await this.userRepository.findOne({
+        where: { id: recruiterId, role: UserType.RECRUITER }
+      });
+      
+      if (!recruiter) {
+        console.log(`Reclutador no encontrado o no tiene permisos: ${recruiterId}`);
+        throw new NotFoundException('Reclutador no encontrado o no tiene permisos');
+      }
+      
+      // Verificar que el jugador existe y es de tipo PLAYER
+      const player = await this.userRepository.findOne({
+        where: { id: createRepresentationRequestDto.playerId, role: UserType.PLAYER }
+      });
+      
+      if (!player) {
+        console.log(`Jugador no encontrado: ${createRepresentationRequestDto.playerId}`);
+        throw new NotFoundException('Jugador no encontrado');
+      }
+      
+      // Verificar si ya existe una solicitud pendiente
+      const existingRequest = await this.representationRequestRepository.findOne({
+        where: {
+          recruiterId,
+          playerId: createRepresentationRequestDto.playerId,
+          status: RepresentationRequestStatus.PENDING
+        }
+      });
+      
+      if (existingRequest) {
+        console.log(`Ya existe una solicitud pendiente para este jugador`);
+        throw new ConflictException('Ya existe una solicitud pendiente para este jugador');
+      }
+      
+      // Crear la solicitud
+      const request = this.representationRequestRepository.create({
+        recruiterId,
+        playerId: createRepresentationRequestDto.playerId,
+        message: createRepresentationRequestDto.message,
+        status: RepresentationRequestStatus.PENDING
+      });
+      
+      const savedRequest = await this.representationRequestRepository.save(request);
+      
+      // Enviar email al jugador
+      try {
+        await this.emailService.sendEmail({
+          to: player.email,
+          subject: 'Nueva solicitud de representación',
+          template: 'contact', // Usar una plantilla existente por ahora
+          context: {
+            name: player.name,
+            recruiterName: `${recruiter.name} ${recruiter.lastname}`,
+            message: createRepresentationRequestDto.message || 'Me gustaría representarte como agente.',
+            requestId: savedRequest.id
+          }
+        });
+        console.log(`Email de solicitud enviado a ${player.email}`);
+      } catch (emailError) {
+        console.error('Error al enviar email de solicitud:', emailError);
+        // No lanzamos error aquí para no interrumpir el flujo si el email falla
+      }
+      
+      console.log(`Solicitud de representación creada correctamente`);
+      return savedRequest;
+    } catch (error) {
+      console.error('Error al enviar solicitud de representación:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Responde a una solicitud de representación
+   * @param requestId ID de la solicitud
+   * @param playerId ID del jugador que responde
+   * @param updateRepresentationRequestDto DTO con la respuesta
+   * @returns La solicitud actualizada
+   */
+  async respondToRepresentationRequest(
+    requestId: string,
+    playerId: string,
+    updateRepresentationRequestDto: UpdateRepresentationRequestDto,
+  ): Promise<RepresentationRequest> {
+    // Verificar que la solicitud existe y pertenece al jugador
+    const request = await this.representationRequestRepository.findOne({
+      where: { id: requestId, playerId },
+      relations: ['recruiter', 'player']
+    });
+    
+    if (!request) {
+      throw new NotFoundException('Solicitud no encontrada');
+    }
+    
+    if (request.status !== RepresentationRequestStatus.PENDING) {
+      throw new BadRequestException('Esta solicitud ya ha sido respondida');
+    }
+    
+    // Actualizar el estado de la solicitud
+    request.status = updateRepresentationRequestDto.status as RepresentationRequestStatus;
+    const updatedRequest = await this.representationRequestRepository.save(request);
+    
+    // Si la solicitud fue aceptada, añadir el jugador a la cartera del reclutador
+    if (updatedRequest.status === RepresentationRequestStatus.ACCEPTED) {
+      try {
+        await this.addPlayerToPortfolio(request.recruiterId, playerId);
+        console.log(`Jugador ${playerId} añadido a la cartera del reclutador ${request.recruiterId}`);
+      } catch (error) {
+        console.error('Error al añadir jugador a la cartera:', error);
+        // No lanzamos error aquí para no interrumpir el flujo si falla la adición a la cartera
+      }
+      
+      // Enviar email al reclutador informando que su solicitud fue aceptada
+      try {
+        await this.emailService.sendEmail({
+          to: request.recruiter.email,
+          subject: 'Solicitud de representación aceptada',
+          template: 'contact', // Usar una plantilla existente por ahora
+          context: {
+            name: request.recruiter.name,
+            playerName: `${request.player.name} ${request.player.lastname}`,
+            message: 'Ha aceptado tu solicitud de representación.'
+          }
+        });
+      } catch (emailError) {
+        console.error('Error al enviar email de notificación:', emailError);
+      }
+    } else if (updatedRequest.status === RepresentationRequestStatus.REJECTED) {
+      // Enviar email al reclutador informando que su solicitud fue rechazada
+      try {
+        await this.emailService.sendEmail({
+          to: request.recruiter.email,
+          subject: 'Solicitud de representación rechazada',
+          template: 'contact', // Usar una plantilla existente por ahora
+          context: {
+            name: request.recruiter.name,
+            playerName: `${request.player.name} ${request.player.lastname}`,
+            message: 'Ha rechazado tu solicitud de representación.'
+          }
+        });
+      } catch (emailError) {
+        console.error('Error al enviar email de notificación:', emailError);
+      }
+    }
+    
+    return updatedRequest;
+  }
+
+  /**
+   * Obtiene las solicitudes de representación enviadas por un reclutador
+   * @param recruiterId ID del reclutador
+   * @returns Lista de solicitudes
+   */
+  async getRecruiterSentRequests(recruiterId: string): Promise<RepresentationRequest[]> {
+    return this.representationRequestRepository.find({
+      where: { recruiterId },
+      relations: ['player'],
+      order: { createdAt: 'DESC' }
+    });
+  }
+
+  /**
+   * Obtiene las solicitudes de representación recibidas por un jugador
+   * @param playerId ID del jugador
+   * @returns Lista de solicitudes
+   */
+  async getPlayerReceivedRequests(playerId: string): Promise<RepresentationRequest[]> {
+    return this.representationRequestRepository.find({
+      where: { playerId },
+      relations: ['recruiter'],
+      order: { createdAt: 'DESC' }
+    });
   }
 }

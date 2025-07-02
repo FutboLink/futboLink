@@ -13,17 +13,21 @@ import { IOfferCard } from "@/Interfaces/IOffer";
 import FormComponent from "@/components/Jobs/CreateJob";
 import { fetchUserId } from "@/components/Fetchs/UsersFetchs/UserFetchs";
 import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
-import { FaX, FaYoutube, FaBolt } from "react-icons/fa6";
+import { FaX, FaYoutube, FaBolt, FaUsers } from "react-icons/fa6";
 import { AiOutlineFileAdd, AiOutlineFileText, AiOutlineUser } from "react-icons/ai";
 import { MdSettings } from "react-icons/md";
 import { FaGlobe } from "react-icons/fa";
+import axios from "axios";
+import { toast } from "react-hot-toast";
 
 const PanelManager = () => {
-  const { user, logOut } = useContext(UserContext);
+  const { user, logOut, token } = useContext(UserContext);
   const [activeSection, setActiveSection] = useState("profile");
   const [userData, setUserData] = useState<IProfileData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [appliedJobs, setAppliedJobs] = useState<IOfferCard[]>([]);
+  const [portfolioPlayers, setPortfolioPlayers] = useState<any[]>([]);
+  const [loadingPortfolio, setLoadingPortfolio] = useState(false);
   const router = useRouter();
 
   // Inicializamos AOS para animaciones
@@ -64,6 +68,60 @@ const PanelManager = () => {
     };
     loadAppliedJobs();
   }, [user]);
+
+  // Función para cargar la cartera de jugadores
+  const loadPortfolio = async () => {
+    if (!user || !token) return;
+    
+    setLoadingPortfolio(true);
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/${user.id}/portfolio`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      
+      setPortfolioPlayers(response.data || []);
+    } catch (error) {
+      console.error('Error al cargar la cartera de jugadores:', error);
+      toast.error('Error al cargar tu cartera de jugadores');
+    } finally {
+      setLoadingPortfolio(false);
+    }
+  };
+
+  // Función para eliminar un jugador de la cartera
+  const removeFromPortfolio = async (playerId: string) => {
+    if (!user || !token) return;
+    
+    try {
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/${user.id}/portfolio/${playerId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      
+      // Actualizar la lista de jugadores en la cartera
+      setPortfolioPlayers(prev => prev.filter(player => player.id !== playerId));
+      toast.success('Jugador eliminado de tu cartera');
+    } catch (error) {
+      console.error('Error al eliminar jugador de la cartera:', error);
+      toast.error('Error al eliminar jugador de la cartera');
+    }
+  };
+
+  // Cargar la cartera de jugadores al montar el componente
+  useEffect(() => {
+    if (user && token) {
+      loadPortfolio();
+    }
+  }, [user, token]);
 
   const handleSectionChange = (section: string) => setActiveSection(section);
   const handleLogOut = () => {
@@ -106,6 +164,7 @@ const PanelManager = () => {
            { name: "Crear Oferta", section: "createOffers", icon: <AiOutlineFileAdd /> },
            { name: "Mis Ofertas", section: "appliedOffers", icon: <AiOutlineFileText /> },
            { name: "Configuración", section: "config", icon: <MdSettings /> },
+           { name: "Cartera", section: "portfolio", icon: <FaUsers className="text-xl" /> },
           ].map(({ name, section, icon }) => (
             <button
               key={section}
@@ -342,6 +401,91 @@ const PanelManager = () => {
               <h4 className="font-semibold text-lg">Idioma</h4>
               <h4 className="font-semibold text-lg">Suscripción</h4>
             </div>
+          </section>
+        )}
+
+        {/* Sección de Cartera de Jugadores */}
+        {activeSection === "portfolio" && (
+          <section
+            className="bg-white p-8 rounded-lg shadow-lg mb-8 max-w-5xl mx-auto"
+            data-aos="fade-up"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold">Mi Cartera de Jugadores</h3>
+              <Link 
+                href="/player-search"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Buscar Jugadores
+              </Link>
+            </div>
+            
+            {loadingPortfolio ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+              </div>
+            ) : portfolioPlayers.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {portfolioPlayers.map(player => (
+                  <div key={player.id} className="bg-white rounded-lg shadow p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      {/* Foto de perfil */}
+                      <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-gray-200">
+                        <Image 
+                          src={player.imgUrl || '/default-player.png'} 
+                          alt={`${player.name} ${player.lastname}`}
+                          width={56}
+                          height={56}
+                          className="object-cover w-full h-full"
+                        />
+                      </div>
+                      
+                      {/* Información básica */}
+                      <div className="flex-1">
+                        <h3 className="font-bold text-lg">{player.name} {player.lastname}</h3>
+                        <p className="text-sm text-gray-600">
+                          {player.primaryPosition || 'Sin posición'} 
+                          {player.age ? ` • ${player.age} años` : ''}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Acciones */}
+                    <div className="flex justify-between mt-3">
+                      <Link 
+                        href={`/user-viewer/${player.id}`}
+                        className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition-colors"
+                      >
+                        Ver perfil
+                      </Link>
+                      
+                      <button 
+                        onClick={() => removeFromPortfolio(player.id)}
+                        className="px-3 py-1 bg-red-100 text-red-600 rounded-md text-sm hover:bg-red-200 transition-colors"
+                      >
+                        Quitar
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 bg-gray-50 rounded-lg">
+                <div className="text-gray-500 mb-2">
+                  <FaUsers className="mx-auto text-4xl mb-2 text-gray-400" />
+                  <p>Aún no tienes jugadores en tu cartera</p>
+                </div>
+                <Link 
+                  href="/player-search"
+                  className="inline-block mt-3 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                >
+                  Buscar jugadores
+                </Link>
+              </div>
+            )}
           </section>
         )}
       </main>

@@ -282,14 +282,14 @@ function NavbarRoles() {
                       <span className="font-medium">Ir a mi Perfil</span>
                     </button>
                     
-                    {/* Botón de búsqueda de jugadores para usuarios con suscripción profesional */}
-                    {hasProfessionalSubscription && (
+                    {/* Botón de búsqueda de jugadores para usuarios con suscripción profesional o RECRUITERS */}
+                    {(hasProfessionalSubscription || role === "RECRUITER") && (
                       <button
                         onClick={() => navigateTo("/player-search")}
                         className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all mt-2"
                       >
                         <FaUsers size={18} className="text-white" />
-                        <span className="font-medium">Mi red</span>
+                        <span className="font-medium">Búsqueda de Jugadores</span>
                       </button>
                     )}
                   </div>

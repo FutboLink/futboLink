@@ -12,8 +12,9 @@ function NavbarHome() {
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   
-  const { isLogged, role } = useContext(UserContext); 
+  const { isLogged, role, logOut } = useContext(UserContext); 
 
 
   const navigateTo = (path: string) => {
@@ -273,7 +274,18 @@ function NavbarHome() {
               </li>
             </ul>
 
-           
+            {/* Enlace a búsqueda de jugadores para RECRUITERS */}
+            {role === "RECRUITER" && (
+              <button
+                onClick={() => {
+                  navigateTo("/player-search");
+                  setIsMobileMenuOpen(false);
+                }}
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                Búsqueda de Jugadores
+              </button>
+            )}
           </div>
         )}
       </nav>

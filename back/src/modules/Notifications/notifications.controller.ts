@@ -140,7 +140,12 @@ export class NotificationsController {
     }
     
     // Verificar que la notificación es del tipo correcto
-    if (notification.type !== NotificationType.REPRESENTATION_REQUEST) {
+    // Ahora verificamos si es una solicitud de representación por el tipo o por el metadato isRepresentationRequest
+    const isRepresentationRequest = 
+      notification.type === NotificationType.REPRESENTATION_REQUEST || 
+      (notification.metadata && notification.metadata.isRepresentationRequest === true);
+    
+    if (!isRepresentationRequest) {
       throw new BadRequestException('Esta notificación no corresponde a una solicitud de representación');
     }
     

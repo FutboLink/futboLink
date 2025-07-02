@@ -707,15 +707,19 @@ export class UserService {
     try {
       // Intentamos crear la notificación usando una consulta SQL directa para evitar dependencias circulares
       console.log('Creando notificación para el jugador:', playerId);
+      
+      // Usamos un tipo de notificación existente (PROFILE_VIEW) en lugar de REPRESENTATION_REQUEST
+      // pero incluimos la información de la solicitud en los metadatos
       console.log('Datos de la notificación:', {
         message: message || `${recruiter.name} ${recruiter.lastname} quiere representarte como agente`,
-        type: 'REPRESENTATION_REQUEST',
+        type: 'PROFILE_VIEW', // Tipo existente en el enum
         userId: playerId,
         sourceUserId: recruiterId,
         metadata: {
           requestId: savedRequest.id,
           recruiterName: `${recruiter.name} ${recruiter.lastname}`,
           recruiterAgency: recruiter.nameAgency || '',
+          isRepresentationRequest: true // Marcador para identificar que es una solicitud de representación
         }
       });
       
@@ -723,7 +727,7 @@ export class UserService {
         INSERT INTO notifications (message, type, "userId", "sourceUserId", metadata)
         VALUES (
           $1, 
-          'REPRESENTATION_REQUEST', 
+          'PROFILE_VIEW', 
           $2, 
           $3, 
           $4
@@ -736,6 +740,7 @@ export class UserService {
           requestId: savedRequest.id,
           recruiterName: `${recruiter.name} ${recruiter.lastname}`,
           recruiterAgency: recruiter.nameAgency || '',
+          isRepresentationRequest: true // Marcador para identificar que es una solicitud de representación
         })
       ]);
       

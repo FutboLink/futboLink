@@ -103,11 +103,51 @@ export class ApplicationService {
   @ApiOperation({ summary: 'Listar aplicaciones por trabajo' })
   @ApiResponse({ status: 200, description: 'Lista de aplicaciones encontrada.' })
   async listApplications(jobId: string): Promise<Application[]> {
-    return this.applicationRepository.find({
-      where: { job: { id: String(jobId) } },
-      relations: ['player'],
-    });
-   
+    try {
+      // Intentar usar la consulta con los nuevos campos
+      return this.applicationRepository.find({
+        where: { job: { id: String(jobId) } },
+        relations: ['player'],
+      });
+    } catch (error) {
+      console.error('Error al listar aplicaciones con nuevos campos:', error.message);
+      
+      // Si falla, usar una consulta SQL directa que no dependa de los nuevos campos
+      const rawApplications = await this.applicationRepository.query(`
+        SELECT 
+          a.id, a.message, a.status, a."appliedAt", a."shortlistedAt", a."playerId", a."jobId",
+          u.id as player_id, u.name as player_name, u.lastname as player_lastname, 
+          u.email as player_email, u.role as player_role, u."imgUrl" as player_imgUrl
+        FROM application a
+        LEFT JOIN users u ON u.id = a."playerId"
+        WHERE a."jobId" = $1
+      `, [jobId]);
+      
+      // Transformar los resultados raw en entidades Application
+      return rawApplications.map(raw => {
+        const app = new Application();
+        app.id = raw.id;
+        app.message = raw.message;
+        app.status = raw.status;
+        app.appliedAt = raw.appliedAt;
+        app.shortlistedAt = raw.shortlistedAt;
+        
+        // Crear el objeto player
+        if (raw.player_id) {
+          const player = new User();
+          player.id = raw.player_id;
+          player.name = raw.player_name;
+          player.lastname = raw.player_lastname;
+          player.email = raw.player_email;
+          player.role = raw.player_role;
+          player.imgUrl = raw.player_imgUrl;
+          
+          app.player = player;
+        }
+        
+        return app;
+      });
+    }
   }
 
   @ApiOperation({ summary: 'Actualizar estado de una aplicación' })
@@ -279,36 +319,55 @@ export class ApplicationService {
       // Si hay un error al verificar la suscripción, continuamos de todas formas ya que el reclutador está aplicando por el jugador
     }
     
-    // Crear la aplicación
-    const application = this.applicationRepository.create({
-      player,
-      job,
-      message: playerMessage || `Aplicación enviada por mi representante: ${recruiter.name} ${recruiter.lastname}`,
-      appliedByRecruiter: true,
-      recruiter,
-      recruiterMessage
-    });
-    
-    const savedApplication = await this.applicationRepository.save(application);
-    
-    // Enviar notificación al jugador
     try {
-      await this.notificationsService.create({
-        message: `Tu representante ${recruiter.name} ${recruiter.lastname} te ha postulado a una oferta: "${job.title}"`,
-        type: NotificationType.PROFILE_VIEW, // Usamos un tipo existente
-        userId: playerId,
-        sourceUserId: recruiterId,
-        metadata: {
-          jobId: jobId,
-          jobTitle: job.title,
-          applicationId: savedApplication.id,
-          isApplicationByRecruiter: true
-        }
+      // Intentar crear la aplicación con los nuevos campos
+      const application = this.applicationRepository.create({
+        player,
+        job,
+        message: playerMessage || `Aplicación enviada por mi representante: ${recruiter.name} ${recruiter.lastname}`,
+        appliedByRecruiter: true,
+        recruiter,
+        recruiterMessage
       });
+      
+      return await this.applicationRepository.save(application);
     } catch (error) {
-      console.error('Error al enviar notificación al jugador:', error);
+      console.error('Error al crear aplicación con nuevos campos:', error.message);
+      
+      // Si falla, crear la aplicación sin los nuevos campos
+      // Guardar la información del reclutador en el mensaje
+      const message = playerMessage 
+        ? `${playerMessage}\n\nAplicación enviada por el representante: ${recruiter.name} ${recruiter.lastname}`
+        : `Aplicación enviada por mi representante: ${recruiter.name} ${recruiter.lastname}\n\nMensaje del representante: ${recruiterMessage}`;
+      
+      // Crear la aplicación básica
+      const application = this.applicationRepository.create({
+        player,
+        job,
+        message
+      });
+      
+      const savedApplication = await this.applicationRepository.save(application);
+      
+      // Enviar notificación al jugador
+      try {
+        await this.notificationsService.create({
+          message: `Tu representante ${recruiter.name} ${recruiter.lastname} te ha postulado a una oferta: "${job.title}"`,
+          type: NotificationType.PROFILE_VIEW, // Usamos un tipo existente
+          userId: playerId,
+          sourceUserId: recruiterId,
+          metadata: {
+            jobId: jobId,
+            jobTitle: job.title,
+            applicationId: savedApplication.id,
+            isApplicationByRecruiter: true
+          }
+        });
+      } catch (notificationError) {
+        console.error('Error al enviar notificación al jugador:', notificationError);
+      }
+      
+      return savedApplication;
     }
-    
-    return savedApplication;
   }
 }

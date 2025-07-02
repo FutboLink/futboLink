@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { Repository, EntityManager } from 'typeorm';
 import { RegisterUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { join } from 'path';
@@ -22,8 +22,7 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(RepresentationRequest)
-    private readonly representationRequestRepository: Repository<RepresentationRequest>,
+    private readonly entityManager: EntityManager,
     private readonly emailService: EmailService,
   ) {
     // Intentar crear la tabla de cartera de reclutadores si no existe
@@ -662,7 +661,7 @@ export class UserService {
       }
       
       // Verificar si ya existe una solicitud pendiente
-      const existingRequest = await this.representationRequestRepository.findOne({
+      const existingRequest = await this.entityManager.findOne(RepresentationRequest, {
         where: {
           recruiterId,
           playerId: createRepresentationRequestDto.playerId,
@@ -676,14 +675,14 @@ export class UserService {
       }
       
       // Crear la solicitud
-      const request = this.representationRequestRepository.create({
+      const request = this.entityManager.create(RepresentationRequest, {
         recruiterId,
         playerId: createRepresentationRequestDto.playerId,
         message: createRepresentationRequestDto.message,
         status: RepresentationRequestStatus.PENDING
       });
       
-      const savedRequest = await this.representationRequestRepository.save(request);
+      const savedRequest = await this.entityManager.save(request);
       
       // Enviar email al jugador
       try {
@@ -725,7 +724,7 @@ export class UserService {
     updateRepresentationRequestDto: UpdateRepresentationRequestDto,
   ): Promise<RepresentationRequest> {
     // Verificar que la solicitud existe y pertenece al jugador
-    const request = await this.representationRequestRepository.findOne({
+    const request = await this.entityManager.findOne(RepresentationRequest, {
       where: { id: requestId, playerId },
       relations: ['recruiter', 'player']
     });
@@ -740,7 +739,7 @@ export class UserService {
     
     // Actualizar el estado de la solicitud
     request.status = updateRepresentationRequestDto.status as RepresentationRequestStatus;
-    const updatedRequest = await this.representationRequestRepository.save(request);
+    const updatedRequest = await this.entityManager.save(request);
     
     // Si la solicitud fue aceptada, añadir el jugador a la cartera del reclutador
     if (updatedRequest.status === RepresentationRequestStatus.ACCEPTED) {
@@ -794,7 +793,7 @@ export class UserService {
    * @returns Lista de solicitudes
    */
   async getRecruiterSentRequests(recruiterId: string): Promise<RepresentationRequest[]> {
-    return this.representationRequestRepository.find({
+    return this.entityManager.find(RepresentationRequest, {
       where: { recruiterId },
       relations: ['player'],
       order: { createdAt: 'DESC' }
@@ -807,7 +806,7 @@ export class UserService {
    * @returns Lista de solicitudes
    */
   async getPlayerReceivedRequests(playerId: string): Promise<RepresentationRequest[]> {
-    return this.representationRequestRepository.find({
+    return this.entityManager.find(RepresentationRequest, {
       where: { playerId },
       relations: ['recruiter'],
       order: { createdAt: 'DESC' }

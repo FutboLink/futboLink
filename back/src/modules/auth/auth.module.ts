@@ -4,10 +4,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
-import { EmailService } from '@modules/Mailing/email.service';
-import { UserService } from '../user/user.service';
 import { JwtStrategy } from './jwt.strategy';
 import { ConfigModule } from '@nestjs/config';
+import { UserModule } from '../user/user.module';
+import { MailingModule } from '../Mailing/mailing.module';
 
 // JWT Secret hardcoded for development - in production this should be an env variable
 const JWT_SECRET = 'futbolinkSecureJwtSecret2023';
@@ -20,8 +20,10 @@ const JWT_SECRET = 'futbolinkSecureJwtSecret2023';
     }),
     TypeOrmModule.forFeature([User]),
     ConfigModule,
+    UserModule,
+    MailingModule,
   ],
   controllers: [authController],
-  providers: [AuthService, EmailService, UserService, JwtStrategy],
+  providers: [AuthService, JwtStrategy],
 })
 export class AuthModule {}

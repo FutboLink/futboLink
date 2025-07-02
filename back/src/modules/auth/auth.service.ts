@@ -4,7 +4,7 @@ import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
-import { EmailService } from '@modules/Mailing/email.service';
+import { EmailService } from '../Mailing/email.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 

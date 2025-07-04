@@ -28,7 +28,16 @@ const PanelManager = () => {
   const [appliedJobs, setAppliedJobs] = useState<IOfferCard[]>([]);
   const [portfolioPlayers, setPortfolioPlayers] = useState<any[]>([]);
   const [loadingPortfolio, setLoadingPortfolio] = useState(false);
+  const [subscriptionInfo, setSubscriptionInfo] = useState<{
+    hasActiveSubscription: boolean;
+    subscriptionType: string;
+  }>({
+    hasActiveSubscription: false,
+    subscriptionType: 'Gratuito'
+  });
+  const [loadingSubscription, setLoadingSubscription] = useState(true);
   const router = useRouter();
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   // Inicializamos AOS para animaciones
   useEffect(() => {
@@ -41,14 +50,64 @@ const PanelManager = () => {
         try {
           const data = await fetchUserId(user.id);
           setUserData(data);
+
+          // After fetching user data, check subscription status
+          if (data.email) {
+            setLoadingSubscription(true);
+            
+            // Consultar el estado de suscripción directamente desde la API
+            fetch(`${apiUrl}/user/subscription/check?email=${encodeURIComponent(data.email)}`)
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error(`Error checking subscription: ${response.status}`);
+                }
+                return response.json();
+              })
+              .then(subscriptionData => {
+                console.log('Received subscription data for manager:', subscriptionData);
+                
+                // Actualizar estado de la suscripción
+                const subscriptionType = subscriptionData.subscriptionType || 'Amateur';
+                // Convertir nombres de suscripción para managers
+                let displayType = subscriptionType;
+                if (subscriptionType === 'Amateur') {
+                  displayType = 'Gratuito';
+                } else if (subscriptionType === 'Profesional') {
+                  displayType = 'Profesional';
+                }
+                
+                setSubscriptionInfo({
+                  hasActiveSubscription: subscriptionData.isActive === true,
+                  subscriptionType: displayType
+                });
+                
+                // Guardar en localStorage para uso futuro
+                localStorage.setItem('managerSubscriptionInfo', JSON.stringify({
+                  hasActiveSubscription: subscriptionData.isActive === true,
+                  subscriptionType: displayType
+                }));
+              })
+              .catch(err => {
+                console.error("Error checking manager subscription:", err);
+                // Mantener valor por defecto
+                setSubscriptionInfo({
+                  hasActiveSubscription: false,
+                  subscriptionType: 'Gratuito'
+                });
+              })
+              .finally(() => {
+                setLoadingSubscription(false);
+              });
+          }
         } catch (error) {
           console.error("Error loading user data:", error);
           setError("No se pudo cargar los datos.");
+          setLoadingSubscription(false);
         }
       }
     };
     loadUserData();
-  }, [user]);
+  }, [user, apiUrl]);
 
   useEffect(() => {
     const loadAppliedJobs = async () => {
@@ -170,11 +229,40 @@ const PanelManager = () => {
               key={section}
               onClick={() => handleSectionChange(section)}
               className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
-    >
-              <span  className="text-white text-lg">{icon}</span>
+            >
+              <span className="text-white text-lg">{icon}</span>
               <span className="text-white">{name}</span>
             </button>
           ))}
+          
+          {/* Botón para buscar jugadores con verificación de suscripción */}
+          <button
+            onClick={() => {
+              // Verificar si el usuario tiene suscripción adecuada
+              const hasPaidSubscription = 
+                subscriptionInfo.subscriptionType === 'Profesional' || 
+                subscriptionInfo.subscriptionType === 'Semiprofesional';
+                
+              // Redirigir según el tipo de suscripción
+              if (hasPaidSubscription && subscriptionInfo.hasActiveSubscription) {
+                router.push("/player-search");
+              } else {
+                // Mostrar toast con mensaje informativo
+                toast.error("Necesitas una suscripción para acceder a la búsqueda de jugadores");
+                setTimeout(() => {
+                  router.push("/manager-subscription");
+                }, 1000);
+              }
+            }}
+            className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg bg-green-800 border-2 border-white hover:bg-green-700 transition duration-200 mt-4"
+          >
+            <span className="text-white text-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </span>
+            <span className="text-white">Buscar Jugadores</span>
+          </button>
         </nav>
 
         <button
@@ -239,9 +327,47 @@ const PanelManager = () => {
                     <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
                       <strong className="text-[#1d5126]">Nacionalidad:</strong> <span>{userData?.nationality || "No disponible"}</span>
                     </p>
-                    <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                      <strong className="text-[#1d5126]">Ubicación actual:</strong> <span>{userData?.ubicacionActual || "No disponible"}</span>
-                    </p>
+                                          <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
+                        <strong className="text-[#1d5126]">Ubicación actual:</strong> <span>{userData?.ubicacionActual || "No disponible"}</span>
+                      </p>
+                      
+                      {/* Información de Suscripción */}
+                      <div className="border border-gray-200 bg-gradient-to-r from-green-50 to-blue-50 p-3 mb-2 rounded-lg shadow-sm">
+                        <div className="flex items-center justify-between">
+                          <strong className="text-[#1d5126] flex items-center">
+                            <FaBolt className="mr-2 text-yellow-500" />
+                            Plan de Suscripción:
+                          </strong>
+                          {loadingSubscription ? (
+                            <span className="text-gray-500 text-sm">Cargando...</span>
+                          ) : (
+                            <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                              subscriptionInfo.subscriptionType === 'Profesional' 
+                                ? 'bg-green-600 text-white' 
+                                : 'bg-gray-500 text-white'
+                            }`}>
+                              {subscriptionInfo.subscriptionType}
+                            </span>
+                          )}
+                        </div>
+                        {!loadingSubscription && (
+                          <div className="mt-2 text-sm text-gray-600">
+                            <p className="flex items-center">
+                              <span className={`w-2 h-2 rounded-full mr-2 ${
+                                subscriptionInfo.hasActiveSubscription ? 'bg-green-500' : 'bg-gray-400'
+                              }`}></span>
+                              Estado: {subscriptionInfo.hasActiveSubscription ? 'Activa' : 'Inactiva'}
+                            </p>
+                            {subscriptionInfo.subscriptionType === 'Gratuito' && (
+                              <div className="mt-2">
+                                <Link href="/manager-subscription" className="text-blue-600 hover:text-blue-800 underline text-sm">
+                                  Actualizar a Plan Profesional
+                                </Link>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     
                     {/* Redes Sociales */}
                     <div className="mt-6">

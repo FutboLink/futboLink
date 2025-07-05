@@ -352,7 +352,7 @@ export default function UserViewer() {
         <div className="lg:flex lg:gap-8">
           {/* Columna izquierda - Información del perfil */}
           <div className="lg:w-1/3">
-            {/* Header con información del jugador */}
+            {/* Header con información del usuario */}
             <div className="pt-8 pb-4 px-4 from-gray-100 bg-white rounded-lg shadow-sm mb-4">
               <div className="flex items-center mb-2">
                 <div className="relative">
@@ -365,7 +365,14 @@ export default function UserViewer() {
                       className="object-cover w-full h-full"
                     />
                   </div>
-                  {profile.subscriptionType === 'Profesional' && (
+                  {(profile.role as any) === 'RECRUITER' && (
+                    <div className="absolute -bottom-1 -right-1 bg-purple-600 rounded-full p-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                    </div>
+                  )}
+                  {profile.subscriptionType === 'Profesional' && profile.role && profile.role.toString() !== 'RECRUITER' && (
                     <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -383,22 +390,41 @@ export default function UserViewer() {
                     <h2 className="text-xl font-medium text-gray-600">{profile.name}</h2>
                   </div>
                   <h1 className="text-2xl font-bold text-gray-800">{profile.lastname}</h1>
+                  {profile.role === 'RECRUITER' && (
+                    <p className="text-sm text-purple-600 font-medium">Agencia/Reclutador</p>
+                  )}
                 </div>
               </div>
               
-              {/* Estado, edad y tipo de suscripción */}
-              <div className="flex items-center text-sm text-gray-600 mb-4">
-                <div className="flex items-center">
-                  <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-                  <span>{profile.primaryPosition}</span>
+              {/* Estado, edad y tipo de suscripción - Solo para jugadores */}
+              {profile.role !== 'RECRUITER' && (
+                <div className="flex items-center text-sm text-gray-600 mb-4">
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                    <span>{profile.primaryPosition}</span>
+                  </div>
+                  <span className="mx-2">|</span>
+                  <span>{profile.age} años</span>
+                  <span className="mx-2">|</span>
+                  <span>{profile.subscriptionType}</span>
                 </div>
-                <span className="mx-2">|</span>
-                <span>{profile.age} años</span>
-                <span className="mx-2">|</span>
-                <span>{profile.subscriptionType}</span>
-                
+              )}
               
-              </div>
+              {/* Información básica para reclutadores */}
+              {profile.role === 'RECRUITER' && (
+                <div className="flex items-center text-sm text-gray-600 mb-4">
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 rounded-full bg-purple-500 mr-2"></div>
+                    <span>Agencia de representación</span>
+                  </div>
+                  {profile.ubicacionActual && (
+                    <>
+                      <span className="mx-2">|</span>
+                      <span>{profile.ubicacionActual}</span>
+                    </>
+                  )}
+                </div>
+              )}
               
               {/* Botones de acción */}
               <div className="flex justify-between border-t border-gray-200 pt-3">
@@ -538,8 +564,8 @@ export default function UserViewer() {
               </div>
             </div>
             
-            {/* Club actual */}
-            {currentClub && (
+            {/* Club actual - Solo para jugadores */}
+            {currentClub && profile.role !== 'RECRUITER' && (
               <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mb-4">
                 <div className="flex items-center">
                   <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3 border border-gray-200">
@@ -568,144 +594,210 @@ export default function UserViewer() {
 
             
             
-            {/* Estadísticas principales */}
-            <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mb-4">
-              <div className="flex justify-between items-center">
+            {/* Estadísticas principales - Solo para jugadores */}
+            {profile.role && profile.role.toString() !== 'RECRUITER' && (
+              <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mb-4">
+                <div className="flex justify-between items-center">
 
-                 {/* Pie hábil */}
-                 <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 mb-2 relative flex items-center justify-center">
-                    {profile.skillfulFoot === 'Izquierdo' ? (
-                      <Image
-                        src="/icons-positions/pie izquierdo.png"
-                        alt="Pie izquierdo"
-                        width={48}
-                        height={48}
-                        className="object-cover w-full h-full"
-                      />
-                    ) : (
-                      <Image
-                        src="/icons-positions/pie derecho.png"
-                        alt="Pie derecho"
-                        width={48}
-                        height={48}
-                        className="object-cover w-full h-full"
-                      />
-                    )}
+                   {/* Pie hábil */}
+                   <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 mb-2 relative flex items-center justify-center">
+                      {profile.skillfulFoot === 'Izquierdo' ? (
+                        <Image
+                          src="/icons-positions/pie izquierdo.png"
+                          alt="Pie izquierdo"
+                          width={48}
+                          height={48}
+                          className="object-cover w-full h-full"
+                        />
+                      ) : (
+                        <Image
+                          src="/icons-positions/pie derecho.png"
+                          alt="Pie derecho"
+                          width={48}
+                          height={48}
+                          className="object-cover w-full h-full"
+                        />
+                      )}
+                    </div>
+                    <span className="text-sm font-medium text-gray-700">{profile.skillfulFoot || 'DER'}</span>
+                    <span className="text-xs text-gray-500">Pie</span>
                   </div>
-                  <span className="text-sm font-medium text-gray-700">{profile.skillfulFoot || 'DER'}</span>
-                  <span className="text-xs text-gray-500">Pie</span>
-                </div>
-                
+                  
 
-                
-                {/* Posición */}
-                <div className="flex flex-col items-center">
-                  <div className="w-20 h-12 mb-2 relative flex items-center justify-center">
-                    {profile.primaryPosition === 'Portero' ? (
-                      <Image
-                        src="/icons-positions/portero.png"
-                        alt="Portero"
-                        width={88}
-                        height={48}
-                        className="object-cover w-full h-full"
-                      />
-                    ) : profile.primaryPosition === 'Defensor Central' ? (
-                      <Image
-                        src="/icons-positions/defensor central.png"
-                        alt="Defensor central"
-                        width={88}
-                        height={48}
-                        className="object-cover w-full h-full"
-                      />
-                    ) : profile.primaryPosition === 'Lateral Derecho' ? (
-                      <Image
-                        src="/icons-positions/lateral derecho.png"
-                        alt="Lateral derecho"
-                        width={88}
-                        height={48}
-                        className="object-cover w-full h-full"
-                      />
-                    ) : profile.primaryPosition === 'Lateral Izquierdo' ? (
-                      <Image
-                        src="/icons-positions/lateral izquierdo.png"
-                        alt="Lateral izquierdo"
-                        width={88}
-                        height={48}
-                        className="object-cover w-full h-full"
-                      />
-                    ) : profile.primaryPosition === 'Mediocampista Ofensivo' ? (
-                      <Image
-                        src="/icons-positions/mediocampista.png"
-                        alt="Mediocampista"
-                        width={88}
-                        height={48}
-                        className="object-cover w-full h-full"
-                      />
-                    ) : profile.primaryPosition === 'Mediocampista Central' ? (
-                      <Image
-                        src="/icons-positions/mediocampista central.png"
-                        alt="Mediocampista central"
-                        width={88}
-                        height={48}
-                        className="object-cover w-full h-full"
-                      />
-                    ) : profile.primaryPosition === 'Extremo Derecho' ? (
-                      <Image
-                        src="/icons-positions/extremo derecho.png"
-                        alt="Extremo derecho"
-                        width={88}
-                        height={48}
-                        className="object-cover w-full h-full"
-                      />
-                    ) : profile.primaryPosition === 'Extremo Izquierdo' ? (
-                      <Image
-                        src="/icons-positions/extremo izquierdo.png"
-                        alt="Extremo izquierdo"
-                        width={88}
-                        height={48}
-                        className="object-cover w-full h-full"
-                      />
-                    ) : profile.primaryPosition === 'Delantero Centro' ? (
-                      <Image
-                        src="/icons-positions/delantero centro.png"
-                        alt="Delantero centro"
-                        width={88}
-                        height={48}
-                        className="object-cover w-full h-full"
-                      />
-                    ) : (
-                      <Image
-                        src="/icons-positions/portero.png"
-                        alt="Posición"
-                        width={88}
-                        height={48}
-                        className="object-cover w-full h-full"
-                      />
-                    )}
+                  
+                  {/* Posición */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-20 h-12 mb-2 relative flex items-center justify-center">
+                      {profile.primaryPosition === 'Portero' ? (
+                        <Image
+                          src="/icons-positions/portero.png"
+                          alt="Portero"
+                          width={88}
+                          height={48}
+                          className="object-cover w-full h-full"
+                        />
+                      ) : profile.primaryPosition === 'Defensor Central' ? (
+                        <Image
+                          src="/icons-positions/defensor central.png"
+                          alt="Defensor central"
+                          width={88}
+                          height={48}
+                          className="object-cover w-full h-full"
+                        />
+                      ) : profile.primaryPosition === 'Lateral Derecho' ? (
+                        <Image
+                          src="/icons-positions/lateral derecho.png"
+                          alt="Lateral derecho"
+                          width={88}
+                          height={48}
+                          className="object-cover w-full h-full"
+                        />
+                      ) : profile.primaryPosition === 'Lateral Izquierdo' ? (
+                        <Image
+                          src="/icons-positions/lateral izquierdo.png"
+                          alt="Lateral izquierdo"
+                          width={88}
+                          height={48}
+                          className="object-cover w-full h-full"
+                        />
+                      ) : profile.primaryPosition === 'Mediocampista Ofensivo' ? (
+                        <Image
+                          src="/icons-positions/mediocampista.png"
+                          alt="Mediocampista"
+                          width={88}
+                          height={48}
+                          className="object-cover w-full h-full"
+                        />
+                      ) : profile.primaryPosition === 'Mediocampista Central' ? (
+                        <Image
+                          src="/icons-positions/mediocampista central.png"
+                          alt="Mediocampista central"
+                          width={88}
+                          height={48}
+                          className="object-cover w-full h-full"
+                        />
+                      ) : profile.primaryPosition === 'Extremo Derecho' ? (
+                        <Image
+                          src="/icons-positions/extremo derecho.png"
+                          alt="Extremo derecho"
+                          width={88}
+                          height={48}
+                          className="object-cover w-full h-full"
+                        />
+                      ) : profile.primaryPosition === 'Extremo Izquierdo' ? (
+                        <Image
+                          src="/icons-positions/extremo izquierdo.png"
+                          alt="Extremo izquierdo"
+                          width={88}
+                          height={48}
+                          className="object-cover w-full h-full"
+                        />
+                      ) : profile.primaryPosition === 'Delantero Centro' ? (
+                        <Image
+                          src="/icons-positions/delantero centro.png"
+                          alt="Delantero centro"
+                          width={88}
+                          height={48}
+                          className="object-cover w-full h-full"
+                        />
+                      ) : (
+                        <Image
+                          src="/icons-positions/portero.png"
+                          alt="Posición"
+                          width={88}
+                          height={48}
+                          className="object-cover w-full h-full"
+                        />
+                      )}
+                    </div>
+                    <span className="text-sm font-medium text-gray-700">{profile.primaryPosition || 'N/A'}</span>
+                    <span className="text-xs text-gray-500">Posición</span>
                   </div>
-                  <span className="text-sm font-medium text-gray-700">{profile.primaryPosition || 'N/A'}</span>
-                  <span className="text-xs text-gray-500">Posición</span>
-                </div>
-              
                 
-               
-                {/* Altura */}
-                <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 mb-2 flex justify-center items-center">
-                    <span className="text-2xl font-bold text-green-600">
-                      {profile.height ? (profile.height / 100).toFixed(2) : '1.67'}
-                    </span>
+                  
+                 
+                  {/* Altura */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 mb-2 flex justify-center items-center">
+                      <span className="text-2xl font-bold text-green-600">
+                        {profile.height ? (profile.height / 100).toFixed(2) : '1.67'}
+                      </span>
+                    </div>
+                    <span className="text-sm font-medium text-gray-700">Mts</span>
+                    <span className="text-xs text-gray-500">Altura</span>
                   </div>
-                  <span className="text-sm font-medium text-gray-700">Mts</span>
-                  <span className="text-xs text-gray-500">Altura</span>
                 </div>
               </div>
-            </div>
+            )}
+            
+            {/* Información de contacto para reclutadores */}
+            {profile.role && profile.role.toString() === 'RECRUITER' && (
+              <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mb-4">
+                <h3 className="text-lg font-medium mb-3 text-gray-800">Información de contacto</h3>
+                <div className="space-y-3">
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div className="flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0-6v4m0-8v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div>
+                        <p className="text-sm font-medium text-yellow-800">Información restringida</p>
+                        <p className="text-xs text-yellow-700">Los datos de contacto de agencias no están disponibles con tu suscripción actual.</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <span className="text-sm text-gray-500">Email</span>
+                      </div>
+                      <span className="text-xs text-gray-400 bg-gray-200 px-2 py-1 rounded">●●●●●●●●</span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                        <span className="text-sm text-gray-500">Teléfono</span>
+                      </div>
+                      <span className="text-xs text-gray-400 bg-gray-200 px-2 py-1 rounded">●●●●●●●●</span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span className="text-sm text-gray-500">Ubicación</span>
+                      </div>
+                      <span className="text-xs text-gray-400 bg-gray-200 px-2 py-1 rounded">●●●●●●●●</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             
             {/* Botón de contacto para desktop (fijo en la columna) */}
             <div className="hidden lg:block">
-              {!isOwnProfile && profile.phone && (
+              {!isOwnProfile && profile.role && profile.role.toString() === 'RECRUITER' && (
+                <div className="w-full bg-gray-100 border border-gray-300 py-3 px-8 rounded-lg text-center">
+                  <div className="flex items-center justify-center mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0-6v4m0-8v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-sm font-medium text-gray-600">Contacto restringido</span>
+                  </div>
+                  <p className="text-xs text-gray-500">No disponible con tu suscripción actual</p>
+                </div>
+              )}
+              {!isOwnProfile && (!profile.role || profile.role.toString() !== 'RECRUITER') && profile.phone && (
                 <a 
                   href={`https://wa.me/${profile.phone.replace(/\D/g, '')}`} 
                   target="_blank" 
@@ -715,7 +807,7 @@ export default function UserViewer() {
                   Contactar
                 </a>
               )}
-              {!isOwnProfile && !profile.phone && (
+              {!isOwnProfile && (!profile.role || profile.role.toString() !== 'RECRUITER') && !profile.phone && (
                 <div className="text-center text-gray-500 text-sm">
                   Este usuario no ha proporcionado un número de teléfono para contacto.
                 </div>
@@ -754,16 +846,34 @@ export default function UserViewer() {
               {activeTab === 'info' && (
                 <div className="space-y-4">
                   <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-                    <h3 className="text-lg font-medium mb-3 text-gray-800">Información personal</h3>
+                    <h3 className="text-lg font-medium mb-3 text-gray-800">
+                      {profile.role && profile.role.toString() === 'RECRUITER' ? 'Información de la agencia' : 'Información personal'}
+                    </h3>
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span className="text-gray-600">Nombre completo</span>
                         <span className="text-gray-800">{profile.name} {profile.lastname}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Fecha de nacimiento</span>
-                        <span className="text-gray-800">{profile.birthday || 'No especificada'}</span>
-                      </div>
+                      {profile.role && profile.role.toString() !== 'RECRUITER' && (
+                        <>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Fecha de nacimiento</span>
+                            <span className="text-gray-800">{profile.birthday || 'No especificada'}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Altura</span>
+                            <span className="text-gray-800">{profile.height ? `${profile.height} cm` : 'No especificada'}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Peso</span>
+                            <span className="text-gray-800">{profile.weight ? `${profile.weight} kg` : 'No especificado'}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Pie hábil</span>
+                            <span className="text-gray-800">{profile.skillfulFoot || 'No especificado'}</span>
+                          </div>
+                        </>
+                      )}
                       <div className="flex justify-between">
                         <span className="text-gray-600">Nacionalidad</span>
                         <span className="flex items-center text-gray-800">
@@ -771,50 +881,69 @@ export default function UserViewer() {
                           <span className="ml-2">{profile.nationality}</span>
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Altura</span>
-                        <span className="text-gray-800">{profile.height ? `${profile.height} cm` : 'No especificada'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Peso</span>
-                        <span className="text-gray-800">{profile.weight ? `${profile.weight} kg` : 'No especificado'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Pie hábil</span>
-                        <span className="text-gray-800">{profile.skillfulFoot || 'No especificado'}</span>
-                      </div>
+                      {profile.role && profile.role.toString() === 'RECRUITER' && profile.ubicacionActual && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Ubicación</span>
+                          <span className="text-gray-800">{profile.ubicacionActual}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                   
                   <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
                     <h3 className="text-lg font-medium mb-3 text-gray-800">Contacto</h3>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Email</span>
-                        <span className="text-gray-800">{profile.email}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Teléfono</span>
-                        <span className="text-gray-800">{profile.phone || 'No especificado'}</span>
-                      </div>
-                      {profile.socialMedia && Object.keys(profile.socialMedia || {}).length > 0 && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Redes sociales</span>
-                          <div className="flex space-x-2">
-                            {profile.socialMedia?.transfermarkt && (
-                              <a href={profile.socialMedia.transfermarkt} target="_blank" rel="noopener noreferrer" className="text-green-600">
-                                Transfermarkt
-                              </a>
-                            )}
-                            {profile.socialMedia?.x && (
-                              <a href={`https://x.com/${profile.socialMedia.x}`} target="_blank" rel="noopener noreferrer" className="text-blue-500">
-                                X
-                              </a>
-                            )}
+                    {profile.role && profile.role.toString() === 'RECRUITER' ? (
+                      <div className="space-y-3">
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                          <div className="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0-6v4m0-8v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div>
+                              <p className="text-sm font-medium text-yellow-800">Información restringida</p>
+                              <p className="text-xs text-yellow-700">Los datos de contacto no están disponibles con tu suscripción actual.</p>
+                            </div>
                           </div>
                         </div>
-                      )}
-                    </div>
+                        
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Email</span>
+                          <span className="text-xs text-gray-400 bg-gray-200 px-2 py-1 rounded">●●●●●●●●</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Teléfono</span>
+                          <span className="text-xs text-gray-400 bg-gray-200 px-2 py-1 rounded">●●●●●●●●</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Email</span>
+                          <span className="text-gray-800">{profile.email}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Teléfono</span>
+                          <span className="text-gray-800">{profile.phone || 'No especificado'}</span>
+                        </div>
+                        {profile.socialMedia && Object.keys(profile.socialMedia || {}).length > 0 && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Redes sociales</span>
+                            <div className="flex space-x-2">
+                              {profile.socialMedia?.transfermarkt && (
+                                <a href={profile.socialMedia.transfermarkt} target="_blank" rel="noopener noreferrer" className="text-green-600">
+                                  Transfermarkt
+                                </a>
+                              )}
+                              {profile.socialMedia?.x && (
+                                <a href={`https://x.com/${profile.socialMedia.x}`} target="_blank" rel="noopener noreferrer" className="text-blue-500">
+                                  X
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                   
                   {/* Sección de video */}
@@ -880,7 +1009,17 @@ export default function UserViewer() {
         </div>
         
         {/* Botón flotante para contactar (solo en móvil) */}
-        {!isOwnProfile && profile.phone && (
+        {!isOwnProfile && profile.role && profile.role.toString() === 'RECRUITER' && (
+          <div className="fixed bottom-6 left-0 right-0 flex justify-center lg:hidden">
+            <div className="bg-gray-100 border border-gray-300 py-3 px-8 rounded-full shadow-lg inline-flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0-6v4m0-8v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-sm font-medium text-gray-600">No disponible con tu suscripción</span>
+            </div>
+          </div>
+        )}
+        {!isOwnProfile && (!profile.role || profile.role.toString() !== 'RECRUITER') && profile.phone && (
           <div className="fixed bottom-6 left-0 right-0 flex justify-center lg:hidden">
             <a 
               href={`https://wa.me/${profile.phone.replace(/\D/g, '')}`} 

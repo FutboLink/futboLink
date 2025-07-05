@@ -24,6 +24,7 @@ interface User {
   weight?: number;
   skillfulFoot?: string;
   subscriptionType?: string;
+  subscription?: string;
   role?: string;
   email?: string;
   phone?: string;
@@ -41,6 +42,7 @@ interface SearchFilters {
   skillfulFoot?: string;
   profileType?: string;
   role?: string;
+  subscriptionType?: string;
 }
 
 const PlayerSearch: React.FC = () => {
@@ -64,7 +66,7 @@ const PlayerSearch: React.FC = () => {
       noPlayersFound: 'No se encontraron usuarios con esos criterios',
       
       // Filtros
-      playerSearch: 'Búsqueda de Usuarios',
+      playerSearch: 'Búsqueda de Jugadores y Agencias',
       showFilters: 'Mostrar filtros',
       hideFilters: 'Ocultar filtros',
       nameOrLastname: 'Nombre o apellido',
@@ -318,7 +320,7 @@ const PlayerSearch: React.FC = () => {
         console.log(`Cargando lote ${batchCount + 1}/${MAX_BATCHES}...`);
         
         try {
-          const response = await axios.get(`${getApiUrl()}/user/search/players?${params.toString()}`, {
+          const response = await axios.get(`${getApiUrl()}/user/search/users?${params.toString()}`, {
             headers: {
               Authorization: `Bearer ${currentToken}`
             }
@@ -347,35 +349,55 @@ const PlayerSearch: React.FC = () => {
       // Filtrar y ordenar usuarios por tipo de suscripción
       const sortedUsers = sortPlayersBySubscriptionType(allLoadedUsers);
       
-      // Separar usuarios por tipo de suscripción
-      const professionalUsers = sortedUsers.filter(user => 
-        user.subscriptionType === 'Profesional'
+      // Separar usuarios por tipo de suscripción y rol
+      // Función auxiliar para verificar si el usuario tiene una suscripción específica
+      const hasSubscription = (user: User, subscriptionName: string): boolean => {
+        return user.subscriptionType === subscriptionName || user.subscription === subscriptionName;
+      };
+      
+      // Función auxiliar para verificar si el usuario es profesional
+      const isProfessional = (user: User): boolean => {
+        return hasSubscription(user, 'Profesional') || hasSubscription(user, 'profesional') || hasSubscription(user, 'Professional');
+      };
+      
+      // Función auxiliar para verificar si el usuario es semiprofesional
+      const isSemiProfessional = (user: User): boolean => {
+        return hasSubscription(user, 'Semiprofesional') || hasSubscription(user, 'semiprofesional') || hasSubscription(user, 'Semi-profesional');
+      };
+      
+      const professionalPlayers = sortedUsers.filter(user => 
+        isProfessional(user) && user.role === 'PLAYER'
       );
       
-      const semiProfessionalUsers = sortedUsers.filter(user => 
-        user.subscriptionType === 'Semiprofesional'
+      const semiProfessionalPlayers = sortedUsers.filter(user => 
+        isSemiProfessional(user) && user.role === 'PLAYER'
       );
       
-      const amateurUsers = sortedUsers.filter(user => 
-        user.subscriptionType !== 'Profesional' && user.subscriptionType !== 'Semiprofesional'
+      const recruiters = sortedUsers.filter(user => 
+        user.role === 'RECRUITER'
       );
       
-      console.log(`Encontrados: ${professionalUsers.length} profesionales, ${semiProfessionalUsers.length} semi-profesionales y ${amateurUsers.length} amateurs`);
+      const amateurPlayers = sortedUsers.filter(user => 
+        user.role === 'PLAYER' && !isProfessional(user) && !isSemiProfessional(user)
+      );
+      
+      console.log(`Encontrados: ${professionalPlayers.length} profesionales, ${semiProfessionalPlayers.length} semi-profesionales, ${recruiters.length} reclutadores y ${amateurPlayers.length} amateurs`);
       
       // Guardar la lista de amateurs para cargar más tarde
-      setAllPlayersLoaded(amateurUsers);
+      setAllPlayersLoaded(amateurPlayers);
       
-      // Mostrar primero los profesionales y semiprofesionales
-      setPlayers([...professionalUsers, ...semiProfessionalUsers]);
+      // Mostrar primero los profesionales, semiprofesionales y reclutadores
+      setPlayers([...professionalPlayers, ...semiProfessionalPlayers, ...recruiters]);
       
-      // Si no hay suficientes profesionales/semis para llenar la primera página,
+      // Si no hay suficientes profesionales/semis/reclutadores para llenar la primera página,
       // cargar algunos amateurs para completar
-      if (professionalUsers.length + semiProfessionalUsers.length < 50) {
-        const amateursToShow = amateurUsers.slice(0, 50 - (professionalUsers.length + semiProfessionalUsers.length));
+      const priorityUsersCount = professionalPlayers.length + semiProfessionalPlayers.length + recruiters.length;
+      if (priorityUsersCount < 50) {
+        const amateursToShow = amateurPlayers.slice(0, 50 - priorityUsersCount);
         setPlayers(prev => [...prev, ...amateursToShow]);
         
         // Actualizar la lista de amateurs restantes
-        setAllPlayersLoaded(amateurUsers.slice(50 - (professionalUsers.length + semiProfessionalUsers.length)));
+        setAllPlayersLoaded(amateurPlayers.slice(50 - priorityUsersCount));
       }
       
     } catch (error) {
@@ -406,16 +428,16 @@ const PlayerSearch: React.FC = () => {
       
       console.log('Cargando más perfiles...');
       
-      const response = await axios.get(`${getApiUrl()}/user/search/players?${params.toString()}`, {
+      const response = await axios.get(`${getApiUrl()}/user/search/users?${params.toString()}`, {
         headers: {
           Authorization: `Bearer ${currentToken}`
         }
       });
       
-      const newPlayers = response.data.players || [];
+      const newUsers = response.data.users || [];
       
-      // Añadir nuevos jugadores a la lista existente
-      setPlayers(prev => [...prev, ...newPlayers]);
+      // Añadir nuevos usuarios a la lista existente
+      setPlayers(prev => [...prev, ...newUsers]);
       
     } catch (error) {
       console.error('Error al cargar más perfiles:', error);
@@ -473,26 +495,51 @@ const PlayerSearch: React.FC = () => {
       params.append('skillfulFoot', filters.skillfulFoot);
     }
     
+    if (filters.role) {
+      params.append('role', filters.role);
+    }
+    
     return params;
   };
 
-  // Función para ordenar usuarios por tipo de suscripción
+  // Función para ordenar usuarios por tipo de suscripción y rol
   const sortPlayersBySubscriptionType = (users: User[]): User[] => {
     return [...users].sort((a, b) => {
-      // Determinar tipo de suscripción para cada usuario
-      const getSubscriptionType = (user: User): number => {
-        // Usar el campo subscriptionType directamente
-        if (user.subscriptionType === 'Profesional') return 1;
-        if (user.subscriptionType === 'Semiprofesional') return 2;
-        // Amateur o cualquier otro caso
-        return 3;
+      // Función auxiliar para verificar si el usuario tiene una suscripción específica
+      const hasSubscription = (user: User, subscriptionName: string): boolean => {
+        return user.subscriptionType === subscriptionName || user.subscription === subscriptionName;
       };
       
-      const typeA = getSubscriptionType(a);
-      const typeB = getSubscriptionType(b);
+      // Función auxiliar para verificar si el usuario es profesional
+      const isProfessional = (user: User): boolean => {
+        return hasSubscription(user, 'Profesional') || hasSubscription(user, 'profesional') || hasSubscription(user, 'Professional');
+      };
       
-      // Ordenar por tipo de suscripción (profesional y semiprofesional primero)
-      return typeA - typeB;
+      // Función auxiliar para verificar si el usuario es semiprofesional
+      const isSemiProfessional = (user: User): boolean => {
+        return hasSubscription(user, 'Semiprofesional') || hasSubscription(user, 'semiprofesional') || hasSubscription(user, 'Semi-profesional');
+      };
+      
+      // Determinar prioridad por rol y tipo de suscripción
+      const getPriority = (user: User): number => {
+        // Reclutadores tienen prioridad alta
+        if (user.role === 'RECRUITER') return 1;
+        
+        // Jugadores profesionales
+        if (user.role === 'PLAYER' && isProfessional(user)) return 2;
+        
+        // Jugadores semiprofesionales
+        if (user.role === 'PLAYER' && isSemiProfessional(user)) return 3;
+        
+        // Jugadores amateur o cualquier otro caso
+        return 4;
+      };
+      
+      const priorityA = getPriority(a);
+      const priorityB = getPriority(b);
+      
+      // Ordenar por prioridad
+      return priorityA - priorityB;
     });
   };
 
@@ -513,10 +560,20 @@ const PlayerSearch: React.FC = () => {
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFilters(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFilters(prev => {
+      const newFilters = {
+        ...prev,
+        [name]: value
+      };
+      
+      // Si se selecciona "Solo reclutadores/agencias", limpiar filtros que no aplican
+      if (name === 'role' && value === 'RECRUITER') {
+        newFilters.primaryPosition = '';
+        newFilters.subscriptionType = '';
+      }
+      
+      return newFilters;
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -535,6 +592,64 @@ const PlayerSearch: React.FC = () => {
       searchPlayers();
     }
   }, [page, user, token]);
+
+  // Efecto para buscar cuando cambia el filtro de rol
+  useEffect(() => {
+    if (typeof window !== 'undefined' && user && token) {
+      setPage(0); // Resetear a la primera página
+      searchPlayers();
+    }
+  }, [filters.role, user, token]);
+
+  // Efecto para forzar re-renderizado cuando cambie el filtro de suscripción
+  useEffect(() => {
+    // Este efecto solo fuerza el re-renderizado del componente
+    // El filtro se aplica en tiempo real en el renderizado
+  }, [filters.subscriptionType]);
+
+  // Función para aplicar filtros del lado del cliente
+  const applyClientSideFilters = (users: User[]): User[] => {
+    return users.filter(currentUser => {
+      // Filtrar por tipo de suscripción
+      if (filters.subscriptionType) {
+        // Función auxiliar para verificar si el usuario tiene una suscripción específica
+        // Verifica tanto el campo 'subscriptionType' como 'subscription' para mayor compatibilidad
+        const hasSubscription = (subscriptionName: string): boolean => {
+          return currentUser.subscriptionType === subscriptionName || currentUser.subscription === subscriptionName;
+        };
+        
+        // Función auxiliar para verificar si el usuario es profesional
+        const isProfessional = (): boolean => {
+          return hasSubscription('Profesional') || hasSubscription('profesional') || hasSubscription('Professional');
+        };
+        
+        // Función auxiliar para verificar si el usuario es semiprofesional
+        const isSemiProfessional = (): boolean => {
+          return hasSubscription('Semiprofesional') || hasSubscription('semiprofesional') || hasSubscription('Semi-profesional');
+        };
+        
+        // Función auxiliar para verificar si el usuario es amateur
+        const isAmateur = (): boolean => {
+          return !isProfessional() && !isSemiProfessional();
+        };
+        
+        switch (filters.subscriptionType) {
+          case 'Profesional':
+            return isProfessional();
+          case 'Semiprofesional':
+            return isSemiProfessional();
+          case 'premium':
+            return isProfessional() || isSemiProfessional();
+          case 'amateur':
+            return isAmateur();
+          default:
+            return true;
+        }
+      }
+      
+      return true;
+    });
+  };
 
   // Limpiar filtros
   const clearFilters = () => {
@@ -615,24 +730,42 @@ const PlayerSearch: React.FC = () => {
 
   // Renderizar tarjeta de usuario
   const renderUserCard = (currentUser: User) => {
-    // Determinar tipo de suscripción usando el campo subscriptionType
-    const subscriptionType = currentUser.subscriptionType === 'Profesional' 
-      ? 'professional' 
-      : (currentUser.subscriptionType === 'Semiprofesional' ? 'semi' : 'amateur');
+    const isPlayer = currentUser.role === 'PLAYER';
+    const isRecruiter = currentUser.role === 'RECRUITER';
     
-    // Color de la insignia según tipo de suscripción
-    const badgeBgClass = {
-      'professional': 'bg-green-800',
-      'semi': 'bg-blue-700',
-      'amateur': 'bg-gray-700'
-    }[subscriptionType];
+    // Función auxiliar para verificar si el usuario tiene una suscripción específica
+    const hasSubscription = (subscriptionName: string): boolean => {
+      return currentUser.subscriptionType === subscriptionName || currentUser.subscription === subscriptionName;
+    };
     
-    // Texto de la insignia según tipo de suscripción
-    const badgeText = {
-      'professional': t('professional'),
-      'semi': t('semi'),
-      'amateur': t('amateur')
-    }[subscriptionType];
+    // Determinar tipo de suscripción usando ambos campos: subscriptionType y subscription
+    const subscriptionType = (() => {
+      if (hasSubscription('Profesional') || hasSubscription('profesional') || hasSubscription('Professional')) {
+        return 'professional';
+      }
+      if (hasSubscription('Semiprofesional') || hasSubscription('semiprofesional') || hasSubscription('Semi-profesional')) {
+        return 'semi';
+      }
+      return 'amateur';
+    })();
+    
+    // Color de la insignia según tipo de suscripción o rol
+    const badgeBgClass = isRecruiter 
+      ? 'bg-purple-800'
+      : {
+          'professional': 'bg-green-800',
+          'semi': 'bg-blue-700',
+          'amateur': 'bg-gray-700'
+        }[subscriptionType];
+    
+    // Texto de la insignia según tipo de suscripción o rol
+    const badgeText = isRecruiter 
+      ? t('recruiter')
+      : {
+          'professional': t('professional'),
+          'semi': t('semi'),
+          'amateur': t('amateur')
+        }[subscriptionType];
     
     // Verificar si este usuario está siendo añadido a la cartera
     const isBeingAddedToPortfolio = isAddingToPortfolio === currentUser.id;
@@ -658,6 +791,7 @@ const PlayerSearch: React.FC = () => {
           {/* Gradiente decorativo si no hay imagen */}
           {!currentUser.imgUrl && (
             <div className={`absolute inset-0 bg-gradient-to-r ${
+              isRecruiter ? 'from-purple-800 to-purple-600' :
               subscriptionType === 'professional' ? 'from-green-800 to-green-600' :
               subscriptionType === 'semi' ? 'from-blue-700 to-blue-500' :
               'from-gray-700 to-gray-500'
@@ -687,43 +821,79 @@ const PlayerSearch: React.FC = () => {
             </div>
           </div>
           
-          {/* Nombre y posición */}
+          {/* Nombre y información */}
           <div className="mb-2">
             <h3 className="text-lg font-bold text-gray-900 leading-tight">{currentUser.name} {currentUser.lastname}</h3>
             <p className="text-sm text-gray-600 line-clamp-2">
-              {currentUser.primaryPosition || t('notSpecified')}
-              {currentUser.secondaryPosition && ` / ${currentUser.secondaryPosition}`}
+              {isPlayer && (
+                <>
+                  {currentUser.primaryPosition || t('notSpecified')}
+                  {currentUser.secondaryPosition && ` / ${currentUser.secondaryPosition}`}
+                </>
+              )}
+              {isRecruiter && (
+                <>
+                  {t('recruiter')}
+                  {currentUser.ubicacionActual && ` - ${currentUser.ubicacionActual}`}
+                </>
+              )}
               {currentUser.nationality && ` | ${currentUser.nationality}`}
             </p>
           </div>
           
           {/* Detalles adicionales */}
           <div className="text-xs text-gray-500 space-y-1 mb-4">
-            {currentUser.age && (
-              <div className="flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span>{t('age')}: {currentUser.age}</span>
-              </div>
+            {isPlayer && (
+              <>
+                {currentUser.age && (
+                  <div className="flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>{t('age')}: {currentUser.age}</span>
+                  </div>
+                )}
+                
+                {currentUser.height && (
+                  <div className="flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                    </svg>
+                    <span>{t('height')}: {currentUser.height} cm</span>
+                  </div>
+                )}
+                
+                {currentUser.skillfulFoot && (
+                  <div className="flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{t('skillfulFoot')}: {currentUser.skillfulFoot}</span>
+                  </div>
+                )}
+              </>
             )}
             
-            {currentUser.height && (
-              <div className="flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                </svg>
-                <span>{t('height')}: {currentUser.height} cm</span>
-              </div>
-            )}
-            
-            {currentUser.skillfulFoot && (
-              <div className="flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{t('skillfulFoot')}: {currentUser.skillfulFoot}</span>
-              </div>
+            {isRecruiter && (
+              <>
+                {currentUser.email && (
+                  <div className="flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <span className="truncate">{currentUser.email}</span>
+                  </div>
+                )}
+                
+                {currentUser.phone && (
+                  <div className="flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                    <span>{currentUser.phone}</span>
+                  </div>
+                )}
+              </>
             )}
             
             {/* Nacionalidad con bandera */}
@@ -750,8 +920,8 @@ const PlayerSearch: React.FC = () => {
               {t('viewProfile')}
             </Link>
             
-            {/* Botón de añadir a cartera (solo visible para reclutadores) */}
-            {user && user.role === 'RECRUITER' && (
+            {/* Botón de añadir a cartera (solo visible para reclutadores y para jugadores) */}
+            {user && user.role === 'RECRUITER' && isPlayer && (
               <button
                 onClick={(e) => {
                   e.preventDefault();
@@ -789,6 +959,21 @@ const PlayerSearch: React.FC = () => {
     <div className="p-4 md:p-8 max-w-7xl mx-auto">
       <h1 className="mb-6 text-blue-900 text-center">{t('playerSearch')}</h1>
       
+      {/* Información sobre los tipos de usuario */}
+      <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+        <p className="text-sm text-blue-800">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Puedes buscar tanto <strong>jugadores</strong> como <strong>reclutadores/agencias</strong>. Usa los filtros disponibles para encontrar específicamente lo que buscas:
+        </p>
+        <ul className="text-xs text-blue-700 mt-2 ml-5 space-y-1">
+          <li>• <strong>Tipo de usuario:</strong> Filtra entre jugadores y agencias</li>
+          <li>• <strong>Tipo de suscripción:</strong> Encuentra jugadores profesionales, semiprofesionales o amateur (detecta automáticamente el tipo de suscripción)</li>
+          <li>• <strong>Posición:</strong> Busca jugadores por su posición en el campo</li>
+        </ul>
+      </div>
+      
       {/* Formulario de búsqueda */}
       <div className="mb-8 bg-gray-50 rounded-lg p-4 shadow-sm">
         <form onSubmit={handleSubmit}>
@@ -812,21 +997,72 @@ const PlayerSearch: React.FC = () => {
                   name="primaryPosition"
                   value={filters.primaryPosition || ''}
                   onChange={handleFilterChange}
-                  className="w-full p-2 text-black border border-gray-200 rounded text-base"
+                  disabled={filters.role === 'RECRUITER'}
+                  className={`w-full p-2 text-black border border-gray-200 rounded text-base ${
+                    filters.role === 'RECRUITER' ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 >
                   <option value="">Todas las posiciones</option>
                   {positions.map(position => (
                     <option key={position} value={position}>{position}</option>
                   ))}
                 </select>
+                {filters.role === 'RECRUITER' && (
+                  <p className="text-xs text-gray-500 mt-1">Las agencias no tienen posición de juego</p>
+                )}
+              </div>
+              <div className="flex-1">
+                <label htmlFor="roleFilter" className="block mb-2 font-medium text-gray-600">Tipo de usuario</label>
+                <select
+                  id="roleFilter"
+                  name="role"
+                  value={filters.role || ''}
+                  onChange={handleFilterChange}
+                  className="w-full p-2 text-black border border-gray-200 rounded text-base"
+                >
+                  <option value="">Todos los tipos</option>
+                  <option value="PLAYER">Solo jugadores</option>
+                  <option value="RECRUITER">Solo reclutadores/agencias</option>
+                </select>
               </div>
             </div>
-            <div className="flex justify-center">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <label htmlFor="subscriptionFilter" className="block mb-2 font-medium text-gray-600">Tipo de suscripción</label>
+                <select
+                  id="subscriptionFilter"
+                  name="subscriptionType"
+                  value={filters.subscriptionType || ''}
+                  onChange={handleFilterChange}
+                  disabled={filters.role === 'RECRUITER'}
+                  className={`w-full p-2 text-black border border-gray-200 rounded text-base ${
+                    filters.role === 'RECRUITER' ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                >
+                  <option value="">Todos los tipos de suscripción</option>
+                  <option value="Profesional">Solo profesionales</option>
+                  <option value="Semiprofesional">Solo semiprofesionales</option>
+                  <option value="premium">Profesionales y semiprofesionales</option>
+                  <option value="amateur">Solo amateur</option>
+                </select>
+                {filters.role === 'RECRUITER' && (
+                  <p className="text-xs text-gray-500 mt-1">Las agencias no tienen tipos de suscripción de jugador</p>
+                )}
+              </div>
+            </div>
+            <div className="flex justify-center gap-4">
               <button 
                 type="submit" 
                 className="bg-green-800 text-white border-none py-2 px-8 rounded font-medium hover:bg-green-700 transition-colors w-full md:w-auto"
               >
                 {t('search')}
+              </button>
+              <button 
+                type="button"
+                onClick={clearFilters}
+                className="bg-gray-500 text-white border-none py-2 px-8 rounded font-medium hover:bg-gray-600 transition-colors w-full md:w-auto"
+              >
+                {t('clearFilters')}
               </button>
             </div>
           </div>
@@ -841,29 +1077,118 @@ const PlayerSearch: React.FC = () => {
       ) : (
         <>
           <div className="mb-4 text-gray-600">
-            <p>{t('showingResults', { showing: players.length, total: totalPlayers })}</p>
+            {(() => {
+              const filteredPlayers = applyClientSideFilters(players);
+              return (
+                <>
+                  <p>{t('showingResults', { showing: filteredPlayers.length, total: totalPlayers })}</p>
+                  
+                  {/* Etiquetas de filtros activos */}
+                  {(filters.role || filters.subscriptionType || filters.primaryPosition) && (
+                    <div className="mt-2 mb-3 flex flex-wrap gap-2">
+                      <span className="text-xs text-gray-500">Filtros activos:</span>
+                      {filters.role && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          {filters.role === 'PLAYER' ? 'Solo jugadores' : 'Solo agencias'}
+                          <button
+                            onClick={() => setFilters(prev => ({ ...prev, role: '' }))}
+                            className="ml-1 text-blue-600 hover:text-blue-800"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      )}
+                      {filters.subscriptionType && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                          {filters.subscriptionType === 'Profesional' ? 'Profesionales' :
+                           filters.subscriptionType === 'Semiprofesional' ? 'Semiprofesionales' :
+                           filters.subscriptionType === 'premium' ? 'Premium (Pro + Semi)' : 'Amateur'}
+                          <button
+                            onClick={() => setFilters(prev => ({ ...prev, subscriptionType: '' }))}
+                            className="ml-1 text-orange-600 hover:text-orange-800"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      )}
+                      {filters.primaryPosition && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          {filters.primaryPosition}
+                          <button
+                            onClick={() => setFilters(prev => ({ ...prev, primaryPosition: '' }))}
+                            className="ml-1 text-green-600 hover:text-green-800"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  
+                  {filteredPlayers.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {(() => {
+                        const playersCount = filteredPlayers.filter(p => p.role === 'PLAYER').length;
+                        const recruitersCount = filteredPlayers.filter(p => p.role === 'RECRUITER').length;
+                        return (
+                          <>
+                            {playersCount > 0 && (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                {playersCount} {playersCount === 1 ? 'jugador' : 'jugadores'}
+                              </span>
+                            )}
+                            {recruitersCount > 0 && (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                                {recruitersCount} {recruitersCount === 1 ? 'agencia' : 'agencias'}
+                              </span>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
-            {players.length > 0 ? (
-              players.map(player => renderUserCard(player))
-            ) : (
-              <p className="text-center py-8 text-gray-600 italic col-span-full">{t('noPlayersFound')}</p>
-            )}
+            {(() => {
+              const filteredPlayers = applyClientSideFilters(players);
+              return filteredPlayers.length > 0 ? (
+                filteredPlayers.map(player => renderUserCard(player))
+              ) : (
+                <p className="text-center py-8 text-gray-600 italic col-span-full">{t('noPlayersFound')}</p>
+              );
+            })()}
           </div>
           
           {/* Botón para cargar más jugadores */}
-          {players.length < totalPlayers && (
-            <div className="flex justify-center mt-4 mb-6">
-              <button
-                onClick={loadMorePlayers}
-                className="bg-green-800 text-white border-none py-2 px-4 rounded transition-colors hover:bg-green-700"
-                disabled={loading}
-              >
-                {loading ? t('loading') : t('loadMore')}
-              </button>
-            </div>
-          )}
+          {(() => {
+            const filteredPlayers = applyClientSideFilters(players);
+            return players.length < totalPlayers && (
+              <div className="flex justify-center mt-4 mb-6">
+                <button
+                  onClick={loadMorePlayers}
+                  className="bg-green-800 text-white border-none py-2 px-4 rounded transition-colors hover:bg-green-700"
+                  disabled={loading}
+                >
+                  {loading ? t('loading') : t('loadMore')}
+                </button>
+                {filters.subscriptionType && (
+                  <p className="text-xs text-gray-500 ml-2 self-center">
+                    Los nuevos resultados se filtrarán automáticamente
+                  </p>
+                )}
+              </div>
+            );
+          })()}
         </>
       )}
     </div>

@@ -11,7 +11,7 @@ import Image from 'next/image';
 import { getDefaultPlayerImage } from '@/helpers/imageUtils';
 import { renderCountryFlag } from '../countryFlag/countryFlag';
 
-interface Player {
+interface User {
   id: string;
   name: string;
   lastname: string;
@@ -24,6 +24,10 @@ interface Player {
   weight?: number;
   skillfulFoot?: string;
   subscriptionType?: string;
+  role?: string;
+  email?: string;
+  phone?: string;
+  ubicacionActual?: string;
 }
 
 interface SearchFilters {
@@ -36,6 +40,7 @@ interface SearchFilters {
   maxHeight?: number;
   skillfulFoot?: string;
   profileType?: string;
+  role?: string;
 }
 
 const PlayerSearch: React.FC = () => {
@@ -54,12 +59,12 @@ const PlayerSearch: React.FC = () => {
       needLogin: 'Necesitas iniciar sesión para acceder a esta función',
       needProfessionalSubscription: 'Necesitas una suscripción profesional para acceder a esta función',
       errorCheckingSubscription: 'Error al verificar tu suscripción',
-      errorSearchingPlayers: 'Error al buscar jugadores',
+      errorSearchingPlayers: 'Error al buscar usuarios',
       loading: 'Cargando...',
-      noPlayersFound: 'No se encontraron jugadores con esos criterios',
+      noPlayersFound: 'No se encontraron usuarios con esos criterios',
       
       // Filtros
-      playerSearch: 'Búsqueda de Jugadores',
+      playerSearch: 'Búsqueda de Usuarios',
       showFilters: 'Mostrar filtros',
       hideFilters: 'Ocultar filtros',
       nameOrLastname: 'Nombre o apellido',
@@ -81,11 +86,19 @@ const PlayerSearch: React.FC = () => {
       clearFilters: 'Limpiar filtros',
       profileType: 'Tipo de perfil',
       allProfiles: 'Todos los perfiles',
+      userType: 'Tipo de usuario',
+      allUserTypes: 'Todos los tipos',
+      playersOnly: 'Solo jugadores',
+      recruitersOnly: 'Solo reclutadores/agencias',
       
       // Tipos de perfil
       professional: 'Profesional',
       semi: 'Semi',
       amateur: 'Amateur',
+      
+      // Roles
+      player: 'Jugador',
+      recruiter: 'Reclutador/Agencia',
       
       // Información de jugador
       age: 'Edad',
@@ -94,6 +107,9 @@ const PlayerSearch: React.FC = () => {
       notSpecified: 'No especificado',
       viewProfile: 'Ver perfil',
       birthdate: 'Fecha de nac.',
+      location: 'Ubicación',
+      email: 'Email',
+      phone: 'Teléfono',
       
       // Paginación
       previous: 'Anterior',
@@ -117,12 +133,12 @@ const PlayerSearch: React.FC = () => {
     return text;
   };
   
-  const [players, setPlayers] = useState<Player[]>([]);
+  const [players, setPlayers] = useState<User[]>([]);
   const [totalPlayers, setTotalPlayers] = useState(0);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(10);
-  const [allPlayersLoaded, setAllPlayersLoaded] = useState<Player[]>([]);
+  const [allPlayersLoaded, setAllPlayersLoaded] = useState<User[]>([]);
   const [filters, setFilters] = useState<SearchFilters>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [positions, setPositions] = useState<string[]>([
@@ -286,7 +302,7 @@ const PlayerSearch: React.FC = () => {
       const BATCH_SIZE = 50; // Tamaño de lote que el backend acepta
       const MAX_BATCHES = 4; // Máximo número de lotes a cargar (hasta 200 perfiles)
       
-      let allLoadedPlayers: Player[] = [];
+      let allLoadedUsers: User[] = [];
       let hasMoreToLoad = true;
       let batchCount = 0;
       
@@ -308,14 +324,14 @@ const PlayerSearch: React.FC = () => {
             }
           });
           
-          const batchPlayers = response.data.players || [];
-          allLoadedPlayers = [...allLoadedPlayers, ...batchPlayers];
+          const batchUsers = response.data.users || [];
+          allLoadedUsers = [...allLoadedUsers, ...batchUsers];
           
           // Actualizar el total de jugadores disponibles
           setTotalPlayers(response.data.total || 0);
           
-          // Si recibimos menos jugadores de los solicitados, no hay más para cargar
-          if (batchPlayers.length < BATCH_SIZE) {
+          // Si recibimos menos usuarios de los solicitados, no hay más para cargar
+          if (batchUsers.length < BATCH_SIZE) {
             hasMoreToLoad = false;
             console.log('No hay más perfiles para cargar');
           }
@@ -328,38 +344,38 @@ const PlayerSearch: React.FC = () => {
         }
       }
       
-      // Filtrar y ordenar jugadores por tipo de suscripción
-      const sortedPlayers = sortPlayersBySubscriptionType(allLoadedPlayers);
+      // Filtrar y ordenar usuarios por tipo de suscripción
+      const sortedUsers = sortPlayersBySubscriptionType(allLoadedUsers);
       
-      // Separar jugadores por tipo de suscripción
-      const professionalPlayers = sortedPlayers.filter(player => 
-        player.subscriptionType === 'Profesional'
+      // Separar usuarios por tipo de suscripción
+      const professionalUsers = sortedUsers.filter(user => 
+        user.subscriptionType === 'Profesional'
       );
       
-      const semiProfessionalPlayers = sortedPlayers.filter(player => 
-        player.subscriptionType === 'Semiprofesional'
+      const semiProfessionalUsers = sortedUsers.filter(user => 
+        user.subscriptionType === 'Semiprofesional'
       );
       
-      const amateurPlayers = sortedPlayers.filter(player => 
-        player.subscriptionType !== 'Profesional' && player.subscriptionType !== 'Semiprofesional'
+      const amateurUsers = sortedUsers.filter(user => 
+        user.subscriptionType !== 'Profesional' && user.subscriptionType !== 'Semiprofesional'
       );
       
-      console.log(`Encontrados: ${professionalPlayers.length} profesionales, ${semiProfessionalPlayers.length} semi-profesionales y ${amateurPlayers.length} amateurs`);
+      console.log(`Encontrados: ${professionalUsers.length} profesionales, ${semiProfessionalUsers.length} semi-profesionales y ${amateurUsers.length} amateurs`);
       
       // Guardar la lista de amateurs para cargar más tarde
-      setAllPlayersLoaded(amateurPlayers);
+      setAllPlayersLoaded(amateurUsers);
       
       // Mostrar primero los profesionales y semiprofesionales
-      setPlayers([...professionalPlayers, ...semiProfessionalPlayers]);
+      setPlayers([...professionalUsers, ...semiProfessionalUsers]);
       
       // Si no hay suficientes profesionales/semis para llenar la primera página,
       // cargar algunos amateurs para completar
-      if (professionalPlayers.length + semiProfessionalPlayers.length < 50) {
-        const amateursToShow = amateurPlayers.slice(0, 50 - (professionalPlayers.length + semiProfessionalPlayers.length));
+      if (professionalUsers.length + semiProfessionalUsers.length < 50) {
+        const amateursToShow = amateurUsers.slice(0, 50 - (professionalUsers.length + semiProfessionalUsers.length));
         setPlayers(prev => [...prev, ...amateursToShow]);
         
         // Actualizar la lista de amateurs restantes
-        setAllPlayersLoaded(amateurPlayers.slice(50 - (professionalPlayers.length + semiProfessionalPlayers.length)));
+        setAllPlayersLoaded(amateurUsers.slice(50 - (professionalUsers.length + semiProfessionalUsers.length)));
       }
       
     } catch (error) {
@@ -460,14 +476,14 @@ const PlayerSearch: React.FC = () => {
     return params;
   };
 
-  // Función para ordenar jugadores por tipo de suscripción
-  const sortPlayersBySubscriptionType = (players: Player[]): Player[] => {
-    return [...players].sort((a, b) => {
-      // Determinar tipo de suscripción para cada jugador
-      const getSubscriptionType = (player: Player): number => {
+  // Función para ordenar usuarios por tipo de suscripción
+  const sortPlayersBySubscriptionType = (users: User[]): User[] => {
+    return [...users].sort((a, b) => {
+      // Determinar tipo de suscripción para cada usuario
+      const getSubscriptionType = (user: User): number => {
         // Usar el campo subscriptionType directamente
-        if (player.subscriptionType === 'Profesional') return 1;
-        if (player.subscriptionType === 'Semiprofesional') return 2;
+        if (user.subscriptionType === 'Profesional') return 1;
+        if (user.subscriptionType === 'Semiprofesional') return 2;
         // Amateur o cualquier otro caso
         return 3;
       };
@@ -597,12 +613,12 @@ const PlayerSearch: React.FC = () => {
     }
   };
 
-  // Renderizar tarjeta de jugador
-  const renderPlayerCard = (player: Player) => {
+  // Renderizar tarjeta de usuario
+  const renderUserCard = (currentUser: User) => {
     // Determinar tipo de suscripción usando el campo subscriptionType
-    const subscriptionType = player.subscriptionType === 'Profesional' 
+    const subscriptionType = currentUser.subscriptionType === 'Profesional' 
       ? 'professional' 
-      : (player.subscriptionType === 'Semiprofesional' ? 'semi' : 'amateur');
+      : (currentUser.subscriptionType === 'Semiprofesional' ? 'semi' : 'amateur');
     
     // Color de la insignia según tipo de suscripción
     const badgeBgClass = {
@@ -618,18 +634,18 @@ const PlayerSearch: React.FC = () => {
       'amateur': t('amateur')
     }[subscriptionType];
     
-    // Verificar si este jugador está siendo añadido a la cartera
-    const isBeingAddedToPortfolio = isAddingToPortfolio === player.id;
+    // Verificar si este usuario está siendo añadido a la cartera
+    const isBeingAddedToPortfolio = isAddingToPortfolio === currentUser.id;
     
     return (
-      <div key={player.id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all relative">
+      <div key={currentUser.id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all relative">
         {/* Imagen de fondo/header */}
         <div className="h-24 bg-gradient-to-r from-gray-200 to-gray-300 relative overflow-hidden">
           {/* Imagen de fondo (misma que la de perfil) */}
-          {player.imgUrl && (
+          {currentUser.imgUrl && (
             <div className="absolute inset-0">
               <Image 
-                src={player.imgUrl} 
+                src={currentUser.imgUrl} 
                 alt=""
                 fill
                 className="object-cover blur-[1px]"
@@ -640,7 +656,7 @@ const PlayerSearch: React.FC = () => {
           )}
           
           {/* Gradiente decorativo si no hay imagen */}
-          {!player.imgUrl && (
+          {!currentUser.imgUrl && (
             <div className={`absolute inset-0 bg-gradient-to-r ${
               subscriptionType === 'professional' ? 'from-green-800 to-green-600' :
               subscriptionType === 'semi' ? 'from-blue-700 to-blue-500' :
@@ -656,8 +672,8 @@ const PlayerSearch: React.FC = () => {
             <div className="relative">
               <div className="w-20 h-20 rounded-full border-4 border-white overflow-hidden shadow-md">
                 <Image 
-                  src={player.imgUrl || getDefaultPlayerImage()} 
-                  alt={`${player.name} ${player.lastname}`}
+                  src={currentUser.imgUrl || getDefaultPlayerImage()} 
+                  alt={`${currentUser.name} ${currentUser.lastname}`}
                   width={80}
                   height={80}
                   className="object-cover w-full h-full"
@@ -673,50 +689,50 @@ const PlayerSearch: React.FC = () => {
           
           {/* Nombre y posición */}
           <div className="mb-2">
-            <h3 className="text-lg font-bold text-gray-900 leading-tight">{player.name} {player.lastname}</h3>
+            <h3 className="text-lg font-bold text-gray-900 leading-tight">{currentUser.name} {currentUser.lastname}</h3>
             <p className="text-sm text-gray-600 line-clamp-2">
-              {player.primaryPosition || t('notSpecified')}
-              {player.secondaryPosition && ` / ${player.secondaryPosition}`}
-              {player.nationality && ` | ${player.nationality}`}
+              {currentUser.primaryPosition || t('notSpecified')}
+              {currentUser.secondaryPosition && ` / ${currentUser.secondaryPosition}`}
+              {currentUser.nationality && ` | ${currentUser.nationality}`}
             </p>
           </div>
           
           {/* Detalles adicionales */}
           <div className="text-xs text-gray-500 space-y-1 mb-4">
-            {player.age && (
+            {currentUser.age && (
               <div className="flex items-center gap-1">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span>{t('age')}: {player.age}</span>
+                <span>{t('age')}: {currentUser.age}</span>
               </div>
             )}
             
-            {player.height && (
+            {currentUser.height && (
               <div className="flex items-center gap-1">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                 </svg>
-                <span>{t('height')}: {player.height} cm</span>
+                <span>{t('height')}: {currentUser.height} cm</span>
               </div>
             )}
             
-            {player.skillfulFoot && (
+            {currentUser.skillfulFoot && (
               <div className="flex items-center gap-1">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>{t('skillfulFoot')}: {player.skillfulFoot}</span>
+                <span>{t('skillfulFoot')}: {currentUser.skillfulFoot}</span>
               </div>
             )}
             
             {/* Nacionalidad con bandera */}
-            {player.nationality && (
+            {currentUser.nationality && (
               <div className="flex items-center gap-1">
                 <span className="flex items-center">
-                  {renderCountryFlag(player.nationality)}
+                  {renderCountryFlag(currentUser.nationality)}
                 </span>
-                <span>{player.nationality}</span>
+                <span>{currentUser.nationality}</span>
               </div>
             )}
           </div>
@@ -725,7 +741,7 @@ const PlayerSearch: React.FC = () => {
           <div className="flex flex-col space-y-2">
             {/* Botón de ver perfil */}
             <Link 
-              href={`/user-viewer/${player.id}`} 
+              href={`/user-viewer/${currentUser.id}`} 
               className="flex items-center justify-center w-full py-1.5 px-3 border border-blue-600 text-blue-600 rounded-full text-sm font-medium hover:bg-blue-50 transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -740,7 +756,7 @@ const PlayerSearch: React.FC = () => {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  handleAddToPortfolio(player.id);
+                  handleAddToPortfolio(currentUser.id);
                 }}
                 disabled={isBeingAddedToPortfolio}
                 className="flex items-center justify-center w-full py-1.5 px-3 border border-green-600 text-green-600 rounded-full text-sm font-medium hover:bg-green-50 transition-colors"
@@ -830,7 +846,7 @@ const PlayerSearch: React.FC = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
             {players.length > 0 ? (
-              players.map(player => renderPlayerCard(player))
+              players.map(player => renderUserCard(player))
             ) : (
               <p className="text-center py-8 text-gray-600 italic col-span-full">{t('noPlayersFound')}</p>
             )}

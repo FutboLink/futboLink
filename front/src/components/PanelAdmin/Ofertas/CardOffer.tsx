@@ -43,7 +43,11 @@ const CardOffer: React.FC<{
           </p>
           <p>
             <span className="font-semibold text-gray-800">Ubicación:</span>{" "}
-            {offer.nationality}
+            {offer.location}
+          </p>
+          <p>
+            <span className="font-semibold text-gray-800">Países donde aplica:</span>{" "}
+            {offer.countries ? offer.countries.join(", ") : offer.nationality}
           </p>
           <p>
             <span className="font-semibold text-gray-800">Categoría:</span>{" "}
@@ -55,14 +59,12 @@ const CardOffer: React.FC<{
             </span>{" "}
             {offer.contractTypes}
           </p>
-          <p>
-            <span className="font-semibold text-gray-800">
-              Tiempo de contrato:
-            </span>{" "}
-            {offer.contractDurations}
-          </p>
         </div>
         <div className="space-y-1">
+          <p>
+            <span className="font-semibold text-gray-800">Tiempo de contrato:</span>{" "}
+            {offer.contractDurations}
+          </p>
           <p>
             <span className="font-semibold text-gray-800">Edad:</span>{" "}
             {offer.minAge} - {offer.maxAge}

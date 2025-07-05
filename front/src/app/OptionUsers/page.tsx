@@ -35,7 +35,7 @@ const RegistrationCards = () => {
               height={220}
               className={styles.image}
             />
-            <h3 className={styles.title}>Ofertante</h3>
+            <h3 className={styles.title}>Agencia/agente</h3>
             <p className={styles.description}>
               Publica puestos o encuentra jugadores para tus clientes con
               facilidad.

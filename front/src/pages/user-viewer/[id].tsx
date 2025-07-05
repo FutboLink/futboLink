@@ -6,7 +6,7 @@ import Navbar from '@/components/navbar/navbar';
 import Footer from '@/components/Footer/footer';
 import SocialButton from "@/components/SocialButton/SocialButton";
 import Head from 'next/head';
-import { IProfileData } from '@/Interfaces/IUser';
+import { IProfileData, UserType } from '@/Interfaces/IUser';
 import { UserContext } from '@/components/Context/UserContext';
 import { FaArrowLeft, FaCog, FaHeart, FaRegHeart, FaShareAlt, FaEllipsisH, FaSignOutAlt } from 'react-icons/fa';
 import { renderCountryFlag } from '@/components/countryFlag/countryFlag';
@@ -390,14 +390,14 @@ export default function UserViewer() {
                     <h2 className="text-xl font-medium text-gray-600">{profile.name}</h2>
                   </div>
                   <h1 className="text-2xl font-bold text-gray-800">{profile.lastname}</h1>
-                  {profile.role === 'RECRUITER' && (
+                  {profile.role === UserType.RECRUITER && (
                     <p className="text-sm text-purple-600 font-medium">Agencia/Reclutador</p>
                   )}
                 </div>
               </div>
               
               {/* Estado, edad y tipo de suscripción - Solo para jugadores */}
-              {profile.role !== 'RECRUITER' && (
+              {profile.role !== UserType.RECRUITER && (
                 <div className="flex items-center text-sm text-gray-600 mb-4">
                   <div className="flex items-center">
                     <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
@@ -411,7 +411,7 @@ export default function UserViewer() {
               )}
               
               {/* Información básica para reclutadores */}
-              {profile.role === 'RECRUITER' && (
+              {profile.role === UserType.RECRUITER && (
                 <div className="flex items-center text-sm text-gray-600 mb-4">
                   <div className="flex items-center">
                     <div className="w-2 h-2 rounded-full bg-purple-500 mr-2"></div>
@@ -565,7 +565,7 @@ export default function UserViewer() {
             </div>
             
             {/* Club actual - Solo para jugadores */}
-            {currentClub && profile.role !== 'RECRUITER' && (
+            {currentClub && profile.role !== UserType.RECRUITER && (
               <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mb-4">
                 <div className="flex items-center">
                   <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3 border border-gray-200">
@@ -732,7 +732,7 @@ export default function UserViewer() {
             )}
             
             {/* Información de contacto para reclutadores */}
-            {profile.role && profile.role.toString() === 'RECRUITER' && (
+            {profile.role === UserType.RECRUITER && (
               <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mb-4">
                 <h3 className="text-lg font-medium mb-3 text-gray-800">Información de contacto</h3>
                 <div className="space-y-3">
@@ -786,7 +786,7 @@ export default function UserViewer() {
             
             {/* Botón de contacto para desktop (fijo en la columna) */}
             <div className="hidden lg:block">
-              {!isOwnProfile && profile.role && profile.role.toString() === 'RECRUITER' && (
+              {!isOwnProfile && profile.role === UserType.RECRUITER && (
                 <div className="w-full bg-gray-100 border border-gray-300 py-3 px-8 rounded-lg text-center">
                   <div className="flex items-center justify-center mb-2">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -797,7 +797,7 @@ export default function UserViewer() {
                   <p className="text-xs text-gray-500">No disponible con tu suscripción actual</p>
                 </div>
               )}
-              {!isOwnProfile && (!profile.role || profile.role.toString() !== 'RECRUITER') && profile.phone && (
+              {!isOwnProfile && profile.role !== UserType.RECRUITER && profile.phone && (
                 <a 
                   href={`https://wa.me/${profile.phone.replace(/\D/g, '')}`} 
                   target="_blank" 
@@ -807,7 +807,7 @@ export default function UserViewer() {
                   Contactar
                 </a>
               )}
-              {!isOwnProfile && (!profile.role || profile.role.toString() !== 'RECRUITER') && !profile.phone && (
+              {!isOwnProfile && profile.role !== UserType.RECRUITER && !profile.phone && (
                 <div className="text-center text-gray-500 text-sm">
                   Este usuario no ha proporcionado un número de teléfono para contacto.
                 </div>
@@ -847,14 +847,14 @@ export default function UserViewer() {
                 <div className="space-y-4">
                   <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
                     <h3 className="text-lg font-medium mb-3 text-gray-800">
-                      {profile.role && profile.role.toString() === 'RECRUITER' ? 'Información de la agencia' : 'Información personal'}
+                      {profile.role === UserType.RECRUITER ? 'Información de la agencia' : 'Información personal'}
                     </h3>
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span className="text-gray-600">Nombre completo</span>
                         <span className="text-gray-800">{profile.name} {profile.lastname}</span>
                       </div>
-                      {profile.role && profile.role.toString() !== 'RECRUITER' && (
+                      {profile.role !== UserType.RECRUITER && (
                         <>
                           <div className="flex justify-between">
                             <span className="text-gray-600">Fecha de nacimiento</span>
@@ -881,7 +881,7 @@ export default function UserViewer() {
                           <span className="ml-2">{profile.nationality}</span>
                         </span>
                       </div>
-                      {profile.role && profile.role.toString() === 'RECRUITER' && profile.ubicacionActual && (
+                      {profile.role === UserType.RECRUITER && profile.ubicacionActual && (
                         <div className="flex justify-between">
                           <span className="text-gray-600">Ubicación</span>
                           <span className="text-gray-800">{profile.ubicacionActual}</span>
@@ -892,7 +892,7 @@ export default function UserViewer() {
                   
                   <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
                     <h3 className="text-lg font-medium mb-3 text-gray-800">Contacto</h3>
-                    {profile.role && profile.role.toString() === 'RECRUITER' ? (
+                    {profile.role === UserType.RECRUITER ? (
                       <div className="space-y-3">
                         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                           <div className="flex items-center">
@@ -1009,7 +1009,7 @@ export default function UserViewer() {
         </div>
         
         {/* Botón flotante para contactar (solo en móvil) */}
-        {!isOwnProfile && profile.role && profile.role.toString() === 'RECRUITER' && (
+        {!isOwnProfile && profile.role === UserType.RECRUITER && (
           <div className="fixed bottom-6 left-0 right-0 flex justify-center lg:hidden">
             <div className="bg-gray-100 border border-gray-300 py-3 px-8 rounded-full shadow-lg inline-flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1019,7 +1019,7 @@ export default function UserViewer() {
             </div>
           </div>
         )}
-        {!isOwnProfile && (!profile.role || profile.role.toString() !== 'RECRUITER') && profile.phone && (
+        {!isOwnProfile && profile.role !== UserType.RECRUITER && profile.phone && (
           <div className="fixed bottom-6 left-0 right-0 flex justify-center lg:hidden">
             <a 
               href={`https://wa.me/${profile.phone.replace(/\D/g, '')}`} 

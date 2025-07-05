@@ -519,6 +519,114 @@ export class UserService {
   }
 
   /**
+   * Busca jugadores y reclutadores con filtros para suscriptores profesionales
+   * @param filters Filtros de búsqueda (posición, nombre, etc.)
+   * @returns Lista de jugadores y reclutadores filtrados
+   */
+  async searchUsersAndRecruiters(filters: {
+    name?: string;
+    primaryPosition?: string;
+    nationality?: string;
+    minAge?: number;
+    maxAge?: number;
+    minHeight?: number;
+    maxHeight?: number;
+    skillfulFoot?: string;
+    role?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<{ users: User[], total: number }> {
+    const { 
+      name, 
+      primaryPosition, 
+      nationality, 
+      minAge, 
+      maxAge, 
+      minHeight, 
+      maxHeight, 
+      skillfulFoot,
+      role,
+      limit = 10,
+      offset = 0
+    } = filters;
+
+    // Construir la consulta base para incluir tanto jugadores como reclutadores
+    const queryBuilder = this.userRepository.createQueryBuilder('user')
+      .where('user.role IN (:...roles)', { roles: ['PLAYER', 'RECRUITER'] });
+
+    // Filtrar por rol específico si se proporciona
+    if (role && (role === 'PLAYER' || role === 'RECRUITER')) {
+      queryBuilder.andWhere('user.role = :role', { role });
+    }
+
+    // Aplicar filtros si están presentes
+    if (name) {
+      queryBuilder.andWhere(
+        '(LOWER(user.name) LIKE LOWER(:name) OR LOWER(user.lastname) LIKE LOWER(:name))',
+        { name: `%${name}%` }
+      );
+    }
+
+    if (primaryPosition) {
+      queryBuilder.andWhere('LOWER(user.primaryPosition) LIKE LOWER(:position)', 
+        { position: `%${primaryPosition}%` }
+      );
+    }
+
+    if (nationality) {
+      queryBuilder.andWhere('LOWER(user.nationality) LIKE LOWER(:nationality)', 
+        { nationality: `%${nationality}%` }
+      );
+    }
+
+    if (minAge !== undefined) {
+      queryBuilder.andWhere('user.age >= :minAge', { minAge });
+    }
+
+    if (maxAge !== undefined) {
+      queryBuilder.andWhere('user.age <= :maxAge', { maxAge });
+    }
+
+    if (minHeight !== undefined) {
+      queryBuilder.andWhere('user.height >= :minHeight', { minHeight });
+    }
+
+    if (maxHeight !== undefined) {
+      queryBuilder.andWhere('user.height <= :maxHeight', { maxHeight });
+    }
+
+    if (skillfulFoot) {
+      queryBuilder.andWhere('LOWER(user.skillfulFoot) = LOWER(:skillfulFoot)', { skillfulFoot });
+    }
+
+    // Obtener el total de resultados para la paginación
+    const total = await queryBuilder.getCount();
+
+    // Aplicar paginación y ordenamiento
+    // Ordenar por rol primero (PLAYER primero, luego RECRUITER), luego por nombre
+    queryBuilder
+      .orderBy('CASE WHEN user.role = :playerRole THEN 0 ELSE 1 END', 'ASC')
+      .addOrderBy('user.name', 'ASC')
+      .setParameter('playerRole', 'PLAYER')
+      .limit(limit)
+      .offset(offset);
+
+    // Ejecutar la consulta
+    const users = await queryBuilder.getMany();
+
+    // Eliminar información sensible
+    const sanitizedUsers = users.map(user => {
+      const { password, ...userData } = user;
+      return userData;
+    });
+
+    return { 
+      users: sanitizedUsers as User[], 
+      total 
+    };
+  }
+
+  /**
    * Añade un jugador a la cartera del reclutador
    * @param recruiterId ID del reclutador
    * @param playerId ID del jugador a añadir

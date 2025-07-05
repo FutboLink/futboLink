@@ -22,7 +22,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
-import { SearchPlayersDto } from './dto/search-players.dto';
+import { SearchPlayersDto, SearchUsersDto } from './dto/search-players.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { PortfolioRequestDto } from './dto/portfolio-request.dto';
 import { CreateRepresentationRequestDto, UpdateRepresentationRequestDto } from './dto/representation-request.dto';
@@ -178,6 +178,39 @@ export class UserController {
     }
     
     return this.userService.searchPlayers(searchDto);
+  }
+
+  /**
+   * Busca jugadores y reclutadores con filtros (para suscriptores profesionales y reclutadores)
+   */
+  @ApiOperation({ summary: 'Buscar jugadores y reclutadores con filtros (para suscriptores profesionales y reclutadores)' })
+  @ApiResponse({ status: 200, description: 'Lista de jugadores y reclutadores filtrados' })
+  @ApiResponse({ status: 401, description: 'No autorizado - Se requiere suscripción profesional o ser reclutador' })
+  @UseGuards(AuthGuard)
+  @Get('search/users')
+  async searchUsersAndRecruiters(
+    @Query() searchDto: SearchUsersDto,
+    @Req() req: any
+  ) {
+    // Verificar que el usuario tiene suscripción profesional o es un reclutador
+    const user = req.user;
+    
+    // Permitir acceso directo a reclutadores
+    if (user.role === 'RECRUITER' || user.role === 'ADMIN') {
+      return this.userService.searchUsersAndRecruiters(searchDto);
+    }
+    
+    // Para otros roles, verificar suscripción profesional
+    const subscription = await this.userService.getUserSubscription(user.id);
+    
+    // Solo permitir acceso a usuarios con suscripción profesional
+    if (subscription.subscriptionType !== 'Profesional' || !subscription.isActive) {
+      throw new UnauthorizedException(
+        'Se requiere una suscripción profesional activa para acceder a esta funcionalidad'
+      );
+    }
+    
+    return this.userService.searchUsersAndRecruiters(searchDto);
   }
 
   @ApiOperation({ summary: 'Añadir un jugador a la cartera del reclutador' })

@@ -107,4 +107,16 @@ export class SearchPlayersDto {
   @Min(0)
   @Type(() => Number)
   offset?: number;
+}
+
+export class SearchUsersDto extends SearchPlayersDto {
+  @ApiProperty({ 
+    description: 'Rol del usuario (PLAYER o RECRUITER)', 
+    required: false,
+    example: 'PLAYER',
+    enum: ['PLAYER', 'RECRUITER']
+  })
+  @IsOptional()
+  @IsString()
+  role?: string;
 } 

@@ -1,12 +1,14 @@
 // JobOfferDetails.tsx
 import React, { useContext, useEffect, useState } from "react";
 import { IOfferCard } from "@/Interfaces/IOffer";
+import { UserType } from "@/Interfaces/IUser";
 import { BsFillCalendarEventFill } from "react-icons/bs";
 import { fetchJobOfferById } from "../Fetchs/OfertasFetch/OfertasFetchs";
 import { useRouter } from "next/navigation";
 import DeleteButton from "./DeleteJob";
 import { UserContext } from "../Context/UserContext";
 import EditJobOffer from "./EditJobOffer";  // Importar el componente de edición
+import RecruiterApplicationModal from "./RecruiterApplicationModal";
 
 interface JobOfferDetailsProps {
   jobId: string;
@@ -17,9 +19,10 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const [isEditing, setIsEditing] = useState<boolean>(false); // Estado para controlar la edición
+  const [showRecruiterModal, setShowRecruiterModal] = useState<boolean>(false); // Estado para el modal de reclutador
 
   const router = useRouter();
-  const { token } = useContext(UserContext);
+  const { token, user } = useContext(UserContext);
 
   const handleViewApplications = () => {
     // Navegar a la ruta de aplicaciones del trabajo usando el jobId
@@ -42,6 +45,14 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
   const handleEditSuccess = (updatedOffer: IOfferCard) => {
     setJobOffer(updatedOffer);  // Actualizar la oferta con los datos editados
     setIsEditing(false); // Cerrar el formulario de edición
+  };
+
+  const handleOpenRecruiterModal = () => {
+    setShowRecruiterModal(true);
+  };
+
+  const handleCloseRecruiterModal = () => {
+    setShowRecruiterModal(false);
   };
 
   useEffect(() => {
@@ -161,6 +172,17 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
             >
               Ver postulantes
             </button>
+            
+            {/* Botón para reclutadores (solo si no es el dueño de la oferta) */}
+            {user && user.role === UserType.RECRUITER && jobOffer.recruiter && user.id !== jobOffer.recruiter.id && (
+              <button
+                onClick={handleOpenRecruiterModal}
+                className="px-5 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+              >
+                Postular jugadores de mi cartera
+              </button>
+            )}
+            
             <button
               onClick={handleEditOffer}
               className="px-5 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
@@ -170,6 +192,16 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
             {token && <DeleteButton jobId={jobId} token={token} onDelete={handleDeleteOffer} />}
           </div>
         </>
+      )}
+
+      {/* Modal para que reclutadores postulen jugadores */}
+      {jobOffer && (
+        <RecruiterApplicationModal
+          isOpen={showRecruiterModal}
+          onClose={handleCloseRecruiterModal}
+          jobId={jobId}
+          jobTitle={jobOffer.title}
+        />
       )}
     </div>
   );

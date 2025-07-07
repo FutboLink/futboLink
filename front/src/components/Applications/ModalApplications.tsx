@@ -2,10 +2,12 @@ import React, { useContext, useEffect, useState } from "react";
 import { fetchApplications } from "../Fetchs/AdminFetchs/AdminUsersFetch";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
 import { IOfferCard } from "@/Interfaces/IOffer";
+import { UserType } from "@/Interfaces/IUser";
 import Link from "next/link";
 import { UserContext } from "../Context/UserContext";
 import { fetchUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { checkUserSubscription } from "@/services/SubscriptionService";
+import RecruiterApplicationModal from "../Jobs/RecruiterApplicationModal";
 
 type ModalApplicationProps = {
   jobId: string;
@@ -30,6 +32,7 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
   const [notificationMessage, setNotificationMessage] = useState("");
   const [userPremium, setUserPremium] = useState<string | null>(null);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [showRecruiterModal, setShowRecruiterModal] = useState(false);
   const { token, user } = useContext(UserContext);
 
   useEffect(() => {
@@ -53,6 +56,14 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
       }
     }
   }, [token, user]);
+
+  const handleOpenRecruiterModal = () => {
+    setShowRecruiterModal(true);
+  };
+
+  const handleCloseRecruiterModal = () => {
+    setShowRecruiterModal(false);
+  };
 
   const handleSubmit = async () => {
     // Siempre verificar la suscripción actual antes de intentar aplicar
@@ -300,30 +311,17 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
                 </div>
                 
                 {/* Footer */}
-                <div className="p-5 border-t flex flex-col sm:flex-row gap-3">
-                  <button
-                    onClick={onClose}
-                    className="flex items-center justify-center gap-2 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 rounded-md px-4 py-2 text-sm font-medium w-full transition-color duration-300"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    onClick={handleSubmit}
-                    disabled={isSubmitting}
-                    className={`flex items-center justify-center gap-2 ${
-                      isSubmitting ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
-                    } text-white rounded-md px-4 py-2 text-sm font-medium w-full transition-color duration-300`}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Enviando...
-                      </>
-                    ) : (
-                      <>
+                <div className="p-5 border-t flex flex-col gap-3">
+                  {/* Mostrar opciones para reclutadores */}
+                  {user && user.role === UserType.RECRUITER && (
+                    <div className="mb-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                      <p className="text-sm text-purple-800 mb-2 font-medium">
+                        Como reclutador, tienes opciones adicionales:
+                      </p>
+                      <button
+                        onClick={handleOpenRecruiterModal}
+                        className="flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md px-4 py-2 text-sm font-medium w-full transition-color duration-300 mb-2"
+                      >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="16"
@@ -335,13 +333,62 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
                           strokeLinecap="round"
                           strokeLinejoin="round"
                         >
-                          <line x1="22" y1="2" x2="11" y2="13"></line>
-                          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="9" cy="7" r="4"></circle>
+                          <path d="m19 8 2 2-2 2"></path>
+                          <path d="m17 10 2 2-2 2"></path>
                         </svg>
-                        Aplicar ahora
-                      </>
-                    )}
-                  </button>
+                        Postular jugadores de mi cartera
+                      </button>
+                      <p className="text-xs text-purple-600">
+                        O puedes aplicar directamente como reclutador usando el botón de abajo
+                      </p>
+                    </div>
+                  )}
+                  
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={onClose}
+                      className="flex items-center justify-center gap-2 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 rounded-md px-4 py-2 text-sm font-medium w-full transition-color duration-300"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={handleSubmit}
+                      disabled={isSubmitting}
+                      className={`flex items-center justify-center gap-2 ${
+                        isSubmitting ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
+                      } text-white rounded-md px-4 py-2 text-sm font-medium w-full transition-color duration-300`}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Enviando...
+                        </>
+                      ) : (
+                        <>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                          </svg>
+                          {user && user.role === UserType.RECRUITER ? 'Aplicar como reclutador' : 'Aplicar ahora'}
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </>
             ) : (
@@ -378,7 +425,38 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
                 </div>
 
                 {/* Footer */}
-                <div className="p-5 border-t">
+                <div className="p-5 border-t flex flex-col gap-3">
+                  {/* Mostrar opciones para reclutadores sin suscripción */}
+                  {user && user.role === UserType.RECRUITER && (
+                    <div className="mb-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                      <p className="text-sm text-purple-800 mb-2 font-medium">
+                        Como reclutador, puedes postular jugadores de tu cartera:
+                      </p>
+                      <button
+                        onClick={handleOpenRecruiterModal}
+                        className="flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md px-4 py-2 text-sm font-medium w-full transition-color duration-300"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="9" cy="7" r="4"></circle>
+                          <path d="m19 8 2 2-2 2"></path>
+                          <path d="m17 10 2 2-2 2"></path>
+                        </svg>
+                        Postular jugadores de mi cartera
+                      </button>
+                    </div>
+                  )}
+                  
                   <Link
                     href={"/Subs"}
                     className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white rounded-md px-4 py-2 text-sm font-medium w-full"
@@ -404,7 +482,7 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
                       ></rect>
                       <line x1="1" y1="10" x2="23" y2="10"></line>
                     </svg>
-                    Ver planes de suscripción
+                    {user && user.role === UserType.RECRUITER ? 'Ver planes para aplicar como reclutador' : 'Ver planes de suscripción'}
                   </Link>
                 </div>
               </>
@@ -419,6 +497,16 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
           </div>
         )}
       </div>
+
+      {/* Modal para que reclutadores postulen jugadores */}
+      {isOffer && (
+        <RecruiterApplicationModal
+          isOpen={showRecruiterModal}
+          onClose={handleCloseRecruiterModal}
+          jobId={jobId}
+          jobTitle={jobTitle || ''}
+        />
+      )}
     </div>
   );
 };

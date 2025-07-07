@@ -17,6 +17,13 @@ interface PortfolioPlayer extends IProfileData {
   selected?: boolean;
 }
 
+interface NotificationState {
+  message: string;
+  isVisible: boolean;
+  isError: boolean;
+  playerId?: string;
+}
+
 const RecruiterApplicationModal: React.FC<RecruiterApplicationModalProps> = ({
   isOpen,
   onClose,
@@ -27,14 +34,27 @@ const RecruiterApplicationModal: React.FC<RecruiterApplicationModalProps> = ({
   const [portfolioPlayers, setPortfolioPlayers] = useState<PortfolioPlayer[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [recruiterMessage, setRecruiterMessage] = useState('');
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
+  const [notification, setNotification] = useState<NotificationState>({
+    message: '',
+    isVisible: false,
+    isError: false
+  });
+  const [processingStatus, setProcessingStatus] = useState<{[key: string]: 'pending' | 'success' | 'error'}>({});
+
+  // Mostrar notificación
+  const showNotification = (message: string, isError: boolean = false, playerId?: string) => {
+    setNotification({ message, isVisible: true, isError, playerId });
+    
+    // Auto-hide notification after 5 seconds
+    setTimeout(() => {
+      setNotification(prev => ({ ...prev, isVisible: false }));
+    }, 5000);
+  };
 
   // Obtener la URL de la API
   const getApiUrl = () => {
-    return process.env.NODE_ENV === 'development' 
-      ? 'http://localhost:3000' 
-      : process.env.NEXT_PUBLIC_API_URL;
+    return process.env.NEXT_PUBLIC_API_URL || 'https://futbolink.onrender.com';
   };
 
   // Cargar jugadores de la cartera
@@ -54,11 +74,11 @@ const RecruiterApplicationModal: React.FC<RecruiterApplicationModalProps> = ({
           const players = await response.json();
           setPortfolioPlayers(players);
         } else {
-          toast.error('Error al cargar la cartera de jugadores');
+          showNotification('Error al cargar la cartera de jugadores', true);
         }
       } catch (error) {
         console.error('Error al cargar cartera:', error);
-        toast.error('Error al cargar la cartera de jugadores');
+        showNotification('Error al cargar la cartera de jugadores', true);
       } finally {
         setLoading(false);
       }
@@ -88,24 +108,45 @@ const RecruiterApplicationModal: React.FC<RecruiterApplicationModalProps> = ({
   // Enviar aplicaciones
   const handleSubmitApplications = async () => {
     if (selectedPlayers.length === 0) {
-      toast.error('Selecciona al menos un jugador');
-      return;
-    }
-
-    if (!recruiterMessage.trim()) {
-      toast.error('Escribe un mensaje explicando por qué postulas a estos jugadores');
+      showNotification('Selecciona al menos un jugador', true);
       return;
     }
 
     setSubmitting(true);
+    showNotification(`Iniciando proceso de postulación para ${selectedPlayers.length} jugador(es)...`);
+    
     let successCount = 0;
     let errorCount = 0;
+    
+    // Inicializar estado de procesamiento
+    const initialStatus: {[key: string]: 'pending' | 'success' | 'error'} = {};
+    selectedPlayers.forEach(id => {
+      initialStatus[id] = 'pending';
+    });
+    setProcessingStatus(initialStatus);
 
     try {
       // Enviar aplicación para cada jugador seleccionado
       for (const playerId of selectedPlayers) {
         try {
-          const response = await fetch(`${getApiUrl()}/applications/recruiter-apply`, {
+          const player = portfolioPlayers.find(p => p.id === playerId);
+          const playerName = player ? `${player.name} ${player.lastname}` : 'Jugador';
+          
+          showNotification(`Postulando a ${playerName}...`);
+          
+          const apiUrl = getApiUrl();
+          const fullUrl = `${apiUrl}/applications/recruiter-apply`;
+          console.log('🔍 API URL:', apiUrl);
+          console.log('🔍 Full URL:', fullUrl);
+          console.log('🔍 Token presente:', !!token);
+          console.log('🔍 Datos enviados:', {
+            playerId,
+            jobId,
+            playerMessage: `Mi representante me ha postulado a esta oferta: "${jobTitle}"`,
+            message: 'Postulación realizada por reclutador'
+          });
+
+          const response = await fetch(fullUrl, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -114,42 +155,63 @@ const RecruiterApplicationModal: React.FC<RecruiterApplicationModalProps> = ({
             body: JSON.stringify({
               playerId,
               jobId,
-              message: recruiterMessage,
-              playerMessage: `Mi representante me ha postulado a esta oferta: "${jobTitle}"`
+              playerMessage: `Mi representante me ha postulado a esta oferta: "${jobTitle}"`,
+              message: 'Postulación realizada por reclutador'
             })
           });
 
+          console.log('🔍 Respuesta status:', response.status);
+          console.log('🔍 Respuesta headers:', Object.fromEntries(response.headers.entries()));
+
           if (response.ok) {
+            const result = await response.json();
+            console.log('✅ Postulación exitosa:', result);
             successCount++;
+            setProcessingStatus(prev => ({...prev, [playerId]: 'success'}));
+            showNotification(`${playerName} postulado exitosamente`);
           } else {
-            const error = await response.json();
-            console.error(`Error al postular jugador ${playerId}:`, error);
+            console.error('❌ Error response status:', response.status);
+            const responseText = await response.text();
+            console.error('❌ Error response text:', responseText);
+            
+            // Intentar parsear como JSON, si no funciona usar el texto
+            let error;
+            try {
+              error = JSON.parse(responseText);
+            } catch (e) {
+              error = { message: responseText };
+            }
+            
             errorCount++;
+            setProcessingStatus(prev => ({...prev, [playerId]: 'error'}));
+            showNotification(`Error al postular a ${playerName}: ${error.message || 'Error desconocido'}`, true);
+            console.error(`Error al postular jugador ${playerId}:`, error);
           }
         } catch (error) {
           console.error(`Error al postular jugador ${playerId}:`, error);
           errorCount++;
+          setProcessingStatus(prev => ({...prev, [playerId]: 'error'}));
         }
       }
 
-      // Mostrar resultados
-      if (successCount > 0) {
-        toast.success(`${successCount} jugador(es) postulado(s) exitosamente`);
-      }
-      if (errorCount > 0) {
-        toast.error(`Error al postular ${errorCount} jugador(es)`);
-      }
-
-      // Cerrar modal si al menos una aplicación fue exitosa
-      if (successCount > 0) {
-        onClose();
-        setSelectedPlayers([]);
-        setRecruiterMessage('');
+      // Mostrar resultados finales
+      if (successCount > 0 && errorCount === 0) {
+        showNotification(`¡Éxito! ${successCount} jugador(es) postulado(s) correctamente.`);
+        
+        // Cerrar modal después de un tiempo si todo fue exitoso
+        setTimeout(() => {
+          onClose();
+          setSelectedPlayers([]);
+        }, 2000);
+      } else if (successCount > 0 && errorCount > 0) {
+        showNotification(`Proceso completado: ${successCount} exitoso(s), ${errorCount} con error(es).`);
+      } else if (successCount === 0 && errorCount > 0) {
+        showNotification(`No se pudo postular a ningún jugador. Por favor, intenta nuevamente.`, true);
       }
 
     } catch (error) {
       console.error('Error general al enviar aplicaciones:', error);
-      toast.error('Error al enviar las aplicaciones');
+      showNotification('Error al enviar las aplicaciones. Por favor, intenta nuevamente.', true);
     } finally {
       setSubmitting(false);
     }
@@ -171,6 +233,34 @@ const RecruiterApplicationModal: React.FC<RecruiterApplicationModalProps> = ({
           </button>
         </div>
 
+        {/* Notification */}
+        {notification.isVisible && (
+          <div className={`p-3 ${notification.isError ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'} border-l-4 mx-6 mt-4 rounded`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                {notification.isError ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                )}
+                <span>{notification.message}</span>
+              </div>
+              <button
+                onClick={() => setNotification(prev => ({ ...prev, isVisible: false }))}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Content */}
         <div className="p-6 flex flex-col h-full max-h-[calc(90vh-120px)]">
           {loading ? (
@@ -189,21 +279,6 @@ const RecruiterApplicationModal: React.FC<RecruiterApplicationModalProps> = ({
             </div>
           ) : (
             <>
-              {/* Message input */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Mensaje del reclutador *
-                </label>
-                <textarea
-                  value={recruiterMessage}
-                  onChange={(e) => setRecruiterMessage(e.target.value)}
-                  placeholder="Explica por qué estos jugadores son ideales para esta oferta..."
-                  className="w-full p-3 border border-gray-300 rounded-md resize-none"
-                  rows={3}
-                  required
-                />
-              </div>
-
               {/* Selection controls */}
               <div className="flex justify-between items-center mb-4">
                 <button
@@ -222,25 +297,39 @@ const RecruiterApplicationModal: React.FC<RecruiterApplicationModalProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {portfolioPlayers.map((player) => {
                     const isSelected = selectedPlayers.includes(player.id!);
+                    const status = processingStatus[player.id!];
+                    
                     return (
                       <div
                         key={player.id}
-                        onClick={() => togglePlayerSelection(player.id!)}
+                        onClick={() => !submitting && togglePlayerSelection(player.id!)}
                         className={`relative cursor-pointer border-2 rounded-lg p-4 transition-all ${
                           isSelected 
-                            ? 'border-purple-500 bg-purple-50' 
+                            ? status === 'success' ? 'border-green-500 bg-green-50' :
+                              status === 'error' ? 'border-red-500 bg-red-50' :
+                              'border-purple-500 bg-purple-50'
                             : 'border-gray-200 hover:border-purple-300'
-                        }`}
+                        } ${submitting ? 'opacity-80' : ''}`}
                       >
                         {/* Selection indicator */}
                         <div className="absolute top-2 right-2">
-                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                            isSelected 
-                              ? 'bg-purple-500 border-purple-500' 
-                              : 'border-gray-300'
-                          }`}>
-                            {isSelected && <span className="text-white text-xs">✓</span>}
-                          </div>
+                          {isSelected && status === 'success' ? (
+                            <div className="w-5 h-5 rounded-full bg-green-500 border-green-500 flex items-center justify-center">
+                              <span className="text-white text-xs">✓</span>
+                            </div>
+                          ) : isSelected && status === 'error' ? (
+                            <div className="w-5 h-5 rounded-full bg-red-500 border-red-500 flex items-center justify-center">
+                              <span className="text-white text-xs">×</span>
+                            </div>
+                          ) : (
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                              isSelected 
+                                ? 'bg-purple-500 border-purple-500' 
+                                : 'border-gray-300'
+                            }`}>
+                              {isSelected && <span className="text-white text-xs">✓</span>}
+                            </div>
+                          )}
                         </div>
 
                         {/* Player info */}
@@ -299,9 +388,9 @@ const RecruiterApplicationModal: React.FC<RecruiterApplicationModalProps> = ({
                 </button>
                 <button
                   onClick={handleSubmitApplications}
-                  disabled={selectedPlayers.length === 0 || !recruiterMessage.trim() || submitting}
+                  disabled={selectedPlayers.length === 0 || submitting}
                   className={`px-6 py-2 rounded-md text-white font-medium ${
-                    selectedPlayers.length > 0 && recruiterMessage.trim() && !submitting
+                    selectedPlayers.length > 0 && !submitting
                       ? 'bg-purple-600 hover:bg-purple-700'
                       : 'bg-gray-400 cursor-not-allowed'
                   }`}

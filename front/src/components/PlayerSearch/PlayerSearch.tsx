@@ -192,9 +192,7 @@ const PlayerSearch: React.FC = () => {
 
   // Agregar una función para obtener la URL de la API
   const getApiUrl = () => {
-    return process.env.NODE_ENV === 'development' 
-      ? 'http://localhost:3000' 
-      : process.env.NEXT_PUBLIC_API_URL;
+    return process.env.NEXT_PUBLIC_API_URL || 'https://futbolink.onrender.com';
   };
 
   // Verificar si el usuario tiene suscripción profesional

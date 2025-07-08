@@ -6,7 +6,7 @@ import "./globals.css";
 import Footer from "@/components/Footer/footer";
 import Navbar from "@/components/navbar/navbar";
 import { usePathname } from "next/navigation"; // Importar usePathname
-import { metadata } from "../app/metada"; // Importar metadata desde el archivo separado
+import { metadata } from "./metadata"; // Importar metadata desde el archivo separado
 import SocialButton from "@/components/SocialButton/SocialButton";
 import { UserProvider } from "@/components/Context/UserContext";
 import { TranslationProvider } from "@/components/Context/TranslationContext";

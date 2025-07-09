@@ -22,13 +22,8 @@ function ManagerSubscription() {
       slogan: "Comienza a reclutar",
       features: [
         { text: "Perfil de empresa básico", available: true },
-        { text: "Publicar hasta 3 ofertas por mes", available: true },
+        { text: "Publicar ofertas", available: true },
         { text: "Buscar candidatos limitado", available: true },
-        { text: "Soporte por email", available: true },
-        { text: "Análisis avanzados", available: false },
-        { text: "Publicaciones ilimitadas", available: false },
-        { text: "Búsqueda avanzada", available: false },
-        { text: "Soporte prioritario", available: false },
       ],
       monthlyPrice: "GRATIS",
       yearlyPrice: "GRATIS",
@@ -40,32 +35,53 @@ function ManagerSubscription() {
       priceId: { monthly: null, yearly: null },
     },
     {
+      title: "Semiprofesional",
+      image: "/botin2.svg",
+      slogan: "Para reclutadores en crecimiento",
+      features: [
+        { text: "Perfil de empresa mejorado", available: true },
+        { text: "Representa hasta 15 jugadores por mes", available: true },
+        { text: "Acceso a búscador de candidatos ", available: true },
+        { text: "Destacar ofertas", available: true },
+        { text: "Publicaciones ilimitadas", available: false },
+      ],
+      monthlyPrice: "€12,95",
+      yearlyPrice: "€123,95 Anual",
+      buttonLabel: "Contratar",
+      bgColor: "bg-gradient-to-b from-[#3a7d44] to-[#2d6436]",
+      textColor: "text-white",
+      borderColor: "border-verde-oscuro",
+      buttonColor: "bg-white text-verde-oscuro hover:bg-gray-100",
+      priceId: {
+        monthly: "price_1RiijpGbCHvHfqXFp3GvXTXP",
+        yearly: "price_1RiiksGbCHvHfqXFXNIHyG1v"
+      },
+      productId: "prod_Se0lUjoaR0NkWq",
+      recommended: true,
+    },
+    {
       title: "Profesional",
       image: "/botin3.svg",
       slogan: "Reclutamiento sin límites",
       features: [
-        { text: "Perfil de empresa completo", available: true },
-        { text: "Publicaciones ilimitadas", available: true, highlight: true },
-        { text: "Búsqueda avanzada de candidatos", available: true },
-        { text: "Análisis y estadísticas", available: true },
-        { text: "Soporte prioritario", available: true },
+        { text: "Perfil de empresa mejorado", available: true },
+        { text: "Representa hasta 20 jugadores por mes", available: true },
+        { text: "Acceso a búscador de candidatos ", available: true },
         { text: "Destacar ofertas", available: true },
-        { text: "Filtros especializados", available: true },
-        { text: "Reportes personalizados", available: true },
+        { text: "Publicaciones ilimitadas", available: false },
       ],
-      monthlyPrice: "€7,95",
-      yearlyPrice: "€75,95 Anual ",
+      monthlyPrice: "€25,95",
+      yearlyPrice: "€248,95 Anual",
       buttonLabel: "Contratar",
       bgColor: "bg-gradient-to-b from-[#255b2d] to-[#1d5126]",
       textColor: "text-white",
       borderColor: "border-verde-oscuro",
       buttonColor: "bg-white text-verde-oscuro hover:bg-gray-100",
       priceId: {
-        monthly: "price_1R7MaqGbCHvHfqXFimcCzvlo", // Usar el mismo priceId del plan profesional existente
-        yearly: "price_1R7MbgGbCHvHfqXFYECGw8S9"
+        monthly: "price_1RiiqkGbCHvHfqXFkq3FAU8H",
+        yearly: "price_1RiirwGbCHvHfqXFLb3t7VOr"
       },
-      productId: "prod_S1PP1zfIAIwheC",
-      recommended: true,
+      productId: "prod_Se0sCdpwW1NFIB",
     },
   ];
 
@@ -141,7 +157,7 @@ function ManagerSubscription() {
             customerEmail: userEmail,
             successUrl: successUrl,
             cancelUrl: `${window.location.origin}/payment/cancel`,
-            description: "Suscripción de Manager a FutboLink",
+            description: `Suscripción de Manager a FutboLink - Plan ${planName}`,
             ...(productId && { productId }),
           }),
         }
@@ -196,9 +212,14 @@ function ManagerSubscription() {
             <div className={styles.card}>
               <div
                 className={`${styles.cardFront} ${
-                  styles[option.title.toLowerCase()]
+                  styles[option.title.toLowerCase()] || styles.default
                 }`}
               >
+                {option.recommended && (
+                  <span className="absolute top-0 right-0 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
+                    Recomendado
+                  </span>
+                )}
                 <h3 className={styles.title}>{option.title}</h3>
                 <p className={`${styles.slogan}`}>{option.slogan}</p>
                 <Image

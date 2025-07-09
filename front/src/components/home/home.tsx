@@ -63,6 +63,9 @@ const Home = () => {
       {/* Language Toggle Button */}
       <LanguageToggle />
 
+      {/* Título principal visible para SEO */}
+      <h1 className="sr-only">Futbolink - Conectando talento y oportunidades en el mundo del fútbol</h1>
+
       {/* Carrusel con Swiper */}
       <header
         className="relative flex flex-col items-center justify-center min-h-screen text-center"
@@ -88,13 +91,13 @@ const Home = () => {
                   className="object-cover"
                   priority
                 />
-                <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center hover:bg-opacity-50 transition-all duration-300">
-                  <div className="text-white text-2xl sm:text-4xl font-bold bg-black bg-opacity-50 px-8 py-4 rounded-lg">
+                <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col items-center justify-center hover:bg-opacity-50 transition-all duration-300">
+                  <h2 className="text-white text-3xl sm:text-5xl font-bold mb-4">
+                    Futbolink
+                  </h2>
+                  <div className="text-white text-xl sm:text-3xl font-bold bg-black bg-opacity-50 px-8 py-4 rounded-lg">
                     {image.text}
                   </div>
-                  <h1 className=" hidden text-white text-2xl sm:text-4xl font-bold bg-black bg-opacity-50 px-8 py-4 rounded-lg">
-                    Futbolink
-                  </h1>
                 </div>
               </div>
             </SwiperSlide>

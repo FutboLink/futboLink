@@ -1,17 +1,17 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Futbolink - Oportunidades en el mundo del fútbol",
-  description: "Plataforma profesional que conecta talento y oportunidades en el mundo del fútbol. Creando puentes para tu futuro deportivo.",
-  keywords: ["fútbol", "empleo deportivo", "oportunidades fútbol", "reclutamiento deportivo", "futbolink"],
+  title: "Futbolink - La plataforma líder de oportunidades en el mundo del fútbol",
+  description: "Futbolink es la plataforma profesional que conecta talento y oportunidades en el mundo del fútbol. Futbolink crea puentes para tu futuro deportivo.",
+  keywords: ["futbolink", "fútbol", "empleo deportivo", "oportunidades futbolink", "reclutamiento deportivo", "futbolink plataforma", "futbolink empleo"],
   authors: [{ name: "Futbolink" }],
   openGraph: {
     type: "website",
     locale: "es_ES",
-    url: "https://futbolink.com",
+    url: "https://futbolink.net",
     siteName: "Futbolink",
-    title: "Futbolink - Oportunidades en el mundo del fútbol",
-    description: "Conectando talento y oportunidades en el mundo del fútbol profesional",
+    title: "Futbolink - La plataforma líder de oportunidades en el mundo del fútbol",
+    description: "Futbolink conecta talento y oportunidades en el mundo del fútbol profesional. Únete a Futbolink hoy mismo.",
     images: [
       {
         url: "/logoD.png",
@@ -23,8 +23,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Futbolink - Oportunidades en el mundo del fútbol",
-    description: "Conectando talento y oportunidades en el mundo del fútbol profesional",
+    title: "Futbolink - La plataforma líder de oportunidades en el mundo del fútbol",
+    description: "Futbolink conecta talento y oportunidades en el mundo del fútbol profesional. Únete a Futbolink hoy mismo.",
     images: ["/logoD.png"]
   },
   icons: {
@@ -32,5 +32,5 @@ export const metadata: Metadata = {
     shortcut: "/logoD.png",
     apple: "/logoD.png"
   },
-  metadataBase: new URL("https://futbolink.com")
+  metadataBase: new URL("https://futbolink.net")
 };

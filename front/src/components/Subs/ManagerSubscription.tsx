@@ -40,10 +40,8 @@ function ManagerSubscription() {
       slogan: "Para reclutadores en crecimiento",
       features: [
         { text: "Perfil de empresa mejorado", available: true },
-        { text: "Representa hasta 15 jugadores por mes", available: true },
-        { text: "Acceso a búscador de candidatos ", available: true },
-        { text: "Destacar ofertas", available: true },
-        { text: "Publicaciones ilimitadas", available: false },
+        { text: "Representa hasta 10 jugadores por mes", available: true },
+        { text: "Acceso a búscador de candidatos ", available: false },
       ],
       monthlyPrice: "€12,95",
       yearlyPrice: "€123,95 Anual",
@@ -64,11 +62,9 @@ function ManagerSubscription() {
       image: "/botin3.svg",
       slogan: "Reclutamiento sin límites",
       features: [
-        { text: "Perfil de empresa mejorado", available: true },
+        { text: "Perfil de agencia mejorado", available: true },
         { text: "Representa hasta 20 jugadores por mes", available: true },
         { text: "Acceso a búscador de candidatos ", available: true },
-        { text: "Destacar ofertas", available: true },
-        { text: "Publicaciones ilimitadas", available: false },
       ],
       monthlyPrice: "€25,95",
       yearlyPrice: "€248,95 Anual",
@@ -76,7 +72,7 @@ function ManagerSubscription() {
       bgColor: "bg-gradient-to-b from-[#255b2d] to-[#1d5126]",
       textColor: "text-white",
       borderColor: "border-verde-oscuro",
-      buttonColor: "bg-white text-verde-oscuro hover:bg-gray-100",
+      buttonColor: "bg-white text-verde-oscuro hover:bg-white",
       priceId: {
         monthly: "price_1RiiqkGbCHvHfqXFkq3FAU8H",
         yearly: "price_1RiirwGbCHvHfqXFLb3t7VOr"
@@ -215,11 +211,7 @@ function ManagerSubscription() {
                   styles[option.title.toLowerCase()] || styles.default
                 }`}
               >
-                {option.recommended && (
-                  <span className="absolute top-0 right-0 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
-                    Recomendado
-                  </span>
-                )}
+                
                 <h3 className={styles.title}>{option.title}</h3>
                 <p className={`${styles.slogan}`}>{option.slogan}</p>
                 <Image

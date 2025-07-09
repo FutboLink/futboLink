@@ -560,8 +560,8 @@ const PlayerSearch: React.FC = () => {
     const { name, value } = e.target;
     setFilters(prev => {
       const newFilters = {
-        ...prev,
-        [name]: value
+      ...prev,
+      [name]: value
       };
       
       // Si se selecciona "Solo reclutadores/agencias", limpiar filtros que no aplican
@@ -751,19 +751,19 @@ const PlayerSearch: React.FC = () => {
     const badgeBgClass = isRecruiter 
       ? 'bg-purple-800'
       : {
-          'professional': 'bg-green-800',
-          'semi': 'bg-blue-700',
-          'amateur': 'bg-gray-700'
-        }[subscriptionType];
+      'professional': 'bg-green-800',
+      'semi': 'bg-blue-700',
+      'amateur': 'bg-gray-700'
+    }[subscriptionType];
     
     // Texto de la insignia según tipo de suscripción o rol
     const badgeText = isRecruiter 
       ? t('recruiter')
       : {
-          'professional': t('professional'),
-          'semi': t('semi'),
-          'amateur': t('amateur')
-        }[subscriptionType];
+      'professional': t('professional'),
+      'semi': t('semi'),
+      'amateur': t('amateur')
+    }[subscriptionType];
     
     // Verificar si este usuario está siendo añadido a la cartera
     const isBeingAddedToPortfolio = isAddingToPortfolio === currentUser.id;
@@ -844,30 +844,30 @@ const PlayerSearch: React.FC = () => {
             {isPlayer && (
               <>
                 {currentUser.age && (
-                  <div className="flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
+              <div className="flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
                     <span>{t('age')}: {currentUser.age}</span>
-                  </div>
-                )}
-                
+              </div>
+            )}
+            
                 {currentUser.height && (
-                  <div className="flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                    </svg>
+              <div className="flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                </svg>
                     <span>{t('height')}: {currentUser.height} cm</span>
-                  </div>
-                )}
-                
+              </div>
+            )}
+            
                 {currentUser.skillfulFoot && (
-                  <div className="flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+              <div className="flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
                     <span>{t('skillfulFoot')}: {currentUser.skillfulFoot}</span>
-                  </div>
+              </div>
                 )}
               </>
             )}
@@ -1031,7 +1031,7 @@ const PlayerSearch: React.FC = () => {
                   <option value="PLAYER">Solo jugadores</option>
                   <option value="RECRUITER">Solo reclutadores/agencias</option>
                 </select>
-              </div>
+            </div>
             </div>
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
@@ -1170,8 +1170,8 @@ const PlayerSearch: React.FC = () => {
               const filteredPlayers = applyClientSideFilters(players);
               return filteredPlayers.length > 0 ? (
                 filteredPlayers.map(player => renderUserCard(player))
-              ) : (
-                <p className="text-center py-8 text-gray-600 italic col-span-full">{t('noPlayersFound')}</p>
+            ) : (
+              <p className="text-center py-8 text-gray-600 italic col-span-full">{t('noPlayersFound')}</p>
               );
             })()}
           </div>
@@ -1180,19 +1180,19 @@ const PlayerSearch: React.FC = () => {
           {(() => {
             const filteredPlayers = applyClientSideFilters(players);
             return players.length < totalPlayers && (
-              <div className="flex justify-center mt-4 mb-6">
-                <button
-                  onClick={loadMorePlayers}
-                  className="bg-green-800 text-white border-none py-2 px-4 rounded transition-colors hover:bg-green-700"
-                  disabled={loading}
-                >
-                  {loading ? t('loading') : t('loadMore')}
-                </button>
+            <div className="flex justify-center mt-4 mb-6">
+              <button
+                onClick={loadMorePlayers}
+                className="bg-green-800 text-white border-none py-2 px-4 rounded transition-colors hover:bg-green-700"
+                disabled={loading}
+              >
+                {loading ? t('loading') : t('loadMore')}
+              </button>
                 {filters.subscriptionType && (
                   <p className="text-xs text-gray-500 ml-2 self-center">
                     Los nuevos resultados se filtrarán automáticamente
                   </p>
-                )}
+          )}
               </div>
             );
           })()}

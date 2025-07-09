@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "es_ES",
-    url: "https://futbolink.com",
+    url: "https://futbolink.net",
     siteName: "Futbolink",
     title: "Futbolink - Oportunidades en el mundo del fútbol",
     description: "Conectando talento y oportunidades en el mundo del fútbol profesional",
@@ -32,5 +32,5 @@ export const metadata: Metadata = {
     shortcut: "/logoD.png",
     apple: "/logoD.png"
   },
-  metadataBase: new URL("https://futbolink.com")
+  metadataBase: new URL("https://futbolink.net")
 }; 

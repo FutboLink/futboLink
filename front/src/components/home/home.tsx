@@ -84,7 +84,7 @@ const Home = () => {
                 <Image
                   src={image.src}
                   fill
-                  alt={`Imagen ${index + 1}`}
+                  alt={`Futbolink - ${image.text}`}
                   className="object-cover"
                   priority
                 />
@@ -92,6 +92,9 @@ const Home = () => {
                   <div className="text-white text-2xl sm:text-4xl font-bold bg-black bg-opacity-50 px-8 py-4 rounded-lg">
                     {image.text}
                   </div>
+                  <h1 className=" hidden text-white text-2xl sm:text-4xl font-bold bg-black bg-opacity-50 px-8 py-4 rounded-lg">
+                    Futbolink
+                  </h1>
                 </div>
               </div>
             </SwiperSlide>

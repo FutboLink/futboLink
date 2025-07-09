@@ -1,6 +1,56 @@
-# Allow all crawlers
+# Futbolink - Plataforma de oportunidades en el mundo del fútbol
+# https://futbolink.net
+
+# Permitir acceso a todos los robots de búsqueda
 User-agent: *
 Allow: /
 
+# Priorizar indexación de páginas importantes
+Allow: /about
+Allow: /jobs
+Allow: /cursos
+Allow: /success-cases
+Allow: /News
+
+# No indexar páginas de autenticación y recuperación de contraseña
+User-agent: *
+Disallow: /forgotPassword
+Disallow: /resetPassword
+
+# No indexar páginas de administración
+User-agent: *
+Disallow: /PanelAdmin/
+Disallow: /PanelUsers/
+
+# No indexar páginas de pago
+User-agent: *
+Disallow: /payment/
+
+# Optimización para Google
+User-agent: Googlebot
+Allow: /
+Allow: /about
+Allow: /*.js
+Allow: /*.css
+Allow: /*.png
+Allow: /*.jpg
+Allow: /*.jpeg
+Allow: /*.gif
+Allow: /*.svg
+
+# Optimización para Bing
+User-agent: Bingbot
+Allow: /
+Allow: /about
+
+# Optimización para imágenes de Google
+User-agent: Googlebot-Image
+Allow: /
+Allow: /*.png
+Allow: /*.jpg
+Allow: /*.jpeg
+Allow: /*.gif
+Allow: /*.svg
+
 # Sitemap
-Sitemap: https://futbolink.com/sitemap.xml 
+Sitemap: https://futbolink.net/sitemap.xml 

@@ -6,7 +6,7 @@ import "./globals.css";
 import Footer from "@/components/Footer/footer";
 import Navbar from "@/components/navbar/navbar";
 import { usePathname } from "next/navigation"; // Importar usePathname
-import { metadata } from "./metada"; // Importar metadata desde el archivo separado
+import { metadata } from "./metadata"; // Importar metadata desde el archivo separado
 import SocialButton from "@/components/SocialButton/SocialButton";
 import { UserProvider } from "@/components/Context/UserContext";
 import { TranslationProvider } from "@/components/Context/TranslationContext";
@@ -50,13 +50,13 @@ export default function RootLayout({
         <meta property="og:title" content={String(metadata.openGraph?.title)} />
         <meta property="og:description" content={String(metadata.openGraph?.description)} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://futbolink.com" />
-        <meta property="og:image" content="https://futbolink.com/logoD.png" />
+        <meta property="og:url" content="https://futbolink.net" />
+        <meta property="og:image" content="https://futbolink.net/logoD.png" />
         <meta property="og:site_name" content="Futbolink" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={String(metadata.twitter?.title)} />
         <meta name="twitter:description" content={String(metadata.twitter?.description)} />
-        <meta name="twitter:image" content="https://futbolink.com/logoD.png" />
+        <meta name="twitter:image" content="https://futbolink.net/logoD.png" />
         
         {/* Favicons */}
         <link rel="icon" href="/logoD.png" sizes="any" />

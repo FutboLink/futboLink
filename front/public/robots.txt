@@ -1,4 +1,4 @@
-# Futbolink - Plataforma de oportunidades en el mundo del fútbol
+# Futbolink - Plataforma líder de oportunidades en el mundo del fútbol
 # https://futbolink.net
 
 # Permitir acceso a todos los robots de búsqueda
@@ -6,11 +6,15 @@ User-agent: *
 Allow: /
 
 # Priorizar indexación de páginas importantes
+Allow: /
 Allow: /about
 Allow: /jobs
 Allow: /cursos
 Allow: /success-cases
 Allow: /News
+Allow: /player-search
+Allow: /Subs
+Allow: /manager-subscription
 
 # No indexar páginas de autenticación y recuperación de contraseña
 User-agent: *
@@ -30,6 +34,12 @@ Disallow: /payment/
 User-agent: Googlebot
 Allow: /
 Allow: /about
+Allow: /jobs
+Allow: /cursos
+Allow: /success-cases
+Allow: /News
+Allow: /player-search
+Allow: /Subs
 Allow: /*.js
 Allow: /*.css
 Allow: /*.png
@@ -42,6 +52,11 @@ Allow: /*.svg
 User-agent: Bingbot
 Allow: /
 Allow: /about
+Allow: /jobs
+Allow: /cursos
+Allow: /success-cases
+Allow: /News
+Allow: /player-search
 
 # Optimización para imágenes de Google
 User-agent: Googlebot-Image

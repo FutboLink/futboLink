@@ -107,7 +107,7 @@ export class SearchPlayersDto {
   @Min(0)
   @Type(() => Number)
   offset?: number;
-}
+} 
 
 export class SearchUsersDto extends SearchPlayersDto {
   @ApiProperty({ 

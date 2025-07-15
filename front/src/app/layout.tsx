@@ -71,6 +71,8 @@ export default function RootLayout({
         {/* Preconnect con Cloudinary para mejorar carga de imágenes */}
         <link rel="preconnect" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        <link rel="canonical" href="https://futbolink.net/" />
+
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased hover:scale`}

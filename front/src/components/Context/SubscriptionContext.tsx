@@ -2,9 +2,10 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { toast } from 'react-hot-toast';
+import { SubscriptionType } from '@/components/PanelAdmin/Users/UsersComponent';
 
 interface SubscriptionContextType {
-  updateSubscription: (userId: string, isProfesional: boolean) => Promise<any>;
+  updateSubscription: (userId: string, subscriptionType: SubscriptionType) => Promise<any>;
   isLoading: boolean;
 }
 
@@ -25,15 +26,15 @@ interface SubscriptionProviderProps {
 export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const updateSubscription = async (userId: string, isProfesional: boolean) => {
+  const updateSubscription = async (userId: string, subscriptionType: SubscriptionType) => {
     try {
       setIsLoading(true);
       
       // Show a loading toast
       const loadingToast = toast.loading(`Actualizando suscripción...`);
       
-      // Calculate expiration date - 30 days from now if Profesional
-      const subscriptionExpiresAt = isProfesional 
+      // Calculate expiration date - 30 days from now if not Amateur
+      const subscriptionExpiresAt = subscriptionType !== 'Amateur'
         ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() 
         : null;
       
@@ -52,7 +53,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ 
-            subscriptionType: isProfesional ? 'Profesional' : 'Amateur',
+            subscriptionType,
             subscriptionExpiresAt
           }),
         });
@@ -62,7 +63,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
           const data = await response.json();
           // Dismiss the loading toast
           toast.dismiss(loadingToast);
-          toast.success(`Suscripción cambiada a ${isProfesional ? 'Profesional' : 'Amateur'}`);
+          toast.success(`Suscripción cambiada a ${subscriptionType}`);
           return data;
         }
         
@@ -76,7 +77,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ 
-            subscriptionType: isProfesional ? 'Profesional' : 'Amateur',
+            subscriptionType,
             subscriptionExpiresAt
           }),
         });
@@ -90,7 +91,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
         }
         
         const altData = await altResponse.json();
-        toast.success(`Suscripción cambiada a ${isProfesional ? 'Profesional' : 'Amateur'}`);
+        toast.success(`Suscripción cambiada a ${subscriptionType}`);
         return altData;
       } catch (error) {
         console.error('Error en primera alternativa:', error);
@@ -105,7 +106,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ 
-            subscriptionType: isProfesional ? 'Profesional' : 'Amateur'
+            subscriptionType
           }),
         });
         
@@ -118,7 +119,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
         }
         
         const finalData = await finalResponse.json();
-        toast.success(`Suscripción cambiada a ${isProfesional ? 'Profesional' : 'Amateur'}`);
+        toast.success(`Suscripción cambiada a ${subscriptionType}`);
         return finalData;
       }
     } catch (error) {

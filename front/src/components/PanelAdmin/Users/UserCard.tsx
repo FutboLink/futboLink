@@ -2,15 +2,20 @@
 import { IProfileData } from "@/Interfaces/IUser";
 import React, { useState } from "react";
 import DeleteUser from "./DeleteUser"; // Componente para manejar la eliminación
+import { SubscriptionType } from "./UsersComponent";
 
 interface UserCardProps {
   user: IProfileData;
   onDelete: (id: string) => void; // Nueva prop para pasar la función de eliminar
-  onSubscriptionChange: (userId: string, newStatus: boolean) => Promise<void>;
+  onSubscriptionChange: (userId: string, newSubscriptionType: SubscriptionType) => Promise<void>;
 }
 
 const UserCard: React.FC<UserCardProps> = ({ user, onDelete, onSubscriptionChange }) => {
   const [isChanging, setIsChanging] = useState(false);
+  const [selectedSubscription, setSelectedSubscription] = useState<SubscriptionType>(
+    (user.subscriptionType as SubscriptionType) || 'Amateur'
+  );
+  
   const {
     id, // ID del usuario
     name,
@@ -26,12 +31,12 @@ const UserCard: React.FC<UserCardProps> = ({ user, onDelete, onSubscriptionChang
     subscriptionType,
   } = user;
 
-  const isProfesional = subscriptionType === 'Profesional';
-
-  const handleSubscriptionToggle = async () => {
+  const handleSubscriptionChange = async () => {
+    if (selectedSubscription === subscriptionType) return;
+    
     try {
       setIsChanging(true);
-      await onSubscriptionChange(id || '', !isProfesional);
+      await onSubscriptionChange(id || '', selectedSubscription);
     } finally {
       setIsChanging(false);
     }
@@ -68,36 +73,49 @@ const UserCard: React.FC<UserCardProps> = ({ user, onDelete, onSubscriptionChang
       </p>
       <p className="text-gray-700">
         <span className="font-semibold">Subscription:</span>{" "}
-        <span className={`${isProfesional ? 'text-green-600 font-bold' : 'text-gray-600'}`}>
+        <span className={`
+          ${subscriptionType === 'Profesional' ? 'text-green-600 font-bold' : ''} 
+          ${subscriptionType === 'Semiprofesional' ? 'text-blue-600 font-bold' : ''} 
+          ${subscriptionType === 'Amateur' || !subscriptionType ? 'text-gray-600' : ''}
+        `}>
           {subscriptionType || "Amateur"}
         </span>
       </p>
 
       <div className="mt-4 flex flex-col gap-2">
-        {/* Subscription toggle button */}
-        <button
-          onClick={handleSubscriptionToggle}
-          disabled={isChanging}
-          className={`w-full py-2 rounded-md font-medium text-sm transition-colors ${
-            isProfesional 
-              ? 'bg-red-100 text-red-700 hover:bg-red-200 border border-red-300' 
-              : 'bg-green-100 text-green-700 hover:bg-green-200 border border-green-300'
-          }`}
-        >
-          {isChanging ? (
-            <span className="flex items-center justify-center">
-              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Actualizando...
-            </span>
-          ) : isProfesional ? (
-            'Cambiar a Amateur'
-          ) : (
-            'Cambiar a Profesional'
-          )}
-        </button>
+        {/* Subscription selector */}
+        <div className="flex items-center gap-2">
+          <select 
+            value={selectedSubscription}
+            onChange={(e) => setSelectedSubscription(e.target.value as SubscriptionType)}
+            className="flex-1 p-2 border border-gray-300 rounded text-sm"
+            disabled={isChanging}
+          >
+            <option value="Amateur">Amateur</option>
+            <option value="Semiprofesional">Semiprofesional</option>
+            <option value="Profesional">Profesional</option>
+          </select>
+          
+          <button
+            onClick={handleSubscriptionChange}
+            disabled={isChanging || selectedSubscription === subscriptionType}
+            className={`px-3 py-2 rounded-md font-medium text-sm transition-colors ${
+              isChanging ? 'bg-gray-200 text-gray-500' : 
+              selectedSubscription === subscriptionType ? 'bg-gray-100 text-gray-400 cursor-not-allowed' :
+              'bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-300'
+            }`}
+          >
+            {isChanging ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Actualizando...
+              </span>
+            ) : 'Aplicar'}
+          </button>
+        </div>
 
         {/* Delete user button */}
         <DeleteUser userId={id} onUserDeleted={onDelete} />

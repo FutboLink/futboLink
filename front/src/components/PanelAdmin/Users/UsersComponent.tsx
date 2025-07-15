@@ -6,6 +6,8 @@ import { IProfileData } from "@/Interfaces/IUser";
 import { useSubscription } from "@/components/Context/SubscriptionContext";
 import { SubscriptionProvider } from "@/components/Context/SubscriptionContext";
 
+export type SubscriptionType = 'Amateur' | 'Semiprofesional' | 'Profesional';
+
 // Internal component that uses the subscription context
 const UsersComponentWithContext = () => {
   const { updateSubscription, isLoading: subscriptionLoading } = useSubscription();
@@ -34,14 +36,15 @@ const UsersComponentWithContext = () => {
     setUsers((prevUsers) => prevUsers.filter((user) => user.id !== deletedId));
   };
 
-  const handleSubscriptionChange = async (userId: string, newStatus: boolean) => {
+  // Updated to use SubscriptionType
+  const handleSubscriptionChange = async (userId: string, newSubscriptionType: SubscriptionType) => {
     try {
-      await updateSubscription(userId, newStatus);
+      await updateSubscription(userId, newSubscriptionType);
       // Update local state to reflect the change
       setUsers(prevUsers => 
         prevUsers.map(user => 
           user.id === userId 
-            ? {...user, subscriptionType: newStatus ? 'Profesional' : 'Amateur'} 
+            ? {...user, subscriptionType: newSubscriptionType} 
             : user
         )
       );

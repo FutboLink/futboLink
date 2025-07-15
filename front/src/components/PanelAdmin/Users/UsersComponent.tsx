@@ -64,8 +64,33 @@ const UsersComponentWithContext = () => {
   if (isLoading || subscriptionLoading) {
     return <p className="text-center text-verde-oscuro mt-40">Cargando usuarios</p>;
   }
+  
+  // Calculate user statistics
+  const totalUsers = users.length;
+  const usersByRole = users.reduce((acc, user) => {
+    const role = user.role || 'Unknown';
+    acc[role] = (acc[role] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
   return (
     <div className="container mx-auto mt-28 p-6">
+      <div className="mb-6 bg-white shadow-md rounded-lg p-4 border border-gray-200">
+        <h2 className="text-xl font-bold text-gray-700 mb-2">Estadísticas de Usuarios</h2>
+        <div className="flex flex-wrap gap-4">
+          <div className="bg-blue-50 rounded-lg p-3 flex-1 min-w-[120px] border border-blue-200">
+            <p className="text-sm text-gray-600">Total de usuarios</p>
+            <p className="text-2xl font-bold text-blue-700">{totalUsers}</p>
+          </div>
+          {Object.entries(usersByRole).map(([role, count]) => (
+            <div key={role} className="bg-gray-50 rounded-lg p-3 flex-1 min-w-[120px] border border-gray-200">
+              <p className="text-sm text-gray-600">{role}</p>
+              <p className="text-2xl font-bold text-gray-700">{count}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="mb-6 flex justify-between items-center">
         <div>
           <label className="mr-2 font-bold text-gray-600">Rol:</label>

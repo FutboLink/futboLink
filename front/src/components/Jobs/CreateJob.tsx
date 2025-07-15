@@ -121,6 +121,7 @@ const FormComponent = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [imageUploadedMessage, setImageUploadedMessage] = useState<string | null>(null);
  
 const dropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -164,6 +165,11 @@ useEffect(() => {
       ...prev,
       imgUrl: url,
     }));
+    setImageUploadedMessage("Imagen cargada correctamente");
+    // Clear the message after 3 seconds
+    setTimeout(() => {
+      setImageUploadedMessage(null);
+    }, 3000);
   };
 
   const handleCompetencyChange = (value: string, checked: boolean) => {
@@ -279,14 +285,24 @@ useEffect(() => {
         </h1>
       </div>
 
+      <div className="bg-orange-50 border-l-4 border-orange-500 text-orange-700 p-3 mb-4 rounded">
+        <p className="font-bold">⚠ IMPORTANTE:</p>
+        <p>No incluyas tu número, correo, redes sociales ni logos personales. Los jugadores te contactarán a través de la plataforma.</p>
+      </div>
+
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-2">
     <div className="flex flex-col">
-      <label className="text-xs font-semibold mb-1">Título</label>
+      <label className="text-xs font-semibold mb-1">Título <span className="text-gray-500 text-xs">({formData.title.length}/80)</span></label>
       <input
         type="text"
         className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
         value={formData.title}
-        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+        onChange={(e) => {
+          if (e.target.value.length <= 80) {
+            setFormData({ ...formData, title: e.target.value });
+          }
+        }}
+        maxLength={80}
         placeholder="Nombre de la oferta"
       />
     </div>
@@ -663,8 +679,17 @@ useEffect(() => {
 
         <div className="flex flex-col md:col-span-2 mt-4">
           <label className="text-sm font-bold mb-2">Cargar Imagen</label>
+          <div className="bg-yellow-50 border border-yellow-400 text-yellow-800 p-2 mb-3 rounded text-xs">
+            <p className="font-semibold">IMPORTANTE:</p>
+            <p>Solo se permite usar el logo de la liga en la que compite o el logo del club. No se permite incluir logos de agencias, intermediarios u otros. Las publicaciones que no cumplan serán editadas o eliminadas.</p>
+          </div>
           <div className="w-full">
             <ImageUpload onUpload={handleImageUpload} />
+            {imageUploadedMessage && (
+              <div className="mt-2 bg-green-50 border border-green-400 text-green-700 px-3 py-2 rounded text-sm">
+                {imageUploadedMessage}
+              </div>
+            )}
           </div>
         </div>
 

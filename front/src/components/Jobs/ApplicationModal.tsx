@@ -71,7 +71,7 @@ const ApplicantModal: React.FC<ApplicantModalProps> = ({
               <strong>Nacionalidad:</strong> {applicant.nationality}
             </p>
             <p className="text-gray-700">
-              <strong>Ubicación actual:</strong> {applicant.ubicacionActual}
+              <strong>País de Residencia:</strong> {applicant.ubicacionActual}
             </p>
             <p className="text-gray-700">
               <strong>Género:</strong> {applicant.genre}

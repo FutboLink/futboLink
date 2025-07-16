@@ -14,7 +14,11 @@ import FormComponent from "@/components/Jobs/CreateJob";
 import { fetchUserId } from "@/components/Fetchs/UsersFetchs/UserFetchs";
 import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
 import { FaX, FaYoutube, FaBolt, FaUsers } from "react-icons/fa6";
-import { AiOutlineFileAdd, AiOutlineFileText, AiOutlineUser } from "react-icons/ai";
+import {
+  AiOutlineFileAdd,
+  AiOutlineFileText,
+  AiOutlineUser,
+} from "react-icons/ai";
 import { MdSettings } from "react-icons/md";
 import { FaGlobe } from "react-icons/fa";
 import axios from "axios";
@@ -33,7 +37,7 @@ const PanelManager = () => {
     subscriptionType: string;
   }>({
     hasActiveSubscription: false,
-    subscriptionType: 'Gratuito'
+    subscriptionType: "Gratuito",
   });
   const [loadingSubscription, setLoadingSubscription] = useState(true);
   const router = useRouter();
@@ -54,45 +58,58 @@ const PanelManager = () => {
           // After fetching user data, check subscription status
           if (data.email) {
             setLoadingSubscription(true);
-            
+
             // Consultar el estado de suscripción directamente desde la API
-            fetch(`${apiUrl}/user/subscription/check?email=${encodeURIComponent(data.email)}`)
-              .then(response => {
+            fetch(
+              `${apiUrl}/user/subscription/check?email=${encodeURIComponent(
+                data.email
+              )}`
+            )
+              .then((response) => {
                 if (!response.ok) {
-                  throw new Error(`Error checking subscription: ${response.status}`);
+                  throw new Error(
+                    `Error checking subscription: ${response.status}`
+                  );
                 }
                 return response.json();
               })
-              .then(subscriptionData => {
-                console.log('Received subscription data for manager:', subscriptionData);
-                
+              .then((subscriptionData) => {
+                console.log(
+                  "Received subscription data for manager:",
+                  subscriptionData
+                );
+
                 // Actualizar estado de la suscripción
-                const subscriptionType = subscriptionData.subscriptionType || 'Amateur';
+                const subscriptionType =
+                  subscriptionData.subscriptionType || "Amateur";
                 // Convertir nombres de suscripción para managers
                 let displayType = subscriptionType;
-                if (subscriptionType === 'Amateur') {
-                  displayType = 'Gratuito';
-                } else if (subscriptionType === 'Profesional') {
-                  displayType = 'Profesional';
+                if (subscriptionType === "Amateur") {
+                  displayType = "Gratuito";
+                } else if (subscriptionType === "Profesional") {
+                  displayType = "Profesional";
                 }
-                
+
                 setSubscriptionInfo({
                   hasActiveSubscription: subscriptionData.isActive === true,
-                  subscriptionType: displayType
+                  subscriptionType: displayType,
                 });
-                
+
                 // Guardar en localStorage para uso futuro
-                localStorage.setItem('managerSubscriptionInfo', JSON.stringify({
-                  hasActiveSubscription: subscriptionData.isActive === true,
-                  subscriptionType: displayType
-                }));
+                localStorage.setItem(
+                  "managerSubscriptionInfo",
+                  JSON.stringify({
+                    hasActiveSubscription: subscriptionData.isActive === true,
+                    subscriptionType: displayType,
+                  })
+                );
               })
-              .catch(err => {
+              .catch((err) => {
                 console.error("Error checking manager subscription:", err);
                 // Mantener valor por defecto
                 setSubscriptionInfo({
                   hasActiveSubscription: false,
-                  subscriptionType: 'Gratuito'
+                  subscriptionType: "Gratuito",
                 });
               })
               .finally(() => {
@@ -131,22 +148,22 @@ const PanelManager = () => {
   // Función para cargar la cartera de jugadores
   const loadPortfolio = async () => {
     if (!user || !token) return;
-    
+
     setLoadingPortfolio(true);
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/user/${user.id}/portfolio`,
         {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-      
+
       setPortfolioPlayers(response.data || []);
     } catch (error) {
-      console.error('Error al cargar la cartera de jugadores:', error);
-      toast.error('Error al cargar tu cartera de jugadores');
+      console.error("Error al cargar la cartera de jugadores:", error);
+      toast.error("Error al cargar tu cartera de jugadores");
     } finally {
       setLoadingPortfolio(false);
     }
@@ -155,23 +172,25 @@ const PanelManager = () => {
   // Función para eliminar un jugador de la cartera
   const removeFromPortfolio = async (playerId: string) => {
     if (!user || !token) return;
-    
+
     try {
       await axios.delete(
         `${process.env.NEXT_PUBLIC_API_URL}/user/${user.id}/portfolio/${playerId}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-      
+
       // Actualizar la lista de jugadores en la cartera
-      setPortfolioPlayers(prev => prev.filter(player => player.id !== playerId));
-      toast.success('Jugador eliminado de tu cartera');
+      setPortfolioPlayers((prev) =>
+        prev.filter((player) => player.id !== playerId)
+      );
+      toast.success("Jugador eliminado de tu cartera");
     } catch (error) {
-      console.error('Error al eliminar jugador de la cartera:', error);
-      toast.error('Error al eliminar jugador de la cartera');
+      console.error("Error al eliminar jugador de la cartera:", error);
+      toast.error("Error al eliminar jugador de la cartera");
     }
   };
 
@@ -219,11 +238,23 @@ const PanelManager = () => {
         {/* Menú de navegación */}
         <nav className="space-y-2">
           {[
-           { name: "Mi Perfil", section: "profile", icon: <AiOutlineUser /> },
-           { name: "Crear Oferta", section: "createOffers", icon: <AiOutlineFileAdd /> },
-           { name: "Mis Ofertas", section: "appliedOffers", icon: <AiOutlineFileText /> },
-           { name: "Configuración", section: "config", icon: <MdSettings /> },
-           { name: "Cartera", section: "portfolio", icon: <FaUsers className="text-xl" /> },
+            { name: "Mi Perfil", section: "profile", icon: <AiOutlineUser /> },
+            {
+              name: "Crear Oferta",
+              section: "createOffers",
+              icon: <AiOutlineFileAdd />,
+            },
+            {
+              name: "Mis Ofertas",
+              section: "appliedOffers",
+              icon: <AiOutlineFileText />,
+            },
+            { name: "Configuración", section: "config", icon: <MdSettings /> },
+            {
+              name: "Cartera",
+              section: "portfolio",
+              icon: <FaUsers className="text-xl" />,
+            },
           ].map(({ name, section, icon }) => (
             <button
               key={section}
@@ -234,21 +265,26 @@ const PanelManager = () => {
               <span className="text-white">{name}</span>
             </button>
           ))}
-          
+
           {/* Botón para buscar jugadores con verificación de suscripción */}
           <button
             onClick={() => {
               // Verificar si el usuario tiene suscripción adecuada
-              const hasPaidSubscription = 
-                subscriptionInfo.subscriptionType === 'Profesional' || 
-                subscriptionInfo.subscriptionType === 'Semiprofesional';
-                
+              const hasPaidSubscription =
+                subscriptionInfo.subscriptionType === "Profesional" ||
+                subscriptionInfo.subscriptionType === "Semiprofesional";
+
               // Redirigir según el tipo de suscripción
-              if (hasPaidSubscription && subscriptionInfo.hasActiveSubscription) {
+              if (
+                hasPaidSubscription &&
+                subscriptionInfo.hasActiveSubscription
+              ) {
                 router.push("/player-search");
               } else {
                 // Mostrar toast con mensaje informativo
-                toast.error("Necesitas una suscripción para acceder a la búsqueda de jugadores");
+                toast.error(
+                  "Necesitas una suscripción para acceder a la búsqueda de jugadores"
+                );
                 setTimeout(() => {
                   router.push("/manager-subscription");
                 }, 1000);
@@ -257,8 +293,19 @@ const PanelManager = () => {
             className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg bg-green-800 border-2 border-white hover:bg-green-700 transition duration-200 mt-4"
           >
             <span className="text-white text-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
             </span>
             <span className="text-white">Buscar Jugadores</span>
@@ -283,12 +330,16 @@ const PanelManager = () => {
 
         {/* Sección de Perfil */}
         {activeSection === "profile" && (
-          <div className="p-6 bg-white text-gray-700 rounded-xl shadow-md" data-aos="fade-up">
-            <h3 className="text-2xl font-semibold mb-6 text-[#1d5126] border-b border-gray-200 pb-2">Información Personal</h3>
-      
+          <div
+            className="p-6 bg-white text-gray-700 rounded-xl shadow-md"
+            data-aos="fade-up"
+          >
+            <h3 className="text-2xl font-semibold mb-6 text-[#1d5126] border-b border-gray-200 pb-2">
+              Información Personal
+            </h3>
+
             {/* Contenedor Principal con dos columnas */}
             <div className="flex flex-col md:flex-row justify-between gap-8">
-              
               {/* Columna Izquierda */}
               <div className="md:w-1/2">
                 <div className="flex items-start">
@@ -298,102 +349,152 @@ const PanelManager = () => {
                     </h2>
                     <div className="text-gray-700 mt-2 space-y-3">
                       <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                        <strong className="text-[#1d5126]">Nombre de la entidad:</strong> <span>{userData?.nameAgency || "No disponible"}</span>
+                        <strong className="text-[#1d5126]">
+                          Nombre de la entidad:
+                        </strong>{" "}
+                        <span>{userData?.nameAgency || "No disponible"}</span>
                       </p>
                       <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                        <strong className="text-[#1d5126]">Email:</strong> <span>{userData?.email}</span>
+                        <strong className="text-[#1d5126]">Email:</strong>{" "}
+                        <span>{userData?.email}</span>
                       </p>
                       <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                        <strong className="text-[#1d5126]">Tipo de organización:</strong> <span>{userData?.puesto}</span>
+                        <strong className="text-[#1d5126]">
+                          Tipo de organización:
+                        </strong>{" "}
+                        <span>{userData?.puesto}</span>
                       </p>
                       <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                        <strong className="text-[#1d5126]">Año de fundación:</strong> <span>{userData?.age}</span>
+                        <strong className="text-[#1d5126]">
+                          Año de fundación:
+                        </strong>{" "}
+                        <span>{userData?.age}</span>
                       </p>
                       <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                        <strong className="text-[#1d5126]">Región:</strong> <span>{userData?.location}</span>
+                        <strong className="text-[#1d5126]">Región:</strong>{" "}
+                        <span>{userData?.location}</span>
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
-                      
+
               {/* Columna Derecha */}
               <div className="md:w-1/2">
                 <div className="mt-1">
                   <div className="text-gray-700 space-y-3">
                     <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                      <strong className="text-[#1d5126]">Teléfono:</strong> <span>{userData?.phone}</span>
+                      <strong className="text-[#1d5126]">Teléfono:</strong>{" "}
+                      <span>{userData?.phone}</span>
                     </p>
                     <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                      <strong className="text-[#1d5126]">Nacionalidad:</strong> <span>{userData?.nationality || "No disponible"}</span>
+                      <strong className="text-[#1d5126]">Nacionalidad:</strong>{" "}
+                      <span>{userData?.nationality || "No disponible"}</span>
                     </p>
-                                          <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                        <strong className="text-[#1d5126]">Ubicación actual:</strong> <span>{userData?.ubicacionActual || "No disponible"}</span>
-                      </p>
-                      
-                      {/* Información de Suscripción */}
-                      <div className="border border-gray-200 bg-gradient-to-r from-green-50 to-blue-50 p-3 mb-2 rounded-lg shadow-sm">
-                        <div className="flex items-center justify-between">
-                          <strong className="text-[#1d5126] flex items-center">
-                            <FaBolt className="mr-2 text-yellow-500" />
-                            Plan de Suscripción:
-                          </strong>
-                          {loadingSubscription ? (
-                            <span className="text-gray-500 text-sm">Cargando...</span>
-                          ) : (
-                            <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                              subscriptionInfo.subscriptionType === 'Profesional' 
-                                ? 'bg-green-600 text-white' 
-                                : 'bg-gray-500 text-white'
-                            }`}>
-                              {subscriptionInfo.subscriptionType}
-                            </span>
-                          )}
-                        </div>
-                        {!loadingSubscription && (
-                          <div className="mt-2 text-sm text-gray-600">
-                            <p className="flex items-center">
-                              <span className={`w-2 h-2 rounded-full mr-2 ${
-                                subscriptionInfo.hasActiveSubscription ? 'bg-green-500' : 'bg-gray-400'
-                              }`}></span>
-                              Estado: {subscriptionInfo.hasActiveSubscription ? 'Activa' : 'Inactiva'}
-                            </p>
-                            {subscriptionInfo.subscriptionType === 'Gratuito' && (
-                              <div className="mt-2">
-                                <Link href="/manager-subscription" className="text-blue-600 hover:text-blue-800 underline text-sm">
-                                  Actualizar a Plan Profesional
-                                </Link>
-                              </div>
-                            )}
-                          </div>
+                    <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
+                      <strong className="text-[#1d5126]">
+                        País de Residencia:
+                      </strong>{" "}
+                      <span>
+                        {userData?.ubicacionActual || "No disponible"}
+                      </span>
+                    </p>
+
+                    {/* Información de Suscripción */}
+                    <div className="border border-gray-200 bg-gradient-to-r from-green-50 to-blue-50 p-3 mb-2 rounded-lg shadow-sm">
+                      <div className="flex items-center justify-between">
+                        <strong className="text-[#1d5126] flex items-center">
+                          <FaBolt className="mr-2 text-yellow-500" />
+                          Plan de Suscripción:
+                        </strong>
+                        {loadingSubscription ? (
+                          <span className="text-gray-500 text-sm">
+                            Cargando...
+                          </span>
+                        ) : (
+                          <span
+                            className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                              subscriptionInfo.subscriptionType ===
+                              "Profesional"
+                                ? "bg-green-600 text-white"
+                                : "bg-gray-500 text-white"
+                            }`}
+                          >
+                            {subscriptionInfo.subscriptionType}
+                          </span>
                         )}
                       </div>
-                    
+                      {!loadingSubscription && (
+                        <div className="mt-2 text-sm text-gray-600">
+                          <p className="flex items-center">
+                            <span
+                              className={`w-2 h-2 rounded-full mr-2 ${
+                                subscriptionInfo.hasActiveSubscription
+                                  ? "bg-green-500"
+                                  : "bg-gray-400"
+                              }`}
+                            ></span>
+                            Estado:{" "}
+                            {subscriptionInfo.hasActiveSubscription
+                              ? "Activa"
+                              : "Inactiva"}
+                          </p>
+                          {subscriptionInfo.subscriptionType === "Gratuito" && (
+                            <div className="mt-2">
+                              <Link
+                                href="/manager-subscription"
+                                className="text-blue-600 hover:text-blue-800 underline text-sm"
+                              >
+                                Actualizar a Plan Profesional
+                              </Link>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
                     {/* Redes Sociales */}
                     <div className="mt-6">
-                      <strong className="text-[#1d5126] text-lg">Redes Sociales:</strong>
+                      <strong className="text-[#1d5126] text-lg">
+                        Redes Sociales:
+                      </strong>
                       <div className="flex space-x-4 mt-3 items-center p-3 bg-gray-50 rounded-lg">
                         {userData?.socialMedia?.x && (
-                          <a href={`https://x.com/${userData.socialMedia.x}`} target="_blank" rel="noopener noreferrer"
-                            className="hover:opacity-80 transition-opacity">
-                            <Image 
-                              src="/logoX.png" 
-                              alt="Logo X Futbolink" 
-                              width={30} 
-                              height={30} 
-                              className="w-8 h-8 p-1 rounded-md bg-black shadow-sm hover:shadow-md transition-all" 
+                          <a
+                            href={`https://x.com/${userData.socialMedia.x}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:opacity-80 transition-opacity"
+                          >
+                            <Image
+                              src="/logoX.png"
+                              alt="Logo X Futbolink"
+                              width={30}
+                              height={30}
+                              className="w-8 h-8 p-1 rounded-md bg-black shadow-sm hover:shadow-md transition-all"
                             />
                           </a>
                         )}
                         {userData?.socialMedia?.youtube && (
-                          <a href={`https://www.youtube.com/${userData.socialMedia.youtube}`} target="_blank" rel="noopener noreferrer"
-                            className="text-red-600 hover:text-red-700 transition-colors">
-                            <FaYoutube size={28} className="hover:scale-110 transition-transform" />
+                          <a
+                            href={`https://www.youtube.com/${userData.socialMedia.youtube}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-red-600 hover:text-red-700 transition-colors"
+                          >
+                            <FaYoutube
+                              size={28}
+                              className="hover:scale-110 transition-transform"
+                            />
                           </a>
                         )}
                         {userData?.socialMedia?.transfermarkt && (
-                          <a href={`https://www.transfermarkt.com/${userData.socialMedia.transfermarkt}`} target="_blank" rel="noopener noreferrer"
-                            className="hover:opacity-80 transition-opacity">
+                          <a
+                            href={`https://www.transfermarkt.com/${userData.socialMedia.transfermarkt}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:opacity-80 transition-opacity"
+                          >
                             <Image
                               src="/transfermarkt.png"
                               alt="Transfermarkt"
@@ -404,9 +505,16 @@ const PanelManager = () => {
                           </a>
                         )}
                         {userData?.socialMedia?.website && (
-                          <a href={userData.socialMedia.website} target="_blank" rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 transition-colors">
-                            <FaGlobe size={26} className="hover:scale-110 transition-transform" />
+                          <a
+                            href={userData.socialMedia.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 transition-colors"
+                          >
+                            <FaGlobe
+                              size={26}
+                              className="hover:scale-110 transition-transform"
+                            />
                           </a>
                         )}
                       </div>
@@ -415,11 +523,13 @@ const PanelManager = () => {
                 </div>
               </div>
             </div>
-      
+
             {/* Video de Presentación */}
             {userData?.videoUrl && (
               <div className="mt-8 pt-4 border-t border-gray-200">
-                <h3 className="text-lg font-semibold mb-4 text-[#1d5126]">Video de Presentación</h3>
+                <h3 className="text-lg font-semibold mb-4 text-[#1d5126]">
+                  Video de Presentación
+                </h3>
                 <div className="relative w-full bg-black shadow-md rounded-lg overflow-hidden">
                   {userData.videoUrl && (
                     <iframe
@@ -432,27 +542,39 @@ const PanelManager = () => {
                 </div>
               </div>
             )}
-      
+
             {/* CV Section - If available */}
             {userData?.cv && (
               <div className="mt-8 pt-4 border-t border-gray-200">
-                <h3 className="text-lg font-semibold mb-4 text-[#1d5126]">Curriculum Vitae</h3>
+                <h3 className="text-lg font-semibold mb-4 text-[#1d5126]">
+                  Curriculum Vitae
+                </h3>
                 <div className="flex flex-col items-start">
                   <div className="border border-gray-200 bg-gray-50 p-5 rounded-xl w-full md:w-1/2 mb-4 hover:shadow-md transition-shadow">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <div className="bg-[#1d5126] text-white p-3 rounded-lg mr-4">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
-                            <path d="M4.603 14.087a.81.81 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.68 7.68 0 0 1 1.482-.645 19.697 19.697 0 0 0 1.062-2.227 7.269 7.269 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.188-.012.396-.047.614-.084.51-.27 1.134-.52 1.794a10.954 10.954 0 0 0 .98 1.686 5.753 5.753 0 0 1 1.334.05c.364.066.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.856.856 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.712 5.712 0 0 1-.911-.95 11.651 11.651 0 0 0-1.997.406 11.307 11.307 0 0 1-1.02 1.51c-.292.35-.609.656-.927.787a.793.793 0 0 1-.58.029zm1.379-1.901c-.166.076-.32.156-.459.238-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361.01.022.02.036.026.044a.266.266 0 0 0 .035-.012c.137-.056.355-.235.635-.572a8.18 8.18 0 0 0 .45-.606zm1.64-1.33a12.71 12.71 0 0 1 1.01-.193 11.744 11.744 0 0 1-.51-.858 20.801 20.801 0 0 1-.5 1.05zm2.446.45c.15.163.296.3.435.41.24.19.407.253.498.256a.107.107 0 0 0 .07-.015.307.307 0 0 0 .094-.125.436.436 0 0 0 .059-.2.095.095 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a3.876 3.876 0 0 0-.612-.053zM8.078 7.8a6.7 6.7 0 0 0 .2-.828c.031-.188.043-.343.038-.465a.613.613 0 0 0-.032-.198.517.517 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822.024.111.054.227.09.346z"/>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            fill="currentColor"
+                            viewBox="0 0 16 16"
+                          >
+                            <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z" />
+                            <path d="M4.603 14.087a.81.81 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.68 7.68 0 0 1 1.482-.645 19.697 19.697 0 0 0 1.062-2.227 7.269 7.269 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.188-.012.396-.047.614-.084.51-.27 1.134-.52 1.794a10.954 10.954 0 0 0 .98 1.686 5.753 5.753 0 0 1 1.334.05c.364.066.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.856.856 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.712 5.712 0 0 1-.911-.95 11.651 11.651 0 0 0-1.997.406 11.307 11.307 0 0 1-1.02 1.51c-.292.35-.609.656-.927.787a.793.793 0 0 1-.58.029zm1.379-1.901c-.166.076-.32.156-.459.238-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361.01.022.02.036.026.044a.266.266 0 0 0 .035-.012c.137-.056.355-.235.635-.572a8.18 8.18 0 0 0 .45-.606zm1.64-1.33a12.71 12.71 0 0 1 1.01-.193 11.744 11.744 0 0 1-.51-.858 20.801 20.801 0 0 1-.5 1.05zm2.446.45c.15.163.296.3.435.41.24.19.407.253.498.256a.107.107 0 0 0 .07-.015.307.307 0 0 0 .094-.125.436.436 0 0 0 .059-.2.095.095 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a3.876 3.876 0 0 0-.612-.053zM8.078 7.8a6.7 6.7 0 0 0 .2-.828c.031-.188.043-.343.038-.465a.613.613 0 0 0-.032-.198.517.517 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822.024.111.054.227.09.346z" />
                           </svg>
                         </div>
                         <div>
-                          <p className="font-medium text-[#1d5126]">Curriculum Vitae</p>
-                          <p className="text-xs text-gray-500">Documento PDF/DOC</p>
+                          <p className="font-medium text-[#1d5126]">
+                            Curriculum Vitae
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Documento PDF/DOC
+                          </p>
                         </div>
                       </div>
-                      <a 
+                      <a
                         href={userData.cv}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -465,13 +587,23 @@ const PanelManager = () => {
                 </div>
               </div>
             )}
-      
+
             {/* Botón Editar Perfil */}
             <Link href={"/profile"}>
               <div className="mt-8 bg-[#1d5126] hover:bg-[#3e7c27] text-white px-4 py-2 rounded-lg text-sm md:w-1/4 text-center transition-colors duration-200 cursor-pointer inline-flex items-center justify-center shadow-sm hover:shadow-md">
-                <svg className="mr-2" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                  <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-                  <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                <svg
+                  className="mr-2"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  viewBox="0 0 16 16"
+                >
+                  <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                  <path
+                    fill-rule="evenodd"
+                    d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"
+                  />
                 </svg>
                 Editar Perfil
               </div>
@@ -499,7 +631,11 @@ const PanelManager = () => {
               <p>No has publicado ninguna oferta.</p>
             ) : (
               [...appliedJobs]
-                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                .sort(
+                  (a, b) =>
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime()
+                )
                 .map((job) => (
                   <div key={job.id} className="cursor-pointer">
                     <JobOfferDetails jobId={job.id || ""} />
@@ -519,11 +655,11 @@ const PanelManager = () => {
               Configuración
             </h3>
             <div className="space-y-6">
-            <Link className="group relative" href="/forgotPassword">
-  <h4 className="font-semibold text-lg  group-hover:underline ">
-    Cambiar contraseña
-  </h4>
-</Link>
+              <Link className="group relative" href="/forgotPassword">
+                <h4 className="font-semibold text-lg  group-hover:underline ">
+                  Cambiar contraseña
+                </h4>
+              </Link>
               <h4 className="font-semibold text-lg">Idioma</h4>
               <h4 className="font-semibold text-lg">Suscripción</h4>
             </div>
@@ -538,57 +674,73 @@ const PanelManager = () => {
           >
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold">Mi Cartera de Jugadores</h3>
-              <Link 
+              <Link
                 href="/player-search"
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
                 </svg>
                 Buscar Jugadores
               </Link>
             </div>
-            
+
             {loadingPortfolio ? (
               <div className="flex justify-center items-center py-8">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
               </div>
             ) : portfolioPlayers.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {portfolioPlayers.map(player => (
-                  <div key={player.id} className="bg-white rounded-lg shadow p-4">
+                {portfolioPlayers.map((player) => (
+                  <div
+                    key={player.id}
+                    className="bg-white rounded-lg shadow p-4"
+                  >
                     <div className="flex items-center gap-3 mb-3">
                       {/* Foto de perfil */}
                       <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-gray-200">
-                        <Image 
-                          src={player.imgUrl || '/default-player.png'} 
+                        <Image
+                          src={player.imgUrl || "/default-player.png"}
                           alt={`${player.name} ${player.lastname}`}
                           width={56}
                           height={56}
                           className="object-cover w-full h-full"
                         />
                       </div>
-                      
+
                       {/* Información básica */}
                       <div className="flex-1">
-                        <h3 className="font-bold text-lg">{player.name} {player.lastname}</h3>
+                        <h3 className="font-bold text-lg">
+                          {player.name} {player.lastname}
+                        </h3>
                         <p className="text-sm text-gray-600">
-                          {player.primaryPosition || 'Sin posición'} 
-                          {player.age ? ` • ${player.age} años` : ''}
+                          {player.primaryPosition || "Sin posición"}
+                          {player.age ? ` • ${player.age} años` : ""}
                         </p>
                       </div>
                     </div>
-                    
+
                     {/* Acciones */}
                     <div className="flex justify-between mt-3">
-                      <Link 
+                      <Link
                         href={`/user-viewer/${player.id}`}
                         className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition-colors"
                       >
                         Ver perfil
                       </Link>
-                      
-                      <button 
+
+                      <button
                         onClick={() => removeFromPortfolio(player.id)}
                         className="px-3 py-1 bg-red-100 text-red-600 rounded-md text-sm hover:bg-red-200 transition-colors"
                       >
@@ -604,7 +756,7 @@ const PanelManager = () => {
                   <FaUsers className="mx-auto text-4xl mb-2 text-gray-400" />
                   <p>Aún no tienes jugadores en tu cartera</p>
                 </div>
-                <Link 
+                <Link
                   href="/player-search"
                   className="inline-block mt-3 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
                 >

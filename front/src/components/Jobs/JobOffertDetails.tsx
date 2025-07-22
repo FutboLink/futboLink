@@ -7,7 +7,7 @@ import { fetchJobOfferById } from "../Fetchs/OfertasFetch/OfertasFetchs";
 import { useRouter } from "next/navigation";
 import DeleteButton from "./DeleteJob";
 import { UserContext } from "../Context/UserContext";
-import EditJobOffer from "./EditJobOffer";  // Importar el componente de edición
+import EditJobOffer from "./EditJobOffer"; // Importar el componente de edición
 import RecruiterApplicationModal from "./RecruiterApplicationModal";
 
 interface JobOfferDetailsProps {
@@ -35,7 +35,7 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
   };
 
   const handleEditOffer = () => {
-    setIsEditing(true);  // Mostrar el formulario de edición
+    setIsEditing(true); // Mostrar el formulario de edición
   };
 
   const handleCancelEdit = () => {
@@ -43,7 +43,7 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
   };
 
   const handleEditSuccess = (updatedOffer: IOfferCard) => {
-    setJobOffer(updatedOffer);  // Actualizar la oferta con los datos editados
+    setJobOffer(updatedOffer); // Actualizar la oferta con los datos editados
     setIsEditing(false); // Cerrar el formulario de edición
   };
 
@@ -99,57 +99,94 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
   if (!jobOffer) {
     return (
       <div className="flex justify-center items-center h-full py-6">
-        <p className="text-center text-lg text-gray-500">Aún no tienes ofertas publicadas.</p>
+        <p className="text-center text-lg text-gray-500">
+          Aún no tienes ofertas publicadas.
+        </p>
       </div>
     );
   }
 
   return (
     <div className="p-6 bg-gray-100 rounded-lg shadow-md max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto my-6 overflow-auto">
-    {isEditing ? (
-      <EditJobOffer
-        jobId={jobId}
-        token={token || ""}
-        jobOffer={jobOffer}
-        onCancel={handleCancelEdit}
-        onSuccess={handleEditSuccess}
-      />
+      {isEditing ? (
+        <EditJobOffer
+          jobId={jobId}
+          token={token || ""}
+          jobOffer={jobOffer}
+          onCancel={handleCancelEdit}
+          onSuccess={handleEditSuccess}
+        />
       ) : (
         <>
-        
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold text-gray-800">{jobOffer.title}</h2>
+            <h2 className="text-2xl font-semibold text-gray-800">
+              {jobOffer.title}
+            </h2>
             <span className="text-sm text-gray-500">{jobOffer.status}</span>
           </div>
-  
+
           <div className="text-sm text-gray-600 mb-4">
             <div className="flex items-center space-x-2">
               <BsFillCalendarEventFill className="text-xl" />
-              <span>Publicado: {new Date(jobOffer.createdAt).toLocaleDateString()}</span>
+              <span>
+                Publicado: {new Date(jobOffer.createdAt).toLocaleDateString()}
+              </span>
             </div>
           </div>
-  
+
           {/* Información de la oferta - Grid responsive */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-4">
-            <div className="text-gray-700 font-semibold"><span>Ubicación:</span> {jobOffer.location}</div>
-            <div className="text-gray-700 font-semibold"><span>Salario:</span> {jobOffer.currencyType}{jobOffer.salary}</div>
-            <div className="text-gray-700 font-semibold"><span>Género:</span> {jobOffer.sportGenres}</div>
-            <div className="text-gray-700 font-semibold"><span>Países:</span> {Array.isArray(jobOffer.countries) ? jobOffer.countries.join(', ') : jobOffer.nationality || 'No especificado'}</div>
-            <div className="text-gray-700 font-semibold"><span>Posición:</span> {jobOffer.position || 'No especificado'}</div>
-            <div className="text-gray-700 font-semibold"><span>Categoría:</span> {jobOffer.category}</div>
-            <div className="text-gray-700 font-semibold"><span>Tipo de contrato:</span> {jobOffer.contractTypes}</div>
-            <div className="text-gray-700 font-semibold"><span>Duración del contrato:</span> {jobOffer.contractDurations}</div>
+            <div className="text-gray-700 font-semibold">
+              <span>Ubicación:</span> {jobOffer.location}
+            </div>
+            <div className="text-gray-700 font-semibold">
+              <span>Salario:</span> {jobOffer.currencyType}
+              {jobOffer.salary}
+            </div>
+            <div className="text-gray-700 font-semibold">
+              <span>Género:</span> {jobOffer.sportGenres}
+            </div>
+            <div className="text-gray-700 font-semibold">
+              <span>Países:</span>{" "}
+              {Array.isArray(jobOffer.countries)
+                ? jobOffer.countries.join(", ")
+                : jobOffer.nationality || "No especificado"}
+            </div>
+            <div className="text-gray-700 font-semibold">
+              <span>Posición:</span> {jobOffer.position || "No especificado"}
+            </div>
+            <div className="text-gray-700 font-semibold">
+              <span>Categoría:</span> {jobOffer.category}
+            </div>
+            <div className="text-gray-700 font-semibold">
+              <span>Tipo de contrato:</span> {jobOffer.contractTypes}
+            </div>
+            <div className="text-gray-700 font-semibold">
+              <span>Duración del contrato:</span> {jobOffer.contractDurations}
+            </div>
           </div>
-  
+
           {/* Información adicional - Grid responsive */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-4">
-            <div className="text-gray-700 font-semibold"><span>Edad mínima:</span> {jobOffer.minAge} años</div>
-            <div className="text-gray-700 font-semibold"><span>Edad máxima:</span> {jobOffer.maxAge} años</div>
-            <div className="text-gray-700 font-semibold"><span>Disponibilidad para viajar:</span> {jobOffer.availabilityToTravel}</div>
-            <div className="text-gray-700 font-semibold"><span>Pasaporte UE:</span> {jobOffer.euPassport}</div>
-            <div className="text-gray-700 font-semibold"><span>Correo electrónico:</span> {jobOffer.gmail || "No disponible"}</div>
+            <div className="text-gray-700 font-semibold">
+              <span>Edad mínima:</span> {jobOffer.minAge} años
+            </div>
+            <div className="text-gray-700 font-semibold">
+              <span>Edad máxima:</span> {jobOffer.maxAge} años
+            </div>
+            <div className="text-gray-700 font-semibold">
+              <span>Disponibilidad para viajar:</span>{" "}
+              {jobOffer.availabilityToTravel}
+            </div>
+            <div className="text-gray-700 font-semibold">
+              <span>Pasaporte UE:</span> {jobOffer.euPassport}
+            </div>
+            <div className="text-gray-700 font-semibold">
+              <span>Correo electrónico:</span>{" "}
+              {jobOffer.gmail || "No disponible"}
+            </div>
           </div>
-  
+
           {/* Extras - Lista */}
           <div className="mb-4">
             <span className="font-semibold text-gray-700">Extras:</span>
@@ -163,7 +200,7 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
               <span className="text-gray-700">No disponible</span>
             )}
           </div>
-  
+
           {/* Botones */}
           <div className="flex flex-wrap justify-end gap-4 mt-4">
             <button
@@ -172,24 +209,33 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
             >
               Ver postulantes
             </button>
-            
+
             {/* Botón para reclutadores (solo si no es el dueño de la oferta) */}
-            {user && user.role === UserType.RECRUITER && jobOffer.recruiter && user.id !== jobOffer.recruiter.id && (
-              <button
-                onClick={handleOpenRecruiterModal}
-                className="px-5 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
-              >
-                Postular jugadores de mi cartera
-              </button>
-            )}
-            
+            {user &&
+              user.role === UserType.RECRUITER &&
+              jobOffer.recruiter &&
+              user.id !== jobOffer.recruiter.id && (
+                <button
+                  onClick={handleOpenRecruiterModal}
+                  className="px-5 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+                >
+                  Postular jugadores de mi cartera
+                </button>
+              )}
+
             <button
               onClick={handleEditOffer}
               className="px-5 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
             >
               Modificar oferta
             </button>
-            {token && <DeleteButton jobId={jobId} token={token} onDelete={handleDeleteOffer} />}
+            {token && (
+              <DeleteButton
+                jobId={jobId}
+                token={token}
+                onDelete={handleDeleteOffer}
+              />
+            )}
           </div>
         </>
       )}
@@ -205,8 +251,6 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
       )}
     </div>
   );
-  
-  
 };
 
 export default JobOfferDetails;

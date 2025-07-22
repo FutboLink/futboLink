@@ -15,30 +15,27 @@ export interface IOffer {
   salary: string;
 }
 
-
-
-
 export interface IOfferCard {
   id?: string;
   title: string;
   position: string;
-  sportGenres:string;
+  sportGenres: string;
   availabilityToTravel: YesOrNotravell;
   euPassport: YesOrNo;
   customCurrencySign?: string;
-  currencyType:string;
+  currencyType: string;
   salary: string;
   minAge: number;
-  maxAge:number;
+  maxAge: number;
   createdAt: string;
-  contractTypes: string; 
+  contractTypes: string;
   nationality: string;
   contractDurations: string;
   minExperience: string;
   location: string;
   category: string;
   sport: string;
-  description:string;
+  description: string;
   gmail?: string;
   imgUrl: string;
   extra: string[];
@@ -51,10 +48,9 @@ export interface IOfferCard {
   };
 }
 
-
 export interface IApplication {
   message: string;
-  userId:string;
+  userId: string;
   jobId: string;
 }
 
@@ -72,10 +68,10 @@ export interface ICreateJobOffer {
 }
 
 export enum ApplicationStatus {
-  PENDING = 'PENDING',
-  SHORTLISTED = 'SHORTLISTED',
-  ACCEPTED = 'ACCEPTED',
-  REJECTED = 'REJECTED',
+  PENDING = "PENDING",
+  SHORTLISTED = "SHORTLISTED",
+  ACCEPTED = "ACCEPTED",
+  REJECTED = "REJECTED",
 }
 
 export interface IJobApplication {
@@ -94,7 +90,7 @@ export interface IJobApplication {
     genre?: string;
     subscription?: boolean;
     subscriptionType?: string;
-  }
+  };
   nationality: string;
   location: string;
   position: string;
@@ -116,7 +112,7 @@ export enum JobStatus {
 }
 
 export interface ICreateJob {
-  title: string; 
+  title: string;
   currencyType: string;
   customCurrencySign?: string;
   location: string;
@@ -124,7 +120,7 @@ export interface ICreateJob {
   category: string;
   sportGenres: string;
   sport: string;
-  contractTypes: string; 
+  contractTypes: string;
   contractDurations: string;
   position?: string;
   nationality?: string;
@@ -142,14 +138,12 @@ export interface ICreateJob {
   countries: string[];
 }
 
-
-
 export enum YesOrNo {
-   SI = 'Si',
-  NO = 'No'
+  SI = "Si",
+  NO = "No",
 }
 
 export enum YesOrNotravell {
-  SI = 'Si',
- NO = 'No'
+  SI = "Si",
+  NO = "No",
 }

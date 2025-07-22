@@ -46,7 +46,9 @@ const CardOffer: React.FC<{
             {offer.location}
           </p>
           <p>
-            <span className="font-semibold text-gray-800">Países donde aplica:</span>{" "}
+            <span className="font-semibold text-gray-800">
+              Países donde aplica:
+            </span>{" "}
             {offer.countries ? offer.countries.join(", ") : offer.nationality}
           </p>
           <p>
@@ -62,7 +64,9 @@ const CardOffer: React.FC<{
         </div>
         <div className="space-y-1">
           <p>
-            <span className="font-semibold text-gray-800">Tiempo de contrato:</span>{" "}
+            <span className="font-semibold text-gray-800">
+              Tiempo de contrato:
+            </span>{" "}
             {offer.contractDurations}
           </p>
           <p>
@@ -75,7 +79,7 @@ const CardOffer: React.FC<{
           </p>
           <p>
             <span className="font-semibold text-gray-800">Pasaporte UE:</span>{" "}
-            {offer.euPassport ? "Sí" : "No"}
+            {offer.euPassport}
           </p>
         </div>
       </div>

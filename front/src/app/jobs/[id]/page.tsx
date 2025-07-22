@@ -46,7 +46,7 @@ const JobDetail: React.FC = () => {
         }
       }
     };
-    
+
     checkSubscription();
   }, [user, token]);
 
@@ -72,12 +72,12 @@ const JobDetail: React.FC = () => {
           setIsLoading(true);
           // Use direct API URL to bypass rewrites
           const response = await fetch(`${apiUrl}/jobs/${jobId}`);
-          
+
           if (!response.ok) {
             console.error("Error fetching job details:", await response.text());
             throw new Error("Failed to fetch job details");
           }
-          
+
           const fetchedOffer = await response.json();
           setOffer(fetchedOffer);
         } catch (error) {
@@ -127,7 +127,7 @@ const JobDetail: React.FC = () => {
       setIsTokene(true);
       return;
     }
-    
+
     setIsModalOpen(true);
     setIsTokene(false);
   };
@@ -197,27 +197,34 @@ const JobDetail: React.FC = () => {
               <strong>Género:</strong> {offer.sportGenres}
             </p>
           )}
-          {typeof offer.availabilityToTravel === "boolean" || offer.availabilityToTravel === "Si" || offer.availabilityToTravel === "No" ? (
+          {typeof offer.availabilityToTravel === "boolean" ||
+          offer.availabilityToTravel === "Si" ||
+          offer.availabilityToTravel === "No" ? (
             <p>
               <strong>Disponibilidad para viajar:</strong>{" "}
-              {typeof offer.availabilityToTravel === "boolean" 
-                ? (offer.availabilityToTravel ? "Sí" : "No")
-                : offer.availabilityToTravel
-              }
+              {typeof offer.availabilityToTravel === "boolean"
+                ? offer.availabilityToTravel
+                  ? "Sí"
+                  : "No"
+                : offer.availabilityToTravel}
             </p>
           ) : null}
-          {typeof offer.euPassport === "boolean" || offer.euPassport === "Si" || offer.euPassport === "No" ? (
+          {typeof offer.euPassport === "boolean" ||
+          offer.euPassport === "Si" ||
+          offer.euPassport === "No" ? (
             <p>
               <strong>Pasaporte UE:</strong>{" "}
               {typeof offer.euPassport === "boolean"
-                ? (offer.euPassport ? "Sí" : "No")
-                : offer.euPassport
-              }
+                ? offer.euPassport
+                  ? "Sí"
+                  : "No"
+                : offer.euPassport}
             </p>
           ) : null}
           {offer.salary && (
             <p>
-              <strong>Salario:</strong> {offer.currencyType || ""} {offer.salary}
+              <strong>Salario:</strong> {offer.currencyType || ""}{" "}
+              {offer.salary}
             </p>
           )}
           {offer.createdAt && (
@@ -256,15 +263,22 @@ const JobDetail: React.FC = () => {
         <div className="mt-8 pt-6 border-t border-gray-100">
           <p className="text-sm text-gray-500 mb-3">Compartir esta oferta:</p>
           <div className="flex space-x-4">
-            <a 
-              href={`https://wa.me/?text=${encodeURIComponent(`¡Mira esta oferta en FutboLink!: ${offer.title} - ${window.location.href}`)}`}
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(
+                `¡Mira esta oferta en FutboLink!: ${offer.title} - ${window.location.href}`
+              )}`}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Compartir en WhatsApp"
               className="p-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors"
             >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+              <svg
+                className="w-5 h-5"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
               </svg>
             </a>
           </div>
@@ -311,27 +325,37 @@ const JobDetail: React.FC = () => {
               </p>
             ) : hasActiveSubscription ? (
               <p className="text-white bg-[#ffffff20] p-2 rounded-md flex items-center">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  className="h-4 w-4 mr-1" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
                 Suscripción activa
               </p>
             ) : (
               <p className="text-white bg-[#ffffff20] p-2 rounded-md flex items-center">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  className="h-4 w-4 mr-1" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
                 Se requiere suscripción para aplicar
               </p>
@@ -354,13 +378,21 @@ const JobDetail: React.FC = () => {
 
         {!token && (
           <div className="mt-4 text-center text-sm">
-            <p className="opacity-80">Necesitas iniciar sesión y tener una suscripción para aplicar</p>
+            <p className="opacity-80">
+              Necesitas iniciar sesión y tener una suscripción para aplicar
+            </p>
             <div className="flex gap-2 mt-2">
-              <Link href="/Login" className="text-white underline hover:no-underline">
+              <Link
+                href="/Login"
+                className="text-white underline hover:no-underline"
+              >
                 Iniciar sesión
               </Link>
               <span>•</span>
-              <Link href="/Subs" className="text-white underline hover:no-underline">
+              <Link
+                href="/Subs"
+                className="text-white underline hover:no-underline"
+              >
                 Ver suscripciones
               </Link>
             </div>

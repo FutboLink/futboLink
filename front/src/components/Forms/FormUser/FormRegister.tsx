@@ -137,6 +137,7 @@ const RegistrationForm: React.FC = () => {
       nationality: selectedNationality || "",
       genre: userRegister.genre || "",
       puesto: userRegister.puesto || "",
+      nameAgency: userRegister.nameAgency || "",
     };
 
     // Log what we're sending
@@ -329,6 +330,21 @@ const RegistrationForm: React.FC = () => {
             onChange={handleChange}
             className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:ring-2 focus:ring-blue-500"
             required
+          />
+        </div>
+
+        {/* Agente o Representante */}
+        <div className="flex flex-col mb-4">
+          <label className="block text-gray-700 mb-2">
+            Agente o Representante
+          </label>
+          <input
+            type="text"
+            name="nameAgency"
+            value={userRegister.nameAgency || ""}
+            onChange={handleChange}
+            placeholder="Nombre del agente o representante (opcional)"
+            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
           />
         </div>
 

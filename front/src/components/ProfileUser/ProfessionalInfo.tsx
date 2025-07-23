@@ -6,6 +6,7 @@ import { UserContext } from "../Context/UserContext";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
 import { FaPlus, FaTrash, FaFilePdf, FaFileWord, FaFile, FaDownload } from "react-icons/fa";
 import FileUpload from "../Cloudinary/FileUpload";
+import FootballField from "./FootballField";
 
 // Define options for the dropdown fields
 const CATEGORIAS_OPTIONS = ["Primer Equipo", "Reserva", "Infantil", "Juvenil", "Futbol Base", "Futbol Sala", "Femenino"];
@@ -20,7 +21,7 @@ const PUESTO_PRINCIPAL_OPTIONS = [
   "Lateral Derecho",
   "Lateral Izquierdo",
   "Defensor Central",
-  "Arquero",
+  "Portero",
   "Preparador Físico",
   "Entrenador",
   "Asistente Técnico",
@@ -230,39 +231,17 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
       <form onSubmit={handleSubmit}>
         {/* Sección de información general del perfil */}
         <div className="mb-6 p-4 border border-gray-200 rounded-lg">
-          <h3 className="text-xl font-medium mb-4 text-[#1d5126]">Datos Generales</h3>
+          <h3 className="text-xl font-medium mb-4 text-[#1d5126]">Selección de Posiciones</h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Puesto Principal
-              </label>
-              <select
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                value={primaryPosition}
-                onChange={(e) => setPrimaryPosition(e.target.value)}
-              >
-                {PUESTO_PRINCIPAL_OPTIONS.map((option) => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Puesto Secundario
-              </label>
-              <select
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                value={secondaryPosition}
-                onChange={(e) => setSecondaryPosition(e.target.value)}
-              >
-                {PUESTO_PRINCIPAL_OPTIONS.map((option) => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
-            </div>
-            
+          {/* Componente de cancha de fútbol */}
+          <FootballField
+            primaryPosition={primaryPosition}
+            secondaryPosition={secondaryPosition}
+            onPrimaryPositionChange={setPrimaryPosition}
+            onSecondaryPositionChange={setSecondaryPosition}
+          />
+          
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mt-6">
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2">
                 Pasaporte UE

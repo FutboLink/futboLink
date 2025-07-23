@@ -202,6 +202,12 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
                         <strong>Fecha de Nacimiento:</strong> {profile.birthday}
                       </p>
 
+                      {profile.nameAgency && (
+                      <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
+                        <strong>Agente:</strong> {profile.nameAgency}
+                      </p>
+                      )}
+
                       {/* Redes Sociales */}
                       <div className="mt-4">
                         <strong className="text-[#1d5126]">

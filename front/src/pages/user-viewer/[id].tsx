@@ -201,7 +201,8 @@ export default function UserViewer() {
         // Convertir a JSON
         const data = await response.json();
         console.log("Datos recibidos:", data);
-
+        console.log('Estructura completa del objeto de perfil:', JSON.stringify(data, null, 2));
+        
         // Determinar el tipo de suscripción correcto
         // Primero verificar subscriptionType, luego subscription, y finalmente usar Amateur como fallback
         if (!data.subscriptionType && data.subscription) {
@@ -1165,6 +1166,14 @@ export default function UserViewer() {
                           </span>
                         </span>
                       </div>
+                      {profile.role === UserType.PLAYER && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Agente</span>
+                          <span className="text-gray-800">
+                            {profile.nameAgency || 'No tiene agente asignado'}
+                          </span>
+                        </div>
+                      )}
                       {profile.role === UserType.RECRUITER &&
                         profile.ubicacionActual && (
                           <div className="flex justify-between">
@@ -1236,6 +1245,14 @@ export default function UserViewer() {
                             {profile.phone || "No especificado"}
                           </span>
                         </div>
+                        {profile.role === UserType.PLAYER && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Agente</span>
+                            <span className="text-gray-800">
+                              {profile.nameAgency || 'No tiene agente asignado'}
+                            </span>
+                          </div>
+                        )}
                         {profile.socialMedia &&
                           Object.keys(profile.socialMedia || {}).length > 0 && (
                             <div className="flex justify-between">

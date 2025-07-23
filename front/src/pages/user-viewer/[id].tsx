@@ -392,6 +392,26 @@ export default function UserViewer() {
               <FaSignOutAlt className="mr-2" /> Cerrar sesión
             </button>
             <button
+              onClick={() => router.push(`/forgotPassword?email=${encodeURIComponent(profile?.email || '')}`)}
+              className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors flex items-center"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 7a2 2 0 012 2m4 0a6 6 0 01-6 6h-7a6 6 0 01-6-6 6 6 0 016-6h7a6 6 0 016 6z"
+                />
+              </svg>
+              Cambiar contraseña
+            </button>
+            <button
               onClick={() => router.push(`/user-viewer/${id}?edit=true`)}
               className="bg-verde-oscuro text-white py-2 px-4 rounded-md hover:bg-verde-mas-claro transition-colors flex items-center"
             >
@@ -700,6 +720,28 @@ export default function UserViewer() {
                           >
                             <FaCog className="h-5 w-5 text-gray-600" />
                             <span className="text-sm">Editar perfil</span>
+                          </button>
+                        )}
+                        {isOwnProfile && (
+                          <button
+                            className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md text-left w-full"
+                            onClick={() => router.push(`/forgotPassword?email=${encodeURIComponent(profile?.email || '')}`)}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5 text-blue-600"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-6 6h-7a6 6 0 01-6-6 6 6 0 016-6h7a6 6 0 016 6z"
+                              />
+                            </svg>
+                            <span className="text-sm">Cambiar contraseña</span>
                           </button>
                         )}
                         {isOwnProfile && (
@@ -1090,7 +1132,7 @@ export default function UserViewer() {
                       : "text-gray-500"
                   }`}
                 >
-                  Trayectoria
+                  Club/institución
                 </button>
               </div>
             </div>

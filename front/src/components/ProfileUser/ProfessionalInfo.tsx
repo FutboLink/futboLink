@@ -370,12 +370,12 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
         
         {/* Sección de trayectoria */}
         <div className="mb-6">
-          <h3 className="text-xl font-medium mb-4 text-[#1d5126]">Trayectoria</h3>
+          <h3 className="text-xl font-medium mb-4 text-[#1d5126]">Club/institución</h3>
           
           {experiences.map((exp, index) => (
             <div key={index} className="mb-6 p-4 border border-gray-200 rounded-lg">
               <div className="flex justify-between items-center mb-4">
-                <h4 className="text-lg font-medium">Experiencia {index + 1}</h4>
+                <h4 className="text-lg text-verde-oscuro font-medium">Experiencia {index + 1}</h4>
                 <button 
                   type="button" 
                   onClick={() => removeExperience(index)}

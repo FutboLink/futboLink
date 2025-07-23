@@ -30,6 +30,7 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
+  const [notificationIsError, setNotificationIsError] = useState(false);
   const [userPremium, setUserPremium] = useState<string | null>(null);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [showRecruiterModal, setShowRecruiterModal] = useState(false);
@@ -65,7 +66,20 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
     setShowRecruiterModal(false);
   };
 
+  const handleCloseNotification = () => {
+    setShowNotification(false);
+  };
+
+  const showNotificationMessage = (message: string, isError: boolean = false) => {
+    setNotificationMessage(message);
+    setNotificationIsError(isError);
+    setShowNotification(true);
+  };
+
   const handleSubmit = async () => {
+    // Evitar múltiples submits
+    if (isSubmitting) return;
+    
     // Siempre verificar la suscripción actual antes de intentar aplicar
     let canApply = false;
     let subscriptionInfo = null;
@@ -87,45 +101,37 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
     }
     
     if (!canApply) {
-      setNotificationMessage("Se requiere una suscripción activa Semiprofesional o Profesional para aplicar a trabajos");
-      setShowNotification(true);
-      setTimeout(() => {
-        setShowNotification(false);
-      }, 3000);
+      showNotificationMessage("Se requiere una suscripción activa Semiprofesional o Profesional para aplicar a trabajos", true);
       return;
     }
     
     setIsSubmitting(true);
-    setNotificationMessage("Enviando solicitud...");
-    setShowNotification(true);
+    showNotificationMessage("Enviando solicitud...", false);
 
     try {
       const application = { message, jobId, userId };
       await fetchApplications(application);
 
-      setNotificationMessage("Has enviado la solicitud exitosamente");
-      setShowNotification(true);
-      onClose(); // Cerrar modal luego del envío exitoso
+      showNotificationMessage("¡Has enviado la solicitud exitosamente!", false);
       
+      // Cerrar modal después de 2 segundos en caso de éxito
       setTimeout(() => {
-        setShowNotification(false);
+        onClose();
       }, 2000);
+      
     } catch (error: any) {
       console.error("Error applying:", error);
+      let errorMessage = "Error al enviar la solicitud.";
+      
       if (error instanceof Error) {
-        setNotificationMessage(error.message || "Ya has enviado la solicitud.");
+        errorMessage = error.message;
       } else if (error?.status === 403) {
-        setNotificationMessage(
-          "Se requiere una suscripción activa Semiprofesional o Profesional para aplicar"
-        );
-      } else {
-        setNotificationMessage("Error al enviar la solicitud.");
+        errorMessage = "Se requiere una suscripción activa Semiprofesional o Profesional para aplicar";
+      } else if (error?.status === 409) {
+        errorMessage = "Ya has enviado una solicitud para este trabajo.";
       }
 
-      setShowNotification(true);
-      setTimeout(() => {
-        setShowNotification(false);
-      }, 5000);
+      showNotificationMessage(errorMessage, true);
     } finally {
       setIsSubmitting(false);
     }
@@ -498,7 +504,7 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
             {/* Notificación */}
             {showNotification && (
               <div className="absolute top-12 left-0 right-0 mx-auto w-max z-50">
-                <NotificationsForms message={notificationMessage} />
+                <NotificationsForms message={notificationMessage} isError={notificationIsError} onClose={handleCloseNotification} />
               </div>
             )}
           </div>

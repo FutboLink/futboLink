@@ -382,7 +382,6 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
                   className="text-red-500 hover:text-red-700"
                   disabled={experiences.length === 1}
                 >
-                  <FaTrash />
                 </button>
               </div>
               

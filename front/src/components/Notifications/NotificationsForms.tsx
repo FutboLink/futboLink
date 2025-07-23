@@ -1,19 +1,29 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export interface INotificationProps {
   message: string;
   isError?: boolean;
+  onClose?: () => void;
 }
 
 export const NotificationsForms: React.FC<INotificationProps> = ({
   message,
   isError = false,
+  onClose,
 }) => {
   const [isVisible, setIsVisible] = useState(true);
 
+  // Reset visibility when message changes (new notification)
+  useEffect(() => {
+    setIsVisible(true);
+  }, [message]);
+
   const handleClose = () => {
     setIsVisible(false);
+    if (onClose) {
+      onClose();
+    }
   };
 
   const bgColor = isError ? "bg-[#ffebeb8f]" : "bg-[#ffffff8f]";

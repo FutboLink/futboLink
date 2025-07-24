@@ -24,6 +24,14 @@ import {
   SubscriptionInfo,
   SyncSubscriptionResult,
 } from "@/services/SubscriptionService";
+import {
+  requestVerification,
+  getPlayerVerificationRequests,
+  canRequestVerification,
+  showVerificationToast,
+  VerificationRequest,
+} from "@/services/VerificationService";
+import { toast } from 'react-hot-toast';
 import LanguageToggle from "@/components/LanguageToggle/LanguageToggle";
 import {
   fetchUserData,
@@ -76,6 +84,9 @@ const UserProfile = () => {
   const [localTrayectorias, setLocalTrayectorias] = useState<Trayectoria[]>([]);
   const [loadingCv, setLoadingCv] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [verificationMessage, setVerificationMessage] = useState("");
+  const [verificationRequests, setVerificationRequests] = useState<VerificationRequest[]>([]);
+  const [loadingVerification, setLoadingVerification] = useState(false);
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const router = useRouter();
@@ -459,6 +470,68 @@ const UserProfile = () => {
     }
   };
 
+  // ========== FUNCIONES DE VERIFICACIÓN ==========
+
+  // Cargar solicitudes de verificación del jugador
+  const loadVerificationRequests = async () => {
+    if (!userData?.id || !token) return;
+
+    try {
+      const requests = await getPlayerVerificationRequests(userData.id, token);
+      setVerificationRequests(requests);
+    } catch (error) {
+      console.error('Error al cargar solicitudes de verificación:', error);
+    }
+  };
+
+  // Solicitar verificación de perfil
+  const handleRequestVerification = async () => {
+    if (!userData?.id || !token) return;
+
+    setLoadingVerification(true);
+    const toastId = showVerificationToast.loading('Enviando solicitud de verificación...');
+
+    try {
+      await requestVerification(userData.id, { message: verificationMessage }, token);
+      
+      showVerificationToast.success('¡Solicitud de verificación enviada exitosamente! Los administradores la revisarán pronto.');
+      setVerificationMessage('');
+      setActiveSection('profile'); // Regresar a la vista principal
+      
+      // Recargar solicitudes para mostrar la nueva
+      await loadVerificationRequests();
+      
+    } catch (error: any) {
+      const errorMessage = error.message || 'Error al enviar la solicitud de verificación';
+      showVerificationToast.error(errorMessage);
+    } finally {
+      setLoadingVerification(false);
+      if (toastId) {
+        toast.dismiss(toastId);
+      }
+    }
+  };
+
+  // Cargar solicitudes de verificación cuando se carga el usuario
+  useEffect(() => {
+    if (userData?.id && token) {
+      loadVerificationRequests();
+    }
+  }, [userData?.id, token]);
+
+  // Debug verification conditions
+  useEffect(() => {
+    if (userData && subscriptionInfo) {
+      console.log('Verification Debug:', {
+        isVerified: userData?.isVerified,
+        hasActiveSubscription: subscriptionInfo.hasActiveSubscription,
+        subscriptionType: subscriptionInfo.subscriptionType,
+        showButton: subscriptionInfo.hasActiveSubscription && 
+          (subscriptionInfo.subscriptionType === 'Semiprofesional' || subscriptionInfo.subscriptionType === 'Profesional')
+      });
+    }
+  }, [userData, subscriptionInfo]);
+
   return (
     <div className="flex min-h-screen mt-24 text-black bg-gray-50 flex-col sm:flex-row">
       {/* Panel izquierdo */}
@@ -761,6 +834,56 @@ const UserProfile = () => {
                             <p className="text-white text-center p-4">
                               No hay video disponible
                             </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Verification Section */}
+                    <div className="mt-4">
+                      <div className="p-4 rounded-lg shadow-sm bg-gray-50 border-l-4 border-yellow-500">
+                        <h3 className="text-lg font-semibold text-[#1d5126] flex items-center mb-2">
+                          <svg className="w-5 h-5 mr-2 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          Verificación de Perfil
+                        </h3>
+                        
+                        {userData?.isVerified ? (
+                          <div className="flex items-center">
+                            <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-3 py-2 rounded-full shadow-md">
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                              <span className="font-medium text-sm">¡Perfil Verificado!</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div>
+                            <p className="text-sm text-gray-600 mb-3">
+                              La verificación de perfil te ayuda a destacar y generar mayor confianza con los reclutadores.
+                            </p>
+                            {subscriptionInfo.hasActiveSubscription && 
+                             (subscriptionInfo.subscriptionType === 'Semiprofesional' || subscriptionInfo.subscriptionType === 'Profesional') ? (
+                              <button
+                                onClick={() => setActiveSection('verification')}
+                                className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                              >
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
+                                Solicitar Verificación
+                              </button>
+                            ) : (
+                              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                                <p className="text-sm text-orange-700">
+                                  Se requiere una suscripción Semiprofesional o Profesional activa para solicitar verificación.
+                                </p>
+                                <Link href="/Subs" className="text-orange-600 hover:text-orange-800 text-sm font-medium inline-flex items-center mt-2">
+                                  Ver planes de suscripción →
+                                </Link>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
@@ -1211,6 +1334,135 @@ const UserProfile = () => {
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* Sección de Verificación */}
+            {activeSection === "verification" && (
+              <div
+                className="bg-white p-6 rounded-lg shadow-sm mb-6 mt-4"
+                data-aos="fade-up"
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold text-[#1d5126] flex items-center">
+                    <svg className="w-6 h-6 mr-2 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    Solicitar Verificación de Perfil
+                  </h3>
+                  <button
+                    onClick={() => setActiveSection('profile')}
+                    className="text-gray-500 hover:text-gray-700 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  {/* Información sobre la verificación */}
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div className="flex items-start">
+                      <svg className="w-5 h-5 text-yellow-600 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                      <div>
+                        <h4 className="font-medium text-yellow-800 mb-1">¿Qué es la verificación de perfil?</h4>
+                        <p className="text-sm text-yellow-700">
+                          La verificación de perfil es una insignia dorada que confirma la autenticidad de tu información y te ayuda a destacar ante reclutadores. Solo está disponible para usuarios con suscripción Semiprofesional o Profesional activa.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Formulario de solicitud */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Mensaje para el administrador (opcional)
+                      </label>
+                      <textarea
+                        value={verificationMessage}
+                        onChange={(e) => setVerificationMessage(e.target.value)}
+                        placeholder="Explica por qué solicitas la verificación de tu perfil. Por ejemplo: información sobre tus logros, experiencia profesional, etc."
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
+                        rows={4}
+                        maxLength={500}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        {verificationMessage.length}/500 caracteres
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <button
+                          onClick={() => setActiveSection('profile')}
+                          className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          onClick={handleRequestVerification}
+                          disabled={loadingVerification}
+                          className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        >
+                          {loadingVerification ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                              Enviando...
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                              </svg>
+                              Enviar Solicitud
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Historial de solicitudes */}
+                  {verificationRequests.length > 0 && (
+                    <div className="border-t pt-6">
+                      <h4 className="font-medium text-gray-800 mb-4">Historial de Solicitudes</h4>
+                      <div className="space-y-3">
+                        {verificationRequests.map((request) => (
+                          <div key={request.id} className="bg-gray-50 rounded-lg p-4 border">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                request.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                                request.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
+                                'bg-red-100 text-red-800'
+                              }`}>
+                                {request.status === 'PENDING' ? 'Pendiente' :
+                                 request.status === 'APPROVED' ? 'Aprobada' : 'Rechazada'}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {new Date(request.createdAt).toLocaleDateString('es-ES')}
+                              </span>
+                            </div>
+                            {request.message && (
+                              <p className="text-sm text-gray-600 mb-2">
+                                <strong>Tu mensaje:</strong> {request.message}
+                              </p>
+                            )}
+                            {request.adminComments && (
+                              <p className="text-sm text-gray-600">
+                                <strong>Comentarios del administrador:</strong> {request.adminComments}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -12,16 +13,20 @@ import * as bcrypt from 'bcrypt';
 import { join } from 'path';
 import { createReadStream } from 'fs';
 import { Response } from 'express';
-import { UserType } from '../user/roles.enum';
+import { UserType, PasaporteUe } from './roles.enum';
 import { RepresentationRequest, RepresentationRequestStatus } from './entities/representation-request.entity';
+import { VerificationRequest, VerificationRequestStatus } from './entities/verification-request.entity';
 import { EmailService } from '../Mailing/email.service';
 import { CreateRepresentationRequestDto, UpdateRepresentationRequestDto } from './dto/representation-request.dto';
+import { CreateVerificationRequestDto, UpdateVerificationRequestDto } from './dto/verification-request.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(VerificationRequest)
+    private readonly verificationRequestRepository: Repository<VerificationRequest>,
     private readonly entityManager: EntityManager,
     private readonly emailService: EmailService,
   ) {
@@ -29,6 +34,8 @@ export class UserService {
     this.createPortfolioTableIfNotExists();
     // Intentar crear la tabla de solicitudes de representación si no existe
     this.createRepresentationRequestsTableIfNotExists();
+    // Intentar crear la tabla de solicitudes de verificación si no existe
+    this.createVerificationRequestsTableIfNotExists();
   }
 
   /**
@@ -138,6 +145,67 @@ export class UserService {
       await queryRunner.release();
     } catch (error) {
       console.error('Error al crear la tabla representation_requests:', error);
+    }
+  }
+
+  /**
+   * Crea la tabla de solicitudes de verificación si no existe
+   */
+  private async createVerificationRequestsTableIfNotExists() {
+    try {
+      const queryRunner = this.userRepository.manager.connection.createQueryRunner();
+      await queryRunner.connect();
+
+      // Verificar si la tabla ya existe
+      const tableExists = await queryRunner.hasTable('verification_requests');
+      if (!tableExists) {
+        console.log('Creando tabla verification_requests...');
+        
+        // Crear el tipo enum para el estado de la solicitud
+        await queryRunner.query(`
+          CREATE TYPE "public"."verification_request_status_enum" AS ENUM('PENDING', 'APPROVED', 'REJECTED');
+        `);
+        
+        // Crear la tabla de solicitudes de verificación
+        await queryRunner.query(`
+          CREATE TABLE "verification_requests" (
+            "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+            "playerId" uuid NOT NULL,
+            "status" "public"."verification_request_status_enum" NOT NULL DEFAULT 'PENDING',
+            "message" text,
+            "adminComments" text,
+            "processedBy" uuid,
+            "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
+            "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
+            CONSTRAINT "PK_verification_requests" PRIMARY KEY ("id")
+          )
+        `);
+        
+        // Añadir restricciones de clave foránea
+        await queryRunner.query(`
+          ALTER TABLE "verification_requests" 
+          ADD CONSTRAINT "FK_verification_requests_player" 
+          FOREIGN KEY ("playerId") 
+          REFERENCES "users"("id") 
+          ON DELETE CASCADE
+        `);
+        
+        await queryRunner.query(`
+          ALTER TABLE "verification_requests" 
+          ADD CONSTRAINT "FK_verification_requests_admin" 
+          FOREIGN KEY ("processedBy") 
+          REFERENCES "users"("id") 
+          ON DELETE SET NULL
+        `);
+        
+        console.log('Tabla verification_requests creada correctamente');
+      } else {
+        console.log('La tabla verification_requests ya existe');
+      }
+      
+      await queryRunner.release();
+    } catch (error) {
+      console.error('Error al crear la tabla verification_requests:', error);
     }
   }
 
@@ -434,6 +502,7 @@ export class UserService {
     minHeight?: number;
     maxHeight?: number;
     skillfulFoot?: string;
+    pasaporteUe?: PasaporteUe;
     limit?: number;
     offset?: number;
   }): Promise<{ players: User[], total: number }> {
@@ -446,6 +515,7 @@ export class UserService {
       minHeight, 
       maxHeight, 
       skillfulFoot,
+      pasaporteUe,
       limit = 10,
       offset = 0
     } = filters;
@@ -494,6 +564,11 @@ export class UserService {
       queryBuilder.andWhere('LOWER(user.skillfulFoot) = LOWER(:skillfulFoot)', { skillfulFoot });
     }
 
+    // Filtro por pasaporte UE
+    if (pasaporteUe) {
+      queryBuilder.andWhere('user.pasaporteUe = :pasaporteUe', { pasaporteUe });
+    }
+
     // Obtener el total de resultados para la paginación
     const total = await queryBuilder.getCount();
 
@@ -532,6 +607,7 @@ export class UserService {
     minHeight?: number;
     maxHeight?: number;
     skillfulFoot?: string;
+    pasaporteUe?: PasaporteUe;
     role?: string;
     limit?: number;
     offset?: number;
@@ -545,6 +621,7 @@ export class UserService {
       minHeight, 
       maxHeight, 
       skillfulFoot,
+      pasaporteUe,
       role,
       limit = 10,
       offset = 0
@@ -597,6 +674,11 @@ export class UserService {
 
     if (skillfulFoot) {
       queryBuilder.andWhere('LOWER(user.skillfulFoot) = LOWER(:skillfulFoot)', { skillfulFoot });
+    }
+
+    // Filtro por pasaporte UE
+    if (pasaporteUe) {
+      queryBuilder.andWhere('user.pasaporteUe = :pasaporteUe', { pasaporteUe });
     }
 
     // Obtener el total de resultados para la paginación
@@ -961,5 +1043,218 @@ export class UserService {
       relations: ['recruiter'],
       order: { createdAt: 'DESC' }
     });
+  }
+
+  // ========== MÉTODOS DE VERIFICACIÓN DE PERFIL ==========
+
+  /**
+   * Crea una solicitud de verificación de perfil
+   * @param playerId ID del jugador que solicita verificación
+   * @param createVerificationRequestDto DTO con los datos de la solicitud
+   * @returns La solicitud creada
+   */
+  async createVerificationRequest(
+    playerId: string,
+    createVerificationRequestDto: CreateVerificationRequestDto,
+  ): Promise<VerificationRequest> {
+    // Verificar que el usuario existe y es un jugador
+    const player = await this.userRepository.findOne({
+      where: { id: playerId, role: UserType.PLAYER },
+    });
+    
+    if (!player) {
+      throw new NotFoundException('Jugador no encontrado');
+    }
+
+    // Verificar si ya tiene una solicitud pendiente
+    const existingRequest = await this.verificationRequestRepository.findOne({
+      where: {
+        playerId,
+        status: VerificationRequestStatus.PENDING,
+      },
+    });
+
+    if (existingRequest) {
+      throw new BadRequestException('Ya tienes una solicitud de verificación pendiente');
+    }
+
+    // Verificar si ya está verificado
+    if (player.isVerified) {
+      throw new BadRequestException('Tu perfil ya está verificado');
+    }
+
+    // Crear la solicitud
+    const request = this.verificationRequestRepository.create({
+      playerId,
+      message: createVerificationRequestDto.message,
+      status: VerificationRequestStatus.PENDING,
+    });
+
+    const savedRequest = await this.verificationRequestRepository.save(request);
+
+    // Crear notificación para los administradores
+    try {
+      // Obtener todos los administradores
+      const admins = await this.userRepository.find({
+        where: { role: UserType.ADMIN },
+      });
+
+      // Crear notificación para cada administrador
+      for (const admin of admins) {
+        await this.entityManager.query(`
+          INSERT INTO notifications (message, type, "userId", "sourceUserId", metadata)
+          VALUES ($1, 'PROFILE_VIEW', $2, $3, $4)
+        `, [
+          `${player.name} ${player.lastname} ha solicitado verificación de perfil`,
+          admin.id,
+          playerId,
+          JSON.stringify({
+            verificationRequestId: savedRequest.id,
+            playerName: `${player.name} ${player.lastname}`,
+            isVerificationRequest: true
+          })
+        ]);
+      }
+    } catch (error) {
+      console.error('Error al crear notificaciones para administradores:', error);
+    }
+
+    return savedRequest;
+  }
+
+  /**
+   * Procesa una solicitud de verificación (aprueba o rechaza)
+   * @param requestId ID de la solicitud
+   * @param adminId ID del administrador que procesa
+   * @param updateVerificationRequestDto DTO con la decisión
+   * @returns La solicitud actualizada
+   */
+  async processVerificationRequest(
+    requestId: string,
+    adminId: string,
+    updateVerificationRequestDto: UpdateVerificationRequestDto,
+  ): Promise<VerificationRequest> {
+    // Verificar que el admin existe y es administrador
+    const admin = await this.userRepository.findOne({
+      where: { id: adminId, role: UserType.ADMIN },
+    });
+    
+    if (!admin) {
+      throw new NotFoundException('Administrador no encontrado');
+    }
+
+    // Buscar la solicitud
+    const request = await this.verificationRequestRepository.findOne({
+      where: { id: requestId },
+      relations: ['player'],
+    });
+    
+    if (!request) {
+      throw new NotFoundException('Solicitud de verificación no encontrada');
+    }
+    
+    if (request.status !== VerificationRequestStatus.PENDING) {
+      throw new BadRequestException('Esta solicitud ya ha sido procesada');
+    }
+    
+    // Actualizar la solicitud
+    request.status = updateVerificationRequestDto.status;
+    request.adminComments = updateVerificationRequestDto.adminComments;
+    request.processedBy = adminId;
+    
+    const updatedRequest = await this.verificationRequestRepository.save(request);
+    
+    // Si fue aprobada, marcar al usuario como verificado
+    if (updatedRequest.status === VerificationRequestStatus.APPROVED) {
+      await this.userRepository.update(request.playerId, { isVerified: true });
+    }
+    
+    // Crear notificación para el jugador
+    try {
+      const statusMessage = updatedRequest.status === VerificationRequestStatus.APPROVED 
+        ? '¡Tu perfil ha sido verificado exitosamente! 🎉'
+        : 'Tu solicitud de verificación ha sido rechazada';
+        
+      await this.entityManager.query(`
+        INSERT INTO notifications (message, type, "userId", "sourceUserId", metadata)
+        VALUES ($1, 'PROFILE_VIEW', $2, $3, $4)
+      `, [
+        statusMessage,
+        request.playerId,
+        adminId,
+        JSON.stringify({
+          verificationRequestId: updatedRequest.id,
+          status: updatedRequest.status,
+          adminComments: updatedRequest.adminComments,
+          isVerificationResponse: true
+        })
+      ]);
+    } catch (error) {
+      console.error('Error al crear notificación para el jugador:', error);
+    }
+    
+    return updatedRequest;
+  }
+
+  /**
+   * Obtiene todas las solicitudes de verificación pendientes para el administrador
+   * @returns Lista de solicitudes pendientes
+   */
+  async getPendingVerificationRequests(): Promise<VerificationRequest[]> {
+    return this.verificationRequestRepository.find({
+      where: { status: VerificationRequestStatus.PENDING },
+      relations: ['player'],
+      order: { createdAt: 'DESC' }
+    });
+  }
+
+  /**
+   * Obtiene todas las solicitudes de verificación
+   * @returns Lista de todas las solicitudes
+   */
+  async getAllVerificationRequests(): Promise<VerificationRequest[]> {
+    return this.verificationRequestRepository.find({
+      relations: ['player', 'admin'],
+      order: { createdAt: 'DESC' }
+    });
+  }
+
+  /**
+   * Obtiene las solicitudes de verificación de un jugador específico
+   * @param playerId ID del jugador
+   * @returns Lista de solicitudes del jugador
+   */
+  async getPlayerVerificationRequests(playerId: string): Promise<VerificationRequest[]> {
+    return this.verificationRequestRepository.find({
+      where: { playerId },
+      relations: ['admin'],
+      order: { createdAt: 'DESC' }
+    });
+  }
+
+  /**
+   * Verifica si un usuario tiene suscripción activa
+   * @param email Email del usuario
+   * @returns True si tiene suscripción activa
+   */
+  private async checkActiveSubscription(email: string): Promise<boolean> {
+    try {
+      const user = await this.userRepository.findOne({ where: { email } });
+      if (!user) return false;
+      
+      // Verificar si el usuario tiene una suscripción Semiprofesional o Profesional
+      const validSubscriptionType = user.subscriptionType === 'Semiprofesional' || 
+                                   user.subscriptionType === 'Profesional';
+      
+      // Verificar si no ha expirado
+      const isActive = validSubscriptionType && 
+                      user.subscriptionExpiresAt &&
+                      new Date(user.subscriptionExpiresAt) > new Date();
+      
+      return isActive || validSubscriptionType; // Por ahora permitimos también sin expiración
+    } catch (error) {
+      console.error('Error verificando suscripción:', error);
+      return false;
+    }
   }
 }

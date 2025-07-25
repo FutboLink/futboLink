@@ -16,18 +16,19 @@ const FootballField: React.FC<FootballFieldProps> = ({
 }) => {
   const [selectionMode, setSelectionMode] = React.useState<'primary' | 'secondary'>('primary');
 
-  // Definir las posiciones con sus coordenadas (porcentajes)
+  // Definir las posiciones con sus coordenadas para campo vertical (porcentajes)
+  // Invertimos la orientación para que sea de abajo hacia arriba (portero abajo)
   const positions = {
-    'Portero': { x: 5, y: 50, zone: 'gk' },
-    'Defensor Central': { x: 20, y: 50, zone: 'defense' },
-    'Lateral Derecho': { x: 20, y: 20, zone: 'defense' },
-    'Lateral Izquierdo': { x: 20, y: 80, zone: 'defense' },
-    'Mediocampista Defensivo': { x: 35, y: 50, zone: 'midfield' },
+    'Portero': { x: 50, y: 95, zone: 'gk' },
+    'Defensor Central': { x: 50, y: 80, zone: 'defense' },
+    'Lateral Derecho': { x: 20, y: 80, zone: 'defense' },
+    'Lateral Izquierdo': { x: 80, y: 80, zone: 'defense' },
+    'Mediocampista Defensivo': { x: 50, y: 65, zone: 'midfield' },
     'Mediocampista Central': { x: 50, y: 50, zone: 'midfield' },
-    'Mediocampista Ofensivo': { x: 65, y: 50, zone: 'midfield' },
-    'Extremo Derecho': { x: 65, y: 20, zone: 'attack' },
-    'Extremo Izquierdo': { x: 65, y: 80, zone: 'attack' },
-    'Delantero Centro': { x: 85, y: 50, zone: 'attack' }
+    'Mediocampista Ofensivo': { x: 50, y: 35, zone: 'midfield' },
+    'Extremo Derecho': { x: 20, y: 35, zone: 'attack' },
+    'Extremo Izquierdo': { x: 80, y: 35, zone: 'attack' },
+    'Delantero Centro': { x: 50, y: 15, zone: 'attack' }
   };
 
   const handlePositionClick = (position: string) => {
@@ -50,17 +51,17 @@ const FootballField: React.FC<FootballFieldProps> = ({
       left: `${pos.x}%`,
       top: `${pos.y}%`,
       transform: 'translate(-50%, -50%)',
-      width: '32px',
-      height: '32px',
+      width: '28px',
+      height: '28px',
       borderRadius: '50%',
-      border: '3px solid',
+      border: '2px solid',
       borderColor: isPrimary ? '#ef4444' : isSecondary ? '#3b82f6' : '#6b7280',
       backgroundColor: isPrimary ? '#fca5a5' : isSecondary ? '#93c5fd' : '#f3f4f6',
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontSize: '10px',
+      fontSize: '8px',
       fontWeight: 'bold',
       color: isPrimary ? '#7f1d1d' : isSecondary ? '#1e3a8a' : '#374151',
       transition: 'all 0.2s ease',
@@ -70,7 +71,7 @@ const FootballField: React.FC<FootballFieldProps> = ({
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full max-w-3xl mx-auto">
       <div className="mb-4">
         <h3 className="text-lg font-medium mb-3 text-gray-800">Selecciona tus posiciones en el campo</h3>
         <div className="flex flex-col sm:flex-row gap-3 mb-4">
@@ -107,8 +108,8 @@ const FootballField: React.FC<FootballFieldProps> = ({
         </div>
       </div>
 
-      {/* Cancha de fútbol */}
-      <div className="relative w-full bg-gray-100 rounded-xl p-2" style={{ paddingBottom: '62%' }}>
+      {/* Cancha de fútbol vertical con menos altura */}
+      <div className="relative w-full bg-gray-100 rounded-xl p-2 mx-auto" style={{ maxWidth: '500px', paddingBottom: '120%' }}>
         {/* Fondo de la cancha */}
         <div 
           className="absolute inset-2 bg-green-400 border-4 border-white rounded-lg shadow-lg overflow-hidden"
@@ -117,31 +118,31 @@ const FootballField: React.FC<FootballFieldProps> = ({
               linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px),
               linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px)
             `,
-            backgroundSize: '20px 20px'
+            backgroundSize: '15px 15px'
           }}
         >
-          {/* Líneas del campo */}
-          {/* Línea central */}
-          <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-white transform -translate-x-0.5"></div>
+          {/* Líneas del campo vertical */}
+          {/* Línea central horizontal */}
+          <div className="absolute left-0 right-0 top-1/2 h-0.5 bg-white transform -translate-y-0.5"></div>
           
           {/* Círculo central */}
-          <div className="absolute left-1/2 top-1/2 w-16 h-16 sm:w-20 sm:h-20 border-2 border-white rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute left-1/2 top-1/2 w-12 h-12 sm:w-16 sm:h-16 border-2 border-white rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
           
-          {/* Área grande izquierda */}
-          <div className="absolute left-0 top-1/2 w-12 h-24 sm:w-16 sm:h-32 border-2 border-white border-l-0 transform -translate-y-1/2"></div>
+          {/* Área grande superior (portería visitante) - ahora es el área de ataque */}
+          <div className="absolute top-0 left-1/2 h-16 w-24 sm:h-20 sm:w-32 border-2 border-white border-t-0 transform -translate-x-1/2"></div>
           
-          {/* Área pequeña izquierda */}
-          <div className="absolute left-0 top-1/2 w-6 h-16 sm:w-8 sm:h-20 border-2 border-white border-l-0 transform -translate-y-1/2"></div>
+          {/* Área pequeña superior */}
+          <div className="absolute top-0 left-1/2 h-8 w-16 sm:h-10 sm:w-20 border-2 border-white border-t-0 transform -translate-x-1/2"></div>
           
-          {/* Área grande derecha */}
-          <div className="absolute right-0 top-1/2 w-12 h-24 sm:w-16 sm:h-32 border-2 border-white border-r-0 transform -translate-y-1/2"></div>
+          {/* Área grande inferior (portería local) - ahora es el área defensiva */}
+          <div className="absolute bottom-0 left-1/2 h-16 w-24 sm:h-20 sm:w-32 border-2 border-white border-b-0 transform -translate-x-1/2"></div>
           
-          {/* Área pequeña derecha */}
-          <div className="absolute right-0 top-1/2 w-6 h-16 sm:w-8 sm:h-20 border-2 border-white border-r-0 transform -translate-y-1/2"></div>
+          {/* Área pequeña inferior */}
+          <div className="absolute bottom-0 left-1/2 h-8 w-16 sm:h-10 sm:w-20 border-2 border-white border-b-0 transform -translate-x-1/2"></div>
           
           {/* Arcos */}
-          <div className="absolute left-0 top-1/2 w-1 h-8 sm:w-2 sm:h-12 bg-white transform -translate-y-1/2"></div>
-          <div className="absolute right-0 top-1/2 w-1 h-8 sm:w-2 sm:h-12 bg-white transform -translate-y-1/2"></div>
+          <div className="absolute top-0 left-1/2 h-1 w-8 sm:h-2 sm:w-12 bg-white transform -translate-x-1/2"></div>
+          <div className="absolute bottom-0 left-1/2 h-1 w-8 sm:h-2 sm:w-12 bg-white transform -translate-x-1/2"></div>
 
           {/* Posiciones clickeables */}
           {Object.entries(positions).map(([positionName, positionData]) => (
@@ -170,8 +171,8 @@ const FootballField: React.FC<FootballFieldProps> = ({
                 left: `${positionData.x}%`,
                 top: `${positionData.y}%`,
                 transform: 'translate(-50%, -50%)',
-                width: '50px',
-                height: '50px',
+                width: '40px',
+                height: '40px',
                 zIndex: 5
               }}
               onClick={() => handlePositionClick(positionName)}
@@ -181,8 +182,8 @@ const FootballField: React.FC<FootballFieldProps> = ({
         </div>
       </div>
 
-      {/* Leyenda */}
-      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2 text-xs">
+      {/* Leyenda responsive en 3 columnas para ocupar menos espacio vertical */}
+      <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
         {Object.entries(positions).map(([positionName]) => (
           <div
             key={positionName}
@@ -190,7 +191,7 @@ const FootballField: React.FC<FootballFieldProps> = ({
             onClick={() => handlePositionClick(positionName)}
           >
             <div
-              className="w-4 h-4 rounded-full border-2 flex-shrink-0"
+              className="w-3 h-3 rounded-full border-2 flex-shrink-0"
               style={{
                 borderColor: primaryPosition === positionName ? '#ef4444' : 
                            secondaryPosition === positionName ? '#3b82f6' : '#6b7280',
@@ -198,7 +199,7 @@ const FootballField: React.FC<FootballFieldProps> = ({
                                secondaryPosition === positionName ? '#93c5fd' : '#f3f4f6'
               }}
             />
-            <span className="text-gray-700 text-xs sm:text-sm">{positionName}</span>
+            <span className="text-gray-700 text-xs">{positionName}</span>
           </div>
         ))}
       </div>

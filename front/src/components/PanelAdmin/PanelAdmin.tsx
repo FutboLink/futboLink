@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState, useEffect, useContext } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css"; 
-import {  FaBolt, FaChartBar, FaCog, FaInstagram, FaUser, FaUserCog, FaUsers, FaYoutube } from "react-icons/fa";
+import {  FaBolt, FaChartBar, FaCog, FaInstagram, FaUser, FaUserCog, FaUsers, FaYoutube, FaShieldAlt } from "react-icons/fa";
 import { IProfileData} from "@/Interfaces/IUser";
 import { UserContext } from "@/components/Context/UserContext";
 import { useRouter } from "next/navigation";
@@ -15,6 +15,7 @@ import { PiSoccerBall } from "react-icons/pi";
 import { FaX } from "react-icons/fa6";
 import SuccessCasesAdmin from "./SuccessCasesAdmin";
 import UsersComponent from "./Users/UsersComponent";
+import VerificationRequests from "./VerificationRequests/VerificationRequests";
 
 const PanelAdmin = () => {
   const {token,logOut} = useContext(UserContext);
@@ -146,6 +147,15 @@ const PanelAdmin = () => {
                 <span className="text-white">Casos de Éxito</span>
               </button>
             </li>
+            <li>
+              <button
+                onClick={() => handleSectionChange("verifications")}
+                className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
+                >
+                <FaShieldAlt className="text-white text-lg" />
+                <span className="text-white">Verificaciones</span>
+              </button>
+            </li>
             
           </ul>
         </nav>
@@ -262,6 +272,13 @@ const PanelAdmin = () => {
 {activeSection === "successCases" && (
   <div className="bg-white p-6 rounded-xl shadow-lg">
     <SuccessCasesAdmin />
+  </div>
+)}
+
+{/* Sección de Verificaciones */}
+{activeSection === "verifications" && (
+  <div className="bg-white p-6 rounded-xl shadow-lg">
+    <VerificationRequests />
   </div>
 )}
 </div>

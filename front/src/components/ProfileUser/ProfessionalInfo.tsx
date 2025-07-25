@@ -4,7 +4,7 @@ import { IProfileData, PasaporteUe } from "@/Interfaces/IUser";
 import { fetchUserData, updateUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { UserContext } from "../Context/UserContext";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
-import { FaPlus, FaTrash, FaFilePdf, FaFileWord, FaFile, FaDownload } from "react-icons/fa";
+import { FaPlus, FaTrash, FaFilePdf, FaFileWord, FaFile, FaDownload, FaChevronDown, FaChevronRight } from "react-icons/fa";
 import FileUpload from "../Cloudinary/FileUpload";
 import FootballField from "./FootballField";
 
@@ -49,6 +49,14 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
     profileData.cv ? { url: profileData.cv, filename: "CV" } : null
   );
 
+  // Estados para controlar las secciones desplegables
+  const [sectionsExpanded, setSectionsExpanded] = useState({
+    positions: true,    // Posiciones abiertas por defecto
+    physicalData: false,
+    cv: false,
+    trajectory: false
+  });
+
   // Initialize with an empty experience
   const emptyExperience = {
     club: '',
@@ -81,6 +89,37 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
     nivelCompetencia: string;
     logros: string;
   }>>([emptyExperience]);
+
+  // Función para togglear secciones
+  const toggleSection = (section: keyof typeof sectionsExpanded) => {
+    setSectionsExpanded(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  // Componente para el header de sección
+  const SectionHeader: React.FC<{
+    title: string;
+    section: keyof typeof sectionsExpanded;
+    icon?: string;
+  }> = ({ title, section, icon }) => (
+    <button
+      type="button"
+      onClick={() => toggleSection(section)}
+      className="w-full flex items-center justify-between p-4 bg-[#1d5126] text-white rounded-t-lg hover:bg-[#143a1b] transition-colors cursor-pointer"
+    >
+      <div className="flex items-center gap-3">
+        {icon && <span className="text-xl">{icon}</span>}
+        <h3 className="text-xl font-medium">{title}</h3>
+      </div>
+      {sectionsExpanded[section] ? (
+        <FaChevronDown className="text-lg" />
+      ) : (
+        <FaChevronRight className="text-lg" />
+      )}
+    </button>
+  );
 
   useEffect(() => {
     // Initialize experiences from profileData
@@ -227,259 +266,281 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold mb-4 text-[#1d5126]">Información Profesional</h2>
-      <form onSubmit={handleSubmit}>
-        {/* Sección de información general del perfil */}
-        <div className="mb-6 p-4 border border-gray-200 rounded-lg">
-          <h3 className="text-xl font-medium mb-4 text-[#1d5126]">Selección de Posiciones</h3>
-          
-          {/* Componente de cancha de fútbol */}
-          <FootballField
-            primaryPosition={primaryPosition}
-            secondaryPosition={secondaryPosition}
-            onPrimaryPositionChange={setPrimaryPosition}
-            onSecondaryPositionChange={setSecondaryPosition}
-          />
-          
-          <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mt-6">
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Pasaporte UE
-              </label>
-              <select
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                value={pasaporteUE}
-                onChange={(e) => setPasaporteUE(e.target.value)}
-              >
-                {PASAPORTE_UE_OPTIONS.map((option) => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
+      <h2 className="text-2xl font-semibold mb-6 text-[#1d5126]">Información Profesional</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        
+        {/* Sección de Posiciones */}
+        <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <SectionHeader title="Selección de Posiciones" section="positions" icon="⚽" />
+          <div className={`transition-all duration-300 ease-in-out ${
+            sectionsExpanded.positions ? 'max-h-full opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
+          }`}>
+            <div className="p-6 bg-white border-t">
+              {/* Componente de cancha de fútbol */}
+              <FootballField
+                primaryPosition={primaryPosition}
+                secondaryPosition={secondaryPosition}
+                onPrimaryPositionChange={setPrimaryPosition}
+                onSecondaryPositionChange={setSecondaryPosition}
+              />
+              
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mt-6">
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Pasaporte UE
+                  </label>
+                  <select
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    value={pasaporteUE}
+                    onChange={(e) => setPasaporteUE(e.target.value)}
+                  >
+                    {PASAPORTE_UE_OPTIONS.map((option) => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
         </div>
         
-        {/* Sección de datos físicos */}
-        <div className="mb-6 p-4 border border-gray-200 rounded-lg">
-          <h3 className="text-xl font-medium mb-4 text-[#1d5126]">Datos Físicos</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Estructura Corporal
-              </label>
-              <select
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                value={estructuraCorporal}
-                onChange={(e) => setEstructuraCorporal(e.target.value)}
-              >
-                {ESTRUCTURA_CORPORAL_OPTIONS.map((option) => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Pie Hábil
-              </label>
-              <select
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                value={pieHabil}
-                onChange={(e) => setPieHabil(e.target.value)}
-              >
-                {PIE_HABIL_OPTIONS.map((option) => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Altura (cm)
-              </label>
-              <input
-                type="number"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                value={altura}
-                min="0"
-                max="250"
-                onChange={(e) => setAltura(parseInt(e.target.value) || 0)}
-              />
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Peso (kg)
-              </label>
-              <input
-                type="number"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                value={peso}
-                min="0"
-                max="150"
-                onChange={(e) => setPeso(parseInt(e.target.value) || 0)}
-              />
+        {/* Sección de Datos Físicos */}
+        <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <SectionHeader title="Datos Físicos" section="physicalData" icon="💪" />
+          <div className={`transition-all duration-300 ease-in-out ${
+            sectionsExpanded.physicalData ? 'max-h-full opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
+          }`}>
+            <div className="p-6 bg-white border-t">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Estructura Corporal
+                  </label>
+                  <select
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    value={estructuraCorporal}
+                    onChange={(e) => setEstructuraCorporal(e.target.value)}
+                  >
+                    {ESTRUCTURA_CORPORAL_OPTIONS.map((option) => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Pie Hábil
+                  </label>
+                  <select
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    value={pieHabil}
+                    onChange={(e) => setPieHabil(e.target.value)}
+                  >
+                    {PIE_HABIL_OPTIONS.map((option) => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Altura (cm)
+                  </label>
+                  <input
+                    type="number"
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    value={altura}
+                    min="0"
+                    max="250"
+                    onChange={(e) => setAltura(parseInt(e.target.value) || 0)}
+                  />
+                </div>
+                
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Peso (kg)
+                  </label>
+                  <input
+                    type="number"
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    value={peso}
+                    min="0"
+                    max="150"
+                    onChange={(e) => setPeso(parseInt(e.target.value) || 0)}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
         
         {/* Sección de CV */}
-        <div className="mb-6 p-4 border border-gray-200 rounded-lg">
-          <h3 className="text-xl font-medium mb-4 text-[#1d5126]">Currículum Vitae</h3>
-          
-          {cvInfo ? (
-            <div className="mb-4">
-              <div className="flex items-center p-3 bg-gray-50 rounded-lg">
-                <div className="text-verde-oscuro">
-                  {cvInfo.filename.toLowerCase().endsWith('.pdf') ? (
-                    <FaFilePdf size={24} />
-                  ) : cvInfo.filename.toLowerCase().match(/\.(doc|docx)$/) ? (
-                    <FaFileWord size={24} />
-                  ) : (
-                    <FaFile size={24} />
-                  )}
+        <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <SectionHeader title="Currículum Vitae" section="cv" icon="📄" />
+          <div className={`transition-all duration-300 ease-in-out ${
+            sectionsExpanded.cv ? 'max-h-full opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
+          }`}>
+            <div className="p-6 bg-white border-t">
+              {cvInfo ? (
+                <div className="mb-4">
+                  <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-verde-oscuro">
+                      {cvInfo.filename.toLowerCase().endsWith('.pdf') ? (
+                        <FaFilePdf size={24} />
+                      ) : cvInfo.filename.toLowerCase().match(/\.(doc|docx)$/) ? (
+                        <FaFileWord size={24} />
+                      ) : (
+                        <FaFile size={24} />
+                      )}
+                    </div>
+                    <div className="ml-3 flex-1">
+                      <p className="text-sm font-medium text-gray-700 truncate">
+                        {cvInfo.filename.length > 20 ? cvInfo.filename.substring(0, 20) + '...' : cvInfo.filename}
+                      </p>
+                      <p className="text-xs text-gray-500">CV subido correctamente</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleDownloadCv}
+                      className="ml-4 text-verde-oscuro hover:text-verde-claro"
+                      title="Descargar CV"
+                    >
+                      <FaDownload size={18} />
+                    </button>
+                  </div>
+                  <div className="mt-3">
+                    <p className="text-sm text-gray-600 mb-2">¿Quieres reemplazar tu CV actual?</p>
+                    <FileUpload onUpload={handleCvUpload} fileType="cv" />
+                  </div>
                 </div>
-                <div className="ml-3 flex-1">
-                  <p className="text-sm font-medium text-gray-700 truncate">
-                    {cvInfo.filename.length > 20 ? cvInfo.filename.substring(0, 20) + '...' : cvInfo.filename}
-                  </p>
-                  <p className="text-xs text-gray-500">CV subido correctamente</p>
+              ) : (
+                <div>
+                  <p className="text-sm text-gray-600 mb-2">Sube tu currículum en formato PDF, DOC o DOCX.</p>
+                  <FileUpload onUpload={handleCvUpload} fileType="cv" />
                 </div>
-                <button
-                  type="button"
-                  onClick={handleDownloadCv}
-                  className="ml-4 text-verde-oscuro hover:text-verde-claro"
-                  title="Descargar CV"
-                >
-                  <FaDownload size={18} />
-                </button>
-              </div>
-              <div className="mt-3">
-                <p className="text-sm text-gray-600 mb-2">¿Quieres reemplazar tu CV actual?</p>
-                <FileUpload onUpload={handleCvUpload} fileType="cv" />
-              </div>
+              )}
             </div>
-          ) : (
-            <div>
-              <p className="text-sm text-gray-600 mb-2">Sube tu currículum en formato PDF, DOC o DOCX.</p>
-              <FileUpload onUpload={handleCvUpload} fileType="cv" />
-            </div>
-          )}
+          </div>
         </div>
         
-        {/* Sección de trayectoria */}
-        <div className="mb-6">
-          <h3 className="text-xl font-medium mb-4 text-[#1d5126]">Club/institución</h3>
-          
-          {experiences.map((exp, index) => (
-            <div key={index} className="mb-6 p-4 border border-gray-200 rounded-lg">
-              <div className="flex justify-between items-center mb-4">
-                <h4 className="text-lg text-verde-oscuro font-medium">Experiencia {index + 1}</h4>
-                <button 
-                  type="button" 
-                  onClick={() => removeExperience(index)}
-                  className="text-red-500 hover:text-red-700"
-                  disabled={experiences.length === 1}
-                >
-                </button>
-              </div>
+        {/* Sección de Trayectoria */}
+        <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <SectionHeader title="Club/Institución" section="trajectory" icon="🏆" />
+          <div className={`transition-all duration-300 ease-in-out ${
+            sectionsExpanded.trajectory ? 'max-h-full opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
+          }`}>
+            <div className="p-6 bg-white border-t">
+              {experiences.map((exp, index) => (
+                <div key={index} className="mb-6 p-4 border border-gray-200 rounded-lg">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-lg text-verde-oscuro font-medium">Experiencia {index + 1}</h4>
+                    <button 
+                      type="button" 
+                      onClick={() => removeExperience(index)}
+                      className="text-red-500 hover:text-red-700"
+                      disabled={experiences.length === 1}
+                    >
+                      {experiences.length > 1 && <FaTrash />}
+                    </button>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="mb-4">
+                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Club/Institución
+                      </label>
+                      <input
+                        type="text"
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        value={exp.club}
+                        onChange={(e) => handleExperienceChange(index, 'club', e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="mb-4">
+                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Fecha de Inicio
+                      </label>
+                      <input
+                        type="date"
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        value={exp.fechaInicio}
+                        onChange={(e) => handleExperienceChange(index, 'fechaInicio', e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="mb-4">
+                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Fecha de Finalización
+                      </label>
+                      <input
+                        type="date"
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        value={exp.fechaFinalizacion}
+                        onChange={(e) => handleExperienceChange(index, 'fechaFinalizacion', e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="mb-4">
+                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Categoría del Equipo
+                      </label>
+                      <select
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        value={exp.categoriaEquipo}
+                        onChange={(e) => handleExperienceChange(index, 'categoriaEquipo', e.target.value)}
+                      >
+                        {CATEGORIAS_OPTIONS.map((option) => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div className="mb-4">
+                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Nivel de Competencia
+                      </label>
+                      <select
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        value={exp.nivelCompetencia}
+                        onChange={(e) => handleExperienceChange(index, 'nivelCompetencia', e.target.value)}
+                      >
+                        {NIVEL_COMPETENCIA_OPTIONS.map((option) => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div className="mb-4 md:col-span-2">
+                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Logros
+                      </label>
+                      <textarea
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        rows={3}
+                        value={exp.logros}
+                        onChange={(e) => handleExperienceChange(index, 'logros', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Club/Institución
-                  </label>
-                  <input
-                    type="text"
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    value={exp.club}
-                    onChange={(e) => handleExperienceChange(index, 'club', e.target.value)}
-                  />
-                </div>
-                
-                <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Fecha de Inicio
-                  </label>
-                  <input
-                    type="date"
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    value={exp.fechaInicio}
-                    onChange={(e) => handleExperienceChange(index, 'fechaInicio', e.target.value)}
-                  />
-                </div>
-                
-                <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Fecha de Finalización
-                  </label>
-                  <input
-                    type="date"
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    value={exp.fechaFinalizacion}
-                    onChange={(e) => handleExperienceChange(index, 'fechaFinalizacion', e.target.value)}
-                  />
-                </div>
-                
-                <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Categoría del Equipo
-                  </label>
-                  <select
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    value={exp.categoriaEquipo}
-                    onChange={(e) => handleExperienceChange(index, 'categoriaEquipo', e.target.value)}
-                  >
-                    {CATEGORIAS_OPTIONS.map((option) => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Nivel de Competencia
-                  </label>
-                  <select
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    value={exp.nivelCompetencia}
-                    onChange={(e) => handleExperienceChange(index, 'nivelCompetencia', e.target.value)}
-                  >
-                    {NIVEL_COMPETENCIA_OPTIONS.map((option) => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div className="mb-4 md:col-span-2">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Logros
-                  </label>
-                  <textarea
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    rows={3}
-                    value={exp.logros}
-                    onChange={(e) => handleExperienceChange(index, 'logros', e.target.value)}
-                  />
-                </div>
-              </div>
+              <button
+                type="button"
+                onClick={addExperience}
+                className="flex items-center gap-2 bg-[#1d5126] text-white py-2 px-4 rounded hover:bg-[#143a1b] transition-colors"
+              >
+                <FaPlus /> Agregar Experiencia
+              </button>
             </div>
-          ))}
-          
-          <button
-            type="button"
-            onClick={addExperience}
-            className="flex items-center gap-2 bg-[#1d5126] text-white py-2 px-4 rounded hover:bg-[#143a1b] transition-colors"
-          >
-            <FaPlus /> Agregar Experiencia
-          </button>
+          </div>
         </div>
         
-        <div className="flex justify-end">
+        <div className="flex justify-end pt-4">
           <button
             type="submit"
-            className="bg-[#1d5126] text-white py-2 px-6 rounded hover:bg-[#143a1b] transition-colors"
+            className="bg-[#1d5126] text-white py-3 px-8 rounded-lg hover:bg-[#143a1b] transition-colors font-medium"
             disabled={loading}
           >
             {loading ? 'Guardando...' : 'Guardar Cambios'}

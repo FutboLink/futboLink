@@ -53,6 +53,7 @@ export interface IProfileData {
   socialMedia?: Record<string, string>;
   primaryPosition?: string;
   secondaryPosition?: string;
+  isVerified?: boolean;
   puestoDeportivo?: {
     position: string;
     experience: number;

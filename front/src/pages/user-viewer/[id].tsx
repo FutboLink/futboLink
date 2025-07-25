@@ -20,6 +20,9 @@ import {
 import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
 import { getDefaultPlayerImage } from "@/helpers/imageUtils";
 import ProfileUser from "@/components/ProfileUser/ProfileUser";
+import VerificationBadge from "@/components/VerificationBadge/VerificationBadge";
+import { requestVerification, showVerificationToast } from "@/services/VerificationService";
+import { toast } from "react-hot-toast";
 
 // URL del backend
 const API_URL = "https://futbolink.onrender.com";
@@ -80,10 +83,14 @@ export default function UserViewer() {
   const [liked, setLiked] = useState(false);
   const [showShareOptions, setShowShareOptions] = useState(false);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [verificationMessage, setVerificationMessage] = useState('');
+  const [loadingVerification, setLoadingVerification] = useState(false);
 
   // Referencias para los menús desplegables
   const shareMenuRef = useRef<HTMLDivElement>(null);
   const moreMenuRef = useRef<HTMLDivElement>(null);
+  const verificationModalRef = useRef<HTMLDivElement>(null);
 
   // Función para cerrar sesión
   const handleLogout = () => {
@@ -96,6 +103,34 @@ export default function UserViewer() {
 
     // Opcional: recargar la página para asegurar que todos los estados se reseteen
     window.location.reload();
+  };
+
+  // Función para solicitar verificación
+  const handleRequestVerification = async () => {
+    if (!profile?.id || !token) {
+      toast.error('Debes iniciar sesión para solicitar verificación');
+      return;
+    }
+
+    setLoadingVerification(true);
+    const toastId = showVerificationToast.loading('Enviando solicitud de verificación...');
+
+    try {
+      await requestVerification(profile.id, { message: verificationMessage }, token);
+      
+      showVerificationToast.success('¡Solicitud de verificación enviada exitosamente! Los administradores la revisarán pronto.');
+      setVerificationMessage('');
+      setShowVerificationModal(false);
+      
+    } catch (error: any) {
+      const errorMessage = error.message || 'Error al enviar la solicitud de verificación';
+      showVerificationToast.error(errorMessage);
+    } finally {
+      setLoadingVerification(false);
+      if (toastId) {
+        toast.dismiss(toastId);
+      }
+    }
   };
 
   // Efecto para cerrar los menús al hacer clic fuera de ellos
@@ -115,6 +150,14 @@ export default function UserViewer() {
         !moreMenuRef.current.contains(event.target as Node)
       ) {
         setShowMoreOptions(false);
+      }
+      
+      // Cerrar modal de verificación
+      if (
+        verificationModalRef.current &&
+        !verificationModalRef.current.contains(event.target as Node)
+      ) {
+        setShowVerificationModal(false);
       }
     };
 
@@ -492,6 +535,12 @@ export default function UserViewer() {
                       Agencia/Reclutador
                     </p>
                   )}
+                  {/* Verification Badge */}
+                  {profile.isVerified && (
+                    <div className="mt-1">
+                      <VerificationBadge isVerified={true} showText={true} size="sm" />
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -603,6 +652,21 @@ export default function UserViewer() {
                     Compartir
                   </span>
                 </button>
+                
+                {/* Verification Button */}
+                {isOwnProfile && !profile.isVerified && token && (
+                  <button
+                    className="flex flex-col items-center justify-center p-2 transition-colors duration-200 hover:bg-gray-50 rounded-lg"
+                    onClick={() => setShowVerificationModal(true)}
+                  >
+                    <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-xs text-yellow-500 mt-1 font-medium">
+                      Verificar
+                    </span>
+                  </button>
+                )}
 
                 {/* Menú desplegable de compartir */}
                 {showShareOptions && (
@@ -751,6 +815,17 @@ export default function UserViewer() {
                           >
                             <FaSignOutAlt className="h-5 w-5 text-red-600" />
                             <span className="text-sm">Cerrar sesión</span>
+                          </button>
+                        )}
+                        {isOwnProfile && !profile.isVerified && (
+                          <button
+                            className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md text-left w-full"
+                            onClick={() => setShowVerificationModal(true)}
+                          >
+                            <svg className="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                            <span className="text-sm">Solicitar Verificación</span>
                           </button>
                         )}
                       </div>
@@ -1459,6 +1534,101 @@ export default function UserViewer() {
               </a>
             </div>
           )}
+          
+        {/* Verification Request Modal */}
+        {showVerificationModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div 
+              ref={verificationModalRef}
+              className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-gray-800 flex items-center">
+                  <svg className="w-6 h-6 mr-2 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Solicitar Verificación de Perfil
+                </h3>
+                <button
+                  onClick={() => setShowVerificationModal(false)}
+                  className="text-gray-500 hover:text-gray-700 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Información sobre la verificación */}
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <div className="flex items-start">
+                    <svg className="w-5 h-5 text-yellow-600 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    <div>
+                      <h4 className="font-medium text-yellow-800 mb-1">¿Qué es la verificación de perfil?</h4>
+                      <p className="text-sm text-yellow-700">
+                        La verificación de perfil es una insignia dorada que confirma la autenticidad de tu información y te ayuda a destacar ante reclutadores.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Formulario de solicitud */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Mensaje para el administrador (opcional)
+                    </label>
+                    <textarea
+                      value={verificationMessage}
+                      onChange={(e) => setVerificationMessage(e.target.value)}
+                      placeholder="Explica por qué solicitas la verificación de tu perfil. Por ejemplo: información sobre tus logros, experiencia profesional, etc."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
+                      rows={4}
+                      maxLength={500}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      {verificationMessage.length}/500 caracteres
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <button
+                        onClick={() => setShowVerificationModal(false)}
+                        className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        onClick={handleRequestVerification}
+                        disabled={loadingVerification}
+                        className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      >
+                        {loadingVerification ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                            Enviando...
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                            </svg>
+                            Enviar Solicitud
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

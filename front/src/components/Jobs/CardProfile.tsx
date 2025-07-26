@@ -201,11 +201,10 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
                       <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
                         <strong>Fecha de Nacimiento:</strong> {profile.birthday}
                       </p>
-
                       {profile.nameAgency && (
-                      <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
-                        <strong>Agente:</strong> {profile.nameAgency}
-                      </p>
+                        <p className="border border-[#1d5126] bg-[#f5f5f5] p-2 mb-2 rounded-md shadow-sm">
+                          <strong>Agente:</strong> {profile.nameAgency}
+                        </p>
                       )}
 
                       {/* Redes Sociales */}

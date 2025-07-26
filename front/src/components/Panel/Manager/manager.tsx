@@ -20,9 +20,10 @@ import {
   AiOutlineUser,
 } from "react-icons/ai";
 import { MdSettings } from "react-icons/md";
-import { FaGlobe } from "react-icons/fa";
+import { FaGlobe, FaWhatsapp } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
 
 const PanelManager = () => {
   const { user, logOut, token } = useContext(UserContext);
@@ -383,10 +384,18 @@ const PanelManager = () => {
               <div className="md:w-1/2">
                 <div className="mt-1">
                   <div className="text-gray-700 space-y-3">
-                    <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                      <strong className="text-[#1d5126]">Teléfono:</strong>{" "}
-                      <span>{userData?.phone}</span>
-                    </p>
+                    <div className="border border-gray-200 bg-gray-50 p-3 rounded-lg shadow-sm flex justify-between items-center text-base text-gray-700">
+                      <strong className="text-[#1d5126]">Teléfono:</strong>
+                      <div className="flex items-center gap-2">
+                        <PhoneNumberInput
+                          mode="view"
+                          value={userData?.phone}
+                          showWhatsAppLink
+                          className="text-base text-gray-700"
+                        />
+                      </div>
+                    </div>
+
                     <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
                       <strong className="text-[#1d5126]">Nacionalidad:</strong>{" "}
                       <span>{userData?.nationality || "No disponible"}</span>

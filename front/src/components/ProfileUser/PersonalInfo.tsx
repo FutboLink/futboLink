@@ -247,7 +247,6 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               className="w-full p-1.5 border mt-2 rounded text-gray-700 focus:outline-none"
             />
           </div>
-          
           {/* Agente o Representante */}
           <div className="flex flex-col">
             <label className="text-gray-700 font-semibold text-sm">
@@ -262,7 +261,6 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               className="w-full p-1.5 border mt-2 rounded text-gray-700 focus:outline-none"
             />
           </div>
-          
           {/* Gender */}
           <div className="flex flex-col">
             <label className="text-gray-700 font-semibold text-sm">

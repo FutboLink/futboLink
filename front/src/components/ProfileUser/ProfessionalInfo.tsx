@@ -1,18 +1,38 @@
-"use client"
+"use client";
 import { useState, useEffect, useContext } from "react";
 import { IProfileData, PasaporteUe } from "@/Interfaces/IUser";
-import { fetchUserData, updateUserData } from "../Fetchs/UsersFetchs/UserFetchs";
+import {
+  fetchUserData,
+  updateUserData,
+} from "../Fetchs/UsersFetchs/UserFetchs";
 import { UserContext } from "../Context/UserContext";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
-import { FaPlus, FaTrash, FaFilePdf, FaFileWord, FaFile, FaDownload, FaChevronDown, FaChevronRight } from "react-icons/fa";
+import {
+  FaPlus,
+  FaTrash,
+  FaFilePdf,
+  FaFileWord,
+  FaFile,
+  FaDownload,
+  FaChevronDown,
+  FaChevronRight,
+} from "react-icons/fa";
 import FileUpload from "../Cloudinary/FileUpload";
 import FootballField from "./FootballField";
 
 // Define options for the dropdown fields
-const CATEGORIAS_OPTIONS = ["Primer Equipo", "Reserva", "Infantil", "Juvenil", "Futbol Base", "Futbol Sala", "Femenino"];
-const NIVEL_COMPETENCIA_OPTIONS = ["Profesional","semiprofesional", "Amateur"];
+const CATEGORIAS_OPTIONS = [
+  "Primer Equipo",
+  "Reserva",
+  "Infantil",
+  "Juvenil",
+  "Futbol Base",
+  "Futbol Sala",
+  "Femenino",
+];
+const NIVEL_COMPETENCIA_OPTIONS = ["Profesional", "semiprofesional", "Amateur"];
 const PUESTO_PRINCIPAL_OPTIONS = [
-  "Delantero Centro", 
+  "Delantero Centro",
   "Extremo Derecho",
   "Extremo Izquierdo",
   "Mediocampista Ofensivo",
@@ -31,70 +51,91 @@ const PUESTO_PRINCIPAL_OPTIONS = [
   "Fisioterapeuta",
   "Nutricionista",
   "Psicólogo Deportivo",
-  "Otro"
+  "Otro",
 ];
 const PASAPORTE_UE_OPTIONS = ["Sí", "No"];
-const ESTRUCTURA_CORPORAL_OPTIONS = ["Ectomorfo", "Mesomorfo", "Endomorfo", "Atlética", "Musculosa", "Robusta", "Delgada"];
+const ESTRUCTURA_CORPORAL_OPTIONS = [
+  "Ectomorfo",
+  "Mesomorfo",
+  "Endomorfo",
+  "Atlética",
+  "Musculosa",
+  "Robusta",
+  "Delgada",
+];
 const PIE_HABIL_OPTIONS = ["Derecho", "Izquierdo", "Ambidiestro"];
 
-const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData }) => {
+const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
+  profileData,
+}) => {
   const { token } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
-  const [notificationMessage, setNotificationMessage] = useState('');
+  const [notificationMessage, setNotificationMessage] = useState("");
   const [showErrorNotification, setShowErrorNotification] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const [formData, setFormData] = useState<IProfileData>(profileData);
-  const [cvInfo, setCvInfo] = useState<{ url: string; filename: string } | null>(
-    profileData.cv ? { url: profileData.cv, filename: "CV" } : null
-  );
+  const [cvInfo, setCvInfo] = useState<{
+    url: string;
+    filename: string;
+  } | null>(profileData.cv ? { url: profileData.cv, filename: "CV" } : null);
 
   // Estados para controlar las secciones desplegables
   const [sectionsExpanded, setSectionsExpanded] = useState({
-    positions: true,    // Posiciones abiertas por defecto
+    positions: true, // Posiciones abiertas por defecto
     physicalData: false,
     cv: false,
-    trajectory: false
+    trajectory: false,
   });
 
   // Initialize with an empty experience
   const emptyExperience = {
-    club: '',
-    fechaInicio: '',
-    fechaFinalizacion: '',
+    club: "",
+    fechaInicio: "",
+    fechaFinalizacion: "",
     categoriaEquipo: CATEGORIAS_OPTIONS[0],
     nivelCompetencia: NIVEL_COMPETENCIA_OPTIONS[0],
-    logros: ''
+    logros: "",
   };
 
   // Información general del perfil
-  const [primaryPosition, setPrimaryPosition] = useState<string>(profileData.primaryPosition || PUESTO_PRINCIPAL_OPTIONS[0]);
-  const [secondaryPosition, setSecondaryPosition] = useState<string>(profileData.secondaryPosition || PUESTO_PRINCIPAL_OPTIONS[0]);
-  const [pasaporteUE, setPasaporteUE] = useState<string>(
-    profileData.pasaporteUe === PasaporteUe.SI ? 'Sí' : 'No'
+  const [primaryPosition, setPrimaryPosition] = useState<string>(
+    profileData.primaryPosition || PUESTO_PRINCIPAL_OPTIONS[0]
   );
-  
+  const [secondaryPosition, setSecondaryPosition] = useState<string>(
+    profileData.secondaryPosition || PUESTO_PRINCIPAL_OPTIONS[0]
+  );
+  const [pasaporteUE, setPasaporteUE] = useState<string>(
+    profileData.pasaporteUe === PasaporteUe.SI ? "Sí" : "No"
+  );
+
   // Datos físicos
-  const [estructuraCorporal, setEstructuraCorporal] = useState<string>(profileData.bodyStructure || ESTRUCTURA_CORPORAL_OPTIONS[0]);
-  const [pieHabil, setPieHabil] = useState<string>(profileData.skillfulFoot || PIE_HABIL_OPTIONS[0]);
+  const [estructuraCorporal, setEstructuraCorporal] = useState<string>(
+    profileData.bodyStructure || ESTRUCTURA_CORPORAL_OPTIONS[0]
+  );
+  const [pieHabil, setPieHabil] = useState<string>(
+    profileData.skillfulFoot || PIE_HABIL_OPTIONS[0]
+  );
   const [altura, setAltura] = useState<number>(profileData.height || 0);
   const [peso, setPeso] = useState<number>(profileData.weight || 0);
 
   // State for experiences (trayectorias)
-  const [experiences, setExperiences] = useState<Array<{
-    club: string;
-    fechaInicio: string;
-    fechaFinalizacion: string;
-    categoriaEquipo: string;
-    nivelCompetencia: string;
-    logros: string;
-  }>>([emptyExperience]);
+  const [experiences, setExperiences] = useState<
+    Array<{
+      club: string;
+      fechaInicio: string;
+      fechaFinalizacion: string;
+      categoriaEquipo: string;
+      nivelCompetencia: string;
+      logros: string;
+    }>
+  >([emptyExperience]);
 
   // Función para togglear secciones
   const toggleSection = (section: keyof typeof sectionsExpanded) => {
-    setSectionsExpanded(prev => ({
+    setSectionsExpanded((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
@@ -125,57 +166,79 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
     // Initialize experiences from profileData
     if (profileData) {
       setFormData(profileData);
-      
+
       // Initialize general profile information
-      setPrimaryPosition(profileData.primaryPosition || PUESTO_PRINCIPAL_OPTIONS[0]);
-      setSecondaryPosition(profileData.secondaryPosition || PUESTO_PRINCIPAL_OPTIONS[0]);
-      setPasaporteUE(profileData.pasaporteUe === PasaporteUe.SI ? 'Sí' : 'No');
-      
+      setPrimaryPosition(
+        profileData.primaryPosition || PUESTO_PRINCIPAL_OPTIONS[0]
+      );
+      setSecondaryPosition(
+        profileData.secondaryPosition || PUESTO_PRINCIPAL_OPTIONS[0]
+      );
+      setPasaporteUE(profileData.pasaporteUe === PasaporteUe.SI ? "Sí" : "No");
+
       // Initialize physical data
-      setEstructuraCorporal(profileData.bodyStructure || ESTRUCTURA_CORPORAL_OPTIONS[0]);
+      setEstructuraCorporal(
+        profileData.bodyStructure || ESTRUCTURA_CORPORAL_OPTIONS[0]
+      );
       setPieHabil(profileData.skillfulFoot || PIE_HABIL_OPTIONS[0]);
       setAltura(profileData.height || 0);
       setPeso(profileData.weight || 0);
-      
+
       // Initialize CV information if exists
       if (profileData.cv) {
         setCvInfo({ url: profileData.cv, filename: "CV" });
       }
-      
+
       // Initialize experiences from trayectorias
-      if (profileData.trayectorias && Array.isArray(profileData.trayectorias) && profileData.trayectorias.length > 0) {
-        console.log("Inicializando trayectorias desde el perfil:", JSON.stringify(profileData.trayectorias));
-        
+      if (
+        profileData.trayectorias &&
+        Array.isArray(profileData.trayectorias) &&
+        profileData.trayectorias.length > 0
+      ) {
+        console.log(
+          "Inicializando trayectorias desde el perfil:",
+          JSON.stringify(profileData.trayectorias)
+        );
+
         // Map existing experiences
-        const updatedExperiences = profileData.trayectorias.map(exp => ({
-          club: exp.club || '',
-          fechaInicio: exp.fechaInicio || '',
-          fechaFinalizacion: exp.fechaFinalizacion || '',
+        const updatedExperiences = profileData.trayectorias.map((exp) => ({
+          club: exp.club || "",
+          fechaInicio: exp.fechaInicio || "",
+          fechaFinalizacion: exp.fechaFinalizacion || "",
           categoriaEquipo: exp.categoriaEquipo || CATEGORIAS_OPTIONS[0],
-          nivelCompetencia: exp.nivelCompetencia || NIVEL_COMPETENCIA_OPTIONS[0],
-          logros: exp.logros || ''
+          nivelCompetencia:
+            exp.nivelCompetencia || NIVEL_COMPETENCIA_OPTIONS[0],
+          logros: exp.logros || "",
         }));
-        
+
         setExperiences(updatedExperiences);
       } else if (profileData.club) {
         // Handle legacy data format (single experience)
         const legacyExperience = {
-          club: profileData.club || '',
-          fechaInicio: profileData.fechaInicio || '',
-          fechaFinalizacion: profileData.fechaFinalizacion || '',
+          club: profileData.club || "",
+          fechaInicio: profileData.fechaInicio || "",
+          fechaFinalizacion: profileData.fechaFinalizacion || "",
           categoriaEquipo: profileData.categoriaEquipo || CATEGORIAS_OPTIONS[0],
-          nivelCompetencia: profileData.nivelCompetencia || NIVEL_COMPETENCIA_OPTIONS[0],
-          logros: profileData.logros || ''
+          nivelCompetencia:
+            profileData.nivelCompetencia || NIVEL_COMPETENCIA_OPTIONS[0],
+          logros: profileData.logros || "",
         };
-        
+
         setExperiences([legacyExperience]);
       }
     }
   }, [profileData]);
 
-  const handleExperienceChange = (index: number, field: string, value: string) => {
+  const handleExperienceChange = (
+    index: number,
+    field: string,
+    value: string
+  ) => {
     const updatedExperiences = [...experiences];
-    updatedExperiences[index] = { ...updatedExperiences[index], [field]: value };
+    updatedExperiences[index] = {
+      ...updatedExperiences[index],
+      [field]: value,
+    };
     setExperiences(updatedExperiences);
   };
 
@@ -192,16 +255,16 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
 
   const handleCvUpload = (fileInfo: { url: string; filename: string }) => {
     setCvInfo(fileInfo);
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      cv: fileInfo.url
+      cv: fileInfo.url,
     }));
   };
 
   const handleDownloadCv = async () => {
     if (cvInfo?.url) {
       // Open CV in new tab
-      window.open(cvInfo.url, '_blank');
+      window.open(cvInfo.url, "_blank");
     }
   };
 
@@ -211,51 +274,62 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
 
     try {
       // Filter out empty experiences
-      const validExperiences = experiences.filter(exp => exp.club.trim() !== '');
-      
+      const validExperiences = experiences.filter(
+        (exp) => exp.club.trim() !== ""
+      );
+
       // Format each experience properly
-      const formattedExperiences = validExperiences.map(exp => ({
-        club: String(exp.club || ''),
-        fechaInicio: String(exp.fechaInicio || ''),
-        fechaFinalizacion: String(exp.fechaFinalizacion || ''),
-        categoriaEquipo: String(exp.categoriaEquipo || ''),
-        nivelCompetencia: String(exp.nivelCompetencia || ''),
-        logros: String(exp.logros || '')
+      const formattedExperiences = validExperiences.map((exp) => ({
+        club: String(exp.club || ""),
+        fechaInicio: String(exp.fechaInicio || ""),
+        fechaFinalizacion: String(exp.fechaFinalizacion || ""),
+        categoriaEquipo: String(exp.categoriaEquipo || ""),
+        nivelCompetencia: String(exp.nivelCompetencia || ""),
+        logros: String(exp.logros || ""),
       }));
-      
+
       // Prepare the updated data (including trayectorias)
       const updatedData = {
         ...formData,
         primaryPosition: primaryPosition,
         secondaryPosition: secondaryPosition,
-        pasaporteUe: pasaporteUE === 'Sí' ? PasaporteUe.SI : PasaporteUe.NO,
+        pasaporteUe: pasaporteUE === "Sí" ? PasaporteUe.SI : PasaporteUe.NO,
         bodyStructure: estructuraCorporal,
         skillfulFoot: pieHabil,
         height: altura,
         weight: peso,
         cv: cvInfo?.url || undefined,
-        trayectorias: formattedExperiences
+        trayectorias: formattedExperiences,
       };
 
       if (token) {
         // Extract userId from token
         const userId = JSON.parse(atob(token.split(".")[1])).id;
-        
-        console.log("Actualizando datos del perfil incluyendo trayectorias:", JSON.stringify(updatedData.trayectorias));
-        
+
+        console.log(
+          "Actualizando datos del perfil incluyendo trayectorias:",
+          JSON.stringify(updatedData.trayectorias)
+        );
+
         // Update user data
         await updateUserData(userId, updatedData);
-        
+
         setShowNotification(true);
-        setNotificationMessage('Información profesional actualizada correctamente');
+        setNotificationMessage(
+          "Información profesional actualizada correctamente"
+        );
         setTimeout(() => {
           setShowNotification(false);
         }, 3000);
       }
     } catch (error: any) {
-      console.error('Error updating professional info:', error);
+      console.error("Error updating professional info:", error);
       setShowErrorNotification(true);
-      setErrorMessage(`Error al actualizar la información profesional: ${error.message || 'Error desconocido'}`);
+      setErrorMessage(
+        `Error al actualizar la información profesional: ${
+          error.message || "Error desconocido"
+        }`
+      );
       setTimeout(() => {
         setShowErrorNotification(false);
       }, 3000);
@@ -266,15 +340,24 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold mb-6 text-[#1d5126]">Información Profesional</h2>
+      <h2 className="text-2xl font-semibold mb-6 text-[#1d5126]">
+        Información Profesional
+      </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        
         {/* Sección de Posiciones */}
         <div className="border border-gray-200 rounded-lg overflow-hidden">
-          <SectionHeader title="Selección de Posiciones" section="positions" icon="⚽" />
-          <div className={`transition-all duration-300 ease-in-out ${
-            sectionsExpanded.positions ? 'max-h-full opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
-          }`}>
+          <SectionHeader
+            title="Selección de Posiciones"
+            section="positions"
+            icon="⚽"
+          />
+          <div
+            className={`transition-all duration-300 ease-in-out ${
+              sectionsExpanded.positions
+                ? "max-h-full opacity-100"
+                : "max-h-0 opacity-0 overflow-hidden"
+            }`}
+          >
             <div className="p-6 bg-white border-t">
               {/* Componente de cancha de fútbol */}
               <FootballField
@@ -283,7 +366,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
                 onPrimaryPositionChange={setPrimaryPosition}
                 onSecondaryPositionChange={setSecondaryPosition}
               />
-              
+
               <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mt-6">
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -295,7 +378,9 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
                     onChange={(e) => setPasaporteUE(e.target.value)}
                   >
                     {PASAPORTE_UE_OPTIONS.map((option) => (
-                      <option key={option} value={option}>{option}</option>
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -303,13 +388,21 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
             </div>
           </div>
         </div>
-        
+
         {/* Sección de Datos Físicos */}
         <div className="border border-gray-200 rounded-lg overflow-hidden">
-          <SectionHeader title="Datos Físicos" section="physicalData" icon="💪" />
-          <div className={`transition-all duration-300 ease-in-out ${
-            sectionsExpanded.physicalData ? 'max-h-full opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
-          }`}>
+          <SectionHeader
+            title="Datos Físicos"
+            section="physicalData"
+            icon="💪"
+          />
+          <div
+            className={`transition-all duration-300 ease-in-out ${
+              sectionsExpanded.physicalData
+                ? "max-h-full opacity-100"
+                : "max-h-0 opacity-0 overflow-hidden"
+            }`}
+          >
             <div className="p-6 bg-white border-t">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="mb-4">
@@ -322,11 +415,13 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
                     onChange={(e) => setEstructuraCorporal(e.target.value)}
                   >
                     {ESTRUCTURA_CORPORAL_OPTIONS.map((option) => (
-                      <option key={option} value={option}>{option}</option>
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
                     ))}
                   </select>
                 </div>
-                
+
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2">
                     Pie Hábil
@@ -337,11 +432,13 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
                     onChange={(e) => setPieHabil(e.target.value)}
                   >
                     {PIE_HABIL_OPTIONS.map((option) => (
-                      <option key={option} value={option}>{option}</option>
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
                     ))}
                   </select>
                 </div>
-                
+
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2">
                     Altura (cm)
@@ -355,7 +452,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
                     onChange={(e) => setAltura(parseInt(e.target.value) || 0)}
                   />
                 </div>
-                
+
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2">
                     Peso (kg)
@@ -373,21 +470,27 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
             </div>
           </div>
         </div>
-        
+
         {/* Sección de CV */}
         <div className="border border-gray-200 rounded-lg overflow-hidden">
           <SectionHeader title="Currículum Vitae" section="cv" icon="📄" />
-          <div className={`transition-all duration-300 ease-in-out ${
-            sectionsExpanded.cv ? 'max-h-full opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
-          }`}>
+          <div
+            className={`transition-all duration-300 ease-in-out ${
+              sectionsExpanded.cv
+                ? "max-h-full opacity-100"
+                : "max-h-0 opacity-0 overflow-hidden"
+            }`}
+          >
             <div className="p-6 bg-white border-t">
               {cvInfo ? (
                 <div className="mb-4">
                   <div className="flex items-center p-3 bg-gray-50 rounded-lg">
                     <div className="text-verde-oscuro">
-                      {cvInfo.filename.toLowerCase().endsWith('.pdf') ? (
+                      {cvInfo.filename.toLowerCase().endsWith(".pdf") ? (
                         <FaFilePdf size={24} />
-                      ) : cvInfo.filename.toLowerCase().match(/\.(doc|docx)$/) ? (
+                      ) : cvInfo.filename
+                          .toLowerCase()
+                          .match(/\.(doc|docx)$/) ? (
                         <FaFileWord size={24} />
                       ) : (
                         <FaFile size={24} />
@@ -395,9 +498,13 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
                     </div>
                     <div className="ml-3 flex-1">
                       <p className="text-sm font-medium text-gray-700 truncate">
-                        {cvInfo.filename.length > 20 ? cvInfo.filename.substring(0, 20) + '...' : cvInfo.filename}
+                        {cvInfo.filename.length > 20
+                          ? cvInfo.filename.substring(0, 20) + "..."
+                          : cvInfo.filename}
                       </p>
-                      <p className="text-xs text-gray-500">CV subido correctamente</p>
+                      <p className="text-xs text-gray-500">
+                        CV subido correctamente
+                      </p>
                     </div>
                     <button
                       type="button"
@@ -409,33 +516,50 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
                     </button>
                   </div>
                   <div className="mt-3">
-                    <p className="text-sm text-gray-600 mb-2">¿Quieres reemplazar tu CV actual?</p>
+                    <p className="text-sm text-gray-600 mb-2">
+                      ¿Quieres reemplazar tu CV actual?
+                    </p>
                     <FileUpload onUpload={handleCvUpload} fileType="cv" />
                   </div>
                 </div>
               ) : (
                 <div>
-                  <p className="text-sm text-gray-600 mb-2">Sube tu currículum en formato PDF, DOC o DOCX.</p>
+                  <p className="text-sm text-gray-600 mb-2">
+                    Sube tu currículum en formato PDF, DOC o DOCX.
+                  </p>
                   <FileUpload onUpload={handleCvUpload} fileType="cv" />
                 </div>
               )}
             </div>
           </div>
         </div>
-        
+
         {/* Sección de Trayectoria */}
         <div className="border border-gray-200 rounded-lg overflow-hidden">
-          <SectionHeader title="Club/Institución" section="trajectory" icon="🏆" />
-          <div className={`transition-all duration-300 ease-in-out ${
-            sectionsExpanded.trajectory ? 'max-h-full opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
-          }`}>
+          <SectionHeader
+            title="Club/Institución"
+            section="trajectory"
+            icon="🏆"
+          />
+          <div
+            className={`transition-all duration-300 ease-in-out ${
+              sectionsExpanded.trajectory
+                ? "max-h-full opacity-100"
+                : "max-h-0 opacity-0 overflow-hidden"
+            }`}
+          >
             <div className="p-6 bg-white border-t">
               {experiences.map((exp, index) => (
-                <div key={index} className="mb-6 p-4 border border-gray-200 rounded-lg">
+                <div
+                  key={index}
+                  className="mb-6 p-4 border border-gray-200 rounded-lg"
+                >
                   <div className="flex justify-between items-center mb-4">
-                    <h4 className="text-lg text-verde-oscuro font-medium">Experiencia {index + 1}</h4>
-                    <button 
-                      type="button" 
+                    <h4 className="text-lg text-verde-oscuro font-medium">
+                      Experiencia {index + 1}
+                    </h4>
+                    <button
+                      type="button"
                       onClick={() => removeExperience(index)}
                       className="text-red-500 hover:text-red-700"
                       disabled={experiences.length === 1}
@@ -443,7 +567,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
                       {experiences.length > 1 && <FaTrash />}
                     </button>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="mb-4">
                       <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -453,10 +577,12 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
                         type="text"
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                         value={exp.club}
-                        onChange={(e) => handleExperienceChange(index, 'club', e.target.value)}
+                        onChange={(e) =>
+                          handleExperienceChange(index, "club", e.target.value)
+                        }
                       />
                     </div>
-                    
+
                     <div className="mb-4">
                       <label className="block text-gray-700 text-sm font-bold mb-2">
                         Fecha de Inicio
@@ -465,10 +591,16 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
                         type="date"
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                         value={exp.fechaInicio}
-                        onChange={(e) => handleExperienceChange(index, 'fechaInicio', e.target.value)}
+                        onChange={(e) =>
+                          handleExperienceChange(
+                            index,
+                            "fechaInicio",
+                            e.target.value
+                          )
+                        }
                       />
                     </div>
-                    
+
                     <div className="mb-4">
                       <label className="block text-gray-700 text-sm font-bold mb-2">
                         Fecha de Finalización
@@ -477,10 +609,16 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
                         type="date"
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                         value={exp.fechaFinalizacion}
-                        onChange={(e) => handleExperienceChange(index, 'fechaFinalizacion', e.target.value)}
+                        onChange={(e) =>
+                          handleExperienceChange(
+                            index,
+                            "fechaFinalizacion",
+                            e.target.value
+                          )
+                        }
                       />
                     </div>
-                    
+
                     <div className="mb-4">
                       <label className="block text-gray-700 text-sm font-bold mb-2">
                         Categoría del Equipo
@@ -488,14 +626,22 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
                       <select
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                         value={exp.categoriaEquipo}
-                        onChange={(e) => handleExperienceChange(index, 'categoriaEquipo', e.target.value)}
+                        onChange={(e) =>
+                          handleExperienceChange(
+                            index,
+                            "categoriaEquipo",
+                            e.target.value
+                          )
+                        }
                       >
                         {CATEGORIAS_OPTIONS.map((option) => (
-                          <option key={option} value={option}>{option}</option>
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
                         ))}
                       </select>
                     </div>
-                    
+
                     <div className="mb-4">
                       <label className="block text-gray-700 text-sm font-bold mb-2">
                         Nivel de Competencia
@@ -503,14 +649,22 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
                       <select
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                         value={exp.nivelCompetencia}
-                        onChange={(e) => handleExperienceChange(index, 'nivelCompetencia', e.target.value)}
+                        onChange={(e) =>
+                          handleExperienceChange(
+                            index,
+                            "nivelCompetencia",
+                            e.target.value
+                          )
+                        }
                       >
                         {NIVEL_COMPETENCIA_OPTIONS.map((option) => (
-                          <option key={option} value={option}>{option}</option>
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
                         ))}
                       </select>
                     </div>
-                    
+
                     <div className="mb-4 md:col-span-2">
                       <label className="block text-gray-700 text-sm font-bold mb-2">
                         Logros
@@ -519,13 +673,19 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                         rows={3}
                         value={exp.logros}
-                        onChange={(e) => handleExperienceChange(index, 'logros', e.target.value)}
+                        onChange={(e) =>
+                          handleExperienceChange(
+                            index,
+                            "logros",
+                            e.target.value
+                          )
+                        }
                       />
                     </div>
                   </div>
                 </div>
               ))}
-              
+
               <button
                 type="button"
                 onClick={addExperience}
@@ -536,30 +696,24 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({ profileData
             </div>
           </div>
         </div>
-        
+
         <div className="flex justify-end pt-4">
           <button
             type="submit"
             className="bg-[#1d5126] text-white py-3 px-8 rounded-lg hover:bg-[#143a1b] transition-colors font-medium"
             disabled={loading}
           >
-            {loading ? 'Guardando...' : 'Guardar Cambios'}
+            {loading ? "Guardando..." : "Guardar Cambios"}
           </button>
         </div>
       </form>
-      
+
       {showNotification && (
-        <NotificationsForms
-          message={notificationMessage}
-          isError={false}
-        />
+        <NotificationsForms message={notificationMessage} isError={false} />
       )}
-      
+
       {showErrorNotification && (
-        <NotificationsForms
-          message={errorMessage}
-          isError={true}
-        />
+        <NotificationsForms message={errorMessage} isError={true} />
       )}
     </div>
   );

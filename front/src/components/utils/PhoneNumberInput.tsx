@@ -16,6 +16,7 @@ interface EditableProps {
   disabled?: boolean;
   defaultCountry?: string;
   validate?: boolean;
+  className?: string;
 }
 
 interface ReadOnlyProps {
@@ -40,6 +41,7 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = (props) => {
       disabled = false,
       defaultCountry = "US",
       validate = true,
+      className,
     } = props;
 
     const [error, setError] = useState<string | null>(null);
@@ -77,7 +79,7 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = (props) => {
         {label && (
           <label
             htmlFor={name}
-            className="text-gray-700 font-semibold text-sm mt-2"
+            className="text-gray-700 font-semibold text-sm mb-2"
           >
             {label} {required && <span className="text-red-500">*</span>}
           </label>
@@ -97,9 +99,9 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = (props) => {
           value={value}
           onChange={handleInternalChange}
           disabled={disabled}
-          className={`w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none gap-2 ${
-            error ? "border-red-500" : "border-gray-300"
-          }`}
+          className={`w-full mt-2 text-gray-700 focus:outline-none ${
+            className ?? ""
+          } ${error ? "border-red-500" : "border-gray-300"}`}
         />
         {error && <span className="text-red-500 text-sm mt-1">{error}</span>}
       </div>
@@ -117,20 +119,25 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = (props) => {
   const phoneDigits = value.replace(/\D/g, "");
   const whatsappUrl = `https://wa.me/${phoneDigits}`;
 
-  return showWhatsAppLink ? (
-    <span className={`flex items-center gap-2 ${className}`}>
-      <a
-        href={whatsappUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-2 text-green-700 hover:underline"
-      >
-        {formatted}
-        <FaWhatsapp className="text-green-600" />
-      </a>
+  // Aquí chequeamos que formatted sea un string válido, no vacío y contenga números
+  const isFormattedValid = formatted && /\d/.test(formatted);
+
+  return (
+    <span className={`flex items-center gap-1 whitespace-nowrap ${className}`}>
+      {showWhatsAppLink && isFormattedValid ? (
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1 text-green-700 hover:underline"
+        >
+          {formatted}
+          <FaWhatsapp className="text-green-600 w-4 h-4" />
+        </a>
+      ) : (
+        formatted || value
+      )}
     </span>
-  ) : (
-    <span className={className}>{formatted}</span>
   );
 };
 

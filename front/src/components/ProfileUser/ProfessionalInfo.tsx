@@ -536,11 +536,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
 
         {/* Sección de Trayectoria */}
         <div className="border border-gray-200 rounded-lg overflow-hidden">
-          <SectionHeader
-            title="Club/Institución"
-            section="trajectory"
-            icon="🏆"
-          />
+          <SectionHeader title="Trayectoria" section="trajectory" icon="🏆" />
           <div
             className={`transition-all duration-300 ease-in-out ${
               sectionsExpanded.trajectory

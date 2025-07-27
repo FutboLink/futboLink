@@ -161,7 +161,7 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
         <button
           type="button"
           onClick={() => document.getElementById("file-input")?.click()}
-          className="flex items-center gap-2 text-sm px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          className="flex items-center gap-2 text-sm bg-verde-oscuro text-white py-2 px-4 rounded-md hover:bg-verde-mas-claro transition-colors"
         >
           <FaCamera />
           Cambiar imagen

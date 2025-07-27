@@ -442,13 +442,16 @@ export default function UserViewer() {
       <div className="pt-1 mt-24 container mx-auto px-4 md:px-8 lg:px-12 xl:px-24">
         {/* Botón de edición (solo visible si es el propio perfil) */}
         {isOwnProfile && (
-          <div className="flex justify-end mb-4 gap-2">
+          <div className="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-3 mb-4">
+            {/* Editar perfil */}
             <button
-              onClick={handleLogout}
-              className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors flex items-center"
+              onClick={() => router.push(`/user-viewer/${id}?edit=true`)}
+              className="w-full sm:w-auto bg-verde-oscuro text-white py-2 px-4 rounded-md hover:bg-verde-mas-claro transition-colors flex items-center justify-center"
             >
-              <FaSignOutAlt className="mr-2" /> Cerrar sesión
+              <FaCog className="mr-2" /> Editar perfil
             </button>
+
+            {/* Cambiar contraseña */}
             <button
               onClick={() =>
                 router.push(
@@ -457,7 +460,7 @@ export default function UserViewer() {
                   )}`
                 )
               }
-              className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors flex items-center"
+              className="w-full sm:w-auto bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors flex items-center justify-center"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -475,11 +478,13 @@ export default function UserViewer() {
               </svg>
               Cambiar contraseña
             </button>
+
+            {/* Cerrar sesión */}
             <button
-              onClick={() => router.push(`/user-viewer/${id}?edit=true`)}
-              className="bg-verde-oscuro text-white py-2 px-4 rounded-md hover:bg-verde-mas-claro transition-colors flex items-center"
+              onClick={handleLogout}
+              className="w-full sm:w-auto bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors flex items-center justify-center"
             >
-              <FaCog className="mr-2" /> Editar perfil
+              <FaSignOutAlt className="mr-2" /> Cerrar sesión
             </button>
           </div>
         )}
@@ -1424,8 +1429,15 @@ export default function UserViewer() {
                         {profile.role === UserType.PLAYER && (
                           <div className="flex justify-between">
                             <span className="text-gray-600">Agente</span>
-                            <span className="text-gray-800">
-                              {profile.nameAgency || "No tiene agente asignado"}
+                            <span className="flex items-center gap-1 text-gray-800">
+                              {profile.nameAgency ? (
+                                profile.nameAgency
+                              ) : (
+                                <span className="flex items-center gap-1 bg-red-100 text-red-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+                                  <FaUserSlash className="w-4 h-4" />
+                                  No tiene agente asignado
+                                </span>
+                              )}
                             </span>
                           </div>
                         )}

@@ -77,10 +77,7 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = (props) => {
     return (
       <div className="flex flex-col">
         {label && (
-          <label
-            htmlFor={name}
-            className="text-gray-700 font-semibold text-sm mb-2"
-          >
+          <label htmlFor={name} className="text-gray-700 font-semibold text-sm">
             {label} {required && <span className="text-red-500">*</span>}
           </label>
         )}

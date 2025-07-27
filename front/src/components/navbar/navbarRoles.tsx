@@ -15,7 +15,8 @@ function NavbarRoles() {
   const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [hasProfessionalSubscription, setHasProfessionalSubscription] = useState(false);
+  const [hasProfessionalSubscription, setHasProfessionalSubscription] =
+    useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { isLogged, role, user, token } = useContext(UserContext);
 
@@ -28,15 +29,21 @@ function NavbarRoles() {
   // Verificar si el usuario tiene suscripción profesional
   useEffect(() => {
     if (isLogged && user && token) {
-      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/${user.id}/subscription`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-        .then(response => {
+      axios
+        .get(
+          `${process.env.NEXT_PUBLIC_API_URL}/user/${user.id}/subscription`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        )
+        .then((response) => {
           const { subscriptionType, isActive } = response.data;
-          setHasProfessionalSubscription(subscriptionType === 'Profesional' && isActive);
+          setHasProfessionalSubscription(
+            subscriptionType === "Profesional" && isActive
+          );
         })
-        .catch(error => {
-          console.error('Error al verificar suscripción:', error);
+        .catch((error) => {
+          console.error("Error al verificar suscripción:", error);
         });
     }
   }, [isLogged, user, token]);
@@ -63,59 +70,53 @@ function NavbarRoles() {
     { label: "Contacto", path: "/contacto" },
   ];
 
+  // Obtiene la ruta correcta según el rol y si el usuario está logueado
+  const getUserPanelPath = (
+    isLogged: boolean,
+    role: string | null,
+    id: string | undefined
+  ): string => {
+    if (!isLogged || !role) return "/"; // No logueado o sin rol → home
+
+    if (role === "RECRUITER") return "/PanelUsers/Manager"; // Reclutador siempre va a panel de gestión
+
+    // Para jugador o admin, si hay id va a perfil, si no al panel por defecto
+    if (role === "PLAYER" || role === "ADMIN") {
+      if (id) return `/user-viewer/${id}`;
+      return role === "PLAYER" ? "/PanelUsers/Player" : "/PanelAdmin";
+    }
+
+    return "/";
+  };
+
+  // Renderiza botón con texto y ruta según rol
   const renderUserIcon = () => {
     if (!isLogged || !role) return null;
 
-    let targetPath = "";
-    if (role === "PLAYER") targetPath = "/PanelUsers/Player";
-    else if (role === "RECRUITER") targetPath = "/PanelUsers/Manager";
-    else if (role === "ADMIN") targetPath = "/PanelAdmin";
+    const targetPath = getUserPanelPath(isLogged, role, user?.id);
+    const isRecruiter = role === "RECRUITER";
 
-    // Si el usuario está autenticado, mostrar su perfil
-    if (user && user.id) {
-      // Para RECRUITER, redirigir al panel de gestión
-      if (role === "RECRUITER") {
-        return (
-          <button 
-            onClick={() => navigateTo("/PanelUsers/Manager")}
-            className="flex items-center gap-2 px-4 py-2 bg-verde-oscuro text-white rounded-md hover:bg-verde-mas-claro transition-all whitespace-nowrap"
-          >
-            <FaUser className="text-lg" />
-            <span className="font-medium">Panel de Gestión</span>
-          </button>
-        );
-      }
-      
-      // Para otros roles, mantener el comportamiento actual
-      return (
-        <button 
-          onClick={() => navigateTo(`/user-viewer/${user.id}`)}
-          className="flex items-center gap-2 px-4 py-2 bg-verde-oscuro text-white rounded-md hover:bg-verde-mas-claro transition-all whitespace-nowrap"
-        >
-          <FaUser className="text-lg" />
-          <span className="font-medium">Perfil</span>
-        </button>
-      );
-    }
-
-    // Fallback al panel genérico si no hay ID de usuario
     return (
-      <button 
+      <button
         onClick={() => navigateTo(targetPath)}
         className="flex items-center gap-2 px-4 py-2 bg-verde-oscuro text-white rounded-md hover:bg-verde-mas-claro transition-all whitespace-nowrap"
       >
         <FaUser className="text-lg" />
-        <span className="font-medium">Perfil</span>
+        <span className="font-medium">
+          {isRecruiter ? "Panel de Gestión" : "Perfil"}
+        </span>
       </button>
     );
   };
+
+  const targetPath = getUserPanelPath(isLogged, role, user?.id);
 
   // Renderizar botón de búsqueda de jugadores para móviles
   const renderPlayerSearchButton = () => {
     if (!hasProfessionalSubscription) return null;
 
     return (
-      <button 
+      <button
         onClick={() => navigateTo("/player-search")}
         className="flex items-center gap-2 px-4 py-2 border-2 border-verde-oscuro text-verde-oscuro rounded-md hover:bg-green-700 transition-all whitespace-nowrap"
       >
@@ -150,7 +151,7 @@ function NavbarRoles() {
               />
             </Link>
 
-            <ul className="hidden sm:flex gap-6 text-lg text-verde-oscuro">
+            <ul className="hidden md:flex gap-6 text-lg text-verde-oscuro">
               {menuItems.map((item) => (
                 <li
                   key={item.path}
@@ -164,7 +165,7 @@ function NavbarRoles() {
           </div>
 
           {/* Language dropdown and login buttons */}
-          <div className="hidden sm:flex ml-auto items-center gap-4">
+          <div className="hidden md:flex ml-auto items-center gap-4">
             {/* Language Dropdown */}
             <LanguageDropdown />
 
@@ -189,23 +190,23 @@ function NavbarRoles() {
           </div>
 
           {/* Icono de usuario y notificaciones en escritorio */}
-          <div className="hidden sm:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-4">
             {isLogged && <NotificationsList />}
-            {isLogged && hasProfessionalSubscription && renderPlayerSearchButton()}
+            {isLogged &&
+              hasProfessionalSubscription &&
+              renderPlayerSearchButton()}
             {renderUserIcon()}
           </div>
 
           {/* Menú móvil: hamburguesa + ícono de usuario + notificaciones */}
-          <div className="flex items-center justify-end space-x-3 sm:hidden">
+          <div className="flex items-center justify-end space-x-3 md:hidden">
             {/* Language Dropdown (Mobile) */}
             <LanguageDropdown />
-            
+
             {isLogged && (
               <>
                 <NotificationsList />
-              <div className="flex-shrink-0">
-                {renderUserIcon()}
-              </div>
+                <div className="flex-shrink-0">{renderUserIcon()}</div>
               </>
             )}
             <button
@@ -233,7 +234,7 @@ function NavbarRoles() {
 
         {/* Menú móvil: mostrar los botones de sesión solo cuando el menú móvil está abierto */}
         {isMobileMenuOpen && (
-          <div className="sm:hidden bg-white text-verde-oscuro text-lg p-4">
+          <div className="md:hidden bg-white text-verde-oscuro text-lg p-4">
             <ul>
               {menuItems.map((item) => (
                 <li
@@ -269,19 +270,13 @@ function NavbarRoles() {
                   <div className="mb-4 mt-2 border-t pt-4 border-gray-200">
                     <p className="text-sm text-gray-500 mb-2">Tu cuenta</p>
                     <button
-                      onClick={() => {
-                        let targetPath = "";
-                        if (role === "PLAYER") targetPath = "/PanelUsers/Player";
-                        else if (role === "RECRUITER") targetPath = "/PanelUsers/Manager";
-                        else if (role === "ADMIN") targetPath = "/PanelAdmin";
-                        navigateTo(targetPath);
-                      }}
+                      onClick={() => navigateTo(targetPath)}
                       className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-verde-oscuro text-white rounded-md hover:bg-verde-mas-claro transition-all"
                     >
                       <FaUser className="text-lg" />
                       <span className="font-medium">Ir a mi Perfil</span>
                     </button>
-                    
+
                     {/* Botón de búsqueda de jugadores para usuarios con suscripción profesional o RECRUITERS */}
                     {(hasProfessionalSubscription || role === "RECRUITER") && (
                       <button
@@ -289,7 +284,9 @@ function NavbarRoles() {
                         className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all mt-2"
                       >
                         <FaUsers size={18} className="text-white" />
-                        <span className="font-medium">Búsqueda de Jugadores</span>
+                        <span className="font-medium">
+                          Búsqueda de Jugadores
+                        </span>
                       </button>
                     )}
                   </div>

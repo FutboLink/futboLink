@@ -11,9 +11,10 @@ import useNationalities from "../Forms/FormUser/useNationalitys";
 import ImageUpload from "../Cloudinary/ImageUpload";
 import Image from "next/image";
 import PhoneNumberInput from "../utils/PhoneNumberInput";
+import ImageUploadwithCrop from "../Cloudinary/ImageUploadWithCrop";
 
 const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
-  const { token } = useContext(UserContext);
+  const { token, setUser, user } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fetchedProfileData, setFetchedProfileData] =
@@ -81,6 +82,13 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   };
 
   const handleImageUpload = (imageUrl: string) => {
+    if (!user) return;
+
+    setUser({
+      ...user,
+      imgUrl: imageUrl, // Actualizar la URL de la imagen en el estado global
+    });
+
     setFetchedProfileData((prev) => ({
       ...prev!,
       imgUrl: imageUrl, // Actualizar la URL de la imagen en fetchedProfileData
@@ -160,22 +168,16 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           </div>
           {/* Imagen de perfil (URL) */}
           <div className="sm:col-span-2 flex flex-col items-center">
-            <label className="text-gray-700 font-semibold mb-2">
-              Subir Imagen
-            </label>
-            <ImageUpload onUpload={handleImageUpload} />
-            {/* Aquí se mostrará la imagen de perfil si existe */}
-            {fetchedProfileData?.imgUrl && (
-              <div className="mt-4 rounded-full w-24 h-24 overflow-hidden">
-                <Image
-                  src={fetchedProfileData.imgUrl}
-                  alt="Imagen de perfil"
-                  width={96}
-                  height={96}
-                  className="object-cover"
-                />
-              </div>
-            )}
+            <ImageUploadwithCrop
+              initialImage={fetchedProfileData?.imgUrl}
+              onUpload={handleImageUpload}
+              onRemove={() =>
+                setFetchedProfileData((prev) => ({
+                  ...prev!,
+                  imgUrl: "",
+                }))
+              }
+            />
           </div>
           {/* Nationality Selector - Fixed version */}
           <div className="flex flex-col">

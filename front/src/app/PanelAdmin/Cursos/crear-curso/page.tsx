@@ -9,7 +9,7 @@ export default function Page() {
   const [course, setCourse] = useState<ICreateCurso>({
     image: "",
     title: "",
-    description:"",
+    description: "",
     category: CategoryCursos.Curso,
     country: "",
     language: "",
@@ -21,7 +21,9 @@ export default function Page() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setCourse({ ...course, [e.target.name]: e.target.value });
   };
 
@@ -45,7 +47,7 @@ export default function Page() {
       setCourse({
         image: "",
         title: "",
-        description:"",
+        description: "",
         category: CategoryCursos.Curso,
         country: "",
         language: "",
@@ -65,8 +67,11 @@ export default function Page() {
         <h1 className="text-2xl font-bold text-green-700 mb-4 text-center">
           Crear Nuevo Curso
         </h1>
-  
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+        >
           {/* Título (Ocupa 2 columnas) */}
           <div className="sm:col-span-2">
             <label className="block text-gray-700 font-semibold">Título</label>
@@ -79,10 +84,12 @@ export default function Page() {
               required
             />
           </div>
-  
+
           {/* Categoría */}
           <div>
-            <label className="block text-gray-700 font-semibold">Categoría</label>
+            <label className="block text-gray-700 font-semibold">
+              Categoría
+            </label>
             <select
               name="category"
               value={course.category}
@@ -97,7 +104,7 @@ export default function Page() {
               ))}
             </select>
           </div>
-  
+
           {/* País */}
           <div>
             <label className="block text-gray-700 font-semibold">País</label>
@@ -110,7 +117,7 @@ export default function Page() {
               required
             />
           </div>
-  
+
           {/* Idioma */}
           <div>
             <label className="block text-gray-700 font-semibold">Idioma</label>
@@ -123,10 +130,12 @@ export default function Page() {
               required
             />
           </div>
-  
+
           {/* Modalidad */}
           <div>
-            <label className="block text-gray-700 font-semibold">Modalidad</label>
+            <label className="block text-gray-700 font-semibold">
+              Modalidad
+            </label>
             <input
               type="text"
               name="modality"
@@ -136,52 +145,59 @@ export default function Page() {
               required
             />
           </div>
-  
-  {/* Contacto */}
-<div className="sm:col-span-2">
-  <label className="block text-gray-700 font-semibold">Contacto</label>
-  <input
-    type="text"
-    name="contact"
-    value={course.contact}
-    onChange={handleChange}
-    className="w-full p-2 border text-gray-700 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-700"
-    required
-  />
-</div>
 
-{/* Descripción */}
-<div className="sm:col-span-2">
-  <label className="block text-gray-700 font-semibold">Descripción</label>
-  <textarea
-    name="description"
-    maxLength={1500}
-    className="w-full p-2 border text-gray-700 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-700"
-    required
-    value={course.description}
-    onChange={(e) =>
-      setCourse({ ...course, description: e.target.value })
-    }
-    placeholder="Escribe una breve descripción..."
-  />
-  <p className="text-xs text-gray-500">
-    {1500 - course.description.length} caracteres restantes
-  </p>
-</div>
+          {/* Contacto */}
+          <div className="sm:col-span-2">
+            <label className="block text-gray-700 font-semibold">
+              Contacto
+            </label>
+            <input
+              type="text"
+              name="contact"
+              value={course.contact}
+              onChange={handleChange}
+              className="w-full p-2 border text-gray-700 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-700"
+              required
+            />
+          </div>
 
-  
+          {/* Descripción */}
+          <div className="sm:col-span-2">
+            <label className="block text-gray-700 font-semibold">
+              Descripción
+            </label>
+            <textarea
+              name="description"
+              maxLength={1500}
+              className="w-full p-2 border text-gray-700 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-700"
+              required
+              value={course.description}
+              onChange={(e) =>
+                setCourse({ ...course, description: e.target.value })
+              }
+              placeholder="Escribe una breve descripción..."
+            />
+            <p className="text-xs text-gray-500">
+              {1500 - course.description.length} caracteres restantes
+            </p>
+          </div>
+
           {/* Subir Imagen (Ocupa 2 columnas) */}
           <div className="sm:col-span-2 flex flex-col items-center">
-            <label className="text-gray-700 font-semibold mb-2">Subir Imagen</label>
+            <label className="text-gray-700 font-semibold mb-2">
+              Subir Imagen
+            </label>
             <ImageUpload onUpload={handleImageUpload} />
           </div>
-  
+
           {/* Botón de Enviar (Ocupa 2 columnas) */}
           <div className="sm:col-span-2">
             <button
               type="submit"
               className={`w-full py-2 rounded-lg transition duration-300 ${
-                loading ? "bg-gray-400 cursor-not-allowed" : "bg-green-700 hover:bg-green-800 text-white"
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-green-700 hover:bg-green-800 text-white"
               }`}
               disabled={loading}
             >
@@ -214,16 +230,18 @@ export default function Page() {
               )}
             </button>
           </div>
-  
+
           {/* Mensajes de error o éxito */}
           {error && (
             <p className="text-red-500 text-center sm:col-span-2">{error}</p>
           )}
           {successMessage && (
-            <p className="text-green-700 text-center sm:col-span-2">{successMessage}</p>
+            <p className="text-green-700 text-center sm:col-span-2">
+              {successMessage}
+            </p>
           )}
         </form>
       </div>
     </div>
   );
-}  
+}

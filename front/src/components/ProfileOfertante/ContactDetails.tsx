@@ -1,7 +1,10 @@
-"use client"
+"use client";
 import { useState, useEffect, useContext } from "react";
 import { IProfileData } from "@/Interfaces/IUser";
-import { fetchUserData, updateUserData } from "../Fetchs/UsersFetchs/UserFetchs";
+import {
+  fetchUserData,
+  updateUserData,
+} from "../Fetchs/UsersFetchs/UserFetchs";
 import { UserContext } from "../Context/UserContext";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
 
@@ -9,9 +12,10 @@ const ContactDetails: React.FC<{ profileData: IProfileData }> = () => {
   const { token } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [fetchedProfileData, setFetchedProfileData] = useState<IProfileData | null>(null);
+  const [fetchedProfileData, setFetchedProfileData] =
+    useState<IProfileData | null>(null);
   const [showNotification, setShowNotification] = useState(false);
-  const [notificationMessage, setNotificationMessage] = useState('');
+  const [notificationMessage, setNotificationMessage] = useState("");
   const [showErrorNotification, setShowErrorNotification] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -34,7 +38,9 @@ const ContactDetails: React.FC<{ profileData: IProfileData }> = () => {
   }, [token]);
 
   // Manejo de cambios en los campos
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     if (fetchedProfileData) {
       setFetchedProfileData({
         ...fetchedProfileData,
@@ -60,7 +66,9 @@ const ContactDetails: React.FC<{ profileData: IProfileData }> = () => {
       setShowNotification(true);
     } catch (error) {
       console.error("Error al actualizar datos:", error);
-      setErrorMessage(error instanceof Error ? error.message : "Ocurrió un error.");
+      setErrorMessage(
+        error instanceof Error ? error.message : "Ocurrió un error."
+      );
       setShowErrorNotification(true);
     } finally {
       setLoading(false);
@@ -73,7 +81,9 @@ const ContactDetails: React.FC<{ profileData: IProfileData }> = () => {
         <>
           {/* Transfermarkt */}
           <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold text-sm pl-2">Transfermarkt:</label>
+            <label className="text-gray-700 font-semibold text-sm pl-2">
+              Transfermarkt:
+            </label>
             <input
               type="text"
               name="transfermarkt"
@@ -83,10 +93,12 @@ const ContactDetails: React.FC<{ profileData: IProfileData }> = () => {
               className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
             />
           </div>
-  
+
           {/* X*/}
           <div className="flex flex-col">
-          <label className="text-gray-700 font-semibold text-sm pl-2 mt-2">X:</label>
+            <label className="text-gray-700 font-semibold text-sm pl-2 mt-2">
+              X:
+            </label>
             <input
               type="text"
               name="x"
@@ -97,9 +109,11 @@ const ContactDetails: React.FC<{ profileData: IProfileData }> = () => {
             />
           </div>
 
-            {/* Youtube*/}
-            <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold text-sm pl-2 mt-2">Youtube:</label>
+          {/* Youtube*/}
+          <div className="flex flex-col">
+            <label className="text-gray-700 font-semibold text-sm pl-2 mt-2">
+              Youtube:
+            </label>
             <input
               type="text"
               name="youtube"
@@ -111,19 +125,19 @@ const ContactDetails: React.FC<{ profileData: IProfileData }> = () => {
           </div>
 
           {/* Website */}
-      <div className="flex flex-col">
-        <label className="text-gray-700 font-semibold text-sm pl-2 mt-2">Página Web:</label>
-        <input
-          type="text"
-          name="website"
-          value={fetchedProfileData?.socialMedia?.website || ""}
-          onChange={handleChange}
-          placeholder="Link de tu página web"
-          className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
-        />
-      </div>
-
-       
+          <div className="flex flex-col">
+            <label className="text-gray-700 font-semibold text-sm pl-2 mt-2">
+              Página Web:
+            </label>
+            <input
+              type="text"
+              name="website"
+              value={fetchedProfileData?.socialMedia?.website || ""}
+              onChange={handleChange}
+              placeholder="Link de tu página web"
+              className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
+            />
+          </div>
         </>
       ) : (
         <p>Cargando los datos...</p>
@@ -139,16 +153,16 @@ const ContactDetails: React.FC<{ profileData: IProfileData }> = () => {
 
       {error && <p className="text-red-600 mt-2">{error}</p>}
       {showErrorNotification && (
-          <div className="absolute top-24 left-0 right-0 mx-auto w-max bg-red-600 text-white p-2 rounded-md">
-            <p>{errorMessage}</p>
-          </div>
-        )}
-  
+        <div className="absolute top-24 left-0 right-0 mx-auto w-max bg-red-600 text-white p-2 rounded-md">
+          <p>{errorMessage}</p>
+        </div>
+      )}
+
       {showNotification && (
-          <div className="absolute top-12 left-0 right-0 mx-auto w-max">
-            <NotificationsForms message={notificationMessage} />
-          </div>
-        )}
+        <div className="absolute top-12 left-0 right-0 mx-auto w-max">
+          <NotificationsForms message={notificationMessage} />
+        </div>
+      )}
     </div>
   );
 };

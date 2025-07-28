@@ -10,6 +10,7 @@ import { NotificationsForms } from "../Notifications/NotificationsForms";
 import useNationalities from "../Forms/FormUser/useNationalitys";
 import ImageUpload from "../Cloudinary/ImageUpload";
 import Image from "next/image";
+import PhoneNumberInput from "../utils/PhoneNumberInput";
 
 const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const { token } = useContext(UserContext);
@@ -234,20 +235,14 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             />
           </div>
           {/* Phone */}
-          <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold text-sm">
-              Teléfono:
-            </label>
-            <input
-              name="phone"
-              type="text"
-              value={fetchedProfileData?.phone || ""}
-              onChange={handleChange}
-              placeholder="Teléfono"
-              className="w-full p-1.5 border mt-2 rounded text-gray-700 focus:outline-none"
-            />
-          </div>
-          
+          <PhoneNumberInput
+            mode="edit"
+            name="phone"
+            label="Teléfono:"
+            value={fetchedProfileData?.phone}
+            onChange={handleChange}
+            className="w-full p-1.5 border mt-0 rounded text-gray-700 focus:outline-none"
+          />
           {/* Agente o Representante */}
           <div className="flex flex-col">
             <label className="text-gray-700 font-semibold text-sm">
@@ -262,7 +257,6 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               className="w-full p-1.5 border mt-2 rounded text-gray-700 focus:outline-none"
             />
           </div>
-          
           {/* Gender */}
           <div className="flex flex-col">
             <label className="text-gray-700 font-semibold text-sm">

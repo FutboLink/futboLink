@@ -19,11 +19,14 @@ export default function ContactoPage() {
     <div className="min-h-screen bg-white">
       <Head>
         <title>Contacto - FutboLink</title>
-        <meta name="description" content="Contacta con FutboLink para más información sobre nuestros servicios." />
+        <meta
+          name="description"
+          content="Contacta con FutboLink para más información sobre nuestros servicios."
+        />
       </Head>
-      
+
       <Navbar />
-      
+
       <div className="mt-16 overflow-hidden">
         <section
           className="bg-gray-100 py-8 sm:py-12"
@@ -57,8 +60,8 @@ export default function ContactoPage() {
                 Somos una agencia con sede en Italia, dedicada a conectar
                 jugadores, representantes y agencias de fútbol de todo el mundo.
                 Nuestro equipo de profesionales está aquí para ayudarte a dar el
-                siguiente paso en tu carrera o negocio. ¡Contáctanos y comencemos
-                hoy mismo!
+                siguiente paso en tu carrera o negocio. ¡Contáctanos y
+                comencemos hoy mismo!
               </p>
             </div>
 
@@ -126,9 +129,9 @@ export default function ContactoPage() {
           </p>
         </section>
       </div>
-      
+
       <SocialButton />
       <Footer />
     </div>
   );
-} 
+}

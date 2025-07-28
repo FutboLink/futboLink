@@ -10,6 +10,7 @@ import { NotificationsForms } from "../Notifications/NotificationsForms";
 import ImageUpload from "../Cloudinary/ImageUpload";
 import Image from "next/image";
 import useNationalities from "../Forms/FormUser/useNationalitys";
+import PhoneNumberInput from "../utils/PhoneNumberInput";
 
 const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const { token } = useContext(UserContext);
@@ -279,19 +280,13 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             />
           </div>
           {/* Teléfono */}
-          <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold text-sm mt-2">
-              Teléfono:
-            </label>
-            <input
-              name="phone"
-              type="text"
-              value={fetchedProfileData?.phone || ""}
-              onChange={handleChange}
-              placeholder="Teléfono"
-              className="w-full p-2 border rounded mt-2 text-gray-700 hover:cursor-pointer focus:outline-none"
-            />
-          </div>
+          <PhoneNumberInput
+            mode="edit"
+            name="phone"
+            label="Teléfono:"
+            value={fetchedProfileData?.phone}
+            onChange={handleChange}
+          />
 
           <div className="flex flex-col">
             <label className="text-gray-700 font-semibold text-sm mt-2">

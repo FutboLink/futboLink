@@ -993,7 +993,7 @@ const PlayerSearch: React.FC = () => {
                   <div className="flex items-center text-xs gap-1 text-gray-500 space-y-1 mb-4">
                     <FaShieldAlt className="w-3.5 h-3.5" />
                     <span>
-                      {t("Último club")}: {lastClub}
+                      {t("Club actual")}: {lastClub}
                     </span>
                   </div>
                 )}

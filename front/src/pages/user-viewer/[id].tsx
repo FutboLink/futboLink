@@ -1352,21 +1352,6 @@ export default function UserViewer() {
                           </span>
                         </div>
                       )}
-                      {profile.role === UserType.PLAYER && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-600">Agente</span>
-                          <span className="flex items-center gap-1 text-gray-800">
-                            {profile.nameAgency ? (
-                              profile.nameAgency
-                            ) : (
-                              <span className="flex items-center gap-1 bg-red-100 text-red-700 text-xs font-semibold px-2 py-0.5 rounded-full">
-                                <FaUserSlash className="w-4 h-4" />
-                                No tiene agente asignado
-                              </span>
-                            )}
-                          </span>
-                        </div>
-                      )}
                     </div>
                   </div>
 
@@ -1439,9 +1424,9 @@ export default function UserViewer() {
                               {profile.nameAgency ? (
                                 profile.nameAgency
                               ) : (
-                                <span className="flex items-center gap-1 bg-red-100 text-red-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+                                <span className="flex items-center gap-1 bg-red-100 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded-full">
                                   <FaUserSlash className="w-4 h-4" />
-                                  No tiene agente asignado
+                                  Agent Free
                                 </span>
                               )}
                             </span>

@@ -16,9 +16,9 @@ export const validationRegister = (userRegister: IRegisterUser) => {
     errors.name = "El nombre debe tener entre 3 y 50 caracteres";
   }
 
-  // ✅ Validar apellidos
+  // ✅ Validar apellido
   if (!userRegister.lastname.trim()) {
-    errors.lastname = "Debes ingresar tus apellidos";
+    errors.lastname = "Debes ingresar tus apellido";
   } else if (
     userRegister.lastname.length < 3 ||
     userRegister.lastname.length > 50

@@ -1,12 +1,50 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { DataSource } from 'typeorm';
 import * as bodyParser from 'body-parser';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 
+async function ensureIsVerifiedColumn() {
+  try {
+    const dataSource = new DataSource({
+      type: 'postgres',
+      url: process.env.DATABASE_URL,
+      ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
+    });
+    
+    await dataSource.initialize();
+    
+    // Verificar si la columna existe
+    const result = await dataSource.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'users' AND column_name = 'isVerified'
+    `);
+    
+    if (result.length === 0) {
+      console.log('🔧 Agregando columna isVerified a la tabla users...');
+      await dataSource.query(`
+        ALTER TABLE "users" 
+        ADD COLUMN "isVerified" boolean NOT NULL DEFAULT false
+      `);
+      console.log('✅ Columna isVerified agregada exitosamente');
+    } else {
+      console.log('✅ La columna isVerified ya existe');
+    }
+    
+    await dataSource.destroy();
+  } catch (error) {
+    console.error('❌ Error al verificar/crear columna isVerified:', error);
+  }
+}
+
 async function bootstrap() {
+  // Asegurar que la columna isVerified existe antes de iniciar la app
+  await ensureIsVerifiedColumn();
+
   // Create the application with logging
   const app = await NestFactory.create(AppModule, {
     logger: ['error', 'warn', 'log', 'debug', 'verbose'],
@@ -19,9 +57,7 @@ async function bootstrap() {
   const allowedOrigins = [
     'http://localhost:3000',  // Development frontend
     'http://localhost:3001',  // Possible alternate port
-    'https://futbolink.vercel.app',
-    'https://futbolink.it',
-    'https://www.futbolink.it',  // Include www subdomain
+    'https://futbolink.vercel.app', // Include www subdomain
     'https://futbolink.net',     // New domain
     'https://www.futbolink.net'  // Include www subdomain for new domain
     //   // Production frontend

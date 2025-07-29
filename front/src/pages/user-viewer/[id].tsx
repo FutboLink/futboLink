@@ -1102,7 +1102,6 @@ export default function UserViewer() {
                       </div>
                     </div>
                   </div>
-
                   <div className="space-y-2">
                     <div className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
                       <div className="flex items-center">
@@ -1472,7 +1471,6 @@ export default function UserViewer() {
                       </div>
                     )}
                   </div>
-
                   {/* Sección de video */}
                   {profile.videoUrl && (
                     <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">

@@ -90,7 +90,7 @@ function Contact() {
   };
 
   return (
-    <div className="mt-16 overflow-hidden">
+    <div className="overflow-hidden">
       <Head>
         <title>Contacto - Futbolink</title>
         <meta

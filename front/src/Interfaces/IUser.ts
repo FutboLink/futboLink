@@ -11,16 +11,16 @@ export interface IProfileData {
   id?: string;
   name: string;
   lastname: string;
-  age:string;
+  age: string;
   nameAgency: string;
   email: string;
   password?: string;
-  puesto:string;
+  puesto: string;
   subscriptionType?: string;
   subscription?: string;
   role: UserType;
   imgUrl: string;
-  cv?:string;
+  cv?: string;
   phone: string;
   nationality: string;
   ubicacionActual?: string;
@@ -68,9 +68,9 @@ export enum PasaporteUe {
 export interface IRegisterUser {
   name: string;
   lastname: string;
-  ubicacionActual:string;
+  ubicacionActual: string;
   nameAgency?: string;
-  puesto?:string;
+  puesto?: string;
   email: string;
   password: string;
   role?: UserType;

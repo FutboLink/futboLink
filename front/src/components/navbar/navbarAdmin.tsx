@@ -72,7 +72,7 @@ function NavbarAdmin() {
         <meta name="robots" content="index, follow" />
       </Head>
 
-      <nav className="fixed top-0 left-0 w-full z-50 bg-white shadow-md">
+      <nav className="sticky top-0 left-0 w-full z-50 bg-white shadow-md">
         <section className="flex items-center justify-between py-2 px-4">
           {/* Logo + Menú escritorio */}
           <div className="flex items-center gap-6">

@@ -368,20 +368,24 @@ export default function UserViewer() {
           <meta name="description" content="Gestiona tu perfil en FutboLink" />
         </Head>
         <Navbar />
-        <div className="container mx-auto px-4 pt-16">
-          <div className="flex justify-between items-center mb-6">
-            <button
-              onClick={() => router.back()}
-              className="flex items-center text-gray-600 hover:text-gray-800"
-            >
-              <FaArrowLeft className="mr-2" /> Volver a mi perfil
-            </button>
-            <h1 className="text-2xl font-bold text-center text-gray-800">
+        <div className="container mx-auto px-4 mt-5">
+          <div className="relative flex items-center justify-center py-2">
+            {/* Botón alineado a la izquierda */}
+            <div className="absolute left-0 top-1">
+              <button
+                onClick={() => router.back()}
+                className="flex items-center text-gray-600 hover:text-gray-800"
+              >
+                <FaArrowLeft className="mr-2" /> Volver a mi perfil
+              </button>
+            </div>
+
+            {/* Título centrado con margen superior */}
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mt-8 text-center">
               Editar Mi Perfil
             </h1>
-            <div className="w-24"></div>{" "}
-            {/* Espacio para equilibrar el diseño */}
           </div>
+
           <ProfileUser />
         </div>
       </div>
@@ -405,7 +409,7 @@ export default function UserViewer() {
 
   // Renderizar el perfil
   return (
-    <div className="min-h-screen bg-white mt-32 text-gray-800">
+    <div className="min-h-screen bg-white text-gray-800">
       <Head>
         <title>
           {isOwnProfile ? "Mi Perfil" : `${profile.name} ${profile.lastname}`} -
@@ -422,8 +426,8 @@ export default function UserViewer() {
 
       <Navbar />
 
-      {/* Powered by logo - Fixed debajo de navbar */}
-      <div className="fixed top-20 left-0 right-0 z-40 bg-white shadow-sm py-1">
+      {/* Powered by logo - sticky debajo de navbar */}
+      <div className="sticky top-20 left-0 right-0 z-40 bg-white shadow-sm py-1">
         <div className="flex justify-center items-center">
           <span className="text-xs text-gray-400 mr-2">Powered by</span>
           <Link href="/">
@@ -439,7 +443,7 @@ export default function UserViewer() {
       </div>
 
       {/* Contenido principal - Ajustado para tener en cuenta la navbar y el powered by */}
-      <div className="pt-1 mt-24 container mx-auto px-4 md:px-8 lg:px-12 xl:px-24">
+      <div className="pt-1 mt-4 container mx-auto px-4 md:px-8 lg:px-12 xl:px-24">
         {/* Botón de edición (solo visible si es el propio perfil) */}
         {isOwnProfile && (
           <div className="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-3 mb-4">
@@ -500,7 +504,9 @@ export default function UserViewer() {
                   <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-200 shadow-md">
                     <Image
                       src={
-                        profile.imgUrl || getDefaultPlayerImage(profile.genre)
+                        user?.imgUrl ||
+                        profile.imgUrl ||
+                        getDefaultPlayerImage(profile.genre)
                       }
                       alt={`${profile.name} ${profile.lastname}`}
                       width={64}
@@ -1129,7 +1135,6 @@ export default function UserViewer() {
                       </div>
                     </div>
                   </div>
-
                   <div className="space-y-2">
                     <div className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
                       <div className="flex items-center">
@@ -1358,39 +1363,31 @@ export default function UserViewer() {
                           <span className="ml-2">{profile.nationality}</span>
                         </span>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
                         <span className="text-gray-600">
                           País de Residencia
                         </span>
-                        <span className="flex items-center text-gray-800">
-                          {profile.ubicacionActual &&
-                            renderCountryFlag(profile.ubicacionActual)}
-                          <span className="ml-2">
-                            {profile.ubicacionActual}
-                            {profile.location && `, ${profile.location}`}
+
+                        <span className="flex flex-wrap items-start sm:items-center text-gray-800 text-right sm:text-left sm:justify-end">
+                          <span className="flex items-center flex-shrink-0 gap-x-1">
+                            {profile.ubicacionActual &&
+                              renderCountryFlag(profile.ubicacionActual)}
+                            <span>{profile.ubicacionActual},</span>
                           </span>
+
+                          {profile.location && (
+                            <span className="ml-1 break-words sm:whitespace-nowrap">
+                              {profile.location}
+                            </span>
+                          )}
                         </span>
                       </div>
+
                       {profile.pasaporteUe && (
                         <div className="flex justify-between">
                           <span className="text-gray-600">Pasaporte UE</span>
                           <span className="text-gray-800">
                             {profile.pasaporteUe}
-                          </span>
-                        </div>
-                      )}
-                      {profile.role === UserType.PLAYER && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-600">Agente</span>
-                          <span className="flex items-center gap-1 text-gray-800">
-                            {profile.nameAgency ? (
-                              profile.nameAgency
-                            ) : (
-                              <span className="flex items-center gap-1 bg-red-100 text-red-700 text-xs font-semibold px-2 py-0.5 rounded-full">
-                                <FaUserSlash className="w-4 h-4" />
-                                No tiene agente asignado
-                              </span>
-                            )}
                           </span>
                         </div>
                       )}
@@ -1459,6 +1456,22 @@ export default function UserViewer() {
                             className="text-base text-gray-800"
                           />
                         </div>
+
+                        {profile.role === UserType.PLAYER && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Agente</span>
+                            <span className="flex items-center gap-1 text-gray-800">
+                              {profile.nameAgency ? (
+                                profile.nameAgency
+                              ) : (
+                                <span className="flex items-center gap-1 bg-red-100 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+                                  <FaUserSlash className="w-4 h-4" />
+                                  Free Agent
+                                </span>
+                              )}
+                            </span>
+                          </div>
+                        )}
                         {/* Campo de agente movido a una sección destacada arriba */}
                         {profile.socialMedia &&
                           Object.keys(profile.socialMedia || {}).length > 0 && (
@@ -1493,7 +1506,6 @@ export default function UserViewer() {
                       </div>
                     )}
                   </div>
-
                   {/* Sección de video */}
                   {profile.videoUrl && (
                     <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">

@@ -17,24 +17,24 @@ const NoticeSection = () => {
     try {
       const response = await getNews(pageNumber);
       if (response.length < 8) setHasMore(false);
-      
+
       // Agregamos nuevas noticias al array existente, eliminamos duplicados y ordenamos
       setNews((prev) => {
         // Invertimos primero la respuesta para asegurar que las más recientes estén primero
         const reversedResponse = [...response].reverse();
-        
+
         // Combinamos noticias previas y nuevas (ya invertidas)
         const allNews = [...prev, ...reversedResponse];
-        
+
         // Eliminamos duplicados usando un Map con id como clave
         const uniqueNewsMap = new Map();
-        allNews.forEach(item => {
+        allNews.forEach((item) => {
           uniqueNewsMap.set(item.id, item);
         });
-        
+
         // Convertimos de vuelta a array
         const uniqueNews = Array.from(uniqueNewsMap.values());
-        
+
         return uniqueNews;
       });
     } catch {
@@ -53,7 +53,7 @@ const NoticeSection = () => {
   };
 
   return (
-    <section className="relative z-10 bg-gray-100 mt-12 p-4 pt-[4rem] sm:p-6 sm:pt-[4rem] lg:p-12">
+    <section className="relative z-10 bg-gray-100 p-4 pt-[4rem] sm:p-6 sm:pt-[4rem] lg:p-12">
       <h1 className="bg-gradient-to-r from-green-400 via-green-500 to-green-600 text-white text-[1.8rem] p-2 font-semibold text-center mb-[4rem]">
         ÚLTIMAS NOTICIAS
       </h1>

@@ -27,7 +27,7 @@ export default function ContactoPage() {
 
       <Navbar />
 
-      <div className="mt-16 overflow-hidden">
+      <div className="overflow-hidden">
         <section
           className="bg-gray-100 py-8 sm:py-12"
           data-aos="fade-up"

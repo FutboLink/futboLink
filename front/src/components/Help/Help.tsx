@@ -180,7 +180,7 @@ const HelpPage = () => {
   }
 
   return (
-    <div className="mt-12 p-4 py-[4rem] bg-gray-100 sm:p-6 sm:py-[4rem] lg:p-12 lg:pb-16">
+    <div className="p-4 py-[4rem] bg-gray-100 sm:p-6 sm:py-[4rem] lg:p-12 lg:pb-16">
       <h1 className="bg-gradient-to-r from-green-400 via-green-500 to-green-600 text-white text-[1.8rem] p-2 font-semibold text-center">
         Preguntas Frecuentes (FAQs) - FutboLink
       </h1>

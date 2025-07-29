@@ -119,7 +119,7 @@ const ManagerForm: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col mt-12 items-center justify-center bg-gray-100 py-10 px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 py-10 px-4">
       <div className="text-center mb-6">
         <h2 className="text-2xl sm:text-3xl font-bold bg-white text-verde-oscuro border-verde-oscuro border-2 rounded-lg p-2">
           Crea una cuenta

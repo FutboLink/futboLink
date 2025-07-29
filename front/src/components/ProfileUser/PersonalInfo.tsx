@@ -8,12 +8,18 @@ import {
 import { UserContext } from "../Context/UserContext";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
 import useNationalities from "../Forms/FormUser/useNationalitys";
-import ImageUpload from "../Cloudinary/ImageUpload";
-import Image from "next/image";
+import ImageUploadwithCrop from "../Cloudinary/ImageUploadWithCrop";
 import PhoneNumberInput from "../utils/PhoneNumberInput";
+import {
+  FaTwitter,
+  FaYoutube,
+  FaFutbol,
+  FaChevronUp,
+  FaChevronDown,
+} from "react-icons/fa";
 
 const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
-  const { token } = useContext(UserContext);
+  const { token, setUser } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fetchedProfileData, setFetchedProfileData] =
@@ -22,6 +28,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const [notificationMessage, setNotificationMessage] = useState("");
   const [showErrorNotification, setShowErrorNotification] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showSocials, setShowSocials] = useState(false);
 
   // Nationality related state
   const {
@@ -71,11 +78,27 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           },
         });
       } else {
-        // Actualizar propiedades principales que no están dentro de socialMedia
-        setFetchedProfileData({
+        const updatedData: IProfileData = {
           ...fetchedProfileData,
           [name]: value, // Guardar directamente en el campo correspondiente del objeto principal
-        });
+        };
+
+        // Si cambia la fecha de nacimiento, calcular edad
+        if (name === "birthday") {
+          const birthDate = new Date(value);
+          const today = new Date();
+          let age = today.getFullYear() - birthDate.getFullYear();
+          const monthDiff = today.getMonth() - birthDate.getMonth();
+          if (
+            monthDiff < 0 ||
+            (monthDiff === 0 && today.getDate() < birthDate.getDate())
+          ) {
+            age--;
+          }
+          updatedData.age = age.toString();
+        }
+
+        setFetchedProfileData(updatedData);
       }
     }
   };
@@ -90,13 +113,17 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   // Handle form submission
   const handleSubmit = async () => {
     if (!token || !fetchedProfileData) return;
-
     setLoading(true);
     setError(null);
-
     try {
       const userId = JSON.parse(atob(token.split(".")[1])).id;
       await updateUserData(userId, fetchedProfileData);
+
+      setUser((prevUser) => ({
+        ...prevUser!,
+        ...fetchedProfileData, // Actualizar la informacion del estado global (imagen,datos,etc)
+      }));
+
       setNotificationMessage("Datos actualizados correctamente");
       setShowNotification(true);
     } catch (error) {
@@ -112,8 +139,6 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
 
   return (
     <div className="p-2 border border-gray-300 shadow-sm rounded-lg">
-      {" "}
-      {/* Reducir padding */}
       <h2 className="text-sm font-semibold mt-2 text-center p-2 bg-gray-100 text-gray-700">
         Información Personal
       </h2>
@@ -123,62 +148,54 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
         <p className="text-red-600">{error}</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
-          {" "}
-          {/* Reducir gap entre los inputs */}
+          {/* Imagen de perfil (URL) */}
+          <div className="sm:col-span-2 flex flex-col items-center">
+            <ImageUploadwithCrop
+              initialImage={fetchedProfileData?.imgUrl}
+              onUpload={handleImageUpload}
+              onRemove={() =>
+                setFetchedProfileData((prev) => ({ ...prev!, imgUrl: "" }))
+              }
+            />
+          </div>
+
           {/* Name */}
-          <div className="flex flex-col">
-            <input
-              name="name"
-              type="text"
-              value={fetchedProfileData?.name || ""}
-              readOnly
-              placeholder="Nombre"
-              className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
-            />
-          </div>
-          {/* Last Name */}
-          <div className="flex flex-col">
-            <input
-              name="lastname"
-              type="text"
-              value={fetchedProfileData?.lastname || ""}
-              readOnly
-              placeholder="Apellido"
-              className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
-            />
-          </div>
+          <input
+            name="name"
+            type="text"
+            value={fetchedProfileData?.name || ""}
+            readOnly
+            placeholder="Nombre"
+            className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
+          />
+
+          {/* Last name */}
+          <input
+            name="lastname"
+            type="text"
+            value={fetchedProfileData?.lastname || ""}
+            readOnly
+            placeholder="Apellido"
+            className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
+          />
+
           {/* Email */}
-          <div className="flex flex-col">
+          <div className="flex flex-col sm:col-span-2">
+            <label className="text-gray-700 font-semibold text-sm">
+              Email:
+            </label>
             <input
               name="email"
               type="email"
               value={fetchedProfileData?.email || ""}
               readOnly
-              placeholder="Apellido"
-              className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
+              placeholder="Email"
+              className="w-full p-1.5 border rounded mt-2 text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
             />
           </div>
-          {/* Imagen de perfil (URL) */}
-          <div className="sm:col-span-2 flex flex-col items-center">
-            <label className="text-gray-700 font-semibold mb-2">
-              Subir Imagen
-            </label>
-            <ImageUpload onUpload={handleImageUpload} />
-            {/* Aquí se mostrará la imagen de perfil si existe */}
-            {fetchedProfileData?.imgUrl && (
-              <div className="mt-4 rounded-full w-24 h-24 overflow-hidden">
-                <Image
-                  src={fetchedProfileData.imgUrl}
-                  alt="Imagen de perfil"
-                  width={96}
-                  height={96}
-                  className="object-cover"
-                />
-              </div>
-            )}
-          </div>
+
           {/* Nationality Selector - Fixed version */}
-          <div className="flex flex-col">
+          <div className="flex flex-col sm:col-span-2">
             <label className="text-gray-700 font-semibold text-sm">
               Nacionalidad:
             </label>
@@ -194,7 +211,6 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                 value={fetchedProfileData?.nationality || ""}
                 onChange={handleChange}
                 className="w-full p-2 border mt-2 rounded text-gray-700 focus:outline-none"
-                size={1}
               >
                 <option value="">Seleccione su nacionalidad</option>
                 {nationalities &&
@@ -207,20 +223,8 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               </select>
             )}
           </div>
-          {/* Location */}
-          <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold text-sm">
-              Ciudad:
-            </label>
-            <input
-              name="location"
-              type="text"
-              value={fetchedProfileData?.location || ""}
-              onChange={handleChange}
-              placeholder="Ubicación"
-              className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
-            />
-          </div>
+
+          {/* País de residencia */}
           <div className="flex flex-col">
             <label className="text-gray-700 font-semibold text-sm">
               País de Residencia:
@@ -234,28 +238,46 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
             />
           </div>
-          {/* Phone */}
-          <PhoneNumberInput
-            mode="edit"
-            name="phone"
-            label="Teléfono:"
-            value={fetchedProfileData?.phone}
-            onChange={handleChange}
-            className="w-full p-1.5 border mt-0 rounded text-gray-700 focus:outline-none"
-          />
-          {/* Agente o Representante */}
+
+          {/* Location */}
           <div className="flex flex-col">
             <label className="text-gray-700 font-semibold text-sm">
-              Agente o Representante:
+              Ciudad:
             </label>
             <input
-              name="nameAgency"
+              name="location"
               type="text"
-              value={fetchedProfileData?.nameAgency || ""}
+              value={fetchedProfileData?.location || ""}
               onChange={handleChange}
-              placeholder="Nombre del agente o representante"
-              className="w-full p-1.5 border mt-2 rounded text-gray-700 focus:outline-none"
+              placeholder="Ciudad"
+              className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
             />
+          </div>
+
+          {/* Phone */}
+          <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <PhoneNumberInput
+              mode="edit"
+              name="phone"
+              label="Teléfono:"
+              value={fetchedProfileData?.phone}
+              onChange={handleChange}
+              className="p-1.5 border rounded text-gray-700 focus:outline-none"
+            />
+            {/* Agente o Representante */}
+            <div className="flex flex-col">
+              <label className="text-gray-700 font-semibold text-sm">
+                Agente o Representante:
+              </label>
+              <input
+                name="nameAgency"
+                type="text"
+                value={fetchedProfileData?.nameAgency || ""}
+                onChange={handleChange}
+                placeholder="Nombre del agente o representante"
+                className="p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
+              />
+            </div>
           </div>
           {/* Gender */}
           <div className="flex flex-col">
@@ -274,73 +296,106 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               <option value="Otro">Otro</option>
             </select>
           </div>
+
           {/* Birthdate */}
-          <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold text-sm">
-              Fecha de nacimiento:
-            </label>
-            <input
-              name="birthday"
-              type="date"
-              value={fetchedProfileData?.birthday || ""}
-              onChange={handleChange}
-              className="w-full p-1.5 border rounded mt-2 text-gray-400 focus:outline-none"
-            />
+          <div className="flex flex-col sm:flex-row sm:gap-4 sm:col-span-2">
+            <div className="flex flex-col w-full sm:w-1/2">
+              <label className="text-gray-700 font-semibold text-sm">
+                Fecha de nacimiento:
+              </label>
+              <input
+                name="birthday"
+                type="date"
+                value={fetchedProfileData?.birthday || ""}
+                max={new Date().toISOString().split("T")[0]} // No permite fechas futuras
+                onChange={handleChange}
+                className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
+              />
+            </div>
+
+            {/* Age (calculada automáticamente) */}
+            <div className="flex flex-col w-full sm:w-1/2 mt-2 sm:mt-0">
+              <label className="text-gray-700 font-semibold text-sm">
+                Edad:
+              </label>
+              <input
+                name="age"
+                type="text"
+                value={fetchedProfileData?.age || ""}
+                readOnly
+                className="w-full p-1.5 border rounded mt-2 text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
+              />
+            </div>
           </div>
-          {/* Age */}
-          <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold text-sm">Edad:</label>
-            <input
-              name="age"
-              type="text"
-              value={fetchedProfileData?.age || ""}
-              onChange={handleChange}
-              placeholder="Edad"
-              className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
-            />
+
+          {/* Toggle redes sociales */}
+          <div className="sm:col-span-2">
+            <button
+              type="button"
+              onClick={() => setShowSocials(!showSocials)}
+              className="flex items-center justify-between w-full text-sm font-medium py-2 px-3 rounded bg-verde-claro  hover:bg-verde text-white transition-all duration-300 ease-in-out"
+            >
+              {showSocials
+                ? "Ocultar redes sociales"
+                : "Agregar redes sociales / enlaces"}
+              <span
+                className={`transition-transform duration-300 ${
+                  showSocials ? "rotate-180" : "rotate-0"
+                }`}
+              >
+                {showSocials ? <FaChevronUp /> : <FaChevronDown />}
+              </span>
+            </button>
           </div>
-          {/* Transfermarkt */}
-          <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold text-sm pl-2">
-              Transfermarkt:
-            </label>
-            <input
-              type="text"
-              name="transfermarkt"
-              value={fetchedProfileData?.socialMedia?.transfermarkt || ""}
-              onChange={handleChange}
-              placeholder="link de Transfermarkt"
-              className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
-            />
-          </div>
-          {/* X*/}
-          <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold text-sm pl-2">
-              X:
-            </label>
-            <input
-              type="text"
-              name="x"
-              value={fetchedProfileData?.socialMedia?.x || ""}
-              onChange={handleChange}
-              placeholder="link de X"
-              className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
-            />
-          </div>
-          {/* Youtube*/}
-          <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold text-sm pl-2">
-              Youtube:
-            </label>
-            <input
-              type="text"
-              name="videoUrl"
-              value={fetchedProfileData?.videoUrl || ""}
-              onChange={handleChange}
-              placeholder="link de Youtube"
-              className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
-            />
-          </div>
+
+          {showSocials && (
+            <div className="sm:col-span-2 bg-verde-claro/10 border border-verde-claro p-3 rounded shadow-inner transition-all duration-300 ease-in-out">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {/* Transfermarkt */}
+                <div className="flex flex-col">
+                  <label className="text-gray-700 font-semibold text-sm flex items-center gap-1">
+                    <FaFutbol className="text-blue-700" /> Transfermarkt:
+                  </label>
+                  <input
+                    type="text"
+                    name="transfermarkt"
+                    value={fetchedProfileData?.socialMedia?.transfermarkt || ""}
+                    onChange={handleChange}
+                    placeholder="link de Transfermarkt"
+                    className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
+                  />
+                </div>
+                {/* X */}
+                <div className="flex flex-col">
+                  <label className="text-gray-700 font-semibold text-sm flex items-center gap-1">
+                    <FaTwitter className="text-blue-500" /> X:
+                  </label>
+                  <input
+                    type="text"
+                    name="x"
+                    value={fetchedProfileData?.socialMedia?.x || ""}
+                    onChange={handleChange}
+                    placeholder="link de X"
+                    className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
+                  />
+                </div>
+                {/* Youtube*/}
+                <div className="flex flex-col md:col-span-2">
+                  <label className="text-gray-700 font-semibold text-sm flex items-center gap-1">
+                    <FaYoutube className="text-red-600" /> Youtube:
+                  </label>
+                  <input
+                    type="text"
+                    name="videoUrl"
+                    value={fetchedProfileData?.videoUrl || ""}
+                    onChange={handleChange}
+                    placeholder="link de Youtube"
+                    className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
       {/* Save Button */}
@@ -366,4 +421,5 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
     </div>
   );
 };
+
 export default PersonalInfo;

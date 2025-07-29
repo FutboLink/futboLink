@@ -118,12 +118,26 @@ const ManagerForm: React.FC = () => {
           general: "Registro inválido. Por favor, revisa los datos ingresados.",
         });
       }
-    } catch (error) {
-      setErrorMessage(
-        error instanceof Error ? error.message : "Error desconocido."
-      );
-      setShowErrorNotification(true);
-      setTimeout(() => setShowErrorNotification(false), 3000);
+    } catch (error: any) {
+      // Intenta parsear el error del backend
+      const message =
+        error?.response?.data?.message ||
+        error.message ||
+        "Ocurrió un error inesperado.";
+
+      if (
+        message.toLowerCase().includes("email") &&
+        message.toLowerCase().includes("already")
+      ) {
+        setErrors((prev) => ({
+          ...prev,
+          email: "Este correo ya está registrado",
+        }));
+      } else {
+        setErrorMessage(message);
+        setShowErrorNotification(true);
+        setTimeout(() => setShowErrorNotification(false), 3000);
+      }
     }
   };
 

@@ -81,6 +81,13 @@ const RegistrationForm: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showErrorNotification, setShowErrorNotification] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
+
+  const handleBlur = (
+    e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    setTouched({ ...touched, [e.target.name]: true });
+  };
 
   // Maneja el cambio en el campo de búsqueda
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -162,12 +169,26 @@ const RegistrationForm: React.FC = () => {
           general: "Registro inválido. Por favor, revisa los datos ingresados.",
         });
       }
-    } catch (error) {
-      setErrorMessage(
-        error instanceof Error ? error.message : "Error desconocido."
-      );
-      setShowErrorNotification(true);
-      setTimeout(() => setShowErrorNotification(false), 3000);
+    } catch (error: any) {
+      // Intenta parsear el error del backend
+      const message =
+        error?.response?.data?.message ||
+        error.message ||
+        "Ocurrió un error inesperado.";
+
+      if (
+        message.toLowerCase().includes("email") &&
+        message.toLowerCase().includes("already")
+      ) {
+        setErrors((prev) => ({
+          ...prev,
+          email: "Este correo ya está registrado",
+        }));
+      } else {
+        setErrorMessage(message);
+        setShowErrorNotification(true);
+        setTimeout(() => setShowErrorNotification(false), 3000);
+      }
     }
   };
 
@@ -215,11 +236,12 @@ const RegistrationForm: React.FC = () => {
             type="text"
             name="name"
             value={userRegister.name}
+            onBlur={handleBlur}
             onChange={handleChange}
             className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
-          {errors.name && (
+          {touched.name && errors.name && (
             <p className="text-red-500 text-sm mt-1">{errors.name}</p>
           )}
         </div>
@@ -232,12 +254,13 @@ const RegistrationForm: React.FC = () => {
           <input
             type="text"
             name="lastname"
+            onBlur={handleBlur}
             value={userRegister.lastname}
             onChange={handleChange}
             className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
-          {errors.lastname && (
+          {touched.lastname && errors.lastname && (
             <p className="text-red-500 text-sm mt-1">{errors.lastname}</p>
           )}
         </div>
@@ -251,11 +274,12 @@ const RegistrationForm: React.FC = () => {
             type="email"
             name="email"
             value={userRegister.email}
+            onBlur={handleBlur}
             onChange={handleChange}
             className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
-          {errors.email && (
+          {touched.email && errors.email && (
             <p className="text-red-500 text-sm mt-1">{errors.email}</p>
           )}
         </div>
@@ -363,11 +387,12 @@ const RegistrationForm: React.FC = () => {
             type="password"
             name="password"
             value={userRegister.password}
+            onBlur={handleBlur}
             onChange={handleChange}
             className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
-          {errors.password && (
+          {touched.password && errors.password && (
             <p className="text-red-500 text-sm mt-1">{errors.password}</p>
           )}
         </div>
@@ -381,11 +406,12 @@ const RegistrationForm: React.FC = () => {
             type="password"
             name="confirmPassword"
             value={userRegister.confirmPassword}
+            onBlur={handleBlur}
             onChange={handleChange}
             className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
-          {errors.confirmPassword && (
+          {touched.confirmPassword && errors.confirmPassword && (
             <p className="text-red-500 text-sm mt-1">
               {errors.confirmPassword}
             </p>

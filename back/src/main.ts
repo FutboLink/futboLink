@@ -19,9 +19,7 @@ async function bootstrap() {
   const allowedOrigins = [
     'http://localhost:3000',  // Development frontend
     'http://localhost:3001',  // Possible alternate port
-    'https://futbolink.vercel.app',
-    'https://futbolink.it',
-    'https://www.futbolink.it',  // Include www subdomain
+    'https://futbolink.vercel.app', // Include www subdomain
     'https://futbolink.net',     // New domain
     'https://www.futbolink.net'  // Include www subdomain for new domain
     //   // Production frontend

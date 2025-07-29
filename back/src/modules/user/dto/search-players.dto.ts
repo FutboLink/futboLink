@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, IsInt, Min, Max } from 'class-validator';
+import { IsOptional, IsString, IsInt, Min, Max, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
+import { PasaporteUe } from '../roles.enum';
 
 export class SearchPlayersDto {
   @ApiProperty({ 
@@ -82,6 +83,18 @@ export class SearchPlayersDto {
   @IsOptional()
   @IsString()
   skillfulFoot?: string;
+
+  @ApiProperty({ 
+    description: '¿Tiene pasaporte de la UE?', 
+    required: false,
+    enum: PasaporteUe,
+    enumName: 'PasaporteUe',
+    example: 'Si'
+  })
+  @IsOptional()
+  @IsEnum(PasaporteUe, { message: 'pasaporteUe must be either "Si" or "No"' })
+  @Type(() => String)
+  pasaporteUe?: PasaporteUe;
 
   @ApiProperty({ 
     description: 'Número de resultados por página', 

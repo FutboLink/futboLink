@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { UserContext } from "@/components/Context/UserContext";
@@ -9,7 +8,24 @@ import { useRouter } from "next/navigation";
 import React, { useState, useContext, useRef } from "react";
 import useNationalities from "./useNationalitys";
 import FormsTermins from "@/components/formsTermins/formsTermins";
-import { FaChevronDown } from "react-icons/fa";
+import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
+import Image from "next/image";
+import {
+  FaChevronDown,
+  FaEye,
+  FaEyeSlash,
+  FaUser,
+  FaUsers,
+  FaEnvelope,
+  FaGlobeAmericas,
+  FaPhone,
+  FaVenusMars,
+  FaLock,
+  FaCheckCircle,
+  FaExclamationCircle,
+  FaSpinner,
+  FaBriefcase,
+} from "react-icons/fa";
 
 const RegistrationForm: React.FC = () => {
   const { signUp } = useContext(UserContext);
@@ -24,6 +40,8 @@ const RegistrationForm: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false); // Nacionalidad seleccionada
   const [showTerms, setShowTerms] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const puestos = [
     "Jugador",
     "Entrenador",
@@ -74,12 +92,22 @@ const RegistrationForm: React.FC = () => {
     password: "",
     confirmPassword: "",
     termsAccepted: false,
+    phone: "",
   });
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showErrorNotification, setShowErrorNotification] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const handleBlur = (
+    e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    setTouched({ ...touched, [e.target.name]: true });
+  };
 
   // Maneja el cambio en el campo de búsqueda
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -138,6 +166,7 @@ const RegistrationForm: React.FC = () => {
       genre: userRegister.genre || "",
       puesto: userRegister.puesto || "",
       nameAgency: userRegister.nameAgency || "",
+      phone: userRegister.phone || "",
     };
 
     // Log what we're sending
@@ -160,139 +189,238 @@ const RegistrationForm: React.FC = () => {
           general: "Registro inválido. Por favor, revisa los datos ingresados.",
         });
       }
-    } catch (error) {
-      setErrorMessage(
-        error instanceof Error ? error.message : "Error desconocido."
-      );
-      setShowErrorNotification(true);
-      setTimeout(() => setShowErrorNotification(false), 3000);
+    } catch (error: any) {
+      // Intenta parsear el error del backend
+      const message =
+        error?.response?.data?.message ||
+        error.message ||
+        "Ocurrió un error inesperado.";
+
+      if (
+        message.toLowerCase().includes("email") &&
+        message.toLowerCase().includes("already")
+      ) {
+        setErrors((prev) => ({
+          ...prev,
+          email: "Este correo ya está registrado",
+        }));
+      } else {
+        setErrorMessage(message);
+        setShowErrorNotification(true);
+        setTimeout(() => setShowErrorNotification(false), 3000);
+      }
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 py-10 px-4">
-      <div className="text-center mb-6">
-        <h2 className="text-3xl font-bold mb-4 bg-white text-green-600 border-green-600 border-2 rounded-lg p-2">
-          Crea una cuenta
-        </h2>
-        <p className="text-sm text-gray-500">
-          ¡Regístrate ahora y empieza a explorar las oportunidades laborales en
-          el fútbol!
-        </p>
-      </div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 py-10 px-4">
+      <header className="text-center mb-8 w-full max-w-3xl">
+        <div className="inline-block mb-6">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl px-8 py-4 shadow-lg">
+            Crea una cuenta
+          </h1>
+        </div>
+
+        <div className="flex flex-col md:flex-row items-center justify-center bg-white rounded-xl shadow-lg p-6 gap-6 border border-emerald-100">
+          <div className="flex-shrink-0 bg-gradient-to-br from-emerald-50 to-green-50 p-3 rounded-2xl shadow-inner">
+            <Image
+              src="/logoD.png"
+              height={60}
+              width={60}
+              alt="FutboLink logo"
+              className="rounded-2xl"
+            />
+          </div>
+
+          <div className="text-center md:text-left">
+            <h2 className="text-2xl font-bold text-emerald-800">
+              Registro para Jugadores y Profesionales
+            </h2>
+            <p className="text-gray-600 mt-2">
+              ¡Regístrate ahora y empieza a explorar oportunidades laborales en
+              el fútbol!
+            </p>
+            <p className="text-sm text-emerald-500 font-medium mt-2">
+              Unite a la comunidad de Futbolink
+            </p>
+          </div>
+        </div>
+      </header>
 
       <form
-        className="bg-white p-8 rounded-lg shadow-lg w-full max-w-3xl flex flex-col gap-6 relative"
+        className="bg-white p-6 md:p-8 rounded-xl shadow-lg w-full max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-6 border border-emerald-50"
         onSubmit={handleSubmit}
       >
+        {/* Sección de información profesional */}
+        <div className="md:col-span-2">
+          <h3 className="text-xl font-semibold text-emerald-700 border-b pb-2 mb-4 flex items-center">
+            <span className="bg-emerald-100 text-emerald-700 rounded-full w-6 h-6 flex items-center justify-center mr-2 text-sm">
+              1
+            </span>
+            Información Profesional
+          </h3>
+        </div>
+
         {/* Rol */}
-        <div className="flex flex-col mb-4">
-          <label className="block text-gray-700 mb-2">Rol:</label>
-          <select
-            name="puesto"
-            value={userRegister.puesto}
-            onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option className="text-gray-700" value="">
-              Seleccione su rol
-            </option>
-            {puestos.map((puesto, index) => (
-              <option key={index} value={puesto}>
-                {puesto}
-              </option>
-            ))}
-          </select>
+        <div className="flex flex-col col-span-full">
+          <label className="block text-gray-700 mb-2 font-medium">
+            Rol <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <select
+              name="puesto"
+              value={userRegister.puesto}
+              onChange={handleChange}
+              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent appearance-none"
+            >
+              <option value="">Seleccione su rol</option>
+              {puestos.map((puesto, index) => (
+                <option key={index} value={puesto}>
+                  {puesto}
+                </option>
+              ))}
+            </select>
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaBriefcase className="h-5 w-5 text-gray-400" />
+            </div>
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+              <FaChevronDown className="text-gray-500" />
+            </div>
+          </div>
+        </div>
+
+        {/* Sección de información personal */}
+        <div className="md:col-span-2 mt-4">
+          <h3 className="text-xl font-semibold text-emerald-700 border-b pb-2 mb-4 flex items-center">
+            <span className="bg-emerald-100 text-emerald-700 rounded-full w-6 h-6 flex items-center justify-center mr-2 text-sm">
+              2
+            </span>
+            Información Personal
+          </h3>
         </div>
 
         {/* Nombre */}
-        <div className="flex flex-col mb-4">
-          <label className="block text-gray-700 mb-2">
+        <div className="flex flex-col">
+          <label className="block text-gray-700 mb-2 font-medium">
             Nombre <span className="text-red-500">*</span>
           </label>
-          <input
-            type="text"
-            name="name"
-            value={userRegister.name}
-            onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
-            required
-          />
-          {errors.name && (
-            <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+          <div className="relative">
+            <input
+              type="text"
+              name="name"
+              value={userRegister.name}
+              onBlur={handleBlur}
+              onChange={handleChange}
+              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              placeholder="Tu nombre"
+              required
+            />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaUser className="h-5 w-5 text-gray-400" />
+            </div>
+          </div>
+          {touched.name && errors.name && (
+            <p className="text-red-500 text-sm mt-1 flex items-center">
+              <FaExclamationCircle className="h-4 w-4 mr-1" />
+              {errors.name}
+            </p>
           )}
         </div>
 
         {/* Apellidos */}
-        <div className="flex flex-col mb-4">
-          <label className="block text-gray-700 mb-2">
-            Apellidos <span className="text-red-500">*</span>
+        <div className="flex flex-col">
+          <label className="block text-gray-700 mb-2 font-medium">
+            Apellido <span className="text-red-500">*</span>
           </label>
-          <input
-            type="text"
-            name="lastname"
-            value={userRegister.lastname}
-            onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
-            required
-          />
-          {errors.lastname && (
-            <p className="text-red-500 text-sm mt-1">{errors.lastname}</p>
+          <div className="relative">
+            <input
+              type="text"
+              name="lastname"
+              value={userRegister.lastname}
+              onBlur={handleBlur}
+              onChange={handleChange}
+              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              placeholder="Tu apellido"
+              required
+            />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaUsers className="h-5 w-5 text-gray-400" />
+            </div>
+          </div>
+          {touched.lastname && errors.lastname && (
+            <p className="text-red-500 text-sm mt-1 flex items-center">
+              <FaExclamationCircle className="h-4 w-4 mr-1" />
+              {errors.lastname}
+            </p>
           )}
         </div>
 
         {/* Email */}
-        <div className="flex flex-col mb-4">
-          <label className="block text-gray-700 mb-2">
+        <div className="flex flex-col">
+          <label className="block text-gray-700 mb-2 font-medium">
             Email <span className="text-red-500">*</span>
           </label>
-          <input
-            type="email"
-            name="email"
-            value={userRegister.email}
-            onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
-            required
-          />
-          {errors.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+          <div className="relative">
+            <input
+              type="email"
+              name="email"
+              value={userRegister.email}
+              onBlur={handleBlur}
+              onChange={handleChange}
+              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              placeholder="tu@email.com"
+              required
+            />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaEnvelope className="h-5 w-5 text-gray-400" />
+            </div>
+          </div>
+          {touched.email && errors.email && (
+            <p className="text-red-500 text-sm mt-1 flex items-center">
+              <FaExclamationCircle className="h-4 w-4 mr-1" />
+              {errors.email}
+            </p>
           )}
         </div>
-        <div className="relative flex flex-col" ref={dropdownRef}>
-          {/* Nacionalidad (Búsqueda y Selección en un solo input) */}
+
+        {/* Nacionalidad */}
+        <div className="flex flex-col relative" ref={dropdownRef}>
           <label
             htmlFor="nationalitySearch"
-            className="block text-gray-700 mb-2"
+            className="block text-gray-700 mb-2 font-medium"
           >
             Nacionalidad <span className="text-red-500">*</span>
           </label>
-
           <div className="relative w-full">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaGlobeAmericas className="h-5 w-5 text-gray-400" />
+            </div>
             <input
               type="text"
               id="nationalitySearch"
               value={search || selectedNationality}
               onChange={(e) => {
                 setSearch(e.target.value);
-                setSelectedNationality(""); // Limpiar selección si se tipea
+                setSelectedNationality("");
               }}
               placeholder="Buscar nacionalidad..."
               onClick={toggleDropdown}
-              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3"
+              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
             />
             <FaChevronDown
               className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500 cursor-pointer"
               onClick={toggleDropdown}
             />
-
-            {/* Dropdown de nacionalidades */}
             {isOpen && (
-              <div className="absolute left-0 right-0 mt-2 sm:mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto z-20">
+              <div className="absolute left-0 right-0 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto z-20">
                 {nationalitiesLoading && (
-                  <p className="p-2">Cargando nacionalidades...</p>
+                  <div className="p-3 flex items-center justify-center text-gray-500">
+                    <FaSpinner className="animate-spin h-5 w-5 mr-2 text-emerald-500" />
+                    <span>Cargando nacionalidades...</span>
+                  </div>
                 )}
                 {nationalitiesError && (
-                  <p className="text-red-500 p-2">{nationalitiesError}</p>
+                  <p className="text-red-500 p-3">{nationalitiesError}</p>
                 )}
                 <ul>
                   {nationalities
@@ -302,13 +430,14 @@ const RegistrationForm: React.FC = () => {
                     .map((n) => (
                       <li
                         key={n.value}
-                        className="p-2 cursor-pointer text-gray-700 hover:bg-gray-200"
+                        className="p-3 cursor-pointer text-gray-700 hover:bg-emerald-50 flex items-center"
                         onClick={() => {
                           handleSelectNationality(n.label);
                           setSearch(n.label);
                           setIsOpen(false);
                         }}
                       >
+                        <FaCheckCircle className="h-4 w-4 mr-2 text-emerald-500" />
                         {n.label}
                       </li>
                     ))}
@@ -318,141 +447,225 @@ const RegistrationForm: React.FC = () => {
           </div>
         </div>
 
-        {/* País de Residencia */}
-        <div>
-          <label className="block text-gray-700 mb-1">
-            País de Residencia <span className="text-red-500">*</span>
+        {/* Teléfono */}
+        <div className="flex flex-col">
+          <label className="block text-gray-700 mb-2 font-medium">
+            Teléfono:
           </label>
-          <input
-            type="text"
-            name="ubicacionActual"
-            value={userRegister.ubicacionActual}
-            onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-
-        {/* Agente o Representante */}
-        <div className="flex flex-col mb-4">
-          <label className="block text-gray-700 mb-2">
-            Agente o Representante
-          </label>
-          <input
-            type="text"
-            name="nameAgency"
-            value={userRegister.nameAgency || ""}
-            onChange={handleChange}
-            placeholder="Nombre del agente o representante (opcional)"
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
-          />
+          <div className="relative">
+            <PhoneNumberInput
+              mode="edit"
+              name="phone"
+              label=""
+              value={userRegister?.phone}
+              onChange={handleChange}
+              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            />
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+              <FaPhone className="h-5 w-5 text-gray-400" />
+            </div>
+          </div>
         </div>
 
         {/* Género */}
-        <div className="flex flex-col mb-4">
-          <label className="block text-gray-700 mb-2 hover:cursor-pointer">
+        <div className="flex flex-col">
+          <label className="block text-gray-700 mb-2 font-medium">
             Género <span className="text-red-500">*</span>
           </label>
-          <select
-            name="genre"
-            value={userRegister.genre}
-            onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
-            required
-          >
-            <option value="">Selecciona tu género</option>
-            <option value="Masculino">Masculino</option>
-            <option value="Femenino">Femenino</option>
-            <option value="Otro">Otr@s</option>
-          </select>
+          <div className="relative">
+            <select
+              name="genre"
+              value={userRegister.genre}
+              onChange={handleChange}
+              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent appearance-none"
+              required
+            >
+              <option value="">Selecciona tu género</option>
+              <option value="Masculino">Masculino</option>
+              <option value="Femenino">Femenino</option>
+              <option value="Otro">Otr@s</option>
+            </select>
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaVenusMars className="h-5 w-5 text-gray-400" />
+            </div>
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+              <FaChevronDown className="text-gray-500" />
+            </div>
+          </div>
           {errors.genre && (
-            <p className="text-red-500 text-sm mt-1">{errors.genre}</p>
+            <p className="text-red-500 text-sm mt-1 flex items-center">
+              <FaExclamationCircle className="h-4 w-4 mr-1" />
+              {errors.genre}
+            </p>
           )}
         </div>
 
+        {/* Sección de seguridad */}
+        <div className="md:col-span-2 mt-4">
+          <h3 className="text-xl font-semibold text-emerald-700 border-b pb-2 mb-4 flex items-center">
+            <span className="bg-emerald-100 text-emerald-700 rounded-full w-6 h-6 flex items-center justify-center mr-2 text-sm">
+              3
+            </span>
+            Seguridad
+          </h3>
+        </div>
+
         {/* Contraseña */}
-        <div className="flex flex-col mb-4">
-          <label className="block text-gray-700 mb-2">
+        <div className="flex flex-col">
+          <label className="block text-gray-700 mb-2 font-medium">
             Contraseña <span className="text-red-500">*</span>
           </label>
-          <input
-            type="password"
-            name="password"
-            value={userRegister.password}
-            onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
-            required
-          />
-          {errors.password && (
-            <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={userRegister.password}
+              onBlur={handleBlur}
+              onChange={handleChange}
+              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              placeholder="Crea una contraseña segura"
+              required
+            />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaLock className="h-5 w-5 text-gray-400" />
+            </div>
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? (
+                <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-emerald-600" />
+              ) : (
+                <FaEye className="h-5 w-5 text-gray-400 hover:text-emerald-600" />
+              )}
+            </button>
+          </div>
+          {touched.password && errors.password && (
+            <p className="text-red-500 text-sm mt-1 flex items-center">
+              <FaExclamationCircle className="h-4 w-4 mr-1" />
+              {errors.password}
+            </p>
           )}
         </div>
 
         {/* Confirmar Contraseña */}
-        <div className="flex flex-col mb-4">
-          <label className="block text-gray-700 mb-2">
+        <div className="flex flex-col">
+          <label className="block text-gray-700 mb-2 font-medium">
             Confirmar Contraseña <span className="text-red-500">*</span>
           </label>
-          <input
-            type="password"
-            name="confirmPassword"
-            value={userRegister.confirmPassword}
-            onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
-            required
-          />
-          {errors.confirmPassword && (
-            <p className="text-red-500 text-sm mt-1">
+          <div className="relative">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              name="confirmPassword"
+              value={userRegister.confirmPassword}
+              onBlur={handleBlur}
+              onChange={handleChange}
+              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              placeholder="Confirma tu contraseña"
+              required
+            />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaLock className="h-5 w-5 text-gray-400" />
+            </div>
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              {showConfirmPassword ? (
+                <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-emerald-600" />
+              ) : (
+                <FaEye className="h-5 w-5 text-gray-400 hover:text-emerald-600" />
+              )}
+            </button>
+          </div>
+          {touched.confirmPassword && errors.confirmPassword && (
+            <p className="text-red-500 text-sm mt-1 flex items-center">
+              <FaExclamationCircle className="h-4 w-4 mr-1" />
               {errors.confirmPassword}
             </p>
           )}
         </div>
 
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            name="termsAccepted"
-            checked={userRegister.termsAccepted}
-            onChange={handleChange}
-            className="mr-2"
-            required
-          />
-          <label className="text-gray-700">Acepto los</label>
-          <button
-            type="button"
-            className="text-blue-500 underline hover:text-blue-700 pl-1"
-            onClick={() => setShowTerms(true)}
-          >
-            términos y condiciones
-          </button>
+        {/* Términos */}
+        <div className="flex items-start col-span-full mt-2">
+          <div className="flex items-center h-5">
+            <input
+              type="checkbox"
+              name="termsAccepted"
+              checked={userRegister.termsAccepted}
+              onChange={handleChange}
+              className="w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500 focus:ring-2"
+              required
+            />
+          </div>
+          <div className="ml-3 text-sm">
+            <label className="text-gray-700">Acepto los</label>
+            <button
+              type="button"
+              className="text-emerald-600 hover:text-emerald-800 font-medium pl-1"
+              onClick={() => setShowTerms(true)}
+            >
+              términos y condiciones
+            </button>
+            <p className="text-gray-500 mt-1">
+              Al crear una cuenta, aceptas nuestras políticas de privacidad y
+              condiciones de uso.
+            </p>
+          </div>
         </div>
 
         {showTerms && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg max-w-3xl w-full relative">
+            <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg max-w-3xl w-11/12 max-h-[90vh] overflow-y-auto relative">
               <button
                 onClick={() => setShowTerms(false)}
-                className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 bg-gray-100 rounded-full p-1"
               >
-                ✕
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
               </button>
               <FormsTermins />
             </div>
           </div>
         )}
 
-        {/* Botón de registro */}
-        <div className="flex justify-center">
+        {/* Botón */}
+        <div className="flex justify-center col-span-full mt-4">
           <button
             type="submit"
-            className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className={`w-full py-3 bg-gradient-to-r from-emerald-600 to-green-700 text-white rounded-lg hover:from-emerald-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50 font-medium shadow-md transition-all duration-300 transform hover:-translate-y-0.5 ${
+              isSubmitting ? "opacity-75 cursor-not-allowed" : ""
+            }`}
+            disabled={isSubmitting}
           >
-            Registrarse
+            {isSubmitting ? (
+              <div className="flex items-center justify-center">
+                <FaSpinner className="animate-spin h-5 w-5 mr-3 text-white" />
+                Registrando...
+              </div>
+            ) : (
+              "Registrarse"
+            )}
           </button>
         </div>
 
+        {/* Notificación */}
         {showNotification && (
-          <div className="absolute top-12 left-0 right-0 mx-auto w-max">
+          <div className="absolute top-20 left-0 right-0 mx-auto w-max col-span-full z-50 animate-fade-in-down">
             <NotificationsForms message={notificationMessage} />
           </div>
         )}

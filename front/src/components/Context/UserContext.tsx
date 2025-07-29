@@ -96,6 +96,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
         nationality: user.nationality || "",
         puesto: user.puesto || "",
         genre: user.genre || "",
+        phone: user.phone || "",
       };
 
       // Log what we're sending to fetchRegisterUser

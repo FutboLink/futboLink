@@ -1,35 +1,38 @@
-import React, { useState } from 'react';
-import Image from 'next/image';
-import { ICurso } from '@/Interfaces/ICursos';
-import Link from 'next/link';
-import { contact } from '@/components/Fetchs/UsersFetchs/UserFetchs';
-import { NotificationsForms } from '@/components/Notifications/NotificationsForms';
+import React, { useState } from "react";
+import Image from "next/image";
+import { ICurso } from "@/Interfaces/ICursos";
+import Link from "next/link";
+import { contact } from "@/components/Fetchs/UsersFetchs/UserFetchs";
+import { NotificationsForms } from "@/components/Notifications/NotificationsForms";
 
 const CardCurso: React.FC<{ curso: ICurso }> = ({ curso }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    mensaje: '',
+    name: "",
+    email: "",
+    mensaje: "",
   });
   const [showNotification, setShowNotification] = useState(false);
-  const [notificationMessage, setNotificationMessage] = useState('');
+  const [notificationMessage, setNotificationMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
   const asd = {
-    id: '139f2cc9-e1cf-40b7-b895-a76c6f738bbe',
-    image: 'https://res.cloudinary.com/dagcofbhm/image/upload/v1746620093/e8fx36diyhko5adsq4k3.jpg',
-    title: 'Curso de Analista Táctico en Fútbol',
+    id: "139f2cc9-e1cf-40b7-b895-a76c6f738bbe",
+    image:
+      "https://res.cloudinary.com/dagcofbhm/image/upload/v1746620093/e8fx36diyhko5adsq4k3.jpg",
+    title: "Curso de Analista Táctico en Fútbol",
     description:
-      'Aprendé a analizar partidos de forma profesional utilizando herramientas como Wyscout, LongoMatch y conceptos de táctica moderna. Ideal para entrenadores, scouts y analistas de video.',
-    category: 'Curso',
-    country: 'España ',
-    language: 'Español',
-    modality: '100% Online Virtual',
-    contact: 'info@escueladefutbolpro.com',
+      "Aprendé a analizar partidos de forma profesional utilizando herramientas como Wyscout, LongoMatch y conceptos de táctica moderna. Ideal para entrenadores, scouts y analistas de video.",
+    category: "Curso",
+    country: "España ",
+    language: "Español",
+    modality: "100% Online Virtual",
+    contact: "info@escueladefutbolpro.com",
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -39,7 +42,7 @@ const CardCurso: React.FC<{ curso: ICurso }> = ({ curso }) => {
     const { name, email, mensaje } = formData;
 
     if (!email || !name || !mensaje) {
-      setErrorMessage('⚠️ Por favor, completa todos los campos.');
+      setErrorMessage("⚠️ Por favor, completa todos los campos.");
       // setShowNotification(true);
       // setTimeout(() => {
       //   setShowNotification(false);
@@ -49,7 +52,7 @@ const CardCurso: React.FC<{ curso: ICurso }> = ({ curso }) => {
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setErrorMessage('⚠️ Por favor, introduce un correo electrónico válido');
+      setErrorMessage("⚠️ Por favor, introduce un correo electrónico válido");
       // setShowNotification(true);
       // setTimeout(() => {
       //   setShowNotification(false);
@@ -61,59 +64,64 @@ const CardCurso: React.FC<{ curso: ICurso }> = ({ curso }) => {
       setLoading(true);
 
       // Use direct fetch instead of going through next.js API
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://futbolink.onrender.com';
+      const apiUrl =
+        process.env.NEXT_PUBLIC_API_URL || "https://futbolink.onrender.com";
       const response = await fetch(`${apiUrl}/contact`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        setNotificationMessage('✅ Se ha enviado tu mensaje.');
+        setNotificationMessage("✅ Se ha enviado tu mensaje.");
         setShowNotification(true);
         setTimeout(() => {
           setShowNotification(false);
         }, 5000);
         setLoading(false);
-        setFormData({ name: '', email: '', mensaje: '' });
+        setFormData({ name: "", email: "", mensaje: "" });
       } else {
         const errorData = await response.json().catch(() => ({}));
         setLoading(false);
-        setNotificationMessage(`⚠️ ${errorData.message}` || '⚠️ Error al enviar el mensaje');
+        setNotificationMessage(
+          `⚠️ ${errorData.message}` || "⚠️ Error al enviar el mensaje"
+        );
         setShowNotification(true);
         setTimeout(() => {
           setShowNotification(false);
         }, 5000);
       }
     } catch (error) {
-      console.error('Error sending form:', error);
+      console.error("Error sending form:", error);
       setLoading(false);
-      setNotificationMessage('⚠️ No se pudo conectar con el servidor');
+      setNotificationMessage("⚠️ No se pudo conectar con el servidor");
     }
   };
 
+  console.log(curso, "opa");
+
   return (
-    <section className='max-w-[100rem] mx-auto overflow-hidden'>
+    <section className="max-w-[100rem] mx-auto overflow-hidden">
       {/* Botón de volver */}
-      <div className='mb-6'>
+      <div className="mb-6">
         <Link
-          href='/cursos'
-          className='inline-flex items-center text-green-600 hover:text-green-800'
+          href="/cursos"
+          className="inline-flex items-center text-green-600 hover:text-green-800"
         >
           <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
             strokeWidth={1.5}
-            stroke='currentColor'
-            className='w-5 h-5 mr-1'
+            stroke="currentColor"
+            className="w-5 h-5 mr-1"
           >
             <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              d='M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18'
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
             />
           </svg>
           Volver a cursos
@@ -121,46 +129,50 @@ const CardCurso: React.FC<{ curso: ICurso }> = ({ curso }) => {
       </div>
 
       {/* Imagen superior del curso */}
-      <div className='relative h-64 md:h-96 rounded-[1.25rem] overflow-hidden border border-green-700 shadow-sm mb-8'>
+      <div className="relative h-64 md:h-96 rounded-[1.25rem] overflow-hidden border border-green-700 shadow-sm mb-8">
         <Image
           src={curso.image}
           alt={curso.title}
-          layout='fill'
-          objectFit='cover'
-          className='w-full h-64 md:h-96 object-cover'
+          layout="fill"
+          objectFit="cover"
+          className="w-full h-64 md:h-96 object-cover"
         />
       </div>
 
       {/* Contenido del curso */}
-      <div className='bg-white rounded-[1.25rem] p-4 py-8 md:p-8 space-y-4'>
+      <div className="bg-white rounded-[1.25rem] p-4 py-8 md:p-8 space-y-4">
         {/* Contenido del curso */}
-        <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Información principal */}
-          <div className='h-full lg:col-span-2'>
-            <div className='bg-white h-full border border-green-700 rounded-lg shadow-sm overflow-hidden'>
-              <div className='bg-green-700 py-4 px-6'>
-                <h1 className='text-white text-2xl font-bold'>{curso.title}</h1>
+          <div className="h-full lg:col-span-2">
+            <div className="bg-white h-full border border-green-700 rounded-lg shadow-sm overflow-hidden">
+              <div className="bg-green-700 py-4 px-6">
+                <h1 className="text-white text-2xl font-bold">{curso.title}</h1>
               </div>
-              <div className='p-6'>
-                <p className='text-gray-700 mb-6'>{curso.description}</p>
+              <div className="p-6">
+                <p className="text-gray-700 mb-6 whitespace-pre-wrap">
+                  {curso.description}
+                </p>
 
-                <h2 className='text-lg font-semibold text-green-700 mb-3'>Información del curso</h2>
-                <ul className='list-disc pl-5 pb-[2rem] mb-6 space-y-1'>
-                  <li className='text-gray-700'>
-                    <span className='text-gray-600 pr-2'>Categoría:</span>
-                    <span className='font-medium'>{curso.category}</span>
+                <h2 className="text-lg font-semibold text-green-700 mb-3">
+                  Información del curso
+                </h2>
+                <ul className="list-disc pl-5 pb-[2rem] mb-6 space-y-1">
+                  <li className="text-gray-700">
+                    <span className="text-gray-600 pr-2">Categoría:</span>
+                    <span className="font-medium">{curso.category}</span>
                   </li>
-                  <li className='text-gray-700 '>
-                    <span className='text-gray-600 pr-2'>País:</span>
-                    <span className='font-medium'>{curso.country}</span>
+                  <li className="text-gray-700 ">
+                    <span className="text-gray-600 pr-2">País:</span>
+                    <span className="font-medium">{curso.country}</span>
                   </li>
-                  <li className='text-gray-700'>
-                    <span className='text-gray-600 pr-2'>Idioma:</span>
-                    <span className='font-medium'>{curso.language}</span>
+                  <li className="text-gray-700">
+                    <span className="text-gray-600 pr-2">Idioma:</span>
+                    <span className="font-medium">{curso.language}</span>
                   </li>
-                  <li className='text-gray-700'>
-                    <span className='text-gray-600 pr-2'>Modalidad:</span>
-                    <span className='font-medium'>{curso.modality}</span>
+                  <li className="text-gray-700">
+                    <span className="text-gray-600 pr-2">Modalidad:</span>
+                    <span className="font-medium">{curso.modality}</span>
                   </li>
                 </ul>
 
@@ -169,8 +181,8 @@ const CardCurso: React.FC<{ curso: ICurso }> = ({ curso }) => {
                   href={`https://wa.me/+393715851071?text=${encodeURIComponent(
                     `Hola! Quiero inscribirme al curso ${curso.title}...`
                   )}`}
-                  target='_blank'
-                  className='w-full md:w-auto px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50'
+                  target="_blank"
+                  className="w-full md:w-auto px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50"
                 >
                   Inscribirme en este curso
                 </Link>
@@ -207,86 +219,90 @@ const CardCurso: React.FC<{ curso: ICurso }> = ({ curso }) => {
             </div> */}
 
             {/* Formulario de contacto */}
-            <div className='bg-white border border-green-700 rounded-lg shadow-sm overflow-hidden'>
-              <div className='bg-green-700 py-3 px-4'>
-                <h2 className='text-white font-semibold'>¿Necesitas más información?</h2>
+            <div className="bg-white border border-green-700 rounded-lg shadow-sm overflow-hidden">
+              <div className="bg-green-700 py-3 px-4">
+                <h2 className="text-white font-semibold">
+                  ¿Necesitas más información?
+                </h2>
               </div>
-              <div className='p-4'>
-                <form onSubmit={handleSubmit} className='space-y-4'>
+              <div className="p-4">
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <input
-                      aria-label='Nombre'
-                      id='name'
-                      name='name'
-                      type='text'
+                      aria-label="Nombre"
+                      id="name"
+                      name="name"
+                      type="text"
                       value={formData.name}
                       onChange={handleChange}
-                      placeholder='Nombre *'
-                      className='w-full px-3 py-2 text-gray-600 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-400'
+                      placeholder="Nombre *"
+                      className="w-full px-3 py-2 text-gray-600 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-400"
                       required
                     />
                   </div>
                   <div>
                     <input
-                      aria-label='Correo electrónico'
-                      id='email'
-                      name='email'
-                      type='email'
+                      aria-label="Correo electrónico"
+                      id="email"
+                      name="email"
+                      type="email"
                       value={formData.email}
                       onChange={handleChange}
-                      placeholder='Correo electrónico *'
-                      className='w-full px-3 py-2 text-gray-600 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-400'
+                      placeholder="Correo electrónico *"
+                      className="w-full px-3 py-2 text-gray-600 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-400"
                       required
                     />
                   </div>
                   <div>
                     <textarea
-                      aria-label='Mensaje'
-                      id='message'
-                      name='mensaje'
+                      aria-label="Mensaje"
+                      id="message"
+                      name="mensaje"
                       rows={4}
                       value={formData.mensaje}
                       onChange={handleChange}
-                      placeholder='Tu consulta sobre este curso *'
-                      className='w-full px-3 py-2 text-gray-600 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-400 min-h-[100px] resize-none'
+                      placeholder="Tu consulta sobre este curso *"
+                      className="w-full px-3 py-2 text-gray-600 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-400 min-h-[100px] resize-none"
                       required
                     ></textarea>
                   </div>
-                  {status === 'error' && (
-                    <div className='mt-4 p-3 bg-red-100 text-red-800 rounded-md'>
-                      <p className='text-center text-md font-medium'>❌ {errorMessage}</p>
+                  {status === "error" && (
+                    <div className="mt-4 p-3 bg-red-100 text-red-800 rounded-md">
+                      <p className="text-center text-md font-medium">
+                        ❌ {errorMessage}
+                      </p>
                     </div>
                   )}
                   <button
-                    type='submit'
-                    className='w-full px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50'
+                    type="submit"
+                    className="w-full px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50"
                   >
                     Enviar consulta
                   </button>
                 </form>
 
-                <div className='mt-4 pt-4 border-t border-gray-100'>
-                  <p className='text-sm text-gray-600 mb-2'>
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <p className="text-sm text-gray-600 mb-2">
                     También puedes contactarnos directamente:
                   </p>
                   <Link
                     href={`mailto:${curso.contact}`}
-                    className='text-green-600 hover:text-green-800 text-sm font-medium'
+                    className="text-green-600 hover:text-green-800 text-sm font-medium"
                   >
                     {curso.contact}
                   </Link>
 
                   {/* Notificación */}
                   {showNotification && (
-                    <div className='absolute top-12 left-0 right-0 mx-auto w-max z-50'>
+                    <div className="absolute top-12 left-0 right-0 mx-auto w-max z-50">
                       <NotificationsForms message={notificationMessage} />
                     </div>
                   )}
 
                   {/* Loading */}
                   {loading && (
-                    <div className='fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center h-full'>
-                      <div className='animate-spin rounded-full h-16 w-16 border-t-4 border-green-400'></div>
+                    <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center h-full">
+                      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-green-400"></div>
                     </div>
                   )}
 

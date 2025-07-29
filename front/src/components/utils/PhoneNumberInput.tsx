@@ -96,7 +96,7 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = (props) => {
           value={value}
           onChange={handleInternalChange}
           disabled={disabled}
-          className={`w-full mt-2 text-gray-700 focus:outline-none ${
+          className={`w-full text-gray-700 focus:outline-none ${
             className ?? ""
           } ${error ? "border-red-500" : "border-gray-300"}`}
         />

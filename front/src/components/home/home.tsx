@@ -58,13 +58,13 @@ const Home = () => {
 
   return (
     <main className="bg-verde-oscuro text-white relative overflow-hidden">
-      {role === "ADMIN" ? <NavbarAdmin /> : <NavbarRoles />}
-
       {/* Language Toggle Button */}
       <LanguageToggle />
 
       {/* Título principal visible para SEO */}
-      <h1 className="sr-only">Futbolink - Conectando talento y oportunidades en el mundo del fútbol</h1>
+      <h1 className="sr-only">
+        Futbolink - Conectando talento y oportunidades en el mundo del fútbol
+      </h1>
 
       {/* Carrusel con Swiper */}
       <header
@@ -80,8 +80,8 @@ const Home = () => {
         >
           {images.map((image, index) => (
             <SwiperSlide key={index}>
-              <div 
-                className="relative w-full h-full cursor-pointer" 
+              <div
+                className="relative w-full h-full cursor-pointer"
                 onClick={() => handleSlideClick(image.link)}
               >
                 <Image

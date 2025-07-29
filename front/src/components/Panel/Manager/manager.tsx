@@ -209,7 +209,7 @@ const PanelManager = () => {
   };
 
   return (
-    <div className="flex min-h-screen mt-24 text-black bg-gray-50 flex-col sm:flex-row">
+    <div className="flex min-h-screen mt-2 text-black bg-gray-50 flex-col sm:flex-row">
       {/* Panel izquierdo: Datos del usuario y navegación */}
       <div className="w-full sm:w-72 bg-gradient-to-r from-[#1d5126] to-[#3e7c27] text-white p-6 rounded-t-lg sm:rounded-l-lg shadow-lg sm:shadow-none sm:mr-4">
         <div className="mb-8 flex flex-col items-center space-y-4">

@@ -13,9 +13,8 @@ function NavbarHome() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  
-  const { isLogged, role, logOut } = useContext(UserContext); 
 
+  const { isLogged, role, logOut } = useContext(UserContext);
 
   const navigateTo = (path: string) => {
     router.push(path);
@@ -102,7 +101,7 @@ function NavbarHome() {
                 className="px-4 hover:bg-green-200 hover:text-black hover:rounded-md transition-all cursor-pointer"
                 aria-label="Cómo usar FutboLink"
               >
-               Entrenamiento
+                Entrenamiento
               </li>
               <li
                 onClick={() => navigateTo("/contacto")}
@@ -116,44 +115,44 @@ function NavbarHome() {
 
           {/* Sección derecha con los botones de Iniciar sesión y Registrarse (solo en escritorio) */}
           <div id="sectionTwo" className="relative flex sm:ml-auto">
-          {isLogged ? (
-    role ? ( // Verifica si `role` tiene un valor antes de renderizar
-      role === "PLAYER" ? (
-        <button onClick={() => navigateTo("/PanelUsers/Player")}>
-          <FaUser className="text-verde-oscuro hover:text-verde-claro hover:transition-all hover:scale-125" />
-        </button>
-      ) : role === "RECRUITER" ? (
-        <button onClick={() => navigateTo("/PanelUsers/Manager")}>
-          <FaUser className="text-verde-claro hover:text-verde-oscuro hover:transition-all hover:scale-125" />
-        </button>
-      ) : role === "ADMIN" ? (
-        <button onClick={() => navigateTo("/PanelAdmin")}>
-          <FaUser className="text-verde-claro" />
-        </button>
-      ) : null
-    ) : (
-      <div>Loading...</div> // O algún otro mensaje o indicador de carga
-    )
-  ) : (
-    <>
-            <button
-             onClick={() => navigateTo("/Login")}
-              className="bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
-              aria-label="Iniciar sesión"
-            >
-              Iniciar sesión
-            </button>
+            {isLogged ? (
+              role ? ( // Verifica si `role` tiene un valor antes de renderizar
+                role === "PLAYER" ? (
+                  <button onClick={() => navigateTo("/PanelUsers/Player")}>
+                    <FaUser className="text-verde-oscuro hover:text-verde-claro hover:transition-all hover:scale-125" />
+                  </button>
+                ) : role === "RECRUITER" ? (
+                  <button onClick={() => navigateTo("/PanelUsers/Manager")}>
+                    <FaUser className="text-verde-claro hover:text-verde-oscuro hover:transition-all hover:scale-125" />
+                  </button>
+                ) : role === "ADMIN" ? (
+                  <button onClick={() => navigateTo("/PanelAdmin")}>
+                    <FaUser className="text-verde-claro" />
+                  </button>
+                ) : null
+              ) : (
+                <div>Loading...</div> // O algún otro mensaje o indicador de carga
+              )
+            ) : (
+              <>
+                <button
+                  onClick={() => navigateTo("/Login")}
+                  className="bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
+                  aria-label="Iniciar sesión"
+                >
+                  Iniciar sesión
+                </button>
 
-            <button
-              onClick={() => navigateTo("/OptionUsers")}
-              className="bg-white text-verde-oscuro px-4 py-2 rounded-md ml-4 hover:bg-gray-200"
-              aria-label="Registrarse"
-            >
-              Registrarse
-            </button>
-            </>
-          )}
-        </div>
+                <button
+                  onClick={() => navigateTo("/OptionUsers")}
+                  className="bg-white text-verde-oscuro px-4 py-2 rounded-md ml-4 hover:bg-gray-200"
+                  aria-label="Registrarse"
+                >
+                  Registrarse
+                </button>
+              </>
+            )}
+          </div>
         </section>
       </nav>
 
@@ -172,42 +171,41 @@ function NavbarHome() {
           </Link>
           <div className="mt-4">
             {isLogged ? (
-    role ? ( // Verifica si `role` tiene un valor antes de renderizar
-      role === "PLAYER" ? (
-        <button onClick={() => navigateTo("/PanelUsers/Player")}>
-          <FaUser className="text-green-700 hover:text-verde-claro hover:transition-all hover:scale-125" />
-        </button>
-      ) : role === "RECRUITER" ? (
-        <button onClick={() => navigateTo("/PanelUsers/Manager")}>
-          <FaUser className="text-verde-claro hover:text-verde-oscuro hover:transition-all hover:scale-125" />
-        </button>
-      ) : role === "ADMIN" ? (
-        <button onClick={() => navigateTo("/PanelAdmin")}>
-          <FaUser className="text-verde-claro hover:text-verde-oscuro hover:transition-all hover:scale-125" />
-        </button>
-      ) : null
-    ) : (
-      <div>Loading...</div> // O algún otro mensaje o indicador de carga
-    )
-  ) : (
-    <>
-              <button
-                onClick={() => navigateTo("/OptionUsers")}
-                className="w-full bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
-              >
-                Iniciar sesión
-              </button>
+              role ? ( // Verifica si `role` tiene un valor antes de renderizar
+                role === "PLAYER" ? (
+                  <button onClick={() => navigateTo("/PanelUsers/Player")}>
+                    <FaUser className="text-green-700 hover:text-verde-claro hover:transition-all hover:scale-125" />
+                  </button>
+                ) : role === "RECRUITER" ? (
+                  <button onClick={() => navigateTo("/PanelUsers/Manager")}>
+                    <FaUser className="text-verde-claro hover:text-verde-oscuro hover:transition-all hover:scale-125" />
+                  </button>
+                ) : role === "ADMIN" ? (
+                  <button onClick={() => navigateTo("/PanelAdmin")}>
+                    <FaUser className="text-verde-claro hover:text-verde-oscuro hover:transition-all hover:scale-125" />
+                  </button>
+                ) : null
+              ) : (
+                <div>Loading...</div> // O algún otro mensaje o indicador de carga
+              )
+            ) : (
+              <>
+                <button
+                  onClick={() => navigateTo("/OptionUsers")}
+                  className="w-full bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
+                >
+                  Iniciar sesión
+                </button>
 
-              <button
-                onClick={() => navigateTo("/OptionUsers")}
-                className="w-full mt-4 bg-white text-verde-oscuro px-4 py-2 rounded-md hover:bg-gray-200"
-              >
-                Registrarse
-              </button>
+                <button
+                  onClick={() => navigateTo("/OptionUsers")}
+                  className="w-full mt-4 bg-white text-verde-oscuro px-4 py-2 rounded-md hover:bg-gray-200"
+                >
+                  Registrarse
+                </button>
               </>
-          )}
-      
-            </div>
+            )}
+          </div>
           {/* Menú Hamburguesa */}
           <button
             onClick={toggleMobileMenu}
@@ -241,7 +239,7 @@ function NavbarHome() {
               >
                 Ofertas
               </li>
-                    <li
+              <li
                 onClick={() => navigateTo("/News")}
                 className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
               >
@@ -263,9 +261,9 @@ function NavbarHome() {
                 onClick={() => navigateTo("/cursos")}
                 className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"
               >
-               Entrenamiento
+                Entrenamiento
               </li>
-              
+
               <li
                 onClick={() => navigateTo("/contacto")}
                 className="px-4 py-2 hover:bg-green-200 hover:text-black rounded-md transition-all cursor-pointer"

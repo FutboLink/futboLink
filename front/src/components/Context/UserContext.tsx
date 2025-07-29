@@ -4,7 +4,7 @@ import {
   IRegisterUser,
   ILoginUser,
   IUserResponse,
-  UserType
+  UserType,
 } from "@/Interfaces/IUser";
 import { IUserContextType } from "@/Interfaces/IUser";
 import {
@@ -97,10 +97,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
         puesto: user.puesto || "",
         genre: user.genre || "",
       };
-      
+
       // Log what we're sending to fetchRegisterUser
-      console.log("UserContext - sending to fetchRegisterUser:", JSON.stringify(cleanUserData, null, 2));
-      
+      console.log(
+        "UserContext - sending to fetchRegisterUser:",
+        JSON.stringify(cleanUserData, null, 2)
+      );
+
       const data = await fetchRegisterUser(cleanUserData);
       if (data) {
         await signIn({ email: user.email, password: user.password });
@@ -127,7 +130,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         const parsedData = JSON.parse(storedAuthData);
         const { token, role, id } = parsedData;
-        
+
         // Get email from dedicated storage or from user object
         let email = localStorage.getItem("userEmail");
         if (!email && parsedData.email) {
@@ -138,7 +141,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
             console.log("Stored email from user object:", email);
           }
         }
-        
+
         const payload = JSON.parse(atob(token.split(".")[1]));
         const isTokenExpired = payload.exp * 1000 < Date.now();
 
@@ -150,7 +153,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
           setIsLogged(true);
           setIsAdmin(role === "ADMIN");
           setRole(role);
-          
+
           console.log("Setting user with email:", email);
           setUser({
             token,
@@ -178,13 +181,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
       if (storedAuthData) {
         const parsedData = JSON.parse(storedAuthData);
         const { role, id } = parsedData;
-        
+
         // Get email from dedicated storage or from user object
         let email = localStorage.getItem("userEmail");
         if (!email && parsedData.email) {
           email = parsedData.email;
         }
-        
+
         console.log("Token changed, setting user with email:", email);
         setUser({
           token,

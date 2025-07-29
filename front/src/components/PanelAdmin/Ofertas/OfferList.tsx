@@ -146,7 +146,7 @@ const OfferList: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[80vh] mt-10 p-4 pt-[3.5rem] sm:p-5 sm:pt-[3.5rem] lg:p-10">
+    <div className="min-h-[80vh] p-4 pt-[3.5rem] sm:p-5 sm:pt-[3.5rem] lg:p-10">
       <h1 className="bg-gradient-to-r from-green-400 via-green-500 to-green-600 text-white text-[1.6rem] p-2 font-semibold text-center">
         OFERTAS LABORALES
       </h1>

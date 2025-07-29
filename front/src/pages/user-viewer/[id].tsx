@@ -27,6 +27,11 @@ import {
 } from "@/services/VerificationService";
 import { toast } from "react-hot-toast";
 import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
+import {
+  formatAchievements,
+  formatearFecha,
+  sortTrayectoriasByFechaDesc,
+} from "@/helpers/sortAndFormatTrayectorias";
 
 // URL del backend
 const API_URL = "https://futbolink.onrender.com";
@@ -1340,7 +1345,10 @@ export default function UserViewer() {
                           <span className="flex items-center flex-shrink-0 gap-x-1">
                             {profile.ubicacionActual &&
                               renderCountryFlag(profile.ubicacionActual)}
-                            <span>{profile.ubicacionActual},</span>
+                            <span>
+                              {profile.ubicacionActual}
+                              {profile.location && ","}
+                            </span>
                           </span>
 
                           {profile.location && (
@@ -1504,7 +1512,6 @@ export default function UserViewer() {
                   )}
                 </div>
               )}
-
               {activeTab === "stats" && (
                 <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
                   <h3 className="text-lg font-medium mb-3 text-gray-800">
@@ -1523,40 +1530,48 @@ export default function UserViewer() {
                   </h3>
                   {profile.trayectorias && profile.trayectorias.length > 0 ? (
                     <div className="space-y-4">
-                      {profile.trayectorias.map((trayectoria, index) => (
-                        <div
-                          key={index}
-                          className="border-l-2 border-green-500 pl-4 pb-4"
-                        >
-                          <div className="flex justify-between mb-1">
-                            <h4 className="font-medium text-gray-800">
-                              {trayectoria.club}
-                            </h4>
-                            <span className="text-sm text-gray-600">
-                              {new Date(trayectoria.fechaInicio).getFullYear()}{" "}
-                              -
-                              {trayectoria.fechaFinalizacion
-                                ? new Date(
-                                    trayectoria.fechaFinalizacion
-                                  ).getFullYear()
-                                : "Presente"}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-600">
-                            {trayectoria.nivelCompetencia} -{" "}
-                            {trayectoria.categoriaEquipo}
-                          </p>
-                          {trayectoria.logros && (
-                            <p className="text-sm text-gray-700 mt-1">
-                              Logros: {trayectoria.logros}
+                      {sortTrayectoriasByFechaDesc(profile.trayectorias).map(
+                        (trayectoria, index) => (
+                          <div
+                            key={index}
+                            className="border-l-2 border-green-500 pl-4 pb-4"
+                          >
+                            <div className="flex justify-between mb-1">
+                              <h4 className="font-medium text-gray-800">
+                                {trayectoria.club}
+                              </h4>
+                              <span className="text-sm text-gray-600">
+                                {formatearFecha(trayectoria.fechaInicio)} -{" "}
+                                {trayectoria.fechaFinalizacion
+                                  ? formatearFecha(
+                                      trayectoria.fechaFinalizacion
+                                    )
+                                  : "Present"}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-600">
+                              {trayectoria.nivelCompetencia} -{" "}
+                              {trayectoria.categoriaEquipo}
                             </p>
-                          )}
-                        </div>
-                      ))}
+                            {trayectoria.logros && (
+                              <div className="text-sm text-gray-700 mt-1">
+                                <p className="font-medium">Logros:</p>
+                                <div className="mt-1 space-y-1">
+                                  {formatAchievements(trayectoria.logros).map(
+                                    (line, i) => (
+                                      <p key={i}>{line}</p>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )
+                      )}
                     </div>
                   ) : (
                     <p className="text-gray-600">
-                      No hay información de trayectoria disponible.
+                      No career information available.
                     </p>
                   )}
                 </div>

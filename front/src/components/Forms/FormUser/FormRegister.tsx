@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { UserContext } from "@/components/Context/UserContext";
@@ -10,6 +9,7 @@ import React, { useState, useContext, useRef } from "react";
 import useNationalities from "./useNationalitys";
 import FormsTermins from "@/components/formsTermins/formsTermins";
 import { FaChevronDown } from "react-icons/fa";
+import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
 
 const RegistrationForm: React.FC = () => {
   const { signUp } = useContext(UserContext);
@@ -74,6 +74,7 @@ const RegistrationForm: React.FC = () => {
     password: "",
     confirmPassword: "",
     termsAccepted: false,
+    phone: "",
   });
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
@@ -182,11 +183,12 @@ const RegistrationForm: React.FC = () => {
       </div>
 
       <form
-        className="bg-white p-8 rounded-lg shadow-lg w-full max-w-3xl flex flex-col gap-6 relative"
+        className="bg-white p-6 md:p-8 rounded-lg shadow-lg w-full max-w-3xl relative
+             grid grid-cols-1 md:grid-cols-2 gap-6"
         onSubmit={handleSubmit}
       >
         {/* Rol */}
-        <div className="flex flex-col mb-4">
+        <div className="flex flex-col">
           <label className="block text-gray-700 mb-2">Rol:</label>
           <select
             name="puesto"
@@ -194,9 +196,7 @@ const RegistrationForm: React.FC = () => {
             onChange={handleChange}
             className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option className="text-gray-700" value="">
-              Seleccione su rol
-            </option>
+            <option value="">Seleccione su rol</option>
             {puestos.map((puesto, index) => (
               <option key={index} value={puesto}>
                 {puesto}
@@ -206,7 +206,7 @@ const RegistrationForm: React.FC = () => {
         </div>
 
         {/* Nombre */}
-        <div className="flex flex-col mb-4">
+        <div className="flex flex-col">
           <label className="block text-gray-700 mb-2">
             Nombre <span className="text-red-500">*</span>
           </label>
@@ -215,7 +215,7 @@ const RegistrationForm: React.FC = () => {
             name="name"
             value={userRegister.name}
             onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
+            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
           {errors.name && (
@@ -224,7 +224,7 @@ const RegistrationForm: React.FC = () => {
         </div>
 
         {/* Apellidos */}
-        <div className="flex flex-col mb-4">
+        <div className="flex flex-col">
           <label className="block text-gray-700 mb-2">
             Apellidos <span className="text-red-500">*</span>
           </label>
@@ -233,7 +233,7 @@ const RegistrationForm: React.FC = () => {
             name="lastname"
             value={userRegister.lastname}
             onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
+            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
           {errors.lastname && (
@@ -242,7 +242,7 @@ const RegistrationForm: React.FC = () => {
         </div>
 
         {/* Email */}
-        <div className="flex flex-col mb-4">
+        <div className="flex flex-col">
           <label className="block text-gray-700 mb-2">
             Email <span className="text-red-500">*</span>
           </label>
@@ -251,15 +251,29 @@ const RegistrationForm: React.FC = () => {
             name="email"
             value={userRegister.email}
             onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
+            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
           {errors.email && (
             <p className="text-red-500 text-sm mt-1">{errors.email}</p>
           )}
         </div>
-        <div className="relative flex flex-col" ref={dropdownRef}>
-          {/* Nacionalidad (Búsqueda y Selección en un solo input) */}
+
+        {/* Phone */}
+        <div className="flex flex-col">
+          <label className="block text-gray-700">Teléfono:</label>
+          <PhoneNumberInput
+            mode="edit"
+            name="phone"
+            label=""
+            value={userRegister?.phone}
+            onChange={handleChange}
+            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        {/* Nacionalidad */}
+        <div className="flex flex-col relative" ref={dropdownRef}>
           <label
             htmlFor="nationalitySearch"
             className="block text-gray-700 mb-2"
@@ -274,7 +288,7 @@ const RegistrationForm: React.FC = () => {
               value={search || selectedNationality}
               onChange={(e) => {
                 setSearch(e.target.value);
-                setSelectedNationality(""); // Limpiar selección si se tipea
+                setSelectedNationality("");
               }}
               placeholder="Buscar nacionalidad..."
               onClick={toggleDropdown}
@@ -285,7 +299,6 @@ const RegistrationForm: React.FC = () => {
               onClick={toggleDropdown}
             />
 
-            {/* Dropdown de nacionalidades */}
             {isOpen && (
               <div className="absolute left-0 right-0 mt-2 sm:mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto z-20">
                 {nationalitiesLoading && (
@@ -318,38 +331,8 @@ const RegistrationForm: React.FC = () => {
           </div>
         </div>
 
-        {/* País de Residencia */}
-        <div>
-          <label className="block text-gray-700 mb-1">
-            País de Residencia <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="ubicacionActual"
-            value={userRegister.ubicacionActual}
-            onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-
-        {/* Agente o Representante */}
-        <div className="flex flex-col mb-4">
-          <label className="block text-gray-700 mb-2">
-            Agente o Representante
-          </label>
-          <input
-            type="text"
-            name="nameAgency"
-            value={userRegister.nameAgency || ""}
-            onChange={handleChange}
-            placeholder="Nombre del agente o representante (opcional)"
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
-          />
-        </div>
-
         {/* Género */}
-        <div className="flex flex-col mb-4">
+        <div className="flex flex-col">
           <label className="block text-gray-700 mb-2 hover:cursor-pointer">
             Género <span className="text-red-500">*</span>
           </label>
@@ -357,7 +340,7 @@ const RegistrationForm: React.FC = () => {
             name="genre"
             value={userRegister.genre}
             onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
+            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           >
             <option value="">Selecciona tu género</option>
@@ -371,7 +354,7 @@ const RegistrationForm: React.FC = () => {
         </div>
 
         {/* Contraseña */}
-        <div className="flex flex-col mb-4">
+        <div className="flex flex-col">
           <label className="block text-gray-700 mb-2">
             Contraseña <span className="text-red-500">*</span>
           </label>
@@ -380,7 +363,7 @@ const RegistrationForm: React.FC = () => {
             name="password"
             value={userRegister.password}
             onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
+            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
           {errors.password && (
@@ -389,7 +372,7 @@ const RegistrationForm: React.FC = () => {
         </div>
 
         {/* Confirmar Contraseña */}
-        <div className="flex flex-col mb-4">
+        <div className="flex flex-col">
           <label className="block text-gray-700 mb-2">
             Confirmar Contraseña <span className="text-red-500">*</span>
           </label>
@@ -398,7 +381,7 @@ const RegistrationForm: React.FC = () => {
             name="confirmPassword"
             value={userRegister.confirmPassword}
             onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:cursor-pointer"
+            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
           {errors.confirmPassword && (
@@ -408,7 +391,8 @@ const RegistrationForm: React.FC = () => {
           )}
         </div>
 
-        <div className="flex items-center">
+        {/* Términos - ocupar todo el ancho */}
+        <div className="flex items-center col-span-full">
           <input
             type="checkbox"
             name="termsAccepted"
@@ -427,22 +411,8 @@ const RegistrationForm: React.FC = () => {
           </button>
         </div>
 
-        {showTerms && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg max-w-3xl w-full relative">
-              <button
-                onClick={() => setShowTerms(false)}
-                className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-              >
-                ✕
-              </button>
-              <FormsTermins />
-            </div>
-          </div>
-        )}
-
-        {/* Botón de registro */}
-        <div className="flex justify-center">
+        {/* Botón - ocupar todo el ancho */}
+        <div className="flex justify-center col-span-full">
           <button
             type="submit"
             className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -451,8 +421,9 @@ const RegistrationForm: React.FC = () => {
           </button>
         </div>
 
+        {/* Notificación */}
         {showNotification && (
-          <div className="absolute top-12 left-0 right-0 mx-auto w-max">
+          <div className="absolute top-12 left-0 right-0 mx-auto w-max col-span-full">
             <NotificationsForms message={notificationMessage} />
           </div>
         )}

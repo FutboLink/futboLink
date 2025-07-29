@@ -1426,7 +1426,7 @@ export default function UserViewer() {
                               ) : (
                                 <span className="flex items-center gap-1 bg-red-100 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded-full">
                                   <FaUserSlash className="w-4 h-4" />
-                                  Agent Free
+                                  Free Agent
                                 </span>
                               )}
                             </span>

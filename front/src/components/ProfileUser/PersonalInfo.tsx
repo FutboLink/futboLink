@@ -296,31 +296,6 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             </select>
           </div>
 
-          {/* <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold text-sm">
-              Fecha de nacimiento:
-            </label>
-            <input
-              name="birthday"
-              type="date"
-              value={fetchedProfileData?.birthday || ""}
-              onChange={handleChange}
-              className="w-full p-1.5 border rounded mt-2 text-gray-400 focus:outline-none"
-            />
-          </div>
-          {/* Age 
-          <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold text-sm">Edad:</label>
-            <input
-              name="age"
-              type="text"
-              value={fetchedProfileData?.age || ""}
-              onChange={handleChange}
-              placeholder="Edad"
-              className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
-            />
-          </div> */}
-
           {/* Birthdate */}
           <div className="flex flex-col sm:flex-row sm:gap-4 sm:col-span-2">
             <div className="flex flex-col w-full sm:w-1/2">

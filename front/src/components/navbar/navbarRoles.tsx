@@ -181,7 +181,7 @@ function NavbarRoles() {
                 </Link>
                 <button
                   onClick={() => navigateTo("/OptionUsers")}
-                  className="px-4 py-2 bg-white text-verde-oscuro rounded-md mt-2 hover:bg-gray-200"
+                  className="px-4 py-2 bg-white text-verde-oscuro rounded-md  hover:bg-gray-200 m-0"
                 >
                   Registrarse
                 </button>

@@ -188,7 +188,7 @@ const RegistrationForm: React.FC = () => {
         onSubmit={handleSubmit}
       >
         {/* Rol */}
-        <div className="flex flex-col">
+        <div className="flex flex-col col-span-full">
           <label className="block text-gray-700 mb-2">Rol:</label>
           <select
             name="puesto"
@@ -259,19 +259,6 @@ const RegistrationForm: React.FC = () => {
           )}
         </div>
 
-        {/* Phone */}
-        <div className="flex flex-col">
-          <label className="block text-gray-700">Teléfono:</label>
-          <PhoneNumberInput
-            mode="edit"
-            name="phone"
-            label=""
-            value={userRegister?.phone}
-            onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
         {/* Nacionalidad */}
         <div className="flex flex-col relative" ref={dropdownRef}>
           <label
@@ -329,6 +316,19 @@ const RegistrationForm: React.FC = () => {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Phone */}
+        <div className="flex flex-col">
+          <label className="block text-gray-700">Teléfono:</label>
+          <PhoneNumberInput
+            mode="edit"
+            name="phone"
+            label=""
+            value={userRegister?.phone}
+            onChange={handleChange}
+            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
 
         {/* Género */}
@@ -410,6 +410,20 @@ const RegistrationForm: React.FC = () => {
             términos y condiciones
           </button>
         </div>
+
+        {showTerms && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg max-w-3xl w-full relative">
+              <button
+                onClick={() => setShowTerms(false)}
+                className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+              <FormsTermins />
+            </div>
+          </div>
+        )}
 
         {/* Botón - ocupar todo el ancho */}
         <div className="flex justify-center col-span-full">

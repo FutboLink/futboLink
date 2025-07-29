@@ -6,11 +6,12 @@ import { User } from './entities/user.entity';
 import { EmailService } from '../Mailing/email.service';
 import { ConfigService } from '@nestjs/config';
 import { RepresentationRequest } from './entities/representation-request.entity';
+import { VerificationRequest } from './entities/verification-request.entity';
 import { NotificationsModule } from '../Notifications/notifications.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, RepresentationRequest]),
+    TypeOrmModule.forFeature([User, RepresentationRequest, VerificationRequest]),
     forwardRef(() => NotificationsModule),
   ],
   controllers: [UserController],

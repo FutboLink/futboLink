@@ -26,7 +26,9 @@ import { SearchPlayersDto, SearchUsersDto } from './dto/search-players.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { PortfolioRequestDto } from './dto/portfolio-request.dto';
 import { CreateRepresentationRequestDto, UpdateRepresentationRequestDto } from './dto/representation-request.dto';
+import { CreateVerificationRequestDto, UpdateVerificationRequestDto } from './dto/verification-request.dto';
 import { RepresentationRequest } from './entities/representation-request.entity';
+import { VerificationRequest } from './entities/verification-request.entity';
 
 
 @ApiTags('Users')
@@ -365,5 +367,112 @@ export class UserController {
     }
     
     return this.userService.getPlayerReceivedRequests(playerId);
+  }
+
+  // ========== ENDPOINTS DE VERIFICACIÓN ==========
+
+  @ApiOperation({ summary: 'Solicitar verificación de perfil' })
+  @ApiResponse({
+    status: 201,
+    description: 'Solicitud de verificación creada exitosamente',
+    type: VerificationRequest,
+  })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @ApiResponse({ status: 403, description: 'Suscripción requerida o perfil ya verificado' })
+  @ApiResponse({ status: 409, description: 'Ya existe una solicitud pendiente' })
+  @UseGuards(AuthGuard)
+  @Post(':id/verification-request')
+  async createVerificationRequest(
+    @Param('id', ParseUUIDPipe) playerId: string,
+    @Body() createVerificationRequestDto: CreateVerificationRequestDto,
+    @Req() req: any,
+  ) {
+    // Verificar que el usuario autenticado es el mismo que solicita
+    if (req.user.id !== playerId) {
+      throw new UnauthorizedException('No tienes permiso para realizar esta acción');
+    }
+    
+    return this.userService.createVerificationRequest(playerId, createVerificationRequestDto);
+  }
+
+  @ApiOperation({ summary: 'Procesar solicitud de verificación (solo administradores)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Solicitud procesada exitosamente',
+    type: VerificationRequest,
+  })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @ApiResponse({ status: 403, description: 'Solo administradores pueden procesar solicitudes' })
+  @ApiResponse({ status: 404, description: 'Solicitud no encontrada' })
+  @UseGuards(AuthGuard)
+  @Put('verification-request/:requestId/process')
+  async processVerificationRequest(
+    @Param('requestId', ParseUUIDPipe) requestId: string,
+    @Body() updateVerificationRequestDto: UpdateVerificationRequestDto,
+    @Req() req: any,
+  ) {
+    // Verificar que el usuario es administrador
+    if (req.user.role !== 'ADMIN') {
+      throw new UnauthorizedException('Solo los administradores pueden procesar solicitudes de verificación');
+    }
+    
+    return this.userService.processVerificationRequest(requestId, req.user.id, updateVerificationRequestDto);
+  }
+
+  @ApiOperation({ summary: 'Obtener solicitudes de verificación pendientes (solo administradores)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de solicitudes pendientes',
+    type: [VerificationRequest],
+  })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @UseGuards(AuthGuard)
+  @Get('verification-requests/pending')
+  async getPendingVerificationRequests(@Req() req: any) {
+    // Verificar que el usuario es administrador
+    if (req.user.role !== 'ADMIN') {
+      throw new UnauthorizedException('Solo los administradores pueden ver las solicitudes');
+    }
+    
+    return this.userService.getPendingVerificationRequests();
+  }
+
+  @ApiOperation({ summary: 'Obtener todas las solicitudes de verificación (solo administradores)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de todas las solicitudes',
+    type: [VerificationRequest],
+  })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @UseGuards(AuthGuard)
+  @Get('verification-requests/all')
+  async getAllVerificationRequests(@Req() req: any) {
+    // Verificar que el usuario es administrador
+    if (req.user.role !== 'ADMIN') {
+      throw new UnauthorizedException('Solo los administradores pueden ver las solicitudes');
+    }
+    
+    return this.userService.getAllVerificationRequests();
+  }
+
+  @ApiOperation({ summary: 'Obtener solicitudes de verificación de un jugador específico' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de solicitudes del jugador',
+    type: [VerificationRequest],
+  })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @UseGuards(AuthGuard)
+  @Get(':id/verification-requests')
+  async getPlayerVerificationRequests(
+    @Param('id', ParseUUIDPipe) playerId: string,
+    @Req() req: any,
+  ) {
+    // Verificar que el usuario autenticado es el mismo o es administrador
+    if (req.user.id !== playerId && req.user.role !== 'ADMIN') {
+      throw new UnauthorizedException('No tienes permiso para realizar esta acción');
+    }
+    
+    return this.userService.getPlayerVerificationRequests(playerId);
   }
 }

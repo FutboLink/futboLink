@@ -10,6 +10,7 @@ import useNationalities from "./useNationalitys";
 import FormsTermins from "@/components/formsTermins/formsTermins";
 import { FaChevronDown } from "react-icons/fa";
 import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
+import Image from "next/image";
 
 const RegistrationForm: React.FC = () => {
   const { signUp } = useContext(UserContext);
@@ -24,6 +25,8 @@ const RegistrationForm: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false); // Nacionalidad seleccionada
   const [showTerms, setShowTerms] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const puestos = [
     "Jugador",
     "Entrenador",
@@ -194,16 +197,38 @@ const RegistrationForm: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 py-10 px-4">
-      <div className="text-center mb-6">
-        <h2 className="text-3xl font-bold mb-4 bg-white text-green-600 border-green-600 border-2 rounded-lg p-2">
-          Crea una cuenta
-        </h2>
-        <p className="text-sm text-gray-500">
-          ¡Regístrate ahora y empieza a explorar las oportunidades laborales en
-          el fútbol!
-        </p>
-      </div>
+      <header className="text-center mb-8 w-full max-w-3xl">
+        <div className="inline-block mb-4">
+          <h1 className="text-3xl font-bold bg-white text-green-600 border-2 border-green-600 rounded-lg px-6 py-3">
+            Crea una cuenta
+          </h1>
+        </div>
 
+        <div className="flex flex-col md:flex-row items-center justify-center bg-white rounded-lg shadow-md p-6 gap-6">
+          <div className="flex-shrink-0">
+            <Image
+              src="/logoD.png"
+              height={60}
+              width={60}
+              alt="FutboLink logo"
+              className="rounded-2xl"
+            />
+          </div>
+
+          <div className="text-center md:text-left">
+            <h2 className="text-2xl font-bold text-green-700">
+              Registro para Jugadores y Profesionales
+            </h2>
+            <p className="text-gray-500 mt-1">
+              ¡Regístrate ahora y empieza a explorar oportunidades laborales en
+              el fútbol!
+            </p>
+            <p className="text-sm text-gray-400 mt-2">
+              Unite a la comunidad de Futbolink
+            </p>
+          </div>
+        </div>
+      </header>
       <form
         className="bg-white p-6 md:p-8 rounded-lg shadow-lg w-full max-w-3xl relative
              grid grid-cols-1 md:grid-cols-2 gap-6"
@@ -457,8 +482,9 @@ const RegistrationForm: React.FC = () => {
           <button
             type="submit"
             className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+            disabled={isSubmitting}
           >
-            Registrarse
+            {isSubmitting ? "Registrando..." : "Registrarse"}
           </button>
         </div>
 

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { UserContext } from "@/components/Context/UserContext";
@@ -10,6 +9,8 @@ import React, { useState, useContext, useRef } from "react";
 import useNationalities from "@/components/Forms/FormUser/useNationalitys";
 import FormsTermins from "@/components/formsTermins/formsTermins";
 import { FaChevronDown } from "react-icons/fa";
+import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
+import Image from "next/image";
 
 const ManagerForm: React.FC = () => {
   const { signUp } = useContext(UserContext);
@@ -41,6 +42,14 @@ const ManagerForm: React.FC = () => {
   const [showErrorNotification, setShowErrorNotification] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showTerms, setShowTerms] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
+
+  const handleBlur = (
+    e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    setTouched({ ...touched, [e.target.name]: true });
+  };
 
   // Maneja el cambio en el campo de búsqueda
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -120,186 +129,234 @@ const ManagerForm: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 py-10 px-4">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl sm:text-3xl font-bold bg-white text-verde-oscuro border-verde-oscuro border-2 rounded-lg p-2">
-          Crea una cuenta
-        </h2>
-        <p className="text-sm text-gray-500">
-          ¡Regístrate ahora y empieza a explorar oportunidades laborales en el
-          fútbol!
-        </p>
-      </div>
+      <header className="text-center mb-8 w-full max-w-3xl">
+        <div className="inline-block mb-4">
+          <h1 className="text-3xl font-bold bg-white text-green-600 border-2 border-green-600 rounded-lg px-6 py-3">
+            Crea una cuenta
+          </h1>
+        </div>
+
+        <div className="flex flex-col md:flex-row items-center justify-center bg-white rounded-lg shadow-md p-6 gap-6">
+          <div className="flex-shrink-0">
+            <Image
+              src="/logoD.png"
+              height={60}
+              width={60}
+              alt="FutboLink logo"
+              className="rounded-2xl"
+            />
+          </div>
+
+          <div className="text-center md:text-left">
+            <h2 className="text-2xl font-bold text-green-700">
+              Registro para Agencia/Agente
+            </h2>
+            <p className="text-gray-500 mt-1">
+              ¡Regístrate ahora y empieza a explorar oportunidades laborales en
+              el fútbol!
+            </p>
+            <p className="text-sm text-gray-400 mt-2">
+              Unite a la comunidad de Futbolink
+            </p>
+          </div>
+        </div>
+      </header>
 
       <form
-        className="bg-white p-6 md:p-8 rounded-lg shadow-lg w-full max-w-lg md:max-w-2xl lg:max-w-3xl grid grid-cols-1 gap-4"
+        className="bg-white p-6 md:p-8 rounded-lg shadow-lg w-full max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-6"
         onSubmit={handleSubmit}
       >
-        {/* Nombre y Apellido */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-gray-700 mb-1">
-              Nombre <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={userRegister.name}
-              onChange={handleChange}
-              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
+        {/* Nombre */}
+        <div className="flex flex-col">
+          <label className="block text-gray-700 mb-2">
+            Nombre <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            name="name"
+            value={userRegister.name}
+            onBlur={handleBlur}
+            onChange={handleChange}
+            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+          {touched.name && errors.name && (
+            <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+          )}
+        </div>
 
-          <div>
-            <label className="block text-gray-700 mb-1">
-              Apellidos <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              name="lastname"
-              value={userRegister.lastname}
-              onChange={handleChange}
-              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
+        {/* Apellidos */}
+        <div className="flex flex-col">
+          <label className="block text-gray-700 mb-2">
+            Apellidos <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            name="lastname"
+            value={userRegister.lastname}
+            onBlur={handleBlur}
+            onChange={handleChange}
+            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+          {touched.lastname && errors.lastname && (
+            <p className="text-red-500 text-sm mt-1">{errors.lastname}</p>
+          )}
         </div>
 
         {/* Email */}
-        <div>
-          <label className="block text-gray-700 mb-1">
+        <div className="flex flex-col">
+          <label className="block text-gray-700 mb-2">
             Email <span className="text-red-500">*</span>
           </label>
           <input
             type="email"
             name="email"
             value={userRegister.email}
+            onBlur={handleBlur}
             onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
-        </div>
-        {/* Nacionalidad (Búsqueda y Selección en un solo input) */}
-        <label htmlFor="nationalitySearch" className="block text-gray-700 mb-2">
-          Nacionalidad <span className="text-red-500">*</span>
-        </label>
-
-        <div className="relative w-full">
-          <input
-            type="text"
-            id="nationalitySearch"
-            value={search || selectedNationality}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setSelectedNationality(""); // Limpiar selección si se tipea
-            }}
-            placeholder="Buscar nacionalidad..."
-            onClick={toggleDropdown}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3"
-          />
-          <FaChevronDown
-            className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500 cursor-pointer"
-            onClick={toggleDropdown}
-          />
-
-          {/* Dropdown de nacionalidades */}
-          {isOpen && (
-            <div className="absolute left-0 right-0 mt-2 sm:mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto z-20">
-              {nationalitiesLoading && (
-                <p className="p-2">Cargando nacionalidades...</p>
-              )}
-              {nationalitiesError && (
-                <p className="text-red-500 p-2">{nationalitiesError}</p>
-              )}
-              <ul>
-                {nationalities
-                  .filter((n) =>
-                    n.label.toLowerCase().includes(search.toLowerCase())
-                  )
-                  .map((n) => (
-                    <li
-                      key={n.value}
-                      className="p-2 cursor-pointer text-gray-700 hover:bg-gray-200"
-                      onClick={() => {
-                        handleSelectNationality(n.label);
-                        setSearch(n.label);
-                        setIsOpen(false);
-                      }}
-                    >
-                      {n.label}
-                    </li>
-                  ))}
-              </ul>
-            </div>
+          {touched.email && errors.email && (
+            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
           )}
         </div>
 
-        {/* País de Residencia */}
-        <div>
-          <label className="block text-gray-700 mb-1">
-            País de Residencia <span className="text-red-500">*</span>
+        {/* Nacionalidad */}
+        <div className="flex flex-col relative" ref={dropdownRef}>
+          <label
+            htmlFor="nationalitySearch"
+            className="block text-gray-700 mb-2"
+          >
+            Nacionalidad <span className="text-red-500">*</span>
           </label>
-          <input
-            type="text"
-            name="ubicacionActual"
-            value={userRegister.ubicacionActual}
+          <div className="relative w-full">
+            <input
+              type="text"
+              id="nationalitySearch"
+              value={search || selectedNationality}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setSelectedNationality("");
+              }}
+              placeholder="Buscar nacionalidad..."
+              onClick={toggleDropdown}
+              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3"
+            />
+            <FaChevronDown
+              className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500 cursor-pointer"
+              onClick={toggleDropdown}
+            />
+            {isOpen && (
+              <div className="absolute left-0 right-0 mt-2 sm:mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto z-20">
+                {nationalitiesLoading && (
+                  <p className="p-2">Cargando nacionalidades...</p>
+                )}
+                {nationalitiesError && (
+                  <p className="text-red-500 p-2">{nationalitiesError}</p>
+                )}
+                <ul>
+                  {nationalities
+                    .filter((n) =>
+                      n.label.toLowerCase().includes(search.toLowerCase())
+                    )
+                    .map((n) => (
+                      <li
+                        key={n.value}
+                        className="p-2 cursor-pointer text-gray-700 hover:bg-gray-200"
+                        onClick={() => {
+                          handleSelectNationality(n.label);
+                          setSearch(n.label);
+                          setIsOpen(false);
+                        }}
+                      >
+                        {n.label}
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Teléfono */}
+        <div className="flex flex-col">
+          <label className="block text-gray-700">Teléfono:</label>
+          <PhoneNumberInput
+            mode="edit"
+            name="phone"
+            label=""
+            value={userRegister?.phone}
             onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:ring-2 focus:ring-blue-500"
-            required
+            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         {/* Género */}
-        <div>
-          <label className="block text-gray-700 mb-1">
+        <div className="flex flex-col">
+          <label className="block text-gray-700 mb-2 hover:cursor-pointer">
             Género <span className="text-red-500">*</span>
           </label>
           <select
             name="genre"
             value={userRegister.genre}
             onChange={handleChange}
-            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3"
+            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           >
-            <option value="">Selecciona</option>
+            <option value="">Selecciona tu género</option>
             <option value="Masculino">Masculino</option>
             <option value="Femenino">Femenino</option>
-            <option value="Otro">Otro</option>
+            <option value="Otro">Otr@s</option>
           </select>
+          {errors.genre && (
+            <p className="text-red-500 text-sm mt-1">{errors.genre}</p>
+          )}
         </div>
 
-        {/* Contraseña y Confirmar Contraseña */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-gray-700 mb-1">
-              Contraseña <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={userRegister.password}
-              onChange={handleChange}
-              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 mb-1">
-              Confirmar Contraseña <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={userRegister.confirmPassword}
-              onChange={handleChange}
-              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
+        {/* Contraseña */}
+        <div className="flex flex-col">
+          <label className="block text-gray-700 mb-2">
+            Contraseña <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="password"
+            name="password"
+            value={userRegister.password}
+            onBlur={handleBlur}
+            onChange={handleChange}
+            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+          {touched.password && errors.password && (
+            <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+          )}
         </div>
 
-        <div className="flex items-center">
+        {/* Confirmar Contraseña */}
+        <div className="flex flex-col">
+          <label className="block text-gray-700 mb-2">
+            Confirmar Contraseña <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="password"
+            name="confirmPassword"
+            value={userRegister.confirmPassword}
+            onBlur={handleBlur}
+            onChange={handleChange}
+            className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+          {touched.confirmPassword && errors.confirmPassword && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.confirmPassword}
+            </p>
+          )}
+        </div>
+
+        {/* Términos */}
+        <div className="flex items-center col-span-full">
           <input
             type="checkbox"
             name="termsAccepted"
@@ -331,18 +388,21 @@ const ManagerForm: React.FC = () => {
             </div>
           </div>
         )}
-        <div className="flex justify-center">
+
+        {/* Botón */}
+        <div className="flex justify-center col-span-full">
           <button
             type="submit"
-            className="w-full sm:w-3/4 py-2 bg-verde-oscuro text-white rounded-md hover:bg-green-700 focus:ring-2 focus:ring-verde-claro"
+            className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+            disabled={isSubmitting}
           >
-            Registrarse
+            {isSubmitting ? "Registrando..." : "Registrarse"}
           </button>
         </div>
 
-        {/* Notificaciones */}
+        {/* Notificación */}
         {showNotification && (
-          <div className="fixed top-12 left-0 right-0 mx-auto w-max">
+          <div className="absolute top-12 left-0 right-0 mx-auto w-max col-span-full">
             <NotificationsForms message={notificationMessage} />
           </div>
         )}

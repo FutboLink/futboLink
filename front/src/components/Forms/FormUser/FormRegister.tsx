@@ -139,6 +139,7 @@ const RegistrationForm: React.FC = () => {
       genre: userRegister.genre || "",
       puesto: userRegister.puesto || "",
       nameAgency: userRegister.nameAgency || "",
+      phone: userRegister.phone || "",
     };
 
     // Log what we're sending

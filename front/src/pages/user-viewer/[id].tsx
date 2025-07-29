@@ -1335,15 +1335,26 @@ export default function UserViewer() {
                         <span className="text-gray-600">
                           País de Residencia
                         </span>
-                        <span className="flex items-center text-gray-800">
-                          {profile.ubicacionActual &&
-                            renderCountryFlag(profile.ubicacionActual)}
-                          <span className="ml-2">
-                            {profile.ubicacionActual}
-                            {profile.location && `, ${profile.location}`}
+
+                        <span className="flex flex-col sm:flex-row sm:items-center text-gray-800 max-w-xs text-end">
+                          {/* Contenedor para bandera + ubicacion + coma */}
+                          <span className="flex items-center">
+                            {profile.ubicacionActual &&
+                              renderCountryFlag(profile.ubicacionActual)}
+                            <span className="ml-2">
+                              {profile.ubicacionActual},
+                            </span>
                           </span>
+
+                          {/* Location baja en móvil y sube en pantallas grandes */}
+                          {profile.location && (
+                            <span className="sm:ml-1 sm:whitespace-nowrap mt-1 sm:mt-0 truncate">
+                              {profile.location}
+                            </span>
+                          )}
                         </span>
                       </div>
+
                       {profile.pasaporteUe && (
                         <div className="flex justify-between">
                           <span className="text-gray-600">Pasaporte UE</span>

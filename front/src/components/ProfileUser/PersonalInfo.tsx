@@ -19,7 +19,7 @@ import {
 } from "react-icons/fa";
 
 const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
-  const { token, setUser, user } = useContext(UserContext);
+  const { token, setUser } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fetchedProfileData, setFetchedProfileData] =
@@ -104,11 +104,6 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   };
 
   const handleImageUpload = (imageUrl: string) => {
-    if (!user) return;
-    setUser({
-      ...user,
-      imgUrl: imageUrl, // Actualizar la URL de la imagen en el estado global
-    });
     setFetchedProfileData((prev) => ({
       ...prev!,
       imgUrl: imageUrl, // Actualizar la URL de la imagen en fetchedProfileData
@@ -123,6 +118,12 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
     try {
       const userId = JSON.parse(atob(token.split(".")[1])).id;
       await updateUserData(userId, fetchedProfileData);
+
+      setUser((prevUser) => ({
+        ...prevUser!,
+        ...fetchedProfileData, // Actualizar la informacion del estado global (imagen,datos,etc)
+      }));
+
       setNotificationMessage("Datos actualizados correctamente");
       setShowNotification(true);
     } catch (error) {

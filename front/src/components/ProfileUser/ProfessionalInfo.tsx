@@ -68,7 +68,7 @@ const PIE_HABIL_OPTIONS = ["Derecho", "Izquierdo", "Ambidiestro"];
 const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
   profileData,
 }) => {
-  const { token } = useContext(UserContext);
+  const { token, setUser } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
@@ -313,6 +313,11 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
 
         // Update user data
         await updateUserData(userId, updatedData);
+
+        setUser((prevUser) => ({
+          ...prevUser!,
+          ...updatedData, // Actualizar la informacion del estado global (imagen,datos,etc)
+        }));
 
         setShowNotification(true);
         setNotificationMessage(

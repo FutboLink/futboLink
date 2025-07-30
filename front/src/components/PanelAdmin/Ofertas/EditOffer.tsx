@@ -51,16 +51,15 @@ const EditOffer: React.FC<EditOfferProps> = ({ offer, onSave, onCancel }) => {
     minAge: offer.minAge || 0,
     description: offer.description || "",
     currencyType: offer.currencyType || "EUR",
-    customCurrencySign: "",
     maxAge: offer.maxAge || 0,
     sportGenres: offer.sportGenres || "Masculino",
     minExperience: offer.minExperience || "Amateur",
     availabilityToTravel: offer.availabilityToTravel ? YesOrNotravell.SI : YesOrNotravell.NO,
     euPassport: offer.euPassport ? YesOrNo.SI : YesOrNo.NO,
     imgUrl: offer.imgUrl || "",
-    offerType: offer.contractTypes || "Contrato Profesional",
+    // Eliminamos offerType ya que no existe en el backend
     moneda: offer.currencyType || "EUR",
-    competencies: [],
+    // Eliminamos competencies ya que no existe en el backend
     countries: offer.countries || []
   });
 
@@ -121,13 +120,30 @@ const EditOffer: React.FC<EditOfferProps> = ({ offer, onSave, onCancel }) => {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      
+      // Crear una copia del formData y eliminar los campos que no existen en el backend
+      const dataToSend = { ...formData };
+      
+      // Eliminar campos que no existen en el backend de forma segura
+      if ('customCurrencySign' in dataToSend) {
+        delete dataToSend.customCurrencySign;
+      }
+      
+      if ('offerType' in dataToSend) {
+        delete dataToSend.offerType;
+      }
+      
+      if ('competencies' in dataToSend) {
+        delete dataToSend.competencies;
+      }
+      
       const response = await fetch(`${apiUrl}/jobs/${offer.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSend),
       });
 
       if (!response.ok) {

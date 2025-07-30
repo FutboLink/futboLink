@@ -114,7 +114,7 @@ export enum JobStatus {
 export interface ICreateJob {
   title: string;
   currencyType: string;
-  customCurrencySign?: string;
+  customCurrencySign?: string; // Marcado como opcional con ?
   location: string;
   description: string;
   category: string;
@@ -132,9 +132,9 @@ export interface ICreateJob {
   euPassport: YesOrNo;
   imgUrl: string;
   minExperience: string;
-  offerType: string;
+  offerType?: string; // Marcado como opcional
   moneda: string;
-  competencies: string[];
+  competencies?: string[]; // Marcado como opcional
   countries: string[];
 }
 

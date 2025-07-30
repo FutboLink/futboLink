@@ -1078,11 +1078,10 @@ export class UserService {
       throw new BadRequestException('Ya tienes una solicitud de verificación pendiente');
     }
 
-    // TEMPORAL: Comentado hasta que se ejecute la migración de base de datos
     // Verificar si ya está verificado
-    // if (player.isVerified) {
-    //   throw new BadRequestException('Tu perfil ya está verificado');
-    // }
+    if (player.isVerified) {
+      throw new BadRequestException('Tu perfil ya está verificado');
+    }
 
     // Crear la solicitud
     const request = this.verificationRequestRepository.create({
@@ -1165,11 +1164,10 @@ export class UserService {
     
     const updatedRequest = await this.verificationRequestRepository.save(request);
     
-    // TEMPORAL: Comentado hasta que se ejecute la migración de base de datos
     // Si fue aprobada, marcar al usuario como verificado
-    // if (updatedRequest.status === VerificationRequestStatus.APPROVED) {
-    //   await this.userRepository.update(request.playerId, { isVerified: true });
-    // }
+    if (updatedRequest.status === VerificationRequestStatus.APPROVED) {
+      await this.userRepository.update(request.playerId, { isVerified: true });
+    }
     
     // Crear notificación para el jugador
     try {

@@ -40,7 +40,7 @@ async function exportUsers() {
         'name', 
         'lastname', 
         'role', 
-        // 'isVerified', // TEMPORAL: Comentado hasta que se ejecute la migración
+        'isVerified',
         'subscriptionType',
         'phone',
         'imgUrl',
@@ -70,7 +70,7 @@ async function exportUsers() {
     
     // Crear archivo CSV
     const csvFile = path.join(exportsDir, `users-export-${timestamp}.csv`);
-    const headers = ['id', 'email', 'name', 'lastname', 'role', /* 'isVerified', */ 'subscriptionType', 'phone', 'createdAt', 'updatedAt']; // TEMPORAL: isVerified comentado
+    const headers = ['id', 'email', 'name', 'lastname', 'role', 'isVerified', 'subscriptionType', 'phone', 'createdAt', 'updatedAt'];
     
     const csvContent = [
       headers.join(','),

@@ -155,3 +155,24 @@ export interface IUserContextType {
   signUp: (user: IRegisterUser) => Promise<boolean>;
   logOut: () => void;
 }
+
+export interface User {
+  id: string;
+  name: string;
+  lastname: string;
+  imgUrl?: string;
+  age?: number;
+  nationality?: string;
+  primaryPosition?: string;
+  secondaryPosition?: string;
+  height?: number;
+  weight?: number;
+  skillfulFoot?: string;
+  subscriptionType?: string;
+  subscription?: string;
+  role?: string;
+  email?: string;
+  phone?: string;
+  ubicacionActual?: string;
+  trayectorias?: { club: string }[];
+}

@@ -262,7 +262,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               label="Teléfono:"
               value={fetchedProfileData?.phone}
               onChange={handleChange}
-              className="p-1.5 border rounded text-gray-700 focus:outline-none"
+              className="p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
             />
             {/* Agente o Representante */}
             <div className="flex flex-col">

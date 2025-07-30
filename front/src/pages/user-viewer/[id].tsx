@@ -930,15 +930,26 @@ export default function UserViewer() {
                 </div>
               </div>
             )}
-            
+
             {/* Agente/Representación - Solo para jugadores */}
             {profile.role === UserType.PLAYER && (
               <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 shadow-md border border-green-200 mb-4">
                 <div className="flex items-center">
                   <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mr-3 border-2 border-green-300 shadow-sm">
                     {profile.nameAgency ? (
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-7 w-7 text-green-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                        />
                       </svg>
                     ) : (
                       <FaUserSlash className="w-7 h-7 text-red-500" />
@@ -949,13 +960,21 @@ export default function UserViewer() {
                     <div className="flex items-center">
                       {profile.nameAgency ? (
                         <div className="flex items-center">
-                          <span className="text-green-700 font-medium">{profile.nameAgency}</span>
-                          <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">Agente oficial</span>
+                          <span className="text-green-700 font-medium">
+                            {profile.nameAgency}
+                          </span>
+                          <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
+                            Agente oficial
+                          </span>
                         </div>
                       ) : (
                         <div className="flex items-center">
-                          <span className="text-red-600 font-medium">Sin representación</span>
-                          <span className="ml-2 bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full">Agente libre</span>
+                          <span className="text-red-600 font-medium">
+                            Sin representación
+                          </span>
+                          <span className="ml-2 bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full">
+                            Agente libre
+                          </span>
                         </div>
                       )}
                     </div>
@@ -1472,9 +1491,9 @@ export default function UserViewer() {
                               {profile.nameAgency ? (
                                 profile.nameAgency
                               ) : (
-                                <span className="flex items-center gap-1 bg-red-100 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+                                <span className="flex items-center gap-1 bg-green-700 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
                                   <FaUserSlash className="w-4 h-4" />
-                                  Free Agent
+                                  Agente libre
                                 </span>
                               )}
                             </span>

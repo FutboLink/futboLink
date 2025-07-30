@@ -51,7 +51,7 @@ const UserProfilePage = () => {
     return <p className="text-center text-red-500">No se encontró el curso</p>;
 
   return (
-    <div className="px-4 pt-[8rem] py-[4rem] bg-gray-100">
+    <div className="px-4 pt-[3rem] py-[4rem] bg-gray-100">
       <CardCurso curso={curso} />
     </div>
   );

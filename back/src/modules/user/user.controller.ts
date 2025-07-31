@@ -482,6 +482,23 @@ export class UserController {
     return this.userService.getUserVerificationStatus(userId);
   }
 
+  @ApiOperation({ summary: 'Forzar creación de columna isVerified (solo administradores)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Resultado de la operación',
+  })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @UseGuards(AuthGuard)
+  @Post('force-create-verification-column')
+  async forceCreateVerificationColumn(@Req() req: any) {
+    // Verificar que el usuario es administrador
+    if (req.user.role !== 'ADMIN') {
+      throw new UnauthorizedException('Solo los administradores pueden ejecutar esta acción');
+    }
+    
+    return this.userService.forceCreateVerificationColumn();
+  }
+
   @ApiOperation({ summary: 'Obtener solicitudes de verificación de un jugador específico' })
   @ApiResponse({
     status: 200,

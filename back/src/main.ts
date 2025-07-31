@@ -62,8 +62,10 @@ async function ensureIsVerifiedColumn() {
 }
 
 async function bootstrap() {
-  // Asegurar que la columna isVerified existe antes de iniciar la app
-  await ensureIsVerifiedColumn();
+  // Ejecutar en background después de iniciar la app para evitar bloqueos
+  setTimeout(async () => {
+    await ensureIsVerifiedColumn();
+  }, 5000); // 5 segundos después de iniciar
 
   // Create the application with logging
   const app = await NestFactory.create(AppModule, {

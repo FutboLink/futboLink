@@ -12,6 +12,7 @@ import {
   HiOutlinePhone,
 } from "react-icons/hi";
 import { useUserContext } from "@/hook/useUserContext";
+import { BsCheckCircle } from "react-icons/bs";
 
 interface UserCardProps {
   currentUser: User;
@@ -19,6 +20,11 @@ interface UserCardProps {
   isAddingToPortfolio: string | null;
 
   handleAddToPortfolio: (playerId: string) => void;
+  // Selected para la Page Postulaciones/Ver candidatos
+  isSelectionMode?: boolean;
+  isSelected?: boolean;
+  onSelect?: () => void;
+  isShortlisted?: boolean;
 }
 
 const UserCard: React.FC<UserCardProps> = ({
@@ -26,6 +32,10 @@ const UserCard: React.FC<UserCardProps> = ({
   t,
   isAddingToPortfolio,
   handleAddToPortfolio,
+  isSelectionMode = false,
+  isSelected = false,
+  onSelect,
+  isShortlisted = false,
 }) => {
   const { user } = useUserContext();
   // Verificar si el usuario actual es jugador
@@ -98,8 +108,38 @@ const UserCard: React.FC<UserCardProps> = ({
   return (
     <div
       key={currentUser.id}
-      className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all relative flex flex-col h-full"
+      className={`bg-white overflow-hidden shadow-md hover:shadow-xl transition-all relative flex flex-col h-full border-[1px] border-gray-300 rounded-[1.25rem] ${
+        isSelected ? "ring-2 ring-green-500 border-green-500" : ""
+      } ${isShortlisted ? "bg-green-50" : ""}`}
+      style={{ cursor: isSelectionMode ? "pointer" : "default" }}
+      onClick={(e) => {
+        if (isSelectionMode && onSelect) {
+          e.preventDefault();
+          onSelect();
+        }
+      }}
     >
+      {/* Indicador de selección */}
+      {isSelectionMode && (
+        <div className="absolute top-2 right-2 z-10">
+          <div
+            className={`w-6 h-6 rounded-full border ${
+              isSelected
+                ? "bg-green-500 border-green-600"
+                : "bg-white border-gray-300"
+            } flex items-center justify-center`}
+          >
+            {isSelected && <BsCheckCircle className="text-white" />}
+          </div>
+        </div>
+      )}
+
+      {/* Badge de "Seleccionado" */}
+      {isShortlisted && !isSelectionMode && (
+        <div className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full z-10">
+          Seleccionado
+        </div>
+      )}
       {/* Imagen de fondo/header */}
       <div className="h-24 bg-gradient-to-r from-gray-200 to-gray-300 relative overflow-hidden">
         {/* Imagen de fondo (misma que la de perfil) */}

@@ -158,8 +158,8 @@ export interface IUserContextType {
 
 export interface User {
   id: string;
-  name: string;
-  lastname: string;
+  name?: string;
+  lastname?: string;
   imgUrl?: string;
   age?: number;
   nationality?: string;
@@ -169,7 +169,7 @@ export interface User {
   weight?: number;
   skillfulFoot?: string;
   subscriptionType?: string;
-  subscription?: string;
+  subscription?: string | boolean;
   role?: string;
   email?: string;
   phone?: string;

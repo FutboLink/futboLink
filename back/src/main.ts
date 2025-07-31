@@ -9,6 +9,7 @@ import helmet from 'helmet';
 
 async function ensureIsVerifiedColumn() {
   try {
+    console.log('🔍 Verificando columna isVerified...');
     const dataSource = new DataSource({
       type: 'postgres',
       url: process.env.DATABASE_URL,
@@ -16,6 +17,7 @@ async function ensureIsVerifiedColumn() {
     });
     
     await dataSource.initialize();
+    console.log('🔗 Conexión a base de datos establecida');
     
     // Verificar si la columna existe
     const result = await dataSource.query(`
@@ -31,11 +33,29 @@ async function ensureIsVerifiedColumn() {
         ADD COLUMN "isVerified" boolean NOT NULL DEFAULT false
       `);
       console.log('✅ Columna isVerified agregada exitosamente');
+      
+      // Marcar como verificado a los usuarios que tengan solicitudes aprobadas
+      try {
+        console.log('🔄 Actualizando usuarios con solicitudes aprobadas...');
+        await dataSource.query(`
+          UPDATE users 
+          SET "isVerified" = true 
+          WHERE id IN (
+            SELECT DISTINCT "playerId" 
+            FROM verification_requests 
+            WHERE status = 'APPROVED'
+          )
+        `);
+        console.log('✅ Usuarios con solicitudes aprobadas marcados como verificados');
+      } catch (updateError) {
+        console.warn('⚠️ No se pudieron actualizar usuarios verificados:', updateError);
+      }
     } else {
       console.log('✅ La columna isVerified ya existe');
     }
     
     await dataSource.destroy();
+    console.log('🔌 Conexión cerrada');
   } catch (error) {
     console.error('❌ Error al verificar/crear columna isVerified:', error);
   }

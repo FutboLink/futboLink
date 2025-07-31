@@ -1045,6 +1045,70 @@ export class UserService {
     });
   }
 
+  // ========== MÉTODOS DE VERIFICACIÓN DE PERFIL (IMPLEMENTACIÓN SEGURA) ==========
+  
+  /**
+   * Verifica si la columna isVerified existe en la tabla users
+   */
+  private async checkIsVerifiedColumnExists(): Promise<boolean> {
+    try {
+      const result = await this.entityManager.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'users' AND column_name = 'isVerified'
+      `);
+      return result.length > 0;
+    } catch (error) {
+      console.error('Error verificando columna isVerified:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Verifica si un usuario está verificado usando query directo
+   */
+  private async isUserVerifiedSafe(userId: string): Promise<boolean> {
+    try {
+      const columnExists = await this.checkIsVerifiedColumnExists();
+      if (!columnExists) {
+        return false; // Si la columna no existe, consideramos que no está verificado
+      }
+      
+      const result = await this.entityManager.query(
+        'SELECT "isVerified" FROM users WHERE id = $1',
+        [userId]
+      );
+      
+      return result[0]?.isVerified || false;
+    } catch (error) {
+      console.error('Error verificando estado de verificación:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Marca un usuario como verificado usando query directo
+   */
+  private async markUserAsVerifiedSafe(userId: string): Promise<boolean> {
+    try {
+      const columnExists = await this.checkIsVerifiedColumnExists();
+      if (!columnExists) {
+        console.log('Columna isVerified no existe, no se puede marcar como verificado');
+        return false;
+      }
+      
+      await this.entityManager.query(
+        'UPDATE users SET "isVerified" = true WHERE id = $1',
+        [userId]
+      );
+      
+      return true;
+    } catch (error) {
+      console.error('Error marcando usuario como verificado:', error);
+      return false;
+    }
+  }
+
   // ========== MÉTODOS DE VERIFICACIÓN DE PERFIL ==========
 
   /**
@@ -1078,11 +1142,11 @@ export class UserService {
       throw new BadRequestException('Ya tienes una solicitud de verificación pendiente');
     }
 
-    // TEMPORAL: Comentado hasta que se ejecute la migración de base de datos
-    // Verificar si ya está verificado
-    // if (player.isVerified) {
-    //   throw new BadRequestException('Tu perfil ya está verificado');
-    // }
+    // Verificar si ya está verificado usando método seguro
+    const isVerified = await this.isUserVerifiedSafe(playerId);
+    if (isVerified) {
+      throw new BadRequestException('Tu perfil ya está verificado');
+    }
 
     // Crear la solicitud
     const request = this.verificationRequestRepository.create({
@@ -1165,11 +1229,13 @@ export class UserService {
     
     const updatedRequest = await this.verificationRequestRepository.save(request);
     
-    // TEMPORAL: Comentado hasta que se ejecute la migración de base de datos
-    // Si fue aprobada, marcar al usuario como verificado
-    // if (updatedRequest.status === VerificationRequestStatus.APPROVED) {
-    //   await this.userRepository.update(request.playerId, { isVerified: true });
-    // }
+    // Si fue aprobada, marcar al usuario como verificado usando método seguro
+    if (updatedRequest.status === VerificationRequestStatus.APPROVED) {
+      const success = await this.markUserAsVerifiedSafe(request.playerId);
+      if (!success) {
+        console.warn(`No se pudo marcar como verificado al usuario ${request.playerId} - columna isVerified no existe`);
+      }
+    }
     
     // Crear notificación para el jugador
     try {
@@ -1196,6 +1262,21 @@ export class UserService {
     }
     
     return updatedRequest;
+  }
+
+  /**
+   * Obtiene el estado de verificación de un usuario (método público seguro)
+   * @param userId ID del usuario
+   * @returns Estado de verificación
+   */
+  async getUserVerificationStatus(userId: string): Promise<{ isVerified: boolean; columnExists: boolean }> {
+    const columnExists = await this.checkIsVerifiedColumnExists();
+    const isVerified = columnExists ? await this.isUserVerifiedSafe(userId) : false;
+    
+    return {
+      isVerified,
+      columnExists
+    };
   }
 
   /**

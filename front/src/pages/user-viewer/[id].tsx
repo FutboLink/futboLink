@@ -95,6 +95,10 @@ export default function UserViewer() {
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [verificationMessage, setVerificationMessage] = useState("");
   const [loadingVerification, setLoadingVerification] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState<{
+    isVerified: boolean;
+    columnExists: boolean;
+  } | null>(null);
 
   // Referencias para los menús desplegables
   const shareMenuRef = useRef<HTMLDivElement>(null);
@@ -112,6 +116,29 @@ export default function UserViewer() {
 
     // Opcional: recargar la página para asegurar que todos los estados se reseteen
     window.location.reload();
+  };
+
+  // Función para obtener el estado de verificación de forma segura
+  const fetchVerificationStatus = async (userId: string) => {
+    try {
+      const response = await fetch(`${API_URL}/user/${userId}/verification-status`, {
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` })
+        }
+      });
+
+      if (response.ok) {
+        const status = await response.json();
+        setVerificationStatus(status);
+        console.log('Estado de verificación:', status);
+      } else {
+        console.log('No se pudo obtener el estado de verificación');
+        setVerificationStatus({ isVerified: false, columnExists: false });
+      }
+    } catch (error) {
+      console.error('Error al obtener estado de verificación:', error);
+      setVerificationStatus({ isVerified: false, columnExists: false });
+    }
   };
 
   // Función para solicitar verificación
@@ -299,6 +326,9 @@ export default function UserViewer() {
         if (!notificationSent) {
           sendProfileViewNotification(id);
         }
+
+        // Obtener estado de verificación de forma segura
+        fetchVerificationStatus(id);
       } catch (err) {
         console.error("Error:", err);
         setError(err instanceof Error ? err.message : "Error desconocido");
@@ -573,7 +603,7 @@ export default function UserViewer() {
                     </p>
                   )}
                   {/* Verification Badge */}
-                  {profile.isVerified && (
+                  {verificationStatus?.isVerified && (
                     <div className="mt-1">
                       <VerificationBadge
                         isVerified={true}
@@ -695,7 +725,7 @@ export default function UserViewer() {
                 </button>
 
                 {/* Verification Button */}
-                {isOwnProfile && !profile.isVerified && token && (
+                {isOwnProfile && !verificationStatus?.isVerified && token && (
                   <button
                     className="flex flex-col items-center justify-center p-2 transition-colors duration-200 hover:bg-gray-50 rounded-lg"
                     onClick={() => setShowVerificationModal(true)}
@@ -872,7 +902,7 @@ export default function UserViewer() {
                             <span className="text-sm">Cerrar sesión</span>
                           </button>
                         )}
-                        {isOwnProfile && !profile.isVerified && (
+                        {isOwnProfile && !verificationStatus?.isVerified && (
                           <button
                             className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md text-left w-full"
                             onClick={() => setShowVerificationModal(true)}

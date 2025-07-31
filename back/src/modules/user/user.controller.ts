@@ -455,6 +455,33 @@ export class UserController {
     return this.userService.getAllVerificationRequests();
   }
 
+  @ApiOperation({ summary: 'Obtener estado de verificación de un usuario (método seguro)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Estado de verificación del usuario',
+    schema: {
+      type: 'object',
+      properties: {
+        isVerified: { type: 'boolean' },
+        columnExists: { type: 'boolean' }
+      }
+    }
+  })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @UseGuards(AuthGuard)
+  @Get(':id/verification-status')
+  async getUserVerificationStatus(
+    @Param('id', ParseUUIDPipe) userId: string,
+    @Req() req: any,
+  ) {
+    // Verificar que el usuario autenticado es el mismo o es admin
+    if (req.user.id !== userId && req.user.role !== 'ADMIN') {
+      throw new UnauthorizedException('No tienes permiso para ver esta información');
+    }
+    
+    return this.userService.getUserVerificationStatus(userId);
+  }
+
   @ApiOperation({ summary: 'Obtener solicitudes de verificación de un jugador específico' })
   @ApiResponse({
     status: 200,

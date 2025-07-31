@@ -455,7 +455,26 @@ export class UserController {
     return this.userService.getAllVerificationRequests();
   }
 
-  @ApiOperation({ summary: 'Obtener estado de verificación de un usuario (método seguro)' })
+  @ApiOperation({ summary: 'Obtener estado de verificación de un usuario (público)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Estado de verificación del usuario',
+    schema: {
+      type: 'object',
+      properties: {
+        isVerified: { type: 'boolean' },
+        columnExists: { type: 'boolean' }
+      }
+    }
+  })
+  @Get(':id/verification-status')
+  async getUserVerificationStatus(
+    @Param('id', ParseUUIDPipe) userId: string,
+  ) {
+    return this.userService.getUserVerificationStatus(userId);
+  }
+
+  @ApiOperation({ summary: 'Obtener estado de verificación de un usuario (privado - requiere autenticación)' })
   @ApiResponse({
     status: 200,
     description: 'Estado de verificación del usuario',
@@ -469,8 +488,8 @@ export class UserController {
   })
   @ApiResponse({ status: 401, description: 'No autorizado' })
   @UseGuards(AuthGuard)
-  @Get(':id/verification-status')
-  async getUserVerificationStatus(
+  @Get(':id/verification-status-private')
+  async getUserVerificationStatusPrivate(
     @Param('id', ParseUUIDPipe) userId: string,
     @Req() req: any,
   ) {

@@ -88,7 +88,7 @@ const UserCard: React.FC<UserCardProps> = ({
   // Obtener el nombre del último club o poner "----" si no hay datos
   const lastClub = trayectorias?.length
     ? trayectorias[trayectorias.length - 1].club
-    : "----";
+    : "Sin Club";
 
   // Si no hay usuario logueado (contexto), no renderizar nada
   if (!user) {

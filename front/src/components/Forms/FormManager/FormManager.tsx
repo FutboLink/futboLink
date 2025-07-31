@@ -25,6 +25,7 @@ import {
   FaExclamationCircle,
   FaSpinner,
 } from "react-icons/fa";
+import Spinner from "@/components/utils/Spinner";
 
 const ManagerForm: React.FC = () => {
   const { signUp } = useContext(UserContext);
@@ -60,6 +61,7 @@ const ManagerForm: React.FC = () => {
   const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const handleBlur = (
     e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>
@@ -100,6 +102,7 @@ const ManagerForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoggingIn(true);
 
     // Verificar si las contraseñas coinciden
     if (userRegister.password !== userRegister.confirmPassword) {
@@ -154,11 +157,20 @@ const ManagerForm: React.FC = () => {
         setShowErrorNotification(true);
         setTimeout(() => setShowErrorNotification(false), 3000);
       }
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 py-10 px-4">
+      {/* Spinner de pantalla completa */}
+      {isLoggingIn && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
+          <Spinner size="xl" />
+        </div>
+      )}
+
       <header className="text-center mb-8 w-full max-w-3xl">
         <div className="inline-block mb-6">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl px-8 py-4 shadow-lg">

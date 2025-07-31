@@ -1,14 +1,16 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { UserContext } from "@/components/Context/UserContext";
 import { NotificationsForms } from "@/components/Notifications/NotificationsForms";
 import { validationLogin } from "@/components/Validate/ValidationLogin";
+import { useUserContext } from "@/hook/useUserContext";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import Spinner from "@/components/utils/Spinner";
 
 function LoginForm() {
-  const { signIn } = useContext(UserContext);
+  const { signIn } = useUserContext();
   const router = useRouter();
   const [userData, setUserData] = useState({
     email: "",
@@ -18,6 +20,7 @@ function LoginForm() {
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [errors, setErrors] = useState({} as { [key: string]: string });
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -32,6 +35,7 @@ function LoginForm() {
     const { formIsValid, errors } = validationLogin(userData);
 
     if (formIsValid) {
+      setIsLoggingIn(true);
       const credentials = {
         email: userData.email,
         password: userData.password,
@@ -54,6 +58,8 @@ function LoginForm() {
         setNotificationMessage("Ocurrió un error, intenta de nuevo");
         setShowNotification(true);
         setTimeout(() => setShowNotification(false), 3000);
+      } finally {
+        setIsLoggingIn(false);
       }
     } else {
       setErrors(errors);
@@ -62,6 +68,13 @@ function LoginForm() {
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
+      {/* Spinner de pantalla completa */}
+      {isLoggingIn && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
+          <Spinner size="xl" />
+        </div>
+      )}
+
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-center mb-6 text-verde-oscuro">
           Iniciar sesión
@@ -69,7 +82,10 @@ function LoginForm() {
         <form onSubmit={handleSubmit}>
           {/* Campo de correo */}
           <div className="mb-4">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
               Correo electrónico
             </label>
             <input
@@ -80,12 +96,17 @@ function LoginForm() {
               placeholder="Email"
               className="w-full mt-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro focus:border-transparent"
             />
-            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+            )}
           </div>
 
           {/* Campo de contraseña */}
           <div className="mb-6 relative">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
               Contraseña
             </label>
             <div className="relative">
@@ -101,12 +122,18 @@ function LoginForm() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                className="absolute inset-y-0 right-0 mt pr-3 flex items-center"
               >
-               
+                {!showPassword ? (
+                  <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-emerald-600" />
+                ) : (
+                  <FaEye className="h-5 w-5 text-gray-400 hover:text-emerald-600" />
+                )}
               </button>
             </div>
-            {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+            )}
           </div>
 
           {/* Botón de iniciar sesión */}
@@ -124,14 +151,19 @@ function LoginForm() {
         </form>
         <p className="mt-4 text-center text-sm text-gray-600">
           ¿No tienes cuenta?{" "}
-          <Link href="/OptionUsers" className="text-verde-oscuro hover:underline">
+          <Link
+            href="/OptionUsers"
+            className="text-verde-oscuro hover:underline"
+          >
             Regístrate aquí
           </Link>
         </p>
         <p className="mt-4 text-center text-sm text-gray-600">
-        <Link className="underline hover:font-bold" href="/forgotPassword"> Olvidé mi contraseña</Link>
+          <Link className="underline hover:font-bold" href="/forgotPassword">
+            {" "}
+            Olvidé mi contraseña
+          </Link>
         </p>
-      
       </div>
     </div>
   );

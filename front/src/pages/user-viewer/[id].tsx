@@ -564,7 +564,18 @@ export default function UserViewer() {
                       </svg>
                     </div>
                   )}
-                  {profile.subscriptionType === "Profesional" &&
+                  {/* Priorizar insignia de verificación sobre suscripción profesional */}
+                  {verificationStatus?.isVerified && profile.role?.toString() !== "RECRUITER" ? (
+                    <div className="absolute -bottom-1 -right-1">
+                      <VerificationBadge
+                        isVerified={true}
+                        showText={false}
+                        size="sm"
+                        className="w-5 h-5"
+                      />
+                    </div>
+                  ) : (
+                    profile.subscriptionType === "Profesional" &&
                     profile.role &&
                     profile.role.toString() !== "RECRUITER" && (
                       <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
@@ -581,7 +592,8 @@ export default function UserViewer() {
                           />
                         </svg>
                       </div>
-                    )}
+                    )
+                  )}
                 </div>
                 <div className="ml-4">
                   <div className="flex items-center">

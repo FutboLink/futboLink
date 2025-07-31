@@ -167,9 +167,10 @@ export class User {
   @Column({ nullable: true })
   cv?: string;
 
-  @ApiProperty({ example: false, description: 'Indica si el perfil del usuario está verificado', nullable: true })
-  @Column({ default: false })
-  isVerified: boolean;
+  // TEMPORAL: Comentado hasta que Render ejecute la migración automática
+  // @ApiProperty({ example: false, description: 'Indica si el perfil del usuario está verificado', nullable: true })
+  // @Column({ default: false })
+  // isVerified: boolean;
 
   @ApiProperty({
     type: () => Job,

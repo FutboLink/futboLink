@@ -1142,8 +1142,9 @@ export class UserService {
       throw new BadRequestException('Ya tienes una solicitud de verificación pendiente');
     }
 
-    // Verificar si ya está verificado
-    if (player.isVerified) {
+    // Verificar si ya está verificado usando método seguro
+    const isVerified = await this.isUserVerifiedSafe(playerId);
+    if (isVerified) {
       throw new BadRequestException('Tu perfil ya está verificado');
     }
 
@@ -1228,9 +1229,12 @@ export class UserService {
     
     const updatedRequest = await this.verificationRequestRepository.save(request);
     
-    // Si fue aprobada, marcar al usuario como verificado
+    // Si fue aprobada, marcar al usuario como verificado usando método seguro
     if (updatedRequest.status === VerificationRequestStatus.APPROVED) {
-      await this.userRepository.update(request.playerId, { isVerified: true });
+      const success = await this.markUserAsVerifiedSafe(request.playerId);
+      if (!success) {
+        console.warn(`No se pudo marcar como verificado al usuario ${request.playerId} - columna isVerified no existe`);
+      }
     }
     
     // Crear notificación para el jugador
@@ -1261,28 +1265,18 @@ export class UserService {
   }
 
   /**
-   * Obtiene el estado de verificación de un usuario
+   * Obtiene el estado de verificación de un usuario (método público seguro)
    * @param userId ID del usuario
    * @returns Estado de verificación
    */
   async getUserVerificationStatus(userId: string): Promise<{ isVerified: boolean; columnExists: boolean }> {
-    try {
-      const user = await this.userRepository.findOne({ 
-        where: { id: userId },
-        select: ['id', 'isVerified']
-      });
-      
-      return {
-        isVerified: user?.isVerified || false,
-        columnExists: true
-      };
-    } catch (error) {
-      console.error('Error al obtener estado de verificación:', error);
-      return {
-        isVerified: false,
-        columnExists: false
-      };
-    }
+    const columnExists = await this.checkIsVerifiedColumnExists();
+    const isVerified = columnExists ? await this.isUserVerifiedSafe(userId) : false;
+    
+    return {
+      isVerified,
+      columnExists
+    };
   }
 
   /**

@@ -176,8 +176,8 @@ useEffect(() => {
     setFormData(prevState => ({
       ...prevState,
       competencies: checked 
-        ? [...prevState.competencies, value]
-        : prevState.competencies.filter(item => item !== value)
+        ? [...(prevState.competencies || []), value]
+        : (prevState.competencies || []).filter(item => item !== value)
     }));
   };
 
@@ -206,7 +206,7 @@ useEffect(() => {
       return;
     }
     
-    if (formData.competencies.length === 0) {
+    if (!formData.competencies || formData.competencies.length === 0) {
       setError("Debes seleccionar al menos una competencia requerida.");
       setLoading(false);
       return;
@@ -664,7 +664,7 @@ useEffect(() => {
           type="checkbox"
           id={`competency-${index}`}
           value={competency}
-          checked={formData.competencies.includes(competency)}
+          checked={formData.competencies?.includes(competency) || false}
           onChange={(e) => handleCompetencyChange(competency, e.target.checked)}
           className="mr-2"
         />

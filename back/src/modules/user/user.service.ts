@@ -1280,6 +1280,54 @@ export class UserService {
   }
 
   /**
+   * Fuerza la creación de la columna isVerified (solo para admins)
+   */
+  async forceCreateVerificationColumn(): Promise<{ success: boolean; message: string }> {
+    try {
+      console.log('🔧 FORZANDO creación de columna isVerified...');
+      
+      // Verificar si la columna existe
+      const columnExists = await this.checkIsVerifiedColumnExists();
+      
+      if (columnExists) {
+        return {
+          success: true,
+          message: 'La columna isVerified ya existe'
+        };
+      }
+      
+      // Crear la columna usando query directo
+      await this.entityManager.query(`
+        ALTER TABLE "users" 
+        ADD COLUMN "isVerified" boolean NOT NULL DEFAULT false
+      `);
+      
+      // Marcar como verificado a los usuarios que tengan solicitudes aprobadas
+      await this.entityManager.query(`
+        UPDATE users 
+        SET "isVerified" = true 
+        WHERE id IN (
+          SELECT DISTINCT "playerId" 
+          FROM verification_requests 
+          WHERE status = 'APPROVED'
+        )
+      `);
+      
+      return {
+        success: true,
+        message: 'Columna isVerified creada exitosamente y usuarios actualizados'
+      };
+      
+    } catch (error) {
+      console.error('❌ Error al crear columna forzadamente:', error);
+      return {
+        success: false,
+        message: `Error: ${error.message}`
+      };
+    }
+  }
+
+  /**
    * Obtiene todas las solicitudes de verificación pendientes para el administrador
    * @returns Lista de solicitudes pendientes
    */

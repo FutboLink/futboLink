@@ -57,11 +57,11 @@ const VerificationBadge: React.FC<VerificationBadgeProps> = ({
 
   return (
     <div 
-      className={`inline-flex items-center justify-center w-6 h-6 bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 text-white rounded-full shadow-lg border border-yellow-300 ${className}`}
+      className={`inline-flex items-center justify-center ${className.includes('w-') ? '' : 'w-6 h-6'} bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 text-white rounded-full shadow-lg border border-yellow-300 ${className}`}
       title="Perfil verificado"
     >
       <svg 
-        className="w-4 h-4 text-white" 
+        className={`${className.includes('w-5') ? 'w-3 h-3' : 'w-4 h-4'} text-white`} 
         fill="currentColor" 
         viewBox="0 0 20 20"
       >

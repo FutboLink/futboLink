@@ -536,7 +536,11 @@ export default function UserViewer() {
             <div className="pt-8 pb-4 px-4 from-gray-100 bg-white rounded-lg shadow-sm mb-4">
               <div className="flex items-center mb-2">
                 <div className="relative">
-                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-200 shadow-md">
+                  <div className={`w-16 h-16 rounded-full overflow-hidden border-2 shadow-md ${
+                    verificationStatus?.isVerified && profile.role?.toString() !== "RECRUITER" 
+                      ? 'border-yellow-500 ' 
+                      : 'border-gray-200'
+                  }`}>
                     <Image
                       src={
                         user?.imgUrl ||
@@ -564,7 +568,25 @@ export default function UserViewer() {
                       </svg>
                     </div>
                   )}
-                  {profile.subscriptionType === "Profesional" &&
+                  {/* Priorizar insignia de verificación sobre suscripción profesional */}
+                  {verificationStatus?.isVerified && profile.role?.toString() !== "RECRUITER" ? (
+                    <div className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1" title="✅ Perfil Verificado">
+                      <div className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 text-white rounded-full shadow-lg border-2 border-white w-6 h-6 flex items-center justify-center">
+                        <svg 
+                          className="w-3.5 h-3.5 text-white" 
+                          fill="currentColor" 
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                  ) : (
+                    profile.subscriptionType === "Profesional" &&
                     profile.role &&
                     profile.role.toString() !== "RECRUITER" && (
                       <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
@@ -581,7 +603,8 @@ export default function UserViewer() {
                           />
                         </svg>
                       </div>
-                    )}
+                    )
+                  )}
                 </div>
                 <div className="ml-4">
                   <div className="flex items-center">
@@ -602,16 +625,25 @@ export default function UserViewer() {
                       Agencia/Reclutador
                     </p>
                   )}
-                  {/* Verification Badge */}
-                  {verificationStatus?.isVerified && (
-                    <div className="mt-1">
-                      <VerificationBadge
-                        isVerified={true}
-                        showText={true}
-                        size="sm"
-                      />
+
+                  {/* Texto de verificación debajo del nombre - sutil */}
+                  {verificationStatus?.isVerified && profile.role?.toString() !== "RECRUITER" && (
+                    <div className="flex items-center gap-1 mt-1">
+                      <svg 
+                        className="w-3 h-3 text-yellow-500" 
+                        fill="currentColor" 
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <span className="text-xs text-gray-600 font-medium">Perfil verificado</span>
                     </div>
                   )}
+
                 </div>
               </div>
 

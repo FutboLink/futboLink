@@ -102,13 +102,6 @@ const FootballField: React.FC<FootballFieldProps> = ({
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                <span
-                  className={`${
-                    selectionMode === "primary" ? "text-xl" : "text-lg"
-                  }`}
-                >
-                  🎯
-                </span>
                 <span>Posición Principal</span>
               </button>
               <button
@@ -119,13 +112,6 @@ const FootballField: React.FC<FootballFieldProps> = ({
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                <span
-                  className={`${
-                    selectionMode === "secondary" ? "text-xl" : "text-lg"
-                  }`}
-                >
-                  ⭐
-                </span>
                 <span>Posición Secundaria</span>
               </button>
             </div>
@@ -159,8 +145,8 @@ const FootballField: React.FC<FootballFieldProps> = ({
               <p className="text-sm text-blue-700">
                 💡 <strong>Instrucciones:</strong>
                 <br />
-                Primero selecciona el tipo de posición (🎯 o ⭐), luego toca la
-                posición en el campo o en la lista de abajo.`
+                Primero selecciona el tipo de posición, luego toca la posición
+                en el campo o en la lista de abajo.`
               </p>
             </div>
           </div>

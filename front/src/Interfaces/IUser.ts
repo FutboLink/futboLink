@@ -154,6 +154,7 @@ export interface IUserContextType {
   signIn: (credentials: ILoginUser) => Promise<boolean>;
   signUp: (user: IRegisterUser) => Promise<boolean>;
   logOut: () => void;
+  refreshUserData: () => Promise<boolean>;
 }
 
 export interface User {

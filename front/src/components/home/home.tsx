@@ -25,6 +25,7 @@ import "swiper/css/effect-fade";
 import futA from "../../../public/buscador_ydamak.jpg";
 import futB from "../../../public/publicarOfertas2.jpg";
 import futC from "../../../public/cursosYformaciones2.jpg";
+import LogoCarousel from "../LogoCarousel/LogoCarousel";
 
 const Home = () => {
   const { role } = useContext(UserContext);
@@ -105,8 +106,12 @@ const Home = () => {
         </Swiper>
       </header>
 
+      
+
       {/* Secciones */}
       <section data-aos="fade-left" data-aos-delay="400">
+      <LogoCarousel />
+
         <About />
       </section>
       <section data-aos="zoom-in" data-aos-delay="600">

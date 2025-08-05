@@ -3,6 +3,7 @@
 import React from "react";
 import HorizontalDiv from "@/components/HorizontalDiv/line";
 import Home from "@/components/home/home";
+import LogoCarousel from "@/components/LogoCarousel/LogoCarousel";
 import Clients from "@/components/Clients/client";
 import About from "@/components/AboutUs/about";
 import Contact from "@/components/Contact/contact";
@@ -28,6 +29,8 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <Home />
+
+      {/* Logo Carousel */}
 
       {/* Divider */}
       <HorizontalDiv />

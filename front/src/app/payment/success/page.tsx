@@ -24,6 +24,7 @@ function PaymentSuccessContent() {
   const userContext = useContext(UserContext);
   const userEmail = userContext?.user?.email; // Acceder al email de manera segura
   const userRole = userContext?.role; // Get the user role
+  const refreshUserData = userContext?.refreshUserData; // Get refresh function
 
   // Determine the correct profile path based on role
   const getProfilePath = () => {
@@ -64,6 +65,25 @@ function PaymentSuccessContent() {
         if (result.success) {
           // Limpiar caché de suscripción para forzar una recarga
           clearSubscriptionCache();
+          
+          // Refrescar los datos del usuario en el contexto
+          if (refreshUserData) {
+            try {
+              await refreshUserData();
+              console.log("User context refreshed after successful payment");
+            } catch (error) {
+              console.error("Error refreshing user context:", error);
+            }
+          }
+          
+          // Disparar evento personalizado para notificar a otros componentes
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new CustomEvent('subscriptionUpdated', {
+              detail: { subscriptionType: subType, isActive: true }
+            }));
+            console.log("Subscription update event dispatched");
+          }
+          
           setStatus("success");
           setMessage(
             `¡Tu suscripción al plan ${subType} ha sido activada correctamente!`

@@ -32,6 +32,7 @@ export const UserContext = createContext<IUserContextType>({
   setToken: () => {},
   role: null,
   setRole: () => {},
+  refreshUserData: async () => false,
 });
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -206,6 +207,43 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [token]);
 
+  const refreshUserData = async () => {
+    if (typeof window !== "undefined" && token) {
+      try {
+        // Refrescar los datos del usuario desde el token actualizado
+        const storedAuthData = localStorage.getItem("user");
+        if (storedAuthData) {
+          const parsedData = JSON.parse(storedAuthData);
+          const { role, id } = parsedData;
+          
+          // Get email from dedicated storage
+          const email = localStorage.getItem("userEmail") || parsedData.email || "";
+          
+          // Actualizar el usuario en el contexto para forzar re-renders
+          setUser({
+            token,
+            role,
+            id,
+            name: parsedData.name || "",
+            lastname: parsedData.lastname || "",
+            email: email,
+            password: "",
+            imgUrl: parsedData.imgUrl || "",
+            applications: parsedData.applications || [],
+            jobs: parsedData.jobs || [],
+          });
+          
+          console.log("User data refreshed in context");
+          return true;
+        }
+      } catch (error) {
+        console.error("Error refreshing user data:", error);
+        return false;
+      }
+    }
+    return false;
+  };
+
   const logOut = () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("user");
@@ -234,6 +272,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
         logOut,
         role,
         setRole,
+        refreshUserData,
       }}
     >
       {children}

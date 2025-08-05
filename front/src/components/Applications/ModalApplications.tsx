@@ -36,25 +36,43 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
   const [showRecruiterModal, setShowRecruiterModal] = useState(false);
   const { token, user } = useContext(UserContext);
 
+  const refreshSubscriptionStatus = async () => {
+    if (token && user && user.email) {
+      try {
+        // First get basic user data
+        const userData = await fetchUserData(token);
+        setUserPremium(userData.subscription);
+        
+        // Then check subscription status directly with Stripe
+        const subData = await checkUserSubscription(user.email);
+        setHasActiveSubscription(subData.hasActiveSubscription);
+        console.log("Subscription status refreshed:", subData);
+      } catch (error) {
+        console.log("Error al refrescar la suscripción:", error);
+        setHasActiveSubscription(false);
+      }
+    }
+  };
+
   useEffect(() => {
     if (token) {
-      // First get basic user data
-      fetchUserData(token)
-        .then((data) => setUserPremium(data.subscription))
-        .catch(() => console.log("Error al cargar los datos."));
+      refreshSubscriptionStatus();
+    }
+  }, [token, user]);
+
+  // Escuchar el evento de actualización de suscripción
+  useEffect(() => {
+    const handleSubscriptionUpdate = (event: CustomEvent) => {
+      console.log("Subscription updated event received:", event.detail);
+      refreshSubscriptionStatus();
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener('subscriptionUpdated', handleSubscriptionUpdate as EventListener);
       
-      // Then check subscription status directly with Stripe
-      if (user && user.email) {
-        checkUserSubscription(user.email)
-          .then((subData) => {
-            setHasActiveSubscription(subData.hasActiveSubscription);
-            console.log("Subscription status:", subData);
-          })
-          .catch((error) => {
-            console.log("Error al verificar la suscripción:", error);
-            setHasActiveSubscription(false);
-          });
-      }
+      return () => {
+        window.removeEventListener('subscriptionUpdated', handleSubscriptionUpdate as EventListener);
+      };
     }
   }, [token, user]);
 

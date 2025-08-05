@@ -46,10 +46,12 @@ const RecruiterApplicationModal: React.FC<RecruiterApplicationModalProps> = ({
   const showNotification = (message: string, isError: boolean = false, playerId?: string) => {
     setNotification({ message, isVisible: true, isError, playerId });
     
-    // Auto-hide notification after 5 seconds
+    // Auto-hide notification after longer time for errors, shorter for success
+    // Para errores críticos como duplicados, mostrar por más tiempo
+    const hideDelay = isError ? (message.includes('Ya existe') ? 15000 : 10000) : 3000;
     setTimeout(() => {
       setNotification(prev => ({ ...prev, isVisible: false }));
-    }, 5000);
+    }, hideDelay);
   };
 
   // Obtener la URL de la API
@@ -127,12 +129,18 @@ const RecruiterApplicationModal: React.FC<RecruiterApplicationModalProps> = ({
 
     try {
       // Enviar aplicación para cada jugador seleccionado
-      for (const playerId of selectedPlayers) {
+      for (let i = 0; i < selectedPlayers.length; i++) {
+        const playerId = selectedPlayers[i];
         try {
           const player = portfolioPlayers.find(p => p.id === playerId);
           const playerName = player ? `${player.name} ${player.lastname}` : 'Jugador';
           
-          showNotification(`Postulando a ${playerName}...`);
+          showNotification(`Postulando a ${playerName}... (${i + 1}/${selectedPlayers.length})`);
+          
+          // Pequeña pausa entre postulaciones para que las notificaciones se vean
+          if (i > 0) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
           
           const apiUrl = getApiUrl();
           const fullUrl = `${apiUrl}/applications/recruiter-apply`;
@@ -168,7 +176,10 @@ const RecruiterApplicationModal: React.FC<RecruiterApplicationModalProps> = ({
             console.log('✅ Postulación exitosa:', result);
             successCount++;
             setProcessingStatus(prev => ({...prev, [playerId]: 'success'}));
-            showNotification(`${playerName} postulado exitosamente`);
+            // Solo mostrar notificación de éxito individual si es el último jugador o hay pocos jugadores
+            if (selectedPlayers.length <= 3) {
+              showNotification(`${playerName} postulado exitosamente`);
+            }
           } else {
             console.error('❌ Error response status:', response.status);
             const responseText = await response.text();
@@ -184,13 +195,52 @@ const RecruiterApplicationModal: React.FC<RecruiterApplicationModalProps> = ({
             
             errorCount++;
             setProcessingStatus(prev => ({...prev, [playerId]: 'error'}));
-            showNotification(`Error al postular a ${playerName}: ${error.message || 'Error desconocido'}`, true);
+            
+            // Usar SIEMPRE el mensaje específico del servidor
+            let errorMessage = error.message || 'Error desconocido';
+            
+            console.log('🔍 Error message from server:', errorMessage);
+            console.log('🔍 Full error object:', error);
+            
+            // Mostrar el mensaje exacto del servidor con el nombre del jugador
+            errorMessage = `${playerName}: ${errorMessage}`;
+            
+            // SIEMPRE mostrar notificación de error en la UI
+            console.log('🔔 Mostrando notificación de error:', errorMessage);
+            showNotification(errorMessage, true);
+            
+            // También mostrar toast para errores importantes con duración extendida
+            if (response.status === 409) {
+              toast.warning(errorMessage, {
+                autoClose: 8000, // 8 segundos para errores de duplicado
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true
+              });
+            } else {
+              toast.error(errorMessage, {
+                autoClose: 6000, // 6 segundos para otros errores
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true
+              });
+            }
             console.error(`Error al postular jugador ${playerId}:`, error);
           }
         } catch (error) {
           console.error(`Error al postular jugador ${playerId}:`, error);
+          const player = portfolioPlayers.find(p => p.id === playerId);
+          const playerName = player ? `${player.name} ${player.lastname}` : 'Jugador';
           errorCount++;
           setProcessingStatus(prev => ({...prev, [playerId]: 'error'}));
+          const connectionErrorMessage = `Error de conexión al postular a ${playerName}. Intenta nuevamente.`;
+          showNotification(connectionErrorMessage, true);
+          toast.error(connectionErrorMessage, {
+            autoClose: 6000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true
+          });
         }
       }
 
@@ -204,10 +254,13 @@ const RecruiterApplicationModal: React.FC<RecruiterApplicationModalProps> = ({
           setSelectedPlayers([]);
         }, 2000);
       } else if (successCount > 0 && errorCount > 0) {
-        showNotification(`Proceso completado: ${successCount} exitoso(s), ${errorCount} con error(es).`);
-      } else if (successCount === 0 && errorCount > 0) {
-        showNotification(`No se pudo postular a ningún jugador. Por favor, intenta nuevamente.`, true);
+        // Mostrar resumen general sin sobrescribir errores específicos
+        setTimeout(() => {
+          showNotification(`Proceso completado: ${successCount} exitoso(s), ${errorCount} con error(es).`);
+        }, 2000); // Esperar 2 segundos para no sobrescribir errores específicos
       }
+      // NO mostrar mensaje genérico cuando solo hay errores, 
+      // para preservar las notificaciones específicas
 
     } catch (error) {
       console.error('Error general al enviar aplicaciones:', error);

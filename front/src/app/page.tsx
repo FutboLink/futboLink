@@ -31,6 +31,7 @@ export default function HomePage() {
       <Home />
 
       {/* Logo Carousel */}
+      <LogoCarousel />
 
       {/* Divider */}
       <HorizontalDiv />

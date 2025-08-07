@@ -1,7 +1,6 @@
 "use client";
 
 import Head from "next/head";
-import React from "react";
 import About from "@/components/AboutUs/about";
 import Clients from "@/components/Clients/client";
 import Contact from "@/components/Contact/contact";
@@ -30,8 +29,8 @@ export default function HomePage() {
 			{/* Hero Section */}
 			<Home />
 
-      {/* Logo Carousel */}
-      <LogoCarousel />
+			{/* Logo Carousel */}
+			<LogoCarousel />
 
 			{/* Divider */}
 			<HorizontalDiv />

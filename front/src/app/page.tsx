@@ -30,7 +30,8 @@ export default function HomePage() {
 			{/* Hero Section */}
 			<Home />
 
-			{/* Logo Carousel */}
+      {/* Logo Carousel */}
+      <LogoCarousel />
 
 			{/* Divider */}
 			<HorizontalDiv />

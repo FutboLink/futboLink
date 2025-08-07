@@ -15,6 +15,14 @@ const LogoCarousel: React.FC = () => {
     {
       src: '/carruselLogos/logo.png',
       alt: 'Partner Logo 3'
+    },
+    {
+      src: '/carruselLogos/banner1-small.png',
+      alt: 'Partner Logo 4'
+    },
+    {
+      src: '/carruselLogos/santafelogo.webp',
+      alt: 'Partner Logo 5'
     }
   ];
 
@@ -31,7 +39,7 @@ const LogoCarousel: React.FC = () => {
         }
         
         .logo-scroll {
-          animation: logoScroll 15s linear infinite;
+          animation: logoScroll 20s linear infinite;
           width: calc(100% * 3);
         }
         
@@ -64,7 +72,7 @@ const LogoCarousel: React.FC = () => {
                     alt={logo.alt}
                     width={120}
                     height={80}
-                    className="object-contain opacity-70 hover:opacity-100 transition-opacity duration-300 grayscale hover:grayscale-0"
+                    className="object-contain opacity-80 hover:opacity-100 transition-opacity duration-300"
                   />
                 </div>
               ))}
@@ -80,7 +88,7 @@ const LogoCarousel: React.FC = () => {
                     alt={logo.alt}
                     width={120}
                     height={80}
-                    className="object-contain opacity-70 hover:opacity-100 transition-opacity duration-300 grayscale hover:grayscale-0"
+                    className="object-contain opacity-80 hover:opacity-100 transition-opacity duration-300"
                   />
                 </div>
               ))}
@@ -96,7 +104,7 @@ const LogoCarousel: React.FC = () => {
                     alt={logo.alt}
                     width={120}
                     height={80}
-                    className="object-contain opacity-70 hover:opacity-100 transition-opacity duration-300 grayscale hover:grayscale-0"
+                    className="object-contain opacity-80 hover:opacity-100 transition-opacity duration-300"
                   />
                 </div>
               ))}

@@ -33,7 +33,7 @@ export default function HomePage() {
 			{/* Logo Carousel */}
 
 			{/* Divider */}
-			<HorizontalDiv                           />
+			<HorizontalDiv />
 
 			{/* What is Futbolink Section */}
 			<div className="bg-white py-16">

@@ -1,37 +1,37 @@
-import { useRouter } from "next/router";
-import { useEffect, useState, useContext, useRef } from "react";
+import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
-import Navbar from "@/components/navbar/navbar";
-import Head from "next/head";
-import { IProfileData, UserType } from "@/Interfaces/IUser";
-import { UserContext } from "@/components/Context/UserContext";
+import { useRouter } from "next/router";
+import { useContext, useEffect, useRef, useState } from "react";
+import { toast } from "react-hot-toast";
 import {
   FaArrowLeft,
   FaCog,
+  FaEllipsisH,
   FaHeart,
   FaRegHeart,
   FaShareAlt,
-  FaEllipsisH,
-  FaSignOutAlt,
   FaShieldAlt,
+  FaSignOutAlt,
   FaUserSlash,
 } from "react-icons/fa";
+import { UserContext } from "@/components/Context/UserContext";
 import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
-import { getDefaultPlayerImage } from "@/helpers/imageUtils";
+import Navbar from "@/components/navbar/navbar";
 import ProfileUser from "@/components/ProfileUser/ProfileUser";
-import VerificationBadge from "@/components/VerificationBadge/VerificationBadge";
-import {
-  requestVerification,
-  showVerificationToast,
-} from "@/services/VerificationService";
-import { toast } from "react-hot-toast";
 import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
+import VerificationBadge from "@/components/VerificationBadge/VerificationBadge";
+import { getDefaultPlayerImage } from "@/helpers/imageUtils";
 import {
   formatAchievements,
   formatearFecha,
   sortTrayectoriasByFechaDesc,
 } from "@/helpers/sortAndFormatTrayectorias";
+import { type IProfileData, UserType } from "@/Interfaces/IUser";
+import {
+  requestVerification,
+  showVerificationToast,
+} from "@/services/VerificationService";
 
 // URL del backend
 const API_URL = "https://futbolink.onrender.com";
@@ -543,7 +543,11 @@ export default function UserViewer() {
                     className={`w-16 h-16 rounded-full overflow-hidden border-2 shadow-md ${
                       verificationStatus?.isVerified &&
                       profile.role?.toString() !== "RECRUITER"
-                        ? "border-yellow-500 "
+                        ? "border-yellow-500"
+                        : profile.subscriptionType === "Semiprofesional" &&
+                          verificationStatus?.isVerified &&
+                          profile.role?.toString() !== "RECRUITER"
+                        ? "border-gray-400"
                         : "border-gray-200"
                     }`}
                   >
@@ -595,26 +599,47 @@ export default function UserViewer() {
                         </svg>
                       </div>
                     </div>
-                  ) : (
-                    profile.subscriptionType === "Profesional" &&
+                  ) : profile.subscriptionType === "Semiprofesional" &&
                     profile.role &&
-                    profile.role.toString() !== "RECRUITER" && (
-                      <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
+                    verificationStatus?.isVerified &&
+                    profile.role.toString() !== "RECRUITER" ? (
+                    <div
+                      className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1"
+                      title="🥈 Perfil Semiprofesional"
+                    >
+                      <div className="bg-gradient-to-r from-gray-300 via-gray-400 to-gray-500 text-white rounded-full shadow-lg border-2 border-white w-6 h-6 flex items-center justify-center">
                         <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-3 w-3 text-white"
-                          viewBox="0 0 20 20"
+                          className="w-3.5 h-3.5 text-white"
                           fill="currentColor"
+                          viewBox="0 0 20 20"
                         >
                           <path
                             fillRule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                             clipRule="evenodd"
                           />
                         </svg>
                       </div>
-                    )
-                  )}
+                    </div>
+                  ) : profile.subscriptionType === "Profesional" &&
+                    profile.role &&
+                    verificationStatus?.isVerified &&
+                    profile.role.toString() !== "RECRUITER" ? (
+                    <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-3 w-3 text-white"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                  ) : null}
                 </div>
                 <div className="ml-4">
                   <div className="flex items-center">
@@ -638,24 +663,43 @@ export default function UserViewer() {
 
                   {/* Texto de verificación debajo del nombre - sutil */}
                   {verificationStatus?.isVerified &&
-                    profile.role?.toString() !== "RECRUITER" && (
-                      <div className="flex items-center gap-1 mt-1">
-                        <svg
-                          className="w-3 h-3 text-yellow-500"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        <span className="text-xs text-gray-600 font-medium">
-                          Perfil verificado
-                        </span>
-                      </div>
-                    )}
+                  profile.role?.toString() !== "RECRUITER" ? (
+                    <div className="flex items-center gap-1 mt-1">
+                      <svg
+                        className="w-3 h-3 text-yellow-500"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <span className="text-xs text-gray-600 font-medium">
+                        Perfil verificado
+                      </span>
+                    </div>
+                  ) : profile.subscriptionType === "Semiprofesional" &&
+                    verificationStatus?.isVerified &&
+                    profile.role?.toString() !== "RECRUITER" ? (
+                    <div className="flex items-center gap-1 mt-1">
+                      <svg
+                        className="w-3 h-3 text-gray-400"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <span className="text-xs text-gray-600 font-medium">
+                        Perfil verificado
+                      </span>
+                    </div>
+                  ) : null}
                 </div>
               </div>
 
@@ -668,6 +712,12 @@ export default function UserViewer() {
                   </div>
                   <span className="mx-2">|</span>
                   <span>{profile.age} años</span>
+                  {verificationStatus?.isVerified && (
+                    <>
+                      <span className="mx-2">|</span>
+                      <span>{profile.subscriptionType}</span>
+                    </>
+                  )}
                 </div>
               )}
 
@@ -1024,7 +1074,7 @@ export default function UserViewer() {
                         />
                       </svg>
                     ) : (
-                      <FaUserSlash className="w-7 h-7 text-red-500" />
+                      <FaUserSlash className="w-7 h-7 text-green-500" />
                     )}
                   </div>
                   <div>
@@ -1041,11 +1091,11 @@ export default function UserViewer() {
                         </div>
                       ) : (
                         <div className="flex items-center">
-                          <span className="text-red-600 font-medium">
+                          <span className="text-green-600 font-medium">
                             Sin representación
                           </span>
-                          <span className="ml-2 bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full">
-                            Agente libre
+                          <span className="ml-2 bg-red-100 text-green-700 text-xs px-2 py-0.5 rounded-full">
+                            Free Agent
                           </span>
                         </div>
                       )}
@@ -1565,7 +1615,7 @@ export default function UserViewer() {
                               ) : (
                                 <span className="flex items-center gap-1 bg-green-700 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
                                   <FaUserSlash className="w-4 h-4" />
-                                  Agente libre
+                                  Free Agent
                                 </span>
                               )}
                             </span>

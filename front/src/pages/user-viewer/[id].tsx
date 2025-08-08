@@ -1,37 +1,35 @@
-import { useRouter } from "next/router";
-import { useEffect, useState, useContext, useRef } from "react";
+import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
-import Navbar from "@/components/navbar/navbar";
-import Head from "next/head";
-import { IProfileData, UserType } from "@/Interfaces/IUser";
-import { UserContext } from "@/components/Context/UserContext";
+import { useRouter } from "next/router";
+import { useContext, useEffect, useRef, useState } from "react";
+import { toast } from "react-hot-toast";
 import {
   FaArrowLeft,
   FaCog,
+  FaEllipsisH,
   FaHeart,
   FaRegHeart,
   FaShareAlt,
-  FaEllipsisH,
-  FaSignOutAlt,
   FaShieldAlt,
+  FaSignOutAlt,
   FaUserSlash,
 } from "react-icons/fa";
+import { UserContext } from "@/components/Context/UserContext";
 import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
-import { getDefaultPlayerImage } from "@/helpers/imageUtils";
+import Navbar from "@/components/navbar/navbar";
 import ProfileUser from "@/components/ProfileUser/ProfileUser";
-import VerificationBadge from "@/components/VerificationBadge/VerificationBadge";
+import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
+import { getDefaultPlayerImage } from "@/helpers/imageUtils";
+import {
+  formatearFecha,
+  sortTrayectoriasByFechaDesc,
+} from "@/helpers/sortAndFormatTrayectorias";
+import { type IProfileData, UserType } from "@/Interfaces/IUser";
 import {
   requestVerification,
   showVerificationToast,
 } from "@/services/VerificationService";
-import { toast } from "react-hot-toast";
-import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
-import {
-  formatAchievements,
-  formatearFecha,
-  sortTrayectoriasByFechaDesc,
-} from "@/helpers/sortAndFormatTrayectorias";
 
 // URL del backend
 const API_URL = "https://futbolink.onrender.com";
@@ -488,7 +486,7 @@ export default function UserViewer() {
             {/* Editar perfil */}
             <button
               onClick={() => router.push(`/user-viewer/${id}?edit=true`)}
-              className="w-full sm:w-auto bg-verde-oscuro text-white py-2 px-4 rounded-md hover:bg-verde-mas-claro transition-colors flex items-center justify-center"
+              type="button"
             >
               <FaCog className="mr-2" /> Editar perfil
             </button>
@@ -503,6 +501,8 @@ export default function UserViewer() {
                 )
               }
               className="w-full sm:w-auto bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors flex items-center justify-center"
+              type="button"
+              aria-label="boton de cambiar contrasena"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -510,6 +510,7 @@ export default function UserViewer() {
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -525,6 +526,7 @@ export default function UserViewer() {
             <button
               onClick={handleLogout}
               className="w-full sm:w-auto bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors flex items-center justify-center"
+              type="button"
             >
               <FaSignOutAlt className="mr-2" /> Cerrar sesión
             </button>
@@ -559,13 +561,14 @@ export default function UserViewer() {
                       className="object-cover w-full h-full"
                     />
                   </div>
-                  {(profile.role as any) === "RECRUITER" && (
+                  {(profile.role as UserType) === "RECRUITER" && (
                     <div className="absolute -bottom-1 -right-1 bg-purple-600 rounded-full p-1">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-3 w-3 text-white"
                         viewBox="0 0 20 20"
                         fill="currentColor"
+                        aria-hidden="true"
                       >
                         <path
                           fillRule="evenodd"
@@ -586,6 +589,7 @@ export default function UserViewer() {
                           className="w-3.5 h-3.5 text-white"
                           fill="currentColor"
                           viewBox="0 0 20 20"
+                          aria-hidden="true"
                         >
                           <path
                             fillRule="evenodd"
@@ -605,6 +609,7 @@ export default function UserViewer() {
                           className="h-3 w-3 text-white"
                           viewBox="0 0 20 20"
                           fill="currentColor"
+                          aria-hidden="true"
                         >
                           <path
                             fillRule="evenodd"
@@ -644,6 +649,7 @@ export default function UserViewer() {
                           className="w-3 h-3 text-yellow-500"
                           fill="currentColor"
                           viewBox="0 0 20 20"
+                          aria-hidden="true"
                         >
                           <path
                             fillRule="evenodd"
@@ -692,6 +698,7 @@ export default function UserViewer() {
                 <button
                   className="flex flex-col items-center justify-center p-2 transition-colors duration-200 hover:bg-gray-50 rounded-lg"
                   onClick={() => setLiked(!liked)}
+                  type="button"
                 >
                   {liked ? (
                     <FaHeart className="text-red-500 text-lg" />
@@ -714,6 +721,7 @@ export default function UserViewer() {
                     setUrlCopied(true);
                     setTimeout(() => setUrlCopied(false), 2000);
                   }}
+                  type="button"
                 >
                   {urlCopied ? (
                     <>
@@ -722,6 +730,7 @@ export default function UserViewer() {
                         className="h-5 w-5 text-green-500"
                         viewBox="0 0 20 20"
                         fill="currentColor"
+                        aria-hidden="true"
                       >
                         <path
                           fillRule="evenodd"
@@ -741,6 +750,7 @@ export default function UserViewer() {
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -759,6 +769,7 @@ export default function UserViewer() {
                 <button
                   className="flex flex-col items-center justify-center p-2 transition-colors duration-200 hover:bg-gray-50 rounded-lg"
                   onClick={() => setShowShareOptions(!showShareOptions)}
+                  type="button"
                 >
                   <FaShareAlt className="text-gray-500 text-lg" />
                   <span className="text-xs text-gray-500 mt-1 font-medium">
@@ -771,11 +782,14 @@ export default function UserViewer() {
                   <button
                     className="flex flex-col items-center justify-center p-2 transition-colors duration-200 hover:bg-gray-50 rounded-lg"
                     onClick={() => setShowVerificationModal(true)}
+                    aria-label="boton para verificar el perfil"
+                    type="button"
                   >
                     <svg
                       className="w-5 h-5 text-yellow-500"
                       fill="currentColor"
                       viewBox="0 0 20 20"
+                      aria-hidden="true"
                     >
                       <path
                         fillRule="evenodd"
@@ -808,6 +822,7 @@ export default function UserViewer() {
                           className="w-5 h-5 text-green-600"
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 448 512"
+                          aria-hidden="true"
                         >
                           <path
                             fill="currentColor"
@@ -828,6 +843,7 @@ export default function UserViewer() {
                           className="w-5 h-5 text-blue-500"
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 512 512"
+                          aria-hidden="true"
                         >
                           <path
                             fill="currentColor"
@@ -848,6 +864,7 @@ export default function UserViewer() {
                           className="w-5 h-5 text-blue-700"
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 320 512"
+                          aria-hidden="true"
                         >
                           <path
                             fill="currentColor"
@@ -864,6 +881,7 @@ export default function UserViewer() {
                   <button
                     className="flex flex-col items-center justify-center p-2 transition-colors duration-200 hover:bg-gray-50 rounded-lg"
                     onClick={() => setShowMoreOptions(!showMoreOptions)}
+                    type="button"
                   >
                     <FaEllipsisH className="text-gray-500 text-lg" />
                     <span className="text-xs text-gray-500 mt-1 font-medium">
@@ -881,12 +899,14 @@ export default function UserViewer() {
                             // Aquí puedes implementar la lógica para reportar
                             alert("Función de reporte no implementada");
                           }}
+                          type="button"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             className="h-5 w-5 text-red-500"
                             viewBox="0 0 20 20"
                             fill="currentColor"
+                            aria-hidden="true"
                           >
                             <path
                               fillRule="evenodd"
@@ -902,6 +922,7 @@ export default function UserViewer() {
                             onClick={() =>
                               router.push(`/user-viewer/${id}?edit=true`)
                             }
+                            type="button"
                           >
                             <FaCog className="h-5 w-5 text-gray-600" />
                             <span className="text-sm">Editar perfil</span>
@@ -910,6 +931,7 @@ export default function UserViewer() {
                         {isOwnProfile && (
                           <button
                             className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md text-left w-full"
+                            type="button"
                             onClick={() =>
                               router.push(
                                 `/forgotPassword?email=${encodeURIComponent(
@@ -924,6 +946,7 @@ export default function UserViewer() {
                               fill="none"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
+                              aria-hidden="true"
                             >
                               <path
                                 strokeLinecap="round"
@@ -939,6 +962,7 @@ export default function UserViewer() {
                           <button
                             className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md text-left w-full"
                             onClick={handleLogout}
+                            type="button"
                           >
                             <FaSignOutAlt className="h-5 w-5 text-red-600" />
                             <span className="text-sm">Cerrar sesión</span>
@@ -948,11 +972,14 @@ export default function UserViewer() {
                           <button
                             className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md text-left w-full"
                             onClick={() => setShowVerificationModal(true)}
+                            type="button"
+                            aria-label="icono de verificacion"
                           >
                             <svg
                               className="w-5 h-5 text-yellow-600"
                               fill="currentColor"
                               viewBox="0 0 20 20"
+                              aria-hidden="true"
                             >
                               <path
                                 fillRule="evenodd"
@@ -1015,6 +1042,7 @@ export default function UserViewer() {
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -1212,6 +1240,7 @@ export default function UserViewer() {
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -1240,6 +1269,7 @@ export default function UserViewer() {
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
+                          aria-hidden="true"
                         >
                           <path
                             strokeLinecap="round"
@@ -1263,6 +1293,7 @@ export default function UserViewer() {
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
+                          aria-hidden="true"
                         >
                           <path
                             strokeLinecap="round"
@@ -1286,6 +1317,7 @@ export default function UserViewer() {
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
+                          aria-hidden="true"
                         >
                           <path
                             strokeLinecap="round"
@@ -1322,6 +1354,7 @@ export default function UserViewer() {
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
+                      aria-hidden="true"
                     >
                       <path
                         strokeLinecap="round"
@@ -1369,6 +1402,7 @@ export default function UserViewer() {
               <div className="flex border-b border-gray-200">
                 <button
                   onClick={() => setActiveTab("info")}
+                  type="button"
                   className={`flex-1 py-3 text-center ${
                     activeTab === "info"
                       ? "text-green-600 border-b-2 border-green-600"
@@ -1379,6 +1413,7 @@ export default function UserViewer() {
                 </button>
                 <button
                   onClick={() => setActiveTab("stats")}
+                  type="button"
                   className={`flex-1 py-3 text-center ${
                     activeTab === "stats"
                       ? "text-green-600 border-b-2 border-green-600"
@@ -1389,6 +1424,7 @@ export default function UserViewer() {
                 </button>
                 <button
                   onClick={() => setActiveTab("career")}
+                  type="button"
                   className={`flex-1 py-3 text-center ${
                     activeTab === "career"
                       ? "text-green-600 border-b-2 border-green-600"
@@ -1507,6 +1543,7 @@ export default function UserViewer() {
                               fill="none"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
+                              aria-hidden="true"
                             >
                               <path
                                 strokeLinecap="round"
@@ -1657,7 +1694,7 @@ export default function UserViewer() {
                       {sortTrayectoriasByFechaDesc(profile.trayectorias).map(
                         (trayectoria, index) => (
                           <div
-                            key={index}
+                            key={`${trayectoria.club}-${index}`}
                             className="border-l-2 border-green-500 pl-4 pb-4"
                           >
                             <div className="flex justify-between mb-1">
@@ -1677,18 +1714,6 @@ export default function UserViewer() {
                               {trayectoria.nivelCompetencia} -{" "}
                               {trayectoria.categoriaEquipo}
                             </p>
-                            {trayectoria.logros && (
-                              <div className="text-sm text-gray-700 mt-1">
-                                <p className="font-medium">Logros:</p>
-                                <div className="mt-1 space-y-1">
-                                  {formatAchievements(trayectoria.logros).map(
-                                    (line, i) => (
-                                      <p key={i}>{line}</p>
-                                    )
-                                  )}
-                                </div>
-                              </div>
-                            )}
                           </div>
                         )
                       )}
@@ -1714,6 +1739,7 @@ export default function UserViewer() {
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -1756,6 +1782,7 @@ export default function UserViewer() {
                     className="w-6 h-6 mr-2 text-yellow-600"
                     fill="currentColor"
                     viewBox="0 0 20 20"
+                    aria-hidden="true"
                   >
                     <path
                       fillRule="evenodd"
@@ -1768,12 +1795,14 @@ export default function UserViewer() {
                 <button
                   onClick={() => setShowVerificationModal(false)}
                   className="text-gray-500 hover:text-gray-700 transition-colors"
+                  type="button"
                 >
                   <svg
                     className="w-5 h-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"
@@ -1793,6 +1822,7 @@ export default function UserViewer() {
                       className="w-5 h-5 text-yellow-600 mt-0.5 mr-3 flex-shrink-0"
                       fill="currentColor"
                       viewBox="0 0 20 20"
+                      aria-hidden="true"
                     >
                       <path
                         fillRule="evenodd"
@@ -1816,13 +1846,17 @@ export default function UserViewer() {
                 {/* Formulario de solicitud */}
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="verificationMessage"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Mensaje para el administrador (opcional)
                     </label>
                     <textarea
                       value={verificationMessage}
+                      id="verificationMessage"
                       onChange={(e) => setVerificationMessage(e.target.value)}
-                      placeholder="Explica por qué solicitas la verificación de tu perfil. Por ejemplo: información sobre tus logros, experiencia profesional, etc."
+                      placeholder="Explica por qué solicitas la verificación de tu perfil. Por ejemplo: información sobre tu Pais, experiencia profesional, etc."
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
                       rows={4}
                       maxLength={500}
@@ -1837,11 +1871,13 @@ export default function UserViewer() {
                       <button
                         onClick={() => setShowVerificationModal(false)}
                         className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                        type="button"
                       >
                         Cancelar
                       </button>
                       <button
                         onClick={handleRequestVerification}
+                        type="button"
                         disabled={loadingVerification}
                         className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                       >
@@ -1856,6 +1892,7 @@ export default function UserViewer() {
                               className="w-4 h-4"
                               fill="currentColor"
                               viewBox="0 0 20 20"
+                              aria-hidden="true"
                             >
                               <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                               <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />

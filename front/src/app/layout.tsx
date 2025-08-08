@@ -1,17 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import { Geist, Geist_Mono, Montserrat } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-import Footer from "@/components/Footer/footer";
-import Navbar from "@/components/navbar/navbar";
-import { usePathname } from "next/navigation"; // Importar usePathname
-import { metadata } from "./metadata"; // Importar metadata desde el archivo separado
-import SocialButton from "@/components/SocialButton/SocialButton";
-import { UserProvider } from "@/components/Context/UserContext";
-import { TranslationProvider } from "@/components/Context/TranslationContext";
 import Head from "next/head";
+import { usePathname } from "next/navigation"; // Importar usePathname
+import { TranslationProvider } from "@/components/Context/TranslationContext";
+import { UserProvider } from "@/components/Context/UserContext";
+import Footer from "@/components/Footer/footer";
+import NavbarSidebarLayout from "@/components/layout/SidebarLayout";
+import Navbar from "@/components/navbar/navbar";
+import SocialButton from "@/components/SocialButton/SocialButton";
 import ToastContainer from "@/components/ToastContainer";
+import { metadata } from "./metadata"; // Importar metadata desde el archivo separado
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,8 +32,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname(); // Obtener la ruta actual
-  const keywordsString = Array.isArray(metadata.keywords) 
-    ? metadata.keywords.join(", ") 
+  const keywordsString = Array.isArray(metadata.keywords)
+    ? metadata.keywords.join(", ")
     : "fútbol, empleo deportivo, oportunidades fútbol";
 
   return (
@@ -48,16 +49,22 @@ export default function RootLayout({
         />
         <meta name="keywords" content={keywordsString} />
         <meta property="og:title" content={String(metadata.openGraph?.title)} />
-        <meta property="og:description" content={String(metadata.openGraph?.description)} />
+        <meta
+          property="og:description"
+          content={String(metadata.openGraph?.description)}
+        />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://futbolink.net" />
         <meta property="og:image" content="https://futbolink.net/logoD.png" />
         <meta property="og:site_name" content="Futbolink" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={String(metadata.twitter?.title)} />
-        <meta name="twitter:description" content={String(metadata.twitter?.description)} />
+        <meta
+          name="twitter:description"
+          content={String(metadata.twitter?.description)}
+        />
         <meta name="twitter:image" content="https://futbolink.net/logoD.png" />
-        
+
         {/* Favicons */}
         <link rel="icon" href="/logoD.png" sizes="any" />
         <link rel="icon" type="image/png" sizes="32x32" href="/logoD.png" />
@@ -67,20 +74,21 @@ export default function RootLayout({
         <meta name="msapplication-TileImage" content="/logoD.png" />
         <meta name="msapplication-TileColor" content="#1d5126" />
         <meta name="theme-color" content="#1d5126" />
-        
+
         {/* Preconnect con Cloudinary para mejorar carga de imágenes */}
         <link rel="preconnect" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <link rel="canonical" href="https://futbolink.net/" />
-
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased hover:scale`}
       >
         <UserProvider>
           <TranslationProvider>
-            <Navbar />
-            <div>{children}</div>
+            {/* <Navbar /> */}
+            <NavbarSidebarLayout>
+              <div>{children}</div>
+            </NavbarSidebarLayout>
             <SocialButton />
             <Footer />
             <ToastContainer />

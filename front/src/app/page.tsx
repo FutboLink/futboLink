@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import HorizontalDiv from "@/components/HorizontalDiv/line";
 import Home from "@/components/home/home";
@@ -7,25 +5,25 @@ import LogoCarousel from "@/components/LogoCarousel/LogoCarousel";
 import Clients from "@/components/Clients/client";
 import About from "@/components/AboutUs/about";
 import Contact from "@/components/Contact/contact";
-import Head from "next/head";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Futbolink - La plataforma líder de oportunidades en el mundo del fútbol",
+  description:
+    "Futbolink es la plataforma profesional que conecta talento y oportunidades en el mundo del fútbol. Descubre cómo Futbolink puede impulsar tu carrera deportiva.",
+  keywords: [
+    "futbolink",
+    "fútbol",
+    "empleo deportivo",
+    "oportunidades futbolink",
+    "reclutamiento deportivo",
+    "futbolink plataforma",
+  ],
+};
 
 export default function HomePage() {
   return (
     <div className="min-h-screen">
-      <Head>
-        <title>
-          Futbolink - La plataforma líder de oportunidades en el mundo del
-          fútbol
-        </title>
-        <meta
-          name="description"
-          content="Futbolink es la plataforma profesional que conecta talento y oportunidades en el mundo del fútbol. Descubre cómo Futbolink puede impulsar tu carrera deportiva."
-        />
-        <meta
-          name="keywords"
-          content="futbolink, fútbol, empleo deportivo, oportunidades futbolink, reclutamiento deportivo, futbolink plataforma"
-        />
-      </Head>
 
       {/* Hero Section */}
       <Home />

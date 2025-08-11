@@ -1,16 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-"use client";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Montserrat } from "next/font/google";
 import "./globals.css";
 
-import Head from "next/head";
-import { usePathname } from "next/navigation"; // Importar usePathname
-import { TranslationProvider } from "@/components/Context/TranslationContext";
-import { UserProvider } from "@/components/Context/UserContext";
 import Footer from "@/components/Footer/footer";
-import NavbarSidebarLayout from "@/components/layout/SidebarLayout";
 import Navbar from "@/components/navbar/navbar";
+import { metadata } from "./metadata"; // Importar metadata desde el archivo separado
 import SocialButton from "@/components/SocialButton/SocialButton";
+import { UserProvider } from "@/components/Context/UserContext";
+import { TranslationProvider } from "@/components/Context/TranslationContext";
 import ToastContainer from "@/components/ToastContainer";
 import { metadata } from "./metadata"; // Importar metadata desde el archivo separado
 
@@ -31,9 +28,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const pathname = usePathname(); // Obtener la ruta actual
-  const keywordsString = Array.isArray(metadata.keywords)
-    ? metadata.keywords.join(", ")
+  const keywordsString = Array.isArray(metadata.keywords) 
+    ? metadata.keywords.join(", ") 
     : "fútbol, empleo deportivo, oportunidades fútbol";
 
   return (
@@ -78,7 +74,11 @@ export default function RootLayout({
         {/* Preconnect con Cloudinary para mejorar carga de imágenes */}
         <link rel="preconnect" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+<<<<<<< HEAD
         <link rel="canonical" href="https://futbolink.net/" />
+=======
+
+>>>>>>> main
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased hover:scale`}

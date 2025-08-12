@@ -1,25 +1,14 @@
-<<<<<<< HEAD
-"use client";
-
-import Head from "next/head";
+import type { Metadata } from "next";
 import About from "@/components/AboutUs/about";
 import Clients from "@/components/Clients/client";
 import Contact from "@/components/Contact/contact";
 import HorizontalDiv from "@/components/HorizontalDiv/line";
 import Home from "@/components/home/home";
 import LogoCarousel from "@/components/LogoCarousel/LogoCarousel";
-=======
-import React from "react";
-import HorizontalDiv from "@/components/HorizontalDiv/line";
-import Home from "@/components/home/home";
-import LogoCarousel from "@/components/LogoCarousel/LogoCarousel";
-import Clients from "@/components/Clients/client";
-import About from "@/components/AboutUs/about";
-import Contact from "@/components/Contact/contact";
-import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Futbolink - La plataforma líder de oportunidades en el mundo del fútbol",
+  title:
+    "Futbolink - La plataforma líder de oportunidades en el mundo del fútbol",
   description:
     "Futbolink es la plataforma profesional que conecta talento y oportunidades en el mundo del fútbol. Descubre cómo Futbolink puede impulsar tu carrera deportiva.",
   keywords: [
@@ -31,14 +20,11 @@ export const metadata: Metadata = {
     "futbolink plataforma",
   ],
 };
->>>>>>> main
 
 export default function HomePage() {
   return (
     <div className="min-h-screen">
-
       {/* Hero Section */}
-
       <Home />
 
       {/* Logo Carousel */}

@@ -32,6 +32,9 @@ import {
   requestVerification,
   showVerificationToast,
 } from "@/services/VerificationService";
+// Fallback promo images when no YouTube video is provided
+import promoBasic1 from "../../../public/promo-profile/b a s i c v i d e o b a s i c (1).png";
+import promoBasic2 from "../../../public/promo-profile/b a s i c v i d e o b a s i c (2).png";
 
 // URL del backend
 const API_URL = "https://futbolink.onrender.com";
@@ -1627,34 +1630,58 @@ export default function UserViewer() {
                     )}
                   </div>
                   {/* Sección de video */}
-                  {profile.videoUrl && (
-                    <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-                      <h3 className="text-lg font-medium mb-3 text-gray-800">
-                        Video de presentación
-                      </h3>
-                      <div className="relative pt-[56.25%] bg-gray-100 rounded overflow-hidden">
-                        <iframe
-                          className="absolute top-0 left-0 w-full h-full"
-                          src={formatYoutubeUrl(profile.videoUrl)}
-                          title={`Video de ${profile.name} ${profile.lastname}`}
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        ></iframe>
+                  <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+                    <h3 className="text-lg font-medium mb-3 text-gray-800">
+                      Video de presentación
+                    </h3>
+                    {profile.videoUrl ? (
+                      <>
+                        <div className="relative pt-[56.25%] bg-gray-100 rounded overflow-hidden">
+                          <iframe
+                            className="absolute top-0 left-0 w-full h-full"
+                            src={formatYoutubeUrl(profile.videoUrl)}
+                            title={`Video de ${profile.name} ${profile.lastname}`}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          ></iframe>
+                        </div>
+                        <div className="mt-2 text-xs text-gray-500">
+                          <a
+                            href={profile.videoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline"
+                          >
+                            Ver video en YouTube
+                          </a>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="relative pt-[56.25%] bg-gray-100 rounded overflow-hidden flex items-center justify-center">
+                        <div className="absolute inset-0 grid grid-cols-2 gap-2 p-2">
+                          <a
+                            href="https://wa.me/393715851071"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="relative w-full h-full rounded overflow-hidden cursor-pointer"
+                            aria-label="Contactar por WhatsApp"
+                          >
+                            <Image src={promoBasic1} alt="Promo perfil 1" fill className="object-contain" />
+                          </a>
+                          <a
+                            href="https://wa.me/393715851071"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="relative w-full h-full rounded overflow-hidden cursor-pointer"
+                            aria-label="Contactar por WhatsApp"
+                          >
+                            <Image src={promoBasic2} alt="Promo perfil 2" fill className="object-contain" />
+                          </a>
+                        </div>
                       </div>
-                      {/* Mostrar la URL original como fallback en caso de problemas */}
-                      <div className="mt-2 text-xs text-gray-500">
-                        <a
-                          href={profile.videoUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="hover:underline"
-                        >
-                          Ver video en YouTube
-                        </a>
-                      </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               )}
               {activeTab === "stats" && (

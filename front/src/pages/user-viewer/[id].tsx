@@ -606,7 +606,7 @@ export default function UserViewer() {
                       className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1"
                       title="🥈 Perfil Semiprofesional"
                     >
-                      <div className="bg-gradient-to-r from-gray-300 via-gray-400 to-gray-500 text-white rounded-full shadow-lg border-2 border-white w-6 h-6 flex items-center justify-center">
+                      <div className="bg-gradient-to-r from-gray-400 via-gray-400 to-gray-500 text-white rounded-full shadow-lg border-2 border-white w-6 h-6 flex items-center justify-center">
                         <svg
                           className="w-3.5 h-3.5 text-white"
                           fill="currentColor"
@@ -642,26 +642,35 @@ export default function UserViewer() {
                     </p>
                   )}
 
-                  {/* Texto de verificación debajo del nombre - sutil usando verificationLevel */}
-                  {verificationStatus?.isVerified &&
-                  profile.role?.toString() !== 'RECRUITER' &&
-                  verificationStatus?.verificationLevel === 'PROFESSIONAL' ? (
+                  {/* Texto de verificación debajo del nombre - sutil usando verificationLevel con fallback */}
+                  {verificationStatus?.isVerified && profile.role?.toString() !== 'RECRUITER' && (
                     <div className="flex items-center gap-1 mt-1">
-                      <svg className="w-3 h-3 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      <svg
+                        className={`w-3 h-3 ${
+                          verificationStatus?.verificationLevel === 'PROFESSIONAL'
+                            ? 'text-yellow-500'
+                            : verificationStatus?.verificationLevel === 'SEMIPROFESSIONAL'
+                            ? 'text-gray-500'
+                            : 'text-gray-500'
+                        }`}
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
                       </svg>
-                      <span className="text-xs text-gray-600 font-medium">Perfil verificado profesional</span>
+                      <span className="text-xs text-gray-600 font-medium">
+                        {verificationStatus?.verificationLevel === 'PROFESSIONAL'
+                          ? 'Perfil verificado profesional'
+                          : verificationStatus?.verificationLevel === 'SEMIPROFESSIONAL'
+                          ? 'Perfil verificado semiprofesional'
+                          : 'Perfil verificado'}
+                      </span>
                     </div>
-                  ) : verificationStatus?.isVerified &&
-                      profile.role?.toString() !== 'RECRUITER' &&
-                      verificationStatus?.verificationLevel === 'SEMIPROFESSIONAL' ? (
-                    <div className="flex items-center gap-1 mt-1">
-                      <svg className="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      <span className="text-xs text-gray-600 font-medium">Perfil verificado semiprofesional</span>
-                    </div>
-                  ) : null}
+                  )}
                 </div>
               </div>
 

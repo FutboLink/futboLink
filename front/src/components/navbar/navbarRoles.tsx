@@ -39,7 +39,7 @@ function NavbarRoles() {
         .then((response) => {
           const { subscriptionType, isActive } = response.data;
           setHasProfessionalSubscription(
-            subscriptionType === "Profesional" && isActive
+            (subscriptionType === "Profesional" || subscriptionType === "Semiprofesional") && isActive
           );
         })
         .catch((error) => {
@@ -113,7 +113,8 @@ function NavbarRoles() {
 
   // Renderizar botón de búsqueda de jugadores para móviles
   const renderPlayerSearchButton = () => {
-    if (!hasProfessionalSubscription) return null;
+    // Permitir acceso a profesionales y semiprofesionales
+    if (!hasProfessionalSubscription && role !== 'RECRUITER' && role !== 'ADMIN') return null;
 
     return (
       <button
@@ -192,9 +193,7 @@ function NavbarRoles() {
           {/* Icono de usuario y notificaciones en escritorio */}
           <div className="hidden md:flex items-center gap-4">
             {isLogged && <NotificationsList />}
-            {isLogged &&
-              hasProfessionalSubscription &&
-              renderPlayerSearchButton()}
+            {isLogged && renderPlayerSearchButton()}
             {renderUserIcon()}
           </div>
 

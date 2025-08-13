@@ -541,7 +541,7 @@ export default function UserViewer() {
               <div className="flex items-center mb-2">
                 <div className="relative">
                   <div
-                    className={`w-16 h-16 rounded-full overflow-hidden border-2 shadow-md ${
+                    className={`w-16 h-16 rounded-full overflow-hidden border-4 shadow-md ${
                       verificationStatus?.isVerified &&
                       profile.role?.toString() !== "RECRUITER" &&
                       verificationStatus?.verificationLevel === 'PROFESSIONAL'
@@ -550,7 +550,7 @@ export default function UserViewer() {
                           profile.role?.toString() !== "RECRUITER" &&
                           verificationStatus?.verificationLevel === 'SEMIPROFESSIONAL'
                         ? 'border-gray-400'
-                        : 'border-gray-200'
+                        : 'border-gray-400'
                     }`}
                   >
                     <Image
@@ -606,7 +606,7 @@ export default function UserViewer() {
                       className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1"
                       title="🥈 Perfil Semiprofesional"
                     >
-                      <div className="bg-gradient-to-r from-gray-400 via-gray-400 to-gray-500 text-white rounded-full shadow-lg border-2 border-white w-6 h-6 flex items-center justify-center">
+                      <div className="bg-gradient-to-r from-gray-500 via-gray-500 to-gray-800 text-white rounded-full shadow-lg border-2 border-gray-500 w-6 h-6 flex items-center justify-center">
                         <svg
                           className="w-3.5 h-3.5 text-white"
                           fill="currentColor"

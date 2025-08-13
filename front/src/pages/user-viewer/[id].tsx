@@ -581,46 +581,46 @@ export default function UserViewer() {
                     </div>
                   )}
                   {/* Priorizar insignia de verificación sobre suscripción profesional */}
-                  {verificationStatus?.isVerified &&
-                  profile.role?.toString() !== "RECRUITER" && verificationStatus?.verificationLevel === 'PROFESSIONAL' ? (
-                    <div
-                      className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1"
-                      title="✅ Perfil Verificado"
-                    >
-                      <div className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 text-white rounded-full shadow-lg border-2 border-yellow-500 w-6 h-6 flex items-center justify-center">
-                        <svg
-                          className="w-3.5 h-3.5 text-white"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
+                  {verificationStatus?.isVerified && profile.role?.toString() !== 'RECRUITER' && (() => {
+                    const level = verificationStatus?.verificationLevel;
+                    const subType = profile.subscriptionType;
+                    const effectiveLevel = level
+                      ? level
+                      : subType === 'Profesional'
+                        ? 'PROFESSIONAL'
+                        : subType === 'Semiprofesional'
+                          ? 'SEMIPROFESSIONAL'
+                          : undefined;
+                    if (effectiveLevel === 'PROFESSIONAL') {
+                      return (
+                        <div
+                          className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1"
+                          title="✅ Perfil Verificado Profesional"
                         >
-                          <path
-                            fillRule="evenodd"
-                            d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                  ) : profile.role && verificationStatus?.isVerified && verificationStatus?.verificationLevel === 'SEMIPROFESSIONAL' && profile.role.toString() !== "RECRUITER" ? (
-                    <div
-                      className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1"
-                      title="🥈 Perfil Semiprofesional"
-                    >
-                      <div className="bg-gradient-to-r from-gray-500 via-gray-500 to-gray-800 text-white rounded-full shadow-lg border-2 border-gray-500 w-6 h-6 flex items-center justify-center">
-                        <svg
-                          className="w-3.5 h-3.5 text-white"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
+                          <div className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 text-white rounded-full shadow-lg border-2 border-yellow-500 w-6 h-6 flex items-center justify-center">
+                            <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        </div>
+                      );
+                    }
+                    if (effectiveLevel === 'SEMIPROFESSIONAL') {
+                      return (
+                        <div
+                          className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1"
+                          title="🥈 Perfil Semiprofesional"
                         >
-                          <path
-                            fillRule="evenodd"
-                            d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                   ) : null}
+                          <div className="bg-gradient-to-r from-gray-500 via-gray-500 to-gray-800 text-white rounded-full shadow-lg border-2 border-gray-500 w-6 h-6 flex items-center justify-center">
+                            <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
                 <div className="ml-4">
                   <div className="flex items-center">

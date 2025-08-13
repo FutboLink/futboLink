@@ -19,6 +19,7 @@ const VerificationRequests: React.FC = () => {
   const [adminComments, setAdminComments] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [actionType, setActionType] = useState<'APPROVED' | 'REJECTED'>('APPROVED');
+  const [verificationType, setVerificationType] = useState<'PROFESSIONAL' | 'SEMIPROFESSIONAL'>('SEMIPROFESSIONAL');
 
   // Cargar todas las solicitudes de verificación
   const loadVerificationRequests = async () => {
@@ -47,7 +48,10 @@ const VerificationRequests: React.FC = () => {
     setProcessingRequests(prev => new Set(prev).add(requestId));
 
     try {
-      await processVerificationRequest(requestId, { status, adminComments: comments }, token);
+      const payload = status === 'APPROVED' 
+        ? { status, adminComments: comments, verificationType }
+        : { status, adminComments: comments };
+      await processVerificationRequest(requestId, payload as any, token);
       
       showVerificationToast.success(
         status === 'APPROVED' 
@@ -62,6 +66,7 @@ const VerificationRequests: React.FC = () => {
       setShowModal(false);
       setSelectedRequest(null);
       setAdminComments("");
+      setVerificationType('SEMIPROFESSIONAL');
       
     } catch (error: any) {
       showVerificationToast.error(error.message || 'Error al procesar la solicitud');
@@ -79,6 +84,7 @@ const VerificationRequests: React.FC = () => {
     setSelectedRequest(request);
     setActionType(action);
     setAdminComments("");
+    setVerificationType('SEMIPROFESSIONAL');
     setShowModal(true);
   };
 
@@ -252,6 +258,22 @@ const VerificationRequests: React.FC = () => {
             </p>
             
             <div className="mb-4">
+              {actionType === 'APPROVED' && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tipo de verificación a otorgar
+                  </label>
+                  <select
+                    value={verificationType}
+                    onChange={(e) => setVerificationType(e.target.value as any)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="SEMIPROFESSIONAL">Verificación Semiprofesional</option>
+                    <option value="PROFESSIONAL">Verificación Profesional</option>
+                  </select>
+                </div>
+              )}
+              
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Comentarios {actionType === 'REJECTED' ? '(requeridos)' : '(opcionales)'}
               </label>

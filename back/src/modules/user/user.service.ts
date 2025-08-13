@@ -1065,6 +1065,23 @@ export class UserService {
   }
 
   /**
+   * Verifica si la columna verificationLevel existe en la tabla users
+   */
+  private async checkVerificationLevelColumnExists(): Promise<boolean> {
+    try {
+      const result = await this.entityManager.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'users' AND column_name = 'verificationLevel'
+      `);
+      return result.length > 0;
+    } catch (error) {
+      console.error('Error verificando columna verificationLevel:', error);
+      return false;
+    }
+  }
+
+  /**
    * Verifica si un usuario está verificado usando query directo
    */
   private async isUserVerifiedSafe(userId: string): Promise<boolean> {
@@ -1087,6 +1104,26 @@ export class UserService {
   }
 
   /**
+   * Obtiene el nivel de verificación del usuario usando query directo
+   */
+  private async getUserVerificationLevelSafe(userId: string): Promise<'NONE' | 'SEMIPROFESSIONAL' | 'PROFESSIONAL'> {
+    try {
+      const columnExists = await this.checkVerificationLevelColumnExists();
+      if (!columnExists) {
+        return 'NONE';
+      }
+      const result = await this.entityManager.query(
+        'SELECT "verificationLevel" FROM users WHERE id = $1',
+        [userId]
+      );
+      return (result[0]?.verificationLevel || 'NONE') as 'NONE' | 'SEMIPROFESSIONAL' | 'PROFESSIONAL';
+    } catch (error) {
+      console.error('Error obteniendo verificationLevel:', error);
+      return 'NONE';
+    }
+  }
+
+  /**
    * Marca un usuario como verificado usando query directo
    */
   private async markUserAsVerifiedSafe(userId: string): Promise<boolean> {
@@ -1105,6 +1142,30 @@ export class UserService {
       return true;
     } catch (error) {
       console.error('Error marcando usuario como verificado:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Establece el nivel de verificación del usuario
+   */
+  private async setUserVerificationLevelSafe(
+    userId: string,
+    level: 'SEMIPROFESSIONAL' | 'PROFESSIONAL',
+  ): Promise<boolean> {
+    try {
+      const columnExists = await this.checkVerificationLevelColumnExists();
+      if (!columnExists) {
+        console.log('Columna verificationLevel no existe, no se puede actualizar');
+        return false;
+      }
+      await this.entityManager.query(
+        'UPDATE users SET "verificationLevel" = $1 WHERE id = $2',
+        [level, userId]
+      );
+      return true;
+    } catch (error) {
+      console.error('Error actualizando verificationLevel:', error);
       return false;
     }
   }
@@ -1188,6 +1249,43 @@ export class UserService {
   }
 
   /**
+   * Actualiza manualmente el nivel de verificación de un usuario (admin)
+   */
+  async updateUserVerificationLevel(
+    userId: string,
+    level: 'NONE' | 'SEMIPROFESSIONAL' | 'PROFESSIONAL',
+  ): Promise<{ success: boolean; verificationLevel: string; isVerified: boolean }>{
+    // Asegurar columnas
+    const hasLevelColumn = await this.checkVerificationLevelColumnExists();
+    if (!hasLevelColumn) {
+      await this.entityManager.query(`
+        ALTER TABLE "users" 
+        ADD COLUMN "verificationLevel" VARCHAR(32) NOT NULL DEFAULT 'NONE'
+      `);
+    }
+
+    const isVerified = level !== 'NONE';
+    if (await this.checkIsVerifiedColumnExists()) {
+      await this.entityManager.query(
+        'UPDATE users SET "isVerified" = $1, "verificationLevel" = $2 WHERE id = $3',
+        [isVerified, level, userId]
+      );
+    } else {
+      // Crear columna isVerified si no existe
+      await this.entityManager.query(`
+        ALTER TABLE "users" 
+        ADD COLUMN "isVerified" boolean NOT NULL DEFAULT false
+      `);
+      await this.entityManager.query(
+        'UPDATE users SET "isVerified" = $1, "verificationLevel" = $2 WHERE id = $3',
+        [isVerified, level, userId]
+      );
+    }
+
+    return { success: true, verificationLevel: level, isVerified };
+  }
+
+  /**
    * Procesa una solicitud de verificación (aprueba o rechaza)
    * @param requestId ID de la solicitud
    * @param adminId ID del administrador que procesa
@@ -1229,11 +1327,20 @@ export class UserService {
     
     const updatedRequest = await this.verificationRequestRepository.save(request);
     
-    // Si fue aprobada, marcar al usuario como verificado usando método seguro
+    // Si fue aprobada, marcar al usuario como verificado y establecer nivel
     if (updatedRequest.status === VerificationRequestStatus.APPROVED) {
-      const success = await this.markUserAsVerifiedSafe(request.playerId);
-      if (!success) {
+      const verifiedOk = await this.markUserAsVerifiedSafe(request.playerId);
+      if (!verifiedOk) {
         console.warn(`No se pudo marcar como verificado al usuario ${request.playerId} - columna isVerified no existe`);
+      }
+
+      // Establecer nivel de verificación si la columna existe
+      const desiredLevel = (updateVerificationRequestDto as any)?.verificationType === 'PROFESSIONAL'
+        ? 'PROFESSIONAL'
+        : 'SEMIPROFESSIONAL';
+      const levelOk = await this.setUserVerificationLevelSafe(request.playerId, desiredLevel);
+      if (!levelOk) {
+        console.warn(`No se pudo establecer verificationLevel para el usuario ${request.playerId}`);
       }
     }
     
@@ -1270,13 +1377,16 @@ export class UserService {
    * @returns Estado de verificación
    */
   async getUserVerificationStatus(userId: string): Promise<{ isVerified: boolean; columnExists: boolean }> {
-    const columnExists = await this.checkIsVerifiedColumnExists();
-    const isVerified = columnExists ? await this.isUserVerifiedSafe(userId) : false;
-    
+    const isVerifiedColumn = await this.checkIsVerifiedColumnExists();
+    const isVerified = isVerifiedColumn ? await this.isUserVerifiedSafe(userId) : false;
+    const hasLevelColumn = await this.checkVerificationLevelColumnExists();
+    const verificationLevel = hasLevelColumn ? await this.getUserVerificationLevelSafe(userId) : 'NONE';
     return {
       isVerified,
-      columnExists
-    };
+      columnExists: isVerifiedColumn,
+      // Campos extra no documentados previamente, útiles para el frontend
+      ...(hasLevelColumn ? { verificationLevel } : {}),
+    } as any;
   }
 
   /**

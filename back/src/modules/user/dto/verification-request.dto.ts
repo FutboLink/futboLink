@@ -31,4 +31,13 @@ export class UpdateVerificationRequestDto {
   @IsOptional()
   @IsString()
   adminComments?: string;
+
+  @ApiProperty({
+    description: 'Tipo de verificación a otorgar cuando se aprueba',
+    enum: ['PROFESSIONAL', 'SEMIPROFESSIONAL'],
+    required: false,
+  })
+  @IsOptional()
+  @IsEnum(['PROFESSIONAL', 'SEMIPROFESSIONAL'] as const)
+  verificationType?: 'PROFESSIONAL' | 'SEMIPROFESSIONAL';
 } 

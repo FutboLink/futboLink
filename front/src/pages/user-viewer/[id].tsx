@@ -98,6 +98,7 @@ export default function UserViewer() {
   const [verificationStatus, setVerificationStatus] = useState<{
     isVerified: boolean;
     columnExists: boolean;
+    verificationLevel?: 'NONE' | 'SEMIPROFESSIONAL' | 'PROFESSIONAL';
   } | null>(null);
 
   // Referencias para los menús desplegables
@@ -580,7 +581,7 @@ export default function UserViewer() {
                   )}
                   {/* Priorizar insignia de verificación sobre suscripción profesional */}
                   {verificationStatus?.isVerified &&
-                  profile.role?.toString() !== "RECRUITER" ? (
+                  profile.role?.toString() !== "RECRUITER" && verificationStatus?.verificationLevel === 'PROFESSIONAL' ? (
                     <div
                       className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1"
                       title="✅ Perfil Verificado"
@@ -599,10 +600,7 @@ export default function UserViewer() {
                         </svg>
                       </div>
                     </div>
-                  ) : profile.subscriptionType === "Semiprofesional" &&
-                    profile.role &&
-                    verificationStatus?.isVerified &&
-                    profile.role.toString() !== "RECRUITER" ? (
+                  ) : profile.role && verificationStatus?.isVerified && verificationStatus?.verificationLevel === 'SEMIPROFESSIONAL' && profile.role.toString() !== "RECRUITER" ? (
                     <div
                       className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1"
                       title="🥈 Perfil Semiprofesional"
@@ -621,25 +619,7 @@ export default function UserViewer() {
                         </svg>
                       </div>
                     </div>
-                  ) : profile.subscriptionType === "Profesional" &&
-                    profile.role &&
-                    verificationStatus?.isVerified &&
-                    profile.role.toString() !== "RECRUITER" ? (
-                    <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-3 w-3 text-white"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                  ) : null}
+                   ) : null}
                 </div>
                 <div className="ml-4">
                   <div className="flex items-center">

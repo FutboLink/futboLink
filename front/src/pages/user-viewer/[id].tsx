@@ -543,13 +543,14 @@ export default function UserViewer() {
                   <div
                     className={`w-16 h-16 rounded-full overflow-hidden border-2 shadow-md ${
                       verificationStatus?.isVerified &&
-                      profile.role?.toString() !== "RECRUITER"
-                        ? "border-yellow-500"
-                        : profile.subscriptionType === "Semiprofesional" &&
-                          verificationStatus?.isVerified &&
-                          profile.role?.toString() !== "RECRUITER"
-                        ? "border-gray-400"
-                        : "border-gray-200"
+                      profile.role?.toString() !== "RECRUITER" &&
+                      verificationStatus?.verificationLevel === 'PROFESSIONAL'
+                        ? 'border-yellow-500'
+                        : verificationStatus?.isVerified &&
+                          profile.role?.toString() !== "RECRUITER" &&
+                          verificationStatus?.verificationLevel === 'SEMIPROFESSIONAL'
+                        ? 'border-gray-400'
+                        : 'border-gray-200'
                     }`}
                   >
                     <Image

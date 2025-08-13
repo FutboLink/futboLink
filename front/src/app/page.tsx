@@ -8,7 +8,8 @@ import Contact from "@/components/Contact/contact";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Futbolink - La plataforma líder de oportunidades en el mundo del fútbol",
+  title:
+    "Futbolink - La plataforma líder de oportunidades en el mundo del fútbol",
   description:
     "Futbolink es la plataforma profesional que conecta talento y oportunidades en el mundo del fútbol. Descubre cómo Futbolink puede impulsar tu carrera deportiva.",
   keywords: [
@@ -24,7 +25,6 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <div className="min-h-screen">
-
       {/* Hero Section */}
       <Home />
 

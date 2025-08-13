@@ -20,6 +20,7 @@ export interface VerificationRequest {
     name: string;
     lastname: string;
   };
+  verificationType?: 'PROFESSIONAL' | 'SEMIPROFESSIONAL';
 }
 
 export interface CreateVerificationRequestDto {
@@ -29,6 +30,7 @@ export interface CreateVerificationRequestDto {
 export interface UpdateVerificationRequestDto {
   status: 'APPROVED' | 'REJECTED';
   adminComments?: string;
+  verificationType?: 'PROFESSIONAL' | 'SEMIPROFESSIONAL';
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;

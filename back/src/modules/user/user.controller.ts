@@ -518,6 +518,22 @@ export class UserController {
     return this.userService.forceCreateVerificationColumn();
   }
 
+  @ApiOperation({ summary: 'Actualizar manualmente el nivel de verificación de un usuario (solo administradores)' })
+  @ApiResponse({ status: 200, description: 'Nivel de verificación actualizado' })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @UseGuards(AuthGuard)
+  @Put(':id/verification-level')
+  async updateVerificationLevel(
+    @Param('id', ParseUUIDPipe) userId: string,
+    @Body() data: { level: 'NONE' | 'SEMIPROFESSIONAL' | 'PROFESSIONAL' },
+    @Req() req: any,
+  ) {
+    if (req.user.role !== 'ADMIN') {
+      throw new UnauthorizedException('Solo administradores');
+    }
+    return this.userService.updateUserVerificationLevel(userId, data.level);
+  }
+
   @ApiOperation({ summary: 'Obtener solicitudes de verificación de un jugador específico' })
   @ApiResponse({
     status: 200,

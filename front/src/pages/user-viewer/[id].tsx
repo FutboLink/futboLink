@@ -30,6 +30,9 @@ import {
   requestVerification,
   showVerificationToast,
 } from "@/services/VerificationService";
+// Fallback promo images when no YouTube video is provided
+import promoBasic1 from "../../../public/promo-profile/b a s i c v i d e o b a s i c (1).png";
+import promoBasic2 from "../../../public/promo-profile/b a s i c v i d e o b a s i c (2).png";
 
 // URL del backend
 const API_URL = "https://futbolink.onrender.com";
@@ -96,6 +99,7 @@ export default function UserViewer() {
   const [verificationStatus, setVerificationStatus] = useState<{
     isVerified: boolean;
     columnExists: boolean;
+    verificationLevel?: 'NONE' | 'SEMIPROFESSIONAL' | 'PROFESSIONAL';
   } | null>(null);
 
   // Referencias para los menús desplegables
@@ -548,16 +552,17 @@ export default function UserViewer() {
               <div className="flex items-center mb-2">
                 <div className="relative">
                   <div
-                    className={`w-16 h-16 rounded-full overflow-hidden border-2 shadow-md ${
-                      verificationStatus?.isVerified &&
-                      profile.role?.toString() !== "RECRUITER"
-                        ? "border-yellow-500"
-                        : profile.subscriptionType === "Semiprofesional" &&
-                          verificationStatus?.isVerified &&
-                          profile.role?.toString() !== "RECRUITER"
-                        ? "border-gray-400"
-                        : "border-gray-200"
-                    }`}
+                    className={`w-16 h-16 rounded-full overflow-hidden border-4 shadow-md ${(() => {
+                      const isPlayer = profile.role?.toString() !== 'RECRUITER';
+                      const level = verificationStatus?.verificationLevel;
+                      const subType = profile.subscriptionType;
+                      if (verificationStatus?.isVerified && isPlayer) {
+                        if (level === 'PROFESSIONAL' || subType === 'Profesional') return 'border-yellow-500';
+                        if (level === 'SEMIPROFESSIONAL' || subType === 'Semiprofesional') return 'border-gray-400';
+                        return 'border-gray-500';
+                      }
+                      return 'border-gray-500';
+                    })()}`}
                   >
                     <Image
                       src={
@@ -588,6 +593,7 @@ export default function UserViewer() {
                     </div>
                   )}
                   {/* Priorizar insignia de verificación sobre suscripción profesional */}
+<<<<<<< HEAD
                   {verificationStatus?.isVerified &&
                   profile.role?.toString() !== "RECRUITER" ? (
                     <div
@@ -652,6 +658,48 @@ export default function UserViewer() {
                       </svg>
                     </div>
                   ) : null}
+=======
+                  {verificationStatus?.isVerified && profile.role?.toString() !== 'RECRUITER' && (() => {
+                    const level = verificationStatus?.verificationLevel;
+                    const subType = profile.subscriptionType;
+                    const effectiveLevel = level
+                      ? level
+                      : subType === 'Profesional'
+                        ? 'PROFESSIONAL'
+                        : subType === 'Semiprofesional'
+                          ? 'SEMIPROFESSIONAL'
+                          : undefined;
+                    if (effectiveLevel === 'PROFESSIONAL') {
+                      return (
+                        <div
+                          className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1"
+                          title="✅ Perfil Verificado Profesional"
+                        >
+                          <div className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 text-white rounded-full shadow-lg border-2 border-yellow-500 w-6 h-6 flex items-center justify-center">
+                            <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        </div>
+                      );
+                    }
+                    if (effectiveLevel === 'SEMIPROFESSIONAL') {
+                      return (
+                        <div
+                          className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1"
+                          title="🥈 Perfil Semiprofesional"
+                        >
+                          <div className="bg-gradient-to-r from-gray-500 via-gray-500 to-gray-800 text-white rounded-full shadow-lg border-2 border-gray-500 w-6 h-6 flex items-center justify-center">
+                            <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
+>>>>>>> main
                 </div>
                 <div className="ml-4">
                   <div className="flex items-center">
@@ -673,12 +721,17 @@ export default function UserViewer() {
                     </p>
                   )}
 
-                  {/* Texto de verificación debajo del nombre - sutil */}
-                  {verificationStatus?.isVerified &&
-                  profile.role?.toString() !== "RECRUITER" ? (
+                  {/* Texto de verificación debajo del nombre - sutil usando verificationLevel con fallback */}
+                  {verificationStatus?.isVerified && profile.role?.toString() !== 'RECRUITER' && (
                     <div className="flex items-center gap-1 mt-1">
                       <svg
-                        className="w-3 h-3 text-yellow-500"
+                        className={`w-3 h-3 ${
+                          verificationStatus?.verificationLevel === 'PROFESSIONAL'
+                            ? 'text-yellow-500'
+                            : verificationStatus?.verificationLevel === 'SEMIPROFESSIONAL'
+                            ? 'text-gray-500'
+                            : 'text-gray-500'
+                        }`}
                         fill="currentColor"
                         viewBox="0 0 20 20"
                         aria-hidden="true"
@@ -690,9 +743,14 @@ export default function UserViewer() {
                         />
                       </svg>
                       <span className="text-xs text-gray-600 font-medium">
-                        Perfil verificado
+                        {verificationStatus?.verificationLevel === 'PROFESSIONAL'
+                          ? 'Perfil verificado profesional'
+                          : verificationStatus?.verificationLevel === 'SEMIPROFESSIONAL'
+                          ? 'Perfil verificado semiprofesional'
+                          : 'Perfil verificado'}
                       </span>
                     </div>
+<<<<<<< HEAD
                   ) : profile.subscriptionType === "Semiprofesional" &&
                     verificationStatus?.isVerified &&
                     profile.role?.toString() !== "RECRUITER" ? (
@@ -714,6 +772,9 @@ export default function UserViewer() {
                       </span>
                     </div>
                   ) : null}
+=======
+                  )}
+>>>>>>> main
                 </div>
               </div>
 
@@ -1701,34 +1762,58 @@ export default function UserViewer() {
                     )}
                   </div>
                   {/* Sección de video */}
-                  {profile.videoUrl && (
-                    <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-                      <h3 className="text-lg font-medium mb-3 text-gray-800">
-                        Video de presentación
-                      </h3>
-                      <div className="relative pt-[56.25%] bg-gray-100 rounded overflow-hidden">
-                        <iframe
-                          className="absolute top-0 left-0 w-full h-full"
-                          src={formatYoutubeUrl(profile.videoUrl)}
-                          title={`Video de ${profile.name} ${profile.lastname}`}
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        ></iframe>
+                  <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+                    <h3 className="text-lg font-medium mb-3 text-gray-800">
+                      Video de presentación
+                    </h3>
+                    {profile.videoUrl ? (
+                      <>
+                        <div className="relative pt-[56.25%] bg-gray-100 rounded overflow-hidden">
+                          <iframe
+                            className="absolute top-0 left-0 w-full h-full"
+                            src={formatYoutubeUrl(profile.videoUrl)}
+                            title={`Video de ${profile.name} ${profile.lastname}`}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          ></iframe>
+                        </div>
+                        <div className="mt-2 text-xs text-gray-500">
+                          <a
+                            href={profile.videoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline"
+                          >
+                            Ver video en YouTube
+                          </a>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="relative pt-[56.25%] bg-gray-100 rounded overflow-hidden flex items-center justify-center">
+                        <div className="absolute inset-0 grid grid-cols-2 gap-2 p-2">
+                          <a
+                            href="https://wa.me/393715851071"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="relative w-full h-full rounded overflow-hidden cursor-pointer"
+                            aria-label="Contactar por WhatsApp"
+                          >
+                            <Image src={promoBasic1} alt="Promo perfil 1" fill className="object-contain" />
+                          </a>
+                          <a
+                            href="https://wa.me/393715851071"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="relative w-full h-full rounded overflow-hidden cursor-pointer"
+                            aria-label="Contactar por WhatsApp"
+                          >
+                            <Image src={promoBasic2} alt="Promo perfil 2" fill className="object-contain" />
+                          </a>
+                        </div>
                       </div>
-                      {/* Mostrar la URL original como fallback en caso de problemas */}
-                      <div className="mt-2 text-xs text-gray-500">
-                        <a
-                          href={profile.videoUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="hover:underline"
-                        >
-                          Ver video en YouTube
-                        </a>
-                      </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               )}
               {activeTab === "stats" && (

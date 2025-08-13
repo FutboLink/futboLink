@@ -53,6 +53,23 @@ async function ensureIsVerifiedColumn() {
     } else {
       console.log('✅ La columna isVerified ya existe');
     }
+
+    // Asegurar columna verificationLevel
+    const levelCol = await dataSource.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'users' AND column_name = 'verificationLevel'
+    `);
+    if (levelCol.length === 0) {
+      console.log('🔧 Agregando columna verificationLevel a la tabla users...');
+      await dataSource.query(`
+        ALTER TABLE "users" 
+        ADD COLUMN "verificationLevel" VARCHAR(32) NOT NULL DEFAULT 'NONE'
+      `);
+      console.log('✅ Columna verificationLevel agregada exitosamente');
+    } else {
+      console.log('✅ La columna verificationLevel ya existe');
+    }
     
     await dataSource.destroy();
     console.log('🔌 Conexión cerrada');

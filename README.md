@@ -81,6 +81,11 @@ npm run dev
 
 ## Scripts Útiles
 
+### El Linter del Front esta configurado con Biomejs
+
+- `npm run precommit` realiza el linter antes del commit despues de agregar los archivos modificados para mas informcion ver
+- https://github.com/FutboLink/futboLink/pull/13
+
 El proyecto incluye varios scripts para facilitar tareas comunes:
 
 - `apply-applications-update.sh`: Actualiza la estructura de la tabla de aplicaciones

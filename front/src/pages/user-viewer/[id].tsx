@@ -547,10 +547,9 @@ export default function UserViewer() {
                     className={`w-16 h-16 rounded-full overflow-hidden border-4 shadow-md ${(() => {
                       const isPlayer = profile.role?.toString() !== 'RECRUITER';
                       const level = verificationStatus?.verificationLevel;
-                      const subType = profile.subscriptionType;
                       if (verificationStatus?.isVerified && isPlayer) {
-                        if (level === 'PROFESSIONAL' || subType === 'Profesional') return 'border-yellow-500';
-                        if (level === 'SEMIPROFESSIONAL' || subType === 'Semiprofesional') return 'border-gray-400';
+                        if (level === 'PROFESSIONAL') return 'border-yellow-500';
+                        if (level === 'SEMIPROFESSIONAL') return 'border-gray-400';
                         return 'border-gray-500';
                       }
                       return 'border-gray-500';
@@ -586,15 +585,7 @@ export default function UserViewer() {
                   {/* Priorizar insignia de verificación sobre suscripción profesional */}
                   {verificationStatus?.isVerified && profile.role?.toString() !== 'RECRUITER' && (() => {
                     const level = verificationStatus?.verificationLevel;
-                    const subType = profile.subscriptionType;
-                    const effectiveLevel = level
-                      ? level
-                      : subType === 'Profesional'
-                        ? 'PROFESSIONAL'
-                        : subType === 'Semiprofesional'
-                          ? 'SEMIPROFESSIONAL'
-                          : undefined;
-                    if (effectiveLevel === 'PROFESSIONAL') {
+                    if (level === 'PROFESSIONAL') {
                       return (
                         <div
                           className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1"
@@ -608,7 +599,7 @@ export default function UserViewer() {
                         </div>
                       );
                     }
-                    if (effectiveLevel === 'SEMIPROFESSIONAL') {
+                    if (level === 'SEMIPROFESSIONAL') {
                       return (
                         <div
                           className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1"
@@ -791,7 +782,7 @@ export default function UserViewer() {
                 </button>
 
                 {/* Verification Button */}
-                {isOwnProfile && !verificationStatus?.isVerified && token && (
+                {isOwnProfile && token && (
                   <button
                     className="flex flex-col items-center justify-center p-2 transition-colors duration-200 hover:bg-gray-50 rounded-lg"
                     onClick={() => setShowVerificationModal(true)}
@@ -968,7 +959,7 @@ export default function UserViewer() {
                             <span className="text-sm">Cerrar sesión</span>
                           </button>
                         )}
-                        {isOwnProfile && !verificationStatus?.isVerified && (
+                        {isOwnProfile && (
                           <button
                             className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md text-left w-full"
                             onClick={() => setShowVerificationModal(true)}

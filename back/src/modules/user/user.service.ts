@@ -1156,8 +1156,11 @@ export class UserService {
     try {
       const columnExists = await this.checkVerificationLevelColumnExists();
       if (!columnExists) {
-        console.log('Columna verificationLevel no existe, no se puede actualizar');
-        return false;
+        // Crear la columna si no existe para no fallar silenciosamente
+        await this.entityManager.query(`
+          ALTER TABLE "users" 
+          ADD COLUMN "verificationLevel" VARCHAR(32) NOT NULL DEFAULT 'NONE'
+        `).catch(() => {});
       }
       await this.entityManager.query(
         'UPDATE users SET "verificationLevel" = $1 WHERE id = $2',

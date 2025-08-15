@@ -116,7 +116,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
             icon: <AiOutlineFileText />,
           },
           {
-            label: "Cartera",
+            label: "Portafolio",
             path: "/PanelUsers/Manager?section=portfolio",
             icon: <FaUsers />,
           },

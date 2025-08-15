@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { IOfferCard } from "@/Interfaces/IOffer";
 import Image from "next/image";
 import Link from "next/link";
+import type React from "react";
+import { useState } from "react";
+import type { IOfferCard } from "@/Interfaces/IOffer";
 import Notification from "./Notification";
 
 const CardOffer: React.FC<{
@@ -38,7 +39,7 @@ const CardOffer: React.FC<{
       <div className="grid grid-cols-2 p-3 gap-2 text-xs text-gray-600">
         <div className="space-y-1">
           <p>
-            <span className="font-semibold text-gray-800">Posición:</span>{" "}
+            <span className="font-semibold text-gray-800">Rol:</span>{" "}
             {offer.position}
           </p>
           <p>
@@ -74,8 +75,8 @@ const CardOffer: React.FC<{
             {offer.minAge} - {offer.maxAge}
           </p>
           <p>
-            <span className="font-semibold text-gray-800">Viajes:</span>{" "}
-            {offer.availabilityToTravel ? "Sí" : "No"}
+            <span className="font-semibold text-gray-800">Género:</span>{" "}
+            {offer.sportGenres}
           </p>
           <p>
             <span className="font-semibold text-gray-800">Pasaporte UE:</span>{" "}

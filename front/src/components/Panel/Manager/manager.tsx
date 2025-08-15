@@ -149,7 +149,7 @@ const PanelManager = () => {
     loadAppliedJobs();
   }, [user]);
 
-  // Función para cargar la cartera de jugadores
+  // Función para cargar la Portafolio de jugadores
   const loadPortfolio = async () => {
     if (!user || !token) return;
 
@@ -166,14 +166,14 @@ const PanelManager = () => {
 
       setPortfolioPlayers(response.data || []);
     } catch (error) {
-      console.error("Error al cargar la cartera de jugadores:", error);
-      toast.error("Error al cargar tu cartera de jugadores");
+      console.error("Error al cargar la Portafolio de jugadores:", error);
+      toast.error("Error al cargar tu Portafolio de jugadores");
     } finally {
       setLoadingPortfolio(false);
     }
   };
 
-  // Función para eliminar un jugador de la cartera
+  // Función para eliminar un jugador de la Portafolio
   const removeFromPortfolio = async (playerId: string) => {
     if (!user || !token) return;
 
@@ -187,18 +187,18 @@ const PanelManager = () => {
         }
       );
 
-      // Actualizar la lista de jugadores en la cartera
+      // Actualizar la lista de jugadores en la Portafolio
       setPortfolioPlayers((prev) =>
         prev.filter((player) => player.id !== playerId)
       );
-      toast.success("Jugador eliminado de tu cartera");
+      toast.success("Jugador eliminado de tu Portafolio");
     } catch (error) {
-      console.error("Error al eliminar jugador de la cartera:", error);
-      toast.error("Error al eliminar jugador de la cartera");
+      console.error("Error al eliminar jugador de la Portafolio:", error);
+      toast.error("Error al eliminar jugador de la Portafolio");
     }
   };
 
-  // Cargar la cartera de jugadores al montar el componente
+  // Cargar la Portafolio de jugadores al montar el componente
   useEffect(() => {
     if (user && token) {
       loadPortfolio();
@@ -614,7 +614,7 @@ const PanelManager = () => {
           </section>
         )}
 
-        {/* Sección de Cartera de Jugadores */}
+        {/* Sección de Portafolio de Jugadores */}
         {activeSection === "portfolio" && (
           <section
             className="bg-white p-8 rounded-lg shadow-lg mb-8 max-w-5xl mx-auto"
@@ -622,7 +622,7 @@ const PanelManager = () => {
           >
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold text-[#1d5126]">
-                Mi Cartera de Jugadores
+                Mi Portafolio de Jugadores
               </h3>
               <button
                 type="button"
@@ -729,10 +729,10 @@ const PanelManager = () => {
                 <div className="text-gray-500 mb-4">
                   <FaUsers className="mx-auto text-6xl mb-4 text-gray-400" />
                   <h4 className="text-lg font-semibold text-gray-600">
-                    Aún no tienes jugadores en tu cartera
+                    Aún no tienes jugadores en tu Portafolio
                   </h4>
                   <p className="mt-2 text-gray-500">
-                    Comienza a agregar jugadores para construir tu cartera
+                    Comienza a agregar jugadores para construir tu Portafolio
                     profesional
                   </p>
                 </div>

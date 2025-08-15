@@ -1378,7 +1378,7 @@ export class UserService {
    * @param userId ID del usuario
    * @returns Estado de verificación
    */
-  async getUserVerificationStatus(userId: string): Promise<{ isVerified: boolean; columnExists: boolean }> {
+  async getUserVerificationStatus(userId: string): Promise<{ isVerified: boolean; columnExists: boolean; verificationLevel: 'NONE' | 'SEMIPROFESSIONAL' | 'PROFESSIONAL' }> {
     const isVerifiedColumn = await this.checkIsVerifiedColumnExists();
     const isVerified = isVerifiedColumn ? await this.isUserVerifiedSafe(userId) : false;
     const hasLevelColumn = await this.checkVerificationLevelColumnExists();
@@ -1386,9 +1386,8 @@ export class UserService {
     return {
       isVerified,
       columnExists: isVerifiedColumn,
-      // Campos extra no documentados previamente, útiles para el frontend
-      ...(hasLevelColumn ? { verificationLevel } : {}),
-    } as any;
+      verificationLevel, // Siempre incluir verificationLevel
+    };
   }
 
   /**

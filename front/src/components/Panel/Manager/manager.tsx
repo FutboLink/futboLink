@@ -22,7 +22,7 @@ import type { IProfileData } from "@/Interfaces/IUser";
 const PanelManager = () => {
   const { user, token } = useContext(UserContext);
   const searchParams = useSearchParams();
-  const sectionParam = searchParams.get("section");
+  const sectionParam = searchParams?.get("section") || "profile";
   const [activeSection, setActiveSection] = useState(sectionParam || "profile");
   const [userData, setUserData] = useState<IProfileData | null>(null);
   const [error, setError] = useState<string | null>(null);

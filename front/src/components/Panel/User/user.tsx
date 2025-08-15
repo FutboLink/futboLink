@@ -1,44 +1,40 @@
 "use client";
 
-import Image from "next/image";
-import { useState, useEffect, useContext } from "react";
 import AOS from "aos";
+import Image from "next/image";
+import { useContext, useEffect, useState } from "react";
 import "aos/dist/aos.css";
-import { IProfileData } from "@/Interfaces/IUser";
-import { UserContext } from "@/components/Context/UserContext";
-import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 import {
   FaBolt,
   FaCog,
+  FaRegCreditCard,
+  FaRegIdCard,
   FaUser,
   FaYoutube,
-  FaRegIdCard,
-  FaRegCreditCard,
 } from "react-icons/fa";
-import {
-  checkUserSubscription,
-  refreshUserSubscription,
-  clearSubscriptionCache,
-  forceSyncSubscription,
-  SubscriptionInfo,
-  SyncSubscriptionResult,
-} from "@/services/SubscriptionService";
-import {
-  requestVerification,
-  getPlayerVerificationRequests,
-  canRequestVerification,
-  showVerificationToast,
-  VerificationRequest,
-} from "@/services/VerificationService";
-import { toast } from "react-hot-toast";
-import LanguageToggle from "@/components/LanguageToggle/LanguageToggle";
+import { UserContext } from "@/components/Context/UserContext";
 import {
   fetchUserData,
   getCv,
 } from "@/components/Fetchs/UsersFetchs/UserFetchs";
-import dynamic from "next/dynamic";
+import LanguageToggle from "@/components/LanguageToggle/LanguageToggle";
 import { getDefaultPlayerImage } from "@/helpers/imageUtils";
+import { useUserContext } from "@/hook/useUserContext";
+import type { IProfileData } from "@/Interfaces/IUser";
+import {
+  clearSubscriptionCache,
+  type SubscriptionInfo,
+} from "@/services/SubscriptionService";
+import {
+  getPlayerVerificationRequests,
+  requestVerification,
+  showVerificationToast,
+  type VerificationRequest,
+} from "@/services/VerificationService";
 
 // Añadimos una interfaz para las trayectorias
 interface Trayectoria {
@@ -58,6 +54,7 @@ const YouTubeEmbed = dynamic(
         <div className="relative w-full pt-[56.25%]">
           <iframe
             src={url}
+            title="Video de YouTube embebido"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
             className="absolute top-0 left-0 w-full h-full rounded-lg shadow-md"
@@ -69,7 +66,7 @@ const YouTubeEmbed = dynamic(
 );
 
 const UserProfile = () => {
-  const { token, logOut } = useContext(UserContext);
+  const { token, logOut } = useUserContext();
   const [activeSection, setActiveSection] = useState("profile");
   const [userData, setUserData] = useState<IProfileData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -270,7 +267,7 @@ const UserProfile = () => {
       const response = await fetch(
         `${apiUrl}/user/subscription/check?email=${encodeURIComponent(
           userData.email
-        )}&_=${new Date().getTime()}`,
+        )}&_=${Date.now()}`,
         {
           headers: {
             "Cache-Control": "no-cache, no-store, must-revalidate",
@@ -440,7 +437,7 @@ const UserProfile = () => {
           errorMessage =
             "Error de seguridad CORS. No se puede acceder al PDF desde este dominio.";
         } else {
-          errorMessage += " " + error.message;
+          errorMessage += ` ${error.message}`;
         }
       }
 
@@ -510,9 +507,13 @@ const UserProfile = () => {
 
       // Recargar solicitudes para mostrar la nueva
       await loadVerificationRequests();
-    } catch (error: any) {
-      const errorMessage =
-        error.message || "Error al enviar la solicitud de verificación";
+    } catch (error: unknown) {
+      let errorMessage = "Error al enviar la solicitud de verificación";
+
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
       showVerificationToast.error(errorMessage);
     } finally {
       setLoadingVerification(false);
@@ -593,6 +594,7 @@ const UserProfile = () => {
           <ul className="space-y-1">
             <li>
               <button
+                type="button"
                 onClick={() => handleSectionChange("profile")}
                 className={`w-full py-2.5 px-4 flex items-center space-x-2 text-left rounded-lg transition duration-200 ${
                   activeSection === "profile"
@@ -606,6 +608,7 @@ const UserProfile = () => {
             </li>
             <li>
               <button
+                type="button"
                 onClick={() => handleSectionChange("skills")}
                 className={`w-full py-2.5 px-4 flex items-center space-x-2 text-left rounded-lg transition duration-200 ${
                   activeSection === "skills"
@@ -620,6 +623,7 @@ const UserProfile = () => {
             <li>
               <button
                 onClick={() => handleSectionChange("config")}
+                type="button"
                 className={`w-full py-2.5 px-4 flex items-center space-x-2 text-left rounded-lg transition duration-200 ${
                   activeSection === "config"
                     ? "bg-white bg-opacity-20 shadow-sm"
@@ -641,6 +645,7 @@ const UserProfile = () => {
         </Link>
 
         <button
+          type="button"
           onClick={handleLogOut}
           className="mt-3 w-full py-2.5 rounded-lg text-white text-center font-bold border-2 border-white hover:bg-white hover:text-gray-700 transition-all duration-300"
         >
@@ -783,6 +788,7 @@ const UserProfile = () => {
                             Estado de Suscripción
                           </h3>
                           <button
+                            type="button"
                             onClick={handleRefreshSubscription}
                             disabled={loadingSubscription}
                             className="text-xs text-[#1d5126] hover:underline flex items-center"
@@ -859,6 +865,7 @@ const UserProfile = () => {
                             className="w-5 h-5 mr-2 text-yellow-600"
                             fill="currentColor"
                             viewBox="0 0 20 20"
+                            aria-hidden="true"
                           >
                             <path
                               fillRule="evenodd"
@@ -876,6 +883,7 @@ const UserProfile = () => {
                                 className="w-4 h-4"
                                 fill="currentColor"
                                 viewBox="0 0 20 20"
+                                aria-hidden="true"
                               >
                                 <path
                                   fillRule="evenodd"
@@ -896,12 +904,14 @@ const UserProfile = () => {
                             </p>
                             <button
                               onClick={() => setActiveSection("verification")}
+                              type="button"
                               className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
                             >
                               <svg
                                 className="w-4 h-4"
                                 fill="currentColor"
                                 viewBox="0 0 20 20"
+                                aria-hidden="true"
                               >
                                 <path
                                   fillRule="evenodd"
@@ -935,6 +945,7 @@ const UserProfile = () => {
                                 height="24"
                                 fill="currentColor"
                                 viewBox="0 0 16 16"
+                                aria-hidden="true"
                               >
                                 <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z" />
                                 <path d="M4.603 14.087a.81.81 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.68 7.68 0 0 1 1.482-.645 19.697 19.697 0 0 0 1.062-2.227 7.269 7.269 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.188-.012.396-.047.614-.084.51-.27 1.134-.52 1.794a10.954 10.954 0 0 0 .98 1.686 5.753 5.753 0 0 1 1.334.05c.364.066.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.856.856 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.712 5.712 0 0 1-.911-.95 11.651 11.651 0 0 0-1.997.406 11.307 11.307 0 0 1-1.02 1.51c-.292.35-.609.656-.927.787a.793.793 0 0 1-.58.029zm1.379-1.901c-.166.076-.32.156-.459.238-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361.01.022.02.036.026.044a.266.266 0 0 0 .035-.012c.137-.056.355-.235.635-.572a8.18 8.18 0 0 0 .45-.606zm1.64-1.33a12.71 12.71 0 0 1 1.01-.193 11.744 11.744 0 0 1-.51-.858 20.801 20.801 0 0 1-.5 1.05zm2.446.45c.15.163.296.3.435.41.24.19.407.253.498.256a.107.107 0 0 0 .07-.015.307.307 0 0 0 .094-.125.436.436 0 0 0 .059-.2.095.095 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a3.876 3.876 0 0 0-.612-.053zM8.078 7.8a6.7 6.7 0 0 0 .2-.828c.031-.188.043-.343.038-.465a.613.613 0 0 0-.032-.198.517.517 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822.024.111.054.227.09.346z" />
@@ -951,6 +962,7 @@ const UserProfile = () => {
                           </div>
                           <button
                             onClick={handleViewCV}
+                            type="button"
                             disabled={loadingCv}
                             className="bg-[#1d5126] hover:bg-[#3e7c27] text-white px-3 py-1.5 rounded-md text-sm transition-colors duration-200 flex items-center"
                           >
@@ -975,6 +987,7 @@ const UserProfile = () => {
                               height="24"
                               fill="currentColor"
                               viewBox="0 0 16 16"
+                              aria-hidden="true"
                             >
                               <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z" />
                               <path d="M4.603 14.087a.81.81 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.68 7.68 0 0 1 1.482-.645 19.697 19.697 0 0 0 1.062-2.227 7.269 7.269 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.188-.012.396-.047.614-.084.51-.27 1.134-.52 1.794a10.954 10.954 0 0 0 .98 1.686 5.753 5.753 0 0 1 1.334.05c.364.066.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.856.856 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.712 5.712 0 0 1-.911-.95 11.651 11.651 0 0 0-1.997.406 11.307 11.307 0 0 1-1.02 1.51c-.292.35-.609.656-.927.787a.793.793 0 0 1-.58.029zm1.379-1.901c-.166.076-.32.156-.459.238-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361.01.022.02.036.026.044a.266.266 0 0 0 .035-.012c.137-.056.355-.235.635-.572a8.18 8.18 0 0 0 .45-.606zm1.64-1.33a12.71 12.71 0 0 1 1.01-.193 11.744 11.744 0 0 1-.51-.858 20.801 20.801 0 0 1-.5 1.05zm2.446.45c.15.163.296.3.435.41.24.19.407.253.498.256a.107.107 0 0 0 .07-.015.307.307 0 0 0 .094-.125.436.436 0 0 0 .059-.2.095.095 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a3.876 3.876 0 0 0-.612-.053zM8.078 7.8a6.7 6.7 0 0 0 .2-.828c.031-.188.043-.343.038-.465a.613.613 0 0 0-.032-.198.517.517 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822.024.111.054.227.09.346z" />
@@ -1002,6 +1015,7 @@ const UserProfile = () => {
                           height="16"
                           fill="currentColor"
                           viewBox="0 0 16 16"
+                          aria-hidden="true"
                         >
                           <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
                         </svg>
@@ -1104,7 +1118,7 @@ const UserProfile = () => {
                   <div className="space-y-4">
                     {userData.trayectorias.map((experience, index) => (
                       <div
-                        key={index}
+                        key={`${experience.club}-${index}`}
                         className="border border-[#1d5126] bg-[#f5f5f5] p-4 rounded-md shadow-sm mb-4"
                       >
                         <h4 className="font-semibold text-lg text-gray-800">
@@ -1158,7 +1172,7 @@ const UserProfile = () => {
                   <div className="space-y-4">
                     {localTrayectorias.map((experience, index) => (
                       <div
-                        key={index}
+                        key={`${experience.club}-${index}`}
                         className="border border-[#1d5126] bg-[#f5f5f5] p-4 rounded-md shadow-sm mb-4"
                       >
                         <h4 className="font-semibold text-lg text-gray-800">
@@ -1345,6 +1359,7 @@ const UserProfile = () => {
                           </Link>
                           <button
                             onClick={handleRefreshSubscription}
+                            type="button"
                             disabled={loadingSubscription}
                             className="text-sm text-[#1d5126] border border-[#1d5126] hover:bg-[#f0f8f0] px-4 py-2 rounded-md transition-colors duration-200 inline-flex items-center"
                           >
@@ -1377,6 +1392,7 @@ const UserProfile = () => {
                       className="w-6 h-6 mr-2 text-yellow-600"
                       fill="currentColor"
                       viewBox="0 0 20 20"
+                      aria-hidden="true"
                     >
                       <path
                         fillRule="evenodd"
@@ -1388,6 +1404,7 @@ const UserProfile = () => {
                   </h3>
                   <button
                     onClick={() => setActiveSection("profile")}
+                    type="button"
                     className="text-gray-500 hover:text-gray-700 transition-colors"
                   >
                     <svg
@@ -1395,6 +1412,7 @@ const UserProfile = () => {
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <path
                         strokeLinecap="round"
@@ -1414,6 +1432,7 @@ const UserProfile = () => {
                         className="w-5 h-5 text-yellow-600 mt-0.5 mr-3 flex-shrink-0"
                         fill="currentColor"
                         viewBox="0 0 20 20"
+                        aria-hidden="true"
                       >
                         <path
                           fillRule="evenodd"
@@ -1439,11 +1458,15 @@ const UserProfile = () => {
                   {/* Formulario de solicitud */}
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label
+                        htmlFor="vericationMessageTextArea"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
                         Mensaje para el administrador (opcional)
                       </label>
                       <textarea
                         value={verificationMessage}
+                        id="vericationMessageTextArea"
                         onChange={(e) => setVerificationMessage(e.target.value)}
                         placeholder="Explica por qué solicitas la verificación de tu perfil. Por ejemplo: información sobre tus logros, experiencia profesional, etc."
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
@@ -1458,6 +1481,7 @@ const UserProfile = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <button
+                          type="button"
                           onClick={() => setActiveSection("profile")}
                           className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
                         >
@@ -1466,6 +1490,7 @@ const UserProfile = () => {
                         <button
                           onClick={handleRequestVerification}
                           disabled={loadingVerification}
+                          type="button"
                           className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                         >
                           {loadingVerification ? (
@@ -1479,6 +1504,7 @@ const UserProfile = () => {
                                 className="w-4 h-4"
                                 fill="currentColor"
                                 viewBox="0 0 20 20"
+                                aria-hidden="true"
                               >
                                 <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                                 <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />

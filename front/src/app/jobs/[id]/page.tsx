@@ -1,11 +1,12 @@
 "use client";
-import React, { useState, useEffect, useContext } from "react";
-import { IOfferCard } from "@/Interfaces/IOffer";
-import { UserContext } from "@/components/Context/UserContext";
-import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import type React from "react";
+import { useContext, useEffect, useState } from "react";
 import ModalApplication from "@/components/Applications/ModalApplications";
+import { UserContext } from "@/components/Context/UserContext";
+import type { IOfferCard } from "@/Interfaces/IOffer";
 import { checkUserSubscription } from "@/services/SubscriptionService";
 
 const JobDetail: React.FC = () => {
@@ -313,6 +314,13 @@ const JobDetail: React.FC = () => {
         {offer.contractDurations && (
           <p className="mb-4">
             <strong>Tiempo de contrato:</strong> {offer.contractDurations}
+          </p>
+        )}
+        {offer.currencyType && (
+          <p className="mb-4">
+            <strong>Salario:</strong>{" "}
+            {`${offer.currencyType}
+             ${offer.salary}`}
           </p>
         )}
 

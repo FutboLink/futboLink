@@ -1,21 +1,21 @@
 // Define the Google Translate global types
 declare global {
-  interface Window {
-    googleTranslateElementInit: () => void;
-    google: {
-      translate: {
-        TranslateElement: {
-          new (options: object, elementId: string): void;
-          InlineLayout: {
-            NO_IFRAME: number;
-            SIMPLE: number;
-            HORIZONTAL: number;
-            VERTICAL: number;
-          };
-        };
-      };
-    };
-  }
+	interface Window {
+		googleTranslateElementInit: () => void;
+		google: {
+			translate: {
+				TranslateElement: {
+					new (options: object, elementId: string): void;
+					InlineLayout: {
+						NO_IFRAME: number;
+						SIMPLE: number;
+						HORIZONTAL: number;
+						VERTICAL: number;
+					};
+				};
+			};
+		};
+	}
 }
 
 /**
@@ -24,12 +24,12 @@ declare global {
  * @returns The language name
  */
 export const getLanguageName = (code: string): string => {
-  const languages: Record<string, string> = {
-    es: 'Español',
-    en: 'English',
-    it: 'Italiano'
-  };
-  return languages[code] || 'Español';
+	const languages: Record<string, string> = {
+		es: "Español",
+		en: "English",
+		it: "Italiano",
+	};
+	return languages[code] || "Español";
 };
 
 /**
@@ -37,54 +37,56 @@ export const getLanguageName = (code: string): string => {
  * @returns Promise that resolves when the script is loaded
  */
 export const loadGoogleTranslateScript = (): Promise<void> => {
-  return new Promise((resolve) => {
-    // Check if script is already loaded
-    if (document.querySelector('script[src*="translate.google.com"]')) {
-      resolve();
-      return;
-    }
+	return new Promise((resolve) => {
+		// Check if script is already loaded
+		if (document.querySelector('script[src*="translate.google.com"]')) {
+			resolve();
+			return;
+		}
 
-    const script = document.createElement('script');
-    script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-    script.async = true;
-    script.defer = true;
-    
-    script.onload = () => {
-      resolve();
-    };
-    
-    document.body.appendChild(script);
-  });
+		const script = document.createElement("script");
+		script.src =
+			"https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+		script.async = true;
+		script.defer = true;
+
+		script.onload = () => {
+			resolve();
+		};
+
+		document.body.appendChild(script);
+	});
 };
 
 /**
  * Initializes the Google Translate element
  */
 export const initGoogleTranslate = (): Promise<void> => {
-  return new Promise((resolve) => {
-    // Create the translation element if it doesn't exist
-    let translateElement = document.getElementById('google_translate_element');
-    if (!translateElement) {
-      translateElement = document.createElement('div');
-      translateElement.id = 'google_translate_element';
-      translateElement.style.display = 'none';
-      document.body.appendChild(translateElement);
-    }
+	return new Promise((resolve) => {
+		// Create the translation element if it doesn't exist
+		let translateElement = document.getElementById("google_translate_element");
+		if (!translateElement) {
+			translateElement = document.createElement("div");
+			translateElement.id = "google_translate_element";
+			translateElement.style.display = "none";
+			document.body.appendChild(translateElement);
+		}
 
-    // Initialize Google Translate
-    window.googleTranslateElementInit = () => {
-      new window.google.translate.TranslateElement(
-        {
-          pageLanguage: 'es',
-          includedLanguages: 'en,it,es',
-          autoDisplay: false,
-          layout: window.google.translate.TranslateElement.InlineLayout.NO_IFRAME
-        },
-        'google_translate_element'
-      );
-      resolve();
-    };
-  });
+		// Initialize Google Translate
+		window.googleTranslateElementInit = () => {
+			new window.google.translate.TranslateElement(
+				{
+					pageLanguage: "es",
+					includedLanguages: "en,it,es",
+					autoDisplay: false,
+					layout:
+						window.google.translate.TranslateElement.InlineLayout.NO_IFRAME,
+				},
+				"google_translate_element",
+			);
+			resolve();
+		};
+	});
 };
 
 /**
@@ -93,47 +95,49 @@ export const initGoogleTranslate = (): Promise<void> => {
  * @returns Promise that resolves when the language is changed
  */
 export const changeLanguage = async (language: string): Promise<boolean> => {
-  try {
-    // Wait for Google Translate to be ready
-    await loadGoogleTranslateScript();
-    
-    // Find the Google Translate selector
-    const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
-    
-    if (select) {
-      // Change the language
-      select.value = language;
-      select.dispatchEvent(new Event('change'));
-      
-      // Apply styles again after language change
-      setTimeout(() => {
-        addTranslateStyles();
-      }, 300);
-      
-      return true;
-    } else {
-      console.error('Google Translate selector not found');
-      return false;
-    }
-  } catch (error) {
-    console.error('Error changing language:', error);
-    return false;
-  }
+	try {
+		// Wait for Google Translate to be ready
+		await loadGoogleTranslateScript();
+
+		// Find the Google Translate selector
+		const select = document.querySelector(
+			".goog-te-combo",
+		) as HTMLSelectElement;
+
+		if (select) {
+			// Change the language
+			select.value = language;
+			select.dispatchEvent(new Event("change"));
+
+			// Apply styles again after language change
+			setTimeout(() => {
+				addTranslateStyles();
+			}, 300);
+
+			return true;
+		} else {
+			console.error("Google Translate selector not found");
+			return false;
+		}
+	} catch (error) {
+		console.error("Error changing language:", error);
+		return false;
+	}
 };
 
 /**
  * Adds CSS to hide Google Translate widget
  */
 export const addTranslateStyles = (): void => {
-  // Remove any existing translate styles to avoid duplicates
-  const existingStyle = document.getElementById('google-translate-hide-styles');
-  if (existingStyle) {
-    existingStyle.remove();
-  }
+	// Remove any existing translate styles to avoid duplicates
+	const existingStyle = document.getElementById("google-translate-hide-styles");
+	if (existingStyle) {
+		existingStyle.remove();
+	}
 
-  const style = document.createElement('style');
-  style.id = 'google-translate-hide-styles';
-  style.textContent = `
+	const style = document.createElement("style");
+	style.id = "google-translate-hide-styles";
+	style.textContent = `
     /* Hide Google Translate banner */
     .goog-te-banner-frame { 
       display: none !important; 
@@ -185,21 +189,21 @@ export const addTranslateStyles = (): void => {
       visibility: hidden !important;
     }
   `;
-  document.head.appendChild(style);
-  
-  // Handle body top property which Google Translate often changes
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.attributeName === 'style') {
-        const body = document.body;
-        if (body.style.top && body.style.top !== '0px') {
-          body.style.top = '0px';
-        }
-      }
-    });
-  });
-  
-  observer.observe(document.body, { attributes: true });
+	document.head.appendChild(style);
+
+	// Handle body top property which Google Translate often changes
+	const observer = new MutationObserver((mutations) => {
+		mutations.forEach((mutation) => {
+			if (mutation.attributeName === "style") {
+				const body = document.body;
+				if (body.style.top && body.style.top !== "0px") {
+					body.style.top = "0px";
+				}
+			}
+		});
+	});
+
+	observer.observe(document.body, { attributes: true });
 };
 
 /**
@@ -207,16 +211,16 @@ export const addTranslateStyles = (): void => {
  * @returns The current language code
  */
 export const getCurrentLanguage = (): string => {
-  const html = document.querySelector('html');
-  if (html && html.lang) {
-    return html.lang.substring(0, 2);
-  }
-  
-  // Check for Google Translate cookie
-  const match = document.cookie.match(/googtrans=\/[^\/]*\/([^;]*)/);
-  if (match && match[1]) {
-    return match[1];
-  }
-  
-  return 'es'; // Default to Spanish
-}; 
+	const html = document.querySelector("html");
+	if (html?.lang) {
+		return html.lang.substring(0, 2);
+	}
+
+	// Check for Google Translate cookie
+	const match = document.cookie.match(/googtrans=\/[^/]*\/([^;]*)/);
+	if (match?.[1]) {
+		return match[1];
+	}
+
+	return "es"; // Default to Spanish
+};

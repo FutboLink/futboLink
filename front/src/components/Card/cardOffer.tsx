@@ -1,6 +1,6 @@
-import React from "react";
 import Link from "next/link";
-import { IOfferCard } from "@/Interfaces/IOffer";
+import type React from "react";
+import type { IOfferCard } from "@/Interfaces/IOffer";
 
 const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
   return (

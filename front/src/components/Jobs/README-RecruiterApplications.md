@@ -2,21 +2,21 @@
 
 ## Descripción
 
-Esta funcionalidad permite a los usuarios con rol `RECRUITER` postular a los jugadores de su cartera a ofertas de trabajo específicas.
+Esta funcionalidad permite a los usuarios con rol `RECRUITER` postular a los jugadores de su portafolio a ofertas de trabajo específicas.
 
 ## Componentes
 
 ### RecruiterApplicationModal.tsx
 
 Modal que permite a los reclutadores:
-- Ver todos los jugadores en su cartera
+- Ver todos los jugadores en su portafolio
 - Seleccionar uno o múltiples jugadores
 - Escribir un mensaje explicando por qué postula a esos jugadores
 - Enviar las aplicaciones al backend
 
 ### Integración en JobOffertDetails.tsx
 
-Se añadió un botón "Postular jugadores de mi cartera" que:
+Se añadió un botón "Postular jugadores de mi portafolio" que:
 - Solo aparece para usuarios con rol `RECRUITER`
 - No aparece si el reclutador es el dueño de la oferta
 - Abre el modal de aplicaciones
@@ -25,7 +25,7 @@ Se añadió un botón "Postular jugadores de mi cartera" que:
 
 1. **Frontend**: El reclutador selecciona jugadores y escribe un mensaje
 2. **API Call**: Se envía `POST /applications/recruiter-apply` para cada jugador
-3. **Backend**: Se valida que el jugador esté en la cartera del reclutador
+3. **Backend**: Se valida que el jugador esté en la portafolio del reclutador
 4. **Base de Datos**: Se crea una aplicación con campos especiales:
    - `appliedByRecruiter: true`
    - `recruiter`: referencia al reclutador
@@ -37,7 +37,7 @@ Se añadió un botón "Postular jugadores de mi cartera" que:
 ### Tabla `recruiter_portfolio`
 - `recruiterId`: UUID del reclutador
 - `playerId`: UUID del jugador
-- `createdAt`: Fecha de cuando se añadió a la cartera
+- `createdAt`: Fecha de cuando se añadió a la portafolio
 
 ### Tabla `application` (campos adicionales)
 - `appliedByRecruiter`: Boolean
@@ -46,7 +46,7 @@ Se añadió un botón "Postular jugadores de mi cartera" que:
 
 ## Validaciones
 
-- El jugador debe estar en la cartera del reclutador
+- El jugador debe estar en la portafolio del reclutador
 - No se pueden crear aplicaciones duplicadas para el mismo jugador y trabajo
 - El reclutador debe existir y tener rol `RECRUITER`
 - El trabajo debe existir y estar activo

@@ -1,34 +1,31 @@
 "use client";
 
-import React, { useContext } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { UserContext } from "@/components/Context/UserContext";
-import About from "@/components/AboutUs/about";
-import Notices from "@/components/Notices/notices";
-import Subs from "@/components/Subs/subs";
-import NavbarAdmin from "@/components/navbar/navbarAdmin";
 import Image from "next/image";
-import NavbarRoles from "@/components/navbar/navbarRoles";
-import ClientsSection from "@/components/Clients/client";
-import { useEffect } from "react";
-import LanguageToggle from "@/components/LanguageToggle/LanguageToggle";
 import { useRouter } from "next/navigation";
-
+import { useEffect } from "react";
+import { Autoplay, EffectFade } from "swiper/modules";
 // Swiper
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, EffectFade } from "swiper/modules";
+import About from "@/components/AboutUs/about";
+import ClientsSection from "@/components/Clients/client";
+import LanguageToggle from "@/components/LanguageToggle/LanguageToggle";
+import Notices from "@/components/Notices/notices";
+import Subs from "@/components/Subs/subs";
 import "swiper/css";
 import "swiper/css/effect-fade";
 
+import { useFetchUserProfile } from "@/hook/useFetchUserProfile";
 // Imágenes
 import futA from "../../../public/buscador_ydamak.jpg";
-import futB from "../../../public/publicarOfertas2.jpg";
 import futC from "../../../public/cursosYformaciones2.jpg";
+import futB from "../../../public/publicarOfertas2.jpg";
 import LogoCarousel from "../LogoCarousel/LogoCarousel";
 
 const Home = () => {
-  const { role } = useContext(UserContext);
+  const { fetchUserProfile } = useFetchUserProfile();
+
   const router = useRouter();
 
   const images = [
@@ -57,6 +54,10 @@ const Home = () => {
     router.push(link);
   };
 
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
   return (
     <main className="bg-verde-oscuro text-white relative overflow-hidden">
       {/* Language Toggle Button */}
@@ -80,7 +81,7 @@ const Home = () => {
           className="w-full h-screen"
         >
           {images.map((image, index) => (
-            <SwiperSlide key={index}>
+            <SwiperSlide key={`${image.text}-${index}`}>
               <div
                 className="relative w-full h-full cursor-pointer"
                 onClick={() => handleSlideClick(image.link)}
@@ -106,11 +107,9 @@ const Home = () => {
         </Swiper>
       </header>
 
-      
-
       {/* Secciones */}
       <section data-aos="fade-left" data-aos-delay="400">
-      <LogoCarousel />
+        <LogoCarousel />
 
         <About />
       </section>

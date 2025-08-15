@@ -1,12 +1,14 @@
 // JobOfferDetails.tsx
-import React, { useContext, useEffect, useState } from "react";
-import { IOfferCard } from "@/Interfaces/IOffer";
-import { UserType } from "@/Interfaces/IUser";
-import { BsFillCalendarEventFill } from "react-icons/bs";
-import { fetchJobOfferById } from "../Fetchs/OfertasFetch/OfertasFetchs";
+
 import { useRouter } from "next/navigation";
-import DeleteButton from "./DeleteJob";
+import type React from "react";
+import { useContext, useEffect, useState } from "react";
+import { BsFillCalendarEventFill } from "react-icons/bs";
+import type { IOfferCard } from "@/Interfaces/IOffer";
+import { UserType } from "@/Interfaces/IUser";
 import { UserContext } from "../Context/UserContext";
+import { fetchJobOfferById } from "../Fetchs/OfertasFetch/OfertasFetchs";
+import DeleteButton from "./DeleteJob";
 import EditJobOffer from "./EditJobOffer"; // Importar el componente de edición
 import RecruiterApplicationModal from "./RecruiterApplicationModal";
 
@@ -219,7 +221,7 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
                   onClick={handleOpenRecruiterModal}
                   className="px-5 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
                 >
-                  Postular jugadores de mi cartera
+                  Postular jugadores de mi Portafolio
                 </button>
               )}
 

@@ -1,13 +1,14 @@
-import React, { useContext, useEffect, useState } from "react";
-import { fetchApplications } from "../Fetchs/AdminFetchs/AdminUsersFetch";
-import { NotificationsForms } from "../Notifications/NotificationsForms";
-import { IOfferCard } from "@/Interfaces/IOffer";
-import { UserType } from "@/Interfaces/IUser";
 import Link from "next/link";
-import { UserContext } from "../Context/UserContext";
-import { fetchUserData } from "../Fetchs/UsersFetchs/UserFetchs";
+import type React from "react";
+import { useContext, useEffect, useState } from "react";
+import type { IOfferCard } from "@/Interfaces/IOffer";
+import { UserType } from "@/Interfaces/IUser";
 import { checkUserSubscription } from "@/services/SubscriptionService";
+import { UserContext } from "../Context/UserContext";
+import { fetchApplications } from "../Fetchs/AdminFetchs/AdminUsersFetch";
+import { fetchUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import RecruiterApplicationModal from "../Jobs/RecruiterApplicationModal";
+import { NotificationsForms } from "../Notifications/NotificationsForms";
 
 type ModalApplicationProps = {
   jobId: string;
@@ -42,7 +43,7 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
         // First get basic user data
         const userData = await fetchUserData(token);
         setUserPremium(userData.subscription);
-        
+
         // Then check subscription status directly with Stripe
         const subData = await checkUserSubscription(user.email);
         setHasActiveSubscription(subData.hasActiveSubscription);
@@ -68,10 +69,16 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
     };
 
     if (typeof window !== "undefined") {
-      window.addEventListener('subscriptionUpdated', handleSubscriptionUpdate as EventListener);
-      
+      window.addEventListener(
+        "subscriptionUpdated",
+        handleSubscriptionUpdate as EventListener
+      );
+
       return () => {
-        window.removeEventListener('subscriptionUpdated', handleSubscriptionUpdate as EventListener);
+        window.removeEventListener(
+          "subscriptionUpdated",
+          handleSubscriptionUpdate as EventListener
+        );
       };
     }
   }, [token, user]);
@@ -88,7 +95,10 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
     setShowNotification(false);
   };
 
-  const showNotificationMessage = (message: string, isError: boolean = false) => {
+  const showNotificationMessage = (
+    message: string,
+    isError: boolean = false
+  ) => {
     setNotificationMessage(message);
     setNotificationIsError(isError);
     setShowNotification(true);
@@ -97,32 +107,37 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
   const handleSubmit = async () => {
     // Evitar múltiples submits
     if (isSubmitting) return;
-    
+
     // Siempre verificar la suscripción actual antes de intentar aplicar
     let canApply = false;
     let subscriptionInfo = null;
-    
+
     if (user && user.email) {
       try {
         // Comprobar explícitamente el tipo de suscripción antes de enviar
         subscriptionInfo = await checkUserSubscription(user.email);
         console.log("Verificando suscripción para aplicar:", subscriptionInfo);
-        
+
         // Verificar si el tipo de suscripción es válido (Semiprofesional o Profesional)
-        if (subscriptionInfo.subscriptionType === 'Semiprofesional' || 
-            subscriptionInfo.subscriptionType === 'Profesional') {
+        if (
+          subscriptionInfo.subscriptionType === "Semiprofesional" ||
+          subscriptionInfo.subscriptionType === "Profesional"
+        ) {
           canApply = true;
         }
       } catch (error) {
         console.error("Error verificando suscripción:", error);
       }
     }
-    
+
     if (!canApply) {
-      showNotificationMessage("Se requiere una suscripción activa Semiprofesional o Profesional para aplicar a trabajos", true);
+      showNotificationMessage(
+        "Se requiere una suscripción activa Semiprofesional o Profesional para aplicar a trabajos",
+        true
+      );
       return;
     }
-    
+
     setIsSubmitting(true);
     showNotificationMessage("Enviando solicitud...", false);
 
@@ -131,20 +146,20 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
       await fetchApplications(application);
 
       showNotificationMessage("¡Has enviado la solicitud exitosamente!", false);
-      
+
       // Cerrar modal después de 2 segundos en caso de éxito
       setTimeout(() => {
         onClose();
       }, 2000);
-      
     } catch (error: any) {
       console.error("Error applying:", error);
       let errorMessage = "Error al enviar la solicitud.";
-      
+
       if (error instanceof Error) {
         errorMessage = error.message;
       } else if (error?.status === 403) {
-        errorMessage = "Se requiere una suscripción activa Semiprofesional o Profesional para aplicar";
+        errorMessage =
+          "Se requiere una suscripción activa Semiprofesional o Profesional para aplicar";
       } else if (error?.status === 409) {
         errorMessage = "Ya has enviado una solicitud para este trabajo.";
       }
@@ -333,7 +348,7 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Footer */}
                 <div className="p-5 border-t flex flex-col gap-3">
                   {/* Mostrar opciones para reclutadores */}
@@ -359,11 +374,11 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
                           <path d="m19 8 2 2-2 2"></path>
                           <path d="m17 10 2 2-2 2"></path>
                         </svg>
-                        Postular jugadores de mi cartera
+                        Postular jugadores de mi Portafolio
                       </button>
                     </div>
                   )}
-                  
+
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button
                       onClick={onClose}
@@ -375,14 +390,32 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
                       onClick={handleSubmit}
                       disabled={isSubmitting}
                       className={`flex items-center justify-center gap-2 ${
-                        isSubmitting ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
+                        isSubmitting
+                          ? "bg-gray-400"
+                          : "bg-green-600 hover:bg-green-700"
                       } text-white rounded-md px-4 py-2 text-sm font-medium w-full transition-color duration-300`}
                     >
                       {isSubmitting ? (
                         <>
-                          <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          <svg
+                            className="animate-spin h-4 w-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
                           </svg>
                           Enviando...
                         </>
@@ -467,11 +500,11 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
                           <path d="m19 8 2 2-2 2"></path>
                           <path d="m17 10 2 2-2 2"></path>
                         </svg>
-                        Postular jugadores de mi cartera
+                        Postular jugadores de mi Portafolio
                       </button>
                     </div>
                   )}
-                  
+
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button
                       onClick={onClose}
@@ -483,14 +516,32 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
                       onClick={handleSubmit}
                       disabled={isSubmitting}
                       className={`flex items-center justify-center gap-2 ${
-                        isSubmitting ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
+                        isSubmitting
+                          ? "bg-gray-400"
+                          : "bg-green-600 hover:bg-green-700"
                       } text-white rounded-md px-4 py-2 text-sm font-medium w-full transition-color duration-300`}
                     >
                       {isSubmitting ? (
                         <>
-                          <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          <svg
+                            className="animate-spin h-4 w-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
                           </svg>
                           Enviando...
                         </>
@@ -522,7 +573,11 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
             {/* Notificación */}
             {showNotification && (
               <div className="absolute top-12 left-0 right-0 mx-auto w-max z-50">
-                <NotificationsForms message={notificationMessage} isError={notificationIsError} onClose={handleCloseNotification} />
+                <NotificationsForms
+                  message={notificationMessage}
+                  isError={notificationIsError}
+                  onClose={handleCloseNotification}
+                />
               </div>
             )}
           </div>
@@ -535,7 +590,7 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
           isOpen={showRecruiterModal}
           onClose={handleCloseRecruiterModal}
           jobId={jobId}
-          jobTitle={jobTitle || ''}
+          jobTitle={jobTitle || ""}
         />
       )}
     </div>

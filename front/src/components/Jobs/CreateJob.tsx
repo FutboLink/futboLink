@@ -1,9 +1,10 @@
 "use client";
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { UserContext } from "../Context/UserContext";
-import { ICreateJob, YesOrNo, YesOrNotravell } from "@/Interfaces/IOffer";
-import { fetchCreateJob } from "../Fetchs/OfertasFetch/OfertasFetchs";
+import type React from "react";
+import { useContext, useEffect, useRef, useState } from "react";
+import { type ICreateJob, YesOrNo, YesOrNotravell } from "@/Interfaces/IOffer";
 import ImageUpload from "../Cloudinary/ImageUpload";
+import { UserContext } from "../Context/UserContext";
+import { fetchCreateJob } from "../Fetchs/OfertasFetch/OfertasFetchs";
 import useNationalities from "../Forms/FormUser/useNationalitys";
 
 const position = [
@@ -44,7 +45,7 @@ const position = [
   "Utillero",
 ];
 
-const sportGenres = ["Masculino", "Femenino","Ambos","Indistinto"];
+const sportGenres = ["Masculino", "Femenino", "Ambos", "Indistinto"];
 const categories = ["Amateur", "Semiprofesional", "Profesional", "Fútbol base"];
 const sports = [
   "Fútbol 11",
@@ -88,14 +89,14 @@ const extras = [
 
 const FormComponent = () => {
   const { nationalities } = useNationalities();
-  const [ ,setSelectedNationality] = useState<string>("");
+  const [, setSelectedNationality] = useState<string>("");
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
-  
+
   const [formData, setFormData] = useState<ICreateJob>({
     title: "",
     location: "",
-    category: "Amateur", 
+    category: "Amateur",
     sport: "Fútbol 11",
     contractTypes: "Contrato Profesional",
     contractDurations: "Contrato Temporal",
@@ -113,38 +114,42 @@ const FormComponent = () => {
     offerType: "Contrato Profesional",
     moneda: "EUR",
     competencies: [],
-    countries: []
+    countries: [],
   });
-  
 
   const { token } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [imageUploadedMessage, setImageUploadedMessage] = useState<string | null>(null);
- 
-const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const [imageUploadedMessage, setImageUploadedMessage] = useState<
+    string | null
+  >(null);
 
-useEffect(() => {
-  const handleClickOutside = (event: MouseEvent) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-      setIsOpen(false);
-    }
-  };
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, []);
- 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   // Maneja la selección de una nacionalidad
   const handleSelectNationality = (value: string) => {
     setSelectedNationality(value);
     setFormData((prevState) => ({
       ...prevState,
       nationality: value,
-      countries: [...prevState.countries, value]
+      countries: [...prevState.countries, value],
     }));
     setSearch("");
     setIsOpen(false);
@@ -173,11 +178,11 @@ useEffect(() => {
   };
 
   const handleCompetencyChange = (value: string, checked: boolean) => {
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      competencies: checked 
+      competencies: checked
         ? [...(prevState.competencies || []), value]
-        : (prevState.competencies || []).filter(item => item !== value)
+        : (prevState.competencies || []).filter((item) => item !== value),
     }));
   };
 
@@ -187,33 +192,33 @@ useEffect(() => {
     setLoading(true);
     setError(null);
     setSuccessMessage(null);
-  
+
     if (!isValidImageUrl(formData.imgUrl)) {
       setError("La URL de la imagen no es válida.");
       setLoading(false);
       return;
     }
-  
+
     if (!token) {
       setError("Token no disponible.");
       setLoading(false);
       return;
     }
-    
+
     if (formData.countries.length === 0) {
       setError("Debes seleccionar al menos un país donde aplica la oferta.");
       setLoading(false);
       return;
     }
-    
+
     if (!formData.competencies || formData.competencies.length === 0) {
       setError("Debes seleccionar al menos una competencia requerida.");
       setLoading(false);
       return;
     }
-  
+
     const { customCurrencySign, ...restFormData } = formData;
-  
+
     const formDataToSend: ICreateJob = {
       ...restFormData,
       // Ensure these fields are properly set
@@ -221,23 +226,23 @@ useEffect(() => {
       offerType: formData.offerType || "Contrato Profesional",
       contractDurations: formData.contractDurations || "Contrato Temporal",
       competencies: formData.competencies,
-      countries: formData.countries
+      countries: formData.countries,
     };
-    
+
     // Only add position, nationality, and extra if they have values in the form
     if (formData.position) {
       formDataToSend.position = formData.position;
     }
-    
+
     if (formData.nationality) {
       formDataToSend.nationality = formData.nationality;
     }
-    
+
     // Use competencies as extra only if competencies has values
     if (formData.competencies && formData.competencies.length > 0) {
       formDataToSend.extra = formData.competencies;
     }
-  
+
     setTimeout(async () => {
       try {
         const response = await fetchCreateJob(formDataToSend, token);
@@ -265,7 +270,7 @@ useEffect(() => {
           offerType: "",
           moneda: "",
           competencies: [],
-          countries: []
+          countries: [],
         });
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : "Error desconocido");
@@ -274,122 +279,148 @@ useEffect(() => {
       }
     }, 2000);
   };
-  
-  
 
   return (
     <div className="max-w-5xl mx-auto p-2 bg-gray-100 text-gray-700 rounded-lg shadow-md border border-gray-300">
-    <div className="mx-auto text-center mb-2">
-      <h1 className="text-lg font-semibold bg-gray-600 text-white py-1 px-2 rounded">
+      <div className="mx-auto text-center mb-2">
+        <h1 className="text-lg font-semibold bg-gray-600 text-white py-1 px-2 rounded">
           Crear Oferta de Trabajo
         </h1>
       </div>
 
       <div className="bg-orange-50 border-l-4 border-orange-500 text-orange-700 p-3 mb-4 rounded">
         <p className="font-bold">⚠ IMPORTANTE:</p>
-        <p>No incluyas tu número, correo, redes sociales ni logos personales. Los jugadores te contactarán a través de la plataforma.</p>
+        <p>
+          No incluyas tu número, correo, redes sociales ni logos personales. Los
+          jugadores te contactarán a través de la plataforma.
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-2">
-    <div className="flex flex-col">
-      <label className="text-xs font-semibold mb-1">Título <span className="text-gray-500 text-xs">({formData.title.length}/80)</span></label>
-      <input
-        type="text"
-        className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
-        value={formData.title}
-        onChange={(e) => {
-          if (e.target.value.length <= 80) {
-            setFormData({ ...formData, title: e.target.value });
-          }
-        }}
-        maxLength={80}
-        placeholder="Nombre de la oferta"
-      />
-    </div>
-
-   {/* Ubicación */}
-   <div className="flex flex-col relative" ref={dropdownRef}>
-  <label className="text-xs font-semibold mb-1">Países donde aplica la oferta</label>
-  <input
-    type="text"
-    className="px-2 flex flex-col relative py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-verde-claro"
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-    onClick={() => setIsOpen(true)}
-    placeholder="Buscar países..."
-  />
-
-    {/* Ícono de flecha */}
-    <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none mt-2">
-      <svg
-        className="w-4 h-4 text-gray-500"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 md:grid-cols-3 gap-2"
       >
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-      </svg>
-    </div>
-  
-
-  {/* Dropdown de opciones */}
-  {isOpen && (
-    <div className="absolute z-10 w-full max-w-[95vw] bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
-      {loading && <p>Cargando ubicación...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-      <ul>
-        {nationalities
-          .filter((nationality) =>
-            nationality.label.toLowerCase().includes(search.toLowerCase())
-          )
-          .map((nationality) => (
-            <li
-              key={nationality.value}
-              className="p-2 cursor-pointer text-gray-700 hover:bg-gray-200"
-              onClick={() => handleSelectNationality(nationality.label)}
-            >
-              {nationality.label}
-            </li>
-          ))}
-      </ul>
-    </div>
-  )}
-  
-  {/* Lista de países seleccionados */}
-  {formData.countries.length > 0 && (
-    <div className="mt-2 flex flex-wrap gap-1">
-      {formData.countries.map((country, index) => (
-        <div key={index} className="flex items-center bg-gray-200 px-2 py-1 rounded-md text-xs">
-          <span>{country}</span>
-          <button
-            type="button"
-            className="ml-1 text-gray-500 hover:text-gray-700"
-            onClick={() => {
-              setFormData({
-                ...formData,
-                countries: formData.countries.filter((_, i) => i !== index)
-              });
-            }}
-          >
-            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </button>
-        </div>
-      ))}
-    </div>
-  )}
-</div>
-
-<div className="flex flex-col">
-    <label className="text-xs font-semibold mb-1">Ciudad</label>
+        <div className="flex flex-col">
+          <label className="text-xs font-semibold mb-1">
+            Título{" "}
+            <span className="text-gray-500 text-xs">
+              ({formData.title.length}/80)
+            </span>
+          </label>
           <input
             type="text"
-          className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+            value={formData.title}
+            onChange={(e) => {
+              if (e.target.value.length <= 80) {
+                setFormData({ ...formData, title: e.target.value });
+              }
+            }}
+            maxLength={80}
+            placeholder="Nombre de la oferta"
+          />
+        </div>
+
+        {/* Ubicación */}
+        <div className="flex flex-col relative" ref={dropdownRef}>
+          <label className="text-xs font-semibold mb-1">
+            Países donde aplica la oferta
+          </label>
+          <input
+            type="text"
+            className="px-2 flex flex-col relative py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-verde-claro"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onClick={() => setIsOpen(true)}
+            placeholder="Buscar países..."
+          />
+
+          {/* Ícono de flecha */}
+          <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none mt-2">
+            <svg
+              className="w-4 h-4 text-gray-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </div>
+
+          {/* Dropdown de opciones */}
+          {isOpen && (
+            <div className="absolute z-10 w-full max-w-[95vw] bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
+              {loading && <p>Cargando ubicación...</p>}
+              {error && <p className="text-red-500">{error}</p>}
+              <ul>
+                {nationalities
+                  .filter((nationality) =>
+                    nationality.label
+                      .toLowerCase()
+                      .includes(search.toLowerCase())
+                  )
+                  .map((nationality) => (
+                    <li
+                      key={nationality.value}
+                      className="p-2 cursor-pointer text-gray-700 hover:bg-gray-200"
+                      onClick={() => handleSelectNationality(nationality.label)}
+                    >
+                      {nationality.label}
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Lista de países seleccionados */}
+          {formData.countries.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {formData.countries.map((country, index) => (
+                <div
+                  key={index}
+                  className="flex items-center bg-gray-200 px-2 py-1 rounded-md text-xs"
+                >
+                  <span>{country}</span>
+                  <button
+                    type="button"
+                    className="ml-1 text-gray-500 hover:text-gray-700"
+                    onClick={() => {
+                      setFormData({
+                        ...formData,
+                        countries: formData.countries.filter(
+                          (_, i) => i !== index
+                        ),
+                      });
+                    }}
+                  >
+                    <svg
+                      className="w-3 h-3"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col">
+          <label className="text-xs font-semibold mb-1">Ciudad</label>
+          <input
+            type="text"
+            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.location}
             onChange={(e) =>
               setFormData({ ...formData, location: e.target.value })
@@ -398,10 +429,10 @@ useEffect(() => {
           />
         </div>
 
-<div className="flex flex-col">
-<label className="text-xs font-semibold mb-1">Tipo de oferta</label>
+        <div className="flex flex-col">
+          <label className="text-xs font-semibold mb-1">Tipo de oferta</label>
           <select
-           className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.offerType}
             onChange={(e) =>
               setFormData({ ...formData, offerType: e.target.value })
@@ -416,9 +447,9 @@ useEffect(() => {
         </div>
 
         <div className="flex flex-col">
-        <label className="text-xs font-semibold mb-1">Categoría</label>
+          <label className="text-xs font-semibold mb-1">Categoría</label>
           <select
-           className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.category}
             onChange={(e) =>
               setFormData({ ...formData, category: e.target.value })
@@ -433,9 +464,9 @@ useEffect(() => {
         </div>
 
         <div className="flex flex-col">
-      <label className="text-xs font-semibold mb-1">Género deporte</label>
+          <label className="text-xs font-semibold mb-1">Género deporte</label>
           <select
-           className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.sportGenres}
             onChange={(e) =>
               setFormData({ ...formData, sportGenres: e.target.value })
@@ -450,7 +481,7 @@ useEffect(() => {
         </div>
 
         <div className="flex flex-col">
-        <label className="text-xs font-semibold mb-1">Modalidad</label>
+          <label className="text-xs font-semibold mb-1">Modalidad</label>
           <select
             className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.sport}
@@ -467,9 +498,9 @@ useEffect(() => {
         </div>
 
         <div className="flex flex-col">
-        <label className="text-xs font-semibold mb-1">Tipo de contrato</label>
+          <label className="text-xs font-semibold mb-1">Tipo de contrato</label>
           <select
-           className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.contractTypes}
             onChange={(e) =>
               setFormData({ ...formData, contractTypes: e.target.value })
@@ -484,9 +515,11 @@ useEffect(() => {
         </div>
 
         <div className="flex flex-col">
-        <label className="text-xs font-semibold mb-1">Duración del contrato</label>
+          <label className="text-xs font-semibold mb-1">
+            Duración del contrato
+          </label>
           <select
-           className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.contractDurations}
             onChange={(e) =>
               setFormData({ ...formData, contractDurations: e.target.value })
@@ -501,9 +534,9 @@ useEffect(() => {
         </div>
 
         <div className="flex flex-col">
-        <label className="text-xs font-semibold mb-1">Posición</label>
+          <label className="text-xs font-semibold mb-1">Posición</label>
           <select
-           className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.position || ""}
             onChange={(e) =>
               setFormData({ ...formData, position: e.target.value })
@@ -519,39 +552,41 @@ useEffect(() => {
         </div>
 
         <div className="flex flex-col">
-        <label className="text-xs font-semibold mb-1">Moneda</label>
-        <select
-          className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
-          value={formData.moneda}
-          onChange={(e) => setFormData({ ...formData, moneda: e.target.value })}
-        >
-          <option value="EUR">Euro (€)</option>
-          <option value="USD">Dólar ($)</option>
-          <option value="GBP">Libra (£)</option>
-          <option value="ARS">Peso Argentino</option>
-          <option value="BRL">Real Brasileño</option>
-          <option value="MXN">Peso Mexicano</option>
-        </select>
-      </div>
-
-      <div className="flex flex-col">
-  <label className="text-xs font-semibold mb-1">Salario</label>
-  <input
-    type="text"
-    className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
-    value={formData.salary || ""}
-    onChange={(e) => {
-      const value = e.target.value;
-      setFormData({
-        ...formData,
-        salary: value, 
-      });
-    }}
-  />
-</div>
+          <label className="text-xs font-semibold mb-1">Moneda</label>
+          <select
+            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+            value={formData.moneda}
+            onChange={(e) =>
+              setFormData({ ...formData, moneda: e.target.value })
+            }
+          >
+            <option value="EUR">Euro (€)</option>
+            <option value="USD">Dólar ($)</option>
+            <option value="GBP">Libra (£)</option>
+            <option value="ARS">Peso Argentino</option>
+            <option value="BRL">Real Brasileño</option>
+            <option value="MXN">Peso Mexicano</option>
+          </select>
+        </div>
 
         <div className="flex flex-col">
-      <label className="text-xs font-semibold mb-1">Edad mínima</label>
+          <label className="text-xs font-semibold mb-1">Salario</label>
+          <input
+            type="text"
+            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+            value={formData.salary || ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              setFormData({
+                ...formData,
+                salary: value,
+              });
+            }}
+          />
+        </div>
+
+        <div className="flex flex-col">
+          <label className="text-xs font-semibold mb-1">Edad mínima</label>
           <input
             type="number"
             className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
@@ -567,7 +602,7 @@ useEffect(() => {
         </div>
 
         <div className="flex flex-col">
-        <label className="text-xs font-semibold mb-1">Edad máxima</label>
+          <label className="text-xs font-semibold mb-1">Edad máxima</label>
           <input
             type="number"
             className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
@@ -583,27 +618,29 @@ useEffect(() => {
         </div>
 
         <div className="flex flex-col">
-        <label className="text-xs font-semibold mb-1">Experiencia mínima</label>
-  <select
-    className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
-    value={formData.minExperience}
-    onChange={(e) => {
-      const value = e.target.value;
-      setFormData({ ...formData, minExperience: value });
-    }}
-  >
-    {minExperience.map((experience, index) => (
-      <option key={index} value={experience}>
-        {experience}
-      </option>
-    ))}
-     </select>
+          <label className="text-xs font-semibold mb-1">
+            Experiencia mínima
+          </label>
+          <select
+            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+            value={formData.minExperience}
+            onChange={(e) => {
+              const value = e.target.value;
+              setFormData({ ...formData, minExperience: value });
+            }}
+          >
+            {minExperience.map((experience, index) => (
+              <option key={index} value={experience}>
+                {experience}
+              </option>
+            ))}
+          </select>
+        </div>
 
-</div>
-
-
-<div className="flex flex-col">
-<label className="text-xs font-semibold mb-1">Pasaporte de la UE</label>
+        <div className="flex flex-col">
+          <label className="text-xs font-semibold mb-1">
+            Pasaporte de la UE
+          </label>
           <select
             className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.euPassport}
@@ -620,11 +657,11 @@ useEffect(() => {
         </div>
 
         <div className="flex flex-col">
-        <label className="text-xs font-semibold mb-1">
+          <label className="text-xs font-semibold mb-1">
             Disponibilidad para viajar:
           </label>
           <select
-           className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
             value={formData.availabilityToTravel}
             onChange={(e) =>
               setFormData({
@@ -639,7 +676,7 @@ useEffect(() => {
         </div>
 
         <div className="flex flex-col">
-        <label className="text-xs font-semibold mb-1">Descripción</label>
+          <label className="text-xs font-semibold mb-1">Descripción</label>
           <textarea
             name="description"
             maxLength={1500}
@@ -656,32 +693,43 @@ useEffect(() => {
         </div>
 
         <div className="flex flex-col">
-  <label className="text-xs font-semibold mb-1">Competencias requeridas</label>
-  <div className="grid grid-cols-2 gap-2">
-    {extras.map((competency, index) => (
-      <div key={index} className="flex items-center">
-        <input
-          type="checkbox"
-          id={`competency-${index}`}
-          value={competency}
-          checked={formData.competencies?.includes(competency) || false}
-          onChange={(e) => handleCompetencyChange(competency, e.target.checked)}
-          className="mr-2"
-        />
-        <label htmlFor={`competency-${index}`} className="ml-1 text-sm text-gray-700">
-          {competency}
-        </label>
-      </div>
-    ))}
-  </div>
-</div>
-
+          <label className="text-xs font-semibold mb-1">
+            Competencias requeridas
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            {extras.map((competency, index) => (
+              <div key={index} className="flex items-center">
+                <input
+                  type="checkbox"
+                  id={`competency-${index}`}
+                  value={competency}
+                  checked={formData.competencies?.includes(competency) || false}
+                  onChange={(e) =>
+                    handleCompetencyChange(competency, e.target.checked)
+                  }
+                  className="mr-2"
+                />
+                <label
+                  htmlFor={`competency-${index}`}
+                  className="ml-1 text-sm text-gray-700"
+                >
+                  {competency}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <div className="flex flex-col md:col-span-2 mt-4">
           <label className="text-sm font-bold mb-2">Cargar Imagen</label>
           <div className="bg-yellow-50 border border-yellow-400 text-yellow-800 p-2 mb-3 rounded text-xs">
             <p className="font-semibold">IMPORTANTE:</p>
-            <p>Solo se permite usar el logo de la liga en la que compite o el logo del club. No se permite incluir logos de agencias, intermediarios u otros. Las publicaciones que no cumplan serán editadas o eliminadas.</p>
+            <p>
+              Solo se permite usar el logo de la liga en la que compite o el
+              logo del club. No se permite incluir logos de agencias,
+              intermediarios u otros. Las publicaciones que no cumplan serán
+              editadas o eliminadas.
+            </p>
           </div>
           <div className="w-full">
             <ImageUpload onUpload={handleImageUpload} />

@@ -2,10 +2,10 @@ import ManagerSubscription from "@/components/Subs/ManagerSubscription";
 
 function Page() {
   return (
-    <div className="mt-32 mb-32">
+    <div className="mb-32">
       <ManagerSubscription />
     </div>
   );
 }
 
-export default Page; 
+export default Page;

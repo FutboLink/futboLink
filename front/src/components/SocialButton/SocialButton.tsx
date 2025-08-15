@@ -1,8 +1,8 @@
-import { FaWhatsapp, FaTelegramPlane } from "react-icons/fa";
+import { FaTelegramPlane, FaWhatsapp } from "react-icons/fa";
 
 function SocialButton() {
   return (
-    <div className="fixed bottom-4 right-4 flex flex-col gap-3 z-50">
+    <div className="fixed bottom-4 right-4 mb-20 flex flex-col gap-3 z-50">
       {/* WhatsApp Button */}
       <a
         href="https://wa.me/+393715851071"

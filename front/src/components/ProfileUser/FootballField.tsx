@@ -20,16 +20,24 @@ const FootballField: React.FC<FootballFieldProps> = ({
 
   // Definir las posiciones con sus coordenadas
   const positions = {
-    Portero: { x: 50, y: 95, zone: "gk", abbr: "GK" },
-    "Defensor Central": { x: 50, y: 80, zone: "defense", abbr: "CB" },
-    "Lateral Derecho": { x: 80, y: 80, zone: "defense", abbr: "RB" },
-    "Lateral Izquierdo": { x: 20, y: 80, zone: "defense", abbr: "LB" },
-    "Mediocampista Defensivo": { x: 50, y: 65, zone: "midfield", abbr: "CDM" },
-    "Mediocampista Central": { x: 50, y: 50, zone: "midfield", abbr: "CM" },
-    "Mediocampista Ofensivo": { x: 50, y: 35, zone: "midfield", abbr: "CAM" },
-    "Extremo Derecho": { x: 80, y: 35, zone: "attack", abbr: "RW" },
-    "Extremo Izquierdo": { x: 20, y: 35, zone: "attack", abbr: "LW" },
-    "Delantero Centro": { x: 50, y: 15, zone: "attack", abbr: "CF" },
+    Portero: { x: 50, y: 95, zone: "gk", abbr: "PT" }, // Portero
+    "Defensor Central Izquierdo": {
+      x: 35,
+      y: 80,
+      zone: "defense",
+      abbr: "DCI",
+    },
+    "Defensor Central Derecho": { x: 65, y: 80, zone: "defense", abbr: "DCD" },
+    "Lateral Derecho": { x: 85, y: 80, zone: "defense", abbr: "LD" },
+    "Lateral Izquierdo": { x: 15, y: 80, zone: "defense", abbr: "LI" },
+    "Mediocampista Defensivo": { x: 50, y: 65, zone: "midfield", abbr: "MCD" },
+    "Mediocampista Izquierdo": { x: 35, y: 50, zone: "midfield", abbr: "MI" },
+    "Mediocampista Central": { x: 50, y: 50, zone: "midfield", abbr: "MC" },
+    "Mediocampista Derecho": { x: 65, y: 50, zone: "midfield", abbr: "MD" },
+    "Mediocampista Ofensivo": { x: 50, y: 35, zone: "midfield", abbr: "MCO" },
+    "Extremo Derecho": { x: 85, y: 35, zone: "attack", abbr: "ED" },
+    "Extremo Izquierdo": { x: 15, y: 35, zone: "attack", abbr: "EI" },
+    "Delantero Centro": { x: 50, y: 15, zone: "attack", abbr: "DC" },
   };
 
   const handlePositionClick = (position: string) => {

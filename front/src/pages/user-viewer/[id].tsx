@@ -16,7 +16,6 @@ import {
   FaUserSlash,
 } from "react-icons/fa";
 import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
-import Navbar from "@/components/navbar/navbar";
 import ProfileUser from "@/components/ProfileUser/ProfileUser";
 import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
 import { getDefaultPlayerImage } from "@/helpers/imageUtils";
@@ -352,7 +351,6 @@ export default function UserViewer() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        <Navbar />
         <div className="flex justify-center items-center min-h-screen pt-16">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500 mx-auto"></div>
@@ -367,7 +365,6 @@ export default function UserViewer() {
   if (error) {
     return (
       <div className="min-h-screen bg-white">
-        <Navbar />
         <div className="container mx-auto px-4 py-8 text-center mt-20">
           <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded mb-4">
             <p>{error}</p>
@@ -387,7 +384,6 @@ export default function UserViewer() {
   if (!profile) {
     return (
       <div className="min-h-screen bg-white">
-        <Navbar />
         <div className="container mx-auto px-4 py-8 text-center mt-20">
           <div className="bg-yellow-100 border border-yellow-300 text-yellow-700 px-4 py-3 rounded mb-4">
             <p>No se encontró el perfil solicitado</p>
@@ -411,7 +407,6 @@ export default function UserViewer() {
           <title>Editar Mi Perfil - FutboLink</title>
           <meta name="description" content="Gestiona tu perfil en FutboLink" />
         </Head>
-        <Navbar />
         <div className="container mx-auto px-4 mt-5">
           <div className="relative flex items-center justify-center py-2">
             {/* Botón alineado a la izquierda */}
@@ -469,10 +464,8 @@ export default function UserViewer() {
         <meta name="theme-color" content="#ffffff" />
       </Head>
 
-      <Navbar />
-
       {/* Powered by logo - sticky debajo de navbar */}
-      <div className="sticky top-20 left-0 right-0 z-40 bg-white shadow-sm py-1">
+      <div className="sticky  left-0 right-0 bg-white shadow-sm py-1">
         <div className="flex justify-center items-center">
           <span className="text-xs text-gray-400 mr-2">Powered by</span>
           <Link href="/">
@@ -609,6 +602,7 @@ export default function UserViewer() {
                                 className="w-3.5 h-3.5 text-white"
                                 fill="currentColor"
                                 viewBox="0 0 20 20"
+                                aria-hidden="true"
                               >
                                 <path
                                   fillRule="evenodd"
@@ -631,6 +625,7 @@ export default function UserViewer() {
                                 className="w-3.5 h-3.5 text-white"
                                 fill="currentColor"
                                 viewBox="0 0 20 20"
+                                aria-hidden="true"
                               >
                                 <path
                                   fillRule="evenodd"

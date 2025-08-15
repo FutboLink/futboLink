@@ -23,6 +23,7 @@ import {
 } from "@/components/Fetchs/UsersFetchs/UserFetchs";
 import LanguageToggle from "@/components/LanguageToggle/LanguageToggle";
 import { getDefaultPlayerImage } from "@/helpers/imageUtils";
+import { useUserContext } from "@/hook/useUserContext";
 import type { IProfileData } from "@/Interfaces/IUser";
 import {
   clearSubscriptionCache,
@@ -65,7 +66,7 @@ const YouTubeEmbed = dynamic(
 );
 
 const UserProfile = () => {
-  const { token, logOut } = useContext(UserContext);
+  const { token, logOut } = useUserContext();
   const [activeSection, setActiveSection] = useState("profile");
   const [userData, setUserData] = useState<IProfileData | null>(null);
   const [error, setError] = useState<string | null>(null);

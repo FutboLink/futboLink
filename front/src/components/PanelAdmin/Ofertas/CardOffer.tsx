@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type React from "react";
 import { useState } from "react";
+import { useUserContext } from "@/hook/useUserContext";
 import type { IOfferCard } from "@/Interfaces/IOffer";
 import Notification from "./Notification";
 
@@ -10,6 +11,7 @@ const CardOffer: React.FC<{
   handleApplyClick: () => void;
 }> = ({ offer, handleApplyClick }) => {
   const [showNotification, setShowNotification] = useState(false);
+  const { role } = useUserContext();
 
   const handleCloseNotification = () => {
     setShowNotification(false); // Cerrar la notificación
@@ -109,10 +111,11 @@ const CardOffer: React.FC<{
             Ver más
           </Link>
           <button
+            type="button"
             onClick={handleApplyClick}
             className="flex-1 text-center py-1.5 text-xs font-bold rounded-md bg-gray-100 text-[#26441b] border border-[#3e7c27] hover:bg-[#4e6d43] hover:text-white transition"
           >
-            Aplicar
+            {role === "RECRUITER" ? "Ofrecer Jugador" : "Aplicar"}
           </button>
         </div>
       </div>

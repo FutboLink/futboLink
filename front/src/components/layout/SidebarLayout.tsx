@@ -270,7 +270,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop Sidebar */}
         {isLogged && (
-          <aside className="hidden md:block group fixed top-0 left-0 h-screen z-20 transition-all duration-300 ease-in-out w-[72px] hover:w-[240px] bg-white border-r border-gray-200 px-4 py-8 mt-20 shadow-md  flex-col">
+          <aside className="hidden md:block group fixed top-0 left-0 h-screen z-20 transition-all duration-300 ease-in-out w-[72px] hover:w-[240px] bg-white border-r border-gray-200 px-4 py-8 pt-24 shadow-md  flex-col">
             {/* Desktop sidebar content - same as before */}
             <div>
               <div className="flex flex-col items-center mb-10">
@@ -360,7 +360,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
                 type="button"
               >
                 <FaSignOutAlt className="text-lg flex-shrink-0" />
-                <span className="whitespace-nowrap hidden group-hover:inline">
+                <span className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
                   Cerrar sesión
                 </span>
               </button>
@@ -435,10 +435,10 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
                         <button
                           type="button"
                           onClick={item.onClick}
-                          className="flex items-center gap-4 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 w-full text-left"
+                          className="flex items-center gap-4 px-3 py-2 rounded-lg text-sm font-medium text-white-700 hover:bg-gray-700 w-full text-left"
                         >
                           <span className="text-lg">{item.icon}</span>
-                          <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <span className="whitespace-nowrap ">
                             {item.label}
                           </span>
                         </button>
@@ -450,12 +450,10 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
                     <li key={`main-${item.path}-${index}`}>
                       <Link
                         href={item.path}
-                        className="flex items-center gap-4 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100"
+                        className="flex items-center gap-4 px-4 py-2 rounded-lg text-sm font-medium text-white-300 hover:bg-gray-700 hover:text-white transition-all"
                       >
                         <span className="text-lg">{item.icon}</span>
-                        <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          {item.label}
-                        </span>
+                        <span className="whitespace-nowrap ">{item.label}</span>
                       </Link>
                     </li>
                   );
@@ -469,7 +467,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
                       <Link
                         href={item.path}
                         onClick={closeSidebar}
-                        className="flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium text-white-300 hover:bg-gray-700 hover:text-white transition-all"
+                        className="flex items-center gap-4 px-4 py-2 rounded-lg text-sm font-medium text-white-300 hover:bg-gray-700 hover:text-white transition-all"
                       >
                         <span className="text-lg">{item.icon}</span>
                         <span>{item.label}</span>

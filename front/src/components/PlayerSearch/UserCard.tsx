@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type React from "react";
-import { useContext } from "react";
 import { BsCheckCircle } from "react-icons/bs";
 import {
   FaPaperPlane,
@@ -43,6 +43,8 @@ const UserCard: React.FC<UserCardProps> = ({
   isShortlisted = false,
 }) => {
   const { user } = useUserContext();
+  const pathname = usePathname();
+
   // Verificar si el usuario actual es jugador
   const isPlayer = currentUser.role === "PLAYER";
 
@@ -109,6 +111,14 @@ const UserCard: React.FC<UserCardProps> = ({
   if (!user) {
     return null;
   }
+
+  // Mostrar solo si es reclutador o jugador y no estamos en /applications/jobs
+  const showButton =
+    user &&
+    (user.role === "RECRUITER" || isPlayer) &&
+    pathname !== "/applications/jobs";
+
+  if (!showButton) return null;
 
   return (
     <div
@@ -304,8 +314,9 @@ const UserCard: React.FC<UserCardProps> = ({
           </Link>
 
           {/* Botón de añadir a Portafolio (solo visible para reclutadores y para jugadores) */}
-          {user && user.role === "RECRUITER" && isPlayer && (
+          {!showButton && (
             <button
+              type="button"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

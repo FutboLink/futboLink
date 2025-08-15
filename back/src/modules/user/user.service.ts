@@ -1334,10 +1334,12 @@ export class UserService {
         console.warn(`No se pudo marcar como verificado al usuario ${request.playerId} - columna isVerified no existe`);
       }
 
-      // Establecer nivel de verificación si la columna existe
-      const desiredLevel = (updateVerificationRequestDto as any)?.verificationType === 'PROFESSIONAL'
-        ? 'PROFESSIONAL'
-        : 'SEMIPROFESSIONAL';
+      // Validar y establecer explícitamente el nivel de verificación seleccionado por el admin
+      const rawType = (updateVerificationRequestDto as any)?.verificationType;
+      if (!rawType || (rawType !== 'PROFESSIONAL' && rawType !== 'SEMIPROFESSIONAL')) {
+        throw new BadRequestException('Debe seleccionar un tipo de verificación válido (PROFESSIONAL o SEMIPROFESSIONAL)');
+      }
+      const desiredLevel: 'PROFESSIONAL' | 'SEMIPROFESSIONAL' = rawType;
       const levelOk = await this.setUserVerificationLevelSafe(request.playerId, desiredLevel);
       if (!levelOk) {
         console.warn(`No se pudo establecer verificationLevel para el usuario ${request.playerId}`);

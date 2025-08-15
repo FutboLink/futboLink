@@ -84,6 +84,7 @@ const VerificationRequests: React.FC = () => {
     setSelectedRequest(request);
     setActionType(action);
     setAdminComments("");
+    // Por seguridad, no inferimos desde suscripción. Requiere selección explícita.
     setVerificationType('SEMIPROFESSIONAL');
     setShowModal(true);
   };
@@ -300,7 +301,7 @@ const VerificationRequests: React.FC = () => {
               </button>
               <button
                 onClick={() => handleProcessRequest(selectedRequest.id, actionType, adminComments)}
-                disabled={actionType === 'REJECTED' && !adminComments.trim()}
+                disabled={(actionType === 'REJECTED' && !adminComments.trim()) || (actionType === 'APPROVED' && !verificationType)}
                 className={`px-4 py-2 rounded-lg text-white font-medium transition-colors disabled:opacity-50 ${
                   actionType === 'APPROVED' 
                     ? 'bg-green-600 hover:bg-green-700' 

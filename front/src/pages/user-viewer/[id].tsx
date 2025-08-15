@@ -698,7 +698,7 @@ export default function UserViewer() {
                 </div>
               </div>
 
-              {/* Estado, edad y tipo de suscripción - Solo para jugadores */}
+              {/* Estado, edad y tipo de verificación - Solo para jugadores */}
               {profile.role !== UserType.RECRUITER && (
                 <div className="flex items-center text-sm text-gray-600 mb-4">
                   <div className="flex items-center">
@@ -710,7 +710,13 @@ export default function UserViewer() {
                   {verificationStatus?.isVerified && (
                     <>
                       <span className="mx-2">|</span>
-                      <span>{profile.subscriptionType}</span>
+                      <span>
+                        {verificationStatus?.verificationLevel === 'PROFESSIONAL'
+                          ? 'Verificación: Profesional'
+                          : verificationStatus?.verificationLevel === 'SEMIPROFESSIONAL'
+                          ? 'Verificación: Semiprofesional'
+                          : 'Verificado'}
+                      </span>
                     </>
                   )}
                 </div>

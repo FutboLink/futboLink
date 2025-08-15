@@ -1,10 +1,9 @@
-import React, { useEffect } from "react";
-import Navbar from "@/components/navbar/navbar";
-import Footer from "@/components/Footer/footer";
-import SocialButton from "@/components/SocialButton/SocialButton";
+import AOS from "aos";
 import Head from "next/head";
 import Image from "next/image";
-import AOS from "aos";
+import { useEffect } from "react";
+import Footer from "@/components/Footer/footer";
+import SocialButton from "@/components/SocialButton/SocialButton";
 import "aos/dist/aos.css";
 import ContactForm from "@/components/ContactForm/ContactForm";
 
@@ -24,8 +23,6 @@ export default function ContactoPage() {
           content="Contacta con FutboLink para más información sobre nuestros servicios."
         />
       </Head>
-
-      <Navbar />
 
       <div className="overflow-hidden">
         <section

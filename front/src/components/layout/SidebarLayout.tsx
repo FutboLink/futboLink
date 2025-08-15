@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { type ReactNode, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import {
   AiOutlineFileAdd,
   AiOutlineFileText,
@@ -46,6 +47,14 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
   const { verificationStatus, fetchVerificationStatus } =
     useVerificationStatus(token);
 
+  const [subscriptionInfo, setSubscriptionInfo] = useState<{
+    hasActiveSubscription: boolean;
+    subscriptionType: string;
+  }>({
+    hasActiveSubscription: false,
+    subscriptionType: "Gratuito",
+  });
+
   const handleLogout = () => {
     setToken(null);
     setUser(null);
@@ -61,7 +70,32 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
     setIsSidebarOpen(false);
   };
 
-  // Función para obtener el menú según el rol
+  // Esto es para obtener la subcripcion si eres manager y quieres buscar jugoderes verifica la suscriptcion
+  useEffect(() => {
+    const stored = localStorage.getItem("managerSubscriptionInfo");
+    if (stored) {
+      setSubscriptionInfo(JSON.parse(stored));
+    }
+  }, []);
+
+  const handlePlayerSearchClick = () => {
+    const hasPaidSubscription =
+      subscriptionInfo.subscriptionType === "Profesional" ||
+      subscriptionInfo.subscriptionType === "Semiprofesional";
+
+    if (hasPaidSubscription && subscriptionInfo.hasActiveSubscription) {
+      router.push("/player-search");
+    } else {
+      toast.error(
+        "Necesitas una suscripción para acceder a la búsqueda de jugadores"
+      );
+      setTimeout(() => {
+        router.push("/manager-subscription");
+      }, 1000);
+    }
+  };
+
+  // Generar items del sidebar según rol
   const getSidebarItems = () => {
     if (role === "RECRUITER") {
       return {
@@ -88,7 +122,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
           },
           {
             label: "Buscar Jugadores",
-            path: "/player-search",
+            onClick: handlePlayerSearchClick,
             icon: <FaSearch />,
           },
           { label: "Mercado", path: "/jobs", icon: <FaStore /> },
@@ -121,7 +155,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
       };
     }
 
-    // Menú para jugadores
+    // Sidebar para jugadores
     return {
       main: [
         { label: "Inicio", path: "/", icon: <FaHome /> },
@@ -145,11 +179,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
           icon: <FaCog />,
         },
         { label: "Ayuda", path: "/Help", icon: <FaQuestionCircle /> },
-        {
-          label: "Mejorar Perfil",
-          path: "/Subs",
-          icon: <FaRocket />,
-        },
+        { label: "Mejorar Perfil", path: "/Subs", icon: <FaRocket /> },
       ],
       bottomNav: [
         { label: "Mercado", path: "/jobs", icon: <FaStore /> },
@@ -271,12 +301,29 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
 
               <nav>
                 <ul className="space-y-2">
-                  {sidebarItems.main.map((item) => {
+                  {sidebarItems.main.map((item, index) => {
+                    if (item.onClick) {
+                      return (
+                        <li key={`main-${item.label}-${index}`}>
+                          <button
+                            type="button"
+                            onClick={item.onClick}
+                            className="flex items-center gap-4 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 w-full text-left"
+                          >
+                            <span className="text-lg">{item.icon}</span>
+                            <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                              {item.label}
+                            </span>
+                          </button>
+                        </li>
+                      );
+                    }
+
                     return (
-                      <li key={item.path}>
+                      <li key={`main-${item.path}-${index}`}>
                         <Link
                           href={item.path}
-                          className={`flex items-center gap-4 px-3 py-2 rounded-lg text-sm font-medium transition-all ${"text-gray-700 hover:bg-gray-100"}`}
+                          className="flex items-center gap-4 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100"
                         >
                           <span className="text-lg">{item.icon}</span>
                           <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -380,17 +427,35 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
 
             {/* Mobile menu items */}
             <nav className="flex-1 p-4">
-              <ul className="space-y-1">
-                {sidebarItems.main.map((item) => {
+              <ul className="space-y-2">
+                {sidebarItems.main.map((item, index) => {
+                  if (item.onClick) {
+                    return (
+                      <li key={`main-${item.label}-${index}`}>
+                        <button
+                          type="button"
+                          onClick={item.onClick}
+                          className="flex items-center gap-4 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 w-full text-left"
+                        >
+                          <span className="text-lg">{item.icon}</span>
+                          <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            {item.label}
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  }
+
                   return (
-                    <li key={item.path}>
+                    <li key={`main-${item.path}-${index}`}>
                       <Link
                         href={item.path}
-                        onClick={closeSidebar}
-                        className={`flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium transition-all "text-green-300 hover:bg-gray-700 hover:text-white"}`}
+                        className="flex items-center gap-4 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100"
                       >
                         <span className="text-lg">{item.icon}</span>
-                        <span>{item.label}</span>
+                        <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          {item.label}
+                        </span>
                       </Link>
                     </li>
                   );

@@ -111,7 +111,6 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
   if (loading || !isClient) {
     return (
       <>
-        <Navbar />
         <main className="container mx-auto px-4 py-12 min-h-screen">
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1d5126]"></div>
@@ -126,7 +125,6 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
   if (dataAttempted && (error || !successCase)) {
     return (
       <>
-        <Navbar />
         <main className="container mx-auto px-4 py-12 min-h-screen">
           <div className="bg-white rounded-lg shadow-md p-8 max-w-4xl mx-auto">
             <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
@@ -148,7 +146,6 @@ export default function SuccessCaseDetail({ id }: SuccessCaseDetailProps) {
 
   return (
     <>
-      <Navbar />
       <main className="bg-gray-50">
         {/* Cabecera con imagen de fondo */}
         <div className="relative h-[300px] md:h-[400px] bg-gray-800">

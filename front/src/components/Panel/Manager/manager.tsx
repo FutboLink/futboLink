@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { FaGlobe } from "react-icons/fa";
-import { FaBolt, FaUsers, FaYoutube } from "react-icons/fa6";
+import { FaBolt, FaUsers } from "react-icons/fa6";
 import { UserContext } from "@/components/Context/UserContext";
 import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
 import { fetchUserId } from "@/components/Fetchs/UsersFetchs/UserFetchs";
@@ -20,7 +20,7 @@ import type { IOfferCard } from "@/Interfaces/IOffer";
 import type { IProfileData } from "@/Interfaces/IUser";
 
 const PanelManager = () => {
-  const { user, logOut, token } = useContext(UserContext);
+  const { user, token } = useContext(UserContext);
   const searchParams = useSearchParams();
   const sectionParam = searchParams.get("section");
   const [activeSection, setActiveSection] = useState(sectionParam || "profile");
@@ -509,6 +509,7 @@ const PanelManager = () => {
                   <p className="mt-2">No has publicado ninguna oferta aún</p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => handleSectionChange("createOffers")}
                   className="inline-block px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
                 >
@@ -624,6 +625,7 @@ const PanelManager = () => {
                 Mi Cartera de Jugadores
               </h3>
               <button
+                type="button"
                 onClick={() => {
                   // Verificar si el usuario tiene suscripción adecuada
                   const hasPaidSubscription =
@@ -735,6 +737,7 @@ const PanelManager = () => {
                   </p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => {
                     // Verificar si el usuario tiene suscripción adecuada
                     const hasPaidSubscription =

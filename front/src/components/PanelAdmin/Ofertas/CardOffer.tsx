@@ -115,7 +115,7 @@ const CardOffer: React.FC<{
             onClick={handleApplyClick}
             className="flex-1 text-center py-1.5 text-xs font-bold rounded-md bg-gray-100 text-[#26441b] border border-[#3e7c27] hover:bg-[#4e6d43] hover:text-white transition"
           >
-            {role === "RECRUITER" ? "Ofrecer Jugador" : "Aplicar"}
+            {role === "RECRUITER" ? "Ofrecer Candidato" : "Aplicar"}
           </button>
         </div>
       </div>

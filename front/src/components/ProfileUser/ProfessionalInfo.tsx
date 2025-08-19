@@ -1,34 +1,36 @@
 "use client";
-import { useState, useEffect, useContext } from "react";
-import { IProfileData, PasaporteUe } from "@/Interfaces/IUser";
+import { useContext, useEffect, useState } from "react";
 import {
-  fetchUserData,
-  updateUserData,
-} from "../Fetchs/UsersFetchs/UserFetchs";
-import { UserContext } from "../Context/UserContext";
-import { NotificationsForms } from "../Notifications/NotificationsForms";
-import {
-  FaPlus,
-  FaTrash,
-  FaFilePdf,
-  FaFileWord,
-  FaFile,
-  FaDownload,
   FaChevronDown,
   FaChevronRight,
+  FaDownload,
+  FaFile,
+  FaFilePdf,
+  FaFileWord,
+  FaPlus,
+  FaTrash,
 } from "react-icons/fa";
+import { type IProfileData, PasaporteUe } from "@/Interfaces/IUser";
 import FileUpload from "../Cloudinary/FileUpload";
+import { UserContext } from "../Context/UserContext";
+import { updateUserData } from "../Fetchs/UsersFetchs/UserFetchs";
+import { NotificationsForms } from "../Notifications/NotificationsForms";
 import FootballField from "./FootballField";
 
 // Define options for the dropdown fields
 const CATEGORIAS_OPTIONS = [
-  "Primer Equipo",
+  "Primera",
   "Reserva",
-  "Infantil",
-  "Juvenil",
-  "Futbol Base",
-  "Futbol Sala",
-  "Femenino",
+  "Primera Local",
+  "U23",
+  "U22",
+  "U21",
+  "U20",
+  "U19",
+  "U17",
+  "U16",
+  "U15",
+  "U14",
 ];
 const NIVEL_COMPETENCIA_OPTIONS = ["Profesional", "semiprofesional", "Amateur"];
 const PUESTO_PRINCIPAL_OPTIONS = [
@@ -374,10 +376,14 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mt-6">
                 <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                  <label
+                    htmlFor="pasaporteUE"
+                    className="block text-gray-700 text-sm font-bold mb-2"
+                  >
                     Pasaporte UE
                   </label>
                   <select
+                    id="pasaporteUE"
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     value={pasaporteUE}
                     onChange={(e) => setPasaporteUE(e.target.value)}
@@ -411,10 +417,14 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
             <div className="p-6 bg-white border-t">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                  <label
+                    htmlFor="estructuraCorp"
+                    className="block text-gray-700 text-sm font-bold mb-2"
+                  >
                     Estructura Corporal
                   </label>
                   <select
+                    id="estructuraCorp"
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     value={estructuraCorporal}
                     onChange={(e) => setEstructuraCorporal(e.target.value)}
@@ -428,12 +438,16 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                  <label
+                    htmlFor="pieHabil"
+                    className="block text-gray-700 text-sm font-bold mb-2"
+                  >
                     Pie Hábil
                   </label>
                   <select
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     value={pieHabil}
+                    id="pieHabil"
                     onChange={(e) => setPieHabil(e.target.value)}
                   >
                     {PIE_HABIL_OPTIONS.map((option) => (
@@ -445,10 +459,14 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                  <label
+                    htmlFor="altura"
+                    className="block text-gray-700 text-sm font-bold mb-2"
+                  >
                     Altura (cm)
                   </label>
                   <input
+                    id="altura"
                     type="number"
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     value={altura}
@@ -459,10 +477,14 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                  <label
+                    htmlFor="peso"
+                    className="block text-gray-700 text-sm font-bold mb-2"
+                  >
                     Peso (kg)
                   </label>
                   <input
+                    id="peso"
                     type="number"
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     value={peso}
@@ -571,10 +593,14 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="mb-4">
-                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                      <label
+                        htmlFor="club"
+                        className="block text-gray-700 text-sm font-bold mb-2"
+                      >
                         Club/Institución
                       </label>
                       <input
+                        id="club"
                         type="text"
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                         value={exp.club}
@@ -585,48 +611,67 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
                     </div>
 
                     <div className="mb-4">
-                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                      <label
+                        htmlFor=""
+                        className="block text-gray-700 text-sm font-bold mb-2"
+                      >
                         Fecha de Inicio
                       </label>
                       <input
-                        type="date"
+                        id="fechaInicio"
+                        type="month"
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        value={exp.fechaInicio}
+                        value={
+                          exp.fechaInicio ? exp.fechaInicio.slice(0, 7) : ""
+                        }
                         onChange={(e) =>
                           handleExperienceChange(
                             index,
                             "fechaInicio",
-                            e.target.value
+                            `${e.target.value}-01` // siempre guarda el primer día del mes
                           )
                         }
                       />
                     </div>
 
                     <div className="mb-4">
-                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                      <label
+                        htmlFor="fechaFinalizacion"
+                        className="block text-gray-700 text-sm font-bold mb-2"
+                      >
                         Fecha de Finalización
                       </label>
                       <input
-                        type="date"
+                        id="fechaFinalizacion"
+                        type="month"
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        value={exp.fechaFinalizacion}
+                        value={
+                          exp.fechaFinalizacion
+                            ? exp.fechaFinalizacion.slice(0, 7)
+                            : ""
+                        }
+                        min={exp.fechaInicio ? exp.fechaInicio.slice(0, 7) : ""}
                         onChange={(e) =>
                           handleExperienceChange(
                             index,
                             "fechaFinalizacion",
-                            e.target.value
+                            `${e.target.value}-01` // siempre guarda el primer día del mes
                           )
                         }
                       />
                     </div>
 
                     <div className="mb-4">
-                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                      <label
+                        htmlFor="categoriaEqui"
+                        className="block text-gray-700 text-sm font-bold mb-2"
+                      >
                         Categoría del Equipo
                       </label>
                       <select
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                         value={exp.categoriaEquipo}
+                        id="categoriaEqui"
                         onChange={(e) =>
                           handleExperienceChange(
                             index,
@@ -641,47 +686,6 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
                           </option>
                         ))}
                       </select>
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-gray-700 text-sm font-bold mb-2">
-                        Nivel de Competencia
-                      </label>
-                      <select
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        value={exp.nivelCompetencia}
-                        onChange={(e) =>
-                          handleExperienceChange(
-                            index,
-                            "nivelCompetencia",
-                            e.target.value
-                          )
-                        }
-                      >
-                        {NIVEL_COMPETENCIA_OPTIONS.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="mb-4 md:col-span-2">
-                      <label className="block text-gray-700 text-sm font-bold mb-2">
-                        Logros
-                      </label>
-                      <textarea
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        rows={3}
-                        value={exp.logros}
-                        onChange={(e) =>
-                          handleExperienceChange(
-                            index,
-                            "logros",
-                            e.target.value
-                          )
-                        }
-                      />
                     </div>
                   </div>
                 </div>

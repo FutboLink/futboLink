@@ -1,17 +1,17 @@
 "use client";
+import { createContext, useEffect, useState } from "react";
 import {
-  ILoginResponse,
-  IRegisterUser,
-  ILoginUser,
-  IUserResponse,
+  type ILoginResponse,
+  type ILoginUser,
+  type IRegisterUser,
+  type IUserContextType,
+  type IUserResponse,
   UserType,
 } from "@/Interfaces/IUser";
-import { IUserContextType } from "@/Interfaces/IUser";
 import {
-  fetchRegisterUser,
   fetchLoginUser,
+  fetchRegisterUser,
 } from "../Fetchs/UsersFetchs/UserFetchs";
-import { createContext, useEffect, useState } from "react";
 
 // Extiende el tipo IUserResponse para incluir el token
 export interface IUserWithToken extends IUserResponse {
@@ -33,6 +33,7 @@ export const UserContext = createContext<IUserContextType>({
   role: null,
   setRole: () => {},
   refreshUserData: async () => false,
+  updateUserFields: () => {},
 });
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -215,10 +216,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
         if (storedAuthData) {
           const parsedData = JSON.parse(storedAuthData);
           const { role, id } = parsedData;
-          
+
           // Get email from dedicated storage
-          const email = localStorage.getItem("userEmail") || parsedData.email || "";
-          
+          const email =
+            localStorage.getItem("userEmail") || parsedData.email || "";
+
           // Actualizar el usuario en el contexto para forzar re-renders
           setUser({
             token,
@@ -232,7 +234,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
             applications: parsedData.applications || [],
             jobs: parsedData.jobs || [],
           });
-          
+
           console.log("User data refreshed in context");
           return true;
         }
@@ -242,6 +244,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     }
     return false;
+  };
+
+  const updateUserFields = (updates: Partial<IUserWithToken>) => {
+    if (!user) return;
+
+    const updatedUser = { ...user, ...updates };
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
   };
 
   const logOut = () => {
@@ -273,6 +283,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
         role,
         setRole,
         refreshUserData,
+        updateUserFields,
       }}
     >
       {children}

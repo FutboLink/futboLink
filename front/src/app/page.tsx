@@ -1,11 +1,10 @@
-import React from "react";
+import type { Metadata } from "next";
+import About from "@/components/AboutUs/about";
+import Clients from "@/components/Clients/client";
+import Contact from "@/components/Contact/contact";
 import HorizontalDiv from "@/components/HorizontalDiv/line";
 import Home from "@/components/home/home";
 import LogoCarousel from "@/components/LogoCarousel/LogoCarousel";
-import Clients from "@/components/Clients/client";
-import About from "@/components/AboutUs/about";
-import Contact from "@/components/Contact/contact";
-import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title:

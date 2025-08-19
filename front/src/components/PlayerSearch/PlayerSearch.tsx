@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useState, useEffect, useContext, useRef } from "react";
-import TranslationContext from "../Context/TranslationContext";
 import axios from "axios";
-import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import UserCard from "./UserCard";
-import { User } from "@/Interfaces/IUser";
+import type React from "react";
+import { useContext, useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
 import { useUserContext } from "@/hook/useUserContext";
+import type { User } from "@/Interfaces/IUser";
+import TranslationContext from "../Context/TranslationContext";
+import UserCard from "./UserCard";
 
 interface SearchFilters {
   name?: string;
@@ -186,7 +187,7 @@ const PlayerSearch: React.FC = () => {
     "amateur",
   ]);
 
-  // Agregar estados para manejar la adición a la cartera a nivel del componente principal
+  // Agregar estados para manejar la adición a la Portafolio a nivel del componente principal
   const [isAddingToPortfolio, setIsAddingToPortfolio] = useState<string | null>(
     null
   );

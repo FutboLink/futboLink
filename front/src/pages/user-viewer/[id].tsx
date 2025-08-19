@@ -2,7 +2,7 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import {
   FaArrowLeft,
@@ -15,18 +15,15 @@ import {
   FaSignOutAlt,
   FaUserSlash,
 } from "react-icons/fa";
-import { UserContext } from "@/components/Context/UserContext";
 import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
-import Navbar from "@/components/navbar/navbar";
 import ProfileUser from "@/components/ProfileUser/ProfileUser";
 import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
-import VerificationBadge from "@/components/VerificationBadge/VerificationBadge";
 import { getDefaultPlayerImage } from "@/helpers/imageUtils";
 import {
-  formatAchievements,
   formatearFecha,
   sortTrayectoriasByFechaDesc,
 } from "@/helpers/sortAndFormatTrayectorias";
+import { useUserContext } from "@/hook/useUserContext";
 import { type IProfileData, UserType } from "@/Interfaces/IUser";
 import {
   requestVerification,
@@ -63,7 +60,7 @@ const formatYoutubeUrl = (url: string): string => {
 
   for (const pattern of patterns) {
     const match = url.match(pattern);
-    if (match && match[1]) {
+    if (match?.[1]) {
       return `https://www.youtube.com/embed/${match[1]}`;
     }
   }
@@ -81,7 +78,7 @@ const formatYoutubeUrl = (url: string): string => {
 export default function UserViewer() {
   const router = useRouter();
   const { id } = router.query;
-  const { user, token, role } = useContext(UserContext);
+  const { user, token, role } = useUserContext();
 
   const [profile, setProfile] = useState<IProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -101,7 +98,7 @@ export default function UserViewer() {
   const [verificationStatus, setVerificationStatus] = useState<{
     isVerified: boolean;
     columnExists: boolean;
-    verificationLevel?: 'NONE' | 'SEMIPROFESSIONAL' | 'PROFESSIONAL';
+    verificationLevel?: "NONE" | "SEMIPROFESSIONAL" | "PROFESSIONAL";
   } | null>(null);
 
   // Referencias para los menús desplegables
@@ -172,9 +169,13 @@ export default function UserViewer() {
       );
       setVerificationMessage("");
       setShowVerificationModal(false);
-    } catch (error: any) {
-      const errorMessage =
-        error.message || "Error al enviar la solicitud de verificación";
+    } catch (error: unknown) {
+      let errorMessage = "Error al enviar la solicitud de verificación";
+
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
       showVerificationToast.error(errorMessage);
     } finally {
       setLoadingVerification(false);
@@ -350,7 +351,6 @@ export default function UserViewer() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        <Navbar />
         <div className="flex justify-center items-center min-h-screen pt-16">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500 mx-auto"></div>
@@ -365,7 +365,6 @@ export default function UserViewer() {
   if (error) {
     return (
       <div className="min-h-screen bg-white">
-        <Navbar />
         <div className="container mx-auto px-4 py-8 text-center mt-20">
           <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded mb-4">
             <p>{error}</p>
@@ -385,7 +384,6 @@ export default function UserViewer() {
   if (!profile) {
     return (
       <div className="min-h-screen bg-white">
-        <Navbar />
         <div className="container mx-auto px-4 py-8 text-center mt-20">
           <div className="bg-yellow-100 border border-yellow-300 text-yellow-700 px-4 py-3 rounded mb-4">
             <p>No se encontró el perfil solicitado</p>
@@ -409,12 +407,12 @@ export default function UserViewer() {
           <title>Editar Mi Perfil - FutboLink</title>
           <meta name="description" content="Gestiona tu perfil en FutboLink" />
         </Head>
-        <Navbar />
         <div className="container mx-auto px-4 mt-5">
           <div className="relative flex items-center justify-center py-2">
             {/* Botón alineado a la izquierda */}
             <div className="absolute left-0 top-1">
               <button
+                type="button"
                 onClick={() => router.back()}
                 className="flex items-center text-gray-600 hover:text-gray-800"
               >
@@ -466,10 +464,8 @@ export default function UserViewer() {
         <meta name="theme-color" content="#ffffff" />
       </Head>
 
-      <Navbar />
-
       {/* Powered by logo - sticky debajo de navbar */}
-      <div className="sticky top-20 left-0 right-0 z-40 bg-white shadow-sm py-1">
+      <div className="sticky  left-0 right-0 bg-white shadow-sm py-1">
         <div className="flex justify-center items-center">
           <span className="text-xs text-gray-400 mr-2">Powered by</span>
           <Link href="/">
@@ -492,6 +488,7 @@ export default function UserViewer() {
             {/* Editar perfil */}
             <button
               onClick={() => router.push(`/user-viewer/${id}?edit=true`)}
+              type="button"
               className="w-full sm:w-auto bg-verde-oscuro text-white py-2 px-4 rounded-md hover:bg-verde-mas-claro transition-colors flex items-center justify-center"
             >
               <FaCog className="mr-2" /> Editar perfil
@@ -507,6 +504,8 @@ export default function UserViewer() {
                 )
               }
               className="w-full sm:w-auto bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors flex items-center justify-center"
+              type="button"
+              aria-label="boton de cambiar contrasena"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -514,6 +513,7 @@ export default function UserViewer() {
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -529,6 +529,7 @@ export default function UserViewer() {
             <button
               onClick={handleLogout}
               className="w-full sm:w-auto bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors flex items-center justify-center"
+              type="button"
             >
               <FaSignOutAlt className="mr-2" /> Cerrar sesión
             </button>
@@ -545,14 +546,16 @@ export default function UserViewer() {
                 <div className="relative">
                   <div
                     className={`w-16 h-16 rounded-full overflow-hidden border-4 shadow-md ${(() => {
-                      const isPlayer = profile.role?.toString() !== 'RECRUITER';
+                      const isPlayer = profile.role?.toString() !== "RECRUITER";
                       const level = verificationStatus?.verificationLevel;
                       if (verificationStatus?.isVerified && isPlayer) {
-                        if (level === 'PROFESSIONAL') return 'border-yellow-500';
-                        if (level === 'SEMIPROFESSIONAL') return 'border-gray-400';
-                        return 'border-gray-500';
+                        if (level === "PROFESSIONAL")
+                          return "border-yellow-500";
+                        if (level === "SEMIPROFESSIONAL")
+                          return "border-gray-400";
+                        return "border-gray-500";
                       }
-                      return 'border-gray-500';
+                      return "border-gray-500";
                     })()}`}
                   >
                     <Image
@@ -567,13 +570,14 @@ export default function UserViewer() {
                       className="object-cover w-full h-full"
                     />
                   </div>
-                  {(profile.role as any) === "RECRUITER" && (
+                  {(profile.role as UserType) === "RECRUITER" && (
                     <div className="absolute -bottom-1 -right-1 bg-purple-600 rounded-full p-1">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-3 w-3 text-white"
                         viewBox="0 0 20 20"
                         fill="currentColor"
+                        aria-hidden="true"
                       >
                         <path
                           fillRule="evenodd"
@@ -583,38 +587,58 @@ export default function UserViewer() {
                     </div>
                   )}
                   {/* Priorizar insignia de verificación sobre suscripción profesional */}
-                  {verificationStatus?.isVerified && profile.role?.toString() !== 'RECRUITER' && (() => {
-                    const level = verificationStatus?.verificationLevel;
-                    if (level === 'PROFESSIONAL') {
-                      return (
-                        <div
-                          className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1"
-                          title="✅ Perfil Verificado Profesional"
-                        >
-                          <div className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 text-white rounded-full shadow-lg border-2 border-yellow-500 w-6 h-6 flex items-center justify-center">
-                            <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
+                  {verificationStatus?.isVerified &&
+                    profile.role?.toString() !== "RECRUITER" &&
+                    (() => {
+                      const level = verificationStatus?.verificationLevel;
+                      if (level === "PROFESSIONAL") {
+                        return (
+                          <div
+                            className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1"
+                            title="✅ Perfil Verificado Profesional"
+                          >
+                            <div className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 text-white rounded-full shadow-lg border-2 border-yellow-500 w-6 h-6 flex items-center justify-center">
+                              <svg
+                                className="w-3.5 h-3.5 text-white"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                                aria-hidden="true"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    }
-                    if (level === 'SEMIPROFESSIONAL') {
-                      return (
-                        <div
-                          className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1"
-                          title="🥈 Perfil Semiprofesional"
-                        >
-                          <div className="bg-gradient-to-r from-gray-500 via-gray-500 to-gray-800 text-white rounded-full shadow-lg border-2 border-gray-500 w-6 h-6 flex items-center justify-center">
-                            <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
+                        );
+                      }
+                      if (level === "SEMIPROFESSIONAL") {
+                        return (
+                          <div
+                            className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1"
+                            title="🥈 Perfil Semiprofesional"
+                          >
+                            <div className="bg-gradient-to-r from-gray-500 via-gray-500 to-gray-800 text-white rounded-full shadow-lg border-2 border-gray-500 w-6 h-6 flex items-center justify-center">
+                              <svg
+                                className="w-3.5 h-3.5 text-white"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                                aria-hidden="true"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    }
-                    return null;
-                  })()}
+                        );
+                      }
+                      return null;
+                    })()}
                 </div>
                 <div className="ml-4">
                   <div className="flex items-center">
@@ -637,34 +661,40 @@ export default function UserViewer() {
                   )}
 
                   {/* Texto de verificación debajo del nombre - sutil usando verificationLevel con fallback */}
-                  {verificationStatus?.isVerified && profile.role?.toString() !== 'RECRUITER' && (
-                    <div className="flex items-center gap-1 mt-1">
-                      <svg
-                        className={`w-3 h-3 ${
-                          verificationStatus?.verificationLevel === 'PROFESSIONAL'
-                            ? 'text-yellow-500'
-                            : verificationStatus?.verificationLevel === 'SEMIPROFESSIONAL'
-                            ? 'text-gray-500'
-                            : 'text-gray-500'
-                        }`}
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      <span className="text-xs text-gray-600 font-medium">
-                        {verificationStatus?.verificationLevel === 'PROFESSIONAL'
-                          ? 'Perfil verificado profesional'
-                          : verificationStatus?.verificationLevel === 'SEMIPROFESSIONAL'
-                          ? 'Perfil verificado semiprofesional'
-                          : 'Perfil verificado'}
-                      </span>
-                    </div>
-                  )}
+                  {verificationStatus?.isVerified &&
+                    profile.role?.toString() !== "RECRUITER" && (
+                      <div className="flex items-center gap-1 mt-1">
+                        <svg
+                          className={`w-3 h-3 ${
+                            verificationStatus?.verificationLevel ===
+                            "PROFESSIONAL"
+                              ? "text-yellow-500"
+                              : verificationStatus?.verificationLevel ===
+                                "SEMIPROFESSIONAL"
+                              ? "text-gray-500"
+                              : "text-gray-500"
+                          }`}
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                          aria-hidden="true"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        <span className="text-xs text-gray-600 font-medium">
+                          {verificationStatus?.verificationLevel ===
+                          "PROFESSIONAL"
+                            ? "Perfil verificado profesional"
+                            : verificationStatus?.verificationLevel ===
+                              "SEMIPROFESSIONAL"
+                            ? "Perfil verificado semiprofesional"
+                            : "Perfil verificado"}
+                        </span>
+                      </div>
+                    )}
                 </div>
               </div>
 
@@ -713,6 +743,7 @@ export default function UserViewer() {
                 <button
                   className="flex flex-col items-center justify-center p-2 transition-colors duration-200 hover:bg-gray-50 rounded-lg"
                   onClick={() => setLiked(!liked)}
+                  type="button"
                 >
                   {liked ? (
                     <FaHeart className="text-red-500 text-lg" />
@@ -735,6 +766,7 @@ export default function UserViewer() {
                     setUrlCopied(true);
                     setTimeout(() => setUrlCopied(false), 2000);
                   }}
+                  type="button"
                 >
                   {urlCopied ? (
                     <>
@@ -743,6 +775,7 @@ export default function UserViewer() {
                         className="h-5 w-5 text-green-500"
                         viewBox="0 0 20 20"
                         fill="currentColor"
+                        aria-hidden="true"
                       >
                         <path
                           fillRule="evenodd"
@@ -762,6 +795,7 @@ export default function UserViewer() {
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -780,6 +814,7 @@ export default function UserViewer() {
                 <button
                   className="flex flex-col items-center justify-center p-2 transition-colors duration-200 hover:bg-gray-50 rounded-lg"
                   onClick={() => setShowShareOptions(!showShareOptions)}
+                  type="button"
                 >
                   <FaShareAlt className="text-gray-500 text-lg" />
                   <span className="text-xs text-gray-500 mt-1 font-medium">
@@ -792,11 +827,14 @@ export default function UserViewer() {
                   <button
                     className="flex flex-col items-center justify-center p-2 transition-colors duration-200 hover:bg-gray-50 rounded-lg"
                     onClick={() => setShowVerificationModal(true)}
+                    aria-label="boton para verificar el perfil"
+                    type="button"
                   >
                     <svg
                       className="w-5 h-5 text-yellow-500"
                       fill="currentColor"
                       viewBox="0 0 20 20"
+                      aria-hidden="true"
                     >
                       <path
                         fillRule="evenodd"
@@ -829,6 +867,7 @@ export default function UserViewer() {
                           className="w-5 h-5 text-green-600"
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 448 512"
+                          aria-hidden="true"
                         >
                           <path
                             fill="currentColor"
@@ -849,6 +888,7 @@ export default function UserViewer() {
                           className="w-5 h-5 text-blue-500"
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 512 512"
+                          aria-hidden="true"
                         >
                           <path
                             fill="currentColor"
@@ -869,6 +909,7 @@ export default function UserViewer() {
                           className="w-5 h-5 text-blue-700"
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 320 512"
+                          aria-hidden="true"
                         >
                           <path
                             fill="currentColor"
@@ -885,6 +926,7 @@ export default function UserViewer() {
                   <button
                     className="flex flex-col items-center justify-center p-2 transition-colors duration-200 hover:bg-gray-50 rounded-lg"
                     onClick={() => setShowMoreOptions(!showMoreOptions)}
+                    type="button"
                   >
                     <FaEllipsisH className="text-gray-500 text-lg" />
                     <span className="text-xs text-gray-500 mt-1 font-medium">
@@ -902,12 +944,14 @@ export default function UserViewer() {
                             // Aquí puedes implementar la lógica para reportar
                             alert("Función de reporte no implementada");
                           }}
+                          type="button"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             className="h-5 w-5 text-red-500"
                             viewBox="0 0 20 20"
                             fill="currentColor"
+                            aria-hidden="true"
                           >
                             <path
                               fillRule="evenodd"
@@ -923,6 +967,7 @@ export default function UserViewer() {
                             onClick={() =>
                               router.push(`/user-viewer/${id}?edit=true`)
                             }
+                            type="button"
                           >
                             <FaCog className="h-5 w-5 text-gray-600" />
                             <span className="text-sm">Editar perfil</span>
@@ -931,6 +976,7 @@ export default function UserViewer() {
                         {isOwnProfile && (
                           <button
                             className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md text-left w-full"
+                            type="button"
                             onClick={() =>
                               router.push(
                                 `/forgotPassword?email=${encodeURIComponent(
@@ -945,6 +991,7 @@ export default function UserViewer() {
                               fill="none"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
+                              aria-hidden="true"
                             >
                               <path
                                 strokeLinecap="round"
@@ -960,6 +1007,7 @@ export default function UserViewer() {
                           <button
                             className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md text-left w-full"
                             onClick={handleLogout}
+                            type="button"
                           >
                             <FaSignOutAlt className="h-5 w-5 text-red-600" />
                             <span className="text-sm">Cerrar sesión</span>
@@ -969,11 +1017,14 @@ export default function UserViewer() {
                           <button
                             className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md text-left w-full"
                             onClick={() => setShowVerificationModal(true)}
+                            type="button"
+                            aria-label="icono de verificacion"
                           >
                             <svg
                               className="w-5 h-5 text-yellow-600"
                               fill="currentColor"
                               viewBox="0 0 20 20"
+                              aria-hidden="true"
                             >
                               <path
                                 fillRule="evenodd"
@@ -1036,6 +1087,7 @@ export default function UserViewer() {
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -1233,6 +1285,7 @@ export default function UserViewer() {
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -1261,6 +1314,7 @@ export default function UserViewer() {
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
+                          aria-hidden="true"
                         >
                           <path
                             strokeLinecap="round"
@@ -1284,6 +1338,7 @@ export default function UserViewer() {
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
+                          aria-hidden="true"
                         >
                           <path
                             strokeLinecap="round"
@@ -1307,6 +1362,7 @@ export default function UserViewer() {
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
+                          aria-hidden="true"
                         >
                           <path
                             strokeLinecap="round"
@@ -1343,6 +1399,7 @@ export default function UserViewer() {
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
+                      aria-hidden="true"
                     >
                       <path
                         strokeLinecap="round"
@@ -1390,6 +1447,7 @@ export default function UserViewer() {
               <div className="flex border-b border-gray-200">
                 <button
                   onClick={() => setActiveTab("info")}
+                  type="button"
                   className={`flex-1 py-3 text-center ${
                     activeTab === "info"
                       ? "text-green-600 border-b-2 border-green-600"
@@ -1400,6 +1458,7 @@ export default function UserViewer() {
                 </button>
                 <button
                   onClick={() => setActiveTab("stats")}
+                  type="button"
                   className={`flex-1 py-3 text-center ${
                     activeTab === "stats"
                       ? "text-green-600 border-b-2 border-green-600"
@@ -1410,6 +1469,7 @@ export default function UserViewer() {
                 </button>
                 <button
                   onClick={() => setActiveTab("career")}
+                  type="button"
                   className={`flex-1 py-3 text-center ${
                     activeTab === "career"
                       ? "text-green-600 border-b-2 border-green-600"
@@ -1528,6 +1588,7 @@ export default function UserViewer() {
                               fill="none"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
+                              aria-hidden="true"
                             >
                               <path
                                 strokeLinecap="round"
@@ -1664,7 +1725,12 @@ export default function UserViewer() {
                             className="relative w-full h-full rounded overflow-hidden cursor-pointer"
                             aria-label="Contactar por WhatsApp"
                           >
-                            <Image src={promoBasic1} alt="Promo perfil 1" fill className="object-contain" />
+                            <Image
+                              src={promoBasic1}
+                              alt="Promo perfil 1"
+                              fill
+                              className="object-contain"
+                            />
                           </a>
                           <a
                             href="https://wa.me/393715851071"
@@ -1673,7 +1739,12 @@ export default function UserViewer() {
                             className="relative w-full h-full rounded overflow-hidden cursor-pointer"
                             aria-label="Contactar por WhatsApp"
                           >
-                            <Image src={promoBasic2} alt="Promo perfil 2" fill className="object-contain" />
+                            <Image
+                              src={promoBasic2}
+                              alt="Promo perfil 2"
+                              fill
+                              className="object-contain"
+                            />
                           </a>
                         </div>
                       </div>
@@ -1702,7 +1773,7 @@ export default function UserViewer() {
                       {sortTrayectoriasByFechaDesc(profile.trayectorias).map(
                         (trayectoria, index) => (
                           <div
-                            key={index}
+                            key={`${trayectoria.club}-${index}`}
                             className="border-l-2 border-green-500 pl-4 pb-4"
                           >
                             <div className="flex justify-between mb-1">
@@ -1722,18 +1793,6 @@ export default function UserViewer() {
                               {trayectoria.nivelCompetencia} -{" "}
                               {trayectoria.categoriaEquipo}
                             </p>
-                            {trayectoria.logros && (
-                              <div className="text-sm text-gray-700 mt-1">
-                                <p className="font-medium">Logros:</p>
-                                <div className="mt-1 space-y-1">
-                                  {formatAchievements(trayectoria.logros).map(
-                                    (line, i) => (
-                                      <p key={i}>{line}</p>
-                                    )
-                                  )}
-                                </div>
-                              </div>
-                            )}
                           </div>
                         )
                       )}
@@ -1759,6 +1818,7 @@ export default function UserViewer() {
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -1801,6 +1861,7 @@ export default function UserViewer() {
                     className="w-6 h-6 mr-2 text-yellow-600"
                     fill="currentColor"
                     viewBox="0 0 20 20"
+                    aria-hidden="true"
                   >
                     <path
                       fillRule="evenodd"
@@ -1813,12 +1874,14 @@ export default function UserViewer() {
                 <button
                   onClick={() => setShowVerificationModal(false)}
                   className="text-gray-500 hover:text-gray-700 transition-colors"
+                  type="button"
                 >
                   <svg
                     className="w-5 h-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"
@@ -1838,6 +1901,7 @@ export default function UserViewer() {
                       className="w-5 h-5 text-yellow-600 mt-0.5 mr-3 flex-shrink-0"
                       fill="currentColor"
                       viewBox="0 0 20 20"
+                      aria-hidden="true"
                     >
                       <path
                         fillRule="evenodd"
@@ -1861,13 +1925,17 @@ export default function UserViewer() {
                 {/* Formulario de solicitud */}
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="verificationMessage"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Mensaje para el administrador (opcional)
                     </label>
                     <textarea
                       value={verificationMessage}
+                      id="verificationMessage"
                       onChange={(e) => setVerificationMessage(e.target.value)}
-                      placeholder="Explica por qué solicitas la verificación de tu perfil. Por ejemplo: información sobre tus logros, experiencia profesional, etc."
+                      placeholder="Explica por qué solicitas la verificación de tu perfil. Por ejemplo: información sobre tu Pais, experiencia profesional, etc."
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
                       rows={4}
                       maxLength={500}
@@ -1882,11 +1950,13 @@ export default function UserViewer() {
                       <button
                         onClick={() => setShowVerificationModal(false)}
                         className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                        type="button"
                       >
                         Cancelar
                       </button>
                       <button
                         onClick={handleRequestVerification}
+                        type="button"
                         disabled={loadingVerification}
                         className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                       >
@@ -1901,6 +1971,7 @@ export default function UserViewer() {
                               className="w-4 h-4"
                               fill="currentColor"
                               viewBox="0 0 20 20"
+                              aria-hidden="true"
                             >
                               <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                               <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />

@@ -1,7 +1,9 @@
-import React, { useState } from "react";
-import { IOfferCard } from "@/Interfaces/IOffer";
 import Image from "next/image";
 import Link from "next/link";
+import type React from "react";
+import { useState } from "react";
+import { useUserContext } from "@/hook/useUserContext";
+import type { IOfferCard } from "@/Interfaces/IOffer";
 import Notification from "./Notification";
 
 const CardOffer: React.FC<{
@@ -9,6 +11,7 @@ const CardOffer: React.FC<{
   handleApplyClick: () => void;
 }> = ({ offer, handleApplyClick }) => {
   const [showNotification, setShowNotification] = useState(false);
+  const { role } = useUserContext();
 
   const handleCloseNotification = () => {
     setShowNotification(false); // Cerrar la notificación
@@ -38,7 +41,7 @@ const CardOffer: React.FC<{
       <div className="grid grid-cols-2 p-3 gap-2 text-xs text-gray-600">
         <div className="space-y-1">
           <p>
-            <span className="font-semibold text-gray-800">Posición:</span>{" "}
+            <span className="font-semibold text-gray-800">Rol:</span>{" "}
             {offer.position}
           </p>
           <p>
@@ -74,8 +77,8 @@ const CardOffer: React.FC<{
             {offer.minAge} - {offer.maxAge}
           </p>
           <p>
-            <span className="font-semibold text-gray-800">Viajes:</span>{" "}
-            {offer.availabilityToTravel ? "Sí" : "No"}
+            <span className="font-semibold text-gray-800">Género:</span>{" "}
+            {offer.sportGenres}
           </p>
           <p>
             <span className="font-semibold text-gray-800">Pasaporte UE:</span>{" "}
@@ -108,10 +111,11 @@ const CardOffer: React.FC<{
             Ver más
           </Link>
           <button
+            type="button"
             onClick={handleApplyClick}
             className="flex-1 text-center py-1.5 text-xs font-bold rounded-md bg-gray-100 text-[#26441b] border border-[#3e7c27] hover:bg-[#4e6d43] hover:text-white transition"
           >
-            Aplicar
+            {role === "RECRUITER" ? "Ofrecer Candidato" : "Aplicar"}
           </button>
         </div>
       </div>

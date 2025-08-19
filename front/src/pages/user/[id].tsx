@@ -1,21 +1,14 @@
-import { useRouter } from "next/router";
-import { useEffect, useState, useContext } from "react";
-import { UserContext } from "@/components/Context/UserContext";
-import Navbar from "@/components/navbar/navbar";
-import ProfileUser from "@/components/ProfileUser/ProfileUser";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
-import { IProfileData } from "@/Interfaces/IUser";
-import {
-  FaArrowLeft,
-  FaThumbsUp,
-  FaBookmark,
-  FaShare,
-  FaEllipsisV,
-} from "react-icons/fa";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { FaBookmark, FaEllipsisV, FaShare, FaThumbsUp } from "react-icons/fa";
 import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
+import ProfileUser from "@/components/ProfileUser/ProfileUser";
 import { getDefaultPlayerImage } from "@/helpers/imageUtils";
+import { useUserContext } from "@/hook/useUserContext";
+import type { IProfileData } from "@/Interfaces/IUser";
 
 // URL del backend
 const API_URL = "https://futbolink.onrender.com";
@@ -44,7 +37,7 @@ const formatYoutubeUrl = (url: string): string => {
 
   for (const pattern of patterns) {
     const match = url.match(pattern);
-    if (match && match[1]) {
+    if (match?.[1]) {
       return `https://www.youtube.com/embed/${match[1]}`;
     }
   }
@@ -62,7 +55,7 @@ const formatYoutubeUrl = (url: string): string => {
 export default function UserProfilePage() {
   const router = useRouter();
   const { id } = router.query;
-  const { user, token } = useContext(UserContext);
+  const { user } = useUserContext();
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<IProfileData | null>(null);
@@ -148,7 +141,6 @@ export default function UserProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        <Navbar />
         <div className="flex justify-center items-center min-h-screen pt-16">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500 mx-auto"></div>
@@ -163,7 +155,6 @@ export default function UserProfilePage() {
   if (error) {
     return (
       <div className="min-h-screen bg-white">
-        <Navbar />
         <div className="container mx-auto px-4 py-8 text-center mt-20">
           <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded mb-4">
             <p>{error}</p>
@@ -183,7 +174,6 @@ export default function UserProfilePage() {
   if (!profile) {
     return (
       <div className="min-h-screen bg-white">
-        <Navbar />
         <div className="container mx-auto px-4 py-8 text-center mt-20">
           <div className="bg-yellow-100 border border-yellow-300 text-yellow-700 px-4 py-3 rounded mb-4">
             <p>No se encontró el perfil solicitado</p>
@@ -222,7 +212,6 @@ export default function UserProfilePage() {
       {isOwnProfile ? (
         // Si es el propio perfil del usuario, mostrar el componente de edición
         <div className="min-h-screen bg-white">
-          <Navbar />
           <div className="container mx-auto px-4 pt-16">
             <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">
               Mi Perfil
@@ -233,8 +222,6 @@ export default function UserProfilePage() {
       ) : (
         // Si es el perfil de otro usuario, mostrar el componente de visualización
         <div className="min-h-screen bg-white mt-24 text-gray-800">
-          <Navbar />
-
           {/* Contenido principal - Ajustado para tener en cuenta la navbar */}
           <div className="pt-1 mt-14 container mx-auto px-4 md:px-8 lg:px-12 xl:px-24">
             {/* Layout para desktop: 2 columnas */}
@@ -264,6 +251,7 @@ export default function UserProfilePage() {
                             className="h-3 w-3 text-white"
                             viewBox="0 0 20 20"
                             fill="currentColor"
+                            aria-hidden="true"
                           >
                             <path
                               fillRule="evenodd"
@@ -311,25 +299,37 @@ export default function UserProfilePage() {
 
                   {/* Botones de acción */}
                   <div className="flex justify-between border-t border-gray-200 pt-2">
-                    <button className="flex flex-col items-center justify-center p-2">
+                    <button
+                      type="button"
+                      className="flex flex-col items-center justify-center p-2"
+                    >
                       <FaThumbsUp className="text-gray-500" />
                       <span className="text-xs text-gray-500 mt-1">
                         Me gusta
                       </span>
                     </button>
-                    <button className="flex flex-col items-center justify-center p-2">
+                    <button
+                      type="button"
+                      className="flex flex-col items-center justify-center p-2"
+                    >
                       <FaBookmark className="text-gray-500" />
                       <span className="text-xs text-gray-500 mt-1">
                         Guardar
                       </span>
                     </button>
-                    <button className="flex flex-col items-center justify-center p-2">
+                    <button
+                      type="button"
+                      className="flex flex-col items-center justify-center p-2"
+                    >
                       <FaShare className="text-gray-500" />
                       <span className="text-xs text-gray-500 mt-1">
                         Compartir
                       </span>
                     </button>
-                    <button className="flex flex-col items-center justify-center p-2">
+                    <button
+                      type="button"
+                      className="flex flex-col items-center justify-center p-2"
+                    >
                       <FaEllipsisV className="text-gray-500" />
                       <span className="text-xs text-gray-500 mt-1">Más</span>
                     </button>
@@ -361,7 +361,10 @@ export default function UserProfilePage() {
                         </div>
                       </div>
                       <div className="ml-auto">
-                        <button className="text-green-600 text-sm font-medium">
+                        <button
+                          type="button"
+                          className="text-green-600 text-sm font-medium"
+                        >
                           Ver más
                         </button>
                       </div>
@@ -392,6 +395,7 @@ export default function UserProfilePage() {
                           viewBox="0 0 24 24"
                           fill="none"
                           xmlns="http://www.w3.org/2000/svg"
+                          aria-hidden="true"
                         >
                           <circle
                             cx="12"
@@ -432,6 +436,7 @@ export default function UserProfilePage() {
                           viewBox="0 0 24 24"
                           fill="none"
                           xmlns="http://www.w3.org/2000/svg"
+                          aria-hidden="true"
                         >
                           <path
                             d="M4 12H20"
@@ -470,7 +475,10 @@ export default function UserProfilePage() {
 
                 {/* Botón de contacto para desktop (fijo en la columna) */}
                 <div className="hidden lg:block">
-                  <button className="w-full bg-green-600 text-white py-3 px-8 rounded-lg font-medium shadow-md hover:bg-green-700 transition-colors">
+                  <button
+                    type="button"
+                    className="w-full bg-green-600 text-white py-3 px-8 rounded-lg font-medium shadow-md hover:bg-green-700 transition-colors"
+                  >
                     Contactar
                   </button>
                 </div>
@@ -483,6 +491,7 @@ export default function UserProfilePage() {
                   <div className="flex border-b border-gray-200">
                     <button
                       onClick={() => setActiveTab("info")}
+                      type="button"
                       className={`flex-1 py-3 text-center ${
                         activeTab === "info"
                           ? "text-green-600 border-b-2 border-green-600"
@@ -493,6 +502,7 @@ export default function UserProfilePage() {
                     </button>
                     <button
                       onClick={() => setActiveTab("stats")}
+                      type="button"
                       className={`flex-1 py-3 text-center ${
                         activeTab === "stats"
                           ? "text-green-600 border-b-2 border-green-600"
@@ -503,6 +513,7 @@ export default function UserProfilePage() {
                     </button>
                     <button
                       onClick={() => setActiveTab("career")}
+                      type="button"
                       className={`flex-1 py-3 text-center ${
                         activeTab === "career"
                           ? "text-green-600 border-b-2 border-green-600"
@@ -678,7 +689,7 @@ export default function UserProfilePage() {
                         <div className="space-y-4">
                           {profile.trayectorias.map((trayectoria, index) => (
                             <div
-                              key={index}
+                              key={`${trayectoria.club}-${index}`}
                               className="border-l-2 border-green-500 pl-4 pb-4"
                             >
                               <div className="flex justify-between mb-1">
@@ -722,7 +733,10 @@ export default function UserProfilePage() {
 
             {/* Botón flotante para contactar (solo en móvil) */}
             <div className="fixed bottom-6 left-0 right-0 flex justify-center lg:hidden">
-              <button className="bg-green-600 text-white py-3 px-8 rounded-full font-medium shadow-lg hover:bg-green-700 transition-colors">
+              <button
+                type="button"
+                className="bg-green-600 text-white py-3 px-8 rounded-full font-medium shadow-lg hover:bg-green-700 transition-colors"
+              >
                 Contactar
               </button>
             </div>

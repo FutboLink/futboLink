@@ -1,33 +1,29 @@
 "use client";
 
-import Image from "next/image";
-import { useState, useEffect, useContext } from "react";
 import AOS from "aos";
+import Image from "next/image";
+import { useContext, useEffect, useState } from "react";
 import "aos/dist/aos.css";
-import { IProfileData } from "@/Interfaces/IUser";
-import { UserContext } from "@/components/Context/UserContext";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import JobOfferDetails from "@/components/Jobs/JobOffertDetails";
-import { IOfferCard } from "@/Interfaces/IOffer";
-import FormComponent from "@/components/Jobs/CreateJob";
-import { fetchUserId } from "@/components/Fetchs/UsersFetchs/UserFetchs";
-import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
-import { FaX, FaYoutube, FaBolt, FaUsers } from "react-icons/fa6";
-import {
-  AiOutlineFileAdd,
-  AiOutlineFileText,
-  AiOutlineUser,
-} from "react-icons/ai";
-import { MdSettings } from "react-icons/md";
-import { FaGlobe, FaWhatsapp } from "react-icons/fa";
 import axios from "axios";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
+import { FaGlobe } from "react-icons/fa";
+import { FaBolt, FaUsers } from "react-icons/fa6";
+import { UserContext } from "@/components/Context/UserContext";
+import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
+import { fetchUserId } from "@/components/Fetchs/UsersFetchs/UserFetchs";
+import FormComponent from "@/components/Jobs/CreateJob";
+import JobOfferDetails from "@/components/Jobs/JobOffertDetails";
 import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
+import type { IOfferCard } from "@/Interfaces/IOffer";
+import type { IProfileData } from "@/Interfaces/IUser";
 
 const PanelManager = () => {
-  const { user, logOut, token } = useContext(UserContext);
-  const [activeSection, setActiveSection] = useState("profile");
+  const { user, token } = useContext(UserContext);
+  const searchParams = useSearchParams();
+  const sectionParam = searchParams?.get("section") || "profile";
+  const [activeSection, setActiveSection] = useState(sectionParam || "profile");
   const [userData, setUserData] = useState<IProfileData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [appliedJobs, setAppliedJobs] = useState<IOfferCard[]>([]);
@@ -49,9 +45,16 @@ const PanelManager = () => {
     AOS.init();
   }, []);
 
+  // Actualizar sección activa cuando cambie el parámetro URL
+  useEffect(() => {
+    if (sectionParam) {
+      setActiveSection(sectionParam);
+    }
+  }, [sectionParam]);
+
   useEffect(() => {
     const loadUserData = async () => {
-      if (user && user.id) {
+      if (user?.id) {
         try {
           const data = await fetchUserId(user.id);
           setUserData(data);
@@ -129,7 +132,7 @@ const PanelManager = () => {
 
   useEffect(() => {
     const loadAppliedJobs = async () => {
-      if (user && user.id) {
+      if (user?.id) {
         try {
           const jobs = await getOfertas();
           console.log("Ofertas obtenidas:", jobs);
@@ -146,7 +149,7 @@ const PanelManager = () => {
     loadAppliedJobs();
   }, [user]);
 
-  // Función para cargar la cartera de jugadores
+  // Función para cargar la Portafolio de jugadores
   const loadPortfolio = async () => {
     if (!user || !token) return;
 
@@ -163,14 +166,14 @@ const PanelManager = () => {
 
       setPortfolioPlayers(response.data || []);
     } catch (error) {
-      console.error("Error al cargar la cartera de jugadores:", error);
-      toast.error("Error al cargar tu cartera de jugadores");
+      console.error("Error al cargar la Portafolio de jugadores:", error);
+      toast.error("Error al cargar tu Portafolio de jugadores");
     } finally {
       setLoadingPortfolio(false);
     }
   };
 
-  // Función para eliminar un jugador de la cartera
+  // Función para eliminar un jugador de la Portafolio
   const removeFromPortfolio = async (playerId: string) => {
     if (!user || !token) return;
 
@@ -184,145 +187,34 @@ const PanelManager = () => {
         }
       );
 
-      // Actualizar la lista de jugadores en la cartera
+      // Actualizar la lista de jugadores en la Portafolio
       setPortfolioPlayers((prev) =>
         prev.filter((player) => player.id !== playerId)
       );
-      toast.success("Jugador eliminado de tu cartera");
+      toast.success("Jugador eliminado de tu Portafolio");
     } catch (error) {
-      console.error("Error al eliminar jugador de la cartera:", error);
-      toast.error("Error al eliminar jugador de la cartera");
+      console.error("Error al eliminar jugador de la Portafolio:", error);
+      toast.error("Error al eliminar jugador de la Portafolio");
     }
   };
 
-  // Cargar la cartera de jugadores al montar el componente
+  // Cargar la Portafolio de jugadores al montar el componente
   useEffect(() => {
     if (user && token) {
       loadPortfolio();
     }
   }, [user, token]);
 
-  const handleSectionChange = (section: string) => setActiveSection(section);
-  const handleLogOut = () => {
-    logOut();
-    router.push("/");
+  const handleSectionChange = (section: string) => {
+    setActiveSection(section);
+    // Actualizar la URL sin recargar la página
+    router.push(`/manager-panel?section=${section}`, { scroll: false });
   };
 
   return (
-    <div className="flex min-h-screen mt-2 text-black bg-gray-50 flex-col sm:flex-row">
-      {/* Panel izquierdo: Datos del usuario y navegación */}
-      <div className="w-full sm:w-72 bg-gradient-to-r from-[#1d5126] to-[#3e7c27] text-white p-6 rounded-t-lg sm:rounded-l-lg shadow-lg sm:shadow-none sm:mr-4">
-        <div className="mb-8 flex flex-col items-center space-y-4">
-          <Image
-            src={
-              userData?.imgUrl ||
-              (userData?.genre === "Masculino"
-                ? "/male-avatar.png"
-                : userData?.genre === "Femenino"
-                ? "/female-avatar.png"
-                : "/default-avatar.png")
-            }
-            alt={userData?.name || "Foto de perfil"}
-            width={100}
-            height={100}
-            className="rounded-full border-4 border-white"
-          />
-          <div className="space-y-2 text-center">
-            <h2 className="text-xl font-semibold">
-              {userData?.name} {userData?.lastname}
-            </h2>
-            <h2 className="text-xl font-semibold">{userData?.nameAgency}</h2>
-            <p className="text-sm">{userData?.email}</p>
-          </div>
-        </div>
-
-        {/* Menú de navegación */}
-        <nav className="space-y-2">
-          {[
-            { name: "Mi Perfil", section: "profile", icon: <AiOutlineUser /> },
-            {
-              name: "Crear Oferta",
-              section: "createOffers",
-              icon: <AiOutlineFileAdd />,
-            },
-            {
-              name: "Mis Ofertas",
-              section: "appliedOffers",
-              icon: <AiOutlineFileText />,
-            },
-            { name: "Configuración", section: "config", icon: <MdSettings /> },
-            {
-              name: "Cartera",
-              section: "portfolio",
-              icon: <FaUsers className="text-xl" />,
-            },
-          ].map(({ name, section, icon }) => (
-            <button
-              key={section}
-              onClick={() => handleSectionChange(section)}
-              className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
-            >
-              <span className="text-white text-lg">{icon}</span>
-              <span className="text-white">{name}</span>
-            </button>
-          ))}
-
-          {/* Botón para buscar jugadores con verificación de suscripción */}
-          <button
-            onClick={() => {
-              // Verificar si el usuario tiene suscripción adecuada
-              const hasPaidSubscription =
-                subscriptionInfo.subscriptionType === "Profesional" ||
-                subscriptionInfo.subscriptionType === "Semiprofesional";
-
-              // Redirigir según el tipo de suscripción
-              if (
-                hasPaidSubscription &&
-                subscriptionInfo.hasActiveSubscription
-              ) {
-                router.push("/player-search");
-              } else {
-                // Mostrar toast con mensaje informativo
-                toast.error(
-                  "Necesitas una suscripción para acceder a la búsqueda de jugadores"
-                );
-                setTimeout(() => {
-                  router.push("/manager-subscription");
-                }, 1000);
-              }
-            }}
-            className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg bg-green-800 border-2 border-white hover:bg-green-700 transition duration-200 mt-4"
-          >
-            <span className="text-white text-lg">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </span>
-            <span className="text-white">Buscar Jugadores</span>
-          </button>
-        </nav>
-
-        <button
-          onClick={handleLogOut}
-          className="mt-6 w-full py-2 rounded-lg text-white text-center font-bold border-2 border-white hover:bg-white hover:text-gray-700"
-        >
-          Cerrar sesión
-        </button>
-      </div>
-
-      {/* Contenido principal */}
-      <main className="flex-1 p-10">
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Contenido principal */}
         {error && (
           <div className="mb-4 p-4 bg-red-100 text-red-800 rounded-lg">
             {error}
@@ -468,51 +360,6 @@ const PanelManager = () => {
                         Redes Sociales:
                       </strong>
                       <div className="flex space-x-4 mt-3 items-center p-3 bg-gray-50 rounded-lg">
-                        {userData?.socialMedia?.x && (
-                          <a
-                            href={`https://x.com/${userData.socialMedia.x}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:opacity-80 transition-opacity"
-                          >
-                            <Image
-                              src="/logoX.png"
-                              alt="Logo X Futbolink"
-                              width={30}
-                              height={30}
-                              className="w-8 h-8 p-1 rounded-md bg-black shadow-sm hover:shadow-md transition-all"
-                            />
-                          </a>
-                        )}
-                        {userData?.socialMedia?.youtube && (
-                          <a
-                            href={`https://www.youtube.com/${userData.socialMedia.youtube}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-red-600 hover:text-red-700 transition-colors"
-                          >
-                            <FaYoutube
-                              size={28}
-                              className="hover:scale-110 transition-transform"
-                            />
-                          </a>
-                        )}
-                        {userData?.socialMedia?.transfermarkt && (
-                          <a
-                            href={`https://www.transfermarkt.com/${userData.socialMedia.transfermarkt}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:opacity-80 transition-opacity"
-                          >
-                            <Image
-                              src="/transfermarkt.png"
-                              alt="Transfermarkt"
-                              width={60}
-                              height={60}
-                              className="shadow-sm rounded-sm hover:shadow-md transition-all"
-                            />
-                          </a>
-                        )}
                         {userData?.socialMedia?.website && (
                           <a
                             href={userData.socialMedia.website}
@@ -546,6 +393,7 @@ const PanelManager = () => {
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                       className="w-full h-[350px] rounded-lg"
+                      title="Video de presentacion"
                     ></iframe>
                   )}
                 </div>
@@ -569,6 +417,7 @@ const PanelManager = () => {
                             height="24"
                             fill="currentColor"
                             viewBox="0 0 16 16"
+                            aria-hidden="true"
                           >
                             <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z" />
                             <path d="M4.603 14.087a.81.81 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.68 7.68 0 0 1 1.482-.645 19.697 19.697 0 0 0 1.062-2.227 7.269 7.269 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.188-.012.396-.047.614-.084.51-.27 1.134-.52 1.794a10.954 10.954 0 0 0 .98 1.686 5.753 5.753 0 0 1 1.334.05c.364.066.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.856.856 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.712 5.712 0 0 1-.911-.95 11.651 11.651 0 0 0-1.997.406 11.307 11.307 0 0 1-1.02 1.51c-.292.35-.609.656-.927.787a.793.793 0 0 1-.58.029zm1.379-1.901c-.166.076-.32.156-.459.238-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361.01.022.02.036.026.044a.266.266 0 0 0 .035-.012c.137-.056.355-.235.635-.572a8.18 8.18 0 0 0 .45-.606zm1.64-1.33a12.71 12.71 0 0 1 1.01-.193 11.744 11.744 0 0 1-.51-.858 20.801 20.801 0 0 1-.5 1.05zm2.446.45c.15.163.296.3.435.41.24.19.407.253.498.256a.107.107 0 0 0 .07-.015.307.307 0 0 0 .094-.125.436.436 0 0 0 .059-.2.095.095 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a3.876 3.876 0 0 0-.612-.053zM8.078 7.8a6.7 6.7 0 0 0 .2-.828c.031-.188.043-.343.038-.465a.613.613 0 0 0-.032-.198.517.517 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822.024.111.054.227.09.346z" />
@@ -607,6 +456,7 @@ const PanelManager = () => {
                   height="16"
                   fill="currentColor"
                   viewBox="0 0 16 16"
+                  aria-hidden="true"
                 >
                   <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
                   <path
@@ -636,20 +486,50 @@ const PanelManager = () => {
             className="bg-white p-8 rounded-lg shadow-lg mb-8 max-w-5xl mx-auto"
             data-aos="fade-up"
           >
+            <h3 className="text-2xl font-semibold mb-6 text-[#1d5126] border-b border-gray-200 pb-2">
+              Mis Ofertas Publicadas
+            </h3>
             {appliedJobs.length === 0 ? (
-              <p>No has publicado ninguna oferta.</p>
+              <div className="text-center py-8 bg-gray-50 rounded-lg">
+                <div className="text-gray-500 mb-4">
+                  <svg
+                    className="mx-auto h-12 w-12 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  <p className="mt-2">No has publicado ninguna oferta aún</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleSectionChange("createOffers")}
+                  className="inline-block px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                >
+                  Crear mi primera oferta
+                </button>
+              </div>
             ) : (
-              [...appliedJobs]
-                .sort(
-                  (a, b) =>
-                    new Date(b.createdAt).getTime() -
-                    new Date(a.createdAt).getTime()
-                )
-                .map((job) => (
-                  <div key={job.id} className="cursor-pointer">
-                    <JobOfferDetails jobId={job.id || ""} />
-                  </div>
-                ))
+              <div className="space-y-6">
+                {[...appliedJobs]
+                  .sort(
+                    (a, b) =>
+                      new Date(b.createdAt).getTime() -
+                      new Date(a.createdAt).getTime()
+                  )
+                  .map((job) => (
+                    <div key={job.id} className="cursor-pointer">
+                      <JobOfferDetails jobId={job.id || ""} />
+                    </div>
+                  ))}
+              </div>
             )}
           </section>
         )}
@@ -660,31 +540,114 @@ const PanelManager = () => {
             className="bg-white p-6 rounded-lg shadow-lg mb-8 max-w-5xl mx-auto"
             data-aos="fade-up"
           >
-            <h3 className="text-xl font-semibold mb-4 text-[#1d5126]">
+            <h3 className="text-2xl font-semibold mb-6 text-[#1d5126] border-b border-gray-200 pb-2">
               Configuración
             </h3>
             <div className="space-y-6">
-              <Link className="group relative" href="/forgotPassword">
-                <h4 className="font-semibold text-lg  group-hover:underline ">
-                  Cambiar contraseña
+              <div className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
+                <Link
+                  className="group flex items-center justify-between"
+                  href="/forgotPassword"
+                >
+                  <div>
+                    <h4 className="font-semibold text-lg group-hover:text-[#1d5126] transition-colors">
+                      Cambiar contraseña
+                    </h4>
+                    <p className="text-gray-600 text-sm mt-1">
+                      Actualiza tu contraseña de acceso
+                    </p>
+                  </div>
+                  <svg
+                    className="w-5 h-5 text-gray-400 group-hover:text-[#1d5126] transition-colors"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </Link>
+              </div>
+
+              <div className="border border-gray-200 rounded-lg p-4">
+                <h4 className="font-semibold text-lg text-gray-700 mb-2">
+                  Idioma
                 </h4>
-              </Link>
-              <h4 className="font-semibold text-lg">Idioma</h4>
-              <h4 className="font-semibold text-lg">Suscripción</h4>
+                <p className="text-gray-600 text-sm">Español (Por defecto)</p>
+              </div>
+
+              <div className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
+                <Link
+                  className="group flex items-center justify-between"
+                  href="/manager-subscription"
+                >
+                  <div>
+                    <h4 className="font-semibold text-lg group-hover:text-[#1d5126] transition-colors">
+                      Suscripción
+                    </h4>
+                    <p className="text-gray-600 text-sm mt-1">
+                      Gestiona tu plan de suscripción
+                    </p>
+                  </div>
+                  <svg
+                    className="w-5 h-5 text-gray-400 group-hover:text-[#1d5126] transition-colors"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </Link>
+              </div>
             </div>
           </section>
         )}
 
-        {/* Sección de Cartera de Jugadores */}
+        {/* Sección de Portafolio de Jugadores */}
         {activeSection === "portfolio" && (
           <section
             className="bg-white p-8 rounded-lg shadow-lg mb-8 max-w-5xl mx-auto"
             data-aos="fade-up"
           >
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold">Mi Cartera de Jugadores</h3>
-              <Link
-                href="/player-search"
+              <h3 className="text-2xl font-bold text-[#1d5126]">
+                Mi Portafolio de Jugadores
+              </h3>
+              <button
+                type="button"
+                onClick={() => {
+                  // Verificar si el usuario tiene suscripción adecuada
+                  const hasPaidSubscription =
+                    subscriptionInfo.subscriptionType === "Profesional" ||
+                    subscriptionInfo.subscriptionType === "Semiprofesional";
+
+                  // Redirigir según el tipo de suscripción
+                  if (
+                    hasPaidSubscription &&
+                    subscriptionInfo.hasActiveSubscription
+                  ) {
+                    router.push("/player-search");
+                  } else {
+                    // Mostrar toast con mensaje informativo
+                    toast.error(
+                      "Necesitas una suscripción para acceder a la búsqueda de jugadores"
+                    );
+                    setTimeout(() => {
+                      router.push("/manager-subscription");
+                    }, 1000);
+                  }
+                }}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
               >
                 <svg
@@ -693,6 +656,7 @@ const PanelManager = () => {
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -702,7 +666,7 @@ const PanelManager = () => {
                   />
                 </svg>
                 Buscar Jugadores
-              </Link>
+              </button>
             </div>
 
             {loadingPortfolio ? (
@@ -714,7 +678,7 @@ const PanelManager = () => {
                 {portfolioPlayers.map((player) => (
                   <div
                     key={player.id}
-                    className="bg-white rounded-lg shadow p-4"
+                    className="bg-gray-50 rounded-lg shadow p-4 hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-center gap-3 mb-3">
                       {/* Foto de perfil */}
@@ -730,7 +694,7 @@ const PanelManager = () => {
 
                       {/* Información básica */}
                       <div className="flex-1">
-                        <h3 className="font-bold text-lg">
+                        <h3 className="font-bold text-lg text-gray-800">
                           {player.name} {player.lastname}
                         </h3>
                         <p className="text-sm text-gray-600">
@@ -751,6 +715,7 @@ const PanelManager = () => {
 
                       <button
                         onClick={() => removeFromPortfolio(player.id)}
+                        type="button"
                         className="px-3 py-1 bg-red-100 text-red-600 rounded-md text-sm hover:bg-red-200 transition-colors"
                       >
                         Quitar
@@ -760,22 +725,50 @@ const PanelManager = () => {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 bg-gray-50 rounded-lg">
-                <div className="text-gray-500 mb-2">
-                  <FaUsers className="mx-auto text-4xl mb-2 text-gray-400" />
-                  <p>Aún no tienes jugadores en tu cartera</p>
+              <div className="text-center py-12 bg-gray-50 rounded-lg">
+                <div className="text-gray-500 mb-4">
+                  <FaUsers className="mx-auto text-6xl mb-4 text-gray-400" />
+                  <h4 className="text-lg font-semibold text-gray-600">
+                    Aún no tienes jugadores en tu Portafolio
+                  </h4>
+                  <p className="mt-2 text-gray-500">
+                    Comienza a agregar jugadores para construir tu Portafolio
+                    profesional
+                  </p>
                 </div>
-                <Link
-                  href="/player-search"
-                  className="inline-block mt-3 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                <button
+                  type="button"
+                  onClick={() => {
+                    // Verificar si el usuario tiene suscripción adecuada
+                    const hasPaidSubscription =
+                      subscriptionInfo.subscriptionType === "Profesional" ||
+                      subscriptionInfo.subscriptionType === "Semiprofesional";
+
+                    // Redirigir según el tipo de suscripción
+                    if (
+                      hasPaidSubscription &&
+                      subscriptionInfo.hasActiveSubscription
+                    ) {
+                      router.push("/player-search");
+                    } else {
+                      // Mostrar toast con mensaje informativo
+                      toast.error(
+                        "Necesitas una suscripción para acceder a la búsqueda de jugadores"
+                      );
+                      setTimeout(() => {
+                        router.push("/manager-subscription");
+                      }, 1000);
+                    }
+                  }}
+                  className="inline-block mt-3 px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium"
                 >
                   Buscar jugadores
-                </Link>
+                </button>
               </div>
             )}
           </section>
         )}
-      </main>
+      </div>
     </div>
   );
 };

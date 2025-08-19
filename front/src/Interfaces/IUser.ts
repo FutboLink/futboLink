@@ -107,6 +107,8 @@ export interface IUserResponse {
   imgUrl: string;
   applications?: IApplication[];
   jobs?: IJob[];
+  genre?: string;
+  nameAgency?: string;
 }
 
 export interface IApplication {
@@ -155,6 +157,7 @@ export interface IUserContextType {
   signUp: (user: IRegisterUser) => Promise<boolean>;
   logOut: () => void;
   refreshUserData: () => Promise<boolean>;
+  updateUserFields: (updates: Partial<IUserWithToken>) => void;
 }
 
 export interface User {
@@ -176,4 +179,5 @@ export interface User {
   phone?: string;
   ubicacionActual?: string;
   trayectorias?: { club: string }[];
+  genre?: string;
 }

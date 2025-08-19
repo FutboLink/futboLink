@@ -1,18 +1,23 @@
-import React, { useContext } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { FaShieldAlt } from "react-icons/fa";
-import { getDefaultPlayerImage } from "@/helpers/imageUtils";
-import { renderCountryFlag } from "../countryFlag/countryFlag";
-import { User } from "@/Interfaces/IUser";
-import { FaUserPlus, FaSpinner, FaPaperPlane } from "react-icons/fa";
+import { usePathname } from "next/navigation";
+import type React from "react";
+import { BsCheckCircle } from "react-icons/bs";
+import {
+  FaPaperPlane,
+  FaShieldAlt,
+  FaSpinner,
+  FaUserPlus,
+} from "react-icons/fa";
 import {
   HiOutlineInformationCircle,
   HiOutlineMail,
   HiOutlinePhone,
 } from "react-icons/hi";
+import { getDefaultPlayerImage } from "@/helpers/imageUtils";
 import { useUserContext } from "@/hook/useUserContext";
-import { BsCheckCircle } from "react-icons/bs";
+import type { User } from "@/Interfaces/IUser";
+import { renderCountryFlag } from "../countryFlag/countryFlag";
 
 interface UserCardProps {
   currentUser: User;
@@ -38,6 +43,8 @@ const UserCard: React.FC<UserCardProps> = ({
   isShortlisted = false,
 }) => {
   const { user } = useUserContext();
+  const pathname = usePathname();
+
   // Verificar si el usuario actual es jugador
   const isPlayer = currentUser.role === "PLAYER";
 
@@ -89,7 +96,7 @@ const UserCard: React.FC<UserCardProps> = ({
         amateur: t("amateur"),
       }[subscriptionType];
 
-  // Verificar si este usuario está siendo añadido a la cartera para mostrar estado de carga
+  // Verificar si este usuario está siendo añadido a la Portafolio para mostrar estado de carga
   const isBeingAddedToPortfolio = isAddingToPortfolio === currentUser.id;
 
   // Obtener el array de trayectorias para sacar el último club
@@ -104,6 +111,14 @@ const UserCard: React.FC<UserCardProps> = ({
   if (!user) {
     return null;
   }
+
+  // Mostrar solo si es reclutador o jugador y no estamos en /applications/jobs
+  const showButton =
+    user &&
+    (user.role === "RECRUITER" || isPlayer) &&
+    pathname !== "/applications/jobs";
+
+  if (!showButton) return null;
 
   return (
     <div
@@ -298,9 +313,10 @@ const UserCard: React.FC<UserCardProps> = ({
             {t("viewProfile")}
           </Link>
 
-          {/* Botón de añadir a cartera (solo visible para reclutadores y para jugadores) */}
-          {user && user.role === "RECRUITER" && isPlayer && (
+          {/* Botón de añadir a Portafolio (solo visible para reclutadores y para jugadores) */}
+          {!showButton && (
             <button
+              type="button"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

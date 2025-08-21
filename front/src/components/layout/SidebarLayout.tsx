@@ -97,6 +97,32 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
 
   // Generar items del sidebar según rol
   const getSidebarItems = () => {
+    // Panel para administradores
+    if (role === "ADMIN") {
+      return {
+        main: [
+          { label: "Inicio", path: "/", icon: <FaHome /> },
+          { label: "Perfil", path: "/PanelAdmin", icon: <FaUser /> },
+          { label: "Buscador", path: "/player-search", icon: <FaSearch /> },
+          { label: "Mercado", path: "/jobs", icon: <FaStore /> },
+          { label: "Noticias", path: "/News", icon: <FaNewspaper /> },
+          { label: "Entrenamiento", path: "/cursos", icon: <FaDumbbell /> },
+        ],
+        bottom: [
+          { label: "Configuración", path: "/profile", icon: <MdSettings /> },
+          { label: "Ayuda", path: "/Help", icon: <FaQuestionCircle /> },
+          { label: "Mejorar Perfil", path: "/Subs", icon: <FaRocket /> },
+        ],
+        bottomNav: [
+          { label: "Mercado", path: "/jobs", icon: <FaStore /> },
+          { label: "Editar", path: "/profile", icon: <FaEdit /> },
+          { label: "Inicio", path: "/", icon: <FaHome /> },
+          { label: "Buscar", path: "/player-search", icon: <FaSearch /> },
+          { label: "Perfil", path: "/PanelAdmin", icon: <FaUser /> },
+        ],
+      };
+    }
+
     if (role === "RECRUITER") {
       return {
         main: [

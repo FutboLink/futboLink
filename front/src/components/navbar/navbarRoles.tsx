@@ -79,12 +79,11 @@ function NavbarRoles() {
     if (!isLogged || !role) return "/"; // No logueado o sin rol → home
 
     if (role === "RECRUITER") return "/PanelUsers/Manager"; // Reclutador siempre va a panel de gestión
-
-    // Para jugador o admin, si hay id va a perfil, si no al panel por defecto
-    if (role === "PLAYER" || role === "ADMIN") {
-      if (id) return `/user-viewer/${id}`;
-      return role === "PLAYER" ? "/PanelUsers/Player" : "/PanelAdmin";
-    }
+    
+    // Admin siempre va a PanelAdmin
+    if (role === "ADMIN") return "/PanelAdmin";
+    // Jugador: si hay id, a su perfil; si no, a su panel
+    if (role === "PLAYER") return id ? `/user-viewer/${id}` : "/PanelUsers/Player";
 
     return "/";
   };
@@ -95,6 +94,7 @@ function NavbarRoles() {
 
     const targetPath = getUserPanelPath(isLogged, role, user?.id);
     const isRecruiter = role === "RECRUITER";
+    const isAdmin = role === "ADMIN";
 
     return (
       <button
@@ -103,7 +103,7 @@ function NavbarRoles() {
       >
         <FaUser className="text-lg" />
         <span className="font-medium">
-          {isRecruiter ? "Panel de Gestión" : "Perfil"}
+          {isRecruiter ? "Panel de Gestión" : isAdmin ? "Panel Admin" : "Perfil"}
         </span>
       </button>
     );
@@ -273,7 +273,7 @@ function NavbarRoles() {
                       className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-verde-oscuro text-white rounded-md hover:bg-verde-mas-claro transition-all"
                     >
                       <FaUser className="text-lg" />
-                      <span className="font-medium">Ir a mi Perfil</span>
+                      <span className="font-medium">{role === "ADMIN" ? "Ir a mi Panel" : "Ir a mi Perfil"}</span>
                     </button>
 
                     {/* Botón de búsqueda de jugadores para usuarios con suscripción profesional o RECRUITERS */}

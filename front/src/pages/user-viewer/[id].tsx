@@ -498,58 +498,7 @@ export default function UserViewer() {
       {/* Contenido principal - Ajustado para tener en cuenta la navbar y el powered by */}
       <div className="pt-1 mt-4 container mx-auto px-4 md:px-8 lg:px-12 xl:px-24">
         {/* Botón de edición (solo visible si es el propio perfil) */}
-        {isOwnProfile && (
-          <div className="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-3 mb-4">
-            {/* Editar perfil */}
-            <button
-              onClick={() => router.push(`/user-viewer/${id}?edit=true`)}
-              type="button"
-              className="w-full sm:w-auto bg-verde-oscuro text-white py-2 px-4 rounded-md hover:bg-verde-mas-claro transition-colors flex items-center justify-center"
-            >
-              <FaCog className="mr-2" /> Editar perfil
-            </button>
-
-            {/* Cambiar contraseña */}
-            <button
-              onClick={() =>
-                router.push(
-                  `/forgotPassword?email=${encodeURIComponent(
-                    profile?.email || ""
-                  )}`
-                )
-              }
-              className="w-full sm:w-auto bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors flex items-center justify-center"
-              type="button"
-              aria-label="boton de cambiar contrasena"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 mr-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 7a2 2 0 012 2m4 0a6 6 0 01-6 6h-7a6 6 0 01-6-6 6 6 0 016-6h7a6 6 0 016 6z"
-                />
-              </svg>
-              Cambiar contraseña
-            </button>
-
-            {/* Cerrar sesión */}
-            <button
-              onClick={handleLogout}
-              className="w-full sm:w-auto bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors flex items-center justify-center"
-              type="button"
-            >
-              <FaSignOutAlt className="mr-2" /> Cerrar sesión
-            </button>
-          </div>
-        )}
+       
 
         {/* Layout para desktop: 2 columnas */}
         <div className="lg:flex lg:gap-8">

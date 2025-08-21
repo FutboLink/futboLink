@@ -101,6 +101,21 @@ export default function UserViewer() {
     verificationLevel?: "NONE" | "SEMIPROFESSIONAL" | "PROFESSIONAL";
   } | null>(null);
 
+  // Nivel del perfil (deportivo) independiente de suscripción y verificación
+  const computeProfileLevel = (): "Profesional" | "Semiprofesional" | "Amateur" => {
+    // Heurística temporal basada en trayectorias hasta que exista un campo dedicado
+    try {
+      const niveles = (profile?.trayectorias || []).map((t) => t.nivelCompetencia?.toLowerCase() || "");
+      if (niveles.some((n) => n.includes("profesional"))) return "Profesional";
+      if (niveles.some((n) => n.includes("semi"))) return "Semiprofesional";
+      // Fallback por si no hay trayectorias
+      return "Amateur";
+    } catch {
+      return "Amateur";
+    }
+  };
+  const profileLevel = computeProfileLevel();
+
   // Referencias para los menús desplegables
   const shareMenuRef = useRef<HTMLDivElement>(null);
   const moreMenuRef = useRef<HTMLDivElement>(null);
@@ -385,7 +400,7 @@ export default function UserViewer() {
     return (
       <div className="min-h-screen bg-white">
         <div className="container mx-auto px-4 py-8 text-center mt-20">
-          <div className="bg-yellow-100 border border-yellow-300 text-yellow-700 px-4 py-3 rounded mb-4">
+          <div className="bg-blue-100 border border--300 text-blue-700 px-4 py-3 rounded mb-4">
             <p>No se encontró el perfil solicitado</p>
           </div>
           <Link
@@ -545,12 +560,12 @@ export default function UserViewer() {
               <div className="flex items-center mb-2">
                 <div className="relative">
                   <div
-                    className={`w-16 h-16 rounded-full overflow-hidden border-4 shadow-md ${(() => {
+                    className={`w-16 h-16 rounded-full overflow-hidden border-2  ${(() => {
                       const isPlayer = profile.role?.toString() !== "RECRUITER";
                       const level = verificationStatus?.verificationLevel;
                       if (verificationStatus?.isVerified && isPlayer) {
                         if (level === "PROFESSIONAL")
-                          return "border-yellow-500";
+                          return "border-gray-500";
                         if (level === "SEMIPROFESSIONAL")
                           return "border-gray-400";
                         return "border-gray-500";
@@ -567,7 +582,7 @@ export default function UserViewer() {
                       alt={`${profile.name} ${profile.lastname}`}
                       width={64}
                       height={64}
-                      className="object-cover w-full h-full"
+                      className="object-cover shadow-lg w-full h-full"
                     />
                   </div>
                   {(profile.role as UserType) === "RECRUITER" && (
@@ -586,59 +601,7 @@ export default function UserViewer() {
                       </svg>
                     </div>
                   )}
-                  {/* Priorizar insignia de verificación sobre suscripción profesional */}
-                  {verificationStatus?.isVerified &&
-                    profile.role?.toString() !== "RECRUITER" &&
-                    (() => {
-                      const level = verificationStatus?.verificationLevel;
-                      if (level === "PROFESSIONAL") {
-                        return (
-                          <div
-                            className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1"
-                            title="✅ Perfil Verificado Profesional"
-                          >
-                            <div className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 text-white rounded-full shadow-lg border-2 border-yellow-500 w-6 h-6 flex items-center justify-center">
-                              <svg
-                                className="w-3.5 h-3.5 text-white"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                                aria-hidden="true"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </div>
-                          </div>
-                        );
-                      }
-                      if (level === "SEMIPROFESSIONAL") {
-                        return (
-                          <div
-                            className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1"
-                            title="🥈 Perfil Semiprofesional"
-                          >
-                            <div className="bg-gradient-to-r from-gray-500 via-gray-500 to-gray-800 text-white rounded-full shadow-lg border-2 border-gray-500 w-6 h-6 flex items-center justify-center">
-                              <svg
-                                className="w-3.5 h-3.5 text-white"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                                aria-hidden="true"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </div>
-                          </div>
-                        );
-                      }
-                      return null;
-                    })()}
+                  {/* (Insignia movida al lado del nombre) */}
                 </div>
                 <div className="ml-4">
                   <div className="flex items-center">
@@ -647,8 +610,24 @@ export default function UserViewer() {
                         {renderCountryFlag(profile.nationality)}
                       </span>
                     )}
-                    <h2 className="text-xl font-medium text-gray-600">
+                    <h2 className="text-xl font-medium text-gray-600 flex items-center gap-1">
                       {profile.name}
+                      {verificationStatus?.isVerified && profile.role?.toString() !== "RECRUITER" && (
+                        <span className="inline-flex items-center" aria-label="Perfil verificado">
+                          <svg
+                            className="w-5 h-5 text-blue-500"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                            aria-hidden="true"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </span>
+                      )}
                     </h2>
                   </div>
                   <h1 className="text-2xl font-bold text-gray-800">
@@ -660,45 +639,11 @@ export default function UserViewer() {
                     </p>
                   )}
 
-                  {/* Texto de verificación debajo del nombre - sutil usando verificationLevel con fallback */}
-                  {verificationStatus?.isVerified &&
-                    profile.role?.toString() !== "RECRUITER" && (
-                      <div className="flex items-center gap-1 mt-1">
-                        <svg
-                          className={`w-3 h-3 ${
-                            verificationStatus?.verificationLevel ===
-                            "PROFESSIONAL"
-                              ? "text-yellow-500"
-                              : verificationStatus?.verificationLevel ===
-                                "SEMIPROFESSIONAL"
-                              ? "text-gray-500"
-                              : "text-gray-500"
-                          }`}
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                          aria-hidden="true"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        <span className="text-xs text-gray-600 font-medium">
-                          {verificationStatus?.verificationLevel ===
-                          "PROFESSIONAL"
-                            ? "Perfil verificado profesional"
-                            : verificationStatus?.verificationLevel ===
-                              "SEMIPROFESSIONAL"
-                            ? "Perfil verificado semiprofesional"
-                            : "Perfil verificado"}
-                        </span>
-                      </div>
-                    )}
+                
                 </div>
               </div>
 
-              {/* Estado, edad y tipo de verificación - Solo para jugadores */}
+              {/* Estado, edad, nivel deportivo y verificación (insignia) - Solo para jugadores */}
               {profile.role !== UserType.RECRUITER && (
                 <div className="flex items-center text-sm text-gray-600 mb-4">
                   <div className="flex items-center">
@@ -707,18 +652,10 @@ export default function UserViewer() {
                   </div>
                   <span className="mx-2">|</span>
                   <span>{profile.age} años</span>
-                  {verificationStatus?.isVerified && (
-                    <>
-                      <span className="mx-2">|</span>
-                      <span>
-                        {verificationStatus?.verificationLevel === 'PROFESSIONAL'
-                          ? 'Verificación: Profesional'
-                          : verificationStatus?.verificationLevel === 'SEMIPROFESSIONAL'
-                          ? 'Verificación: Semiprofesional'
-                          : 'Verificado'}
-                      </span>
-                    </>
-                  )}
+                  {/* Nivel del perfil (deportivo) - independiente de verificación/suscripción */}
+                  <span className="mx-2">|</span>
+                  <span> {profileLevel}</span>
+                
                 </div>
               )}
 
@@ -831,7 +768,7 @@ export default function UserViewer() {
                     type="button"
                   >
                     <svg
-                      className="w-5 h-5 text-yellow-500"
+                      className="w-5 h-5 text-gray-400"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                       aria-hidden="true"
@@ -842,7 +779,7 @@ export default function UserViewer() {
                         clipRule="evenodd"
                       />
                     </svg>
-                    <span className="text-xs text-yellow-500 mt-1 font-medium">
+                    <span className="text-xs text-gray-500 mt-1 font-medium">
                       Verificar
                     </span>
                   </button>
@@ -1021,7 +958,7 @@ export default function UserViewer() {
                             aria-label="icono de verificacion"
                           >
                             <svg
-                              className="w-5 h-5 text-yellow-600"
+                              className="w-5 h-5 text-blue-600"
                               fill="currentColor"
                               viewBox="0 0 20 20"
                               aria-hidden="true"
@@ -1277,11 +1214,11 @@ export default function UserViewer() {
                   Información de contacto
                 </h3>
                 <div className="space-y-3">
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <div className="flex items-center">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 text-yellow-600 mr-2"
+                        className="h-5 w-5 text-blue-600 mr-2"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -1295,10 +1232,10 @@ export default function UserViewer() {
                         />
                       </svg>
                       <div>
-                        <p className="text-sm font-medium text-yellow-800">
+                        <p className="text-sm font-medium text-blue-800">
                           Información restringida
                         </p>
-                        <p className="text-xs text-yellow-700">
+                        <p className="text-xs text-blue-700">
                           Los datos de contacto de agencias no están disponibles
                           con tu suscripción actual.
                         </p>
@@ -1580,11 +1517,11 @@ export default function UserViewer() {
                     </h3>
                     {profile.role === UserType.RECRUITER ? (
                       <div className="space-y-3">
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                           <div className="flex items-center">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5 text-yellow-600 mr-2"
+                              className="h-5 w-5 text-blue-600 mr-2"
                               fill="none"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
@@ -1598,10 +1535,10 @@ export default function UserViewer() {
                               />
                             </svg>
                             <div>
-                              <p className="text-sm font-medium text-yellow-800">
+                              <p className="text-sm font-medium text-blue-800">
                                 Información restringida
                               </p>
-                              <p className="text-xs text-yellow-700">
+                              <p className="text-xs text-blue-700">
                                 Los datos de contacto no están disponibles con
                                 tu suscripción actual.
                               </p>
@@ -1858,7 +1795,7 @@ export default function UserViewer() {
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-semibold text-gray-800 flex items-center">
                   <svg
-                    className="w-6 h-6 mr-2 text-yellow-600"
+                    className="w-6 h-6 mr-2 text-blue-600"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     aria-hidden="true"
@@ -1895,10 +1832,10 @@ export default function UserViewer() {
 
               <div className="space-y-6">
                 {/* Información sobre la verificación */}
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <div className="flex items-start">
                     <svg
-                      className="w-5 h-5 text-yellow-600 mt-0.5 mr-3 flex-shrink-0"
+                      className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                       aria-hidden="true"
@@ -1910,10 +1847,10 @@ export default function UserViewer() {
                       />
                     </svg>
                     <div>
-                      <h4 className="font-medium text-yellow-800 mb-1">
+                      <h4 className="font-medium text-blue-800 mb-1">
                         ¿Qué es la verificación de perfil?
                       </h4>
-                      <p className="text-sm text-yellow-700">
+                      <p className="text-sm text-blue-700">
                         La verificación de perfil es una insignia dorada que
                         confirma la autenticidad de tu información y te ayuda a
                         destacar ante reclutadores.
@@ -1936,7 +1873,7 @@ export default function UserViewer() {
                       id="verificationMessage"
                       onChange={(e) => setVerificationMessage(e.target.value)}
                       placeholder="Explica por qué solicitas la verificación de tu perfil. Por ejemplo: información sobre tu Pais, experiencia profesional, etc."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                       rows={4}
                       maxLength={500}
                     />
@@ -1958,7 +1895,7 @@ export default function UserViewer() {
                         onClick={handleRequestVerification}
                         type="button"
                         disabled={loadingVerification}
-                        className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                       >
                         {loadingVerification ? (
                           <>

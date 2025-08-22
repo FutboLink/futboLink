@@ -15,6 +15,7 @@ import {
   FaCog,
   FaDumbbell,
   FaEdit,
+  FaEnvelope,
   FaExchangeAlt,
   FaHome,
   FaNewspaper,
@@ -30,6 +31,8 @@ import { MdSettings } from "react-icons/md";
 import { getDefaultPlayerImage } from "@/helpers/imageUtils";
 import { useUserContext } from "@/hook/useUserContext";
 import { useVerificationStatus } from "@/hook/useVerificationStatus";
+import LanguageDropdown from "../LanguageToggle/LanguageDropdown";
+import NotificationsList from "../Notifications/NotificationsList";
 import Navbar from "../navbar/navbar";
 import NewNavbar from "../navbar/newNavbar";
 
@@ -276,7 +279,8 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
 
       {/* Mobile Top Bar */}
       {isLogged ? (
-        <div className="md:hidden bg-green-700 text-white p-4 flex items-center sticky top-0 z-50">
+        <div className="md:hidden bg-green-700 text-white p-4 flex items-center justify-between sticky top-0 z-50">
+          {/* Botón del sidebar a la izquierda */}
           <button
             onClick={toggleSidebar}
             className="text-white p-2"
@@ -285,8 +289,16 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
             <FaBars size={24} />
           </button>
 
-          <div className="flex items-center">
+          {/* Logo centrado */}
+          <div className="flex-1 flex justify-start items-center">
             <span className="text-lg font-medium">FutboLink</span>
+          </div>
+
+          {/* Elementos a la derecha */}
+          <div className="flex items-center space-x-3">
+            <LanguageDropdown />
+            <NotificationsList />
+            <FaEnvelope className="text-gray-700" size={24} />
           </div>
         </div>
       ) : (

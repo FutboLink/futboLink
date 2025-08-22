@@ -1,28 +1,23 @@
 "use client";
 
-import Image from "next/image";
-import { useState, useEffect, useContext } from "react";
 import AOS from "aos";
+import Image from "next/image";
+import { useContext, useEffect, useState } from "react";
 import "aos/dist/aos.css";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   FaBolt,
   FaChartBar,
-  FaCog,
-  FaInstagram,
-  FaUser,
-  FaUserCog,
-  FaUsers,
-  FaYoutube,
   FaShieldAlt,
+  FaUser,
+  FaUsers,
 } from "react-icons/fa";
-import { IProfileData } from "@/Interfaces/IUser";
-import { UserContext } from "@/components/Context/UserContext";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Offer from "./Ofertas/Offer";
-import AllApplications from "./Applications/AllApplications";
 import { PiSoccerBall } from "react-icons/pi";
-import { FaX } from "react-icons/fa6";
+import { UserContext } from "@/components/Context/UserContext";
+import type { IProfileData } from "@/Interfaces/IUser";
+import AllApplications from "./Applications/AllApplications";
+import Offer from "./Ofertas/Offer";
 import SuccessCasesAdmin from "./SuccessCasesAdmin";
 import UsersComponent from "./Users/UsersComponent";
 import VerificationRequests from "./VerificationRequests/VerificationRequests";
@@ -111,6 +106,7 @@ const PanelAdmin = () => {
           <ul>
             <li>
               <button
+                type="button"
                 onClick={() => handleSectionChange("profile")}
                 className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
               >
@@ -120,6 +116,7 @@ const PanelAdmin = () => {
             </li>
             <li>
               <button
+                type="button"
                 onClick={() => handleSectionChange("postulaciones")}
                 className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
               >
@@ -129,6 +126,7 @@ const PanelAdmin = () => {
             </li>
             <li>
               <button
+                type="button"
                 onClick={() => handleSectionChange("users")}
                 className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
               >
@@ -138,6 +136,7 @@ const PanelAdmin = () => {
             </li>
             <li>
               <button
+                type="button"
                 onClick={() => handleSectionChange("appliedOffers")}
                 className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
               >
@@ -147,6 +146,7 @@ const PanelAdmin = () => {
             </li>
             <li>
               <button
+                type="button"
                 onClick={() => handleSectionChange("successCases")}
                 className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
               >
@@ -156,6 +156,7 @@ const PanelAdmin = () => {
             </li>
             <li>
               <button
+                type="button"
                 onClick={() => handleSectionChange("verifications")}
                 className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
               >
@@ -166,6 +167,7 @@ const PanelAdmin = () => {
           </ul>
         </nav>
         <button
+          type="button"
           onClick={handleLogOut}
           className="mt-6 w-full py-2 rounded-lg text-white text-center font-bold border-2 border-white hover:bg-white hover:text-gray-700"
         >

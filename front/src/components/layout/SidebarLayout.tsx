@@ -15,13 +15,14 @@ import {
   FaCog,
   FaDumbbell,
   FaEdit,
+  FaEnvelope,
+  FaExchangeAlt,
   FaHome,
   FaNewspaper,
   FaQuestionCircle,
   FaRocket,
   FaSearch,
   FaSignOutAlt,
-  FaStore,
   FaTimes,
   FaUser,
   FaUsers,
@@ -30,6 +31,8 @@ import { MdSettings } from "react-icons/md";
 import { getDefaultPlayerImage } from "@/helpers/imageUtils";
 import { useUserContext } from "@/hook/useUserContext";
 import { useVerificationStatus } from "@/hook/useVerificationStatus";
+import LanguageDropdown from "../LanguageToggle/LanguageDropdown";
+import NotificationsList from "../Notifications/NotificationsList";
 import Navbar from "../navbar/navbar";
 import NewNavbar from "../navbar/newNavbar";
 
@@ -104,7 +107,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
           { label: "Inicio", path: "/", icon: <FaHome /> },
           { label: "Perfil", path: "/PanelAdmin", icon: <FaUser /> },
           { label: "Buscador", path: "/player-search", icon: <FaSearch /> },
-          { label: "Mercado", path: "/jobs", icon: <FaStore /> },
+          { label: "Mercado", path: "/jobs", icon: <FaExchangeAlt /> },
           { label: "Noticias", path: "/News", icon: <FaNewspaper /> },
           { label: "Entrenamiento", path: "/cursos", icon: <FaDumbbell /> },
         ],
@@ -114,7 +117,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
           { label: "Mejorar Perfil", path: "/Subs", icon: <FaRocket /> },
         ],
         bottomNav: [
-          { label: "Mercado", path: "/jobs", icon: <FaStore /> },
+          { label: "Mercado", path: "/jobs", icon: <FaExchangeAlt /> },
           { label: "Editar", path: "/profile", icon: <FaEdit /> },
           { label: "Inicio", path: "/", icon: <FaHome /> },
           { label: "Buscar", path: "/player-search", icon: <FaSearch /> },
@@ -151,7 +154,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
             onClick: handlePlayerSearchClick,
             icon: <FaSearch />,
           },
-          { label: "Mercado", path: "/jobs", icon: <FaStore /> },
+          { label: "Mercado", path: "/jobs", icon: <FaExchangeAlt /> },
           { label: "Noticias", path: "/News", icon: <FaNewspaper /> },
         ],
         bottom: [
@@ -168,7 +171,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
           },
         ],
         bottomNav: [
-          { label: "Mercado", path: "/jobs", icon: <FaStore /> },
+          { label: "Mercado", path: "/jobs", icon: <FaExchangeAlt /> },
           {
             label: "Crear",
             path: "/PanelUsers/Manager?section=createOffers",
@@ -192,7 +195,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
           icon: <FaEdit />,
         },
         { label: "Buscador", path: "/player-search", icon: <FaSearch /> },
-        { label: "Mercado", path: "/jobs", icon: <FaStore /> },
+        { label: "Mercado", path: "/jobs", icon: <FaExchangeAlt /> },
         { label: "Noticias", path: "/News", icon: <FaNewspaper /> },
         { label: "Entrenamiento", path: "/cursos", icon: <FaDumbbell /> },
       ],
@@ -208,7 +211,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
         { label: "Mejorar Perfil", path: "/Subs", icon: <FaRocket /> },
       ],
       bottomNav: [
-        { label: "Mercado", path: "/jobs", icon: <FaStore /> },
+        { label: "Mercado", path: "/jobs", icon: <FaExchangeAlt /> },
         {
           label: "Editar",
           path: `/user-viewer/${user?.id}?edit=true`,
@@ -276,7 +279,8 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
 
       {/* Mobile Top Bar */}
       {isLogged ? (
-        <div className="md:hidden bg-green-700 text-white p-4 flex items-center sticky top-0 z-50">
+        <div className="md:hidden bg-green-700 text-white p-4 flex items-center justify-between sticky top-0 z-50">
+          {/* Botón del sidebar a la izquierda */}
           <button
             onClick={toggleSidebar}
             className="text-white p-2"
@@ -285,8 +289,16 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
             <FaBars size={24} />
           </button>
 
-          <div className="flex items-center">
+          {/* Logo centrado */}
+          <div className="flex-1 flex justify-start items-center">
             <span className="text-lg font-medium">FutboLink</span>
+          </div>
+
+          {/* Elementos a la derecha */}
+          <div className="flex items-center space-x-3">
+            <LanguageDropdown />
+            <NotificationsList />
+            <FaEnvelope className="text-gray-700" size={24} />
           </div>
         </div>
       ) : (
@@ -476,6 +488,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
                     <li key={`main-${item.path}-${index}`}>
                       <Link
                         href={item.path}
+                        onClick={closeSidebar}
                         className="flex items-center gap-4 px-4 py-2 rounded-lg text-sm font-medium text-white-300 hover:bg-gray-700 hover:text-white transition-all"
                       >
                         <span className="text-lg">{item.icon}</span>

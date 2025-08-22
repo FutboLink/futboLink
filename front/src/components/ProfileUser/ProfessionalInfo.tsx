@@ -1,5 +1,5 @@
 "use client";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FaChevronDown,
   FaChevronRight,
@@ -10,9 +10,9 @@ import {
   FaPlus,
   FaTrash,
 } from "react-icons/fa";
+import { useUserContext } from "@/hook/useUserContext";
 import { type IProfileData, PasaporteUe } from "@/Interfaces/IUser";
 import FileUpload from "../Cloudinary/FileUpload";
-import { UserContext } from "../Context/UserContext";
 import { updateUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
 import FootballField from "./FootballField";
@@ -27,6 +27,7 @@ const CATEGORIAS_OPTIONS = [
   "U21",
   "U20",
   "U19",
+  "U18",
   "U17",
   "U16",
   "U15",
@@ -70,7 +71,7 @@ const PIE_HABIL_OPTIONS = ["Derecho", "Izquierdo", "Ambidiestro"];
 const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
   profileData,
 }) => {
-  const { token, setUser } = useContext(UserContext);
+  const { token, setUser } = useUserContext();
   const [loading, setLoading] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
@@ -316,10 +317,13 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
         // Update user data
         await updateUserData(userId, updatedData);
 
-        setUser((prevUser) => ({
-          ...prevUser!,
-          ...updatedData, // Actualizar la informacion del estado global (imagen,datos,etc)
-        }));
+        setUser((prevUser) => {
+          if (!prevUser) return prevUser; // Si prevUser es null, no hacemos nada
+          return {
+            ...prevUser,
+            ...updatedData, // Actualizar la informacion del estado global (imagen,datos,etc)
+          };
+        });
 
         setShowNotification(true);
         setNotificationMessage(
@@ -329,13 +333,17 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
           setShowNotification(false);
         }, 3000);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      let errorMessage = "Error desconocido";
+
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
       console.error("Error updating professional info:", error);
       setShowErrorNotification(true);
       setErrorMessage(
-        `Error al actualizar la información profesional: ${
-          error.message || "Error desconocido"
-        }`
+        `Error al actualizar la información profesional: ${errorMessage}`
       );
       setTimeout(() => {
         setShowErrorNotification(false);
@@ -526,7 +534,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
                     <div className="ml-3 flex-1">
                       <p className="text-sm font-medium text-gray-700 truncate">
                         {cvInfo.filename.length > 20
-                          ? cvInfo.filename.substring(0, 20) + "..."
+                          ? `${cvInfo.filename.substring(0, 20)} ...`
                           : cvInfo.filename}
                       </p>
                       <p className="text-xs text-gray-500">
@@ -574,7 +582,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
             <div className="p-6 bg-white border-t">
               {experiences.map((exp, index) => (
                 <div
-                  key={index}
+                  key={`${exp.club}-${index}`}
                   className="mb-6 p-4 border border-gray-200 rounded-lg"
                 >
                   <div className="flex justify-between items-center mb-4">

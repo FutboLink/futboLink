@@ -15,13 +15,13 @@ import {
   FaCog,
   FaDumbbell,
   FaEdit,
+  FaExchangeAlt,
   FaHome,
   FaNewspaper,
   FaQuestionCircle,
   FaRocket,
   FaSearch,
   FaSignOutAlt,
-  FaStore,
   FaTimes,
   FaUser,
   FaUsers,
@@ -104,7 +104,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
           { label: "Inicio", path: "/", icon: <FaHome /> },
           { label: "Perfil", path: "/PanelAdmin", icon: <FaUser /> },
           { label: "Buscador", path: "/player-search", icon: <FaSearch /> },
-          { label: "Mercado", path: "/jobs", icon: <FaStore /> },
+          { label: "Mercado", path: "/jobs", icon: <FaExchangeAlt /> },
           { label: "Noticias", path: "/News", icon: <FaNewspaper /> },
           { label: "Entrenamiento", path: "/cursos", icon: <FaDumbbell /> },
         ],
@@ -114,7 +114,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
           { label: "Mejorar Perfil", path: "/Subs", icon: <FaRocket /> },
         ],
         bottomNav: [
-          { label: "Mercado", path: "/jobs", icon: <FaStore /> },
+          { label: "Mercado", path: "/jobs", icon: <FaExchangeAlt /> },
           { label: "Editar", path: "/profile", icon: <FaEdit /> },
           { label: "Inicio", path: "/", icon: <FaHome /> },
           { label: "Buscar", path: "/player-search", icon: <FaSearch /> },
@@ -151,7 +151,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
             onClick: handlePlayerSearchClick,
             icon: <FaSearch />,
           },
-          { label: "Mercado", path: "/jobs", icon: <FaStore /> },
+          { label: "Mercado", path: "/jobs", icon: <FaExchangeAlt /> },
           { label: "Noticias", path: "/News", icon: <FaNewspaper /> },
         ],
         bottom: [
@@ -168,7 +168,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
           },
         ],
         bottomNav: [
-          { label: "Mercado", path: "/jobs", icon: <FaStore /> },
+          { label: "Mercado", path: "/jobs", icon: <FaExchangeAlt /> },
           {
             label: "Crear",
             path: "/PanelUsers/Manager?section=createOffers",
@@ -192,7 +192,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
           icon: <FaEdit />,
         },
         { label: "Buscador", path: "/player-search", icon: <FaSearch /> },
-        { label: "Mercado", path: "/jobs", icon: <FaStore /> },
+        { label: "Mercado", path: "/jobs", icon: <FaExchangeAlt /> },
         { label: "Noticias", path: "/News", icon: <FaNewspaper /> },
         { label: "Entrenamiento", path: "/cursos", icon: <FaDumbbell /> },
       ],
@@ -208,7 +208,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
         { label: "Mejorar Perfil", path: "/Subs", icon: <FaRocket /> },
       ],
       bottomNav: [
-        { label: "Mercado", path: "/jobs", icon: <FaStore /> },
+        { label: "Mercado", path: "/jobs", icon: <FaExchangeAlt /> },
         {
           label: "Editar",
           path: `/user-viewer/${user?.id}?edit=true`,
@@ -476,6 +476,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
                     <li key={`main-${item.path}-${index}`}>
                       <Link
                         href={item.path}
+                        onClick={closeSidebar}
                         className="flex items-center gap-4 px-4 py-2 rounded-lg text-sm font-medium text-white-300 hover:bg-gray-700 hover:text-white transition-all"
                       >
                         <span className="text-lg">{item.icon}</span>

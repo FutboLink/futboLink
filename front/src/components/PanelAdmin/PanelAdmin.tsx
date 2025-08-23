@@ -9,9 +9,11 @@ import { useRouter } from "next/navigation";
 import {
   FaBolt,
   FaChartBar,
+  FaNewspaper,
   FaShieldAlt,
   FaUser,
   FaUsers,
+  FaGraduationCap,
 } from "react-icons/fa";
 import { PiSoccerBall } from "react-icons/pi";
 import { UserContext } from "@/components/Context/UserContext";
@@ -163,6 +165,24 @@ const PanelAdmin = () => {
                 <FaShieldAlt className="text-white text-lg" />
                 <span className="text-white">Verificaciones</span>
               </button>
+            </li>
+            <li>
+              <Link
+                href="/PanelAdmin/News/crear-noticia"
+                className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
+              >
+                <FaNewspaper className="text-white text-lg" />
+                <span className="text-white">Crear Noticia</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/PanelAdmin/Cursos/crear-curso"
+                className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
+              >
+                <FaGraduationCap className="text-white text-lg" />
+                <span className="text-white">Crear Curso</span>
+              </Link>
             </li>
           </ul>
         </nav>

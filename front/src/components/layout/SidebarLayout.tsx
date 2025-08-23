@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import {
   AiOutlineFileAdd,
@@ -109,7 +109,9 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
           { label: "Buscador", path: "/player-search", icon: <FaSearch /> },
           { label: "Mercado", path: "/jobs", icon: <FaExchangeAlt /> },
           { label: "Noticias", path: "/News", icon: <FaNewspaper /> },
+          { label: "Crear Noticia", path: "/PanelAdmin/News/crear-noticia", icon: <FaNewspaper /> },
           { label: "Entrenamiento", path: "/cursos", icon: <FaDumbbell /> },
+          { label: "Crear Curso", path: "/PanelAdmin/Cursos/crear-curso", icon: <FaDumbbell /> },
         ],
         bottom: [
           { label: "Configuración", path: "/profile", icon: <MdSettings /> },

@@ -1,25 +1,25 @@
 "use client";
-import { useState, useEffect, useContext } from "react";
-import { IProfileData } from "@/Interfaces/IUser";
+import { useEffect, useState } from "react";
+import {
+  FaChevronDown,
+  FaChevronUp,
+  FaFutbol,
+  FaTwitter,
+  FaYoutube,
+} from "react-icons/fa";
+import { useUserContext } from "@/hook/useUserContext";
+import type { IProfileData } from "@/Interfaces/IUser";
+import ImageUploadwithCrop from "../Cloudinary/ImageUploadWithCrop";
 import {
   fetchUserData,
   updateUserData,
 } from "../Fetchs/UsersFetchs/UserFetchs";
-import { UserContext } from "../Context/UserContext";
-import { NotificationsForms } from "../Notifications/NotificationsForms";
 import useNationalities from "../Forms/FormUser/useNationalitys";
-import ImageUploadwithCrop from "../Cloudinary/ImageUploadWithCrop";
+import { NotificationsForms } from "../Notifications/NotificationsForms";
 import PhoneNumberInput from "../utils/PhoneNumberInput";
-import {
-  FaTwitter,
-  FaYoutube,
-  FaFutbol,
-  FaChevronUp,
-  FaChevronDown,
-} from "react-icons/fa";
 
 const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
-  const { token, setUser } = useContext(UserContext);
+  const { token, setUser } = useUserContext();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fetchedProfileData, setFetchedProfileData] =
@@ -104,10 +104,13 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   };
 
   const handleImageUpload = (imageUrl: string) => {
-    setFetchedProfileData((prev) => ({
-      ...prev!,
-      imgUrl: imageUrl, // Actualizar la URL de la imagen en fetchedProfileData
-    }));
+    setFetchedProfileData((prev) => {
+      if (!prev) return prev; // Si prev es null, no hacemos nada
+      return {
+        ...prev,
+        imgUrl: imageUrl, // Actualizar la URL de la imagen en fetchedProfileData
+      };
+    });
   };
 
   // Handle form submission
@@ -119,10 +122,10 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
       const userId = JSON.parse(atob(token.split(".")[1])).id;
       await updateUserData(userId, fetchedProfileData);
 
-      setUser((prevUser) => ({
-        ...prevUser!,
-        ...fetchedProfileData, // Actualizar la informacion del estado global (imagen,datos,etc)
-      }));
+      setUser((prevUser) => {
+        if (!prevUser) return prevUser; // Si prevUser es null, no hacemos nada
+        return { ...prevUser, ...fetchedProfileData }; // Actualizar la informacion del estado global (imagen,datos,etc)
+      });
 
       setNotificationMessage("Datos actualizados correctamente");
       setShowNotification(true);
@@ -154,7 +157,10 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               initialImage={fetchedProfileData?.imgUrl}
               onUpload={handleImageUpload}
               onRemove={() =>
-                setFetchedProfileData((prev) => ({ ...prev!, imgUrl: "" }))
+                setFetchedProfileData((prev) => {
+                  if (!prev) return prev; // Si prevUser es null, no hacemos nada
+                  return { ...prev, imgUrl: "" };
+                })
               }
             />
           </div>
@@ -181,11 +187,15 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
 
           {/* Email */}
           <div className="flex flex-col sm:col-span-2">
-            <label className="text-gray-700 font-semibold text-sm">
+            <label
+              htmlFor="emailProfile"
+              className="text-gray-700 font-semibold text-sm"
+            >
               Email:
             </label>
             <input
               name="email"
+              id="emailProfile"
               type="email"
               value={fetchedProfileData?.email || ""}
               readOnly
@@ -196,7 +206,10 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
 
           {/* Nationality Selector - Fixed version */}
           <div className="flex flex-col sm:col-span-2">
-            <label className="text-gray-700 font-semibold text-sm">
+            <label
+              htmlFor="nationalitiesProfile"
+              className="text-gray-700 font-semibold text-sm"
+            >
               Nacionalidad:
             </label>
             {nationalitiesLoading ? (
@@ -207,6 +220,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               <p className="text-sm text-red-500">{nationalitiesError}</p>
             ) : (
               <select
+                id="nationalityesProfile"
                 name="nationality"
                 value={fetchedProfileData?.nationality || ""}
                 onChange={handleChange}
@@ -226,10 +240,14 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
 
           {/* País de residencia */}
           <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold text-sm">
+            <label
+              htmlFor="paisProfile"
+              className="text-gray-700 font-semibold text-sm"
+            >
               País de Residencia:
             </label>
             <input
+              id="paisProfile"
               name="ubicacionActual"
               type="text"
               value={fetchedProfileData?.ubicacionActual || ""}
@@ -241,10 +259,14 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
 
           {/* Location */}
           <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold text-sm">
+            <label
+              htmlFor="cityProfile"
+              className="text-gray-700 font-semibold text-sm"
+            >
               Ciudad:
             </label>
             <input
+              id="cityProfile"
               name="location"
               type="text"
               value={fetchedProfileData?.location || ""}
@@ -266,10 +288,14 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             />
             {/* Agente o Representante */}
             <div className="flex flex-col">
-              <label className="text-gray-700 font-semibold text-sm">
+              <label
+                htmlFor="nameAgencyProfile"
+                className="text-gray-700 font-semibold text-sm"
+              >
                 Agente o Representante:
               </label>
               <input
+                id="nameAgencyProfile"
                 name="nameAgency"
                 type="text"
                 value={fetchedProfileData?.nameAgency || ""}
@@ -281,10 +307,14 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           </div>
           {/* Gender */}
           <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold text-sm">
+            <label
+              htmlFor="genreProfile"
+              className="text-gray-700 font-semibold text-sm"
+            >
               Género:
             </label>
             <select
+              id="genreProfile"
               name="genre"
               value={fetchedProfileData?.genre || ""}
               onChange={handleChange}
@@ -300,10 +330,14 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           {/* Birthdate */}
           <div className="flex flex-col sm:flex-row sm:gap-4 sm:col-span-2">
             <div className="flex flex-col w-full sm:w-1/2">
-              <label className="text-gray-700 font-semibold text-sm">
+              <label
+                htmlFor="birthdayProfile"
+                className="text-gray-700 font-semibold text-sm"
+              >
                 Fecha de nacimiento:
               </label>
               <input
+                id="birthdayProfile"
                 name="birthday"
                 type="date"
                 value={fetchedProfileData?.birthday || ""}
@@ -315,10 +349,14 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
 
             {/* Age (calculada automáticamente) */}
             <div className="flex flex-col w-full sm:w-1/2 mt-2 sm:mt-0">
-              <label className="text-gray-700 font-semibold text-sm">
+              <label
+                htmlFor="ageProfile"
+                className="text-gray-700 font-semibold text-sm"
+              >
                 Edad:
               </label>
               <input
+                id="ageProfile"
                 name="age"
                 type="text"
                 value={fetchedProfileData?.age || ""}
@@ -353,11 +391,15 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {/* Transfermarkt */}
                 <div className="flex flex-col">
-                  <label className="text-gray-700 font-semibold text-sm flex items-center gap-1">
+                  <label
+                    htmlFor="transfermarktProfile"
+                    className="text-gray-700 font-semibold text-sm flex items-center gap-1"
+                  >
                     <FaFutbol className="text-blue-700" /> Transfermarkt:
                   </label>
                   <input
                     type="text"
+                    id="transfermarktProfile"
                     name="transfermarkt"
                     value={fetchedProfileData?.socialMedia?.transfermarkt || ""}
                     onChange={handleChange}
@@ -367,10 +409,14 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                 </div>
                 {/* X */}
                 <div className="flex flex-col">
-                  <label className="text-gray-700 font-semibold text-sm flex items-center gap-1">
+                  <label
+                    htmlFor="twitterProfile"
+                    className="text-gray-700 font-semibold text-sm flex items-center gap-1"
+                  >
                     <FaTwitter className="text-blue-500" /> X:
                   </label>
                   <input
+                    id="twitterProfile"
                     type="text"
                     name="x"
                     value={fetchedProfileData?.socialMedia?.x || ""}
@@ -381,10 +427,14 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                 </div>
                 {/* Youtube*/}
                 <div className="flex flex-col md:col-span-2">
-                  <label className="text-gray-700 font-semibold text-sm flex items-center gap-1">
-                    <FaYoutube className="text-red-600" /> Youtube:
+                  <label
+                    htmlFor="youtubeProfile"
+                    className="text-gray-700 font-semibold text-sm flex items-center gap-1"
+                  >
+                    <FaYoutube className="text-red-600" /> Agregar Video:
                   </label>
                   <input
+                    id="youtubeProfile"
                     type="text"
                     name="videoUrl"
                     value={fetchedProfileData?.videoUrl || ""}
@@ -401,6 +451,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
       {/* Save Button */}
       <button
         onClick={handleSubmit}
+        type="submit"
         className="mt-3 w-full bg-verde-oscuro text-white p-2 rounded hover:bg-green-700"
         disabled={loading}
       >

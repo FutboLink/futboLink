@@ -1,12 +1,14 @@
 "use client";
-import React, { useEffect, useState, useContext } from "react";
-import { UserContext } from "../Context/UserContext";
-import { BsFillBellFill, BsCheck, BsCheckCircle } from "react-icons/bs";
 import Image from "next/image";
 import Link from "next/link";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { BsCheck, BsCheckCircle, BsFillBellFill } from "react-icons/bs";
+import { useUserContext } from "@/hook/useUserContext";
 
 // URL del backend
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://futbolink.onrender.com';
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "https://futbolink.onrender.com";
 
 interface NotificationMetadata {
   jobId?: string;
@@ -38,30 +40,30 @@ export const NotificationsList: React.FC = () => {
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const { token } = useContext(UserContext);
+  const { token } = useUserContext();
 
   // Función para obtener las notificaciones del usuario
   const fetchNotifications = async () => {
     if (!token) return;
-    
+
     try {
       setLoading(true);
       const response = await fetch(`${API_URL}/notifications/user`, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
-        console.log('Notificaciones recibidas:', data);
-        
+        console.log("Notificaciones recibidas:", data);
+
         // Verificar si hay notificaciones de tipo REPRESENTATION_REQUEST
         const representationRequests = data.filter(
-          (n: Notification) => n.type === 'REPRESENTATION_REQUEST'
+          (n: Notification) => n.type === "REPRESENTATION_REQUEST"
         );
-        console.log('Solicitudes de representación:', representationRequests);
-        
+        console.log("Solicitudes de representación:", representationRequests);
+
         setNotifications(data);
         setUnreadCount(data.filter((n: Notification) => !n.read).length);
       }
@@ -75,21 +77,21 @@ export const NotificationsList: React.FC = () => {
   // Función para marcar una notificación como leída
   const markAsRead = async (id: string) => {
     if (!token) return;
-    
+
     try {
       const response = await fetch(`${API_URL}/notifications/${id}/read`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      
+
       if (response.ok) {
         // Actualizar el estado local
-        setNotifications(notifications.map(n => 
-          n.id === id ? { ...n, read: true } : n
-        ));
-        setUnreadCount(prev => Math.max(0, prev - 1));
+        setNotifications(
+          notifications.map((n) => (n.id === id ? { ...n, read: true } : n))
+        );
+        setUnreadCount((prev) => Math.max(0, prev - 1));
       }
     } catch (error) {
       console.error("Error al marcar como leída:", error);
@@ -99,18 +101,18 @@ export const NotificationsList: React.FC = () => {
   // Función para marcar todas las notificaciones como leídas
   const markAllAsRead = async () => {
     if (!token) return;
-    
+
     try {
       const response = await fetch(`${API_URL}/notifications/read/all`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      
+
       if (response.ok) {
         // Actualizar el estado local
-        setNotifications(notifications.map(n => ({ ...n, read: true })));
+        setNotifications(notifications.map((n) => ({ ...n, read: true })));
         setUnreadCount(0);
       }
     } catch (error) {
@@ -119,41 +121,54 @@ export const NotificationsList: React.FC = () => {
   };
 
   // Función para responder a una solicitud de representación
-  const respondToRepresentationRequest = async (notificationId: string, requestId: string, status: 'ACCEPTED' | 'REJECTED') => {
+  const respondToRepresentationRequest = async (
+    notificationId: string,
+    requestId: string,
+    status: "ACCEPTED" | "REJECTED"
+  ) => {
     if (!token) return;
-    
+
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/notifications/${notificationId}/respond-representation-request`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status })
-      });
-      
+      const response = await fetch(
+        `${API_URL}/notifications/${notificationId}/respond-representation-request`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status }),
+        }
+      );
+
       if (response.ok) {
         // Actualizar el estado local
-        setNotifications(notifications.map(n => 
-          n.id === notificationId ? { ...n, read: true } : n
-        ));
-        setUnreadCount(prev => Math.max(0, prev - 1));
-        
+        setNotifications(
+          notifications.map((n) =>
+            n.id === notificationId ? { ...n, read: true } : n
+          )
+        );
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+
         // Mostrar mensaje de éxito
-        alert(status === 'ACCEPTED' 
-          ? 'Has aceptado la solicitud de representación' 
-          : 'Has rechazado la solicitud de representación');
-        
+        alert(
+          status === "ACCEPTED"
+            ? "Has aceptado la solicitud de representación"
+            : "Has rechazado la solicitud de representación"
+        );
+
         // Recargar las notificaciones
         fetchNotifications();
       } else {
         const errorData = await response.json();
-        alert(`Error: ${errorData.message || 'No se pudo procesar la solicitud'}`);
+        alert(
+          `Error: ${errorData.message || "No se pudo procesar la solicitud"}`
+        );
       }
     } catch (error) {
       console.error("Error al responder a la solicitud:", error);
-      alert('Ocurrió un error al procesar tu respuesta');
+      alert("Ocurrió un error al procesar tu respuesta");
     } finally {
       setLoading(false);
     }
@@ -164,38 +179,49 @@ export const NotificationsList: React.FC = () => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
+
     if (diffInSeconds < 60) return `Hace ${diffInSeconds} segundos`;
-    if (diffInSeconds < 3600) return `Hace ${Math.floor(diffInSeconds / 60)} minutos`;
-    if (diffInSeconds < 86400) return `Hace ${Math.floor(diffInSeconds / 3600)} horas`;
-    if (diffInSeconds < 604800) return `Hace ${Math.floor(diffInSeconds / 86400)} días`;
-    
+    if (diffInSeconds < 3600)
+      return `Hace ${Math.floor(diffInSeconds / 60)} minutos`;
+    if (diffInSeconds < 86400)
+      return `Hace ${Math.floor(diffInSeconds / 3600)} horas`;
+    if (diffInSeconds < 604800)
+      return `Hace ${Math.floor(diffInSeconds / 86400)} días`;
+
     return date.toLocaleDateString();
   };
 
   // Renderizar contenido adicional según el tipo de notificación
   const renderNotificationContent = (notification: Notification) => {
-    console.log('Renderizando contenido para notificación:', notification);
-    
+    console.log("Renderizando contenido para notificación:", notification);
+
     // Verificar si es una solicitud de representación por el tipo o por el campo isRepresentationRequest en los metadatos
-    const isRepresentationRequest = 
-      notification.type === 'REPRESENTATION_REQUEST' || 
-      (notification.metadata && (
-        notification.metadata.requestId !== undefined || 
-        notification.metadata.isRepresentationRequest === true
-      ));
-    
-    if (notification.type === 'APPLICATION_SHORTLISTED' && notification.metadata?.jobId && notification.metadata?.jobTitle) {
+    const isRepresentationRequest =
+      notification.type === "REPRESENTATION_REQUEST" ||
+      (notification.metadata &&
+        (notification.metadata.requestId !== undefined ||
+          notification.metadata.isRepresentationRequest === true));
+
+    if (
+      notification.type === "APPLICATION_SHORTLISTED" &&
+      notification.metadata?.jobId &&
+      notification.metadata?.jobTitle
+    ) {
       return (
         <div className="mt-2 p-2 bg-green-50 rounded-md border border-green-200">
           <div className="flex items-center text-green-800 mb-1">
             <BsCheckCircle className="mr-1" />
-            <span className="text-xs font-medium">Seleccionado para evaluación</span>
+            <span className="text-xs font-medium">
+              Seleccionado para evaluación
+            </span>
           </div>
           <p className="text-xs text-gray-700">
-            Oferta: <span className="font-medium">{notification.metadata.jobTitle}</span>
+            Oferta:{" "}
+            <span className="font-medium">
+              {notification.metadata.jobTitle}
+            </span>
           </p>
-          <Link 
+          <Link
             href={`/jobs/${notification.metadata.jobId}`}
             className="text-xs text-green-800 hover:underline mt-1 inline-block"
             onClick={() => markAsRead(notification.id)}
@@ -205,36 +231,61 @@ export const NotificationsList: React.FC = () => {
         </div>
       );
     } else if (isRepresentationRequest && notification.metadata?.requestId) {
-      console.log('Renderizando solicitud de representación:', notification.metadata);
-      
+      console.log(
+        "Renderizando solicitud de representación:",
+        notification.metadata
+      );
+
       // Asegurarnos de que requestId existe y no es undefined
       const requestId = notification.metadata.requestId;
-      
+
       return (
         <div className="mt-2 p-2 bg-blue-50 rounded-md border border-blue-200">
           <div className="flex items-center text-blue-800 mb-1">
-            <span className="text-xs font-medium">Solicitud de representación</span>
+            <span className="text-xs font-medium">
+              Solicitud de representación
+            </span>
           </div>
           {notification.metadata.recruiterAgency && (
             <p className="text-xs text-gray-700">
-              Agencia: <span className="font-medium">{notification.metadata.recruiterAgency}</span>
+              Agencia:{" "}
+              <span className="font-medium">
+                {notification.metadata.recruiterAgency}
+              </span>
             </p>
           )}
           {notification.metadata.recruiterName && (
             <p className="text-xs text-gray-700">
-              Reclutador: <span className="font-medium">{notification.metadata.recruiterName}</span>
+              Reclutador:{" "}
+              <span className="font-medium">
+                {notification.metadata.recruiterName}
+              </span>
             </p>
           )}
           {!notification.read && (
             <div className="mt-2 flex space-x-2">
-              <button 
-                onClick={() => respondToRepresentationRequest(notification.id, requestId, 'ACCEPTED')}
+              <button
+                type="button"
+                onClick={() =>
+                  respondToRepresentationRequest(
+                    notification.id,
+                    requestId,
+                    "ACCEPTED"
+                  )
+                }
                 className="text-xs bg-green-600 hover:bg-green-700 text-white py-1 px-2 rounded"
               >
                 Aceptar
               </button>
-              <button 
-                onClick={() => respondToRepresentationRequest(notification.id, requestId, 'REJECTED')}
+              <button
+                type="button"
+                onClick={() =>
+                  respondToRepresentationRequest(
+                    notification.id,
+                    requestId,
+                    "REJECTED"
+                  )
+                }
                 className="text-xs bg-red-600 hover:bg-red-700 text-white py-1 px-2 rounded"
               >
                 Rechazar
@@ -251,10 +302,10 @@ export const NotificationsList: React.FC = () => {
   useEffect(() => {
     if (token) {
       fetchNotifications();
-      
+
       // Actualizar notificaciones cada minuto
       const intervalId = setInterval(fetchNotifications, 60000);
-      
+
       return () => clearInterval(intervalId);
     }
   }, [token]);
@@ -263,18 +314,19 @@ export const NotificationsList: React.FC = () => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (isOpen && !target.closest('.notifications-container')) {
+      if (isOpen && !target.closest(".notifications-container")) {
         setIsOpen(false);
       }
     };
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
   return (
     <div className="notifications-container relative">
-      <button 
+      <button
+        type="button"
         className="relative p-2 text-gray-700 hover:text-green-800 transition-colors"
         onClick={() => setIsOpen(!isOpen)}
       >
@@ -285,13 +337,14 @@ export const NotificationsList: React.FC = () => {
           </span>
         )}
       </button>
-      
+
       {isOpen && (
         <div className="fixed sm:absolute left-4 sm:left-auto right-4 sm:right-0 top-16 sm:top-auto sm:mt-2 w-auto sm:w-80 bg-white rounded-md shadow-lg z-50 max-h-[80vh] sm:max-h-96 overflow-y-auto">
           <div className="p-3 border-b border-gray-200 flex justify-between items-center">
             <h3 className="font-semibold text-gray-700">Notificaciones</h3>
             {unreadCount > 0 && (
-              <button 
+              <button
+                type="button"
                 onClick={markAllAsRead}
                 className="text-xs text-green-800 hover:text-green-600"
               >
@@ -299,7 +352,7 @@ export const NotificationsList: React.FC = () => {
               </button>
             )}
           </div>
-          
+
           {loading ? (
             <div className="p-4 text-center">
               <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-green-800 mx-auto"></div>
@@ -307,15 +360,17 @@ export const NotificationsList: React.FC = () => {
           ) : notifications.length > 0 ? (
             <div>
               {notifications.map((notification) => (
-                <div 
-                  key={notification.id} 
-                  className={`p-3 border-b border-gray-100 hover:bg-gray-50 ${!notification.read ? 'bg-green-50' : ''}`}
+                <div
+                  key={notification.id}
+                  className={`p-3 border-b border-gray-100 hover:bg-gray-50 ${
+                    !notification.read ? "bg-green-50" : ""
+                  }`}
                 >
                   <div className="flex items-start">
                     <div className="mr-3">
                       {notification.sourceUser?.imgUrl ? (
-                        <Image 
-                          src={notification.sourceUser.imgUrl} 
+                        <Image
+                          src={notification.sourceUser.imgUrl}
                           alt={`${notification.sourceUser.name} ${notification.sourceUser.lastname}`}
                           width={40}
                           height={40}
@@ -323,17 +378,22 @@ export const NotificationsList: React.FC = () => {
                         />
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
-                          {notification.sourceUser?.name?.charAt(0) || '?'}
+                          {notification.sourceUser?.name?.charAt(0) || "?"}
                         </div>
                       )}
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm text-gray-800">{notification.message}</p>
-                      <p className="text-xs text-gray-500 mt-1">{formatRelativeTime(notification.createdAt)}</p>
+                      <p className="text-sm text-gray-800">
+                        {notification.message}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {formatRelativeTime(notification.createdAt)}
+                      </p>
                       {renderNotificationContent(notification)}
                     </div>
                     {!notification.read && (
-                      <button 
+                      <button
+                        type="button"
                         onClick={() => markAsRead(notification.id)}
                         className="ml-2 text-green-800 hover:text-green-600"
                         title="Marcar como leída"
@@ -356,4 +416,4 @@ export const NotificationsList: React.FC = () => {
   );
 };
 
-export default NotificationsList; 
+export default NotificationsList;

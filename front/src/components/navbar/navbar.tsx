@@ -1,12 +1,11 @@
 "use client";
 
-import { useContext } from "react";
-import { UserContext } from "../Context/UserContext";
+import { useUserContext } from "@/hook/useUserContext";
 import NavbarAdmin from "./navbarAdmin";
 import NavbarRoles from "./navbarRoles";
 
 function Navbar() {
-  const { role } = useContext(UserContext);
+  const { role } = useUserContext();
   if (role === "") {
     return <NavbarRoles />;
   }

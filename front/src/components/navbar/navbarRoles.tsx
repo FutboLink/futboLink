@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useRef, useEffect, useContext } from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import axios from "axios";
 import Head from "next/head";
+import Image from "next/image";
 import Link from "next/link";
-import { UserContext } from "../Context/UserContext";
-import { FaUser, FaSearch, FaUsers, FaNetworkWired } from "react-icons/fa";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { FaUser, FaUsers } from "react-icons/fa";
+import { useUserContext } from "@/hook/useUserContext";
 import LanguageDropdown from "../LanguageToggle/LanguageDropdown";
 import NotificationsList from "../Notifications/NotificationsList";
-import axios from "axios";
 
 function NavbarRoles() {
   const router = useRouter();
@@ -18,7 +18,7 @@ function NavbarRoles() {
   const [hasProfessionalSubscription, setHasProfessionalSubscription] =
     useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { isLogged, role, user, token } = useContext(UserContext);
+  const { isLogged, role, user, token } = useUserContext();
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const navigateTo = (path: string) => {
@@ -39,7 +39,9 @@ function NavbarRoles() {
         .then((response) => {
           const { subscriptionType, isActive } = response.data;
           setHasProfessionalSubscription(
-            (subscriptionType === "Profesional" || subscriptionType === "Semiprofesional") && isActive
+            (subscriptionType === "Profesional" ||
+              subscriptionType === "Semiprofesional") &&
+              isActive
           );
         })
         .catch((error) => {
@@ -79,11 +81,12 @@ function NavbarRoles() {
     if (!isLogged || !role) return "/"; // No logueado o sin rol → home
 
     if (role === "RECRUITER") return "/PanelUsers/Manager"; // Reclutador siempre va a panel de gestión
-    
+
     // Admin siempre va a PanelAdmin
     if (role === "ADMIN") return "/PanelAdmin";
     // Jugador: si hay id, a su perfil; si no, a su panel
-    if (role === "PLAYER") return id ? `/user-viewer/${id}` : "/PanelUsers/Player";
+    if (role === "PLAYER")
+      return id ? `/user-viewer/${id}` : "/PanelUsers/Player";
 
     return "/";
   };
@@ -98,12 +101,17 @@ function NavbarRoles() {
 
     return (
       <button
+        type="button"
         onClick={() => navigateTo(targetPath)}
         className="flex items-center gap-2 px-4 py-2 bg-verde-oscuro text-white rounded-md hover:bg-verde-mas-claro transition-all whitespace-nowrap"
       >
         <FaUser className="text-lg" />
         <span className="font-medium">
-          {isRecruiter ? "Panel de Gestión" : isAdmin ? "Panel Admin" : "Perfil"}
+          {isRecruiter
+            ? "Panel de Gestión"
+            : isAdmin
+            ? "Panel Admin"
+            : "Perfil"}
         </span>
       </button>
     );
@@ -114,10 +122,16 @@ function NavbarRoles() {
   // Renderizar botón de búsqueda de jugadores para móviles
   const renderPlayerSearchButton = () => {
     // Permitir acceso a profesionales y semiprofesionales
-    if (!hasProfessionalSubscription && role !== 'RECRUITER' && role !== 'ADMIN') return null;
+    if (
+      !hasProfessionalSubscription &&
+      role !== "RECRUITER" &&
+      role !== "ADMIN"
+    )
+      return null;
 
     return (
       <button
+        type="button"
         onClick={() => navigateTo("/player-search")}
         className="flex items-center gap-2 px-4 py-2 border-2 border-verde-oscuro text-verde-oscuro rounded-md hover:bg-green-700 transition-all whitespace-nowrap"
       >
@@ -174,6 +188,7 @@ function NavbarRoles() {
               <>
                 <Link href={"/Login"}>
                   <button
+                    type="button"
                     onClick={() => setIsDropdownOpen(false)}
                     className="px-4 py-2 bg-yellow-500 text-black rounded-md hover:bg-yellow-600"
                   >
@@ -181,6 +196,7 @@ function NavbarRoles() {
                   </button>
                 </Link>
                 <button
+                  type="button"
                   onClick={() => navigateTo("/OptionUsers")}
                   className="px-4 py-2 bg-white text-verde-oscuro rounded-md  hover:bg-gray-200 m-0"
                 >
@@ -209,6 +225,7 @@ function NavbarRoles() {
               </>
             )}
             <button
+              type="button"
               onClick={toggleMobileMenu}
               className="text-verde-oscuro focus:outline-none p-1"
               aria-label="Abrir menú móvil"
@@ -219,6 +236,7 @@ function NavbarRoles() {
                 viewBox="0 0 24 24"
                 stroke="currentColor"
                 className="h-8 w-8"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -233,7 +251,14 @@ function NavbarRoles() {
 
         {/* Menú móvil: mostrar los botones de sesión solo cuando el menú móvil está abierto */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-white text-verde-oscuro text-lg p-4">
+          <div
+            className={`absolute top-0 left-0 w-full bg-white text-verde-oscuro text-lg p-4 mt-20 shadow-md transform transition-transform duration-300 ease-in-out md:hidden z-50
+          ${
+            isMobileMenuOpen
+              ? "translate-y-0 opacity-100"
+              : "-translate-y-full opacity-0"
+          }`}
+          >
             <ul>
               {menuItems.map((item) => (
                 <li
@@ -251,13 +276,15 @@ function NavbarRoles() {
                 <>
                   <Link href={"/Login"}>
                     <button
-                      onClick={() => setIsDropdownOpen(false)}
+                      type="button"
+                      onClick={() => setIsMobileMenuOpen(false)}
                       className="w-full bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
                     >
                       Iniciar sesión
                     </button>
                   </Link>
                   <button
+                    type="button"
                     onClick={() => navigateTo("/OptionUsers")}
                     className="w-full bg-white text-verde-oscuro px-4 py-2 rounded-md mt-2 hover:bg-gray-200"
                   >
@@ -265,31 +292,31 @@ function NavbarRoles() {
                   </button>
                 </>
               ) : (
-                <>
-                  <div className="mb-4 mt-2 border-t pt-4 border-gray-200">
-                    <p className="text-sm text-gray-500 mb-2">Tu cuenta</p>
-                    <button
-                      onClick={() => navigateTo(targetPath)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-verde-oscuro text-white rounded-md hover:bg-verde-mas-claro transition-all"
-                    >
-                      <FaUser className="text-lg" />
-                      <span className="font-medium">{role === "ADMIN" ? "Ir a mi Panel" : "Ir a mi Perfil"}</span>
-                    </button>
+                <div className="mb-4 mt-2 border-t pt-4 border-gray-200">
+                  <p className="text-sm text-gray-500 mb-2">Tu cuenta</p>
+                  <button
+                    type="button"
+                    onClick={() => navigateTo(targetPath)}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-verde-oscuro text-white rounded-md hover:bg-verde-mas-claro transition-all"
+                  >
+                    <FaUser className="text-lg" />
+                    <span className="font-medium">
+                      {role === "ADMIN" ? "Ir a mi Panel" : "Ir a mi Perfil"}
+                    </span>
+                  </button>
 
-                    {/* Botón de búsqueda de jugadores para usuarios con suscripción profesional o RECRUITERS */}
-                    {(hasProfessionalSubscription || role === "RECRUITER") && (
-                      <button
-                        onClick={() => navigateTo("/player-search")}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all mt-2"
-                      >
-                        <FaUsers size={18} className="text-white" />
-                        <span className="font-medium">
-                          Búsqueda de Jugadores
-                        </span>
-                      </button>
-                    )}
-                  </div>
-                </>
+                  {/* Botón de búsqueda de jugadores para usuarios con suscripción profesional o RECRUITERS */}
+                  {(hasProfessionalSubscription || role === "RECRUITER") && (
+                    <button
+                      type="button"
+                      onClick={() => navigateTo("/player-search")}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all mt-2"
+                    >
+                      <FaUsers size={18} className="text-white" />
+                      <span className="font-medium">Búsqueda de Jugadores</span>
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           </div>

@@ -524,7 +524,6 @@ export default function UserViewer() {
                   >
                     <Image
                       src={
-                        user?.imgUrl ||
                         profile.imgUrl ||
                         getDefaultPlayerImage(profile.genre)
                       }

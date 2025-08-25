@@ -314,7 +314,7 @@ const UserCard: React.FC<UserCardProps> = ({
           </Link>
 
           {/* Botón de añadir a Portafolio (solo visible para reclutadores y para jugadores) */}
-          {!showButton && (
+          {user && user.role === "RECRUITER" && isPlayer && (
             <button
               type="button"
               onClick={(e) => {
@@ -333,7 +333,7 @@ const UserCard: React.FC<UserCardProps> = ({
               ) : (
                 <>
                   <FaPaperPlane className="h-4 w-4 mr-1" />
-                  Enviar solicitud
+                  Solicitar representación
                 </>
               )}
             </button>

@@ -44,6 +44,7 @@ export interface IProfileData {
     categoriaEquipo: string;
     nivelCompetencia: string;
     logros: string;
+    nacionalidadTrayectoria?: string;
   }[];
   pasaporteUe?: PasaporteUe;
   skillfulFoot: string;
@@ -178,6 +179,6 @@ export interface User {
   email?: string;
   phone?: string;
   ubicacionActual?: string;
-  trayectorias?: { club: string }[];
+  trayectorias?: { club: string; nacionalidadTrayectoria?: string }[];
   genre?: string;
 }

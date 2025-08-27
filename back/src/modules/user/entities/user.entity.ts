@@ -145,7 +145,7 @@ export class User {
 
   @ApiProperty({
     description: 'Redes sociales del usuario (opcional)',
-    example: { twitter: '@usuario', trasnfermarkt: '@usuario',youtube: '@usuario' },
+    example: { twitter: '@usuario', trasnfermarkt: '@usuario', youtube: '@usuario', instagram: '@usuario', facebook: '@usuario', tiktok: '@usuario' },
     nullable: true,
   })
   @Column({ type: 'json', nullable: true })

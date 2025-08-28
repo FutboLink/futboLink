@@ -80,7 +80,7 @@ function NavbarRoles() {
   ): string => {
     if (!isLogged || !role) return "/"; // No logueado o sin rol → home
 
-    if (role === "RECRUITER") return "/PanelUsers/Manager"; // Reclutador siempre va a panel de gestión
+    if (role === "RECRUITER" || role === "CLUB" || role === "AGENCY") return "/PanelUsers/Manager"; // Reclutador, Club o Agencia siempre van al panel de gestión
 
     // Admin siempre va a PanelAdmin
     if (role === "ADMIN") return "/PanelAdmin";
@@ -96,7 +96,7 @@ function NavbarRoles() {
     if (!isLogged || !role) return null;
 
     const targetPath = getUserPanelPath(isLogged, role, user?.id);
-    const isRecruiter = role === "RECRUITER";
+    const isRecruiter = role === "RECRUITER" || role === "CLUB" || role === "AGENCY";
     const isAdmin = role === "ADMIN";
 
     return (
@@ -197,7 +197,7 @@ function NavbarRoles() {
                 </Link>
                 <button
                   type="button"
-                  onClick={() => navigateTo("/OptionUsers")}
+                  onClick={() => navigateTo("/Login/register")}
                   className="px-4 py-2 bg-white text-verde-oscuro rounded-md  hover:bg-gray-200 m-0"
                 >
                   Registrarse
@@ -285,7 +285,7 @@ function NavbarRoles() {
                   </Link>
                   <button
                     type="button"
-                    onClick={() => navigateTo("/OptionUsers")}
+                    onClick={() => navigateTo("/Login/register")}
                     className="w-full bg-white text-verde-oscuro px-4 py-2 rounded-md mt-2 hover:bg-gray-200"
                   >
                     Registrarse

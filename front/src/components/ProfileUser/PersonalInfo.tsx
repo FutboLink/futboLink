@@ -6,6 +6,9 @@ import {
   FaFutbol,
   FaTwitter,
   FaYoutube,
+  FaInstagram,
+  FaFacebook,
+  FaTiktok,
 } from "react-icons/fa";
 import { useUserContext } from "@/hook/useUserContext";
 import type { IProfileData } from "@/Interfaces/IUser";
@@ -425,16 +428,88 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                     className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
                   />
                 </div>
-                {/* Youtube*/}
-                <div className="flex flex-col md:col-span-2">
+                {/* Youtube */}
+                <div className="flex flex-col">
                   <label
                     htmlFor="youtubeProfile"
+                    className="text-gray-700 font-semibold text-sm flex items-center gap-1"
+                  >
+                    <FaYoutube className="text-red-600" /> Youtube:
+                  </label>
+                  <input
+                    id="youtubeProfile"
+                    type="text"
+                    name="youtube"
+                    value={fetchedProfileData?.socialMedia?.youtube || ""}
+                    onChange={handleChange}
+                    placeholder="link de Youtube"
+                    className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
+                  />
+                </div>
+                {/* Instagram */}
+                <div className="flex flex-col">
+                  <label
+                    htmlFor="instagramProfile"
+                    className="text-gray-700 font-semibold text-sm flex items-center gap-1"
+                  >
+                    <FaInstagram className="text-pink-600" /> Instagram:
+                  </label>
+                  <input
+                    id="instagramProfile"
+                    type="text"
+                    name="instagram"
+                    value={fetchedProfileData?.socialMedia?.instagram || ""}
+                    onChange={handleChange}
+                    placeholder="usuario de Instagram"
+                    className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
+                  />
+                </div>
+                {/* Facebook */}
+                <div className="flex flex-col">
+                  <label
+                    htmlFor="facebookProfile"
+                    className="text-gray-700 font-semibold text-sm flex items-center gap-1"
+                  >
+                    <FaFacebook className="text-blue-600" /> Facebook:
+                  </label>
+                  <input
+                    id="facebookProfile"
+                    type="text"
+                    name="facebook"
+                    value={fetchedProfileData?.socialMedia?.facebook || ""}
+                    onChange={handleChange}
+                    placeholder="usuario de Facebook"
+                    className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
+                  />
+                </div>
+                {/* TikTok */}
+                <div className="flex flex-col">
+                  <label
+                    htmlFor="tiktokProfile"
+                    className="text-gray-700 font-semibold text-sm flex items-center gap-1"
+                  >
+                    <FaTiktok className="text-black" /> TikTok:
+                  </label>
+                  <input
+                    id="tiktokProfile"
+                    type="text"
+                    name="tiktok"
+                    value={fetchedProfileData?.socialMedia?.tiktok || ""}
+                    onChange={handleChange}
+                    placeholder="usuario de TikTok"
+                    className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
+                  />
+                </div>
+                {/* Video */}
+                <div className="flex flex-col md:col-span-2">
+                  <label
+                    htmlFor="videoUrlProfile"
                     className="text-gray-700 font-semibold text-sm flex items-center gap-1"
                   >
                     <FaYoutube className="text-red-600" /> Agregar Video:
                   </label>
                   <input
-                    id="youtubeProfile"
+                    id="videoUrlProfile"
                     type="text"
                     name="videoUrl"
                     value={fetchedProfileData?.videoUrl || ""}

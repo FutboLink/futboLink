@@ -11,7 +11,7 @@ import {
   FaTrash,
 } from "react-icons/fa";
 import { useUserContext } from "@/hook/useUserContext";
-import { type IProfileData, PasaporteUe } from "@/Interfaces/IUser";
+import { type IProfileData, PasaporteUe, UserType } from "@/Interfaces/IUser";
 import FileUpload from "../Cloudinary/FileUpload";
 import { updateUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
@@ -165,6 +165,11 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
     </button>
   );
 
+  // Condición: es PLAYER pero su puesto no es "Jugador"
+  const isNonPlayerProfessional =
+    (formData?.role as unknown as UserType) === UserType.PLAYER &&
+    (formData?.puesto || "").toLowerCase() !== "jugador";
+
   useEffect(() => {
     // Initialize experiences from profileData
     if (profileData) {
@@ -291,38 +296,39 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
         logros: String(exp.logros || ""),
       }));
 
-      // Prepare the updated data (including trayectorias)
-      const updatedData = {
+      // Base updated data (always allowed)
+      const updatedData: Partial<IProfileData> = {
         ...formData,
-        primaryPosition: primaryPosition,
-        secondaryPosition: secondaryPosition,
-        pasaporteUe: pasaporteUE === "Sí" ? PasaporteUe.SI : PasaporteUe.NO,
-        bodyStructure: estructuraCorporal,
-        skillfulFoot: pieHabil,
-        height: altura,
-        weight: peso,
         cv: cvInfo?.url || undefined,
         trayectorias: formattedExperiences,
       };
+
+      // Include player-specific fields only if applicable
+      if (!isNonPlayerProfessional) {
+        updatedData.primaryPosition = primaryPosition;
+        updatedData.secondaryPosition = secondaryPosition;
+        updatedData.pasaporteUe = pasaporteUE === "Sí" ? PasaporteUe.SI : PasaporteUe.NO;
+        updatedData.bodyStructure = estructuraCorporal;
+        updatedData.skillfulFoot = pieHabil;
+        updatedData.height = altura;
+        updatedData.weight = peso;
+      }
 
       if (token) {
         // Extract userId from token
         const userId = JSON.parse(atob(token.split(".")[1])).id;
 
-        console.log(
-          "Actualizando datos del perfil incluyendo trayectorias:",
-          JSON.stringify(updatedData.trayectorias)
-        );
+        console.log("Actualizando datos del perfil:", JSON.stringify(updatedData));
 
         // Update user data
-        await updateUserData(userId, updatedData);
+        await updateUserData(userId, updatedData as any);
 
         setUser((prevUser) => {
           if (!prevUser) return prevUser; // Si prevUser es null, no hacemos nada
           return {
             ...prevUser,
             ...updatedData, // Actualizar la informacion del estado global (imagen,datos,etc)
-          };
+          } as any;
         });
 
         setShowNotification(true);
@@ -360,151 +366,155 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Sección de Posiciones */}
-        <div className="border border-gray-200 rounded-lg overflow-hidden">
-          <SectionHeader
-            title="Selección de Posiciones"
-            section="positions"
-            icon="⚽"
-          />
-          <div
-            className={`transition-all duration-300 ease-in-out ${
-              sectionsExpanded.positions
-                ? "max-h-full opacity-100"
-                : "max-h-0 opacity-0 overflow-hidden"
-            }`}
-          >
-            <div className="p-6 bg-white border-t">
-              {/* Componente de cancha de fútbol */}
-              <FootballField
-                primaryPosition={primaryPosition}
-                secondaryPosition={secondaryPosition}
-                onPrimaryPositionChange={setPrimaryPosition}
-                onSecondaryPositionChange={setSecondaryPosition}
-              />
+        {!isNonPlayerProfessional && (
+          <div className="border border-gray-200 rounded-lg overflow-hidden">
+            <SectionHeader
+              title="Selección de Posiciones"
+              section="positions"
+              icon="⚽"
+            />
+            <div
+              className={`transition-all duration-300 ease-in-out ${
+                sectionsExpanded.positions
+                  ? "max-h-full opacity-100"
+                  : "max-h-0 opacity-0 overflow-hidden"
+              }`}
+            >
+              <div className="p-6 bg-white border-t">
+                {/* Componente de cancha de fútbol */}
+                <FootballField
+                  primaryPosition={primaryPosition}
+                  secondaryPosition={secondaryPosition}
+                  onPrimaryPositionChange={setPrimaryPosition}
+                  onSecondaryPositionChange={setSecondaryPosition}
+                />
 
-              <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mt-6">
-                <div className="mb-4">
-                  <label
-                    htmlFor="pasaporteUE"
-                    className="block text-gray-700 text-sm font-bold mb-2"
-                  >
-                    Pasaporte UE
-                  </label>
-                  <select
-                    id="pasaporteUE"
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    value={pasaporteUE}
-                    onChange={(e) => setPasaporteUE(e.target.value)}
-                  >
-                    {PASAPORTE_UE_OPTIONS.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mt-6">
+                  <div className="mb-4">
+                    <label
+                      htmlFor="pasaporteUE"
+                      className="block text-gray-700 text-sm font-bold mb-2"
+                    >
+                      Pasaporte UE
+                    </label>
+                    <select
+                      id="pasaporteUE"
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      value={pasaporteUE}
+                      onChange={(e) => setPasaporteUE(e.target.value)}
+                    >
+                      {PASAPORTE_UE_OPTIONS.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Sección de Datos Físicos */}
-        <div className="border border-gray-200 rounded-lg overflow-hidden">
-          <SectionHeader
-            title="Datos Físicos"
-            section="physicalData"
-            icon="💪"
-          />
-          <div
-            className={`transition-all duration-300 ease-in-out ${
-              sectionsExpanded.physicalData
-                ? "max-h-full opacity-100"
-                : "max-h-0 opacity-0 overflow-hidden"
-            }`}
-          >
-            <div className="p-6 bg-white border-t">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="mb-4">
-                  <label
-                    htmlFor="estructuraCorp"
-                    className="block text-gray-700 text-sm font-bold mb-2"
-                  >
-                    Estructura Corporal
-                  </label>
-                  <select
-                    id="estructuraCorp"
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    value={estructuraCorporal}
-                    onChange={(e) => setEstructuraCorporal(e.target.value)}
-                  >
-                    {ESTRUCTURA_CORPORAL_OPTIONS.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+        {!isNonPlayerProfessional && (
+          <div className="border border-gray-200 rounded-lg overflow-hidden">
+            <SectionHeader
+              title="Datos Físicos"
+              section="physicalData"
+              icon="💪"
+            />
+            <div
+              className={`transition-all duration-300 ease-in-out ${
+                sectionsExpanded.physicalData
+                  ? "max-h-full opacity-100"
+                  : "max-h-0 opacity-0 overflow-hidden"
+              }`}
+            >
+              <div className="p-6 bg-white border-t">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="mb-4">
+                    <label
+                      htmlFor="estructuraCorp"
+                      className="block text-gray-700 text-sm font-bold mb-2"
+                    >
+                      Estructura Corporal
+                    </label>
+                    <select
+                      id="estructuraCorp"
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      value={estructuraCorporal}
+                      onChange={(e) => setEstructuraCorporal(e.target.value)}
+                    >
+                      {ESTRUCTURA_CORPORAL_OPTIONS.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                <div className="mb-4">
-                  <label
-                    htmlFor="pieHabil"
-                    className="block text-gray-700 text-sm font-bold mb-2"
-                  >
-                    Pie Hábil
-                  </label>
-                  <select
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    value={pieHabil}
-                    id="pieHabil"
-                    onChange={(e) => setPieHabil(e.target.value)}
-                  >
-                    {PIE_HABIL_OPTIONS.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                  <div className="mb-4">
+                    <label
+                      htmlFor="pieHabil"
+                      className="block text-gray-700 text-sm font-bold mb-2"
+                    >
+                      Pie Hábil
+                    </label>
+                    <select
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      value={pieHabil}
+                      id="pieHabil"
+                      onChange={(e) => setPieHabil(e.target.value)}
+                    >
+                      {PIE_HABIL_OPTIONS.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                <div className="mb-4">
-                  <label
-                    htmlFor="altura"
-                    className="block text-gray-700 text-sm font-bold mb-2"
-                  >
-                    Altura (cm)
-                  </label>
-                  <input
-                    id="altura"
-                    type="number"
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    value={altura}
-                    min="0"
-                    max="250"
-                    onChange={(e) => setAltura(parseInt(e.target.value) || 0)}
-                  />
-                </div>
+                  <div className="mb-4">
+                    <label
+                      htmlFor="altura"
+                      className="block text-gray-700 text-sm font-bold mb-2"
+                    >
+                      Altura (cm)
+                    </label>
+                    <input
+                      id="altura"
+                      type="number"
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      value={altura}
+                      min="0"
+                      max="250"
+                      onChange={(e) => setAltura(parseInt(e.target.value) || 0)}
+                    />
+                  </div>
 
-                <div className="mb-4">
-                  <label
-                    htmlFor="peso"
-                    className="block text-gray-700 text-sm font-bold mb-2"
-                  >
-                    Peso (kg)
-                  </label>
-                  <input
-                    id="peso"
-                    type="number"
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    value={peso}
-                    min="0"
-                    max="150"
-                    onChange={(e) => setPeso(parseInt(e.target.value) || 0)}
-                  />
+                  <div className="mb-4">
+                    <label
+                      htmlFor="peso"
+                      className="block text-gray-700 text-sm font-bold mb-2"
+                    >
+                      Peso (kg)
+                    </label>
+                    <input
+                      id="peso"
+                      type="number"
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      value={peso}
+                      min="0"
+                      max="150"
+                      onChange={(e) => setPeso(parseInt(e.target.value) || 0)}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Sección de CV */}
         <div className="border border-gray-200 rounded-lg overflow-hidden">

@@ -43,6 +43,8 @@ const RegistrationForm: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<UserType | null>(null);
+  const [roleError, setRoleError] = useState<string>("");
 
   const puestos = [
     "Jugador",
@@ -156,6 +158,12 @@ const RegistrationForm: React.FC = () => {
       return;
     }
 
+    if (!selectedRole) {
+      setRoleError("Please select an account type (Player, Agency or Club)");
+      setIsLoggingIn(false);
+      return;
+    }
+
     // Instead of spreading the user object, explicitly select only
     // the fields we want to send to the backend
     const registrationData = {
@@ -163,7 +171,7 @@ const RegistrationForm: React.FC = () => {
       lastname: userRegister.lastname,
       email: userRegister.email,
       password: userRegister.password,
-      role: UserType.PLAYER,
+      role: selectedRole,
       ubicacionActual: userRegister.ubicacionActual || "",
       nationality: selectedNationality || "",
       genre: userRegister.genre || "",
@@ -600,6 +608,22 @@ const RegistrationForm: React.FC = () => {
           )}
         </div>
 
+
+        {/* Step 4: Account type selection */}
+        <div className="md:col-span-2 mt-2">
+          <h3 className="text-xl font-semibold text-emerald-700 border-b pb-2 mb-4 flex items-center">
+            <span className="bg-emerald-100 text-emerald-700 rounded-full w-6 h-6 flex items-center justify-center mr-2 text-sm">4</span>
+            Tipo de perfil
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <button type="button" onClick={() => { setSelectedRole(UserType.PLAYER); setRoleError(""); }} className={`border rounded-lg p-3 text-sm ${selectedRole===UserType.PLAYER?"border-emerald-500 text-emerald-500 bg-emerald-50":"border-gray-300 text-gray-500"}`}>Jugador o profesional</button>
+            <button type="button" onClick={() => { setSelectedRole(UserType.AGENCY); setRoleError(""); }} className={`border rounded-lg p-3 text-sm ${selectedRole===UserType.AGENCY?"border-emerald-500 text-emerald-500 bg-emerald-50":"border-gray-300 text-gray-500"}`}>Agencia</button>
+            <button type="button" onClick={() => { setSelectedRole(UserType.CLUB); setRoleError(""); }} className={`border rounded-lg p-3 text-sm ${selectedRole===UserType.CLUB?"border-emerald-500 text-emerald-500 bg-emerald-50":"border-gray-300 text-gray-500"}`}>Club</button>
+          </div>
+          {roleError && <p className="text-red-500 text-sm mt-2">{roleError}</p>}
+        </div>
+
+
         {/* Términos */}
         <div className="flex items-start col-span-full mt-2">
           <div className="flex items-center h-5">
@@ -674,6 +698,8 @@ const RegistrationForm: React.FC = () => {
             )}
           </button>
         </div>
+
+        
 
         {/* Notificación */}
         {showNotification && (

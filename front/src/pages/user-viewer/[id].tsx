@@ -121,6 +121,11 @@ export default function UserViewer() {
   };
   const profileLevel = computeProfileLevel();
 
+  // Determina si es un jugador "puro": rol PLAYER y puesto vacío o igual a "Jugador"
+  const isPurePlayer =
+    profile?.role === UserType.PLAYER &&
+    (!profile?.puesto || profile?.puesto.toLowerCase() === "jugador");
+
   // Referencias para los menús desplegables
   const shareMenuRef = useRef<HTMLDivElement>(null);
   const moreMenuRef = useRef<HTMLDivElement>(null);
@@ -339,11 +344,13 @@ export default function UserViewer() {
         }
 
         // Asignar el rol del usuario al campo puesto para mostrar en CardProfile
-        if (data.role) {
-          data.puesto = getRoleDisplay(data.role);
-        } else if (data.posicion) {
-          // Si tiene una posición específica (para jugadores), usar esa
-          data.puesto = data.posicion;
+        if (!data.puesto || data.puesto.trim() === "") {
+          if (data.role) {
+            data.puesto = getRoleDisplay(data.role);
+          } else if (data.posicion) {
+            // Si tiene una posición específica (para jugadores), usar esa
+            data.puesto = data.posicion;
+          }
         }
 
         // Actualizar estado
@@ -590,11 +597,16 @@ export default function UserViewer() {
                       Agencia/Reclutador
                     </p>
                   )}
+                  {!isPurePlayer && profile.role !== UserType.RECRUITER && profile.puesto && (
+                    <p className="text-sm text-gray-600 font-medium">
+                      {profile.puesto}
+                    </p>
+                  )}
                 </div>
               </div>
 
               {/* Estado, edad, nivel deportivo y verificación (insignia) - Solo para jugadores */}
-              {profile.role !== UserType.RECRUITER && (
+              {isPurePlayer && (
                 <div className="flex items-center text-sm text-gray-600 mb-4">
                   <div className="flex items-center">
                     <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
@@ -931,7 +943,7 @@ export default function UserViewer() {
             </div>
 
             {/* Club actual - Solo para jugadores */}
-            {currentClub && profile.role !== UserType.RECRUITER && (
+            {currentClub && isPurePlayer && (
               <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mb-4">
                 <div className="flex items-center">
                   <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3 border border-gray-200">
@@ -962,7 +974,7 @@ export default function UserViewer() {
             )}
 
             {/* Agente/Representación - Solo para jugadores */}
-            {profile.role === UserType.PLAYER && (
+            
               <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 shadow-md border border-green-200 mb-4">
                 <div className="flex items-center">
                   <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mr-3 border-2 border-green-300 shadow-sm">
@@ -1012,10 +1024,10 @@ export default function UserViewer() {
                   </div>
                 </div>
               </div>
-            )}
+            
 
             {/* Estadísticas principales - Solo para jugadores */}
-            {profile.role && profile.role.toString() !== "RECRUITER" && (
+            {isPurePlayer && (
               <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mb-4">
                 <div className="flex justify-between items-center">
                   {/* Pie hábil */}
@@ -1155,6 +1167,23 @@ export default function UserViewer() {
                 </div>
               </div>
             )}
+
+             {/* Sección de CV */}
+             <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mt-4">
+                    <h3 className="text-lg font-medium mb-3 text-gray-800">Currículum Vitae</h3>
+                    {profile.cv ? (
+                      <a
+                        href={profile.cv}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm"
+                      >
+                        Ver CV
+                      </a>
+                    ) : (
+                      <p className="text-gray-600 text-sm">No hay CV cargado.</p>
+                    )}
+                  </div>
 
             {/* Información de contacto para reclutadores */}
             {profile.role === UserType.RECRUITER && (
@@ -1384,7 +1413,7 @@ export default function UserViewer() {
                           {profile.name} {profile.lastname}
                         </span>
                       </div>
-                      {profile.role !== UserType.RECRUITER && (
+                      {isPurePlayer && (
                         <>
                           <div className="flex justify-between">
                             <span className="text-gray-600">
@@ -1460,55 +1489,11 @@ export default function UserViewer() {
                     </div>
                   </div>
 
-                  <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-                    <h3 className="text-lg font-medium mb-3 text-gray-800">
-                      Contacto
-                    </h3>
-                    {profile.role === UserType.RECRUITER ? (
-                      <div className="space-y-3">
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                          <div className="flex items-center">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5 text-blue-600 mr-2"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                              aria-hidden="true"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M12 15v2m0-6v4m0-8v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                              />
-                            </svg>
-                            <div>
-                              <p className="text-sm font-medium text-blue-800">
-                                Información restringida
-                              </p>
-                              <p className="text-xs text-blue-700">
-                                Los datos de contacto no están disponibles con
-                                tu suscripción actual.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Email</span>
-                          <span className="text-xs text-gray-400 bg-gray-200 px-2 py-1 rounded">
-                            ●●●●●●●●
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Teléfono</span>
-                          <span className="text-xs text-gray-400 bg-gray-200 px-2 py-1 rounded">
-                            ●●●●●●●●
-                          </span>
-                        </div>
-                      </div>
-                    ) : (
+                  {isPurePlayer && (
+                    <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+                      <h3 className="text-lg font-medium mb-3 text-gray-800">
+                        Contacto
+                      </h3>
                       <div className="space-y-3">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Email</span>
@@ -1524,22 +1509,19 @@ export default function UserViewer() {
                           />
                         </div>
 
-                        {profile.role === UserType.PLAYER && (
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Agente</span>
-                            <span className="flex items-center gap-1 text-gray-800">
-                              {profile.nameAgency ? (
-                                profile.nameAgency
-                              ) : (
-                                <span className="flex items-center gap-1 bg-green-700 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
-                                  <FaUserSlash className="w-4 h-4" />
-                                  Free Agent
-                                </span>
-                              )}
-                            </span>
-                          </div>
-                        )}
-                        {/* Campo de agente movido a una sección destacada arriba */}
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Agente</span>
+                          <span className="flex items-center gap-1 text-gray-800">
+                            {profile.nameAgency ? (
+                              profile.nameAgency
+                            ) : (
+                              <span className="flex items-center gap-1 bg-green-700 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                                <FaUserSlash className="w-4 h-4" />
+                                Free Agent
+                              </span>
+                            )}
+                          </span>
+                        </div>
                         {profile.socialMedia &&
                           Object.keys(profile.socialMedia || {}).length > 0 && (
                             <div className="flex justify-between">
@@ -1571,8 +1553,9 @@ export default function UserViewer() {
                             </div>
                           )}
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
+                 
                   {/* Sección de video */}
                   <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
                     <h3 className="text-lg font-medium mb-3 text-gray-800">

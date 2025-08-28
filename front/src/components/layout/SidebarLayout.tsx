@@ -128,7 +128,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
       };
     }
 
-    if (role === "RECRUITER") {
+    if (role === "RECRUITER" || role === "CLUB" || role === "AGENCY") {
       return {
         main: [
           {

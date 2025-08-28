@@ -15,7 +15,7 @@ function Page() {
   return (
     <div>
       {role === "PLAYER" && <Profile/>}
-      {role === "RECRUITER" && <ProfileOfertante/>}
+      {(role === "RECRUITER" || role === "CLUB" || role === "AGENCY") && <ProfileOfertante/>}
       {role === "ADMIN" && <ProfileAdmin/>}
     </div>
   );

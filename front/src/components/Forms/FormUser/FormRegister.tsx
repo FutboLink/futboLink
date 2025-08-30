@@ -25,6 +25,10 @@ import {
   FaExclamationCircle,
   FaSpinner,
   FaBriefcase,
+  FaFutbol,
+  FaUsersCog,
+  FaBullhorn,
+  FaBuilding,
 } from "react-icons/fa";
 import Spinner from "@/components/utils/Spinner";
 
@@ -44,7 +48,6 @@ const RegistrationForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserType | null>(null);
-  const [roleError, setRoleError] = useState<string>("");
 
   const puestos = [
     "Jugador",
@@ -158,20 +161,16 @@ const RegistrationForm: React.FC = () => {
       return;
     }
 
-    if (!selectedRole) {
-      setRoleError("Please select an account type (Player, Agency or Club)");
-      setIsLoggingIn(false);
-      return;
-    }
+    // selectedRole is guaranteed by pre-selection screen
 
     // Instead of spreading the user object, explicitly select only
     // the fields we want to send to the backend
-    const registrationData = {
+    const registrationData: IRegisterUser = {
       name: userRegister.name,
       lastname: userRegister.lastname,
       email: userRegister.email,
       password: userRegister.password,
-      role: selectedRole,
+      role: selectedRole as UserType,
       ubicacionActual: userRegister.ubicacionActual || "",
       nationality: selectedNationality || "",
       genre: userRegister.genre || "",
@@ -225,6 +224,71 @@ const RegistrationForm: React.FC = () => {
     }
   };
 
+  // Pre-selección de tipo de perfil antes del formulario
+  if (!selectedRole) {
+    return (
+      <div className="min-h-screen pb-44 flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 py-1 px-4">
+        <header className="text-center mb-1 w-full max-w-xl">
+          <div className="inline-block mb-6">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl px-8 py-4 shadow-lg">
+              Elegí tu tipo de perfil
+            </h1>
+          </div>
+          <p className="text-gray-600 mb-12 mt-2">
+            Antes de registrarte, seleccioná la opción que mejor te represente.
+          </p>
+        </header>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-2xl">
+          <button
+            type="button"
+            onClick={() => setSelectedRole(UserType.PLAYER)}
+            className="group bg-white border border-emerald-100 hover:border-emerald-400 rounded-2xl shadow-md hover:shadow-lg p-6 flex flex-col items-center justify-center transition-all"
+          >
+            <FaFutbol className="h-10 w-10 text-gray-400 mb-3" />
+            <span className="text-lg font-semibold text-emerald-800">Futbolista</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSelectedRole(UserType.PLAYER)}
+            className="group bg-white border border-emerald-100 hover:border-emerald-400 rounded-2xl shadow-md hover:shadow-lg p-6 flex flex-col items-center justify-center transition-all"
+          >
+            <FaUsersCog className="h-10 w-10 text-gray-400 mb-3" />
+            <span className="text-lg font-semibold text-emerald-800">Cuerpo Técnico</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSelectedRole(UserType.PLAYER)}
+            className="group bg-white border border-emerald-100 hover:border-emerald-400 rounded-2xl shadow-md hover:shadow-lg p-6 flex flex-col items-center justify-center transition-all"
+          >
+            <FaBullhorn className="h-10 w-10 text-gray-400 mb-3" />
+            <span className="text-lg font-semibold text-emerald-800">Dirección y Comunicación</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSelectedRole(UserType.AGENCY)}
+            className="group bg-white border border-emerald-100 hover:border-emerald-400 rounded-2xl shadow-md hover:shadow-lg p-6 flex flex-col items-center justify-center transition-all md:col-span-2"
+          >
+            <FaBriefcase className="h-10 w-10 text-gray-400 mb-3" />
+            <span className="text-lg font-semibold text-emerald-800">Profesionales Independientes / Representación 💼</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSelectedRole(UserType.CLUB)}
+            className="group bg-white border border-emerald-100 hover:border-emerald-400 rounded-2xl shadow-md hover:shadow-lg p-6 flex flex-col items-center justify-center transition-all"
+          >
+            <FaBuilding className="h-10 w-10 text-gray-400 mb-3" />
+            <span className="text-lg font-semibold text-emerald-800">Entidad / Club</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 py-10 px-4">
       {/* Spinner de pantalla completa */}
@@ -235,11 +299,7 @@ const RegistrationForm: React.FC = () => {
       )}
 
       <header className="text-center mb-8 w-full max-w-3xl">
-        <div className="inline-block mb-6">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl px-8 py-4 shadow-lg">
-            Crea una cuenta
-          </h1>
-        </div>
+       
 
         <div className="flex flex-col md:flex-row items-center justify-center bg-white rounded-xl shadow-lg p-6 gap-6 border border-emerald-100">
           <div className="flex-shrink-0 bg-gradient-to-br from-emerald-50 to-green-50 p-3 rounded-2xl shadow-inner">
@@ -608,20 +668,6 @@ const RegistrationForm: React.FC = () => {
           )}
         </div>
 
-
-        {/* Step 4: Account type selection */}
-        <div className="md:col-span-2 mt-2">
-          <h3 className="text-xl font-semibold text-emerald-700 border-b pb-2 mb-4 flex items-center">
-            <span className="bg-emerald-100 text-emerald-700 rounded-full w-6 h-6 flex items-center justify-center mr-2 text-sm">4</span>
-            Tipo de perfil
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <button type="button" onClick={() => { setSelectedRole(UserType.PLAYER); setRoleError(""); }} className={`border rounded-lg p-3 text-sm ${selectedRole===UserType.PLAYER?"border-emerald-500 text-emerald-500 bg-emerald-50":"border-gray-300 text-gray-500"}`}>Jugador o profesional</button>
-            <button type="button" onClick={() => { setSelectedRole(UserType.AGENCY); setRoleError(""); }} className={`border rounded-lg p-3 text-sm ${selectedRole===UserType.AGENCY?"border-emerald-500 text-emerald-500 bg-emerald-50":"border-gray-300 text-gray-500"}`}>Agencia</button>
-            <button type="button" onClick={() => { setSelectedRole(UserType.CLUB); setRoleError(""); }} className={`border rounded-lg p-3 text-sm ${selectedRole===UserType.CLUB?"border-emerald-500 text-emerald-500 bg-emerald-50":"border-gray-300 text-gray-500"}`}>Club</button>
-          </div>
-          {roleError && <p className="text-red-500 text-sm mt-2">{roleError}</p>}
-        </div>
 
 
         {/* Términos */}

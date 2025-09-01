@@ -49,43 +49,88 @@ const RegistrationForm: React.FC = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserType | null>(null);
 
-  const puestos = [
-    "Jugador",
+  // Definir las categorías de roles
+  const roleCategories = {
+    [UserType.PLAYER]: {
+      name: "Futbolista",
+      roles: ["Jugador"]
+    },
+    "CUERPO_TECNICO": {
+      name: "Cuerpo Técnico / Staff Deportivo",
+      roles: [
+        "Entrenador", // puede publicar oferta
+        "Director Técnico", // puede publicar oferta
+        "Director Deportivo", // puede publicar oferta
+        "Scout", // puede publicar oferta
+        "Entrenador de porteros",
+        "Preparador físico",
+        "Analista",
+        "Fisioterapeuta",
+        "Médico",
+        "Nutricionista",
+        "Psicólogo",
+        "Árbitro",
+        "Delegado",
+        "Utillero",
+        "Traductor",
+        "Coordinador de equipo",
+        "Ojeador"
+      ]
+    },
+    "DIRECCION_COMUNICACION": {
+      name: "Dirección y Comunicación",
+      roles: [
+        "Gerente",
+        "Jefe de reclutamiento", // puede publicar oferta
+        "Recursos Humanos", // puede publicar oferta
+        "Finanzas",
+        "Director de negocio",
+        "Comercial",
+        "Marketing",
+        "Administrativo",
+        "Inversor",
+        "Científico deportivo",
+        "Periodista",
+        "Editor multimedia",
+        "Diseñador gráfico",
+        "Fotógrafo",
+        "Marketing digital"
+      ]
+    },
+    [UserType.AGENCY]: {
+      name: "Profesionales Independientes / Representación",
+      roles: [
+        "Agente FIFA",
+        "Intermediario",
+        "Representante",
+        "Agencia de representación"
+      ]
+    },
+    [UserType.CLUB]: {
+      name: "Entidad / Club",
+      roles: [
+        "Club",
+        "Academia",
+        "Liga",
+        "Federación",
+        "Agencia de representación",
+        "Organizador de torneos"
+      ]
+    }
+  };
+
+  // Roles que pueden publicar ofertas
+  const rolesCanPublishOffers = [
     "Entrenador",
-    "Fisioterapeuta",
-    "Preparador Físico",
-    "Analista",
-    "Gerente",
-    "Entrenador de Porteros",
-    "Coordinador",
-    "Ojeador Scout",
-    "Marketing Digital",
+    "Director Técnico", 
     "Director Deportivo",
-    "Comercial",
-    "Jefe de Reclutamiento",
-    "Periodista",
-    "Nutricionista",
-    "Administrativo",
-    "Diseñador Gráfico",
-    "Director Técnico",
-    "Médico",
-    "Psicólogo",
-    "Recursos Humanos",
-    "Abogado",
-    "Científico Deportivo",
-    "Director de Negocio",
-    "Editor Multimedia",
-    "Finanzas",
-    "Árbitro",
-    "Delegado",
-    "Profesor",
-    "Ejecutivo",
-    "Inversor",
-    "Utillero",
-    "Agente",
-    "Representante",
-    "Terapeuta",
+    "Scout",
+    "Jefe de reclutamiento",
+    "Recursos Humanos"
   ];
+
+  // Estado para la categoría seleccionada
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const [userRegister, setUserRegister] = useState<IRegisterUser>({
     role: UserType.PLAYER,
@@ -140,6 +185,14 @@ const RegistrationForm: React.FC = () => {
     const updatedUser = { ...userRegister, [name]: value };
     setUserRegister(updatedUser);
     setErrors(validationRegister(updatedUser));
+  };
+
+  // Function to reset role selection when category changes
+  const handleCategoryChange = (category: string, role: UserType) => {
+    setSelectedCategory(category);
+    setSelectedRole(role);
+    // Reset the puesto field when category changes
+    setUserRegister(prev => ({ ...prev, puesto: "" }));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -239,10 +292,10 @@ const RegistrationForm: React.FC = () => {
           </p>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-2xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
           <button
             type="button"
-            onClick={() => setSelectedRole(UserType.PLAYER)}
+            onClick={() => handleCategoryChange(UserType.PLAYER, UserType.PLAYER)}
             className="group bg-white border border-emerald-100 hover:border-emerald-400 rounded-2xl shadow-md hover:shadow-lg p-6 flex flex-col items-center justify-center transition-all"
           >
             <FaFutbol className="h-10 w-10 text-gray-400 mb-3" />
@@ -251,16 +304,16 @@ const RegistrationForm: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => setSelectedRole(UserType.PLAYER)}
+            onClick={() => handleCategoryChange("CUERPO_TECNICO", UserType.PLAYER)}
             className="group bg-white border border-emerald-100 hover:border-emerald-400 rounded-2xl shadow-md hover:shadow-lg p-6 flex flex-col items-center justify-center transition-all"
           >
             <FaUsersCog className="h-10 w-10 text-gray-400 mb-3" />
-            <span className="text-lg font-semibold text-emerald-800">Cuerpo Técnico</span>
+            <span className="text-lg font-semibold text-emerald-800">Cuerpo Técnico / Staff Deportivo</span>
           </button>
 
           <button
             type="button"
-            onClick={() => setSelectedRole(UserType.PLAYER)}
+            onClick={() => handleCategoryChange("DIRECCION_COMUNICACION", UserType.PLAYER)}
             className="group bg-white border border-emerald-100 hover:border-emerald-400 rounded-2xl shadow-md hover:shadow-lg p-6 flex flex-col items-center justify-center transition-all"
           >
             <FaBullhorn className="h-10 w-10 text-gray-400 mb-3" />
@@ -269,8 +322,8 @@ const RegistrationForm: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => setSelectedRole(UserType.AGENCY)}
-            className="group bg-white border border-emerald-100 hover:border-emerald-400 rounded-2xl shadow-md hover:shadow-lg p-6 flex flex-col items-center justify-center transition-all md:col-span-2"
+            onClick={() => handleCategoryChange(UserType.AGENCY, UserType.AGENCY)}
+            className="group bg-white border border-emerald-100 hover:border-emerald-400 rounded-2xl shadow-md hover:shadow-lg p-6 flex flex-col items-center justify-center transition-all"
           >
             <FaBriefcase className="h-10 w-10 text-gray-400 mb-3" />
             <span className="text-lg font-semibold text-emerald-800">Profesionales Independientes / Representación 💼</span>
@@ -278,8 +331,8 @@ const RegistrationForm: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => setSelectedRole(UserType.CLUB)}
-            className="group bg-white border border-emerald-100 hover:border-emerald-400 rounded-2xl shadow-md hover:shadow-lg p-6 flex flex-col items-center justify-center transition-all"
+            onClick={() => handleCategoryChange(UserType.CLUB, UserType.CLUB)}
+            className="group bg-white border border-emerald-100 hover:border-emerald-400 rounded-2xl shadow-md hover:shadow-lg p-6 flex flex-col items-center justify-center transition-all md:col-span-2"
           >
             <FaBuilding className="h-10 w-10 text-gray-400 mb-3" />
             <span className="text-lg font-semibold text-emerald-800">Entidad / Club</span>
@@ -352,11 +405,13 @@ const RegistrationForm: React.FC = () => {
               value={userRegister.puesto}
               onChange={handleChange}
               className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent appearance-none"
+              required
             >
               <option value="">Seleccione su rol</option>
-              {puestos.map((puesto, index) => (
-                <option key={index} value={puesto}>
-                  {puesto}
+              {selectedCategory && roleCategories[selectedCategory as keyof typeof roleCategories]?.roles.map((role, index) => (
+                <option key={index} value={role}>
+                  {role}
+                  {rolesCanPublishOffers.includes(role) && " (puede publicar ofertas)"}
                 </option>
               ))}
             </select>
@@ -367,7 +422,35 @@ const RegistrationForm: React.FC = () => {
               <FaChevronDown className="text-gray-500" />
             </div>
           </div>
+          {selectedCategory && (
+            <p className="text-sm text-emerald-600 mt-1">
+              Categoría seleccionada: {roleCategories[selectedCategory as keyof typeof roleCategories]?.name}
+            </p>
+          )}
         </div>
+
+        {/* Nombre de la Agencia - Solo para agencias */}
+        {selectedCategory === UserType.AGENCY && (
+          <div className="flex flex-col col-span-full">
+            <label className="block text-gray-700 mb-2 font-medium">
+              Nombre de la Agencia <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                name="nameAgency"
+                value={userRegister.nameAgency || ""}
+                onChange={handleChange}
+                className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                placeholder="Nombre de tu agencia o empresa"
+                required={selectedCategory === UserType.AGENCY}
+              />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FaBuilding className="h-5 w-5 text-gray-400" />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Sección de información personal */}
         <div className="md:col-span-2 mt-4">
@@ -578,6 +661,26 @@ const RegistrationForm: React.FC = () => {
               {errors.genre}
             </p>
           )}
+        </div>
+
+        {/* País de Residencia Actual - Para todas las categorías */}
+        <div className="flex flex-col">
+          <label className="block text-gray-700 mb-2 font-medium">
+            País de Residencia Actual
+          </label>
+          <div className="relative">
+            <input
+              type="text"
+              name="ubicacionActual"
+              value={userRegister.ubicacionActual}
+              onChange={handleChange}
+              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              placeholder="País donde resides actualmente"
+            />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaGlobeAmericas className="h-5 w-5 text-gray-400" />
+            </div>
+          </div>
         </div>
 
         {/* Sección de seguridad */}

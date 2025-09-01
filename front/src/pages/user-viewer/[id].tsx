@@ -101,12 +101,17 @@ export default function UserViewer() {
     verificationLevel?: "NONE" | "SEMIPROFESSIONAL" | "PROFESSIONAL";
   } | null>(null);
 
-  // Nivel del perfil (deportivo) independiente de suscripción y verificación
+  // Nivel del perfil (deportivo) considerando verificación
   const computeProfileLevel = ():
     | "Profesional"
     | "Semiprofesional"
     | "Amateur" => {
-    // Heurística temporal basada en trayectorias hasta que exista un campo dedicado
+    // Si el perfil no está verificado, siempre mostrar como Amateur
+    if (!verificationStatus?.isVerified) {
+      return "Amateur";
+    }
+    
+    // Si está verificado, usar la heurística basada en trayectorias
     try {
       const niveles = (profile?.trayectorias || []).map(
         (t) => t.nivelCompetencia?.toLowerCase() || ""
@@ -119,7 +124,12 @@ export default function UserViewer() {
       return "Amateur";
     }
   };
-  const profileLevel = computeProfileLevel();
+  // Recalcular el nivel del perfil cuando cambie el estado de verificación
+  const [profileLevel, setProfileLevel] = useState<"Profesional" | "Semiprofesional" | "Amateur">("Amateur");
+  
+  useEffect(() => {
+    setProfileLevel(computeProfileLevel());
+  }, [verificationStatus, profile?.trayectorias]);
 
   // Determina si es un jugador "puro": rol PLAYER y puesto vacío o igual a "Jugador"
   const isPurePlayer =
@@ -160,6 +170,8 @@ export default function UserViewer() {
         const status = await response.json();
         setVerificationStatus(status);
         console.log("Estado de verificación:", status);
+        // Log para mostrar la estructura completa del objeto de verificación
+        console.log("Estructura completa del objeto de verificación:", JSON.stringify(status, null, 2));
       } else {
         console.log("No se pudo obtener el estado de verificación");
         setVerificationStatus({ isVerified: false, columnExists: false });
@@ -614,9 +626,21 @@ export default function UserViewer() {
                   </div>
                   <span className="mx-2">|</span>
                   <span>{profile.age} años</span>
-                  {/* Nivel del perfil (deportivo) - independiente de verificación/suscripción */}
+                  {/* Nivel del perfil (deportivo) - dependiente de verificación */}
                   <span className="mx-2">|</span>
-                  <span> {profileLevel}</span>
+                  <span className="flex items-center">
+                    {profileLevel}
+                    {!verificationStatus?.isVerified ? (
+                      <span className="ml-1 text-xs bg-gray-100 text-gray-500 px-1 py-0.5 rounded">(Sin verificar)</span>
+                    ) : (
+                      <span className="ml-1 text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded flex items-center">
+                        <svg className="w-3 h-3 mr-0.5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Verificado
+                      </span>
+                    )}
+                  </span>
                 </div>
               )}
 

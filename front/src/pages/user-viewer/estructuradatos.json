@@ -1,0 +1,50 @@
+{
+    "id": "e58a5d5b-ffec-4f57-b6a5-2a5f12345678",
+    "name": "Conti",
+    "lastname": "Ejemplo",
+    "email": "conti@example.com",
+    "password": "hashedPassword",
+    "ubicacionActual": "Madrid",
+    "nameAgency": "Agencia de Talentos",
+    "puesto": "Kinesiólogo",
+    "role": "PLAYER",
+    "imgUrl": "https://example.com/avatar.jpg",
+    "phone": "+123456789",
+    "nationality": "Argentina",
+    "location": "Buenos Aires",
+    "genre": "Masculino",
+    "birthday": "1990-01-01",
+    "countryToWork": "España",
+    "pasaporteUe": "Si",
+    "height": 180,
+    "age": 18,
+    "weight": 75,
+    "skillfulFoot": "Derecho",
+    "bodyStructure": "Atlética",
+    "habilities": ["Tiro Libre", "Velocidad"],
+    "primaryPosition": "Delantero",
+    "secondaryPosition": "Extremo",
+    "videoUrl": "https://example.com/video.mp4",
+    "trayectorias": [
+      {
+        "club": "FC Barcelona",
+        "fechaInicio": "2020-01-01",
+        "fechaFinalizacion": "2023-01-01",
+        "categoriaEquipo": "Primer Equipo",
+        "nivelCompetencia": "Profesional",
+        "logros": "Campeón liga",
+        "nacionalidadTrayectoria": "España"
+      }
+    ],
+    "socialMedia": {
+      "twitter": "@usuario",
+      "trasnfermarkt": "@usuario",
+      "youtube": "@usuario"
+    },
+    "subscription": "uuid-subscription",
+    "cv": "https://example.com/cv.pdf",
+    "subscriptionType": "Amateur",
+    "subscriptionExpiresAt": "2023-12-31T23:59:59Z",
+    "createdAt": "2023-01-01T00:00:00Z",
+    "updatedAt": "2023-01-01T00:00:00Z"
+  }

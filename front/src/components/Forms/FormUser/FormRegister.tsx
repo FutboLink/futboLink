@@ -411,7 +411,7 @@ const RegistrationForm: React.FC = () => {
               {selectedCategory && roleCategories[selectedCategory as keyof typeof roleCategories]?.roles.map((role, index) => (
                 <option key={index} value={role}>
                   {role}
-                  {rolesCanPublishOffers.includes(role) && " (puede publicar ofertas)"}
+                  {rolesCanPublishOffers.includes(role) }
                 </option>
               ))}
             </select>

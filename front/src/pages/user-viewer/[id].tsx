@@ -617,7 +617,7 @@ export default function UserViewer() {
                 </div>
               </div>
 
-              {/* Estado, edad, nivel deportivo y verificación (insignia) - Solo para jugadores */}
+              {/* Estado, edad, nivel deportivo y verificación - Para jugadores */}
               {isPurePlayer && (
                 <div className="flex items-center text-sm text-gray-600 mb-4">
                   <div className="flex items-center">
@@ -631,7 +631,34 @@ export default function UserViewer() {
                   <span className="flex items-center">
                     {profileLevel}
                     {!verificationStatus?.isVerified ? (
-                      <span className="ml-1 text-xs bg-gray-100 text-gray-500 px-1 py-0.5 rounded">(Sin verificar)</span>
+                      <span className="ml-1 text-xs bg-gray-100 text-gray-500 px-1 py-0.5 rounded"></span>
+                    ) : (
+                      <span className="ml-1 text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded flex items-center">
+                        <svg className="w-3 h-3 mr-0.5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Verificado
+                      </span>
+                    )}
+                  </span>
+                </div>
+              )}
+
+              {/* Información básica para profesionales no jugadores */}
+              {!isPurePlayer && profile.role !== UserType.RECRUITER && (
+                <div className="flex items-center text-sm text-gray-600 mb-4">
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
+                    <span>{profile.puesto || getRoleDisplay(profile.role)}</span>
+                  </div>
+                  <span className="mx-2">|</span>
+                  <span>{profile.age} años</span>
+                  {/* Nivel profesional - dependiente de verificación */}
+                  <span className="mx-2">|</span>
+                  <span className="flex items-center">
+                    {profileLevel}
+                    {!verificationStatus?.isVerified ? (
+                      <span className="ml-1 text-xs bg-gray-100 text-gray-500 px-1 py-0.5 rounded"></span>
                     ) : (
                       <span className="ml-1 text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded flex items-center">
                         <svg className="w-3 h-3 mr-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -966,7 +993,7 @@ export default function UserViewer() {
               </div>
             </div>
 
-            {/* Club actual - Solo para jugadores */}
+            {/* Club actual - Para jugadores */}
             {currentClub && isPurePlayer && (
               <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mb-4">
                 <div className="flex items-center">
@@ -987,6 +1014,40 @@ export default function UserViewer() {
                       <span>
                         {currentClub.nivelCompetencia || "Primera división"}
                       </span>
+                    </div>
+                  </div>
+                  <div className="ml-auto"></div>
+                </div>
+                <div className="mt-3 text-sm text-gray-600">
+                  <span>Hasta {contractEndDate}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Último club/organización - Para profesionales no jugadores */}
+            {currentClub && !isPurePlayer && profile.role !== UserType.RECRUITER && (
+              <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mb-4">
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3 border border-gray-200">
+                    {/* Aquí iría el logo del club si está disponible */}
+                    <FaShieldAlt className="w-7 h-7 text-gray-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-800">
+                      {currentClub.club}
+                    </h3>
+                    <div className="flex items-center text-sm text-gray-600">
+                      {profile.nationality && (
+                        <span className="mr-1">
+                          {renderCountryFlag(profile.nationality)}
+                        </span>
+                      )}
+                      <span>
+                        {currentClub.nivelCompetencia || "Organización deportiva"}
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-600 mt-1">
+                      <span>Rol: {profile.puesto || getRoleDisplay(profile.role)}</span>
                     </div>
                   </div>
                   <div className="ml-auto"></div>
@@ -1437,6 +1498,7 @@ export default function UserViewer() {
                           {profile.name} {profile.lastname}
                         </span>
                       </div>
+                      {/* Información específica para jugadores */}
                       {isPurePlayer && (
                         <>
                           <div className="flex justify-between">
@@ -1467,6 +1529,20 @@ export default function UserViewer() {
                             <span className="text-gray-600">Pie hábil</span>
                             <span className="text-gray-800">
                               {profile.skillfulFoot || "No especificado"}
+                            </span>
+                          </div>
+                        </>
+                      )}
+
+                      {/* Información específica para profesionales no jugadores */}
+                      {!isPurePlayer && profile.role !== UserType.RECRUITER && (
+                        <>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">
+                              Fecha de nacimiento
+                            </span>
+                            <span className="text-gray-800">
+                              {profile.birthday || "No especificada"}
                             </span>
                           </div>
                         </>
@@ -1502,7 +1578,8 @@ export default function UserViewer() {
                         </span>
                       </div>
 
-                      {profile.pasaporteUe && (
+                      {/* Pasaporte UE - Para todos los perfiles excepto reclutadores */}
+                      {profile.pasaporteUe && profile.role !== UserType.RECRUITER && (
                         <div className="flex justify-between">
                           <span className="text-gray-600">Pasaporte UE</span>
                           <span className="text-gray-800">
@@ -1513,7 +1590,7 @@ export default function UserViewer() {
                     </div>
                   </div>
 
-                  {isPurePlayer && (
+                  {(isPurePlayer || (!isPurePlayer && profile.role !== UserType.RECRUITER)) && (
                     <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
                       <h3 className="text-lg font-medium mb-3 text-gray-800">
                         Contacto
@@ -1533,19 +1610,21 @@ export default function UserViewer() {
                           />
                         </div>
 
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Agente</span>
-                          <span className="flex items-center gap-1 text-gray-800">
-                            {profile.nameAgency ? (
-                              profile.nameAgency
-                            ) : (
-                              <span className="flex items-center gap-1 bg-green-700 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
-                                <FaUserSlash className="w-4 h-4" />
-                                Free Agent
-                              </span>
-                            )}
-                          </span>
-                        </div>
+                        {isPurePlayer && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Agente</span>
+                            <span className="flex items-center gap-1 text-gray-800">
+                              {profile.nameAgency ? (
+                                profile.nameAgency
+                              ) : (
+                                <span className="flex items-center gap-1 bg-green-700 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                                  <FaUserSlash className="w-4 h-4" />
+                                  Free Agent
+                                </span>
+                              )}
+                            </span>
+                          </div>
+                        )}
                         {profile.socialMedia &&
                           Object.keys(profile.socialMedia || {}).length > 0 && (
                             <div className="flex justify-between">

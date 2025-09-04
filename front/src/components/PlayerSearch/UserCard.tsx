@@ -2,18 +2,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type React from "react";
+import { useEffect, useState } from "react";
 import { BsCheckCircle } from "react-icons/bs";
 import {
+  FaCheckCircle,
+  FaEllipsisV,
   FaPaperPlane,
-  FaShieldAlt,
   FaSpinner,
   FaUserPlus,
 } from "react-icons/fa";
-import {
-  HiOutlineInformationCircle,
-  HiOutlineMail,
-  HiOutlinePhone,
-} from "react-icons/hi";
 import { getDefaultPlayerImage } from "@/helpers/imageUtils";
 import { useUserContext } from "@/hook/useUserContext";
 import type { User } from "@/Interfaces/IUser";
@@ -23,14 +20,48 @@ interface UserCardProps {
   currentUser: User;
   t: (key: string, params?: Record<string, any>) => string;
   isAddingToPortfolio: string | null;
-
   handleAddToPortfolio: (playerId: string) => void;
-  // Selected para la Page Postulaciones/Ver candidatos
   isSelectionMode?: boolean;
   isSelected?: boolean;
   onSelect?: () => void;
   isShortlisted?: boolean;
 }
+
+interface VerificationStatus {
+  isVerified: boolean;
+  columnExists: boolean;
+}
+
+// Abreviar posiciones
+const abbreviatePosition = (position: string): string => {
+  const abbreviations: Record<string, string> = {
+    Portero: "POR",
+    Goalkeeper: "GK",
+    "Defensa Central": "DC",
+    "Central Defender": "CB",
+    Defensa: "DEF",
+    Defender: "DEF",
+    "Lateral Derecho": "LD",
+    "Right Back": "RB",
+    "Lateral Izquierdo": "LI",
+    "Left Back": "LB",
+    "Mediocentro Defensivo": "MCD",
+    "Defensive Midfielder": "CDM",
+    Mediocentro: "MC",
+    "Central Midfielder": "CM",
+    "Mediocentro Ofensivo": "MCO",
+    "Attacking Midfielder": "CAM",
+    "Extremo Derecho": "ED",
+    "Right Winger": "RW",
+    "Extremo Izquierdo": "EI",
+    "Left Winger": "LW",
+    "Delantero Centro": "DC",
+    Striker: "ST",
+    Delantero: "DEL",
+    Forward: "FW",
+  };
+  return abbreviations[position] || position.substring(0, 3).toUpperCase();
+};
 
 const UserCard: React.FC<UserCardProps> = ({
   currentUser,
@@ -42,91 +73,100 @@ const UserCard: React.FC<UserCardProps> = ({
   onSelect,
   isShortlisted = false,
 }) => {
-  const { user } = useUserContext();
+  const { user, token } = useUserContext();
   const pathname = usePathname();
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [verificationStatus, setVerificationStatus] =
+    useState<VerificationStatus>({ isVerified: false, columnExists: false });
 
-  // Verificar si el usuario actual es jugador
   const isPlayer = currentUser.role === "PLAYER";
 
-  // Verificar si el usuario actual es reclutador
-  const isRecruiter = currentUser.role === "RECRUITER";
+  const hasSubscription = (subscriptionName: string): boolean =>
+    currentUser.subscriptionType === subscriptionName ||
+    currentUser.subscription === subscriptionName;
 
-  // Función auxiliar para verificar si el usuario tiene una suscripción específica
-  const hasSubscription = (subscriptionName: string): boolean => {
-    return (
-      currentUser.subscriptionType === subscriptionName ||
-      currentUser.subscription === subscriptionName
-    );
-  };
-
-  // Determinar tipo de suscripción usando ambos campos: subscriptionType y subscription
   const subscriptionType = (() => {
     if (
       hasSubscription("Profesional") ||
       hasSubscription("profesional") ||
       hasSubscription("Professional")
-    ) {
+    )
       return "professional";
-    }
     if (
       hasSubscription("Semiprofesional") ||
       hasSubscription("semiprofesional") ||
       hasSubscription("Semi-profesional")
-    ) {
+    )
       return "semi";
-    }
     return "amateur";
   })();
 
-  // Color de la insignia según tipo de suscripción o rol
-  const badgeBgClass = isRecruiter
-    ? "bg-purple-800"
-    : {
-        professional: "bg-green-800",
-        semi: "bg-blue-700",
-        amateur: "bg-gray-700",
-      }[subscriptionType];
+  const levelText = {
+    professional: t("professional"),
+    semi: t("semi"),
+    amateur: t("amateur"),
+  }[subscriptionType];
 
-  // Texto de la insignia según tipo de suscripción o rol
-  const badgeText = isRecruiter
-    ? t("recruiter")
-    : {
-        professional: t("professional"),
-        semi: t("semi"),
-        amateur: t("amateur"),
-      }[subscriptionType];
-
-  // Verificar si este usuario está siendo añadido a la Portafolio para mostrar estado de carga
   const isBeingAddedToPortfolio = isAddingToPortfolio === currentUser.id;
 
-  // Obtener el array de trayectorias para sacar el último club
-  const trayectorias = currentUser?.trayectorias;
+  // Fetch estado verificado
+  const fetchVerificationStatus = async (userId: string) => {
+    try {
+      const API_URL =
+        process.env.NEXT_PUBLIC_API_URL || "https://futbolink.onrender.com";
+      const response = await fetch(
+        `${API_URL}/user/${userId}/verification-status`,
+        {
+          headers: { ...(token && { Authorization: `Bearer ${token}` }) },
+        }
+      );
+      if (response.ok) {
+        const status = await response.json();
+        setVerificationStatus(status);
+      } else setVerificationStatus({ isVerified: false, columnExists: false });
+    } catch (error) {
+      setVerificationStatus({ isVerified: false, columnExists: false });
+    }
+  };
 
-  // Obtener el nombre del último club o poner "----" si no hay datos
-  const lastClub = trayectorias?.length
-    ? trayectorias[trayectorias.length - 1].club
-    : "Sin Club";
+  useEffect(() => {
+    if (currentUser.id) fetchVerificationStatus(currentUser.id);
+  }, [currentUser.id]);
 
-  // Si no hay usuario logueado (contexto), no renderizar nada
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
-  // Mostrar solo si es reclutador o jugador y no estamos en /applications/jobs
   const showButton =
     user &&
     (user.role === "RECRUITER" || isPlayer) &&
     pathname !== "/applications/jobs";
-
   if (!showButton) return null;
+
+  const getRoleName = (role: string) => {
+    const roleNames: Record<string, string> = {
+      RECRUITER: "Reclutador",
+      COACH: "Entrenador",
+      SCOUT: "Ojeador",
+      AGENT: "Agente",
+      CLUB_MANAGER: "Director Deportivo",
+      PLAYER: "Jugador",
+    };
+    return roleNames[role] || role;
+  };
+
+  const getStatus = () => (isPlayer ? "Libre" : "Disponible");
+
+  console.log(currentUser, "opaaa");
 
   return (
     <div
       key={currentUser.id}
-      className={`bg-white overflow-hidden shadow-md hover:shadow-xl transition-all relative flex flex-col h-full border-[1px] border-gray-300 rounded-[1.25rem] ${
+      className={`bg-white shadow-md hover:shadow-lg transition-all relative flex flex-col border border-gray-200 rounded-lg p-3 ${
         isSelected ? "ring-2 ring-green-500 border-green-500" : ""
       } ${isShortlisted ? "bg-green-50" : ""}`}
-      style={{ cursor: isSelectionMode ? "pointer" : "default" }}
+      style={{
+        cursor: isSelectionMode ? "pointer" : "default",
+        minHeight: "120px",
+      }}
       onClick={(e) => {
         if (isSelectionMode && onSelect) {
           e.preventDefault();
@@ -134,212 +174,173 @@ const UserCard: React.FC<UserCardProps> = ({
         }
       }}
     >
-      {/* Indicador de selección */}
-      {isSelectionMode && (
-        <div className="absolute top-2 right-2 z-10">
-          <div
-            className={`w-6 h-6 rounded-full border ${
-              isSelected
-                ? "bg-green-500 border-green-600"
-                : "bg-white border-gray-300"
-            } flex items-center justify-center`}
-          >
-            {isSelected && <BsCheckCircle className="text-white" />}
-          </div>
-        </div>
-      )}
-
-      {/* Badge de "Seleccionado" */}
-      {isShortlisted && !isSelectionMode && (
-        <div className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full z-10">
-          Seleccionado
-        </div>
-      )}
-      {/* Imagen de fondo/header */}
-      <div className="h-24 bg-gradient-to-r from-gray-200 to-gray-300 relative overflow-hidden">
-        {/* Imagen de fondo (misma que la de perfil) */}
-        {currentUser.imgUrl && (
-          <div className="absolute inset-0">
+      {/* Fila superior: foto + info + dropdown */}
+      <div className="flex items-start">
+        {/* Foto */}
+        <div className="flex-shrink-0 relative">
+          <div className="w-12 h-12 rounded-full border-2 border-green-500 overflow-hidden">
             <Image
-              src={currentUser.imgUrl}
-              alt=""
-              fill
-              className="object-cover blur-[1px]"
+              src={currentUser.imgUrl || getDefaultPlayerImage()}
+              alt={`${currentUser.name} ${currentUser.lastname}`}
+              width={80}
+              height={80}
+              className="object-cover w-full h-full"
             />
-            <div className="absolute inset-0 bg-black/30"></div>
           </div>
-        )}
-        {/* Gradiente decorativo si no hay imagen */}
-        {!currentUser.imgUrl && (
-          <div
-            className={`absolute inset-0 bg-gradient-to-r ${
-              isRecruiter
-                ? "from-purple-800 to-purple-600"
-                : subscriptionType === "professional"
-                ? "from-green-800 to-green-600"
-                : subscriptionType === "semi"
-                ? "from-blue-700 to-blue-500"
-                : "from-gray-700 to-gray-500"
-            }`}
-          ></div>
-        )}
-      </div>
-      {/* Contenido principal */}
-      <div className="px-4 pb-4 pt-12 relative flex flex-col h-full">
-        <div className="absolute -top-10 left-4">
-          <div className="relative">
-            <div className="w-20 h-20 rounded-full border-4 border-white overflow-hidden shadow-md">
-              <Image
-                src={currentUser.imgUrl || getDefaultPlayerImage()}
-                alt={`${currentUser.name} ${currentUser.lastname}`}
-                width={80}
-                height={80}
-                className="object-cover w-full h-full"
-              />
+          {verificationStatus.isVerified && (
+            <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-0.5">
+              <FaCheckCircle className="text-white text-xs" />
             </div>
-            {/* Indicador de tipo de suscripción */}
-            <div
-              className={`absolute -right-8 -bottom-1 ${badgeBgClass} text-white text-xs py-0.5 px-2 rounded-full font-medium shadow-sm`}
-            >
-              <span>{badgeText}</span>
-            </div>
-          </div>
+          )}
         </div>
-        <div className="flex-grow">
-          {/* Nombre y información */}
-          <div className="mb-2">
-            <h3 className="text-lg font-bold text-gray-900 leading-tight">
+
+        {/* Info */}
+        <div className="flex-grow ml-3 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            {currentUser.nationality &&
+              renderCountryFlag(currentUser.nationality)}
+            <h3 className="text-gray-900 font-semibold text-sm truncate">
               {currentUser.name} {currentUser.lastname}
             </h3>
-            <p className="text-sm text-gray-600 line-clamp-2">
-              {isPlayer && (
-                <>
-                  {currentUser.primaryPosition || t("notSpecified")}
-                  {currentUser.secondaryPosition &&
-                    ` / ${currentUser.secondaryPosition}`}
-                </>
-              )}
-              {isRecruiter && (
-                <>
-                  {t("recruiter")}
-                  {currentUser.ubicacionActual &&
-                    ` - ${currentUser.ubicacionActual}`}
-                </>
-              )}
-              {currentUser.nationality && ` | ${currentUser.nationality}`}
-            </p>
+            {verificationStatus.isVerified && (
+              <FaCheckCircle className="text-blue-500 text-sm flex-shrink-0" />
+            )}
           </div>
-          {/* Detalles adicionales */}
-          <div className="text-xs text-gray-500 space-y-1">
-            {isPlayer && (
+
+          {/* Edad + Posiciones */}
+          <div className="flex items-center gap-2 text-xs mb-1">
+            {currentUser.age && (
               <>
-                {currentUser.age && (
-                  <div className="flex items-center gap-1">
-                    <span>
-                      {t("age")}: {currentUser.age}
-                    </span>
-                  </div>
-                )}
-                {lastClub && (
-                  <div className="flex items-center text-xs gap-1 text-gray-500 space-y-1 mb-4">
-                    <FaShieldAlt className="w-3.5 h-3.5" />
-                    <span>
-                      {t("Club actual")}: {lastClub}
-                    </span>
-                  </div>
-                )}
-                {currentUser.height && (
-                  <div className="flex items-center gap-1">
-                    <span>
-                      {t("height")}: {currentUser.height} cm
-                    </span>
-                  </div>
-                )}
-                {currentUser.skillfulFoot && (
-                  <div className="flex items-center gap-1">
-                    <span>
-                      {t("skillfulFoot")}: {currentUser.skillfulFoot}
-                    </span>
-                  </div>
-                )}
-              </>
-            )}
-
-            {isRecruiter && (
-              <>
-                <div className="bg-yellow-50 border border-yellow-100 rounded p-1 mb-2">
-                  <div className="flex items-center">
-                    <HiOutlineInformationCircle className="h-3 w-3 text-yellow-600 mr-1" />
-                    <span className="text-xs text-yellow-700">
-                      Contacto no disponible con tu suscripción
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1 mb-2">
-                  <HiOutlineMail className="h-3.5 w-3.5 text-gray-400" />
-                  <span className="truncate text-gray-400">●●●●●●●●</span>
-                </div>
-
-                <div className="flex items-center gap-1 mb-2">
-                  <HiOutlinePhone className="h-3.5 w-3.5 text-gray-400" />
-                  <span className="text-gray-400">●●●●●●●●</span>
-                </div>
-              </>
-            )}
-            {/* Nacionalidad con bandera */}
-            {currentUser.nationality && (
-              <div className="flex items-center gap-1">
-                <span className="flex items-center">
-                  {renderCountryFlag(currentUser.nationality)}
+                <span className="text-gray-600 flex-shrink-0">
+                  {currentUser.age}
                 </span>
-                <span>{currentUser.nationality}</span>
-              </div>
+                {(currentUser.primaryPosition ||
+                  currentUser.secondaryPosition) && (
+                  <span className="text-gray-400">|</span>
+                )}
+              </>
             )}
+
+            {currentUser.puesto && currentUser.skillfulFoot === "" && (
+              <>
+                {currentUser.age && <span className="text-gray-400">|</span>}
+                <span className="text-gray-600 flex-shrink-0">
+                  {currentUser.puesto}
+                </span>
+                {(currentUser.primaryPosition ||
+                  currentUser.secondaryPosition) && (
+                  <span className="text-gray-400">|</span>
+                )}
+              </>
+            )}
+
+            {isPlayer &&
+              (currentUser.primaryPosition ||
+                currentUser.secondaryPosition) && (
+                <span className="text-gray-600">
+                  {currentUser.primaryPosition &&
+                    abbreviatePosition(currentUser.primaryPosition)}
+                  {currentUser.secondaryPosition &&
+                    ` / ${abbreviatePosition(currentUser.secondaryPosition)}`}
+                </span>
+              )}
+          </div>
+
+          {/* Nivel/rol + Estado */}
+          <div className="flex items-center gap-2 text-xs">
+            {isPlayer ? (
+              <span
+                className={`text-white text-[10px] font-medium py-0.5 px-2 rounded-full ${
+                  subscriptionType === "professional"
+                    ? "bg-green-600"
+                    : subscriptionType === "semi"
+                    ? "bg-blue-600"
+                    : "bg-gray-400"
+                }`}
+              >
+                {levelText}
+              </span>
+            ) : (
+              <span className="text-gray-900 font-medium">
+                {getRoleName(currentUser.role || "")}
+              </span>
+            )}
+            <span className="text-gray-400">|</span>
+            <span className="text-gray-600">{getStatus()}</span>
           </div>
         </div>
-        {/* Botones de acción */}
-        <div className="flex flex-col space-y-2 mt-auto">
-          {/* Botón de ver perfil */}
-          <Link
-            href={`/user-viewer/${currentUser.id}`}
-            className={`flex items-center justify-center w-full py-1.5 px-3 border rounded-full text-sm font-medium transition-colors ${
-              isRecruiter
-                ? "border-purple-600 text-purple-600 hover:bg-purple-50"
-                : "border-blue-600 text-blue-600 hover:bg-blue-50"
-            }`}
-          >
-            <FaUserPlus className="h-4 w-4 mr-1" />
-            {t("viewProfile")}
-          </Link>
 
-          {/* Botón de añadir a Portafolio (solo visible para reclutadores y para jugadores) */}
-          {user && user.role === "RECRUITER" && isPlayer && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleAddToPortfolio(currentUser.id);
-              }}
-              disabled={isBeingAddedToPortfolio}
-              className="flex items-center justify-center w-full py-1.5 px-3 border border-green-600 text-green-600 rounded-full text-sm font-medium hover:bg-green-50 transition-colors"
-            >
-              {isBeingAddedToPortfolio ? (
-                <span className="flex items-center">
-                  <FaSpinner className="animate-spin -ml-1 mr-2 h-4 w-4 text-green-600" />
-                  Enviando...
-                </span>
-              ) : (
-                <>
-                  <FaPaperPlane className="h-4 w-4 mr-1" />
-                  Solicitar representación
-                </>
+        {/* Dropdown */}
+        <div className="flex-shrink-0 ml-2 relative">
+          <button
+            className="text-gray-400 hover:text-gray-600 p-1"
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowDropdown(!showDropdown);
+            }}
+          >
+            <FaEllipsisV className="text-sm" />
+          </button>
+
+          {showDropdown && (
+            <div className="absolute right-0 bottom-full mb-1 bg-white border border-gray-200 rounded-lg shadow-lg py-2 min-w-[180px] z-30">
+              <Link
+                href={`/user-viewer/${currentUser.id}`}
+                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                onClick={() => setShowDropdown(false)}
+              >
+                <FaUserPlus className="inline mr-2" />
+                {t("viewProfile")}
+              </Link>
+
+              {user && user.role === "RECRUITER" && isPlayer && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleAddToPortfolio(currentUser.id);
+                    setShowDropdown(false);
+                  }}
+                  disabled={isBeingAddedToPortfolio}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+                >
+                  {isBeingAddedToPortfolio ? (
+                    <>
+                      <FaSpinner className="inline mr-2 animate-spin" />
+                      {t("Enviando...")}
+                    </>
+                  ) : (
+                    <>
+                      <FaPaperPlane className="inline mr-2" />
+                      {t("Solicitar representación")}
+                    </>
+                  )}
+                </button>
               )}
-            </button>
+            </div>
           )}
         </div>
       </div>
+
+      {/* Botón que ocupa toda la card */}
+      <Link
+        href={`/user-viewer/${currentUser.id}`}
+        className="mt-3 w-full border border-blue-600 text-blue-600 text-xs font-medium py-2 px-3 rounded-lg text-center hover:bg-blue-50 transition"
+      >
+        {t("viewProfile")}
+      </Link>
+
+      {showDropdown && (
+        <button
+          type="button"
+          className="fixed inset-0 z-20 bg-transparent cursor-default"
+          onClick={() => setShowDropdown(false)}
+          aria-label="Cerrar menú"
+        />
+      )}
     </div>
   );
 };

@@ -99,6 +99,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
     categoriaEquipo: CATEGORIAS_OPTIONS[0],
     nivelCompetencia: NIVEL_COMPETENCIA_OPTIONS[0],
     logros: "",
+    nacionalidadTrayectoria: "",
   };
 
   // Información general del perfil
@@ -130,6 +131,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
       fechaFinalizacion: string;
       categoriaEquipo: string;
       nivelCompetencia: string;
+      nacionalidadTrayectoria: string;
       logros: string;
     }>
   >([emptyExperience]);
@@ -217,6 +219,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
           nivelCompetencia:
             exp.nivelCompetencia || NIVEL_COMPETENCIA_OPTIONS[0],
           logros: exp.logros || "",
+          nacionalidadTrayectoria: exp.nacionalidadTrayectoria || "",
         }));
 
         setExperiences(updatedExperiences);
@@ -230,6 +233,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
           nivelCompetencia:
             profileData.nivelCompetencia || NIVEL_COMPETENCIA_OPTIONS[0],
           logros: profileData.logros || "",
+          nacionalidadTrayectoria: profileData.nacionalidadTrayectoria || "",
         };
 
         setExperiences([legacyExperience]);
@@ -307,7 +311,8 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
       if (!isNonPlayerProfessional) {
         updatedData.primaryPosition = primaryPosition;
         updatedData.secondaryPosition = secondaryPosition;
-        updatedData.pasaporteUe = pasaporteUE === "Sí" ? PasaporteUe.SI : PasaporteUe.NO;
+        updatedData.pasaporteUe =
+          pasaporteUE === "Sí" ? PasaporteUe.SI : PasaporteUe.NO;
         updatedData.bodyStructure = estructuraCorporal;
         updatedData.skillfulFoot = pieHabil;
         updatedData.height = altura;
@@ -318,7 +323,10 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
         // Extract userId from token
         const userId = JSON.parse(atob(token.split(".")[1])).id;
 
-        console.log("Actualizando datos del perfil:", JSON.stringify(updatedData));
+        console.log(
+          "Actualizando datos del perfil:",
+          JSON.stringify(updatedData)
+        );
 
         // Update user data
         await updateUserData(userId, updatedData as any);

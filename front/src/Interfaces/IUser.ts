@@ -185,4 +185,5 @@ export interface User {
   ubicacionActual?: string;
   trayectorias?: { club: string; nacionalidadTrayectoria?: string }[];
   genre?: string;
+  puesto?: string;
 }

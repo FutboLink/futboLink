@@ -18,6 +18,7 @@ export interface IProfileData {
   puesto: string;
   subscriptionType?: string;
   subscription?: string;
+  competitionLevel?: string;
   role: UserType;
   imgUrl: string;
   cv?: string;
@@ -88,6 +89,7 @@ export interface IRegisterUser {
   habilities?: string[];
   confirmPassword?: string;
   termsAccepted?: boolean;
+  competitionLevel?: string;
 }
 
 export enum UserType {
@@ -176,6 +178,7 @@ export interface User {
   skillfulFoot?: string;
   subscriptionType?: string;
   subscription?: string | boolean;
+  competitionLevel?: string;
   role?: string;
   email?: string;
   phone?: string;

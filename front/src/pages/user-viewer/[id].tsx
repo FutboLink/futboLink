@@ -101,7 +101,7 @@ export default function UserViewer() {
     verificationLevel?: "NONE" | "SEMIPROFESSIONAL" | "PROFESSIONAL";
   } | null>(null);
 
-  // Nivel del perfil (deportivo) considerando verificación
+  // Nivel del perfil (deportivo) considerando verificación y competitionLevel
   const computeProfileLevel = ():
     | "Profesional"
     | "Semiprofesional"
@@ -111,14 +111,17 @@ export default function UserViewer() {
       return "Amateur";
     }
     
-    // Si está verificado, usar la heurística basada en trayectorias
+    // Si está verificado, usar el competitionLevel del usuario
     try {
-      const niveles = (profile?.trayectorias || []).map(
-        (t) => t.nivelCompetencia?.toLowerCase() || ""
-      );
-      if (niveles.some((n) => n.includes("profesional"))) return "Profesional";
-      if (niveles.some((n) => n.includes("semi"))) return "Semiprofesional";
-      // Fallback por si no hay trayectorias
+      const competitionLevel = profile?.competitionLevel?.toLowerCase() || "amateur";
+      
+      if (competitionLevel.includes("professional") || competitionLevel.includes("profesional")) {
+        return "Profesional";
+      }
+      if (competitionLevel.includes("semiprofessional") || competitionLevel.includes("semiprofesional")) {
+        return "Semiprofesional";
+      }
+      // Fallback para amateur o cualquier otro valor
       return "Amateur";
     } catch {
       return "Amateur";
@@ -129,7 +132,7 @@ export default function UserViewer() {
   
   useEffect(() => {
     setProfileLevel(computeProfileLevel());
-  }, [verificationStatus, profile?.trayectorias]);
+  }, [verificationStatus, profile?.competitionLevel]);
 
   // Determina si es un jugador "puro": rol PLAYER y puesto vacío o igual a "Jugador"
   const isPurePlayer =
@@ -338,20 +341,17 @@ export default function UserViewer() {
           JSON.stringify(data, null, 2)
         );
 
-        // Determinar el tipo de suscripción correcto
-        // Primero verificar subscriptionType, luego subscription, y finalmente usar Amateur como fallback
-        if (!data.subscriptionType && data.subscription) {
-          console.log("Usando valor de subscription:", data.subscription);
-          data.subscriptionType = data.subscription;
-        } else if (!data.subscriptionType) {
+        // Determinar el nivel de competencia correcto
+        // Primero verificar competitionLevel, luego usar amateur como fallback
+        if (!data.competitionLevel) {
           console.log(
-            "No se encontró tipo de suscripción, usando Amateur como predeterminado"
+            "No se encontró competitionLevel, usando amateur como predeterminado"
           );
-          data.subscriptionType = "Amateur";
+          data.competitionLevel = "amateur";
         } else {
           console.log(
-            "Usando subscriptionType existente:",
-            data.subscriptionType
+            "Usando competitionLevel existente:",
+            data.competitionLevel
           );
         }
 

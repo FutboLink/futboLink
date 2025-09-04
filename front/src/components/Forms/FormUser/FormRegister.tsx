@@ -148,6 +148,7 @@ const RegistrationForm: React.FC = () => {
     confirmPassword: "",
     termsAccepted: false,
     phone: "",
+    competitionLevel: "amateur",
   });
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
@@ -233,6 +234,7 @@ const RegistrationForm: React.FC = () => {
       puesto: userRegister.puesto || "",
       nameAgency: userRegister.nameAgency || "",
       phone: userRegister.phone || "",
+      competitionLevel: userRegister.competitionLevel || "amateur",
     };
 
     // Log what we're sending

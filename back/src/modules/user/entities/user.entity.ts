@@ -184,7 +184,7 @@ export class User {
   subscriptionType: string;
 
   @ApiProperty({ example: 'amateur', description: 'Nivel de competencia del usuario', nullable: true })
-  @Column({ default: 'amateur' })
+  @Column({ name: 'competitionlevel', default: 'amateur' })
   competitionLevel: string;
 
   @Column({ nullable: true })

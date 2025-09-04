@@ -1158,7 +1158,7 @@ export class UserService {
       const competitionLevel = level === 'PROFESSIONAL' ? 'professional' : 'semiprofessional';
       
       await this.entityManager.query(
-        'UPDATE users SET "competitionLevel" = $1 WHERE id = $2',
+        'UPDATE users SET "competitionlevel" = $1 WHERE id = $2',
         [competitionLevel, userId]
       );
       
@@ -1287,7 +1287,7 @@ export class UserService {
     const isVerified = level !== 'NONE';
     if (await this.checkIsVerifiedColumnExists()) {
       await this.entityManager.query(
-        'UPDATE users SET "isVerified" = $1, "verificationLevel" = $2, "competitionLevel" = $3 WHERE id = $4',
+        'UPDATE users SET "isVerified" = $1, "verificationLevel" = $2, "competitionlevel" = $3 WHERE id = $4',
         [isVerified, level, competitionLevel, userId]
       );
     } else {
@@ -1297,7 +1297,7 @@ export class UserService {
         ADD COLUMN "isVerified" boolean NOT NULL DEFAULT false
       `);
       await this.entityManager.query(
-        'UPDATE users SET "isVerified" = $1, "verificationLevel" = $2, "competitionLevel" = $3 WHERE id = $4',
+        'UPDATE users SET "isVerified" = $1, "verificationLevel" = $2, "competitionlevel" = $3 WHERE id = $4',
         [isVerified, level, competitionLevel, userId]
       );
     }

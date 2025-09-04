@@ -29,6 +29,8 @@ import {
   FaUsersCog,
   FaBullhorn,
   FaBuilding,
+  FaShieldAlt,
+  FaArrowLeft,
 } from "react-icons/fa";
 import Spinner from "@/components/utils/Spinner";
 
@@ -113,8 +115,9 @@ const RegistrationForm: React.FC = () => {
         "Academia",
         "Liga",
         "Federación",
-        "Agencia de representación",
-        "Organizador de torneos"
+        "Escuela de Formación",
+        "Organizador de torneos",
+        "Selecciones Nacionales"
       ]
     }
   };
@@ -334,7 +337,7 @@ const RegistrationForm: React.FC = () => {
             onClick={() => handleCategoryChange(UserType.CLUB, UserType.CLUB)}
             className="group bg-white border border-emerald-100 hover:border-emerald-400 rounded-2xl shadow-md hover:shadow-lg p-6 flex flex-col items-center justify-center transition-all md:col-span-2"
           >
-            <FaBuilding className="h-10 w-10 text-gray-400 mb-3" />
+            <FaShieldAlt className="h-10 w-10 text-gray-400 mb-3" />
             <span className="text-lg font-semibold text-emerald-800">Entidad / Club</span>
           </button>
         </div>
@@ -350,6 +353,18 @@ const RegistrationForm: React.FC = () => {
           <Spinner size="xl" />
         </div>
       )}
+
+      {/* Botón para volver a la pre-selección */}
+      <div className="w-full max-w-3xl mb-8 flex justify-start">
+        <button
+          type="button"
+          onClick={() => { setSelectedRole(null); setSelectedCategory(null); }}
+          className="text-sm text-emerald-600 hover:text-emerald-800 flex items-center gap-2"
+        >
+          <FaArrowLeft className="h-4 w-4" />
+          Cambiar categoría
+        </button>
+      </div>
 
       <header className="text-center mb-8 w-full max-w-3xl">
        

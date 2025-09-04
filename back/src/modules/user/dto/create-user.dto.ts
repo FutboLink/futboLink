@@ -225,4 +225,13 @@ export class RegisterUserDto {
   @IsOptional()
   @IsString()
   cv?: string;
+
+  @ApiProperty({
+    description: 'Nivel de competencia del usuario (opcional)',
+    example: 'amateur',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  competitionLevel?: string;
 }

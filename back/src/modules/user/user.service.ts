@@ -1147,13 +1147,22 @@ export class UserService {
   }
 
   /**
-   * Establece el nivel de verificación del usuario
+   * Establece el nivel de competencia del usuario basado en la verificación
    */
   private async setUserVerificationLevelSafe(
     userId: string,
     level: 'SEMIPROFESSIONAL' | 'PROFESSIONAL',
   ): Promise<boolean> {
     try {
+      // Mapear el nivel de verificación al competitionLevel
+      const competitionLevel = level === 'PROFESSIONAL' ? 'professional' : 'semiprofessional';
+      
+      await this.entityManager.query(
+        'UPDATE users SET "competitionlevel" = $1 WHERE id = $2',
+        [competitionLevel, userId]
+      );
+      
+      // También actualizar verificationLevel para compatibilidad
       const columnExists = await this.checkVerificationLevelColumnExists();
       if (!columnExists) {
         // Crear la columna si no existe para no fallar silenciosamente
@@ -1168,7 +1177,7 @@ export class UserService {
       );
       return true;
     } catch (error) {
-      console.error('Error actualizando verificationLevel:', error);
+      console.error('Error actualizando competitionLevel y verificationLevel:', error);
       return false;
     }
   }
@@ -1258,6 +1267,14 @@ export class UserService {
     userId: string,
     level: 'NONE' | 'SEMIPROFESSIONAL' | 'PROFESSIONAL',
   ): Promise<{ success: boolean; verificationLevel: string; isVerified: boolean }>{
+    // Mapear el nivel de verificación al competitionLevel
+    let competitionLevel = 'amateur';
+    if (level === 'PROFESSIONAL') {
+      competitionLevel = 'professional';
+    } else if (level === 'SEMIPROFESSIONAL') {
+      competitionLevel = 'semiprofessional';
+    }
+
     // Asegurar columnas
     const hasLevelColumn = await this.checkVerificationLevelColumnExists();
     if (!hasLevelColumn) {
@@ -1270,8 +1287,8 @@ export class UserService {
     const isVerified = level !== 'NONE';
     if (await this.checkIsVerifiedColumnExists()) {
       await this.entityManager.query(
-        'UPDATE users SET "isVerified" = $1, "verificationLevel" = $2 WHERE id = $3',
-        [isVerified, level, userId]
+        'UPDATE users SET "isVerified" = $1, "verificationLevel" = $2, "competitionlevel" = $3 WHERE id = $4',
+        [isVerified, level, competitionLevel, userId]
       );
     } else {
       // Crear columna isVerified si no existe
@@ -1280,8 +1297,8 @@ export class UserService {
         ADD COLUMN "isVerified" boolean NOT NULL DEFAULT false
       `);
       await this.entityManager.query(
-        'UPDATE users SET "isVerified" = $1, "verificationLevel" = $2 WHERE id = $3',
-        [isVerified, level, userId]
+        'UPDATE users SET "isVerified" = $1, "verificationLevel" = $2, "competitionlevel" = $3 WHERE id = $4',
+        [isVerified, level, competitionLevel, userId]
       );
     }
 

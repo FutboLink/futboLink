@@ -101,7 +101,7 @@ export default function UserViewer() {
     verificationLevel?: "NONE" | "SEMIPROFESSIONAL" | "PROFESSIONAL";
   } | null>(null);
 
-  // Nivel del perfil (deportivo) considerando verificación
+  // Nivel del perfil (deportivo) considerando verificación y competitionLevel
   const computeProfileLevel = ():
     | "Profesional"
     | "Semiprofesional"
@@ -111,14 +111,17 @@ export default function UserViewer() {
       return "Amateur";
     }
     
-    // Si está verificado, usar la heurística basada en trayectorias
+    // Si está verificado, usar el competitionLevel del usuario
     try {
-      const niveles = (profile?.trayectorias || []).map(
-        (t) => t.nivelCompetencia?.toLowerCase() || ""
-      );
-      if (niveles.some((n) => n.includes("profesional"))) return "Profesional";
-      if (niveles.some((n) => n.includes("semi"))) return "Semiprofesional";
-      // Fallback por si no hay trayectorias
+      const competitionLevel = profile?.competitionLevel?.toLowerCase() || "amateur";
+      
+      if (competitionLevel.includes("professional") || competitionLevel.includes("profesional")) {
+        return "Profesional";
+      }
+      if (competitionLevel.includes("semiprofessional") || competitionLevel.includes("semiprofesional")) {
+        return "Semiprofesional";
+      }
+      // Fallback para amateur o cualquier otro valor
       return "Amateur";
     } catch {
       return "Amateur";
@@ -129,7 +132,7 @@ export default function UserViewer() {
   
   useEffect(() => {
     setProfileLevel(computeProfileLevel());
-  }, [verificationStatus, profile?.trayectorias]);
+  }, [verificationStatus, profile?.competitionLevel]);
 
   // Determina si es un jugador "puro": rol PLAYER y puesto vacío o igual a "Jugador"
   const isPurePlayer =
@@ -338,20 +341,17 @@ export default function UserViewer() {
           JSON.stringify(data, null, 2)
         );
 
-        // Determinar el tipo de suscripción correcto
-        // Primero verificar subscriptionType, luego subscription, y finalmente usar Amateur como fallback
-        if (!data.subscriptionType && data.subscription) {
-          console.log("Usando valor de subscription:", data.subscription);
-          data.subscriptionType = data.subscription;
-        } else if (!data.subscriptionType) {
+        // Determinar el nivel de competencia correcto
+        // Primero verificar competitionLevel, luego usar amateur como fallback
+        if (!data.competitionLevel) {
           console.log(
-            "No se encontró tipo de suscripción, usando Amateur como predeterminado"
+            "No se encontró competitionLevel, usando amateur como predeterminado"
           );
-          data.subscriptionType = "Amateur";
+          data.competitionLevel = "amateur";
         } else {
           console.log(
-            "Usando subscriptionType existente:",
-            data.subscriptionType
+            "Usando competitionLevel existente:",
+            data.competitionLevel
           );
         }
 
@@ -630,16 +630,7 @@ export default function UserViewer() {
                   <span className="mx-2">|</span>
                   <span className="flex items-center">
                     {profileLevel}
-                    {!verificationStatus?.isVerified ? (
-                      <span className="ml-1 text-xs bg-gray-100 text-gray-500 px-1 py-0.5 rounded"></span>
-                    ) : (
-                      <span className="ml-1 text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded flex items-center">
-                        <svg className="w-3 h-3 mr-0.5" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                        Verificado
-                      </span>
-                    )}
+                   
                   </span>
                 </div>
               )}
@@ -657,16 +648,7 @@ export default function UserViewer() {
                   <span className="mx-2">|</span>
                   <span className="flex items-center">
                     {profileLevel}
-                    {!verificationStatus?.isVerified ? (
-                      <span className="ml-1 text-xs bg-gray-100 text-gray-500 px-1 py-0.5 rounded"></span>
-                    ) : (
-                      <span className="ml-1 text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded flex items-center">
-                        <svg className="w-3 h-3 mr-0.5" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                        Verificado
-                      </span>
-                    )}
+                  
                   </span>
                 </div>
               )}

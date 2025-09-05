@@ -70,11 +70,27 @@ async function ensureIsVerifiedColumn() {
     } else {
       console.log('✅ La columna verificationLevel ya existe');
     }
+
+    // Asegurar columna attachmentUrl en verification_requests
+    const attachmentUrlResult = await dataSource.query(`
+      SELECT column_name FROM information_schema.columns 
+      WHERE table_name = 'verification_requests' AND column_name = 'attachmentUrl'
+    `);
+    if (attachmentUrlResult.length === 0) {
+      console.log('🔧 Agregando columna attachmentUrl a la tabla verification_requests...');
+      await dataSource.query(`
+        ALTER TABLE "verification_requests" 
+        ADD COLUMN "attachmentUrl" text
+      `);
+      console.log('✅ Columna attachmentUrl agregada exitosamente');
+    } else {
+      console.log('✅ La columna attachmentUrl ya existe');
+    }
     
     await dataSource.destroy();
     console.log('🔌 Conexión cerrada');
   } catch (error) {
-    console.error('❌ Error al verificar/crear columna isVerified:', error);
+    console.error('❌ Error al verificar/crear columnas:', error);
   }
 }
 

@@ -94,11 +94,13 @@ export default function UserViewer() {
   const [showMoreOptions, setShowMoreOptions] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [verificationMessage, setVerificationMessage] = useState("");
+  const [verificationAttachment, setVerificationAttachment] = useState<File | null>(null);
+  const [uploadingAttachment, setUploadingAttachment] = useState(false);
   const [loadingVerification, setLoadingVerification] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<{
     isVerified: boolean;
     columnExists: boolean;
-    verificationLevel?: "NONE" | "SEMIPROFESSIONAL" | "PROFESSIONAL";
+    verificationLevel?: "NONE" | "SEMIPROFESSIONAL" | "PROFESSIONAL" | "AMATEUR";
   } | null>(null);
 
   // Nivel del perfil (deportivo) considerando verificación y competitionLevel
@@ -185,6 +187,27 @@ export default function UserViewer() {
     }
   };
 
+  // Función para manejar la subida de archivos
+  const handleFileUpload = async (file: File): Promise<string> => {
+    setUploadingAttachment(true);
+    try {
+      // For now, we'll just return the file name as a placeholder
+      // In a production environment, you would implement actual file upload
+      // to a cloud storage service like AWS S3, Cloudinary, etc.
+      
+      // Simulate upload delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Return a placeholder URL with the file name
+      return `placeholder://${file.name}`;
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      throw error;
+    } finally {
+      setUploadingAttachment(false);
+    }
+  };
+
   // Función para solicitar verificación
   const handleRequestVerification = async () => {
     if (!profile?.id || !token) {
@@ -198,9 +221,24 @@ export default function UserViewer() {
     );
 
     try {
+      let attachmentUrl: string | undefined;
+      
+      // Upload file if provided
+      if (verificationAttachment) {
+        try {
+          attachmentUrl = await handleFileUpload(verificationAttachment);
+        } catch (uploadError) {
+          showVerificationToast.error("Error al subir el archivo. Inténtalo de nuevo.");
+          return;
+        }
+      }
+
       await requestVerification(
         profile.id,
-        { message: verificationMessage },
+        { 
+          message: verificationMessage,
+          attachmentUrl 
+        },
         token
       );
 
@@ -208,6 +246,7 @@ export default function UserViewer() {
         "¡Solicitud de verificación enviada exitosamente! Los administradores la revisarán pronto."
       );
       setVerificationMessage("");
+      setVerificationAttachment(null);
       setShowVerificationModal(false);
     } catch (error: unknown) {
       let errorMessage = "Error al enviar la solicitud de verificación";
@@ -1868,9 +1907,9 @@ export default function UserViewer() {
                         ¿Qué es la verificación de perfil?
                       </h4>
                       <p className="text-sm text-blue-700">
-                        La verificación de perfil es una insignia dorada que
+                        La verificación de perfil es una insignia que
                         confirma la autenticidad de tu información y te ayuda a
-                        destacar ante reclutadores.
+                        destacar ante reclutadores. Hay tres niveles: Amateur, Semiprofesional y Profesional.
                       </p>
                     </div>
                   </div>
@@ -1899,6 +1938,100 @@ export default function UserViewer() {
                     </p>
                   </div>
 
+                  {/* File Upload Section */}
+                  <div>
+                    <label
+                      htmlFor="verificationAttachment"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Adjuntar archivo de evidencia (opcional)
+                    </label>
+                    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors">
+                      <div className="space-y-1 text-center">
+                        <svg
+                          className="mx-auto h-12 w-12 text-gray-400"
+                          stroke="currentColor"
+                          fill="none"
+                          viewBox="0 0 48 48"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                            strokeWidth={2}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <div className="flex text-sm text-gray-600">
+                          <label
+                            htmlFor="verificationAttachment"
+                            className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+                          >
+                            <span>Subir archivo</span>
+                            <input
+                              id="verificationAttachment"
+                              name="verificationAttachment"
+                              type="file"
+                              className="sr-only"
+                              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setVerificationAttachment(file);
+                                }
+                              }}
+                            />
+                          </label>
+                          <p className="pl-1">o arrastra aquí</p>
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          PDF, DOC, DOCX, JPG, PNG hasta 10MB
+                        </p>
+                        {verificationAttachment && (
+                          <div className="mt-2 flex items-center justify-center space-x-2">
+                            <svg
+                              className="h-5 w-5 text-green-500"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              aria-hidden="true"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
+                            <span className="text-sm text-green-700">
+                              {verificationAttachment.name}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setVerificationAttachment(null)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <svg
+                                className="h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <button
@@ -1911,13 +2044,13 @@ export default function UserViewer() {
                       <button
                         onClick={handleRequestVerification}
                         type="button"
-                        disabled={loadingVerification}
+                        disabled={loadingVerification || uploadingAttachment}
                         className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                       >
-                        {loadingVerification ? (
+                        {loadingVerification || uploadingAttachment ? (
                           <>
                             <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
-                            Enviando...
+                            {uploadingAttachment ? "Subiendo archivo..." : "Enviando..."}
                           </>
                         ) : (
                           <>

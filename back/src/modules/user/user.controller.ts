@@ -525,7 +525,7 @@ export class UserController {
   @Put(':id/verification-level')
   async updateVerificationLevel(
     @Param('id', ParseUUIDPipe) userId: string,
-    @Body() data: { level: 'NONE' | 'SEMIPROFESSIONAL' | 'PROFESSIONAL' },
+    @Body() data: { level: 'NONE' | 'SEMIPROFESSIONAL' | 'PROFESSIONAL' | 'AMATEUR' },
     @Req() req: any,
   ) {
     if (req.user.role !== 'ADMIN') {

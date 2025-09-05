@@ -1106,7 +1106,7 @@ export class UserService {
   /**
    * Obtiene el nivel de verificación del usuario usando query directo
    */
-  private async getUserVerificationLevelSafe(userId: string): Promise<'NONE' | 'SEMIPROFESSIONAL' | 'PROFESSIONAL'> {
+  private async getUserVerificationLevelSafe(userId: string): Promise<'NONE' | 'SEMIPROFESSIONAL' | 'PROFESSIONAL' | 'AMATEUR'> {
     try {
       const columnExists = await this.checkVerificationLevelColumnExists();
       if (!columnExists) {
@@ -1116,7 +1116,7 @@ export class UserService {
         'SELECT "verificationLevel" FROM users WHERE id = $1',
         [userId]
       );
-      return (result[0]?.verificationLevel || 'NONE') as 'NONE' | 'SEMIPROFESSIONAL' | 'PROFESSIONAL';
+      return (result[0]?.verificationLevel || 'NONE') as 'NONE' | 'SEMIPROFESSIONAL' | 'PROFESSIONAL' | 'AMATEUR';
     } catch (error) {
       console.error('Error obteniendo verificationLevel:', error);
       return 'NONE';
@@ -1151,11 +1151,18 @@ export class UserService {
    */
   private async setUserVerificationLevelSafe(
     userId: string,
-    level: 'SEMIPROFESSIONAL' | 'PROFESSIONAL',
+    level: 'SEMIPROFESSIONAL' | 'PROFESSIONAL' | 'AMATEUR',
   ): Promise<boolean> {
     try {
       // Mapear el nivel de verificación al competitionLevel
-      const competitionLevel = level === 'PROFESSIONAL' ? 'professional' : 'semiprofessional';
+      let competitionLevel: string;
+      if (level === 'PROFESSIONAL') {
+        competitionLevel = 'professional';
+      } else if (level === 'SEMIPROFESSIONAL') {
+        competitionLevel = 'semiprofessional';
+      } else {
+        competitionLevel = 'amateur';
+      }
       
       await this.entityManager.query(
         'UPDATE users SET "competitionlevel" = $1 WHERE id = $2',
@@ -1225,6 +1232,7 @@ export class UserService {
     const request = this.verificationRequestRepository.create({
       playerId,
       message: createVerificationRequestDto.message,
+      attachmentUrl: createVerificationRequestDto.attachmentUrl,
       status: VerificationRequestStatus.PENDING,
     });
 
@@ -1265,7 +1273,7 @@ export class UserService {
    */
   async updateUserVerificationLevel(
     userId: string,
-    level: 'NONE' | 'SEMIPROFESSIONAL' | 'PROFESSIONAL',
+    level: 'NONE' | 'SEMIPROFESSIONAL' | 'PROFESSIONAL' | 'AMATEUR',
   ): Promise<{ success: boolean; verificationLevel: string; isVerified: boolean }>{
     // Mapear el nivel de verificación al competitionLevel
     let competitionLevel = 'amateur';
@@ -1273,6 +1281,8 @@ export class UserService {
       competitionLevel = 'professional';
     } else if (level === 'SEMIPROFESSIONAL') {
       competitionLevel = 'semiprofessional';
+    } else if (level === 'AMATEUR') {
+      competitionLevel = 'amateur';
     }
 
     // Asegurar columnas
@@ -1356,10 +1366,10 @@ export class UserService {
 
       // Validar y establecer explícitamente el nivel de verificación seleccionado por el admin
       const rawType = (updateVerificationRequestDto as any)?.verificationType;
-      if (!rawType || (rawType !== 'PROFESSIONAL' && rawType !== 'SEMIPROFESSIONAL')) {
-        throw new BadRequestException('Debe seleccionar un tipo de verificación válido (PROFESSIONAL o SEMIPROFESSIONAL)');
+      if (!rawType || (rawType !== 'PROFESSIONAL' && rawType !== 'SEMIPROFESSIONAL' && rawType !== 'AMATEUR')) {
+        throw new BadRequestException('Debe seleccionar un tipo de verificación válido (PROFESSIONAL, SEMIPROFESSIONAL o AMATEUR)');
       }
-      const desiredLevel: 'PROFESSIONAL' | 'SEMIPROFESSIONAL' = rawType;
+      const desiredLevel: 'PROFESSIONAL' | 'SEMIPROFESSIONAL' | 'AMATEUR' = rawType;
       const levelOk = await this.setUserVerificationLevelSafe(request.playerId, desiredLevel);
       if (!levelOk) {
         console.warn(`No se pudo establecer verificationLevel para el usuario ${request.playerId}`);
@@ -1398,7 +1408,7 @@ export class UserService {
    * @param userId ID del usuario
    * @returns Estado de verificación
    */
-  async getUserVerificationStatus(userId: string): Promise<{ isVerified: boolean; columnExists: boolean; verificationLevel: 'NONE' | 'SEMIPROFESSIONAL' | 'PROFESSIONAL' }> {
+  async getUserVerificationStatus(userId: string): Promise<{ isVerified: boolean; columnExists: boolean; verificationLevel: 'NONE' | 'SEMIPROFESSIONAL' | 'PROFESSIONAL' | 'AMATEUR' }> {
     const isVerifiedColumn = await this.checkIsVerifiedColumnExists();
     const isVerified = isVerifiedColumn ? await this.isUserVerifiedSafe(userId) : false;
     const hasLevelColumn = await this.checkVerificationLevelColumnExists();

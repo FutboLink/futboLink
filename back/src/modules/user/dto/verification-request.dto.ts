@@ -11,6 +11,15 @@ export class CreateVerificationRequestDto {
   @IsOptional()
   @IsString()
   message?: string;
+
+  @ApiProperty({
+    description: 'URL del archivo adjunto como evidencia para la verificación',
+    example: 'https://example.com/documents/player-certificate.pdf',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  attachmentUrl?: string;
 }
 
 export class UpdateVerificationRequestDto {
@@ -34,10 +43,10 @@ export class UpdateVerificationRequestDto {
 
   @ApiProperty({
     description: 'Tipo de verificación a otorgar cuando se aprueba',
-    enum: ['PROFESSIONAL', 'SEMIPROFESSIONAL'],
+    enum: ['PROFESSIONAL', 'SEMIPROFESSIONAL', 'AMATEUR'],
     required: false,
   })
   @IsOptional()
-  @IsEnum(['PROFESSIONAL', 'SEMIPROFESSIONAL'] as const)
-  verificationType?: 'PROFESSIONAL' | 'SEMIPROFESSIONAL';
+  @IsEnum(['PROFESSIONAL', 'SEMIPROFESSIONAL', 'AMATEUR'] as const)
+  verificationType?: 'PROFESSIONAL' | 'SEMIPROFESSIONAL' | 'AMATEUR';
 } 

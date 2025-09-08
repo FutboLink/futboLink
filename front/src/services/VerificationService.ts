@@ -20,17 +20,18 @@ export interface VerificationRequest {
     name: string;
     lastname: string;
   };
-  verificationType?: 'PROFESSIONAL' | 'SEMIPROFESSIONAL';
+  verificationType?: 'PROFESSIONAL' | 'SEMIPROFESSIONAL' | 'AMATEUR';
 }
 
 export interface CreateVerificationRequestDto {
   message?: string;
+  attachmentUrl?: string;
 }
 
 export interface UpdateVerificationRequestDto {
   status: 'APPROVED' | 'REJECTED';
   adminComments?: string;
-  verificationType?: 'PROFESSIONAL' | 'SEMIPROFESSIONAL';
+  verificationType?: 'PROFESSIONAL' | 'SEMIPROFESSIONAL' | 'AMATEUR';
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;

@@ -37,6 +37,7 @@ export interface IProfileData {
   categoriaEquipo?: string;
   nivelCompetencia?: string;
   logros?: string;
+  nacionalidadTrayectoria?: string;
   // Use trayectorias instead of career to match backend entity
   trayectorias?: {
     club: string;
@@ -185,4 +186,5 @@ export interface User {
   ubicacionActual?: string;
   trayectorias?: { club: string; nacionalidadTrayectoria?: string }[];
   genre?: string;
+  puesto?: string;
 }

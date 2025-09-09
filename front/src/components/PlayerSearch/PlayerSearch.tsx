@@ -819,6 +819,7 @@ const PlayerSearch: React.FC = () => {
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -1010,6 +1011,7 @@ const PlayerSearch: React.FC = () => {
                             ? "Solo jugadores"
                             : "Solo agencias"}
                           <button
+                            type="button"
                             onClick={() =>
                               setFilters((prev) => ({ ...prev, role: "" }))
                             }
@@ -1029,6 +1031,7 @@ const PlayerSearch: React.FC = () => {
                             ? "Premium (Pro + Semi)"
                             : "Amateur"}
                           <button
+                            type="button"
                             onClick={() =>
                               setFilters((prev) => ({
                                 ...prev,
@@ -1045,6 +1048,7 @@ const PlayerSearch: React.FC = () => {
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                           {filters.primaryPosition}
                           <button
+                            type="button"
                             onClick={() =>
                               setFilters((prev) => ({
                                 ...prev,
@@ -1079,6 +1083,7 @@ const PlayerSearch: React.FC = () => {
                                   fill="none"
                                   viewBox="0 0 24 24"
                                   stroke="currentColor"
+                                  aria-hidden="true"
                                 >
                                   <path
                                     strokeLinecap="round"
@@ -1099,6 +1104,7 @@ const PlayerSearch: React.FC = () => {
                                   fill="none"
                                   viewBox="0 0 24 24"
                                   stroke="currentColor"
+                                  aria-hidden="true"
                                 >
                                   <path
                                     strokeLinecap="round"

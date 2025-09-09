@@ -46,9 +46,10 @@ export class VerificationRequest {
   @ApiProperty({
     example: 'https://example.com/documents/player-certificate.pdf',
     description: 'URL del archivo adjunto como evidencia para la verificación',
+    required: false,
   })
   @Column({ nullable: true, type: 'text' })
-  attachmentUrl: string;
+  attachmentUrl?: string;
 
   @ApiProperty({
     example: 'Perfil verificado exitosamente',

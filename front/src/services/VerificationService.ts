@@ -5,6 +5,7 @@ export interface VerificationRequest {
   playerId: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   message?: string;
+  attachmentUrl?: string;
   adminComments?: string;
   processedBy?: string;
   createdAt: string;

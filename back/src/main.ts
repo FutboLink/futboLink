@@ -8,12 +8,19 @@ import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 
 async function ensureIsVerifiedColumn() {
+  let dataSource: DataSource | null = null;
   try {
-    console.log('🔍 Verificando columna isVerified...');
-    const dataSource = new DataSource({
+    console.log('🔍 Verificando columnas necesarias...');
+    
+    if (!process.env.DATABASE_URL) {
+      console.log('⚠️  DATABASE_URL no encontrada, saltando migraciones automáticas');
+      return;
+    }
+    
+    dataSource = new DataSource({
       type: 'postgres',
       url: process.env.DATABASE_URL,
-      ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
+      ssl: { rejectUnauthorized: false },
     });
     
     await dataSource.initialize();
@@ -87,18 +94,26 @@ async function ensureIsVerifiedColumn() {
       console.log('✅ La columna attachmentUrl ya existe');
     }
     
-    await dataSource.destroy();
-    console.log('🔌 Conexión cerrada');
+    if (dataSource) {
+      await dataSource.destroy();
+      console.log('🔌 Conexión cerrada');
+    }
   } catch (error) {
     console.error('❌ Error al verificar/crear columnas:', error);
+    if (dataSource && dataSource.isInitialized) {
+      try {
+        await dataSource.destroy();
+      } catch (closeError) {
+        console.error('Error cerrando conexión:', closeError);
+      }
+    }
   }
 }
 
 async function bootstrap() {
-  // Ejecutar en background después de iniciar la app para evitar bloqueos
-  setTimeout(async () => {
-    await ensureIsVerifiedColumn();
-  }, 5000); // 5 segundos después de iniciar
+  // Ejecutar migraciones ANTES de inicializar la app
+  console.log('🔧 Ejecutando migraciones necesarias...');
+  await ensureIsVerifiedColumn();
 
   // Create the application with logging
   const app = await NestFactory.create(AppModule, {

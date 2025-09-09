@@ -19,7 +19,7 @@ const VerificationRequests: React.FC = () => {
   const [adminComments, setAdminComments] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [actionType, setActionType] = useState<'APPROVED' | 'REJECTED'>('APPROVED');
-  const [verificationType, setVerificationType] = useState<'PROFESSIONAL' | 'SEMIPROFESSIONAL'>('SEMIPROFESSIONAL');
+  const [verificationType, setVerificationType] = useState<'PROFESSIONAL' | 'SEMIPROFESSIONAL' | 'AMATEUR'>('AMATEUR');
 
   // Cargar todas las solicitudes de verificación
   const loadVerificationRequests = async () => {
@@ -66,7 +66,7 @@ const VerificationRequests: React.FC = () => {
       setShowModal(false);
       setSelectedRequest(null);
       setAdminComments("");
-      setVerificationType('SEMIPROFESSIONAL');
+      setVerificationType('AMATEUR');
       
     } catch (error: any) {
       showVerificationToast.error(error.message || 'Error al procesar la solicitud');
@@ -155,6 +155,35 @@ const VerificationRequests: React.FC = () => {
                             <strong>Mensaje del jugador:</strong><br />
                             {request.message}
                           </p>
+                        </div>
+                      )}
+                      
+                      {request.attachmentUrl && (
+                        <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                          <p className="text-sm text-gray-700 mb-2">
+                            <strong>Archivo adjunto:</strong>
+                          </p>
+                          <a
+                            href={request.attachmentUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 underline"
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                              />
+                            </svg>
+                            Ver archivo adjunto
+                          </a>
                         </div>
                       )}
                     </div>
@@ -269,6 +298,7 @@ const VerificationRequests: React.FC = () => {
                     onChange={(e) => setVerificationType(e.target.value as any)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
+                    <option value="AMATEUR">Verificación Amateur</option>
                     <option value="SEMIPROFESSIONAL">Verificación Semiprofesional</option>
                     <option value="PROFESSIONAL">Verificación Profesional</option>
                   </select>

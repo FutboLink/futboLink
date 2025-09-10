@@ -9,7 +9,7 @@ export interface Trayectoria {
 
 // Helper para ordenar por fecha finalización descendente
 export function sortTrayectoriasByFechaDesc(
-  trayectorias: Trayectoria[]
+  trayectorias: Trayectoria[],
 ): Trayectoria[] {
   return [...trayectorias].sort((a, b) => {
     const dateA = a.fechaFinalizacion
@@ -39,4 +39,16 @@ export function formatAchievements(logros: string): string[] {
     .split("\n")
     .map((line) => line.trim())
     .filter((line) => line !== "" && line !== "•");
+}
+
+export function getUltimoClub(
+  trayectorias?: Trayectoria[],
+): Trayectoria | null {
+  if (!trayectorias || trayectorias.length === 0) return null;
+
+  return [...trayectorias].sort((a, b) => {
+    const fechaA = new Date(a.fechaFinalizacion || a.fechaInicio).getTime();
+    const fechaB = new Date(b.fechaFinalizacion || b.fechaInicio).getTime();
+    return fechaB - fechaA; // descendente → más reciente primero
+  })[0];
 }

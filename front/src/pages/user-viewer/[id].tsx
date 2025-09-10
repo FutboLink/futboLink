@@ -21,6 +21,7 @@ import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
 import { getDefaultPlayerImage } from "@/helpers/imageUtils";
 import {
   formatearFecha,
+  getUltimoClub,
   sortTrayectoriasByFechaDesc,
 } from "@/helpers/sortAndFormatTrayectorias";
 import { useUserContext } from "@/hook/useUserContext";
@@ -94,13 +95,18 @@ export default function UserViewer() {
   const [showMoreOptions, setShowMoreOptions] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [verificationMessage, setVerificationMessage] = useState("");
-  const [verificationAttachment, setVerificationAttachment] = useState<File | null>(null);
+  const [verificationAttachment, setVerificationAttachment] =
+    useState<File | null>(null);
   const [uploadingAttachment, setUploadingAttachment] = useState(false);
   const [loadingVerification, setLoadingVerification] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<{
     isVerified: boolean;
     columnExists: boolean;
-    verificationLevel?: "NONE" | "SEMIPROFESSIONAL" | "PROFESSIONAL" | "AMATEUR";
+    verificationLevel?:
+      | "NONE"
+      | "SEMIPROFESSIONAL"
+      | "PROFESSIONAL"
+      | "AMATEUR";
   } | null>(null);
 
   // Nivel del perfil (deportivo) considerando verificación y competitionLevel
@@ -206,14 +212,14 @@ export default function UserViewer() {
       // For now, we'll just return the file name as a placeholder
       // In a production environment, you would implement actual file upload
       // to a cloud storage service like AWS S3, Cloudinary, etc.
-      
+
       // Simulate upload delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // Return a placeholder URL with the file name
       return `placeholder://${file.name}`;
     } catch (error) {
-      console.error('Error uploading file:', error);
+      console.error("Error uploading file:", error);
       throw error;
     } finally {
       setUploadingAttachment(false);
@@ -234,22 +240,24 @@ export default function UserViewer() {
 
     try {
       let attachmentUrl: string | undefined;
-      
+
       // Upload file if provided
       if (verificationAttachment) {
         try {
           attachmentUrl = await handleFileUpload(verificationAttachment);
         } catch (uploadError) {
-          showVerificationToast.error("Error al subir el archivo. Inténtalo de nuevo.");
+          showVerificationToast.error(
+            "Error al subir el archivo. Inténtalo de nuevo."
+          );
           return;
         }
       }
 
       await requestVerification(
         profile.id,
-        { 
+        {
           message: verificationMessage,
-          attachmentUrl 
+          attachmentUrl,
         },
         token
       );
@@ -523,10 +531,7 @@ export default function UserViewer() {
   }
 
   // Determinar la última trayectoria (club actual)
-  const currentClub =
-    profile.trayectorias && profile.trayectorias.length > 0
-      ? profile.trayectorias[0]
-      : null;
+  const currentClub = getUltimoClub(profile?.trayectorias);
 
   // Obtener la fecha de finalización del contrato
   const contractEndDate = currentClub?.fechaFinalizacion
@@ -1922,9 +1927,10 @@ export default function UserViewer() {
                         ¿Qué es la verificación de perfil?
                       </h4>
                       <p className="text-sm text-blue-700">
-                        La verificación de perfil es una insignia que
-                        confirma la autenticidad de tu información y te ayuda a
-                        destacar ante reclutadores. Hay tres niveles: Amateur, Semiprofesional y Profesional.
+                        La verificación de perfil es una insignia que confirma
+                        la autenticidad de tu información y te ayuda a destacar
+                        ante reclutadores. Hay tres niveles: Amateur,
+                        Semiprofesional y Profesional.
                       </p>
                     </div>
                   </div>
@@ -2065,7 +2071,9 @@ export default function UserViewer() {
                         {loadingVerification || uploadingAttachment ? (
                           <>
                             <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
-                            {uploadingAttachment ? "Subiendo archivo..." : "Enviando..."}
+                            {uploadingAttachment
+                              ? "Subiendo archivo..."
+                              : "Enviando..."}
                           </>
                         ) : (
                           <>

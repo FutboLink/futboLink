@@ -1,38 +1,39 @@
 "use client";
 
-import { UserContext } from "@/components/Context/UserContext";
-import { NotificationsForms } from "@/components/Notifications/NotificationsForms";
-import { validationRegister } from "@/components/Validate/ValidationRegister";
-import { IRegisterUser, UserType } from "@/Interfaces/IUser";
-import { useRouter } from "next/navigation";
-import React, { useState, useContext, useRef } from "react";
-import useNationalities from "./useNationalitys";
-import FormsTermins from "@/components/formsTermins/formsTermins";
-import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import type React from "react";
+import { useContext, useRef, useState } from "react";
 import {
+  FaArrowLeft,
+  FaBriefcase,
+  FaBuilding,
+  FaBullhorn,
+  FaCheckCircle,
   FaChevronDown,
+  FaEnvelope,
+  FaExclamationCircle,
   FaEye,
   FaEyeSlash,
+  FaFutbol,
+  FaGlobeAmericas,
+  FaLock,
+  FaPhone,
+  FaShieldAlt,
+  FaSpinner,
   FaUser,
   FaUsers,
-  FaEnvelope,
-  FaGlobeAmericas,
-  FaPhone,
-  FaVenusMars,
-  FaLock,
-  FaCheckCircle,
-  FaExclamationCircle,
-  FaSpinner,
-  FaBriefcase,
-  FaFutbol,
   FaUsersCog,
-  FaBullhorn,
-  FaBuilding,
-  FaShieldAlt,
-  FaArrowLeft,
+  FaVenusMars,
 } from "react-icons/fa";
+import { UserContext } from "@/components/Context/UserContext";
+import FormsTermins from "@/components/formsTermins/formsTermins";
+import { NotificationsForms } from "@/components/Notifications/NotificationsForms";
+import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
 import Spinner from "@/components/utils/Spinner";
+import { validationRegister } from "@/components/Validate/ValidationRegister";
+import { type IRegisterUser, UserType } from "@/Interfaces/IUser";
+import useNationalities from "./useNationalitys";
 
 const RegistrationForm: React.FC = () => {
   const { signUp } = useContext(UserContext);
@@ -55,9 +56,9 @@ const RegistrationForm: React.FC = () => {
   const roleCategories = {
     [UserType.PLAYER]: {
       name: "Futbolista",
-      roles: ["Jugador"]
+      roles: ["Jugador"],
     },
-    "CUERPO_TECNICO": {
+    CUERPO_TECNICO: {
       name: "Cuerpo Técnico / Staff Deportivo",
       roles: [
         "Entrenador", // puede publicar oferta
@@ -76,10 +77,10 @@ const RegistrationForm: React.FC = () => {
         "Utillero",
         "Traductor",
         "Coordinador de equipo",
-        "Ojeador"
-      ]
+        "Ojeador",
+      ],
     },
-    "DIRECCION_COMUNICACION": {
+    DIRECCION_COMUNICACION: {
       name: "Dirección y Comunicación",
       roles: [
         "Gerente",
@@ -96,8 +97,8 @@ const RegistrationForm: React.FC = () => {
         "Editor multimedia",
         "Diseñador gráfico",
         "Fotógrafo",
-        "Marketing digital"
-      ]
+        "Marketing digital",
+      ],
     },
     [UserType.AGENCY]: {
       name: "Profesionales Independientes / Representación",
@@ -105,8 +106,8 @@ const RegistrationForm: React.FC = () => {
         "Agente FIFA",
         "Intermediario",
         "Representante",
-        "Agencia de representación"
-      ]
+        "Agencia de representación",
+      ],
     },
     [UserType.CLUB]: {
       name: "Entidad / Club",
@@ -117,19 +118,19 @@ const RegistrationForm: React.FC = () => {
         "Federación",
         "Escuela de Formación",
         "Organizador de torneos",
-        "Selecciones Nacionales"
-      ]
-    }
+        "Selecciones Nacionales",
+      ],
+    },
   };
 
   // Roles que pueden publicar ofertas
   const rolesCanPublishOffers = [
     "Entrenador",
-    "Director Técnico", 
+    "Director Técnico",
     "Director Deportivo",
     "Scout",
     "Jefe de reclutamiento",
-    "Recursos Humanos"
+    "Recursos Humanos",
   ];
 
   // Estado para la categoría seleccionada
@@ -196,7 +197,7 @@ const RegistrationForm: React.FC = () => {
     setSelectedCategory(category);
     setSelectedRole(role);
     // Reset the puesto field when category changes
-    setUserRegister(prev => ({ ...prev, puesto: "" }));
+    setUserRegister((prev) => ({ ...prev, puesto: "" }));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -257,12 +258,13 @@ const RegistrationForm: React.FC = () => {
           general: "Registro inválido. Por favor, revisa los datos ingresados.",
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Intenta parsear el error del backend
-      const message =
-        error?.response?.data?.message ||
-        error.message ||
-        "Ocurrió un error inesperado.";
+      let message = "Ocurrió un error inesperado.";
+
+      if (error instanceof Error) {
+        message = error.message;
+      }
 
       if (
         message.toLowerCase().includes("email") &&
@@ -300,38 +302,54 @@ const RegistrationForm: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
           <button
             type="button"
-            onClick={() => handleCategoryChange(UserType.PLAYER, UserType.PLAYER)}
+            onClick={() =>
+              handleCategoryChange(UserType.PLAYER, UserType.PLAYER)
+            }
             className="group bg-white border border-emerald-100 hover:border-emerald-400 rounded-2xl shadow-md hover:shadow-lg p-6 flex flex-col items-center justify-center transition-all"
           >
             <FaFutbol className="h-10 w-10 text-gray-400 mb-3" />
-            <span className="text-lg font-semibold text-emerald-800">Futbolista</span>
+            <span className="text-lg font-semibold text-emerald-800">
+              Futbolista
+            </span>
           </button>
 
           <button
             type="button"
-            onClick={() => handleCategoryChange("CUERPO_TECNICO", UserType.PLAYER)}
+            onClick={() =>
+              handleCategoryChange("CUERPO_TECNICO", UserType.PLAYER)
+            }
             className="group bg-white border border-emerald-100 hover:border-emerald-400 rounded-2xl shadow-md hover:shadow-lg p-6 flex flex-col items-center justify-center transition-all"
           >
             <FaUsersCog className="h-10 w-10 text-gray-400 mb-3" />
-            <span className="text-lg font-semibold text-emerald-800">Cuerpo Técnico / Staff Deportivo</span>
+            <span className="text-lg font-semibold text-emerald-800">
+              Cuerpo Técnico / Staff Deportivo
+            </span>
           </button>
 
           <button
             type="button"
-            onClick={() => handleCategoryChange("DIRECCION_COMUNICACION", UserType.PLAYER)}
+            onClick={() =>
+              handleCategoryChange("DIRECCION_COMUNICACION", UserType.PLAYER)
+            }
             className="group bg-white border border-emerald-100 hover:border-emerald-400 rounded-2xl shadow-md hover:shadow-lg p-6 flex flex-col items-center justify-center transition-all"
           >
             <FaBullhorn className="h-10 w-10 text-gray-400 mb-3" />
-            <span className="text-lg font-semibold text-emerald-800">Dirección y Comunicación</span>
+            <span className="text-lg font-semibold text-emerald-800">
+              Dirección y Comunicación
+            </span>
           </button>
 
           <button
             type="button"
-            onClick={() => handleCategoryChange(UserType.AGENCY, UserType.AGENCY)}
+            onClick={() =>
+              handleCategoryChange(UserType.AGENCY, UserType.AGENCY)
+            }
             className="group bg-white border border-emerald-100 hover:border-emerald-400 rounded-2xl shadow-md hover:shadow-lg p-6 flex flex-col items-center justify-center transition-all"
           >
             <FaBriefcase className="h-10 w-10 text-gray-400 mb-3" />
-            <span className="text-lg font-semibold text-emerald-800">Profesionales Independientes / Representación 💼</span>
+            <span className="text-lg font-semibold text-emerald-800">
+              Profesionales Independientes / Representación 💼
+            </span>
           </button>
 
           <button
@@ -340,7 +358,9 @@ const RegistrationForm: React.FC = () => {
             className="group bg-white border border-emerald-100 hover:border-emerald-400 rounded-2xl shadow-md hover:shadow-lg p-6 flex flex-col items-center justify-center transition-all md:col-span-2"
           >
             <FaShieldAlt className="h-10 w-10 text-gray-400 mb-3" />
-            <span className="text-lg font-semibold text-emerald-800">Entidad / Club</span>
+            <span className="text-lg font-semibold text-emerald-800">
+              Entidad / Club
+            </span>
           </button>
         </div>
       </div>
@@ -360,7 +380,10 @@ const RegistrationForm: React.FC = () => {
       <div className="w-full max-w-3xl mb-8 flex justify-start">
         <button
           type="button"
-          onClick={() => { setSelectedRole(null); setSelectedCategory(null); }}
+          onClick={() => {
+            setSelectedRole(null);
+            setSelectedCategory(null);
+          }}
           className="text-sm text-emerald-600 hover:text-emerald-800 flex items-center gap-2"
         >
           <FaArrowLeft className="h-4 w-4" />
@@ -369,8 +392,6 @@ const RegistrationForm: React.FC = () => {
       </div>
 
       <header className="text-center mb-8 w-full max-w-3xl">
-       
-
         <div className="flex flex-col md:flex-row items-center justify-center bg-white rounded-xl shadow-lg p-6 gap-6 border border-emerald-100">
           <div className="flex-shrink-0 bg-gradient-to-br from-emerald-50 to-green-50 p-3 rounded-2xl shadow-inner">
             <Image
@@ -384,7 +405,13 @@ const RegistrationForm: React.FC = () => {
 
           <div className="text-center md:text-left">
             <h2 className="text-2xl font-bold text-emerald-800">
-              Registro para Jugadores y Profesionales
+              {selectedCategory === UserType.PLAYER
+                ? "Registro para Jugadores y Profesionales"
+                : `Registro para ${
+                    roleCategories[
+                      selectedCategory as keyof typeof roleCategories
+                    ]?.name
+                  }`}
             </h2>
             <p className="text-gray-600 mt-2">
               ¡Regístrate ahora y empieza a explorar oportunidades laborales en
@@ -413,11 +440,12 @@ const RegistrationForm: React.FC = () => {
 
         {/* Rol */}
         <div className="flex flex-col col-span-full">
-          <label className="block text-gray-700 mb-2 font-medium">
+          <label htmlFor="rol" className="block text-gray-700 mb-2 font-medium">
             Rol <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <select
+              id="rol"
               name="puesto"
               value={userRegister.puesto}
               onChange={handleChange}
@@ -425,12 +453,15 @@ const RegistrationForm: React.FC = () => {
               required
             >
               <option value="">Seleccione su rol</option>
-              {selectedCategory && roleCategories[selectedCategory as keyof typeof roleCategories]?.roles.map((role, index) => (
-                <option key={index} value={role}>
-                  {role}
-                  {rolesCanPublishOffers.includes(role) }
-                </option>
-              ))}
+              {selectedCategory &&
+                roleCategories[
+                  selectedCategory as keyof typeof roleCategories
+                ]?.roles.map((role, index) => (
+                  <option key={`${index}-${role}`} value={role}>
+                    {role}
+                    {rolesCanPublishOffers.includes(role)}
+                  </option>
+                ))}
             </select>
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <FaBriefcase className="h-5 w-5 text-gray-400" />
@@ -441,7 +472,11 @@ const RegistrationForm: React.FC = () => {
           </div>
           {selectedCategory && (
             <p className="text-sm text-emerald-600 mt-1">
-              Categoría seleccionada: {roleCategories[selectedCategory as keyof typeof roleCategories]?.name}
+              Categoría seleccionada:{" "}
+              {
+                roleCategories[selectedCategory as keyof typeof roleCategories]
+                  ?.name
+              }
             </p>
           )}
         </div>
@@ -449,11 +484,15 @@ const RegistrationForm: React.FC = () => {
         {/* Nombre de la Agencia - Solo para agencias */}
         {selectedCategory === UserType.AGENCY && (
           <div className="flex flex-col col-span-full">
-            <label className="block text-gray-700 mb-2 font-medium">
+            <label
+              htmlFor="nameAgent"
+              className="block text-gray-700 mb-2 font-medium"
+            >
               Nombre de la Agencia <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <input
+                id="nameAgent"
                 type="text"
                 name="nameAgency"
                 value={userRegister.nameAgency || ""}
@@ -481,11 +520,15 @@ const RegistrationForm: React.FC = () => {
 
         {/* Nombre */}
         <div className="flex flex-col">
-          <label className="block text-gray-700 mb-2 font-medium">
+          <label
+            htmlFor="name"
+            className="block text-gray-700 mb-2 font-medium"
+          >
             Nombre <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <input
+              id="name"
               type="text"
               name="name"
               value={userRegister.name}
@@ -509,11 +552,15 @@ const RegistrationForm: React.FC = () => {
 
         {/* Apellidos */}
         <div className="flex flex-col">
-          <label className="block text-gray-700 mb-2 font-medium">
+          <label
+            htmlFor="lastName"
+            className="block text-gray-700 mb-2 font-medium"
+          >
             Apellido <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <input
+              id="lastName"
               type="text"
               name="lastname"
               value={userRegister.lastname}
@@ -537,11 +584,15 @@ const RegistrationForm: React.FC = () => {
 
         {/* Email */}
         <div className="flex flex-col">
-          <label className="block text-gray-700 mb-2 font-medium">
+          <label
+            htmlFor="email"
+            className="block text-gray-700 mb-2 font-medium"
+          >
             Email <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <input
+              id="email"
               type="email"
               name="email"
               value={userRegister.email}
@@ -629,10 +680,13 @@ const RegistrationForm: React.FC = () => {
 
         {/* Teléfono */}
         <div className="flex flex-col">
-          <label className="block text-gray-700 mb-2 font-medium">
+          <label
+            htmlFor="phone"
+            className="block text-gray-700 mb-2 font-medium"
+          >
             Teléfono:
           </label>
-          <div className="relative">
+          <div id="phone" className="relative">
             <PhoneNumberInput
               mode="edit"
               name="phone"
@@ -649,11 +703,15 @@ const RegistrationForm: React.FC = () => {
 
         {/* Género */}
         <div className="flex flex-col">
-          <label className="block text-gray-700 mb-2 font-medium">
+          <label
+            htmlFor="genre"
+            className="block text-gray-700 mb-2 font-medium"
+          >
             Género <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <select
+              id="genre"
               name="genre"
               value={userRegister.genre}
               onChange={handleChange}
@@ -682,11 +740,15 @@ const RegistrationForm: React.FC = () => {
 
         {/* País de Residencia Actual - Para todas las categorías */}
         <div className="flex flex-col">
-          <label className="block text-gray-700 mb-2 font-medium">
+          <label
+            htmlFor="ubicacionActual"
+            className="block text-gray-700 mb-2 font-medium"
+          >
             País de Residencia Actual
           </label>
           <div className="relative">
             <input
+              id="ubicacionActual"
               type="text"
               name="ubicacionActual"
               value={userRegister.ubicacionActual}
@@ -712,11 +774,15 @@ const RegistrationForm: React.FC = () => {
 
         {/* Contraseña */}
         <div className="flex flex-col">
-          <label className="block text-gray-700 mb-2 font-medium">
+          <label
+            htmlFor="password"
+            className="block text-gray-700 mb-2 font-medium"
+          >
             Contraseña <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <input
+              id="password"
               type={showPassword ? "text" : "password"}
               name="password"
               value={userRegister.password}
@@ -751,11 +817,15 @@ const RegistrationForm: React.FC = () => {
 
         {/* Confirmar Contraseña */}
         <div className="flex flex-col">
-          <label className="block text-gray-700 mb-2 font-medium">
+          <label
+            htmlFor="confirmPassword"
+            className="block text-gray-700 mb-2 font-medium"
+          >
             Confirmar Contraseña <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <input
+              id="confirmPassword"
               type={showConfirmPassword ? "text" : "password"}
               name="confirmPassword"
               value={userRegister.confirmPassword}
@@ -787,8 +857,6 @@ const RegistrationForm: React.FC = () => {
             </p>
           )}
         </div>
-
-
 
         {/* Términos */}
         <div className="flex items-start col-span-full mt-2">
@@ -822,6 +890,7 @@ const RegistrationForm: React.FC = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg max-w-3xl w-11/12 max-h-[90vh] overflow-y-auto relative">
               <button
+                type="button"
                 onClick={() => setShowTerms(false)}
                 className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 bg-gray-100 rounded-full p-1"
               >
@@ -831,6 +900,7 @@ const RegistrationForm: React.FC = () => {
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -864,8 +934,6 @@ const RegistrationForm: React.FC = () => {
             )}
           </button>
         </div>
-
-        
 
         {/* Notificación */}
         {showNotification && (

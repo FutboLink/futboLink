@@ -191,8 +191,27 @@ export const useNextIntlTranslations = (namespace: MessageKey) => {
     if (savedLocale && ['es', 'en', 'it'].includes(savedLocale)) {
       setLocale(savedLocale);
     } else {
-      const browserLang = navigator.language.substring(0, 2) as Locale;
-      setLocale(['es', 'en', 'it'].includes(browserLang) ? browserLang : 'es');
+      // Detectar idioma del navegador con fallbacks
+      const detectBrowserLanguage = (): Locale => {
+        // Obtener idiomas preferidos del navegador
+        const languages = navigator.languages || [navigator.language];
+        
+        for (const lang of languages) {
+          const langCode = lang.substring(0, 2).toLowerCase();
+          if (['es', 'en', 'it'].includes(langCode)) {
+            return langCode as Locale;
+          }
+        }
+        
+        // Fallback a español
+        return 'es';
+      };
+      
+      const detectedLang = detectBrowserLanguage();
+      setLocale(detectedLang);
+      
+      // Guardar la detección automática
+      localStorage.setItem('nextintl-locale', detectedLang);
     }
 
     // Escuchar cambios de idioma

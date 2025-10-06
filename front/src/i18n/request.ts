@@ -1,7 +1,2 @@
-import { getRequestConfig } from 'next-intl/server';
-
-export default getRequestConfig(async ({ locale }) => {
-  return {
-    messages: (await import(`../messages/${locale}.json`)).default
-  };
-});
+// Configuración simplificada para next-intl (deshabilitado en este proyecto)
+export default {};

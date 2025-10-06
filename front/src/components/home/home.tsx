@@ -17,6 +17,8 @@ import "swiper/css";
 import "swiper/css/effect-fade";
 
 import { useFetchUserProfile } from "@/hook/useFetchUserProfile";
+import { useI18nMode } from "@/components/Context/I18nModeContext";
+import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
 // Imágenes
 import futA from "../../../public/buscador_ydamak.jpg";
 import futC from "../../../public/cursosYformaciones2.jpg";
@@ -25,23 +27,30 @@ import LogoCarousel from "../LogoCarousel/LogoCarousel";
 
 const Home = () => {
   const { fetchUserProfile } = useFetchUserProfile();
+  const { isNextIntlEnabled } = useI18nMode();
+  const tHome = useNextIntlTranslations('home');
 
   const router = useRouter();
+
+  // Función para obtener el texto traducido o el texto original
+  const getText = (originalText: string, translatedKey: string) => {
+    return isNextIntlEnabled ? tHome.t(translatedKey) : originalText;
+  };
 
   const images = [
     {
       src: futA,
-      text: "Buscador de ofertas laborales",
+      text: getText("Buscador de ofertas laborales", "jobSearcher"),
       link: "/jobs",
     },
     {
       src: futB,
-      text: "Publicar oferta laboral",
+      text: getText("Publicar oferta laboral", "publishJob"),
       link: "/OptionUsers",
     },
     {
       src: futC,
-      text: "Cursos y Formaciones",
+      text: getText("Cursos y Formaciones", "coursesTraining"),
       link: "/cursos",
     },
   ];

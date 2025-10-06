@@ -31,7 +31,8 @@ import { MdSettings } from "react-icons/md";
 import { getDefaultPlayerImage } from "@/helpers/imageUtils";
 import { useUserContext } from "@/hook/useUserContext";
 import { useVerificationStatus } from "@/hook/useVerificationStatus";
-import LanguageDropdown from "../LanguageToggle/LanguageDropdown";
+import HybridLanguageDropdown from "../LanguageToggle/HybridLanguageDropdown";
+import I18nModeToggle from "../LanguageToggle/I18nModeToggle";
 import NotificationsList from "../Notifications/NotificationsList";
 import Navbar from "../navbar/navbar";
 import NewNavbar from "../navbar/newNavbar";
@@ -298,7 +299,9 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
 
           {/* Elementos a la derecha */}
           <div className="flex items-center space-x-3">
-            <LanguageDropdown />
+            <HybridLanguageDropdown />
+            {/* Toggle para desarrollo - visible para testing */}
+            <I18nModeToggle className="flex" showLabel={false} />
             <NotificationsList />
             <FaEnvelope className="text-gray-700" size={24} />
           </div>

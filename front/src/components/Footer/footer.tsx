@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import {
   FaTiktok,
@@ -8,8 +10,17 @@ import {
 } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
+import { useI18nMode } from "@/components/Context/I18nModeContext";
+import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
 
 function Footer() {
+  const { isNextIntlEnabled } = useI18nMode();
+  const tFooter = useNextIntlTranslations('footer');
+
+  // Función para obtener el texto traducido o el texto original
+  const getText = (originalText: string, translatedKey: string) => {
+    return isNextIntlEnabled ? tFooter.t(translatedKey) : originalText;
+  };
   return (
     <footer className="bg-black text-white py-8">
       <div className="container mx-auto px-6">
@@ -17,7 +28,7 @@ function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between mb-6 text-center md:text-left">
           <div>
             <h2 className="text-3xl font-bold">FutboLink</h2>
-            <p className="mt-2 text-lg">Conectando Talentos</p>
+            <p className="mt-2 text-lg">{getText("Conectando Talentos", "connectingTalents")}</p>
           </div>
           <div className="flex justify-center md:justify-end space-x-4 mt-4 md:mt-0">
             <a

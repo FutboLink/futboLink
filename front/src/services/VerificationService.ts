@@ -21,6 +21,10 @@ export interface VerificationRequest {
     name: string;
     lastname: string;
   };
+
+
+
+
   verificationType?: 'PROFESSIONAL' | 'SEMIPROFESSIONAL' | 'AMATEUR';
 }
 

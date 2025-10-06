@@ -13,6 +13,11 @@ const NextIntlLanguageSelector: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Ocultar en producción durante la migración
+  if (process.env.NODE_ENV === 'production') {
+    return null;
+  }
+
   // Cargar idioma guardado
   useEffect(() => {
     setLocale(getCurrentNextIntlLocale());

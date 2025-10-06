@@ -34,9 +34,18 @@ import Spinner from "@/components/utils/Spinner";
 import { validationRegister } from "@/components/Validate/ValidationRegister";
 import { type IRegisterUser, UserType } from "@/Interfaces/IUser";
 import useNationalities from "./useNationalitys";
+import { useI18nMode } from "@/components/Context/I18nModeContext";
+import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
 
 const RegistrationForm: React.FC = () => {
   const { signUp } = useContext(UserContext);
+  const { isNextIntlEnabled } = useI18nMode();
+  const tAuth = useNextIntlTranslations('auth');
+
+  // Función para obtener el texto traducido o el texto original
+  const getText = (originalText: string, translatedKey: string) => {
+    return isNextIntlEnabled ? tAuth.t(translatedKey) : originalText;
+  };
   const router = useRouter();
   const {
     nationalities,
@@ -207,13 +216,13 @@ const RegistrationForm: React.FC = () => {
     if (userRegister.password !== userRegister.confirmPassword) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        confirmPassword: "Las contraseñas no coinciden",
+        confirmPassword: getText("Las contraseñas no coinciden", "passwordMismatch"),
       }));
       return;
     }
 
     if (!userRegister.termsAccepted) {
-      setErrorMessage("Debe aceptar los términos y condiciones.");
+      setErrorMessage(getText("Debe aceptar los términos y condiciones.", "acceptTerms"));
       setShowErrorNotification(true);
       setTimeout(() => setShowErrorNotification(false), 3000);
       return;
@@ -247,7 +256,7 @@ const RegistrationForm: React.FC = () => {
     try {
       const isRegistered = await signUp(registrationData);
       if (isRegistered) {
-        setNotificationMessage("Registro exitoso");
+        setNotificationMessage(getText("Registro exitoso", "registerSuccess"));
         setShowNotification(true);
         setTimeout(async () => {
           router.push("/");
@@ -255,12 +264,12 @@ const RegistrationForm: React.FC = () => {
       } else {
         setErrors({
           ...errors,
-          general: "Registro inválido. Por favor, revisa los datos ingresados.",
+          general: getText("Registro inválido. Por favor, revisa los datos ingresados.", "registerError"),
         });
       }
     } catch (error: unknown) {
       // Intenta parsear el error del backend
-      let message = "Ocurrió un error inesperado.";
+      let message = getText("Ocurrió un error inesperado.", "generalError");
 
       if (error instanceof Error) {
         message = error.message;
@@ -272,7 +281,7 @@ const RegistrationForm: React.FC = () => {
       ) {
         setErrors((prev) => ({
           ...prev,
-          email: "Este correo ya está registrado",
+          email: getText("Este correo ya está registrado", "emailExists"),
         }));
       } else {
         setErrorMessage(message);
@@ -309,7 +318,7 @@ const RegistrationForm: React.FC = () => {
           >
             <FaFutbol className="h-10 w-10 text-gray-400 mb-3" />
             <span className="text-lg font-semibold text-emerald-800">
-              Futbolista
+              {getText("Futbolista", "footballer")}
             </span>
           </button>
 
@@ -322,7 +331,7 @@ const RegistrationForm: React.FC = () => {
           >
             <FaUsersCog className="h-10 w-10 text-gray-400 mb-3" />
             <span className="text-lg font-semibold text-emerald-800">
-              Cuerpo Técnico / Staff Deportivo
+              {getText("Cuerpo Técnico / Staff Deportivo", "technicalStaff")}
             </span>
           </button>
 
@@ -335,7 +344,7 @@ const RegistrationForm: React.FC = () => {
           >
             <FaBullhorn className="h-10 w-10 text-gray-400 mb-3" />
             <span className="text-lg font-semibold text-emerald-800">
-              Dirección y Comunicación
+              {getText("Dirección y Comunicación", "managementComm")}
             </span>
           </button>
 
@@ -348,7 +357,7 @@ const RegistrationForm: React.FC = () => {
           >
             <FaBriefcase className="h-10 w-10 text-gray-400 mb-3" />
             <span className="text-lg font-semibold text-emerald-800">
-              Profesionales Independientes / Representación 💼
+              {getText("Profesionales Independientes / Representación", "agency")} 💼
             </span>
           </button>
 
@@ -359,7 +368,7 @@ const RegistrationForm: React.FC = () => {
           >
             <FaShieldAlt className="h-10 w-10 text-gray-400 mb-3" />
             <span className="text-lg font-semibold text-emerald-800">
-              Entidad / Club
+              {getText("Entidad / Club", "entityClub")}
             </span>
           </button>
         </div>
@@ -406,8 +415,8 @@ const RegistrationForm: React.FC = () => {
           <div className="text-center md:text-left">
             <h2 className="text-2xl font-bold text-emerald-800">
               {selectedCategory === UserType.PLAYER
-                ? "Registro para Jugadores y Profesionales"
-                : `Registro para ${
+                ? getText("Registro para Jugadores y Profesionales", "registerTitle")
+                : `${getText("Registro para", "registerTitle")} ${
                     roleCategories[
                       selectedCategory as keyof typeof roleCategories
                     ]?.name
@@ -441,7 +450,7 @@ const RegistrationForm: React.FC = () => {
         {/* Rol */}
         <div className="flex flex-col col-span-full">
           <label htmlFor="rol" className="block text-gray-700 mb-2 font-medium">
-            Rol <span className="text-red-500">*</span>
+            {getText("Rol", "roleLabel")} <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <select
@@ -488,7 +497,7 @@ const RegistrationForm: React.FC = () => {
               htmlFor="nameAgent"
               className="block text-gray-700 mb-2 font-medium"
             >
-              Nombre de la Agencia <span className="text-red-500">*</span>
+              {getText("Nombre de la Agencia", "agencyNameLabel")} <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <input
@@ -498,7 +507,7 @@ const RegistrationForm: React.FC = () => {
                 value={userRegister.nameAgency || ""}
                 onChange={handleChange}
                 className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                placeholder="Nombre de tu agencia o empresa"
+                placeholder={getText("Nombre de tu agencia o empresa", "agencyName")}
                 required={selectedCategory === UserType.AGENCY}
               />
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -524,7 +533,7 @@ const RegistrationForm: React.FC = () => {
             htmlFor="name"
             className="block text-gray-700 mb-2 font-medium"
           >
-            Nombre <span className="text-red-500">*</span>
+            {getText("Nombre", "nameLabel")} <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <input
@@ -535,7 +544,7 @@ const RegistrationForm: React.FC = () => {
               onBlur={handleBlur}
               onChange={handleChange}
               className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-              placeholder="Tu nombre"
+              placeholder={getText("Tu nombre", "firstName")}
               required
             />
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -556,7 +565,7 @@ const RegistrationForm: React.FC = () => {
             htmlFor="lastName"
             className="block text-gray-700 mb-2 font-medium"
           >
-            Apellido <span className="text-red-500">*</span>
+            {getText("Apellido", "lastNameLabel")} <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <input
@@ -567,7 +576,7 @@ const RegistrationForm: React.FC = () => {
               onBlur={handleBlur}
               onChange={handleChange}
               className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-              placeholder="Tu apellido"
+              placeholder={getText("Tu apellido", "lastName")}
               required
             />
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -588,7 +597,7 @@ const RegistrationForm: React.FC = () => {
             htmlFor="email"
             className="block text-gray-700 mb-2 font-medium"
           >
-            Email <span className="text-red-500">*</span>
+            {getText("Email", "emailLabel")} <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <input
@@ -620,7 +629,7 @@ const RegistrationForm: React.FC = () => {
             htmlFor="nationalitySearch"
             className="block text-gray-700 mb-2 font-medium"
           >
-            Nacionalidad <span className="text-red-500">*</span>
+            {getText("Nacionalidad", "nationalityLabel")} <span className="text-red-500">*</span>
           </label>
           <div className="relative w-full">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -634,7 +643,7 @@ const RegistrationForm: React.FC = () => {
                 setSearch(e.target.value);
                 setSelectedNationality("");
               }}
-              placeholder="Buscar nacionalidad..."
+              placeholder={getText("Buscar nacionalidad...", "searchNationality")}
               onClick={toggleDropdown}
               className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
             />
@@ -684,7 +693,7 @@ const RegistrationForm: React.FC = () => {
             htmlFor="phone"
             className="block text-gray-700 mb-2 font-medium"
           >
-            Teléfono:
+            {getText("Teléfono:", "phoneLabel")}
           </label>
           <div id="phone" className="relative">
             <PhoneNumberInput
@@ -707,7 +716,7 @@ const RegistrationForm: React.FC = () => {
             htmlFor="genre"
             className="block text-gray-700 mb-2 font-medium"
           >
-            Género <span className="text-red-500">*</span>
+            {getText("Género", "genderLabel")} <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <select
@@ -718,10 +727,10 @@ const RegistrationForm: React.FC = () => {
               className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent appearance-none"
               required
             >
-              <option value="">Selecciona tu género</option>
-              <option value="Masculino">Masculino</option>
-              <option value="Femenino">Femenino</option>
-              <option value="Otro">Otr@s</option>
+              <option value="">{getText("Selecciona tu género", "selectGender")}</option>
+              <option value="Masculino">{getText("Masculino", "male")}</option>
+              <option value="Femenino">{getText("Femenino", "female")}</option>
+              <option value="Otro">{getText("Otr@s", "other")}</option>
             </select>
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <FaVenusMars className="h-5 w-5 text-gray-400" />
@@ -744,7 +753,7 @@ const RegistrationForm: React.FC = () => {
             htmlFor="ubicacionActual"
             className="block text-gray-700 mb-2 font-medium"
           >
-            País de Residencia Actual
+            {getText("País de Residencia Actual", "currentResidence")}
           </label>
           <div className="relative">
             <input
@@ -754,7 +763,7 @@ const RegistrationForm: React.FC = () => {
               value={userRegister.ubicacionActual}
               onChange={handleChange}
               className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-              placeholder="País donde resides actualmente"
+              placeholder={getText("País donde resides actualmente", "currentLocation")}
             />
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <FaGlobeAmericas className="h-5 w-5 text-gray-400" />
@@ -778,7 +787,7 @@ const RegistrationForm: React.FC = () => {
             htmlFor="password"
             className="block text-gray-700 mb-2 font-medium"
           >
-            Contraseña <span className="text-red-500">*</span>
+            {getText("Contraseña", "passwordLabel")} <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <input
@@ -789,7 +798,7 @@ const RegistrationForm: React.FC = () => {
               onBlur={handleBlur}
               onChange={handleChange}
               className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-              placeholder="Crea una contraseña segura"
+              placeholder={getText("Contraseña", "passwordPlaceholder")}
               required
             />
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -821,7 +830,7 @@ const RegistrationForm: React.FC = () => {
             htmlFor="confirmPassword"
             className="block text-gray-700 mb-2 font-medium"
           >
-            Confirmar Contraseña <span className="text-red-500">*</span>
+            {getText("Confirmar Contraseña", "confirmPasswordLabel")} <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <input
@@ -832,7 +841,7 @@ const RegistrationForm: React.FC = () => {
               onBlur={handleBlur}
               onChange={handleChange}
               className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-              placeholder="Confirma tu contraseña"
+              placeholder={getText("Confirmar contraseña", "confirmPassword")}
               required
             />
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

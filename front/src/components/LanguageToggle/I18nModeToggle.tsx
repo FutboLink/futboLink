@@ -10,17 +10,21 @@ interface I18nModeToggleProps {
 }
 
 const I18nModeToggle: React.FC<I18nModeToggleProps> = ({ 
-  className = "", 
-  showLabel = true 
+  showLabel = true, 
+  className = "" 
 }) => {
   const { mode, toggleMode, isNextIntlEnabled } = useI18nMode();
+  
+  // Ocultar en producción durante la migración
+  if (process.env.NODE_ENV === 'production') {
+    return null;
+  }
   
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       {showLabel && (
         <div className="flex items-center gap-1 text-sm text-gray-600">
           <FaCog size={14} />
-          <span>i18n:</span>
         </div>
       )}
       

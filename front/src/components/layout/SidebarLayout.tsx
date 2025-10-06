@@ -36,9 +36,18 @@ import I18nModeToggle from "../LanguageToggle/I18nModeToggle";
 import NotificationsList from "../Notifications/NotificationsList";
 import Navbar from "../navbar/navbar";
 import NewNavbar from "../navbar/newNavbar";
+import { useI18nMode } from "../Context/I18nModeContext";
+import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
 
 interface NavbarSidebarLayoutProps {
   children: ReactNode;
+}
+
+interface SidebarItem {
+  label: string;
+  icon: ReactNode;
+  path?: string;
+  onClick?: () => void;
 }
 
 const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
@@ -46,7 +55,14 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
   const router = useRouter();
   const { isLogged, role, setToken, setUser, user, logOut, token } =
     useUserContext();
+  const { isNextIntlEnabled } = useI18nMode();
+  const tNav = useNextIntlTranslations('navigation');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Función para obtener el texto traducido o el texto original
+  const getText = (originalText: string, translatedKey: string) => {
+    return isNextIntlEnabled ? tNav.t(translatedKey) : originalText;
+  };
 
   const { verificationStatus, fetchVerificationStatus } =
     useVerificationStatus(token);
@@ -100,31 +116,35 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
   };
 
   // Generar items del sidebar según rol
-  const getSidebarItems = () => {
+  const getSidebarItems = (): {
+    main: SidebarItem[];
+    bottom: SidebarItem[];
+    bottomNav: SidebarItem[];
+  } => {
     // Panel para administradores
     if (role === "ADMIN") {
       return {
         main: [
-          { label: "Inicio", path: "/", icon: <FaHome /> },
-          { label: "Perfil", path: "/PanelAdmin", icon: <FaUser /> },
-          { label: "Buscador", path: "/player-search", icon: <FaSearch /> },
-          { label: "Mercado", path: "/jobs", icon: <FaExchangeAlt /> },
-          { label: "Noticias", path: "/News", icon: <FaNewspaper /> },
-          { label: "Crear Noticia", path: "/PanelAdmin/News/crear-noticia", icon: <FaNewspaper /> },
-          { label: "Entrenamiento", path: "/cursos", icon: <FaDumbbell /> },
-          { label: "Crear Curso", path: "/PanelAdmin/Cursos/crear-curso", icon: <FaDumbbell /> },
+          { label: getText("Inicio", "home"), path: "/", icon: <FaHome /> },
+          { label: getText("Perfil", "profile"), path: "/PanelAdmin", icon: <FaUser /> },
+          { label: getText("Buscar", "search"), path: "/player-search", icon: <FaSearch /> },
+          { label: getText("Mercado", "market"), path: "/jobs", icon: <FaExchangeAlt /> },
+          { label: getText("Noticias", "news"), path: "/News", icon: <FaNewspaper /> },
+          { label: getText("Crear Noticia", "createNews"), path: "/PanelAdmin/News/crear-noticia", icon: <FaNewspaper /> },
+          { label: getText("Entrenamiento", "training"), path: "/cursos", icon: <FaDumbbell /> },
+          { label: getText("Crear Curso", "createCourse"), path: "/PanelAdmin/Cursos/crear-curso", icon: <FaDumbbell /> },
         ],
         bottom: [
-          { label: "Configuración", path: "/profile", icon: <MdSettings /> },
-          { label: "Ayuda", path: "/Help", icon: <FaQuestionCircle /> },
-          { label: "Mejorar Perfil", path: "/Subs", icon: <FaRocket /> },
+          { label: getText("Configuración", "settings"), path: "/profile", icon: <MdSettings /> },
+          { label: getText("Ayuda", "help"), path: "/Help", icon: <FaQuestionCircle /> },
+          { label: getText("Mejorar Perfil", "improveProfile"), path: "/Subs", icon: <FaRocket /> },
         ],
         bottomNav: [
-          { label: "Mercado", path: "/jobs", icon: <FaExchangeAlt /> },
-          { label: "Editar", path: "/profile", icon: <FaEdit /> },
-          { label: "Inicio", path: "/", icon: <FaHome /> },
-          { label: "Buscar", path: "/player-search", icon: <FaSearch /> },
-          { label: "Perfil", path: "/PanelAdmin", icon: <FaUser /> },
+          { label: getText("Mercado", "market"), path: "/jobs", icon: <FaExchangeAlt /> },
+          { label: getText("Editar", "editProfile"), path: "/profile", icon: <FaEdit /> },
+          { label: getText("Inicio", "home"), path: "/", icon: <FaHome /> },
+          { label: getText("Buscar", "search"), path: "/player-search", icon: <FaSearch /> },
+          { label: getText("Perfil", "profile"), path: "/PanelAdmin", icon: <FaUser /> },
         ],
       };
     }
@@ -133,32 +153,32 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
       return {
         main: [
           {
-            label: "Mi Perfil",
+            label: getText("Mi Perfil", "myProfile"),
             path: "/PanelUsers/Manager",
             icon: <AiOutlineUser />,
           },
           {
-            label: "Crear Oferta",
+            label: getText("Crear Oferta", "createOffer"),
             path: "/PanelUsers/Manager?section=createOffers",
             icon: <AiOutlineFileAdd />,
           },
           {
-            label: "Mis Ofertas",
+            label: getText("Mis Ofertas", "myOffers"),
             path: "/PanelUsers/Manager?section=appliedOffers",
             icon: <AiOutlineFileText />,
           },
           {
-            label: "Portafolio",
+            label: getText("Portafolio", "portfolio"),
             path: "/PanelUsers/Manager?section=portfolio",
             icon: <FaUsers />,
           },
           {
-            label: "Buscar Jugadores",
+            label: getText("Buscar Jugadores", "searchPlayers"),
             onClick: handlePlayerSearchClick,
             icon: <FaSearch />,
           },
-          { label: "Mercado", path: "/jobs", icon: <FaExchangeAlt /> },
-          { label: "Noticias", path: "/News", icon: <FaNewspaper /> },
+          { label: getText("Mercado", "market"), path: "/jobs", icon: <FaExchangeAlt /> },
+          { label: getText("Noticias", "news"), path: "/News", icon: <FaNewspaper /> },
         ],
         bottom: [
           {
@@ -363,9 +383,9 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
                     }
 
                     return (
-                      <li key={`main-${item.path}-${index}`}>
+                      <li key={`main-${item.path || item.label}-${index}`}>
                         <Link
-                          href={item.path}
+                          href={item.path || "/"}
                           className="flex items-center gap-4 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100"
                         >
                           <span className="text-lg">{item.icon}</span>
@@ -381,11 +401,11 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
             </div>
 
             <div className="border-t border-gray-200 pt-4 mt-4 space-y-2">
-              {sidebarItems.bottom.map((item) => {
+              {sidebarItems.bottom.map((item, index) => {
                 return (
                   <Link
-                    key={item.path}
-                    href={item.path}
+                    key={item.path || `bottom-${index}`}
+                    href={item.path || "/"}
                     className={`flex items-center gap-4 px-3 py-2 rounded-lg text-sm font-medium transition-all ${"text-gray-700 hover:bg-gray-100"}`}
                   >
                     <span className="text-lg">{item.icon}</span>
@@ -490,9 +510,9 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
                   }
 
                   return (
-                    <li key={`main-${item.path}-${index}`}>
+                    <li key={`main-${item.path || item.label}-${index}`}>
                       <Link
-                        href={item.path}
+                        href={item.path || "/"}
                         onClick={closeSidebar}
                         className="flex items-center gap-4 px-4 py-2 rounded-lg text-sm font-medium text-white-300 hover:bg-gray-700 hover:text-white transition-all"
                       >
@@ -506,10 +526,10 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
 
               <div className="mt-8 pt-4 border-t border-white-600">
                 <ul className="space-y-1">
-                  {sidebarItems.bottom.map((item) => (
-                    <li key={item.path}>
+                  {sidebarItems.bottom.map((item, index) => (
+                    <li key={item.path || `bottom-mobile-${index}`}>
                       <Link
-                        href={item.path}
+                        href={item.path || "/"}
                         onClick={closeSidebar}
                         className="flex items-center gap-4 px-4 py-2 rounded-lg text-sm font-medium text-white-300 hover:bg-gray-700 hover:text-white transition-all"
                       >
@@ -554,15 +574,15 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
       {isLogged && (
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-green-800 border-t border-green-700 z-30">
           <div className="flex justify-around py-2">
-            {sidebarItems.bottomNav.map((item) => {
+            {sidebarItems.bottomNav.map((item, index) => {
               const isActive =
                 pathname === item.path ||
-                (item.path.includes("?section=") &&
+                (item.path && item.path.includes("?section=") &&
                   pathname === item.path.split("?")[0]);
               return (
                 <Link
-                  key={item.path}
-                  href={item.path}
+                  key={item.path || `bottomNav-${index}`}
+                  href={item.path || "/"}
                   className={`flex flex-col items-center py-2 px-3 min-w-0 flex-1 transition-colors ${
                     isActive
                       ? "text-green-400"

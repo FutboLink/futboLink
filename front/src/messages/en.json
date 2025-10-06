@@ -1,0 +1,43 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "search": "Search",
+    "filter": "Filter",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close"
+  },
+  "navigation": {
+    "home": "Home",
+    "jobs": "Jobs",
+    "about": "About",
+    "contact": "Contact",
+    "login": "Login",
+    "register": "Register",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "language": {
+    "spanish": "Español",
+    "english": "English",
+    "italian": "Italiano",
+    "selectLanguage": "Select language"
+  },
+  "footer": {
+    "allRightsReserved": "All rights reserved",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service"
+  },
+  "home": {
+    "title": "Futbolink",
+    "subtitle": "Creating opportunities for your future in football",
+    "description": "The leading platform to connect sports talent with professional opportunities in the world of football."
+  }
+}

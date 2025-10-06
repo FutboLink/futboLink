@@ -3,6 +3,7 @@ import "./globals.css";
 
 import { TranslationProvider } from "@/components/Context/TranslationContext";
 import { UserProvider } from "@/components/Context/UserContext";
+import { I18nModeProvider } from "@/components/Context/I18nModeContext";
 import Footer from "@/components/Footer/footer";
 import NavbarSidebarLayout from "@/components/layout/SidebarLayout";
 import SocialButton from "@/components/SocialButton/SocialButton";
@@ -74,16 +75,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased hover:scale`}
       >
-        <UserProvider>
-          <TranslationProvider>
-            <NavbarSidebarLayout>
-              <div>{children}</div>
-            </NavbarSidebarLayout>
-            <SocialButton />
-            <Footer />
-            <ToastContainer />
-          </TranslationProvider>
-        </UserProvider>
+        <I18nModeProvider>
+          <UserProvider>
+            <TranslationProvider>
+              <NavbarSidebarLayout>
+                <div>{children}</div>
+              </NavbarSidebarLayout>
+              <SocialButton />
+              <Footer />
+              <ToastContainer />
+            </TranslationProvider>
+          </UserProvider>
+        </I18nModeProvider>
       </body>
     </html>
   );

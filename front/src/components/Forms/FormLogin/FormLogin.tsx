@@ -8,9 +8,18 @@ import { validationLogin } from "@/components/Validate/ValidationLogin";
 import { useUserContext } from "@/hook/useUserContext";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Spinner from "@/components/utils/Spinner";
+import { useI18nMode } from "@/components/Context/I18nModeContext";
+import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
 
 function LoginForm() {
   const { signIn } = useUserContext();
+  const { isNextIntlEnabled } = useI18nMode();
+  const tAuth = useNextIntlTranslations('auth');
+
+  // Función para obtener el texto traducido o el texto original
+  const getText = (originalText: string, translatedKey: string) => {
+    return isNextIntlEnabled ? tAuth.t(translatedKey) : originalText;
+  };
   const router = useRouter();
   const [userData, setUserData] = useState({
     email: "",
@@ -45,17 +54,17 @@ function LoginForm() {
         const success = await signIn(credentials);
         console.log(success);
         if (success) {
-          setNotificationMessage("Has ingresado correctamente");
+          setNotificationMessage(getText("Has ingresado correctamente", "loginSuccess"));
           setShowNotification(true);
           setTimeout(() => setShowNotification(false), 2000);
           router.push("/");
         } else {
-          setNotificationMessage("Usuario o contraseña incorrectos");
+          setNotificationMessage(getText("Usuario o contraseña incorrectos", "loginError"));
           setShowNotification(true);
           setTimeout(() => setShowNotification(false), 3000);
         }
       } catch {
-        setNotificationMessage("Ocurrió un error, intenta de nuevo");
+        setNotificationMessage(getText("Ocurrió un error, intenta de nuevo", "generalError"));
         setShowNotification(true);
         setTimeout(() => setShowNotification(false), 3000);
       } finally {
@@ -77,7 +86,7 @@ function LoginForm() {
 
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-center mb-6 text-verde-oscuro">
-          Iniciar sesión
+          {getText("Iniciar sesión", "loginTitle")}
         </h2>
         <form onSubmit={handleSubmit}>
           {/* Campo de correo */}
@@ -86,14 +95,14 @@ function LoginForm() {
               htmlFor="email"
               className="block text-sm font-medium text-gray-700"
             >
-              Correo electrónico
+              {getText("Correo electrónico", "email")}
             </label>
             <input
               type="email"
               name="email"
               value={userData.email}
               onChange={handleChange}
-              placeholder="Email"
+              placeholder={getText("Email", "emailPlaceholder")}
               className="w-full mt-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro focus:border-transparent"
             />
             {errors.email && (
@@ -107,7 +116,7 @@ function LoginForm() {
               htmlFor="password"
               className="block text-sm font-medium text-gray-700"
             >
-              Contraseña
+              {getText("Contraseña", "password")}
             </label>
             <div className="relative">
               <input
@@ -115,7 +124,7 @@ function LoginForm() {
                 name="password"
                 value={userData.password}
                 onChange={handleChange}
-                placeholder="Contraseña"
+                placeholder={getText("Contraseña", "passwordPlaceholder")}
                 className="w-full mt-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro focus:border-transparent pr-10"
               />
               {/* Botón para mostrar/ocultar contraseña */}
@@ -141,7 +150,7 @@ function LoginForm() {
             type="submit"
             className="w-full py-2 bg-verde-oscuro text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-verde-claro focus:ring-opacity-50"
           >
-            Ingresar
+            {getText("Ingresar", "loginButton")}
           </button>
           {showNotification && (
             <div className="absolute top-12 left-0 right-0 mx-auto w-max">
@@ -150,18 +159,18 @@ function LoginForm() {
           )}
         </form>
         <p className="mt-4 text-center text-sm text-gray-600">
-          ¿No tienes cuenta?{" "}
+          {getText("¿No tienes cuenta?", "noAccount")}{" "}
           <Link
             href="/OptionUsers"
             className="text-verde-oscuro hover:underline"
           >
-            Regístrate aquí
+            {getText("Regístrate aquí", "registerHere")}
           </Link>
         </p>
         <p className="mt-4 text-center text-sm text-gray-600">
           <Link className="underline hover:font-bold" href="/forgotPassword">
             {" "}
-            Olvidé mi contraseña
+            {getText("Olvidé mi contraseña", "forgotPassword")}
           </Link>
         </p>
       </div>

@@ -8,7 +8,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { FaUser, FaUsers } from "react-icons/fa";
 import { useUserContext } from "@/hook/useUserContext";
-import LanguageDropdown from "../LanguageToggle/LanguageDropdown";
+import HybridLanguageDropdown from "../LanguageToggle/HybridLanguageDropdown";
+import I18nModeToggle from "../LanguageToggle/I18nModeToggle";
+import NextIntlLanguageSelector from "../LanguageToggle/NextIntlLanguageSelector";
 import NotificationsList from "../Notifications/NotificationsList";
 
 function NavbarRoles() {
@@ -182,7 +184,11 @@ function NavbarRoles() {
           {/* Language dropdown and login buttons */}
           <div className="hidden md:flex ml-auto items-center gap-4">
             {/* Language Dropdown */}
-            <LanguageDropdown />
+            <HybridLanguageDropdown />
+            {/* Next-Intl Language Selector */}
+            <NextIntlLanguageSelector />
+            {/* i18n Mode Toggle */}
+            <I18nModeToggle showLabel={true} />
 
             {!isLogged && (
               <>
@@ -216,7 +222,11 @@ function NavbarRoles() {
           {/* Menú móvil: hamburguesa + ícono de usuario + notificaciones */}
           <div className="flex items-center justify-end space-x-3 md:hidden">
             {/* Language Dropdown (Mobile) */}
-            <LanguageDropdown />
+            <HybridLanguageDropdown />
+            {/* Next-Intl Language Selector (Mobile) */}
+            <NextIntlLanguageSelector />
+            {/* i18n Mode Toggle (Mobile) */}
+            <I18nModeToggle showLabel={false} />
 
             {isLogged && (
               <>

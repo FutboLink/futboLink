@@ -8,8 +8,12 @@ import { useRouter } from "next/navigation";
 import { useContext, useEffect, useRef, useState } from "react";
 import { FaEnvelope } from "react-icons/fa";
 import { UserContext } from "../Context/UserContext";
-import LanguageDropdown from "../LanguageToggle/LanguageDropdown";
+import HybridLanguageDropdown from "../LanguageToggle/HybridLanguageDropdown";
+import I18nModeToggle from "../LanguageToggle/I18nModeToggle";
+import NextIntlLanguageSelector from "../LanguageToggle/NextIntlLanguageSelector";
 import NotificationsList from "../Notifications/NotificationsList";
+import { useI18nMode } from "../Context/I18nModeContext";
+import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
 
 function newNavbar() {
   const router = useRouter();
@@ -19,6 +23,13 @@ function newNavbar() {
     useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { isLogged, user, token } = useContext(UserContext);
+  const { isNextIntlEnabled } = useI18nMode();
+  const tNav = useNextIntlTranslations('navigation');
+
+  // Función para obtener el texto traducido o el texto original
+  const getText = (originalText: string, translatedKey: string) => {
+    return isNextIntlEnabled ? tNav.t(translatedKey) : originalText;
+  };
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const navigateTo = (path: string) => {
@@ -90,7 +101,11 @@ function newNavbar() {
           {/* Language dropdown and login buttons */}
           <div className="hidden md:flex ml-auto items-center gap-4">
             {/* Language Dropdown */}
-            <LanguageDropdown />
+            <HybridLanguageDropdown />
+            {/* Next-Intl Language Selector */}
+            <NextIntlLanguageSelector />
+            {/* i18n Mode Toggle */}
+            <I18nModeToggle showLabel={true} />
 
             {!isLogged && (
               <>
@@ -100,7 +115,7 @@ function newNavbar() {
                     className="px-4 py-2 bg-yellow-500 text-black rounded-md hover:bg-yellow-600"
                     type="button"
                   >
-                    Iniciar sesión
+                    {getText("Iniciar sesión", "login")}
                   </button>
                 </Link>
                 <button
@@ -108,7 +123,7 @@ function newNavbar() {
                   className="px-4 py-2 bg-white text-verde-oscuro rounded-md  hover:bg-gray-200 m-0"
                   type="button"
                 >
-                  Registrarse
+                  {getText("Registrarse", "register")}
                 </button>
               </>
             )}
@@ -123,7 +138,11 @@ function newNavbar() {
           {/* Menú móvil: hamburguesa + ícono de usuario + notificaciones */}
           <div className="flex items-center justify-end space-x-3 md:hidden">
             {/* Language Dropdown (Mobile) */}
-            <LanguageDropdown />
+            <HybridLanguageDropdown />
+            {/* Next-Intl Language Selector (Mobile) */}
+            <NextIntlLanguageSelector />
+            {/* i18n Mode Toggle (Mobile) */}
+            <I18nModeToggle showLabel={false} />
 
             {isLogged && <NotificationsList />}
             <button

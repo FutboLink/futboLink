@@ -15,6 +15,8 @@ import {
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
   const plan = searchParams?.get("plan") || "Semiprofesional"; // Valor por defecto si no hay parámetro o searchParams es null
+  const type = searchParams?.get("type") || ""; // Tipo de suscripción (verification, etc.)
+  const redirect = searchParams?.get("redirect") || ""; // URL de redirección
   const [status, setStatus] = useState<"loading" | "success" | "error">(
     "loading"
   );
@@ -39,6 +41,12 @@ function PaymentSuccessContent() {
 
   useEffect(() => {
     const processPayment = async () => {
+      // Si es una suscripción de verificación, redirigir a la página específica
+      if (type === "verification") {
+        router.push("/verification-success");
+        return;
+      }
+
       // Si no hay plan en los parámetros, intentamos determinar si es un pago por defecto
       let subType = plan;
 
@@ -102,7 +110,7 @@ function PaymentSuccessContent() {
     };
 
     processPayment();
-  }, [plan, userEmail]);
+  }, [plan, type, userEmail, router]);
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">

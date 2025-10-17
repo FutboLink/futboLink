@@ -30,6 +30,7 @@ import {
   requestVerification,
   showVerificationToast,
 } from "@/services/VerificationService";
+import VerificationSubscription from "../verification-subscription";
 
 // URL del backend
 const API_URL = "https://futbolink.onrender.com";
@@ -91,6 +92,7 @@ export default function UserViewer() {
   const [showShareOptions, setShowShareOptions] = useState(false);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [showVerificationSubscriptionModal, setShowVerificationSubscriptionModal] = useState(false);
   const [verificationMessage, setVerificationMessage] = useState("");
   const [verificationAttachment, setVerificationAttachment] =
     useState<File | null>(null);
@@ -115,12 +117,12 @@ export default function UserViewer() {
     if (!verificationStatus?.isVerified) {
       return "Amateur";
     }
-
+    
     // Si está verificado, usar el competitionLevel del usuario
     try {
       const competitionLevel =
         profile?.competitionLevel?.toLowerCase() || "amateur";
-
+      
       if (
         competitionLevel.includes("professional") ||
         competitionLevel.includes("profesional")
@@ -143,7 +145,7 @@ export default function UserViewer() {
   const [profileLevel, setProfileLevel] = useState<
     "Profesional" | "Semiprofesional" | "Amateur"
   >("Amateur");
-
+  
   useEffect(() => {
     setProfileLevel(computeProfileLevel());
   }, [verificationStatus, profile?.competitionLevel]);
@@ -664,10 +666,10 @@ export default function UserViewer() {
                   {!isPurePlayer &&
                     profile.role !== UserType.RECRUITER &&
                     profile.puesto && (
-                      <p className="text-sm text-gray-600 font-medium">
-                        {profile.puesto}
-                      </p>
-                    )}
+                    <p className="text-sm text-gray-600 font-medium">
+                      {profile.puesto}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -807,7 +809,7 @@ export default function UserViewer() {
                 {isOwnProfile && token && (
                   <button
                     className="flex flex-col items-center justify-center p-2 transition-colors duration-200 hover:bg-gray-50 rounded-lg"
-                    onClick={() => setShowVerificationModal(true)}
+                    onClick={() => setShowVerificationSubscriptionModal(true)}
                     aria-label="boton para verificar el perfil"
                     type="button"
                   >
@@ -997,7 +999,7 @@ export default function UserViewer() {
                         {isOwnProfile && (
                           <button
                             className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md text-left w-full"
-                            onClick={() => setShowVerificationModal(true)}
+                            onClick={() => setShowVerificationSubscriptionModal(true)}
                             type="button"
                             aria-label="icono de verificacion"
                           >
@@ -1060,92 +1062,92 @@ export default function UserViewer() {
             {currentClub &&
               !isPurePlayer &&
               profile.role !== UserType.RECRUITER && (
-                <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mb-4">
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3 border border-gray-200">
-                      {/* Aquí iría el logo del club si está disponible */}
-                      <FaShieldAlt className="w-7 h-7 text-gray-500" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-gray-800">
-                        {currentClub.club}
-                      </h3>
-                      <div className="flex items-center text-sm text-gray-600">
-                        {profile.nationality && (
-                          <span className="mr-1">
-                            {renderCountryFlag(profile.nationality)}
-                          </span>
-                        )}
-                        <span>
+              <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mb-4">
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3 border border-gray-200">
+                    {/* Aquí iría el logo del club si está disponible */}
+                    <FaShieldAlt className="w-7 h-7 text-gray-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-800">
+                      {currentClub.club}
+                    </h3>
+                    <div className="flex items-center text-sm text-gray-600">
+                      {profile.nationality && (
+                        <span className="mr-1">
+                          {renderCountryFlag(profile.nationality)}
+                        </span>
+                      )}
+                      <span>
                           {currentClub.nivelCompetencia ||
                             "Organización deportiva"}
-                        </span>
-                      </div>
-                      <div className="text-sm text-gray-600 mt-1">
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-600 mt-1">
                         <span>
                           Rol: {profile.puesto || getRoleDisplay(profile.role)}
                         </span>
-                      </div>
                     </div>
-                    <div className="ml-auto"></div>
                   </div>
-                  <div className="mt-3 text-sm text-gray-600">
-                    <span>Hasta {contractEndDate}</span>
-                  </div>
+                  <div className="ml-auto"></div>
                 </div>
-              )}
+                <div className="mt-3 text-sm text-gray-600">
+                  <span>Hasta {contractEndDate}</span>
+                </div>
+              </div>
+            )}
 
             {/* Agente/Representación - Solo para jugadores */}
-
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 shadow-md border border-green-200 mb-4">
-              <div className="flex items-center">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mr-3 border-2 border-green-300 shadow-sm">
-                  {profile.nameAgency ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-7 w-7 text-green-600"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
-                  ) : (
-                    <FaUserSlash className="w-7 h-7 text-green-500" />
-                  )}
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-800">Representación</h3>
-                  <div className="flex items-center">
+            
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 shadow-md border border-green-200 mb-4">
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mr-3 border-2 border-green-300 shadow-sm">
                     {profile.nameAgency ? (
-                      <div className="flex items-center">
-                        <span className="text-green-700 font-medium">
-                          {profile.nameAgency}
-                        </span>
-                        <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
-                          Agente oficial
-                        </span>
-                      </div>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-7 w-7 text-green-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                        />
+                      </svg>
                     ) : (
-                      <div className="flex items-center">
-                        <span className="text-green-600 font-medium">
-                          Sin representación
-                        </span>
-                        <span className="ml-2 bg-red-100 text-green-700 text-xs px-2 py-0.5 rounded-full">
-                          Free Agent
-                        </span>
-                      </div>
+                      <FaUserSlash className="w-7 h-7 text-green-500" />
                     )}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-800">Representación</h3>
+                    <div className="flex items-center">
+                      {profile.nameAgency ? (
+                        <div className="flex items-center">
+                          <span className="text-green-700 font-medium">
+                            {profile.nameAgency}
+                          </span>
+                          <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
+                            Agente oficial
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center">
+                          <span className="text-green-600 font-medium">
+                            Sin representación
+                          </span>
+                          <span className="ml-2 bg-red-100 text-green-700 text-xs px-2 py-0.5 rounded-full">
+                            Free Agent
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
             {/* Estadísticas principales - Solo para jugadores */}
             {isPurePlayer && (
@@ -1302,24 +1304,24 @@ export default function UserViewer() {
               </div>
             )}
 
-            {/* Sección de CV */}
-            <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mt-4">
+             {/* Sección de CV */}
+             <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mt-4">
               <h3 className="text-lg font-medium mb-3 text-gray-800">
                 Currículum Vitae
               </h3>
-              {profile.cv ? (
-                <a
-                  href={profile.cv}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm"
-                >
-                  Ver CV
-                </a>
-              ) : (
-                <p className="text-gray-600 text-sm">No hay CV cargado.</p>
-              )}
-            </div>
+                    {profile.cv ? (
+                      <a
+                        href={profile.cv}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm"
+                      >
+                        Ver CV
+                      </a>
+                    ) : (
+                      <p className="text-gray-600 text-sm">No hay CV cargado.</p>
+                    )}
+                  </div>
 
             {/* Información de contacto para reclutadores */}
             {profile.role === UserType.RECRUITER && (
@@ -1565,14 +1567,14 @@ export default function UserViewer() {
 
                       {/* Información específica para profesionales no jugadores */}
                       {!isPurePlayer && profile.role !== UserType.RECRUITER && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">
-                            Fecha de nacimiento
-                          </span>
-                          <span className="text-gray-800">
-                            {profile.birthday || "No especificada"}
-                          </span>
-                        </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">
+                              Fecha de nacimiento
+                            </span>
+                            <span className="text-gray-800">
+                              {profile.birthday || "No especificada"}
+                            </span>
+                          </div>
                       )}
                       <div className="flex justify-between">
                         <span className="text-gray-600">Nacionalidad</span>
@@ -1608,13 +1610,13 @@ export default function UserViewer() {
                       {/* Pasaporte UE - Para todos los perfiles excepto reclutadores */}
                       {profile.pasaporteUe &&
                         profile.role !== UserType.RECRUITER && (
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Pasaporte UE</span>
-                            <span className="text-gray-800">
-                              {profile.pasaporteUe}
-                            </span>
-                          </div>
-                        )}
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Pasaporte UE</span>
+                          <span className="text-gray-800">
+                            {profile.pasaporteUe}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -1745,7 +1747,7 @@ export default function UserViewer() {
                       </div>
                     </div>
                   )}
-
+                 
                   {/* Sección de video */}
                   <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
                     <h3 className="text-lg font-medium mb-3 text-gray-800">
@@ -2155,6 +2157,12 @@ export default function UserViewer() {
             </div>
           </div>
         )}
+
+        {/* Verification Subscription Modal */}
+        <VerificationSubscription
+          isOpen={showVerificationSubscriptionModal}
+          onClose={() => setShowVerificationSubscriptionModal(false)}
+        />
       </div>
     </div>
   );

@@ -73,7 +73,7 @@ function Subs() {
       console.log(`API URL: ${apiUrl}/payments/subscription`);
       
       // Crear la URL de éxito que incluye el parámetro del plan
-      const successUrl = `${window.location.origin}/payment/success?plan=${planName}`;
+      const successUrl = `${window.location.origin}/payment/success?plan=${encodeURIComponent(planName)}`;
       
       const response = await fetch(
         `${apiUrl}/payments/subscription`,

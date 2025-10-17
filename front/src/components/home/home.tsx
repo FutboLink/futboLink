@@ -122,15 +122,11 @@ const Home = () => {
 
         <About />
       </section>
-      <section data-aos="zoom-in" data-aos-delay="600">
-        <Subs />
-      </section>
+     
       <section data-aos="zoom-in" data-aos-delay="600">
         <ClientsSection />
       </section>
-      <section data-aos="fade-right" data-aos-delay="200">
-        <Notices />
-      </section>
+    
     </main>
   );
 };

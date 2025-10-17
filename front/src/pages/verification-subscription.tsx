@@ -16,8 +16,8 @@ const verificationPlan = {
   title: "Verificación de Perfil",
   slogan: "Destacá tu perfil con una insignia de verificado",
   image: "/icons-positions/portero.png",
-  monthlyPrice: "$9.99",
-  yearlyPrice: "$99.99",
+  monthlyPrice: "€1,95",
+  yearlyPrice: "€18,95",
   priceId: {
     monthly: "price_1S5Z3lGbCHvHfqXFd1Xkxf54",
     yearly: "price_1S5ZCrGbCHvHfqXFSySOSYdQ"
@@ -147,7 +147,7 @@ function VerificationSubscription({ isOpen, onClose }: VerificationModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div>

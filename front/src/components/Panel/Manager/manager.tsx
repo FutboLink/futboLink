@@ -10,6 +10,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { FaGlobe } from "react-icons/fa";
 import { FaBolt, FaUsers } from "react-icons/fa6";
+import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
 import { UserContext } from "@/components/Context/UserContext";
 import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
 import { fetchUserId } from "@/components/Fetchs/UsersFetchs/UserFetchs";
@@ -208,265 +209,298 @@ const PanelManager = () => {
   const handleSectionChange = (section: string) => {
     setActiveSection(section);
     // Actualizar la URL sin recargar la página
-    router.push(`/manager-panel?section=${section}`, { scroll: false });
+    router.push(`/PanelUsers/Manager?section=${section}`, { scroll: false });
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Contenido principal */}
-        {error && (
-          <div className="mb-4 p-4 bg-red-100 text-red-800 rounded-lg">
-            {error}
-          </div>
-        )}
+    <div className="min-h-screen bg-white text-gray-800">
+      {/* Powered by logo */}
+      <div className="sticky left-0 right-0 bg-white shadow-sm py-1">
+        <div className="flex justify-center items-center">
+          <span className="text-xs text-gray-400 mr-2">Powered by</span>
+          <Link href="/">
+            <Image
+              src="/logo nombre completo.png"
+              alt="FutboLink"
+              width={90}
+              height={30}
+              className="h-8 w-auto object-contain cursor-pointer hover:opacity-80 transition-opacity"
+            />
+          </Link>
+        </div>
+      </div>
 
-        {/* Sección de Perfil */}
-        {activeSection === "profile" && (
-          <div
-            className="p-6 bg-white text-gray-700 rounded-xl shadow-md"
-            data-aos="fade-up"
-          >
-            <h3 className="text-2xl font-semibold mb-6 text-[#1d5126] border-b border-gray-200 pb-2">
-              Información Personal
-            </h3>
-
-            {/* Contenedor Principal con dos columnas */}
-            <div className="flex flex-col md:flex-row justify-between gap-8">
-              {/* Columna Izquierda */}
-              <div className="md:w-1/2">
-                <div className="flex items-start">
-                  <div className="w-full">
-                    <h2 className="text-xl font-semibold text-[#1d5126] mb-4">
-                      {userData?.name} {userData?.lastname}
-                    </h2>
-                    <div className="text-gray-700 mt-2 space-y-3">
-                      <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                        <strong className="text-[#1d5126]">
-                          Nombre de la entidad:
-                        </strong>{" "}
-                        <span>{userData?.nameAgency || "No disponible"}</span>
-                      </p>
-                      <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                        <strong className="text-[#1d5126]">Email:</strong>{" "}
-                        <span>{userData?.email}</span>
-                      </p>
-                      <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                        <strong className="text-[#1d5126]">
-                          Tipo de organización:
-                        </strong>{" "}
-                        <span>{userData?.puesto}</span>
-                      </p>
-                      <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                        <strong className="text-[#1d5126]">
-                          Año de fundación:
-                        </strong>{" "}
-                        <span>{userData?.age}</span>
-                      </p>
-                      <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                        <strong className="text-[#1d5126]">Región:</strong>{" "}
-                        <span>{userData?.location}</span>
-                      </p>
-                    </div>
-                  </div>
+      {/* Contenido principal */}
+      <div className="pt-1 mt-4 container mx-auto px-4 md:px-8 lg:px-12 xl:px-24">
+        {/* Layout para desktop: 2 columnas */}
+        <div className="lg:flex lg:gap-8">
+          {/* Columna izquierda - Card de perfil */}
+          <div className="lg:w-1/3">
+            <div className="pt-8 pb-4 px-4 bg-white rounded-lg shadow-sm mb-4">
+              <div className="flex items-center mb-4">
+                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-purple-500">
+                  <Image
+                    src={userData?.imgUrl || "/default-avatar.png"}
+                    alt={userData?.name || "Foto de perfil"}
+                    width={80}
+                    height={80}
+                    className="object-cover shadow-lg w-full h-full"
+                  />
+                </div>
+                <div className="ml-4">
+                  <h2 className="text-xl font-medium text-gray-600">
+                    {userData?.name}
+                  </h2>
+                  <h1 className="text-2xl font-bold text-gray-800">
+                    {userData?.lastname}
+                  </h1>
+                  <p className="text-sm text-purple-600 font-medium">
+                    Agencia/Reclutador
+                  </p>
                 </div>
               </div>
 
-              {/* Columna Derecha */}
-              <div className="md:w-1/2">
-                <div className="mt-1">
-                  <div className="text-gray-700 space-y-3">
-                    <div className="border border-gray-200 bg-gray-50 p-3 rounded-lg shadow-sm flex justify-between items-center text-base text-gray-700">
-                      <strong className="text-[#1d5126]">Teléfono:</strong>
-                      <div className="flex items-center gap-2">
-                        <PhoneNumberInput
-                          mode="view"
-                          value={userData?.phone}
-                          showWhatsAppLink
-                          className="text-base text-gray-700"
-                        />
-                      </div>
-                    </div>
+              <div className="flex items-center text-sm text-gray-600 mb-4">
+                <div className="w-2 h-2 rounded-full bg-purple-500 mr-2"></div>
+                <span>{userData?.nameAgency || "Manager"}</span>
+                {userData?.ubicacionActual && (
+                  <>
+                    <span className="mx-2">|</span>
+                    <span>{userData.ubicacionActual}</span>
+                  </>
+                )}
+              </div>
+            </div>
 
-                    <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                      <strong className="text-[#1d5126]">Nacionalidad:</strong>{" "}
-                      <span>{userData?.nationality || "No disponible"}</span>
-                    </p>
-                    <p className="border border-gray-200 bg-gray-50 p-3 mb-2 rounded-lg shadow-sm flex justify-between">
-                      <strong className="text-[#1d5126]">
-                        País de Residencia:
-                      </strong>{" "}
-                      <span>
-                        {userData?.ubicacionActual || "No disponible"}
-                      </span>
-                    </p>
+            {/* Suscripción */}
+            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 shadow-md border border-green-200 mb-4">
+              <h3 className="text-lg font-medium text-gray-800 mb-2">Plan de Suscripción</h3>
+              <span
+                className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                  subscriptionInfo.subscriptionType === "Profesional"
+                    ? "bg-green-600 text-white"
+                    : "bg-gray-500 text-white"
+                }`}
+              >
+                {subscriptionInfo.subscriptionType}
+              </span>
+              {subscriptionInfo.subscriptionType === "Gratuito" && (
+                <div className="mt-2">
+                  <Link
+                    href="/manager-subscription"
+                    className="text-blue-600 hover:text-blue-800 underline text-sm"
+                  >
+                    Actualizar a Plan Profesional
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
 
-                    {/* Información de Suscripción */}
-                    <div className="border border-gray-200 bg-gradient-to-r from-green-50 to-blue-50 p-3 mb-2 rounded-lg shadow-sm">
-                      <div className="flex items-center justify-between">
-                        <strong className="text-[#1d5126] flex items-center">
-                          <FaBolt className="mr-2 text-yellow-500" />
-                          Plan de Suscripción:
-                        </strong>
-                        {loadingSubscription ? (
-                          <span className="text-gray-500 text-sm">
-                            Cargando...
-                          </span>
-                        ) : (
-                          <span
-                            className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                              subscriptionInfo.subscriptionType ===
-                              "Profesional"
-                                ? "bg-green-600 text-white"
-                                : "bg-gray-500 text-white"
-                            }`}
-                          >
-                            {subscriptionInfo.subscriptionType}
-                          </span>
-                        )}
-                      </div>
-                      {!loadingSubscription && (
-                        <div className="mt-2 text-sm text-gray-600">
-                          <p className="flex items-center">
-                            <span
-                              className={`w-2 h-2 rounded-full mr-2 ${
-                                subscriptionInfo.hasActiveSubscription
-                                  ? "bg-green-500"
-                                  : "bg-gray-400"
-                              }`}
-                            ></span>
-                            Estado:{" "}
-                            {subscriptionInfo.hasActiveSubscription
-                              ? "Activa"
-                              : "Inactiva"}
-                          </p>
-                          {subscriptionInfo.subscriptionType === "Gratuito" && (
-                            <div className="mt-2">
-                              <Link
-                                href="/manager-subscription"
-                                className="text-blue-600 hover:text-blue-800 underline text-sm"
-                              >
-                                Actualizar a Plan Profesional
-                              </Link>
-                            </div>
-                          )}
-                        </div>
+          {/* Columna derecha - Tabs */}
+          <div className="lg:w-2/3">
+            <div className="px-4 mb-4">
+              <div className="flex border-b border-gray-200">
+                <button
+                  onClick={() => setActiveSection("profile")}
+                  type="button"
+                  className={`flex-1 py-3 text-center ${
+                    activeSection === "profile"
+                      ? "text-green-600 border-b-2 border-green-600"
+                      : "text-gray-500"
+                  }`}
+                >
+                  Información
+                </button>
+                <button
+                  onClick={() => setActiveSection("appliedOffers")}
+                  type="button"
+                  className={`flex-1 py-3 text-center ${
+                    activeSection === "appliedOffers"
+                      ? "text-green-600 border-b-2 border-green-600"
+                      : "text-gray-500"
+                  }`}
+                >
+                  Mis Ofertas
+                </button>
+                <button
+                  onClick={() => setActiveSection("portfolio")}
+                  type="button"
+                  className={`flex-1 py-3 text-center ${
+                    activeSection === "portfolio"
+                      ? "text-green-600 border-b-2 border-green-600"
+                      : "text-gray-500"
+                  }`}
+                >
+                  Portafolio
+                </button>
+              </div>
+            </div>
+
+            <div className="px-4 pb-20 lg:pb-8">
+              {error && (
+                <div className="mb-4 p-4 bg-red-100 text-red-800 rounded-lg">
+                  {error}
+                </div>
+              )}
+
+        {/* Sección de Perfil */}
+        {activeSection === "profile" && (
+          <div className="space-y-4">
+            {/* Información de la agencia */}
+            <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+              <h3 className="text-lg font-medium mb-3 text-gray-800">
+                Información de la agencia
+              </h3>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Nombre completo</span>
+                  <span className="text-gray-800">
+                    {userData?.name} {userData?.lastname}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Nombre de la entidad</span>
+                  <span className="text-gray-800">
+                    {userData?.nameAgency || "No disponible"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Tipo de organización</span>
+                  <span className="text-gray-800">
+                    {userData?.puesto || "No especificado"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Año de fundación</span>
+                  <span className="text-gray-800">
+                    {userData?.age || "No especificado"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Nacionalidad</span>
+                  <span className="flex items-center text-gray-800">
+                    {userData?.nationality && renderCountryFlag(userData.nationality)}
+                    <span className="ml-2">{userData?.nationality || "No disponible"}</span>
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">País de Residencia</span>
+                  <span className="flex items-center text-gray-800">
+                    {userData?.ubicacionActual && renderCountryFlag(userData.ubicacionActual)}
+                    <span className="ml-2">{userData?.ubicacionActual || "No disponible"}</span>
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Región</span>
+                  <span className="text-gray-800">
+                    {userData?.location || "No especificada"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Información de contacto */}
+            <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+              <h3 className="text-lg font-medium mb-3 text-gray-800">
+                Contacto
+              </h3>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Email</span>
+                  <span className="text-gray-800">{userData?.email}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Teléfono</span>
+                  <PhoneNumberInput
+                    mode="view"
+                    value={userData?.phone}
+                    showWhatsAppLink
+                    className="text-base text-gray-800"
+                  />
+                </div>
+                {userData?.socialMedia && Object.keys(userData.socialMedia || {}).length > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Redes sociales</span>
+                    <div className="flex space-x-3">
+                      {userData.socialMedia?.website && (
+                        <a
+                          href={userData.socialMedia.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 transition-colors"
+                          title="Sitio web"
+                        >
+                          <FaGlobe className="w-5 h-5" />
+                        </a>
                       )}
                     </div>
-
-                    {/* Redes Sociales */}
-                    <div className="mt-6">
-                      <strong className="text-[#1d5126] text-lg">
-                        Redes Sociales:
-                      </strong>
-                      <div className="flex space-x-4 mt-3 items-center p-3 bg-gray-50 rounded-lg">
-                        {userData?.socialMedia?.website && (
-                          <a
-                            href={userData.socialMedia.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 transition-colors"
-                          >
-                            <FaGlobe
-                              size={26}
-                              className="hover:scale-110 transition-transform"
-                            />
-                          </a>
-                        )}
-                      </div>
-                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
 
             {/* Video de Presentación */}
             {userData?.videoUrl && (
-              <div className="mt-8 pt-4 border-t border-gray-200">
-                <h3 className="text-lg font-semibold mb-4 text-[#1d5126]">
+              <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+                <h3 className="text-lg font-medium mb-3 text-gray-800">
                   Video de Presentación
                 </h3>
-                <div className="relative w-full bg-black shadow-md rounded-lg overflow-hidden">
-                  {userData.videoUrl && (
-                    <iframe
-                      src={userData.videoUrl}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className="w-full h-[350px] rounded-lg"
-                      title="Video de presentacion"
-                    ></iframe>
-                  )}
+                <div className="relative w-full bg-black rounded-lg overflow-hidden">
+                  <iframe
+                    src={userData.videoUrl}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-[350px]"
+                    title="Video de presentación"
+                  />
                 </div>
               </div>
             )}
 
-            {/* CV Section - If available */}
+            {/* CV Section */}
             {userData?.cv && (
-              <div className="mt-8 pt-4 border-t border-gray-200">
-                <h3 className="text-lg font-semibold mb-4 text-[#1d5126]">
-                  Curriculum Vitae
+              <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+                <h3 className="text-lg font-medium mb-3 text-gray-800">
+                  Currículum Vitae
                 </h3>
-                <div className="flex flex-col items-start">
-                  <div className="border border-gray-200 bg-gray-50 p-5 rounded-xl w-full md:w-1/2 mb-4 hover:shadow-md transition-shadow">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="bg-[#1d5126] text-white p-3 rounded-lg mr-4">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            fill="currentColor"
-                            viewBox="0 0 16 16"
-                            aria-hidden="true"
-                          >
-                            <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z" />
-                            <path d="M4.603 14.087a.81.81 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.68 7.68 0 0 1 1.482-.645 19.697 19.697 0 0 0 1.062-2.227 7.269 7.269 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.188-.012.396-.047.614-.084.51-.27 1.134-.52 1.794a10.954 10.954 0 0 0 .98 1.686 5.753 5.753 0 0 1 1.334.05c.364.066.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.856.856 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.712 5.712 0 0 1-.911-.95 11.651 11.651 0 0 0-1.997.406 11.307 11.307 0 0 1-1.02 1.51c-.292.35-.609.656-.927.787a.793.793 0 0 1-.58.029zm1.379-1.901c-.166.076-.32.156-.459.238-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361.01.022.02.036.026.044a.266.266 0 0 0 .035-.012c.137-.056.355-.235.635-.572a8.18 8.18 0 0 0 .45-.606zm1.64-1.33a12.71 12.71 0 0 1 1.01-.193 11.744 11.744 0 0 1-.51-.858 20.801 20.801 0 0 1-.5 1.05zm2.446.45c.15.163.296.3.435.41.24.19.407.253.498.256a.107.107 0 0 0 .07-.015.307.307 0 0 0 .094-.125.436.436 0 0 0 .059-.2.095.095 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a3.876 3.876 0 0 0-.612-.053zM8.078 7.8a6.7 6.7 0 0 0 .2-.828c.031-.188.043-.343.038-.465a.613.613 0 0 0-.032-.198.517.517 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822.024.111.054.227.09.346z" />
-                          </svg>
-                        </div>
-                        <div>
-                          <p className="font-medium text-[#1d5126]">
-                            Curriculum Vitae
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            Documento PDF/DOC
-                          </p>
-                        </div>
-                      </div>
-                      <a
-                        href={userData.cv}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-[#1d5126] hover:bg-[#3e7c27] text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 flex items-center"
-                      >
-                        Ver CV
-                      </a>
-                    </div>
-                  </div>
-                </div>
+                <a
+                  href={userData.cv}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm"
+                >
+                  Ver CV
+                </a>
               </div>
             )}
 
             {/* Botón Editar Perfil */}
-            <Link href={"/profile"}>
-              <div className="mt-8 bg-[#1d5126] hover:bg-[#3e7c27] text-white px-4 py-2 rounded-lg text-sm md:w-1/4 text-center transition-colors duration-200 cursor-pointer inline-flex items-center justify-center shadow-sm hover:shadow-md">
-                <svg
-                  className="mr-2"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  viewBox="0 0 16 16"
-                  aria-hidden="true"
+            <div className="mt-4">
+              <Link href="/profile">
+                <button
+                  type="button"
+                  className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2"
                 >
-                  <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                  <path
-                    fillRule="evenodd"
-                    d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"
-                  />
-                </svg>
-                Editar Perfil
-              </div>
-            </Link>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                  Editar Perfil
+                </button>
+              </Link>
+            </div>
           </div>
         )}
 
@@ -486,9 +520,33 @@ const PanelManager = () => {
             className="bg-white p-8 rounded-lg shadow-lg mb-8 max-w-5xl mx-auto"
             data-aos="fade-up"
           >
-            <h3 className="text-2xl font-semibold mb-6 text-[#1d5126] border-b border-gray-200 pb-2">
-              Mis Ofertas Publicadas
-            </h3>
+            <div className="flex justify-between items-center mb-6 border-b border-gray-200 pb-2">
+              <h3 className="text-2xl font-semibold text-[#1d5126]">
+                Mis Ofertas Publicadas
+              </h3>
+              <button
+                type="button"
+                onClick={() => handleSectionChange("createOffers")}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center gap-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                Crear Oferta
+              </button>
+            </div>
             {appliedJobs.length === 0 ? (
               <div className="text-center py-8 bg-gray-50 rounded-lg">
                 <div className="text-gray-500 mb-4">
@@ -517,7 +575,7 @@ const PanelManager = () => {
                 </button>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="max-h-[600px] overflow-y-auto pr-2 space-y-6">
                 {[...appliedJobs]
                   .sort(
                     (a, b) =>
@@ -674,7 +732,8 @@ const PanelManager = () => {
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
               </div>
             ) : portfolioPlayers.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="max-h-[600px] overflow-y-auto pr-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {portfolioPlayers.map((player) => (
                   <div
                     key={player.id}
@@ -723,6 +782,7 @@ const PanelManager = () => {
                     </div>
                   </div>
                 ))}
+                </div>
               </div>
             ) : (
               <div className="text-center py-12 bg-gray-50 rounded-lg">
@@ -768,6 +828,9 @@ const PanelManager = () => {
             )}
           </section>
         )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

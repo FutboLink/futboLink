@@ -93,6 +93,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
 
   // Initialize with an empty experience
   const emptyExperience = {
+    id: "",
     club: "",
     fechaInicio: "",
     fechaFinalizacion: "",
@@ -123,18 +124,20 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
   const [altura, setAltura] = useState<number>(profileData.height || 0);
   const [peso, setPeso] = useState<number>(profileData.weight || 0);
 
+  // Definir el tipo para la experiencia
+  interface Experience {
+    id: string;
+    club: string;
+    fechaInicio: string;
+    fechaFinalizacion: string;
+    categoriaEquipo: string;
+    nivelCompetencia: string;
+    nacionalidadTrayectoria: string;
+    logros: string;
+  }
+
   // State for experiences (trayectorias)
-  const [experiences, setExperiences] = useState<
-    Array<{
-      club: string;
-      fechaInicio: string;
-      fechaFinalizacion: string;
-      categoriaEquipo: string;
-      nivelCompetencia: string;
-      nacionalidadTrayectoria: string;
-      logros: string;
-    }>
-  >([emptyExperience]);
+  const [experiences, setExperiences] = useState<Experience[]>([{ ...emptyExperience, id: Date.now().toString() }]);
 
   // Función para togglear secciones
   const toggleSection = (section: keyof typeof sectionsExpanded) => {
@@ -211,13 +214,13 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
         );
 
         // Map existing experiences
-        const updatedExperiences = profileData.trayectorias.map((exp) => ({
+        const updatedExperiences = (profileData.trayectorias || []).map((exp, i) => ({
+          id: `exp-${Date.now()}-${i}`,
           club: exp.club || "",
           fechaInicio: exp.fechaInicio || "",
           fechaFinalizacion: exp.fechaFinalizacion || "",
           categoriaEquipo: exp.categoriaEquipo || CATEGORIAS_OPTIONS[0],
-          nivelCompetencia:
-            exp.nivelCompetencia || NIVEL_COMPETENCIA_OPTIONS[0],
+          nivelCompetencia: exp.nivelCompetencia || NIVEL_COMPETENCIA_OPTIONS[0],
           logros: exp.logros || "",
           nacionalidadTrayectoria: exp.nacionalidadTrayectoria || "",
         }));
@@ -225,13 +228,13 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
         setExperiences(updatedExperiences);
       } else if (profileData.club) {
         // Handle legacy data format (single experience)
-        const legacyExperience = {
+        const legacyExperience: Experience = {
+          id: `legacy-${Date.now()}`,
           club: profileData.club || "",
           fechaInicio: profileData.fechaInicio || "",
           fechaFinalizacion: profileData.fechaFinalizacion || "",
           categoriaEquipo: profileData.categoriaEquipo || CATEGORIAS_OPTIONS[0],
-          nivelCompetencia:
-            profileData.nivelCompetencia || NIVEL_COMPETENCIA_OPTIONS[0],
+          nivelCompetencia: profileData.nivelCompetencia || NIVEL_COMPETENCIA_OPTIONS[0],
           logros: profileData.logros || "",
           nacionalidadTrayectoria: profileData.nacionalidadTrayectoria || "",
         };
@@ -243,19 +246,21 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
 
   const handleExperienceChange = (
     index: number,
-    field: string,
+    field: keyof Experience,
     value: string
   ) => {
-    const updatedExperiences = [...experiences];
-    updatedExperiences[index] = {
-      ...updatedExperiences[index],
-      [field]: value,
-    };
-    setExperiences(updatedExperiences);
+    setExperiences(prevExperiences => {
+      const newExperiences = [...prevExperiences];
+      newExperiences[index] = {
+        ...newExperiences[index],
+        [field]: value,
+      };
+      return newExperiences;
+    });
   };
 
   const addExperience = () => {
-    setExperiences([...experiences, { ...emptyExperience }]);
+    setExperiences(prev => [...prev, { ...emptyExperience, id: Date.now().toString() }]);
   };
 
   const removeExperience = (index: number) => {
@@ -600,7 +605,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
             <div className="p-6 bg-white border-t">
               {experiences.map((exp, index) => (
                 <div
-                  key={`${exp.club}-${index}`}
+                  key={exp.id}
                   className="mb-6 p-4 border border-gray-200 rounded-lg"
                 >
                   <div className="flex justify-between items-center mb-4">

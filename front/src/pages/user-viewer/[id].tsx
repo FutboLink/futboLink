@@ -31,6 +31,8 @@ import {
   showVerificationToast,
 } from "@/services/VerificationService";
 import VerificationSubscription from "../verification-subscription";
+import { useI18nMode } from "@/components/Context/I18nModeContext";
+import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
 
 // URL del backend
 const API_URL = "https://futbolink.onrender.com";
@@ -78,6 +80,13 @@ export default function UserViewer() {
   const router = useRouter();
   const { id } = router.query;
   const { user, token, role } = useUserContext();
+  const { isNextIntlEnabled } = useI18nMode();
+  const tCommon = useNextIntlTranslations('common');
+
+  // Función para obtener el texto traducido o el texto original
+  const getText = (originalText: string, translatedKey: string) => {
+    return isNextIntlEnabled ? tCommon.t(translatedKey) : originalText;
+  };
 
   const [profile, setProfile] = useState<IProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -92,7 +101,10 @@ export default function UserViewer() {
   const [showShareOptions, setShowShareOptions] = useState(false);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
-  const [showVerificationSubscriptionModal, setShowVerificationSubscriptionModal] = useState(false);
+  const [
+    showVerificationSubscriptionModal,
+    setShowVerificationSubscriptionModal,
+  ] = useState(false);
   const [verificationMessage, setVerificationMessage] = useState("");
   const [verificationAttachment, setVerificationAttachment] =
     useState<File | null>(null);
@@ -117,12 +129,12 @@ export default function UserViewer() {
     if (!verificationStatus?.isVerified) {
       return "Amateur";
     }
-    
+
     // Si está verificado, usar el competitionLevel del usuario
     try {
       const competitionLevel =
         profile?.competitionLevel?.toLowerCase() || "amateur";
-      
+
       if (
         competitionLevel.includes("professional") ||
         competitionLevel.includes("profesional")
@@ -145,7 +157,7 @@ export default function UserViewer() {
   const [profileLevel, setProfileLevel] = useState<
     "Profesional" | "Semiprofesional" | "Amateur"
   >("Amateur");
-  
+
   useEffect(() => {
     setProfileLevel(computeProfileLevel());
   }, [verificationStatus, profile?.competitionLevel]);
@@ -559,8 +571,8 @@ export default function UserViewer() {
       </Head>
 
       {/* Powered by logo - sticky debajo de navbar */}
-      <div className="sticky  left-0 right-0 bg-white shadow-sm py-1">
-        <div className="flex justify-center items-center">
+      <div className="sticky top-0 left-0 right-0 bg-white shadow-sm py-1 z-40">
+        <div className="flex justify-center items-center px-4">
           <span className="text-xs text-gray-400 mr-2">Powered by</span>
           <Link href="/">
             <Image
@@ -666,10 +678,10 @@ export default function UserViewer() {
                   {!isPurePlayer &&
                     profile.role !== UserType.RECRUITER &&
                     profile.puesto && (
-                    <p className="text-sm text-gray-600 font-medium">
-                      {profile.puesto}
-                    </p>
-                  )}
+                      <p className="text-sm text-gray-600 font-medium">
+                        {profile.puesto}
+                      </p>
+                    )}
                 </div>
               </div>
 
@@ -999,7 +1011,9 @@ export default function UserViewer() {
                         {isOwnProfile && (
                           <button
                             className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md text-left w-full"
-                            onClick={() => setShowVerificationSubscriptionModal(true)}
+                            onClick={() =>
+                              setShowVerificationSubscriptionModal(true)
+                            }
                             type="button"
                             aria-label="icono de verificacion"
                           >
@@ -1062,92 +1076,92 @@ export default function UserViewer() {
             {currentClub &&
               !isPurePlayer &&
               profile.role !== UserType.RECRUITER && (
-              <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mb-4">
-                <div className="flex items-center">
-                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3 border border-gray-200">
-                    {/* Aquí iría el logo del club si está disponible */}
-                    <FaShieldAlt className="w-7 h-7 text-gray-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-800">
-                      {currentClub.club}
-                    </h3>
-                    <div className="flex items-center text-sm text-gray-600">
-                      {profile.nationality && (
-                        <span className="mr-1">
-                          {renderCountryFlag(profile.nationality)}
-                        </span>
-                      )}
-                      <span>
+                <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mb-4">
+                  <div className="flex items-center">
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3 border border-gray-200">
+                      {/* Aquí iría el logo del club si está disponible */}
+                      <FaShieldAlt className="w-7 h-7 text-gray-500" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-800">
+                        {currentClub.club}
+                      </h3>
+                      <div className="flex items-center text-sm text-gray-600">
+                        {profile.nationality && (
+                          <span className="mr-1">
+                            {renderCountryFlag(profile.nationality)}
+                          </span>
+                        )}
+                        <span>
                           {currentClub.nivelCompetencia ||
                             "Organización deportiva"}
-                      </span>
-                    </div>
-                    <div className="text-sm text-gray-600 mt-1">
+                        </span>
+                      </div>
+                      <div className="text-sm text-gray-600 mt-1">
                         <span>
                           Rol: {profile.puesto || getRoleDisplay(profile.role)}
                         </span>
+                      </div>
                     </div>
+                    <div className="ml-auto"></div>
                   </div>
-                  <div className="ml-auto"></div>
+                  <div className="mt-3 text-sm text-gray-600">
+                    <span>Hasta {contractEndDate}</span>
+                  </div>
                 </div>
-                <div className="mt-3 text-sm text-gray-600">
-                  <span>Hasta {contractEndDate}</span>
-                </div>
-              </div>
-            )}
+              )}
 
             {/* Agente/Representación - Solo para jugadores */}
-            
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 shadow-md border border-green-200 mb-4">
-                <div className="flex items-center">
-                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mr-3 border-2 border-green-300 shadow-sm">
+
+            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 shadow-md border border-green-200 mb-4">
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mr-3 border-2 border-green-300 shadow-sm">
+                  {profile.nameAgency ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-7 w-7 text-green-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                  ) : (
+                    <FaUserSlash className="w-7 h-7 text-green-500" />
+                  )}
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-800">Representación</h3>
+                  <div className="flex items-center">
                     {profile.nameAgency ? (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-7 w-7 text-green-600"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        aria-hidden="true"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
+                      <div className="flex items-center">
+                        <span className="text-green-700 font-medium">
+                          {profile.nameAgency}
+                        </span>
+                        <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
+                          Agente oficial
+                        </span>
+                      </div>
                     ) : (
-                      <FaUserSlash className="w-7 h-7 text-green-500" />
+                      <div className="flex items-center">
+                        <span className="text-green-600 font-medium">
+                          Sin representación
+                        </span>
+                        <span className="ml-2 bg-red-100 text-green-700 text-xs px-2 py-0.5 rounded-full">
+                          Free Agent
+                        </span>
+                      </div>
                     )}
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-800">Representación</h3>
-                    <div className="flex items-center">
-                      {profile.nameAgency ? (
-                        <div className="flex items-center">
-                          <span className="text-green-700 font-medium">
-                            {profile.nameAgency}
-                          </span>
-                          <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
-                            Agente oficial
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center">
-                          <span className="text-green-600 font-medium">
-                            Sin representación
-                          </span>
-                          <span className="ml-2 bg-red-100 text-green-700 text-xs px-2 py-0.5 rounded-full">
-                            Free Agent
-                          </span>
-                        </div>
-                      )}
-                    </div>
                   </div>
                 </div>
               </div>
+            </div>
 
             {/* Estadísticas principales - Solo para jugadores */}
             {isPurePlayer && (
@@ -1304,24 +1318,24 @@ export default function UserViewer() {
               </div>
             )}
 
-             {/* Sección de CV */}
-             <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mt-4">
+            {/* Sección de CV */}
+            <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mt-4">
               <h3 className="text-lg font-medium mb-3 text-gray-800">
                 Currículum Vitae
               </h3>
-                    {profile.cv ? (
-                      <a
-                        href={profile.cv}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm"
-                      >
-                        Ver CV
-                      </a>
-                    ) : (
-                      <p className="text-gray-600 text-sm">No hay CV cargado.</p>
-                    )}
-                  </div>
+              {profile.cv ? (
+                <a
+                  href={profile.cv}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm"
+                >
+                  Ver CV
+                </a>
+              ) : (
+                <p className="text-gray-600 text-sm">No hay CV cargado.</p>
+              )}
+            </div>
 
             {/* Información de contacto para reclutadores */}
             {profile.role === UserType.RECRUITER && (
@@ -1541,12 +1555,12 @@ export default function UserViewer() {
                   <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
                     <h3 className="text-lg font-medium mb-3 text-gray-800">
                       {profile.role === UserType.RECRUITER
-                        ? "Información de la agencia"
-                        : "Información personal"}
+                        ? getText("Información de la agencia", "agencyInformation")
+                        : getText("Información personal", "personalInformation")}
                     </h3>
                     <div className="space-y-3">
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Nombre completo</span>
+                        <span className="text-gray-600">{getText("Nombre completo", "fullName")}</span>
                         <span className="text-gray-800">
                           {profile.name} {profile.lastname}
                         </span>
@@ -1556,10 +1570,10 @@ export default function UserViewer() {
                         <>
                           <div className="flex justify-between">
                             <span className="text-gray-600">
-                              Fecha de nacimiento
+                              {getText("Fecha de nacimiento", "birthdate")}
                             </span>
                             <span className="text-gray-800">
-                              {profile.birthday || "No especificada"}
+                              {profile.birthday || getText("No especificada", "notSpecified")}
                             </span>
                           </div>
                         </>
@@ -1567,17 +1581,17 @@ export default function UserViewer() {
 
                       {/* Información específica para profesionales no jugadores */}
                       {!isPurePlayer && profile.role !== UserType.RECRUITER && (
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">
-                              Fecha de nacimiento
-                            </span>
-                            <span className="text-gray-800">
-                              {profile.birthday || "No especificada"}
-                            </span>
-                          </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">
+                            {getText("Fecha de nacimiento", "birthdate")}
+                          </span>
+                          <span className="text-gray-800">
+                            {profile.birthday || getText("No especificada", "notSpecified")}
+                          </span>
+                        </div>
                       )}
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Nacionalidad</span>
+                        <span className="text-gray-600">{getText("Nacionalidad", "nationality")}</span>
                         <span className="flex items-center text-gray-800">
                           {profile.nationality &&
                             renderCountryFlag(profile.nationality)}
@@ -1586,7 +1600,7 @@ export default function UserViewer() {
                       </div>
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
                         <span className="text-gray-600">
-                          País de Residencia
+                          {getText("País de Residencia", "countryOfResidence")}
                         </span>
 
                         <span className="flex flex-wrap items-start sm:items-center text-gray-800 text-right sm:text-left sm:justify-end">
@@ -1610,13 +1624,13 @@ export default function UserViewer() {
                       {/* Pasaporte UE - Para todos los perfiles excepto reclutadores */}
                       {profile.pasaporteUe &&
                         profile.role !== UserType.RECRUITER && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Pasaporte UE</span>
-                          <span className="text-gray-800">
-                            {profile.pasaporteUe}
-                          </span>
-                        </div>
-                      )}
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">{getText("Pasaporte UE", "euPassport")}</span>
+                            <span className="text-gray-800">
+                              {profile.pasaporteUe}
+                            </span>
+                          </div>
+                        )}
                     </div>
                   </div>
 
@@ -1624,15 +1638,15 @@ export default function UserViewer() {
                     (!isPurePlayer && profile.role !== UserType.RECRUITER)) && (
                     <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
                       <h3 className="text-lg font-medium mb-3 text-gray-800">
-                        Contacto
+                        {getText("Contacto", "contact")}
                       </h3>
                       <div className="space-y-3">
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Email</span>
+                          <span className="text-gray-600">{getText("Email", "email")}</span>
                           <span className="text-gray-800">{profile.email}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-600">Teléfono</span>
+                          <span className="text-gray-600">{getText("Teléfono", "phone")}</span>
                           <PhoneNumberInput
                             mode="view"
                             value={profile.phone}
@@ -1643,14 +1657,14 @@ export default function UserViewer() {
 
                         {isPurePlayer && (
                           <div className="flex justify-between">
-                            <span className="text-gray-600">Agente</span>
+                            <span className="text-gray-600">{getText("Agente", "agent")}</span>
                             <span className="flex items-center gap-1 text-gray-800">
                               {profile.nameAgency ? (
                                 profile.nameAgency
                               ) : (
                                 <span className="flex items-center gap-1 bg-green-700 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
                                   <FaUserSlash className="w-4 h-4" />
-                                  Free Agent
+                                  {getText("Free Agent", "freeAgent")}
                                 </span>
                               )}
                             </span>
@@ -1660,32 +1674,48 @@ export default function UserViewer() {
                           Object.keys(profile.socialMedia || {}).length > 0 && (
                             <div className="flex justify-between">
                               <span className="text-gray-600">
-                                Redes sociales
+                                {getText("Redes sociales", "socialNetworks")}
                               </span>
                               <div className="flex space-x-3">
-                                {(profile.socialMedia?.trasnfermarkt || profile.socialMedia?.transfermarkt) && (
+                                {(profile.socialMedia?.trasnfermarkt ||
+                                  profile.socialMedia?.transfermarkt) && (
                                   <a
-                                    href={profile.socialMedia.trasnfermarkt || profile.socialMedia.transfermarkt}
+                                    href={
+                                      profile.socialMedia.trasnfermarkt ||
+                                      profile.socialMedia.transfermarkt
+                                    }
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-green-600 hover:text-green-800 transition-colors"
                                     title="Transfermarkt"
                                   >
-                                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                    <svg
+                                      className="w-5 h-5"
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                    >
+                                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                                     </svg>
                                   </a>
                                 )}
-                                {(profile.socialMedia?.twitter || profile.socialMedia?.x) && (
+                                {(profile.socialMedia?.twitter ||
+                                  profile.socialMedia?.x) && (
                                   <a
-                                    href={`https://x.com/${profile.socialMedia.twitter || profile.socialMedia.x}`}
+                                    href={`https://x.com/${
+                                      profile.socialMedia.twitter ||
+                                      profile.socialMedia.x
+                                    }`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-gray-800 hover:text-black transition-colors"
                                     title="X (Twitter)"
                                   >
-                                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                    <svg
+                                      className="w-5 h-5"
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                    >
+                                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                                     </svg>
                                   </a>
                                 )}
@@ -1697,8 +1727,12 @@ export default function UserViewer() {
                                     className="text-pink-600 hover:text-pink-800 transition-colors"
                                     title="Instagram"
                                   >
-                                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                                    <svg
+                                      className="w-5 h-5"
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                    >
+                                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                                     </svg>
                                   </a>
                                 )}
@@ -1710,8 +1744,12 @@ export default function UserViewer() {
                                     className="text-blue-600 hover:text-blue-800 transition-colors"
                                     title="Facebook"
                                   >
-                                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                    <svg
+                                      className="w-5 h-5"
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                    >
+                                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                                     </svg>
                                   </a>
                                 )}
@@ -1723,8 +1761,12 @@ export default function UserViewer() {
                                     className="text-red-600 hover:text-red-800 transition-colors"
                                     title="YouTube"
                                   >
-                                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                                    <svg
+                                      className="w-5 h-5"
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                    >
+                                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                                     </svg>
                                   </a>
                                 )}
@@ -1736,8 +1778,12 @@ export default function UserViewer() {
                                     className="text-gray-800 hover:text-black transition-colors"
                                     title="TikTok"
                                   >
-                                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                                      <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+                                    <svg
+                                      className="w-5 h-5"
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                    >
+                                      <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
                                     </svg>
                                   </a>
                                 )}
@@ -1747,11 +1793,11 @@ export default function UserViewer() {
                       </div>
                     </div>
                   )}
-                 
+
                   {/* Sección de video */}
                   <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
                     <h3 className="text-lg font-medium mb-3 text-gray-800">
-                      Video de presentación
+                      {getText("Video de presentación", "presentationVideo")}
                     </h3>
                     {profile.videoUrl ? (
                       <>
@@ -1772,7 +1818,7 @@ export default function UserViewer() {
                             rel="noopener noreferrer"
                             className="hover:underline"
                           >
-                            Ver video en YouTube
+                            {getText("Ver video en YouTube", "viewVideoOnYoutube")}
                           </a>
                         </div>
                       </>
@@ -1794,10 +1840,14 @@ export default function UserViewer() {
                                 d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
                               />
                             </svg>
-                            <p className="mt-2 text-sm mb-4">No hay video de presentación</p>
+                            <p className="mt-2 text-sm mb-4">
+                              No hay video de presentación
+                            </p>
                             {isOwnProfile && (
                               <button
-                                onClick={() => router.push(`/user-viewer/${id}?edit=true`)}
+                                onClick={() =>
+                                  router.push(`/user-viewer/${id}?edit=true`)
+                                }
                                 className="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium inline-flex items-center gap-2"
                                 type="button"
                               >

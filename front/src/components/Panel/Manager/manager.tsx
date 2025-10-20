@@ -19,9 +19,18 @@ import JobOfferDetails from "@/components/Jobs/JobOffertDetails";
 import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
 import type { IOfferCard } from "@/Interfaces/IOffer";
 import type { IProfileData } from "@/Interfaces/IUser";
+import { useI18nMode } from "@/components/Context/I18nModeContext";
+import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
 
 const PanelManager = () => {
   const { user, token } = useContext(UserContext);
+  const { isNextIntlEnabled } = useI18nMode();
+  const tCommon = useNextIntlTranslations('common');
+
+  // Función para obtener el texto traducido o el texto original
+  const getText = (originalText: string, translatedKey: string) => {
+    return isNextIntlEnabled ? tCommon.t(translatedKey) : originalText;
+  };
   const searchParams = useSearchParams();
   const sectionParam = searchParams?.get("section") || "profile";
   const [activeSection, setActiveSection] = useState(sectionParam || "profile");
@@ -350,51 +359,51 @@ const PanelManager = () => {
             {/* Información de la agencia */}
             <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
               <h3 className="text-lg font-medium mb-3 text-gray-800">
-                Información de la agencia
+                {getText("Información de la agencia", "agencyInformation")}
               </h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Nombre completo</span>
+                  <span className="text-gray-600">{getText("Nombre completo", "fullName")}</span>
                   <span className="text-gray-800">
                     {userData?.name} {userData?.lastname}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Nombre de la entidad</span>
+                  <span className="text-gray-600">{getText("Nombre de la entidad", "entityName")}</span>
                   <span className="text-gray-800">
-                    {userData?.nameAgency || "No disponible"}
+                    {userData?.nameAgency || getText("No disponible", "notAvailable")}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Tipo de organización</span>
+                  <span className="text-gray-600">{getText("Tipo de organización", "organizationType")}</span>
                   <span className="text-gray-800">
-                    {userData?.puesto || "No especificado"}
+                    {userData?.puesto || getText("No especificado", "notSpecified")}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Año de fundación</span>
+                  <span className="text-gray-600">{getText("Año de fundación", "foundingYear")}</span>
                   <span className="text-gray-800">
-                    {userData?.age || "No especificado"}
+                    {userData?.age || getText("No especificado", "notSpecified")}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Nacionalidad</span>
+                  <span className="text-gray-600">{getText("Nacionalidad", "nationality")}</span>
                   <span className="flex items-center text-gray-800">
                     {userData?.nationality && renderCountryFlag(userData.nationality)}
-                    <span className="ml-2">{userData?.nationality || "No disponible"}</span>
+                    <span className="ml-2">{userData?.nationality || getText("No disponible", "notAvailable")}</span>
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">País de Residencia</span>
+                  <span className="text-gray-600">{getText("País de Residencia", "countryOfResidence")}</span>
                   <span className="flex items-center text-gray-800">
                     {userData?.ubicacionActual && renderCountryFlag(userData.ubicacionActual)}
-                    <span className="ml-2">{userData?.ubicacionActual || "No disponible"}</span>
+                    <span className="ml-2">{userData?.ubicacionActual || getText("No disponible", "notAvailable")}</span>
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Región</span>
+                  <span className="text-gray-600">{getText("Región", "region")}</span>
                   <span className="text-gray-800">
-                    {userData?.location || "No especificada"}
+                    {userData?.location || getText("No especificada", "notSpecified")}
                   </span>
                 </div>
               </div>
@@ -403,15 +412,15 @@ const PanelManager = () => {
             {/* Información de contacto */}
             <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
               <h3 className="text-lg font-medium mb-3 text-gray-800">
-                Contacto
+                {getText("Contacto", "contact")}
               </h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Email</span>
+                  <span className="text-gray-600">{getText("Email", "email")}</span>
                   <span className="text-gray-800">{userData?.email}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Teléfono</span>
+                  <span className="text-gray-600">{getText("Teléfono", "phone")}</span>
                   <PhoneNumberInput
                     mode="view"
                     value={userData?.phone}
@@ -421,7 +430,7 @@ const PanelManager = () => {
                 </div>
                 {userData?.socialMedia && Object.keys(userData.socialMedia || {}).length > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Redes sociales</span>
+                    <span className="text-gray-600">{getText("Redes sociales", "socialNetworks")}</span>
                     <div className="flex space-x-3">
                       {userData.socialMedia?.website && (
                         <a
@@ -444,7 +453,7 @@ const PanelManager = () => {
             {userData?.videoUrl && (
               <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
                 <h3 className="text-lg font-medium mb-3 text-gray-800">
-                  Video de Presentación
+                  {getText("Video de Presentación", "presentationVideo")}
                 </h3>
                 <div className="relative w-full bg-black rounded-lg overflow-hidden">
                   <iframe
@@ -452,7 +461,7 @@ const PanelManager = () => {
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                     className="w-full h-[350px]"
-                    title="Video de presentación"
+                    title={getText("Video de presentación", "presentationVideo")}
                   />
                 </div>
               </div>
@@ -680,7 +689,7 @@ const PanelManager = () => {
           >
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold text-[#1d5126]">
-                Mi Portafolio de Jugadores
+                {getText("Mi Portafolio de Jugadores", "myPlayerPortfolio")}
               </h3>
               <button
                 type="button"
@@ -723,7 +732,7 @@ const PanelManager = () => {
                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                   />
                 </svg>
-                Buscar Jugadores
+                {getText("Buscar Jugadores", "searchPlayers")}
               </button>
             </div>
 
@@ -789,11 +798,10 @@ const PanelManager = () => {
                 <div className="text-gray-500 mb-4">
                   <FaUsers className="mx-auto text-6xl mb-4 text-gray-400" />
                   <h4 className="text-lg font-semibold text-gray-600">
-                    Aún no tienes jugadores en tu Portafolio
+                    {getText("Aún no tienes jugadores en tu Portafolio", "noPlayersInPortfolio")}
                   </h4>
                   <p className="mt-2 text-gray-500">
-                    Comienza a agregar jugadores para construir tu Portafolio
-                    profesional
+                    {getText("Comienza a agregar jugadores para construir tu Portafolio profesional", "startAddingPlayers")}
                   </p>
                 </div>
                 <button

@@ -6,8 +6,18 @@ import Head from "next/head";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import React, { useState } from "react";
+import { useI18nMode } from "../Context/I18nModeContext";
+import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
 
 function Contact() {
+  const { isNextIntlEnabled } = useI18nMode();
+  const tCommon = useNextIntlTranslations('common');
+
+  // Función para obtener el texto traducido o el texto original
+  const getText = (originalText: string, translatedKey: string) => {
+    return isNextIntlEnabled ? tCommon.t(translatedKey) : originalText;
+  };
+
   React.useEffect(() => {
     if (typeof window !== "undefined") {
       AOS.init();
@@ -28,7 +38,7 @@ function Contact() {
     // Form validation
     if (!email || !name || !mensaje) {
       setStatus("error");
-      setErrorMessage("Por favor, completa todos los campos.");
+      setErrorMessage(getText("Por favor, completa todos los campos.", "fillAllFields"));
       return;
     }
 
@@ -36,7 +46,7 @@ function Contact() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setStatus("error");
-      setErrorMessage("Por favor, introduce un correo electrónico válido.");
+      setErrorMessage(getText("Por favor, introduce un correo electrónico válido.", "validEmail"));
       return;
     }
 
@@ -77,14 +87,14 @@ function Contact() {
         setStatus("error");
         setErrorMessage(
           data.message ||
-            "Error al enviar el mensaje. Por favor, inténtelo más tarde."
+            getText("Error al enviar el mensaje. Por favor, inténtelo más tarde.", "sendError")
         );
       }
     } catch (err) {
       console.error("Error sending message:", err);
       setStatus("error");
       setErrorMessage(
-        "No se pudo conectar con el servidor. Por favor, intenta más tarde o contacta directamente por correo electrónico."
+        getText("No se pudo conectar con el servidor. Por favor, intenta más tarde o contacta directamente por correo electrónico.", "connectionError")
       );
     }
   };
@@ -126,14 +136,10 @@ function Contact() {
             data-aos-duration="1000"
           >
             <h1 className="text-3xl sm:text-4xl font-semibold text-green-700">
-              ¡Bienvenido a FutboLink!
+              {getText("¡Bienvenido a FutboLink!", "welcomeToFutbolink")}
             </h1>
             <p className="text-lg sm:text-xl text-gray-600 mt-4">
-              Somos una agencia con sede en Italia, dedicada a conectar
-              jugadores, representantes y agencias de fútbol de todo el mundo.
-              Nuestro equipo de profesionales está aquí para ayudarte a dar el
-              siguiente paso en tu carrera o negocio. ¡Contáctanos y comencemos
-              hoy mismo!
+              {getText("Somos una agencia con sede en Italia, dedicada a conectar jugadores, representantes y agencias de fútbol de todo el mundo. Nuestro equipo de profesionales está aquí para ayudarte a dar el siguiente paso en tu carrera o negocio. ¡Contáctanos y comencemos hoy mismo!", "agencyDescription")}
             </p>
           </div>
 
@@ -141,7 +147,7 @@ function Contact() {
             {/* Formulario de contacto */}
             <div className="bg-white p-6 sm:p-8 rounded-lg shadow-lg">
               <h2 className="text-2xl sm:text-3xl font-semibold text-verde-oscuro mb-6">
-                Contáctanos
+                {getText("Contáctanos", "contactUs")}
               </h2>
               <form
                 onSubmit={handleSubmit}
@@ -153,14 +159,14 @@ function Contact() {
                     htmlFor="name"
                     className="block text-lg font-medium text-gray-700"
                   >
-                    Nombre
+                    {getText("Nombre", "name")}
                   </label>
                   <input
                     id="name"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Tu nombre"
+                    placeholder={getText("Tu nombre", "yourName")}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-oscuro"
                     disabled={status === "loading"}
                   />
@@ -172,14 +178,14 @@ function Contact() {
                     htmlFor="email"
                     className="block text-lg font-medium text-gray-700"
                   >
-                    Correo electrónico
+                    {getText("Correo electrónico", "email")}
                   </label>
                   <input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Tu correo electrónico"
+                    placeholder={getText("Tu correo electrónico", "yourEmail")}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-oscuro"
                     disabled={status === "loading"}
                   />
@@ -191,14 +197,14 @@ function Contact() {
                     htmlFor="message"
                     className="block text-lg font-medium text-gray-700"
                   >
-                    Mensaje
+                    {getText("Mensaje", "message")}
                   </label>
                   <textarea
                     id="message"
                     value={mensaje}
                     onChange={(e) => setMensaje(e.target.value)}
                     rows={4}
-                    placeholder="Tu mensaje"
+                    placeholder={getText("Tu mensaje", "yourMessage")}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-oscuro"
                     disabled={status === "loading"}
                   />
@@ -232,10 +238,10 @@ function Contact() {
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         ></path>
                       </svg>
-                      Enviando...
+                      {getText("Enviando...", "sending")}
                     </span>
                   ) : (
-                    "Enviar mensaje"
+                    getText("Enviar mensaje", "sendMessage")
                   )}
                 </button>
               </form>
@@ -244,11 +250,10 @@ function Contact() {
               {status === "success" && (
                 <div className="mt-4 p-3 bg-green-100 text-green-800 rounded-md">
                   <p className="text-center text-md font-medium">
-                    ✅ Mensaje enviado correctamente.
+                    ✅ {getText("Mensaje enviado correctamente.", "messageSent")}
                   </p>
                   <p className="text-center text-sm mt-2">
-                    Te responderemos a la brevedad a la dirección de correo
-                    proporcionada.
+                    {getText("Te responderemos a la brevedad a la dirección de correo proporcionada.", "willReply")}
                   </p>
                 </div>
               )}
@@ -269,11 +274,10 @@ function Contact() {
               data-aos-duration="1000"
             >
               <h2 className="text-2xl sm:text-3xl font-semibold text-verde-oscuro mb-6">
-                Ubicación
+                {getText("Ubicación", "location")}
               </h2>
               <p className="text-lg text-gray-700 mb-4">
-                Nuestra sede se encuentra en Italia, pero trabajamos con
-                jugadores, representantes y agencias de todo el mundo.
+                {getText("Nuestra sede se encuentra en Italia, pero trabajamos con jugadores, representantes y agencias de todo el mundo.", "locationDescription")}
               </p>
               <div className="relative rounded-lg overflow-hidden shadow-lg">
                 <iframe
@@ -288,19 +292,19 @@ function Contact() {
 
               <div className="mt-6">
                 <h3 className="text-xl font-semibold text-verde-oscuro">
-                  Dirección:
+                  {getText("Dirección", "address")}:
                 </h3>
                 <p className="text-lg text-gray-700">
                   Lecce, Apulia, Italia, 73100
                 </p>
 
                 <h3 className="text-xl font-semibold text-verde-oscuro mt-4">
-                  Teléfono:
+                  {getText("Teléfono", "phone")}:
                 </h3>
                 <p className="text-lg text-gray-700">+393715851071</p>
 
                 <h3 className="text-xl font-semibold text-verde-oscuro mt-4">
-                  Correo electrónico:
+                  {getText("Correo electrónico", "email")}:
                 </h3>
                 <p className="text-lg text-gray-700">
                   futbolink.contacto@gmail.com
@@ -317,8 +321,7 @@ function Contact() {
         data-aos-duration="1000"
       >
         <p className="text-lg sm:text-xl font-semibold">
-          ¿Tienes alguna pregunta o quieres saber más? ¡No dudes en ponerte en
-          contacto con nosotros!
+          {getText("¿Tienes alguna pregunta o quieres saber más? ¡No dudes en ponerte en contacto con nosotros!", "haveQuestions")}
         </p>
       </section>
     </div>

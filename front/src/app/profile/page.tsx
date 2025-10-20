@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { UserContext } from "@/components/Context/UserContext";
 import ProfileAdmin from "@/components/ProfileAdmin/ProfileAdmin";
 import ProfileOfertante from "@/components/ProfileOfertante/ProfileOfertante";
@@ -14,9 +14,11 @@ function Page() {
 
   return (
     <div>
-      {role === "PLAYER" && <Profile/>}
-      {(role === "RECRUITER" || role === "CLUB" || role === "AGENCY") && <ProfileOfertante/>}
-      {role === "ADMIN" && <ProfileAdmin/>}
+      {role === "PLAYER" && <Profile />}
+      {(role === "RECRUITER" || role === "CLUB" || role === "AGENCY") && (
+        <ProfileOfertante />
+      )}
+      {role === "ADMIN" && <ProfileAdmin />}
     </div>
   );
 }

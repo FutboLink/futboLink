@@ -6,9 +6,19 @@ import PersonalInfo from "./PersonalInfo";
 import ProfessionalInfo from "./ProfessionalInfo";
 import { UserContext } from "../Context/UserContext";
 import { fetchUserData } from "../Fetchs/UsersFetchs/UserFetchs";
+import { useI18nMode } from "../Context/I18nModeContext";
+import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
 
 const Profile = () => {
   const { token } = useContext(UserContext);
+  const { isNextIntlEnabled } = useI18nMode();
+  const tCommon = useNextIntlTranslations('common');
+  
+  // Función para obtener el texto traducido o el texto original
+  const getText = (originalText: string, translatedKey: string) => {
+    return isNextIntlEnabled ? tCommon.t(translatedKey) : originalText;
+  };
+  
   const [error, setError] = useState<string | null>(null);
   const [userData, setUserData] = useState<IProfileData | null>(null);
   const [activeTab, setActiveTab] = useState("Personal");
@@ -63,17 +73,20 @@ const Profile = () => {
         <div className="flex space-x-3 border-b pb-1 mt-2 mb-3 text-gray-700">
           {" "}
           {/* Reducir el espacio y márgenes */}
-          {["Personal", "Profesional"].map((tab) => (
+          {[
+            { key: "Personal", label: getText("Personal", "personal") },
+            { key: "Profesional", label: getText("Profesional", "professional") }
+          ].map((tab) => (
             <button
-              key={tab}
+              key={tab.key}
               className={`py-1.5 px-3 mt-6 ${
-                activeTab === tab
+                activeTab === tab.key
                   ? "bg-green-300 shadow-md font-semibold"
                   : "text-gray-600"
               }`} // Reducir el tamaño del padding y la altura
-              onClick={() => setActiveTab(tab)}
+              onClick={() => setActiveTab(tab.key)}
             >
-              {tab}
+              {tab.label}
             </button>
           ))}
         </div>

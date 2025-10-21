@@ -1,10 +1,11 @@
-import { Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger, NotFoundException, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Payment, PaymentStatus, PaymentType, SubscriptionPlan } from '../entities/payment.entity';
 import { CreateOneTimePaymentDto, CreateSubscriptionDto } from '../dto';
+import { UserService } from '../../modules/user/user.service';
 import * as https from 'https';
 
 @Injectable()
@@ -14,11 +15,19 @@ export class StripeService {
   private readonly frontendDomain: string;
   private readonly productId: string = 'prod_S1PExFzjXvaE7E'; // Semiprofesional product ID
   private readonly priceId: string = 'price_1R7MPlGbCHvHfqXFNjW8oj2k'; // Semiprofesional price ID
+  
+  // Precios de verificación
+  private readonly verificationPriceIds = [
+    'price_1S5Z3lGbCHvHfqXFd1Xkxf54', // Verificación mensual
+    'price_1S5ZCrGbCHvHfqXFSySOSYdQ'  // Verificación anual
+  ];
 
   constructor(
     @InjectRepository(Payment)
     private readonly paymentRepo: Repository<Payment>,
     private readonly configService: ConfigService,
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
   ) {
     const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
     this.frontendDomain = this.configService.get<string>('FRONTEND_DOMAIN') || 'http://localhost:3000';
@@ -387,6 +396,12 @@ export class StripeService {
       await this.paymentRepo.save(payment);
       this.logger.log(`Updated payment status for session ${session.id} to SUCCEEDED`);
       
+      // Verificar si es una suscripción de verificación y marcar automáticamente como verificado
+      if (payment.stripePriceId && this.isVerificationSubscription(payment.stripePriceId)) {
+        this.logger.log(`Detected verification subscription payment, marking user as verified automatically`);
+        await this.handleVerificationPaymentSuccess(payment);
+      }
+      
     } catch (error) {
       this.logger.error(`Error handling checkout.session.completed: ${error.message}`, error);
     }
@@ -497,6 +512,12 @@ export class StripeService {
 
       await this.paymentRepo.save(payment);
       this.logger.log(`Updated subscription status for subscription ${subscription.id} to ${subscription.status}`);
+      
+      // Verificar si es una suscripción de verificación activa y marcar automáticamente como verificado
+      if (subscription.status === 'active' && payment.stripePriceId && this.isVerificationSubscription(payment.stripePriceId)) {
+        this.logger.log(`Detected active verification subscription, marking user as verified automatically`);
+        await this.handleVerificationPaymentSuccess(payment);
+      }
       
     } catch (error) {
       this.logger.error(`Error handling customer.subscription.created: ${error.message}`, error);
@@ -613,6 +634,12 @@ export class StripeService {
   
         await this.paymentRepo.save(payment);
         this.logger.log(`Updated payment for invoice ${invoice.id} to SUCCEEDED`);
+        
+        // Verificar si es una suscripción de verificación y marcar automáticamente como verificado
+        if (payment.stripePriceId && this.isVerificationSubscription(payment.stripePriceId)) {
+          this.logger.log(`Detected verification invoice payment, marking user as verified automatically`);
+          await this.handleVerificationPaymentSuccess(payment);
+        }
       }
     } catch (error) {
       this.logger.error(`Error handling invoice.paid: ${error.message}`, error);
@@ -985,6 +1012,48 @@ export class StripeService {
           subscriptionType: 'Amateur' 
         }
       };
+    }
+  }
+
+  /**
+   * Verifica si una suscripción es de verificación basándose en el priceId
+   */
+  private isVerificationSubscription(priceId: string): boolean {
+    return this.verificationPriceIds.includes(priceId);
+  }
+
+  /**
+   * Marca automáticamente al usuario como verificado después de pagar una suscripción de verificación
+   */
+  private async handleVerificationPaymentSuccess(payment: Payment): Promise<void> {
+    try {
+      // Buscar el usuario por email
+      const user = await this.userService.findOneByEmail(payment.customerEmail);
+      if (!user) {
+        this.logger.warn(`Usuario no encontrado para email: ${payment.customerEmail}`);
+        return;
+      }
+
+      this.logger.log(`Marcando usuario ${user.id} como verificado automáticamente después del pago de verificación`);
+
+      // Marcar como verificado usando los métodos públicos del UserService
+      const verifiedResult = await this.userService.markUserAsVerifiedPublic(user.id);
+      if (verifiedResult) {
+        this.logger.log(`Usuario ${user.id} marcado como verificado exitosamente`);
+      } else {
+        this.logger.warn(`No se pudo marcar como verificado al usuario ${user.id}`);
+      }
+
+      // Establecer nivel de verificación como AMATEUR (ya que es la verificación básica)
+      const levelResult = await this.userService.setUserVerificationLevelPublic(user.id, 'AMATEUR');
+      if (levelResult) {
+        this.logger.log(`Nivel de verificación AMATEUR establecido para usuario ${user.id}`);
+      } else {
+        this.logger.warn(`No se pudo establecer el nivel de verificación para el usuario ${user.id}`);
+      }
+
+    } catch (error) {
+      this.logger.error(`Error al marcar usuario como verificado: ${error.message}`, error);
     }
   }
 } 

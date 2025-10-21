@@ -1529,4 +1529,21 @@ export class UserService {
       return false;
     }
   }
+
+  /**
+   * Método público para marcar un usuario como verificado (para uso desde otros servicios)
+   */
+  async markUserAsVerifiedPublic(userId: string): Promise<boolean> {
+    return await this.markUserAsVerifiedSafe(userId);
+  }
+
+  /**
+   * Método público para establecer el nivel de verificación (para uso desde otros servicios)
+   */
+  async setUserVerificationLevelPublic(
+    userId: string,
+    level: 'SEMIPROFESSIONAL' | 'PROFESSIONAL' | 'AMATEUR',
+  ): Promise<boolean> {
+    return await this.setUserVerificationLevelSafe(userId, level);
+  }
 }

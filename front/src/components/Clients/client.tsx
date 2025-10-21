@@ -7,7 +7,6 @@ import "swiper/css";
 import "swiper/css/pagination";
 import { ISuccessCase } from "@/Interfaces/ISuccessCase";
 import { fetchAllSuccessCases } from "../Fetchs/SuccessCasesFetchs";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 // Datos de ejemplo por si falla la API

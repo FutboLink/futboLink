@@ -283,6 +283,17 @@ export default function UserViewer() {
     }
   };
 
+  // Función para manejar el clic en el botón de verificación
+  const handleVerificationClick = () => {
+    // Si el usuario ya está verificado, mostrar modal para cargar documentación adicional
+    if (verificationStatus?.isVerified) {
+      setShowVerificationModal(true);
+    } else {
+      // Si no está verificado, mostrar modal de suscripción
+      setShowVerificationSubscriptionModal(true);
+    }
+  };
+
   // Efecto para cerrar los menús al hacer clic fuera de ellos
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -809,7 +820,7 @@ export default function UserViewer() {
                 {isOwnProfile && token && (
                   <button
                     className="flex flex-col items-center justify-center p-2 transition-colors duration-200 hover:bg-gray-50 rounded-lg"
-                    onClick={() => setShowVerificationSubscriptionModal(true)}
+                    onClick={handleVerificationClick}
                     aria-label="boton para verificar el perfil"
                     type="button"
                   >
@@ -826,7 +837,7 @@ export default function UserViewer() {
                       />
                     </svg>
                     <span className="text-xs text-gray-500 mt-1 font-medium">
-                      Verificar
+                      {verificationStatus?.isVerified ? "Documentación" : "Verificar"}
                     </span>
                   </button>
                 )}
@@ -999,7 +1010,7 @@ export default function UserViewer() {
                         {isOwnProfile && (
                           <button
                             className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md text-left w-full"
-                            onClick={() => setShowVerificationSubscriptionModal(true)}
+                            onClick={handleVerificationClick}
                             type="button"
                             aria-label="icono de verificacion"
                           >
@@ -1016,7 +1027,9 @@ export default function UserViewer() {
                               />
                             </svg>
                             <span className="text-sm">
-                              Solicitar Verificación
+                              {verificationStatus?.isVerified 
+                                ? "Subir Documentación" 
+                                : "Solicitar Verificación"}
                             </span>
                           </button>
                         )}

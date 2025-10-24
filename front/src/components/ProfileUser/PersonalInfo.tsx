@@ -20,9 +20,18 @@ import {
 import useNationalities from "../Forms/FormUser/useNationalitys";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
 import PhoneNumberInput from "../utils/PhoneNumberInput";
+import { useI18nMode } from "../Context/I18nModeContext";
+import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
 
 const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const { token, setUser } = useUserContext();
+  const { isNextIntlEnabled } = useI18nMode();
+  const tCommon = useNextIntlTranslations('common');
+
+  // Función para obtener el texto traducido o el texto original
+  const getText = (originalText: string, translatedKey: string) => {
+    return isNextIntlEnabled ? tCommon.t(translatedKey) : originalText;
+  };
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fetchedProfileData, setFetchedProfileData] =
@@ -146,10 +155,10 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   return (
     <div className="p-2 border border-gray-300 shadow-sm rounded-lg">
       <h2 className="text-sm font-semibold mt-2 text-center p-2 bg-gray-100 text-gray-700">
-        Información Personal
+        {getText("Información Personal", "personalInformation")}
       </h2>
       {loading ? (
-        <p>Cargando los datos...</p>
+        <p>{getText("Cargando los datos...", "loadingData")}</p>
       ) : error ? (
         <p className="text-red-600">{error}</p>
       ) : (
@@ -174,7 +183,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             type="text"
             value={fetchedProfileData?.name || ""}
             readOnly
-            placeholder="Nombre"
+            placeholder={getText("Nombre", "name")}
             className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
           />
 
@@ -184,7 +193,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             type="text"
             value={fetchedProfileData?.lastname || ""}
             readOnly
-            placeholder="Apellido"
+            placeholder={getText("Apellido", "lastname")}
             className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
           />
 
@@ -194,7 +203,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               htmlFor="emailProfile"
               className="text-gray-700 font-semibold text-sm"
             >
-              Email:
+              {getText("Email", "email")}:
             </label>
             <input
               name="email"
@@ -202,7 +211,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               type="email"
               value={fetchedProfileData?.email || ""}
               readOnly
-              placeholder="Email"
+              placeholder={getText("Email", "email")}
               className="w-full p-1.5 border rounded mt-2 text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
             />
           </div>
@@ -213,11 +222,11 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               htmlFor="nationalitiesProfile"
               className="text-gray-700 font-semibold text-sm"
             >
-              Nacionalidad:
+              {getText("Nacionalidad", "nationality")}:
             </label>
             {nationalitiesLoading ? (
               <p className="text-sm text-gray-500">
-                Cargando nacionalidades...
+                {getText("Cargando nacionalidades...", "loadingNationalities")}
               </p>
             ) : nationalitiesError ? (
               <p className="text-sm text-red-500">{nationalitiesError}</p>
@@ -229,7 +238,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                 onChange={handleChange}
                 className="w-full p-2 border mt-2 rounded text-gray-700 focus:outline-none"
               >
-                <option value="">Seleccione su nacionalidad</option>
+                <option value="">{getText("Seleccione su nacionalidad", "selectNationality")}</option>
                 {nationalities &&
                   nationalities.length > 0 &&
                   nationalities.map((nationality) => (
@@ -247,7 +256,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               htmlFor="paisProfile"
               className="text-gray-700 font-semibold text-sm"
             >
-              País de Residencia:
+              {getText("País de Residencia", "countryOfResidence")}:
             </label>
             <input
               id="paisProfile"
@@ -255,7 +264,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               type="text"
               value={fetchedProfileData?.ubicacionActual || ""}
               onChange={handleChange}
-              placeholder="País de Residencia"
+              placeholder={getText("País de Residencia", "countryOfResidence")}
               className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
             />
           </div>
@@ -266,7 +275,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               htmlFor="cityProfile"
               className="text-gray-700 font-semibold text-sm"
             >
-              Ciudad:
+              {getText("Ciudad", "city")}:
             </label>
             <input
               id="cityProfile"
@@ -274,7 +283,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               type="text"
               value={fetchedProfileData?.location || ""}
               onChange={handleChange}
-              placeholder="Ciudad"
+              placeholder={getText("Ciudad", "city")}
               className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
             />
           </div>
@@ -284,7 +293,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             <PhoneNumberInput
               mode="edit"
               name="phone"
-              label="Teléfono:"
+              label={getText("Teléfono", "phone") + ":"}
               value={fetchedProfileData?.phone}
               onChange={handleChange}
               className="p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
@@ -295,7 +304,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                 htmlFor="nameAgencyProfile"
                 className="text-gray-700 font-semibold text-sm"
               >
-                Agente o Representante:
+                {getText("Agente o Representante", "agentOrRepresentative")}:
               </label>
               <input
                 id="nameAgencyProfile"
@@ -303,7 +312,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                 type="text"
                 value={fetchedProfileData?.nameAgency || ""}
                 onChange={handleChange}
-                placeholder="Nombre del agente o representante"
+                placeholder={getText("Nombre del agente o representante", "agentName")}
                 className="p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
               />
             </div>
@@ -314,7 +323,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               htmlFor="genreProfile"
               className="text-gray-700 font-semibold text-sm"
             >
-              Género:
+              {getText("Género", "gender")}:
             </label>
             <select
               id="genreProfile"
@@ -323,10 +332,10 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               onChange={handleChange}
               className="w-full p-1.5 border mt-2 rounded text-gray-700 focus:outline-none"
             >
-              <option value="">Seleccione su género (opcional)</option>
-              <option value="Masculino">Masculino</option>
-              <option value="Femenino">Femenino</option>
-              <option value="Otro">Otro</option>
+              <option value="">{getText("Seleccione su género (opcional)", "selectGender")}</option>
+              <option value="Masculino">{getText("Masculino", "male")}</option>
+              <option value="Femenino">{getText("Femenino", "female")}</option>
+              <option value="Otro">{getText("Otro", "other")}</option>
             </select>
           </div>
 
@@ -337,7 +346,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                 htmlFor="birthdayProfile"
                 className="text-gray-700 font-semibold text-sm"
               >
-                Fecha de nacimiento:
+                {getText("Fecha de nacimiento", "birthdate")}:
               </label>
               <input
                 id="birthdayProfile"
@@ -356,7 +365,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                 htmlFor="ageProfile"
                 className="text-gray-700 font-semibold text-sm"
               >
-                Edad:
+                {getText("Edad", "age")}:
               </label>
               <input
                 id="ageProfile"
@@ -377,8 +386,8 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               className="flex items-center justify-between w-full text-sm font-medium py-2 px-3 rounded bg-verde-claro  hover:bg-verde text-white transition-all duration-300 ease-in-out"
             >
               {showSocials
-                ? "Ocultar redes sociales"
-                : "Agregar redes sociales / enlaces"}
+                ? getText("Ocultar redes sociales", "hideSocialNetworks")
+                : getText("Agregar redes sociales / enlaces", "addSocialNetworks")}
               <span
                 className={`transition-transform duration-300 ${
                   showSocials ? "rotate-180" : "rotate-0"
@@ -406,7 +415,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                     name="transfermarkt"
                     value={fetchedProfileData?.socialMedia?.transfermarkt || ""}
                     onChange={handleChange}
-                    placeholder="link de Transfermarkt"
+                    placeholder={getText("link de Transfermarkt", "transfermarktLink")}
                     className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
                   />
                 </div>
@@ -424,7 +433,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                     name="x"
                     value={fetchedProfileData?.socialMedia?.x || ""}
                     onChange={handleChange}
-                    placeholder="link de X"
+                    placeholder={getText("link de X", "xLink")}
                     className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
                   />
                 </div>
@@ -442,7 +451,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                     name="youtube"
                     value={fetchedProfileData?.socialMedia?.youtube || ""}
                     onChange={handleChange}
-                    placeholder="link de Youtube"
+                    placeholder={getText("link de Youtube", "youtubeLink")}
                     className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
                   />
                 </div>
@@ -460,7 +469,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                     name="instagram"
                     value={fetchedProfileData?.socialMedia?.instagram || ""}
                     onChange={handleChange}
-                    placeholder="usuario de Instagram"
+                    placeholder={getText("usuario de Instagram", "instagramLink")}
                     className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
                   />
                 </div>
@@ -478,7 +487,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                     name="facebook"
                     value={fetchedProfileData?.socialMedia?.facebook || ""}
                     onChange={handleChange}
-                    placeholder="usuario de Facebook"
+                    placeholder={getText("usuario de Facebook", "facebookLink")}
                     className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
                   />
                 </div>
@@ -496,7 +505,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                     name="tiktok"
                     value={fetchedProfileData?.socialMedia?.tiktok || ""}
                     onChange={handleChange}
-                    placeholder="usuario de TikTok"
+                    placeholder={getText("usuario de TikTok", "tiktokLink")}
                     className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
                   />
                 </div>
@@ -506,7 +515,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                     htmlFor="videoUrlProfile"
                     className="text-gray-700 font-semibold text-sm flex items-center gap-1"
                   >
-                    <FaYoutube className="text-red-600" /> Agregar Video:
+                    <FaYoutube className="text-red-600" /> {getText("Agregar Video", "addVideo")}:
                   </label>
                   <input
                     id="videoUrlProfile"
@@ -514,7 +523,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                     name="videoUrl"
                     value={fetchedProfileData?.videoUrl || ""}
                     onChange={handleChange}
-                    placeholder="link de Youtube"
+                    placeholder={getText("link de Youtube", "youtubeLink")}
                     className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
                   />
                 </div>
@@ -530,7 +539,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
         className="mt-3 w-full bg-verde-oscuro text-white p-2 rounded hover:bg-green-700"
         disabled={loading}
       >
-        {loading ? "Guardando..." : "Guardar cambios"}
+        {loading ? getText("Guardando...", "saving") : getText("Guardar cambios", "saveChanges")}
       </button>
       {/* Error Notification */}
       {showErrorNotification && (

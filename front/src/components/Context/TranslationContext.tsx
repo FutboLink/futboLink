@@ -1,13 +1,13 @@
 "use client";
 
 import React, { createContext, useState, useContext, useEffect } from "react";
-import { 
-  loadGoogleTranslateScript, 
-  initGoogleTranslate, 
-  changeLanguage, 
-  addTranslateStyles, 
+import {
+  loadGoogleTranslateScript,
+  initGoogleTranslate,
+  changeLanguage,
+  addTranslateStyles,
   getCurrentLanguage,
-  getLanguageName
+  getLanguageName,
 } from "@/services/TranslationService";
 
 interface TranslationContextType {
@@ -28,7 +28,9 @@ const TranslationContext = createContext<TranslationContextType>({
 
 export const useTranslation = () => useContext(TranslationContext);
 
-export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [currentLanguage, setCurrentLanguage] = useState("es");
   const [isTranslateReady, setIsTranslateReady] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
@@ -39,30 +41,30 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
       try {
         // Add styles to hide Google Translate elements
         addTranslateStyles();
-        
+
         // Load Google Translate script
         await loadGoogleTranslateScript();
-        
+
         // Initialize Google Translate
         await initGoogleTranslate();
-        
+
         // Check if we have a stored language preference
-        const storedLanguage = localStorage.getItem('preferredLanguage');
-        
+        const storedLanguage = localStorage.getItem("preferredLanguage");
+
         // Check if we already have a language set by Google Translate
         const detectedLanguage = getCurrentLanguage();
-        
+
         // Use stored preference, detected language, or default to Spanish
         const initialLanguage = storedLanguage || detectedLanguage || "es";
         setCurrentLanguage(initialLanguage);
-        
+
         // If the current language is not Spanish, make sure it's applied
         if (initialLanguage !== "es") {
           await changeLanguage(initialLanguage);
         }
-        
+
         setIsTranslateReady(true);
-        
+
         // Apply styles again after everything is initialized
         setTimeout(() => {
           addTranslateStyles();
@@ -73,16 +75,16 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
     };
 
     setupTranslation();
-    
+
     // Re-apply styles whenever window is resized (can trigger Google Translate to reappear)
     const handleResize = () => {
       addTranslateStyles();
     };
-    
-    window.addEventListener('resize', handleResize);
-    
+
+    window.addEventListener("resize", handleResize);
+
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -91,7 +93,7 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const interval = setInterval(() => {
       addTranslateStyles();
     }, 2000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -101,15 +103,15 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
 
     setIsTranslating(true);
-    
+
     try {
       const success = await changeLanguage(language);
-      
+
       if (success) {
         setCurrentLanguage(language);
         // Store the language preference
-        localStorage.setItem('preferredLanguage', language);
-        
+        localStorage.setItem("preferredLanguage", language);
+
         // Re-apply styles to hide Google elements that might reappear
         setTimeout(() => {
           addTranslateStyles();
@@ -134,10 +136,20 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
         getLanguageName,
       }}
     >
-      <div id="google_translate_element" className="hidden" style={{ display: 'none', visibility: 'hidden', width: 0, height: 0, overflow: 'hidden' }}></div>
+      <div
+        id="google_translate_element"
+        className="hidden"
+        style={{
+          display: "none",
+          visibility: "hidden",
+          width: 0,
+          height: 0,
+          overflow: "hidden",
+        }}
+      ></div>
       {children}
     </TranslationContext.Provider>
   );
 };
 
-export default TranslationContext; 
+export default TranslationContext;

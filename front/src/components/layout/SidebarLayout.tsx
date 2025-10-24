@@ -56,7 +56,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
   const { isLogged, role, setToken, setUser, user, logOut, token } =
     useUserContext();
   const { isNextIntlEnabled } = useI18nMode();
-  const tNav = useNextIntlTranslations('navigation');
+  const tNav = useNextIntlTranslations("navigation");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Función para obtener el texto traducido o el texto original
@@ -126,25 +126,81 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
       return {
         main: [
           { label: getText("Inicio", "home"), path: "/", icon: <FaHome /> },
-          { label: getText("Perfil", "profile"), path: "/PanelAdmin", icon: <FaUser /> },
-          { label: getText("Buscar", "search"), path: "/player-search", icon: <FaSearch /> },
-          { label: getText("Mercado", "market"), path: "/jobs", icon: <FaExchangeAlt /> },
-          { label: getText("Noticias", "news"), path: "/News", icon: <FaNewspaper /> },
-          { label: getText("Crear Noticia", "createNews"), path: "/PanelAdmin/News/crear-noticia", icon: <FaNewspaper /> },
-          { label: getText("Entrenamiento", "training"), path: "/cursos", icon: <FaDumbbell /> },
-          { label: getText("Crear Curso", "createCourse"), path: "/PanelAdmin/Cursos/crear-curso", icon: <FaDumbbell /> },
+          {
+            label: getText("Perfil", "profile"),
+            path: "/PanelAdmin",
+            icon: <FaUser />,
+          },
+          {
+            label: getText("Buscar", "search"),
+            path: "/player-search",
+            icon: <FaSearch />,
+          },
+          {
+            label: getText("Mercado", "market"),
+            path: "/jobs",
+            icon: <FaExchangeAlt />,
+          },
+          {
+            label: getText("Noticias", "news"),
+            path: "/News",
+            icon: <FaNewspaper />,
+          },
+          {
+            label: getText("Crear Noticia", "createNews"),
+            path: "/PanelAdmin/News/crear-noticia",
+            icon: <FaNewspaper />,
+          },
+          {
+            label: getText("Entrenamiento", "training"),
+            path: "/cursos",
+            icon: <FaDumbbell />,
+          },
+          {
+            label: getText("Crear Curso", "createCourse"),
+            path: "/PanelAdmin/Cursos/crear-curso",
+            icon: <FaDumbbell />,
+          },
         ],
         bottom: [
-          { label: getText("Configuración", "settings"), path: "/profile", icon: <MdSettings /> },
-          { label: getText("Ayuda", "help"), path: "/Help", icon: <FaQuestionCircle /> },
-          { label: getText("Mejorar Perfil", "improveProfile"), path: "/Subs", icon: <FaRocket /> },
+          {
+            label: getText("Configuración", "settings"),
+            path: "/profile",
+            icon: <MdSettings />,
+          },
+          {
+            label: getText("Ayuda", "help"),
+            path: "/Help",
+            icon: <FaQuestionCircle />,
+          },
+          {
+            label: getText("Mejorar Perfil", "improveProfile"),
+            path: "/Subs",
+            icon: <FaRocket />,
+          },
         ],
         bottomNav: [
-          { label: getText("Mercado", "market"), path: "/jobs", icon: <FaExchangeAlt /> },
-          { label: getText("Editar", "editProfile"), path: "/profile", icon: <FaEdit /> },
+          {
+            label: getText("Mercado", "market"),
+            path: "/jobs",
+            icon: <FaExchangeAlt />,
+          },
+          {
+            label: getText("Editar", "editProfile"),
+            path: "/profile",
+            icon: <FaEdit />,
+          },
           { label: getText("Inicio", "home"), path: "/", icon: <FaHome /> },
-          { label: getText("Buscar", "search"), path: "/player-search", icon: <FaSearch /> },
-          { label: getText("Perfil", "profile"), path: "/PanelAdmin", icon: <FaUser /> },
+          {
+            label: getText("Buscar", "search"),
+            path: "/player-search",
+            icon: <FaSearch />,
+          },
+          {
+            label: getText("Perfil", "profile"),
+            path: "/PanelAdmin",
+            icon: <FaUser />,
+          },
         ],
       };
     }
@@ -177,32 +233,40 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
             onClick: handlePlayerSearchClick,
             icon: <FaSearch />,
           },
-          { label: getText("Mercado", "market"), path: "/jobs", icon: <FaExchangeAlt /> },
-          { label: getText("Noticias", "news"), path: "/News", icon: <FaNewspaper /> },
+          {
+            label: getText("Mercado", "market"),
+            path: "/jobs",
+            icon: <FaExchangeAlt />,
+          },
+          {
+            label: getText("Noticias", "news"),
+            path: "/News",
+            icon: <FaNewspaper />,
+          },
         ],
         bottom: [
           {
-            label: "Configuración",
+            label: getText("Configuración", "settings"),
             path: "/PanelUsers/Manager?section=config",
             icon: <MdSettings />,
           },
-          { label: "Ayuda", path: "/Help", icon: <FaQuestionCircle /> },
+          { label: getText("Ayuda", "help"), path: "/Help", icon: <FaQuestionCircle /> },
           {
-            label: "Mejorar Plan",
+            label: getText("Mejorar Plan", "improvePlan"),
             path: "/manager-subscription",
             icon: <FaRocket />,
           },
         ],
         bottomNav: [
-          { label: "Mercado", path: "/jobs", icon: <FaExchangeAlt /> },
+          { label: getText("Mercado", "market"), path: "/jobs", icon: <FaExchangeAlt /> },
           {
-            label: "Crear",
+            label: getText("Crear", "create"),
             path: "/PanelUsers/Manager?section=createOffers",
             icon: <AiOutlineFileAdd />,
           },
-          { label: "Inicio", path: "/", icon: <FaHome /> },
-          { label: "Buscar", path: "/player-search", icon: <FaSearch /> },
-          { label: "Perfil", path: "/PanelUsers/Manager", icon: <FaUser /> },
+          { label: getText("Inicio", "home"), path: "/", icon: <FaHome /> },
+          { label: getText("Buscar", "search"), path: "/player-search", icon: <FaSearch /> },
+          { label: getText("Perfil", "profile"), path: "/PanelUsers/Manager", icon: <FaUser /> },
         ],
       };
     }
@@ -210,39 +274,39 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
     // Sidebar para jugadores
     return {
       main: [
-        { label: "Inicio", path: "/", icon: <FaHome /> },
-        { label: "Perfil", path: `/user-viewer/${user?.id}`, icon: <FaUser /> },
+        { label: getText("Inicio", "home"), path: "/", icon: <FaHome /> },
+        { label: getText("Perfil", "profile"), path: `/user-viewer/${user?.id}`, icon: <FaUser /> },
         {
-          label: "Editar Perfil",
+          label: getText("Editar Perfil", "editProfile"),
           path: `/user-viewer/${user?.id}?edit=true`,
           icon: <FaEdit />,
         },
-        { label: "Buscador", path: "/player-search", icon: <FaSearch /> },
-        { label: "Mercado", path: "/jobs", icon: <FaExchangeAlt /> },
-        { label: "Noticias", path: "/News", icon: <FaNewspaper /> },
-        { label: "Entrenamiento", path: "/cursos", icon: <FaDumbbell /> },
+        { label: getText("Buscador", "search"), path: "/player-search", icon: <FaSearch /> },
+        { label: getText("Mercado", "market"), path: "/jobs", icon: <FaExchangeAlt /> },
+        { label: getText("Noticias", "news"), path: "/News", icon: <FaNewspaper /> },
+        { label: getText("Entrenamiento", "training"), path: "/cursos", icon: <FaDumbbell /> },
       ],
       bottom: [
         {
-          label: "Configuración",
+          label: getText("Configuración", "settings"),
           path: `/forgotPassword?email=${encodeURIComponent(
             user?.email || ""
           )}`,
           icon: <FaCog />,
         },
-        { label: "Ayuda", path: "/Help", icon: <FaQuestionCircle /> },
-        { label: "Mejorar Perfil", path: "/Subs", icon: <FaRocket /> },
+        { label: getText("Ayuda", "help"), path: "/Help", icon: <FaQuestionCircle /> },
+        { label: getText("Mejorar Perfil", "improveProfile"), path: "/Subs", icon: <FaRocket /> },
       ],
       bottomNav: [
-        { label: "Mercado", path: "/jobs", icon: <FaExchangeAlt /> },
+        { label: getText("Mercado", "market"), path: "/jobs", icon: <FaExchangeAlt /> },
         {
-          label: "Editar",
+          label: getText("Editar", "edit"),
           path: `/user-viewer/${user?.id}?edit=true`,
           icon: <FaEdit />,
         },
-        { label: "Inicio", path: "/", icon: <FaHome /> },
-        { label: "Buscar", path: "/player-search", icon: <FaSearch /> },
-        { label: "Perfil", path: `/user-viewer/${user?.id}`, icon: <FaUser /> },
+        { label: getText("Inicio", "home"), path: "/", icon: <FaHome /> },
+        { label: getText("Buscar", "search"), path: "/player-search", icon: <FaSearch /> },
+        { label: getText("Perfil", "profile"), path: `/user-viewer/${user?.id}`, icon: <FaUser /> },
       ],
     };
   };
@@ -577,7 +641,8 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
             {sidebarItems.bottomNav.map((item, index) => {
               const isActive =
                 pathname === item.path ||
-                (item.path && item.path.includes("?section=") &&
+                (item.path &&
+                  item.path.includes("?section=") &&
                   pathname === item.path.split("?")[0]);
               return (
                 <Link

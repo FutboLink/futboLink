@@ -32,7 +32,7 @@ export const fetchRegisterUser = async (user: IRegisterUser) => {
     // Create a basic registration object with required fields
     const userToRegister = {
       name: user.name,
-      lastname: user.lastname,
+      lastname: user.lastname || "",
       email: user.email,
       password: user.password,
       role: user.role || "PLAYER",

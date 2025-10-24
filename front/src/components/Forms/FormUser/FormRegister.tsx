@@ -198,7 +198,12 @@ const RegistrationForm: React.FC = () => {
     const { name, value } = e.target;
     const updatedUser = { ...userRegister, [name]: value };
     setUserRegister(updatedUser);
-    setErrors(validationRegister(updatedUser));
+    const validationErrors = validationRegister(updatedUser);
+    // Si es CLUB, eliminar el error de lastname ya que no es requerido
+    if (selectedCategory === UserType.CLUB && validationErrors.lastname) {
+      delete validationErrors.lastname;
+    }
+    setErrors(validationErrors);
   };
 
   // Function to reset role selection when category changes
@@ -234,7 +239,7 @@ const RegistrationForm: React.FC = () => {
     // the fields we want to send to the backend
     const registrationData: IRegisterUser = {
       name: userRegister.name,
-      lastname: userRegister.lastname,
+      lastname: selectedCategory === UserType.CLUB ? "" : userRegister.lastname,
       email: userRegister.email,
       password: userRegister.password,
       role: selectedRole as UserType,
@@ -559,37 +564,39 @@ const RegistrationForm: React.FC = () => {
           )}
         </div>
 
-        {/* Apellidos */}
-        <div className="flex flex-col">
-          <label
-            htmlFor="lastName"
-            className="block text-gray-700 mb-2 font-medium"
-          >
-            {getText("Apellido", "lastNameLabel")} <span className="text-red-500">*</span>
-          </label>
-          <div className="relative">
-            <input
-              id="lastName"
-              type="text"
-              name="lastname"
-              value={userRegister.lastname}
-              onBlur={handleBlur}
-              onChange={handleChange}
-              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-              placeholder={getText("Tu apellido", "lastName")}
-              required
-            />
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FaUsers className="h-5 w-5 text-gray-400" />
+        {/* Apellidos - Solo mostrar si NO es CLUB */}
+        {selectedCategory !== UserType.CLUB && (
+          <div className="flex flex-col">
+            <label
+              htmlFor="lastName"
+              className="block text-gray-700 mb-2 font-medium"
+            >
+              {getText("Apellido", "lastNameLabel")} <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <input
+                id="lastName"
+                type="text"
+                name="lastname"
+                value={userRegister.lastname}
+                onBlur={handleBlur}
+                onChange={handleChange}
+                className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                placeholder={getText("Tu apellido", "lastName")}
+                required
+              />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FaUsers className="h-5 w-5 text-gray-400" />
+              </div>
             </div>
+            {touched.lastname && errors.lastname && (
+              <p className="text-red-500 text-sm mt-1 flex items-center">
+                <FaExclamationCircle className="h-4 w-4 mr-1" />
+                {errors.lastname}
+              </p>
+            )}
           </div>
-          {touched.lastname && errors.lastname && (
-            <p className="text-red-500 text-sm mt-1 flex items-center">
-              <FaExclamationCircle className="h-4 w-4 mr-1" />
-              {errors.lastname}
-            </p>
-          )}
-        </div>
+        )}
 
         {/* Email */}
         <div className="flex flex-col">

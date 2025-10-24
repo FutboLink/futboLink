@@ -70,7 +70,7 @@ export enum PasaporteUe {
 
 export interface IRegisterUser {
   name: string;
-  lastname: string;
+  lastname?: string;
   ubicacionActual: string;
   nameAgency?: string;
   puesto?: string;

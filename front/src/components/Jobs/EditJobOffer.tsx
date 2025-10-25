@@ -181,52 +181,60 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({
   };
 
   return (
-    <div className="bg-gray-100 rounded-lg max-w-4xl p-6 mx-auto">
-      <h2 className="text-3xl font-semibold text-gray-700 mb-6">
-        Editar Oferta
-      </h2>
+    <div className="bg-white rounded-xl max-w-4xl shadow-lg border border-gray-200 overflow-hidden mx-auto">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6">
+        <h2 className="text-2xl font-bold text-white text-center">
+          Editar Oferta de Trabajo
+        </h2>
+        <p className="text-center text-blue-50 mt-2 text-sm">
+          Actualiza la información de tu oferta
+        </p>
+      </div>
 
-      {/* Usamos grid para organizar el formulario */}
-      <div className="grid grid-cols-1 gap-4">
-        {/* Cada campo de entrada se mantiene en una sola columna en pantallas pequeñas */}
-        <div>
-          <label className="block text-gray-700">Título:</label>
+      {/* Formulario */}
+      <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="md:col-span-2">
+          <label className="block text-sm font-semibold mb-2 text-gray-700">Título de la Oferta</label>
           <input
             type="text"
             name="title"
             value={formData.title}
             onChange={handleChange}
-            className="w-full p-2 borde text-gray-700 border-gray-300 rounded-md mb-4"
+            className="w-full px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           />
         </div>
 
-        <div>
-          <label className="block text-gray-700">Descripción:</label>
+        <div className="md:col-span-2">
+          <label className="block text-sm font-semibold mb-2 text-gray-700">Descripción</label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md mb-4 text-gray-700"
+            rows={4}
+            placeholder="Describe los detalles de la oferta..."
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
           />
         </div>
 
         <div>
-          <label className="block text-gray-700">Ubicación:</label>
+          <label className="block text-sm font-semibold mb-2 text-gray-700">Ubicación</label>
           <input
             type="text"
             name="location"
             value={formData.location}
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md mb-4 text-gray-700"
+            placeholder="Ciudad"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
           />
         </div>
 
-        <div className="flex flex-col">
-          <label className="text-xs font-semibold mb-1 text-gray-700">
+        <div>
+          <label className="block text-sm font-semibold mb-2 text-gray-700">
             Tipo de Moneda
           </label>
           <select
-            className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-clar text-gray-700"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
             value={formData.currencyType}
             onChange={(e) =>
               setFormData({ ...formData, currencyType: e.target.value })
@@ -242,7 +250,7 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({
           {formData.currencyType === "Otro" && (
             <input
               type="text"
-              className="mt-2 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-verde-claro"
+              className="mt-2 w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Ingresa el signo de la moneda"
               value={formData.customCurrencySign}
               onChange={(e) =>
@@ -253,23 +261,24 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({
         </div>
 
         <div>
-          <label className="block text-gray-700">Salario:</label>
+          <label className="block text-sm font-semibold mb-2 text-gray-700">Salario</label>
           <input
             type="text"
             name="salary"
             value={formData.salary}
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md mb-4 text-gray-700"
+            placeholder="Ej: 2000"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
           />
         </div>
 
         <div>
-          <label className="block text-gray-700">Posición:</label>
+          <label className="block text-sm font-semibold mb-2 text-gray-700">Posición</label>
           <select
             name="position"
             value={formData.position}
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md mb-4 text-gray-700"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
           >
             {position.map((pos, index) => (
               <option key={index} value={pos}>
@@ -280,12 +289,12 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({
         </div>
 
         <div>
-          <label className="block text-gray-700">Género Deportivo:</label>
+          <label className="block text-sm font-semibold mb-2 text-gray-700">Género Deportivo</label>
           <select
             name="sportGenres"
             value={formData.sportGenres}
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md mb-4 text-gray-700"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
           >
             {sportGenres.map((genre, index) => (
               <option key={index} value={genre}>
@@ -296,12 +305,12 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({
         </div>
 
         <div>
-          <label className="block text-gray-700">Categoría:</label>
+          <label className="block text-sm font-semibold mb-2 text-gray-700">Categoría</label>
           <select
             name="category"
             value={formData.category}
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md mb-4 text-gray-700"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
           >
             {categories.map((cat, index) => (
               <option key={index} value={cat}>
@@ -312,12 +321,12 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({
         </div>
 
         <div>
-          <label className="block text-gray-700">Deporte:</label>
+          <label className="block text-sm font-semibold mb-2 text-gray-700">Modalidad</label>
           <select
             name="sport"
             value={formData.sport}
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md mb-4 text-gray-700"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
           >
             {sports.map((sport, index) => (
               <option key={index} value={sport}>
@@ -328,12 +337,12 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({
         </div>
 
         <div>
-          <label className="block text-gray-700">Tipo de Contrato:</label>
+          <label className="block text-sm font-semibold mb-2 text-gray-700">Tipo de Contrato</label>
           <select
             name="contractTypes"
             value={formData.contractTypes}
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md mb-4 text-gray-700"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
           >
             {contractTypes.map((type, index) => (
               <option key={index} value={type}>
@@ -344,12 +353,12 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({
         </div>
 
         <div>
-          <label className="block text-gray-700">Duración del Contrato:</label>
+          <label className="block text-sm font-semibold mb-2 text-gray-700">Duración del Contrato</label>
           <select
             name="contractDuration"
             value={formData.contractDurations}
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md mb-4 text-gray-700"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
           >
             {contractDurations.map((duration, index) => (
               <option key={index} value={duration}>
@@ -360,12 +369,12 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({
         </div>
 
         <div>
-          <label className="block text-gray-700">Experiencia Mínima:</label>
+          <label className="block text-sm font-semibold mb-2 text-gray-700">Experiencia Mínima</label>
           <select
             name="minExperience"
             value={formData.minExperience}
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md mb-4 text-gray-700"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
           >
             {minExperience.map((experience, index) => (
               <option key={index} value={experience}>
@@ -376,14 +385,14 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({
         </div>
 
         <div>
-          <label className="block text-gray-700">
-            ¿Disponibilidad para viajar?
+          <label className="block text-sm font-semibold mb-2 text-gray-700">
+            Disponibilidad para viajar
           </label>
           <select
             name="availabilityToTravel"
             value={formData.availabilityToTravel}
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md mb-4 text-gray-700"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
           >
             <option value="Yes">Sí</option>
             <option value="No">No</option>
@@ -391,50 +400,57 @@ const EditJobOffer: React.FC<EditJobOfferProps> = ({
         </div>
 
         <div>
-          <label className="block text-gray-700">¿Pasaporte de la UE?</label>
+          <label className="block text-sm font-semibold mb-2 text-gray-700">Pasaporte de la UE</label>
           <select
             name="euPassport"
             value={formData.euPassport}
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md mb-4 text-gray-700"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
           >
             <option value="Yes">Sí</option>
             <option value="No">No</option>
           </select>
         </div>
 
-        <div className="col-span-1">
-          <label className="block text-gray-700">Extras:</label>
-          {extra.map((ex, index) => (
-            <div key={index} className="flex items-center">
-              <input
-                type="checkbox"
-                name="extra"
-                value={ex}
-                checked={formData.extra.includes(ex)}
-                onChange={handleCheckboxChange}
-                className="mr-2 text-gray-700"
-              />
-              <label className="text-gray-700">{ex}</label>
-            </div>
-          ))}
+        <div className="md:col-span-2">
+          <label className="block text-sm font-semibold mb-3 text-gray-700">Beneficios Adicionales (Extras)</label>
+          <div className="grid grid-cols-2 gap-3 bg-gray-50 p-4 rounded-lg border border-gray-200">
+            {extra.map((ex, index) => (
+              <div key={index} className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="extra"
+                  value={ex}
+                  checked={formData.extra.includes(ex)}
+                  onChange={handleCheckboxChange}
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <label className="ml-2 text-sm text-gray-700">{ex}</label>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="flex justify-end space-x-4 mt-6">
-        <div>
-          <button
-            onClick={onCancel}
-            className="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
-          >
-            Cancelar
-          </button>
-        </div>
+      {/* Botones de acción */}
+      <div className="px-6 pb-6 flex flex-col sm:flex-row justify-end gap-3 bg-gray-50 border-t border-gray-200 pt-4">
+        <button
+          onClick={onCancel}
+          className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-all duration-200 shadow-md hover:shadow-lg font-medium"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          <span>Cancelar</span>
+        </button>
         <button
           onClick={handleSave}
-          className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+          className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium"
         >
-          Guardar cambios
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          <span>Guardar Cambios</span>
         </button>
       </div>
     </div>

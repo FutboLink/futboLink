@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { FaGlobe } from "react-icons/fa";
-import { FaBolt, FaUsers } from "react-icons/fa6";
+import { FaUsers } from "react-icons/fa6";
 import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
 import { UserContext } from "@/components/Context/UserContext";
 import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
@@ -21,11 +21,12 @@ import type { IOfferCard } from "@/Interfaces/IOffer";
 import type { IProfileData } from "@/Interfaces/IUser";
 import { useI18nMode } from "@/components/Context/I18nModeContext";
 import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
+import { FaBriefcase } from "react-icons/fa6";
 
 const PanelManager = () => {
   const { user, token } = useContext(UserContext);
   const { isNextIntlEnabled } = useI18nMode();
-  const tCommon = useNextIntlTranslations('common');
+  const tCommon = useNextIntlTranslations("common");
 
   // Función para obtener el texto traducido o el texto original
   const getText = (originalText: string, translatedKey: string) => {
@@ -283,7 +284,9 @@ const PanelManager = () => {
 
             {/* Suscripción */}
             <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 shadow-md border border-green-200 mb-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-2">Plan de Suscripción</h3>
+              <h3 className="text-lg font-medium text-gray-800 mb-2">
+                Plan de Suscripción
+              </h3>
               <span
                 className={`px-3 py-1 rounded-full text-sm font-semibold ${
                   subscriptionInfo.subscriptionType === "Profesional"
@@ -303,6 +306,76 @@ const PanelManager = () => {
                   </Link>
                 </div>
               )}
+            </div>
+
+            {/* Jugadores Representados */}
+            <div className="bg-white rounded-lg shadow-md border border-gray-200 mb-4">
+              <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-3 rounded-t-lg flex items-center gap-2">
+                <FaBriefcase
+                  size={20}
+                  className="text-white"
+                  aria-label="Maletín"
+                />
+                <h3 className="text-base font-bold text-white">Portafolio</h3>
+              </div>
+              <div className="p-3">
+                {loadingPortfolio ? (
+                  <div className="flex justify-center py-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+                  </div>
+                ) : portfolioPlayers.length > 0 ? (
+                  <div className="space-y-2">
+                    {portfolioPlayers.slice(0, 5).map((player) => (
+                      <div
+                        key={player.id}
+                        className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors border-b border-gray-100 last:border-0"
+                      >
+                        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-purple-200 flex-shrink-0">
+                          <Image
+                            src={player.imgUrl || "/default-player.png"}
+                            alt={`${player.name} ${player.lastname}`}
+                            width={40}
+                            height={40}
+                            className="object-cover w-full h-full"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm text-gray-800 truncate">
+                            {player.name} {player.lastname}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {player.primaryPosition || "N/D"}
+                            {player.age ? ` • ${player.age} años` : ""}
+                          </p>
+                        </div>
+                        <Link
+                          href={`/user-viewer/${player.id}`}
+                          className="px-3 py-1 bg-purple-600 text-white rounded-md text-xs hover:bg-purple-700 transition-colors flex-shrink-0"
+                        >
+                          Ver perfil
+                        </Link>
+                      </div>
+                    ))}
+                    {portfolioPlayers.length > 5 && (
+                      <div className="pt-2 text-center">
+                        <button
+                          onClick={() => setActiveSection("portfolio")}
+                          className="text-xs text-purple-600 hover:text-purple-800 font-medium"
+                        >
+                          Ver todos ({portfolioPlayers.length})
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-6">
+                    <FaUsers className="mx-auto text-3xl text-gray-300 mb-2" />
+                    <p className="text-xs text-gray-500">
+                      Sin jugadores representados
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -353,489 +426,544 @@ const PanelManager = () => {
                 </div>
               )}
 
-        {/* Sección de Perfil */}
-        {activeSection === "profile" && (
-          <div className="space-y-4">
-            {/* Información de la agencia */}
-            <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-              <h3 className="text-lg font-medium mb-3 text-gray-800">
-                {getText("Información de la agencia", "agencyInformation")}
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">{getText("Nombre completo", "fullName")}</span>
-                  <span className="text-gray-800">
-                    {userData?.name} {userData?.lastname}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">{getText("Nombre de la entidad", "entityName")}</span>
-                  <span className="text-gray-800">
-                    {userData?.nameAgency || getText("No disponible", "notAvailable")}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">{getText("Tipo de organización", "organizationType")}</span>
-                  <span className="text-gray-800">
-                    {userData?.puesto || getText("No especificado", "notSpecified")}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">{getText("Año de fundación", "foundingYear")}</span>
-                  <span className="text-gray-800">
-                    {userData?.age || getText("No especificado", "notSpecified")}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">{getText("Nacionalidad", "nationality")}</span>
-                  <span className="flex items-center text-gray-800">
-                    {userData?.nationality && renderCountryFlag(userData.nationality)}
-                    <span className="ml-2">{userData?.nationality || getText("No disponible", "notAvailable")}</span>
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">{getText("País de Residencia", "countryOfResidence")}</span>
-                  <span className="flex items-center text-gray-800">
-                    {userData?.ubicacionActual && renderCountryFlag(userData.ubicacionActual)}
-                    <span className="ml-2">{userData?.ubicacionActual || getText("No disponible", "notAvailable")}</span>
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">{getText("Región", "region")}</span>
-                  <span className="text-gray-800">
-                    {userData?.location || getText("No especificada", "notSpecified")}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Información de contacto */}
-            <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-              <h3 className="text-lg font-medium mb-3 text-gray-800">
-                {getText("Contacto", "contact")}
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">{getText("Email", "email")}</span>
-                  <span className="text-gray-800">{userData?.email}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">{getText("Teléfono", "phone")}</span>
-                  <PhoneNumberInput
-                    mode="view"
-                    value={userData?.phone}
-                    showWhatsAppLink
-                    className="text-base text-gray-800"
-                  />
-                </div>
-                {userData?.socialMedia && Object.keys(userData.socialMedia || {}).length > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">{getText("Redes sociales", "socialNetworks")}</span>
-                    <div className="flex space-x-3">
-                      {userData.socialMedia?.website && (
-                        <a
-                          href={userData.socialMedia.website}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 transition-colors"
-                          title="Sitio web"
-                        >
-                          <FaGlobe className="w-5 h-5" />
-                        </a>
+              {/* Sección de Perfil */}
+              {activeSection === "profile" && (
+                <div className="space-y-4">
+                  {/* Información de la agencia */}
+                  <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+                    <h3 className="text-lg font-medium mb-3 text-gray-800">
+                      {getText(
+                        "Información de la agencia",
+                        "agencyInformation"
                       )}
+                    </h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">
+                          {getText("Nombre completo", "fullName")}
+                        </span>
+                        <span className="text-gray-800">
+                          {userData?.name} {userData?.lastname}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">
+                          {getText("Nombre de la entidad", "entityName")}
+                        </span>
+                        <span className="text-gray-800">
+                          {userData?.nameAgency ||
+                            getText("No disponible", "notAvailable")}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">
+                          {getText("Tipo de organización", "organizationType")}
+                        </span>
+                        <span className="text-gray-800">
+                          {userData?.puesto ||
+                            getText("No especificado", "notSpecified")}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">
+                          {getText("Año de fundación", "foundingYear")}
+                        </span>
+                        <span className="text-gray-800">
+                          {userData?.age ||
+                            getText("No especificado", "notSpecified")}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">
+                          {getText("Nacionalidad", "nationality")}
+                        </span>
+                        <span className="flex items-center text-gray-800">
+                          {userData?.nationality &&
+                            renderCountryFlag(userData.nationality)}
+                          <span className="ml-2">
+                            {userData?.nationality ||
+                              getText("No disponible", "notAvailable")}
+                          </span>
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">
+                          {getText("País de Residencia", "countryOfResidence")}
+                        </span>
+                        <span className="flex items-center text-gray-800">
+                          {userData?.ubicacionActual &&
+                            renderCountryFlag(userData.ubicacionActual)}
+                          <span className="ml-2">
+                            {userData?.ubicacionActual ||
+                              getText("No disponible", "notAvailable")}
+                          </span>
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">
+                          {getText("Región", "region")}
+                        </span>
+                        <span className="text-gray-800">
+                          {userData?.location ||
+                            getText("No especificada", "notSpecified")}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                )}
-              </div>
-            </div>
 
-            {/* Video de Presentación */}
-            {userData?.videoUrl && (
-              <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-                <h3 className="text-lg font-medium mb-3 text-gray-800">
-                  {getText("Video de Presentación", "presentationVideo")}
-                </h3>
-                <div className="relative w-full bg-black rounded-lg overflow-hidden">
-                  <iframe
-                    src={userData.videoUrl}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-[350px]"
-                    title={getText("Video de presentación", "presentationVideo")}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* CV Section */}
-            {userData?.cv && (
-              <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-                <h3 className="text-lg font-medium mb-3 text-gray-800">
-                  Currículum Vitae
-                </h3>
-                <a
-                  href={userData.cv}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm"
-                >
-                  Ver CV
-                </a>
-              </div>
-            )}
-
-            {/* Botón Editar Perfil */}
-            <div className="mt-4">
-              <Link href="/profile">
-                <button
-                  type="button"
-                  className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                  Editar Perfil
-                </button>
-              </Link>
-            </div>
-          </div>
-        )}
-
-        {/* Sección Crear Ofertas */}
-        {activeSection === "createOffers" && (
-          <section
-            className="bg-white p-8 rounded-lg shadow-lg mb-8 max-w-5xl mx-auto"
-            data-aos="fade-up"
-          >
-            <FormComponent />
-          </section>
-        )}
-
-        {/* Sección Mis Ofertas */}
-        {activeSection === "appliedOffers" && (
-          <section
-            className="bg-white p-8 rounded-lg shadow-lg mb-8 max-w-5xl mx-auto"
-            data-aos="fade-up"
-          >
-            <div className="flex justify-between items-center mb-6 border-b border-gray-200 pb-2">
-              <h3 className="text-2xl font-semibold text-[#1d5126]">
-                Mis Ofertas Publicadas
-              </h3>
-              <button
-                type="button"
-                onClick={() => handleSectionChange("createOffers")}
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center gap-2"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                Crear Oferta
-              </button>
-            </div>
-            {appliedJobs.length === 0 ? (
-              <div className="text-center py-8 bg-gray-50 rounded-lg">
-                <div className="text-gray-500 mb-4">
-                  <svg
-                    className="mx-auto h-12 w-12 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                  <p className="mt-2">No has publicado ninguna oferta aún</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleSectionChange("createOffers")}
-                  className="inline-block px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-                >
-                  Crear mi primera oferta
-                </button>
-              </div>
-            ) : (
-              <div className="max-h-[600px] overflow-y-auto pr-2 space-y-6">
-                {[...appliedJobs]
-                  .sort(
-                    (a, b) =>
-                      new Date(b.createdAt).getTime() -
-                      new Date(a.createdAt).getTime()
-                  )
-                  .map((job) => (
-                    <div key={job.id} className="cursor-pointer">
-                      <JobOfferDetails jobId={job.id || ""} />
-                    </div>
-                  ))}
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* Sección de Configuración */}
-        {activeSection === "config" && (
-          <section
-            className="bg-white p-6 rounded-lg shadow-lg mb-8 max-w-5xl mx-auto"
-            data-aos="fade-up"
-          >
-            <h3 className="text-2xl font-semibold mb-6 text-[#1d5126] border-b border-gray-200 pb-2">
-              Configuración
-            </h3>
-            <div className="space-y-6">
-              <div className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
-                <Link
-                  className="group flex items-center justify-between"
-                  href="/forgotPassword"
-                >
-                  <div>
-                    <h4 className="font-semibold text-lg group-hover:text-[#1d5126] transition-colors">
-                      Cambiar contraseña
-                    </h4>
-                    <p className="text-gray-600 text-sm mt-1">
-                      Actualiza tu contraseña de acceso
-                    </p>
-                  </div>
-                  <svg
-                    className="w-5 h-5 text-gray-400 group-hover:text-[#1d5126] transition-colors"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </Link>
-              </div>
-
-              <div className="border border-gray-200 rounded-lg p-4">
-                <h4 className="font-semibold text-lg text-gray-700 mb-2">
-                  Idioma
-                </h4>
-                <p className="text-gray-600 text-sm">Español (Por defecto)</p>
-              </div>
-
-              <div className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
-                <Link
-                  className="group flex items-center justify-between"
-                  href="/manager-subscription"
-                >
-                  <div>
-                    <h4 className="font-semibold text-lg group-hover:text-[#1d5126] transition-colors">
-                      Suscripción
-                    </h4>
-                    <p className="text-gray-600 text-sm mt-1">
-                      Gestiona tu plan de suscripción
-                    </p>
-                  </div>
-                  <svg
-                    className="w-5 h-5 text-gray-400 group-hover:text-[#1d5126] transition-colors"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </Link>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Sección de Portafolio de Jugadores */}
-        {activeSection === "portfolio" && (
-          <section
-            className="bg-white p-8 rounded-lg shadow-lg mb-8 max-w-5xl mx-auto"
-            data-aos="fade-up"
-          >
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold text-[#1d5126]">
-                {getText("Mi Portafolio de Jugadores", "myPlayerPortfolio")}
-              </h3>
-              <button
-                type="button"
-                onClick={() => {
-                  // Verificar si el usuario tiene suscripción adecuada
-                  const hasPaidSubscription =
-                    subscriptionInfo.subscriptionType === "Profesional" ||
-                    subscriptionInfo.subscriptionType === "Semiprofesional";
-
-                  // Redirigir según el tipo de suscripción
-                  if (
-                    hasPaidSubscription &&
-                    subscriptionInfo.hasActiveSubscription
-                  ) {
-                    router.push("/player-search");
-                  } else {
-                    // Mostrar toast con mensaje informativo
-                    toast.error(
-                      "Necesitas una suscripción para acceder a la búsqueda de jugadores"
-                    );
-                    setTimeout(() => {
-                      router.push("/manager-subscription");
-                    }, 1000);
-                  }
-                }}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-                {getText("Buscar Jugadores", "searchPlayers")}
-              </button>
-            </div>
-
-            {loadingPortfolio ? (
-              <div className="flex justify-center items-center py-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
-              </div>
-            ) : portfolioPlayers.length > 0 ? (
-              <div className="max-h-[600px] overflow-y-auto pr-2">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {portfolioPlayers.map((player) => (
-                  <div
-                    key={player.id}
-                    className="bg-gray-50 rounded-lg shadow p-4 hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-center gap-3 mb-3">
-                      {/* Foto de perfil */}
-                      <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-gray-200">
-                        <Image
-                          src={player.imgUrl || "/default-player.png"}
-                          alt={`${player.name} ${player.lastname}`}
-                          width={56}
-                          height={56}
-                          className="object-cover w-full h-full"
+                  {/* Información de contacto */}
+                  <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+                    <h3 className="text-lg font-medium mb-3 text-gray-800">
+                      {getText("Contacto", "contact")}
+                    </h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">
+                          {getText("Email", "email")}
+                        </span>
+                        <span className="text-gray-800">{userData?.email}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">
+                          {getText("Teléfono", "phone")}
+                        </span>
+                        <PhoneNumberInput
+                          mode="view"
+                          value={userData?.phone}
+                          showWhatsAppLink
+                          className="text-base text-gray-800"
                         />
                       </div>
-
-                      {/* Información básica */}
-                      <div className="flex-1">
-                        <h3 className="font-bold text-lg text-gray-800">
-                          {player.name} {player.lastname}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {player.primaryPosition || "Sin posición"}
-                          {player.age ? ` • ${player.age} años` : ""}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Acciones */}
-                    <div className="flex justify-between mt-3">
-                      <Link
-                        href={`/user-viewer/${player.id}`}
-                        className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition-colors"
-                      >
-                        Ver perfil
-                      </Link>
-
-                      <button
-                        onClick={() => removeFromPortfolio(player.id)}
-                        type="button"
-                        className="px-3 py-1 bg-red-100 text-red-600 rounded-md text-sm hover:bg-red-200 transition-colors"
-                      >
-                        Quitar
-                      </button>
+                      {userData?.socialMedia &&
+                        Object.keys(userData.socialMedia || {}).length > 0 && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">
+                              {getText("Redes sociales", "socialNetworks")}
+                            </span>
+                            <div className="flex space-x-3">
+                              {userData.socialMedia?.website && (
+                                <a
+                                  href={userData.socialMedia.website}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 hover:text-blue-800 transition-colors"
+                                  title="Sitio web"
+                                >
+                                  <FaGlobe className="w-5 h-5" />
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        )}
                     </div>
                   </div>
-                ))}
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-12 bg-gray-50 rounded-lg">
-                <div className="text-gray-500 mb-4">
-                  <FaUsers className="mx-auto text-6xl mb-4 text-gray-400" />
-                  <h4 className="text-lg font-semibold text-gray-600">
-                    {getText("Aún no tienes jugadores en tu Portafolio", "noPlayersInPortfolio")}
-                  </h4>
-                  <p className="mt-2 text-gray-500">
-                    {getText("Comienza a agregar jugadores para construir tu Portafolio profesional", "startAddingPlayers")}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    // Verificar si el usuario tiene suscripción adecuada
-                    const hasPaidSubscription =
-                      subscriptionInfo.subscriptionType === "Profesional" ||
-                      subscriptionInfo.subscriptionType === "Semiprofesional";
 
-                    // Redirigir según el tipo de suscripción
-                    if (
-                      hasPaidSubscription &&
-                      subscriptionInfo.hasActiveSubscription
-                    ) {
-                      router.push("/player-search");
-                    } else {
-                      // Mostrar toast con mensaje informativo
-                      toast.error(
-                        "Necesitas una suscripción para acceder a la búsqueda de jugadores"
-                      );
-                      setTimeout(() => {
-                        router.push("/manager-subscription");
-                      }, 1000);
-                    }
-                  }}
-                  className="inline-block mt-3 px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium"
+                  {/* Video de Presentación */}
+                  {userData?.videoUrl && (
+                    <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+                      <h3 className="text-lg font-medium mb-3 text-gray-800">
+                        {getText("Video de Presentación", "presentationVideo")}
+                      </h3>
+                      <div className="relative w-full bg-black rounded-lg overflow-hidden">
+                        <iframe
+                          src={userData.videoUrl}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          className="w-full h-[350px]"
+                          title={getText(
+                            "Video de presentación",
+                            "presentationVideo"
+                          )}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* CV Section */}
+                  {userData?.cv && (
+                    <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+                      <h3 className="text-lg font-medium mb-3 text-gray-800">
+                        Currículum Vitae
+                      </h3>
+                      <a
+                        href={userData.cv}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm"
+                      >
+                        Ver CV
+                      </a>
+                    </div>
+                  )}
+
+                  {/* Botón Editar Perfil */}
+                  <div className="mt-4">
+                    <Link href="/profile">
+                      <button
+                        type="button"
+                        className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          aria-hidden="true"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          />
+                        </svg>
+                        Editar Perfil
+                      </button>
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {/* Sección Crear Ofertas */}
+              {activeSection === "createOffers" && (
+                <section
+                  className="bg-white p-8 rounded-lg shadow-lg mb-8 max-w-5xl mx-auto"
+                  data-aos="fade-up"
                 >
-                  Buscar jugadores
-                </button>
-              </div>
-            )}
-          </section>
-        )}
+                  <FormComponent />
+                </section>
+              )}
+
+              {/* Sección Mis Ofertas */}
+              {activeSection === "appliedOffers" && (
+                <section
+                  className="bg-white p-8 rounded-lg shadow-lg mb-8 max-w-5xl mx-auto"
+                  data-aos="fade-up"
+                >
+                  <div className="flex justify-between items-center mb-6 border-b border-gray-200 pb-2">
+                    <h3 className="text-2xl font-semibold text-[#1d5126]">
+                      Mis Ofertas Publicadas
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => handleSectionChange("createOffers")}
+                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center gap-2"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                      Crear Oferta
+                    </button>
+                  </div>
+                  {appliedJobs.length === 0 ? (
+                    <div className="text-center py-8 bg-gray-50 rounded-lg">
+                      <div className="text-gray-500 mb-4">
+                        <svg
+                          className="mx-auto h-12 w-12 text-gray-400"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          aria-hidden="true"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          />
+                        </svg>
+                        <p className="mt-2">
+                          No has publicado ninguna oferta aún
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleSectionChange("createOffers")}
+                        className="inline-block px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                      >
+                        Crear mi primera oferta
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="max-h-[600px] overflow-y-auto pr-2 space-y-6">
+                      {[...appliedJobs]
+                        .sort(
+                          (a, b) =>
+                            new Date(b.createdAt).getTime() -
+                            new Date(a.createdAt).getTime()
+                        )
+                        .map((job) => (
+                          <div key={job.id} className="cursor-pointer">
+                            <JobOfferDetails jobId={job.id || ""} />
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </section>
+              )}
+
+              {/* Sección de Configuración */}
+              {activeSection === "config" && (
+                <section
+                  className="bg-white p-6 rounded-lg shadow-lg mb-8 max-w-5xl mx-auto"
+                  data-aos="fade-up"
+                >
+                  <h3 className="text-2xl font-semibold mb-6 text-[#1d5126] border-b border-gray-200 pb-2">
+                    Configuración
+                  </h3>
+                  <div className="space-y-6">
+                    <div className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
+                      <Link
+                        className="group flex items-center justify-between"
+                        href="/forgotPassword"
+                      >
+                        <div>
+                          <h4 className="font-semibold text-lg group-hover:text-[#1d5126] transition-colors">
+                            Cambiar contraseña
+                          </h4>
+                          <p className="text-gray-600 text-sm mt-1">
+                            Actualiza tu contraseña de acceso
+                          </p>
+                        </div>
+                        <svg
+                          className="w-5 h-5 text-gray-400 group-hover:text-[#1d5126] transition-colors"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
+                      </Link>
+                    </div>
+
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <h4 className="font-semibold text-lg text-gray-700 mb-2">
+                        Idioma
+                      </h4>
+                      <p className="text-gray-600 text-sm">
+                        Español (Por defecto)
+                      </p>
+                    </div>
+
+                    <div className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
+                      <Link
+                        className="group flex items-center justify-between"
+                        href="/manager-subscription"
+                      >
+                        <div>
+                          <h4 className="font-semibold text-lg group-hover:text-[#1d5126] transition-colors">
+                            Suscripción
+                          </h4>
+                          <p className="text-gray-600 text-sm mt-1">
+                            Gestiona tu plan de suscripción
+                          </p>
+                        </div>
+                        <svg
+                          className="w-5 h-5 text-gray-400 group-hover:text-[#1d5126] transition-colors"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
+                      </Link>
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {/* Sección de Portafolio de Jugadores */}
+              {activeSection === "portfolio" && (
+                <section
+                  className="bg-white p-8 rounded-lg shadow-lg mb-8 max-w-5xl mx-auto"
+                  data-aos="fade-up"
+                >
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-2xl font-bold text-[#1d5126]">
+                      {getText(
+                        "Mi Portafolio de Jugadores",
+                        "myPlayerPortfolio"
+                      )}
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Verificar si el usuario tiene suscripción adecuada
+                        const hasPaidSubscription =
+                          subscriptionInfo.subscriptionType === "Profesional" ||
+                          subscriptionInfo.subscriptionType ===
+                            "Semiprofesional";
+
+                        // Redirigir según el tipo de suscripción
+                        if (
+                          hasPaidSubscription &&
+                          subscriptionInfo.hasActiveSubscription
+                        ) {
+                          router.push("/player-search");
+                        } else {
+                          // Mostrar toast con mensaje informativo
+                          toast.error(
+                            "Necesitas una suscripción para acceder a la búsqueda de jugadores"
+                          );
+                          setTimeout(() => {
+                            router.push("/manager-subscription");
+                          }, 1000);
+                        }
+                      }}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
+                      </svg>
+                      {getText("Buscar Jugadores", "searchPlayers")}
+                    </button>
+                  </div>
+
+                  {loadingPortfolio ? (
+                    <div className="flex justify-center items-center py-8">
+                      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+                    </div>
+                  ) : portfolioPlayers.length > 0 ? (
+                    <div className="max-h-[600px] overflow-y-auto pr-2">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {portfolioPlayers.map((player) => (
+                          <div
+                            key={player.id}
+                            className="bg-gray-50 rounded-lg shadow p-4 hover:shadow-md transition-shadow"
+                          >
+                            <div className="flex items-center gap-3 mb-3">
+                              {/* Foto de perfil */}
+                              <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-gray-200">
+                                <Image
+                                  src={player.imgUrl || "/default-player.png"}
+                                  alt={`${player.name} ${player.lastname}`}
+                                  width={56}
+                                  height={56}
+                                  className="object-cover w-full h-full"
+                                />
+                              </div>
+
+                              {/* Información básica */}
+                              <div className="flex-1">
+                                <h3 className="font-bold text-lg text-gray-800">
+                                  {player.name} {player.lastname}
+                                </h3>
+                                <p className="text-sm text-gray-600">
+                                  {player.primaryPosition || "Sin posición"}
+                                  {player.age ? ` • ${player.age} años` : ""}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Acciones */}
+                            <div className="flex justify-between mt-3">
+                              <Link
+                                href={`/user-viewer/${player.id}`}
+                                className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition-colors"
+                              >
+                                Ver perfil
+                              </Link>
+
+                              <button
+                                onClick={() => removeFromPortfolio(player.id)}
+                                type="button"
+                                className="px-3 py-1 bg-red-100 text-red-600 rounded-md text-sm hover:bg-red-200 transition-colors"
+                              >
+                                Quitar
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 bg-gray-50 rounded-lg">
+                      <div className="text-gray-500 mb-4">
+                        <FaUsers className="mx-auto text-6xl mb-4 text-gray-400" />
+                        <h4 className="text-lg font-semibold text-gray-600">
+                          {getText(
+                            "Aún no tienes jugadores en tu Portafolio",
+                            "noPlayersInPortfolio"
+                          )}
+                        </h4>
+                        <p className="mt-2 text-gray-500">
+                          {getText(
+                            "Comienza a agregar jugadores para construir tu Portafolio profesional",
+                            "startAddingPlayers"
+                          )}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          // Verificar si el usuario tiene suscripción adecuada
+                          const hasPaidSubscription =
+                            subscriptionInfo.subscriptionType ===
+                              "Profesional" ||
+                            subscriptionInfo.subscriptionType ===
+                              "Semiprofesional";
+
+                          // Redirigir según el tipo de suscripción
+                          if (
+                            hasPaidSubscription &&
+                            subscriptionInfo.hasActiveSubscription
+                          ) {
+                            router.push("/player-search");
+                          } else {
+                            // Mostrar toast con mensaje informativo
+                            toast.error(
+                              "Necesitas una suscripción para acceder a la búsqueda de jugadores"
+                            );
+                            setTimeout(() => {
+                              router.push("/manager-subscription");
+                            }, 1000);
+                          }
+                        }}
+                        className="inline-block mt-3 px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium"
+                      >
+                        Buscar jugadores
+                      </button>
+                    </div>
+                  )}
+                </section>
+              )}
             </div>
           </div>
         </div>

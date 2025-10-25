@@ -250,7 +250,11 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
             path: "/PanelUsers/Manager?section=config",
             icon: <MdSettings />,
           },
-          { label: getText("Ayuda", "help"), path: "/Help", icon: <FaQuestionCircle /> },
+          {
+            label: getText("Ayuda", "help"),
+            path: "/Help",
+            icon: <FaQuestionCircle />,
+          },
           {
             label: getText("Mejorar Plan", "improvePlan"),
             path: "/manager-subscription",
@@ -258,15 +262,27 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
           },
         ],
         bottomNav: [
-          { label: getText("Mercado", "market"), path: "/jobs", icon: <FaExchangeAlt /> },
+          {
+            label: getText("Mercado", "market"),
+            path: "/jobs",
+            icon: <FaExchangeAlt />,
+          },
           {
             label: getText("Crear", "create"),
             path: "/PanelUsers/Manager?section=createOffers",
             icon: <AiOutlineFileAdd />,
           },
           { label: getText("Inicio", "home"), path: "/", icon: <FaHome /> },
-          { label: getText("Buscar", "search"), path: "/player-search", icon: <FaSearch /> },
-          { label: getText("Perfil", "profile"), path: "/PanelUsers/Manager", icon: <FaUser /> },
+          {
+            label: getText("Buscar", "search"),
+            path: "/player-search",
+            icon: <FaSearch />,
+          },
+          {
+            label: getText("Perfil", "profile"),
+            path: "/PanelUsers/Manager",
+            icon: <FaUser />,
+          },
         ],
       };
     }
@@ -275,16 +291,36 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
     return {
       main: [
         { label: getText("Inicio", "home"), path: "/", icon: <FaHome /> },
-        { label: getText("Perfil", "profile"), path: `/user-viewer/${user?.id}`, icon: <FaUser /> },
+        {
+          label: getText("Perfil", "profile"),
+          path: `/user-viewer/${user?.id}`,
+          icon: <FaUser />,
+        },
         {
           label: getText("Editar Perfil", "editProfile"),
           path: `/user-viewer/${user?.id}?edit=true`,
           icon: <FaEdit />,
         },
-        { label: getText("Buscador", "search"), path: "/player-search", icon: <FaSearch /> },
-        { label: getText("Mercado", "market"), path: "/jobs", icon: <FaExchangeAlt /> },
-        { label: getText("Noticias", "news"), path: "/News", icon: <FaNewspaper /> },
-        { label: getText("Entrenamiento", "training"), path: "/cursos", icon: <FaDumbbell /> },
+        {
+          label: getText("Buscador", "search"),
+          path: "/player-search",
+          icon: <FaSearch />,
+        },
+        {
+          label: getText("Mercado", "market"),
+          path: "/jobs",
+          icon: <FaExchangeAlt />,
+        },
+        {
+          label: getText("Noticias", "news"),
+          path: "/News",
+          icon: <FaNewspaper />,
+        },
+        {
+          label: getText("Entrenamiento", "training"),
+          path: "/cursos",
+          icon: <FaDumbbell />,
+        },
       ],
       bottom: [
         {
@@ -294,19 +330,39 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
           )}`,
           icon: <FaCog />,
         },
-        { label: getText("Ayuda", "help"), path: "/Help", icon: <FaQuestionCircle /> },
-        { label: getText("Mejorar Perfil", "improveProfile"), path: "/Subs", icon: <FaRocket /> },
+        {
+          label: getText("Ayuda", "help"),
+          path: "/Help",
+          icon: <FaQuestionCircle />,
+        },
+        {
+          label: getText("Mejorar Perfil", "improveProfile"),
+          path: "/Subs",
+          icon: <FaRocket />,
+        },
       ],
       bottomNav: [
-        { label: getText("Mercado", "market"), path: "/jobs", icon: <FaExchangeAlt /> },
+        {
+          label: getText("Mercado", "market"),
+          path: "/jobs",
+          icon: <FaExchangeAlt />,
+        },
         {
           label: getText("Editar", "edit"),
           path: `/user-viewer/${user?.id}?edit=true`,
           icon: <FaEdit />,
         },
         { label: getText("Inicio", "home"), path: "/", icon: <FaHome /> },
-        { label: getText("Buscar", "search"), path: "/player-search", icon: <FaSearch /> },
-        { label: getText("Perfil", "profile"), path: `/user-viewer/${user?.id}`, icon: <FaUser /> },
+        {
+          label: getText("Buscar", "search"),
+          path: "/player-search",
+          icon: <FaSearch />,
+        },
+        {
+          label: getText("Perfil", "profile"),
+          path: `/user-viewer/${user?.id}`,
+          icon: <FaUser />,
+        },
       ],
     };
   };
@@ -366,7 +422,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
 
       {/* Mobile Top Bar */}
       {isLogged ? (
-        <div className="md:hidden bg-green-700 text-white p-4 flex items-center justify-between sticky top-0 z-50">
+        <div className="md:hidden bg-green-700 text-white p-4 flex items-center justify-between sticky top-0 z-[110]">
           {/* Botón del sidebar a la izquierda */}
           <button
             onClick={toggleSidebar}
@@ -397,7 +453,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop Sidebar */}
         {isLogged && (
-          <aside className="hidden md:block group fixed top-0 left-0 h-screen z-20 transition-all duration-300 ease-in-out w-[72px] hover:w-[240px] bg-white border-r border-gray-200 px-4 py-8 pt-24 shadow-md  flex-col">
+          <aside className="hidden md:block group fixed top-0 left-0 h-screen z-40 transition-all duration-300 ease-in-out w-[72px] hover:w-[240px] bg-white border-r border-gray-200 px-4 py-8 pt-24 shadow-md  flex-col">
             {/* Desktop sidebar content - same as before */}
             <div>
               <div className="flex flex-col items-center mb-10">
@@ -499,7 +555,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
         {isLogged && isSidebarOpen && (
           <button
             type="button"
-            className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+            className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-[150]"
             onClick={closeSidebar}
           ></button>
         )}
@@ -507,7 +563,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
         {/* Mobile Sidebar */}
         {isLogged && (
           <aside
-            className={`md:hidden fixed top-0 left-0 h-full w-80 bg-green-800 text-white transform transition-transform duration-300 ease-in-out z-50 ${
+            className={`md:hidden fixed top-0 left-0 h-full w-80 bg-green-800 text-white transform transition-transform duration-300 ease-in-out z-[200] ${
               isSidebarOpen ? "translate-x-0" : "-translate-x-full"
             }`}
           >
@@ -561,11 +617,14 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
                       <li key={`main-${item.label}-${index}`}>
                         <button
                           type="button"
-                          onClick={item.onClick}
-                          className="flex items-center gap-4 px-3 py-2 rounded-lg text-sm font-medium text-white-700 hover:bg-gray-700 w-full text-left"
+                          onClick={() => {
+                            item.onClick?.();
+                            closeSidebar();
+                          }}
+                          className="flex items-center gap-4 px-3 py-2 rounded-lg text-sm font-medium text-white hover:bg-green-700 w-full text-left"
                         >
                           <span className="text-lg">{item.icon}</span>
-                          <span className="whitespace-nowrap ">
+                          <span className="whitespace-nowrap">
                             {item.label}
                           </span>
                         </button>
@@ -578,24 +637,24 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
                       <Link
                         href={item.path || "/"}
                         onClick={closeSidebar}
-                        className="flex items-center gap-4 px-4 py-2 rounded-lg text-sm font-medium text-white-300 hover:bg-gray-700 hover:text-white transition-all"
+                        className="flex items-center gap-4 px-4 py-2 rounded-lg text-sm font-medium text-white hover:bg-green-700"
                       >
                         <span className="text-lg">{item.icon}</span>
-                        <span className="whitespace-nowrap ">{item.label}</span>
+                        <span className="whitespace-nowrap">{item.label}</span>
                       </Link>
                     </li>
                   );
                 })}
               </ul>
 
-              <div className="mt-8 pt-4 border-t border-white-600">
+              <div className="mt-8 pt-4 border-t border-green-600">
                 <ul className="space-y-1">
                   {sidebarItems.bottom.map((item, index) => (
                     <li key={item.path || `bottom-mobile-${index}`}>
                       <Link
                         href={item.path || "/"}
                         onClick={closeSidebar}
-                        className="flex items-center gap-4 px-4 py-2 rounded-lg text-sm font-medium text-white-300 hover:bg-gray-700 hover:text-white transition-all"
+                        className="flex items-center gap-4 px-4 py-2 rounded-lg text-sm font-medium text-white hover:bg-green-700"
                       >
                         <span className="text-lg">{item.icon}</span>
                         <span>{item.label}</span>
@@ -605,13 +664,13 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
                 </ul>
               </div>
 
-              <div className="mt-8 pt-4 border-t border-white-600">
+              <div className="mt-8 pt-4 border-t border-green-600">
                 <button
                   onClick={() => {
                     handleLogout();
                     closeSidebar();
                   }}
-                  className="flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium text-red-400 hover:bg-gray-700 transition-all w-full"
+                  className="flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium text-red-400 hover:bg-red-600 transition-all w-full"
                   type="button"
                 >
                   <FaSignOutAlt className="text-lg" />

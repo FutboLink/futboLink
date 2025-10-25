@@ -304,6 +304,69 @@ const PanelManager = () => {
                 </div>
               )}
             </div>
+
+            {/* Jugadores Representados */}
+            <div className="bg-white rounded-lg shadow-md border border-gray-200 mb-4">
+              <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-3 rounded-t-lg">
+                <h3 className="text-base font-bold text-white">JUGADORES REPRESENTADOS</h3>
+              </div>
+              <div className="p-3">
+                {loadingPortfolio ? (
+                  <div className="flex justify-center py-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+                  </div>
+                ) : portfolioPlayers.length > 0 ? (
+                  <div className="space-y-2">
+                    {portfolioPlayers.slice(0, 5).map((player) => (
+                      <div
+                        key={player.id}
+                        className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors border-b border-gray-100 last:border-0"
+                      >
+                        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-purple-200 flex-shrink-0">
+                          <Image
+                            src={player.imgUrl || "/default-player.png"}
+                            alt={`${player.name} ${player.lastname}`}
+                            width={40}
+                            height={40}
+                            className="object-cover w-full h-full"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm text-gray-800 truncate">
+                            {player.name} {player.lastname}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {player.primaryPosition || "N/D"}
+                            {player.age ? ` • ${player.age} años` : ""}
+                          </p>
+                        </div>
+                        <Link
+                          href={`/user-viewer/${player.id}`}
+                          className="px-3 py-1 bg-purple-600 text-white rounded-md text-xs hover:bg-purple-700 transition-colors flex-shrink-0"
+                        >
+                          Ver perfil
+                        </Link>
+                      </div>
+                    ))}
+                    {portfolioPlayers.length > 5 && (
+                      <div className="pt-2 text-center">
+                        <button
+                          onClick={() => setActiveSection("portfolio")}
+                          className="text-xs text-purple-600 hover:text-purple-800 font-medium"
+                        >
+                          Ver todos ({portfolioPlayers.length})
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-6">
+                    <FaUsers className="mx-auto text-3xl text-gray-300 mb-2" />
+                    <p className="text-xs text-gray-500">Sin jugadores representados</p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Columna derecha - Tabs */}

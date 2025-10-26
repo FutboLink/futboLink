@@ -1,5 +1,6 @@
 "use client"
 import React, { useState } from "react";
+import { FaTrash } from "react-icons/fa";
 import { fetchDeleteJob } from "../Fetchs/UsersFetchs/UserFetchs";
 import ConfirmDialog from "./ConfirmDialog";
 import { Notifi } from "./Notif";
@@ -48,9 +49,14 @@ const DeleteButton: React.FC<DeleteButtonProps> = ({ jobId, token, onDelete }) =
       <button
         onClick={() => setShowConfirm(true)}
         disabled={loading}
-        className={`px-6 py-2 text-white rounded-md transition-colors ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-red-500 hover:bg-red-600"}`}
+        className={`inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm font-medium ${
+          loading 
+            ? "bg-gray-400 cursor-not-allowed" 
+            : "bg-red-600 hover:bg-red-700"
+        }`}
       >
-        {loading ? "Eliminando..." : "Eliminar oferta"}
+        <FaTrash className="text-base" />
+        <span>{loading ? "Eliminando..." : "Eliminar"}</span>
       </button>
 
       {showConfirm && (

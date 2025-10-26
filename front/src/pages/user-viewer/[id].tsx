@@ -920,32 +920,6 @@ export default function UserViewer() {
                 )}
               </div>
 
-              {/* Suscripción */}
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 shadow-md border border-green-200 mb-4">
-                <h3 className="text-lg font-medium text-gray-800 mb-2">
-                  Plan de Suscripción
-                </h3>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                    subscriptionInfo.subscriptionType === "Profesional"
-                      ? "bg-green-600 text-white"
-                      : "bg-gray-500 text-white"
-                  }`}
-                >
-                  {subscriptionInfo.subscriptionType}
-                </span>
-                {subscriptionInfo.subscriptionType === "Gratuito" && (
-                  <div className="mt-2">
-                    <Link
-                      href="/manager-subscription"
-                      className="text-blue-600 hover:text-blue-800 underline text-sm"
-                    >
-                      Actualizar a Plan Profesional
-                    </Link>
-                  </div>
-                )}
-              </div>
-
               {/* Jugadores Representados */}
               <div className="bg-white rounded-lg shadow-md border border-gray-200 mb-4">
                 <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-3 rounded-t-lg flex items-center gap-2">

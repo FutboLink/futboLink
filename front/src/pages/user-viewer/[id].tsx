@@ -1763,7 +1763,7 @@ export default function UserViewer() {
                                 )}
                                 {profile.socialMedia?.instagram && (
                                   <a
-                                    href={`https://instagram.com/${profile.socialMedia.instagram}`}
+                                    href={`${profile.socialMedia.instagram}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-pink-600 hover:text-pink-800 transition-colors"
@@ -1780,7 +1780,7 @@ export default function UserViewer() {
                                 )}
                                 {profile.socialMedia?.facebook && (
                                   <a
-                                    href={`https://facebook.com/${profile.socialMedia.facebook}`}
+                                    href={`${profile.socialMedia.facebook}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-blue-600 hover:text-blue-800 transition-colors"
@@ -1797,7 +1797,7 @@ export default function UserViewer() {
                                 )}
                                 {profile.socialMedia?.youtube && (
                                   <a
-                                    href={`https://youtube.com/${profile.socialMedia.youtube}`}
+                                    href={`${profile.socialMedia.youtube}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-red-600 hover:text-red-800 transition-colors"
@@ -1814,7 +1814,7 @@ export default function UserViewer() {
                                 )}
                                 {profile.socialMedia?.tiktok && (
                                   <a
-                                    href={`https://tiktok.com/@${profile.socialMedia.tiktok}`}
+                                    href={`${profile.socialMedia.tiktok}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-gray-800 hover:text-black transition-colors"

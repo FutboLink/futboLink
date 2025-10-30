@@ -275,7 +275,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               htmlFor="cityProfile"
               className="text-gray-700 font-semibold text-sm"
             >
-              {getText("Ciudad", "city")}:
+              {getText("Segunda nacionalidad", "city")}:
             </label>
             <input
               id="cityProfile"
@@ -283,7 +283,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               type="text"
               value={fetchedProfileData?.location || ""}
               onChange={handleChange}
-              placeholder={getText("Ciudad", "city")}
+              placeholder={getText("Segunda nacionalidad", "city")}
               className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
             />
           </div>

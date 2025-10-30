@@ -33,6 +33,7 @@ import {
 import VerificationSubscription from "../verification-subscription";
 import { useI18nMode } from "@/components/Context/I18nModeContext";
 import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
+import { checkUserSubscription } from "@/services/SubscriptionService";
 
 // URL del backend
 const API_URL = "https://futbolink.onrender.com";
@@ -119,6 +120,7 @@ export default function UserViewer() {
       | "PROFESSIONAL"
       | "AMATEUR";
   } | null>(null);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
 
   // Nivel del perfil (deportivo) considerando verificación y competitionLevel
   const computeProfileLevel = ():
@@ -161,6 +163,22 @@ export default function UserViewer() {
   useEffect(() => {
     setProfileLevel(computeProfileLevel());
   }, [verificationStatus, profile?.competitionLevel]);
+
+  // Verificar suscripción activa del usuario VISOR
+  useEffect(() => {
+    (async () => {
+      try {
+        if (user?.email) {
+          const info = await checkUserSubscription(user.email);
+          setHasActiveSubscription(info.hasActiveSubscription);
+        } else {
+          setHasActiveSubscription(false);
+        }
+      } catch {
+        setHasActiveSubscription(false);
+      }
+    })();
+  }, [user?.email]);
 
   // Determina si es un jugador "puro": rol PLAYER y puesto vacío o igual a "Jugador"
   const isPurePlayer =
@@ -725,7 +743,7 @@ export default function UserViewer() {
                   {/* Nivel profesional - dependiente de verificación */}
                   <span className="mx-2">|</span>
                   <span className="flex items-center">{profileLevel}</span>
-                </div>
+                </div>            
               )}
 
               {/* Información básica para reclutadores */}
@@ -1496,24 +1514,26 @@ export default function UserViewer() {
                 </div>
               )}
               {!isOwnProfile &&
-                profile.role !== UserType.RECRUITER &&
-                profile.phone && (
-                  <a
-                    href={`https://wa.me/${profile.phone.replace(/\D/g, "")}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block w-full bg-green-600 text-white py-3 px-8 rounded-lg font-medium shadow-md hover:bg-green-700 transition-colors text-center"
-                  >
-                    Contactar
-                  </a>
-                )}
-              {!isOwnProfile &&
-                profile.role !== UserType.RECRUITER &&
-                !profile.phone && (
-                  <div className="text-center text-gray-500 text-sm">
-                    Este usuario no ha proporcionado un número de teléfono para
-                    contacto.
-                  </div>
+                profile.role !== UserType.RECRUITER && (
+                  hasActiveSubscription && profile.phone ? (
+                    <a
+                      href={`https://wa.me/${profile.phone.replace(/\D/g, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-full bg-green-600 text-white py-3 px-8 rounded-lg font-medium shadow-md hover:bg-green-700 transition-colors text-center"
+                    >
+                      Contactar
+                    </a>
+                  ) : hasActiveSubscription && !profile.phone ? (
+                    <div className="text-center text-gray-500 text-sm">
+                      Este usuario no ha proporcionado un número de teléfono para
+                      contacto.
+                    </div>
+                  ) : (
+                    <div className="w-full bg-gray-100 border border-gray-300 py-3 px-8 rounded-lg text-center text-gray-600">
+                      Contacto restringido. Requiere suscripción activa
+                    </div>
+                  )
                 )}
             </div>
           </div>
@@ -1652,19 +1672,30 @@ export default function UserViewer() {
                         {getText("Contacto", "contact")}
                       </h3>
                       <div className="space-y-3">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">{getText("Email", "email")}</span>
-                          <span className="text-gray-800">{profile.email}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-600">{getText("Teléfono", "phone")}</span>
-                          <PhoneNumberInput
-                            mode="view"
-                            value={profile.phone}
-                            showWhatsAppLink
-                            className="text-base text-gray-800"
-                          />
-                        </div>
+                        {hasActiveSubscription ? (
+                          <>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">{getText("Email", "email")}</span>
+                              <span className="text-gray-800">{profile.email}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600">{getText("Teléfono", "phone")}</span>
+                              <PhoneNumberInput
+                                mode="view"
+                                value={profile.phone}
+                                showWhatsAppLink
+                                className="text-base text-gray-800"
+                              />
+                            </div>
+                          </>
+                        ) : (
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-700">
+                            {getText(
+                              "El contacto está restringido. Necesitas una suscripción activa.",
+                              "contactRestricted"
+                            )}
+                          </div>
+                        )}
 
                         {isPurePlayer && (
                           <div className="flex justify-between">
@@ -1968,18 +1999,25 @@ export default function UserViewer() {
           </div>
         )}
         {!isOwnProfile &&
-          profile.role !== UserType.RECRUITER &&
-          profile.phone && (
-            <div className="fixed bottom-6 left-0 right-0 flex justify-center lg:hidden">
-              <a
-                href={`https://wa.me/${profile.phone.replace(/\D/g, "")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-green-600 text-white py-3 px-8 rounded-full font-medium shadow-lg hover:bg-green-700 transition-colors inline-flex items-center"
-              >
-                Contactar
-              </a>
-            </div>
+          profile.role !== UserType.RECRUITER && (
+            hasActiveSubscription && profile.phone ? (
+              <div className="fixed bottom-6 left-0 right-0 flex justify-center lg:hidden">
+                <a
+                  href={`https://wa.me/${profile.phone.replace(/\D/g, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-green-600 text-white py-3 px-8 rounded-full font-medium shadow-lg hover:bg-green-700 transition-colors inline-flex items-center"
+                >
+                  Contactar
+                </a>
+              </div>
+            ) : (
+              <div className="fixed bottom-6 left-0 right-0 flex justify-center lg:hidden">
+                <div className="bg-gray-100 border border-gray-300 py-3 px-8 rounded-full shadow-lg inline-flex items-center text-gray-600">
+                  Contacto restringido. Requiere suscripción activa
+                </div>
+              </div>
+            )
           )}
 
         {/* Verification Request Modal */}

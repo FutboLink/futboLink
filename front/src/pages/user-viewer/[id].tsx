@@ -36,6 +36,7 @@ import { useI18nMode } from "@/components/Context/I18nModeContext";
 import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
 import { FaBriefcase } from "react-icons/fa6";
 import { FaUsers } from "react-icons/fa6";
+import { checkUserSubscription } from "@/services/SubscriptionService";
 
 // URL del backend
 const API_URL = "https://futbolink.onrender.com";
@@ -133,6 +134,7 @@ export default function UserViewer() {
     hasActiveSubscription: false,
     subscriptionType: "Gratuito",
   });
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
 
   // Nivel del perfil (deportivo) considerando verificación y competitionLevel
   const computeProfileLevel = ():
@@ -183,6 +185,22 @@ export default function UserViewer() {
       loadSubscriptionInfo();
     }
   }, [profile?.id, profile?.role, profile?.email, token]);
+
+  // Verificar suscripción activa del usuario VISOR
+  useEffect(() => {
+    (async () => {
+      try {
+        if (user?.email) {
+          const info = await checkUserSubscription(user.email);
+          setHasActiveSubscription(info.hasActiveSubscription);
+        } else {
+          setHasActiveSubscription(false);
+        }
+      } catch {
+        setHasActiveSubscription(false);
+      }
+    })();
+  }, [user?.email]);
 
   // Determina si es un jugador "puro": rol PLAYER y puesto vacío o igual a "Jugador"
   const isPurePlayer =
@@ -2308,7 +2326,7 @@ export default function UserViewer() {
                   )}
                 {!isOwnProfile &&
                   (profile.role as UserType) !== UserType.RECRUITER &&
-                  profile.phone && (
+                  (hasActiveSubscription && profile.phone ? (
                     <a
                       href={`https://wa.me/${profile.phone.replace(/\D/g, "")}`}
                       target="_blank"
@@ -2317,15 +2335,16 @@ export default function UserViewer() {
                     >
                       Contactar
                     </a>
-                  )}
-                {!isOwnProfile &&
-                  (profile.role as UserType) !== UserType.RECRUITER &&
-                  !profile.phone && (
+                  ) : hasActiveSubscription && !profile.phone ? (
                     <div className="text-center text-gray-500 text-sm">
                       Este usuario no ha proporcionado un número de teléfono
                       para contacto.
                     </div>
-                  )}
+                  ) : (
+                    <div className="w-full bg-gray-100 border border-gray-300 py-3 px-8 rounded-lg text-center text-gray-600">
+                      Contacto restringido. Requiere suscripción activa
+                    </div>
+                  ))}
               </div>
             </div>
 
@@ -2812,7 +2831,7 @@ export default function UserViewer() {
         )}
         {!isOwnProfile &&
           (profile.role as UserType) !== UserType.RECRUITER &&
-          profile.phone && (
+          (hasActiveSubscription && profile.phone ? (
             <div className="fixed bottom-6 left-0 right-0 flex justify-center lg:hidden">
               <a
                 href={`https://wa.me/${profile.phone.replace(/\D/g, "")}`}
@@ -2823,7 +2842,13 @@ export default function UserViewer() {
                 Contactar
               </a>
             </div>
-          )}
+          ) : (
+            <div className="fixed bottom-6 left-0 right-0 flex justify-center lg:hidden">
+              <div className="bg-gray-100 border border-gray-300 py-3 px-8 rounded-full shadow-lg inline-flex items-center text-gray-600">
+                Contacto restringido. Requiere suscripción activa
+              </div>
+            </div>
+          ))}
 
         {/* Verification Request Modal */}
         {showVerificationModal && (

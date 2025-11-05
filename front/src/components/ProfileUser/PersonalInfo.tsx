@@ -41,6 +41,44 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const [showErrorNotification, setShowErrorNotification] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showSocials, setShowSocials] = useState(false);
+  // Normaliza valores de redes para evitar URLs pre-cargadas
+  const normalizeSocialValue = (key: string, value: string): string => {
+    const v = (value || "").trim();
+    if (!v) return "";
+    try {
+      if (key === "instagram") {
+        return v
+          .replace(/^https?:\/\/(www\.)?instagram\.com\//i, "")
+          .replace(/\/$/, "");
+      }
+      if (key === "facebook") {
+        return v
+          .replace(/^https?:\/\/(www\.)?facebook\.com\//i, "")
+          .replace(/\/$/, "");
+      }
+      if (key === "tiktok") {
+        return v
+          .replace(/^https?:\/\/(www\.)?tiktok\.com\/@/i, "")
+          .replace(/^@/, "")
+          .replace(/\/$/, "");
+      }
+      if (key === "x" || key === "twitter") {
+        return v
+          .replace(/^https?:\/\/(www\.)?(twitter\.com|x\.com)\//i, "")
+          .replace(/^@/, "")
+          .replace(/\/$/, "");
+      }
+      if (key === "transfermarkt") {
+        return v
+          .replace(/^https?:\/\/([^/]*\.)?transfermarkt\.[^/]+\//i, "")
+          .replace(/\/$/, "");
+      }
+      return v;
+    } catch {
+      return v;
+    }
+  };
+
 
   // Nationality related state
   const {
@@ -62,7 +100,15 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
       setLoading(true);
       fetchUserData(token)
         .then((data) => {
-          setFetchedProfileData(data); // Ensure socialMedia data is included here
+          // Normalizar sociales para no mostrar URLs completas
+          if (data?.socialMedia) {
+            const cleaned: Record<string, string> = {};
+            Object.entries(data.socialMedia).forEach(([k, val]) => {
+              cleaned[k] = normalizeSocialValue(k, String(val || ""));
+            });
+            data.socialMedia = cleaned as any;
+          }
+          setFetchedProfileData(data);
         })
         .catch((err) => {
           console.error("Error al cargar los datos:", err);
@@ -81,12 +127,13 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
       const { name, value } = e.target;
 
       // Verificar si el nombre del campo pertenece a socialMedia
-      if (["transfermarkt", "x", "youtube"].includes(name)) {
+      if (["transfermarkt", "x", "twitter", "youtube", "instagram", "facebook", "tiktok"].includes(name)) {
         setFetchedProfileData({
           ...fetchedProfileData,
           socialMedia: {
             ...fetchedProfileData.socialMedia,
-            [name]: value, // Guardar en el campo correspondiente dentro de socialMedia
+            // No normalizamos mientras se tipea para no borrar el input; se normaliza al guardar
+            [name]: value,
           },
         });
       } else {
@@ -131,12 +178,22 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
     setLoading(true);
     setError(null);
     try {
+      // Normalizar redes antes de enviar
+      const dataToSend: IProfileData = { ...fetchedProfileData } as IProfileData;
+      if ((dataToSend as any).socialMedia) {
+        const cleaned: Record<string, string> = {};
+        Object.entries((dataToSend as any).socialMedia as Record<string, string>).forEach(([k, val]) => {
+          cleaned[k] = normalizeSocialValue(k, String(val || ""));
+        });
+        (dataToSend as any).socialMedia = cleaned;
+      }
+
       const userId = JSON.parse(atob(token.split(".")[1])).id;
-      await updateUserData(userId, fetchedProfileData);
+      await updateUserData(userId, dataToSend);
 
       setUser((prevUser) => {
         if (!prevUser) return prevUser; // Si prevUser es null, no hacemos nada
-        return { ...prevUser, ...fetchedProfileData }; // Actualizar la informacion del estado global (imagen,datos,etc)
+        return { ...prevUser, ...dataToSend }; // Actualizar la informacion del estado global (imagen,datos,etc)
       });
 
       setNotificationMessage("Datos actualizados correctamente");
@@ -275,7 +332,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               htmlFor="cityProfile"
               className="text-gray-700 font-semibold text-sm"
             >
-              {getText("Ciudad", "city")}:
+              {getText("Segunda nacionalidad", "city")}:
             </label>
             <input
               id="cityProfile"
@@ -283,7 +340,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               type="text"
               value={fetchedProfileData?.location || ""}
               onChange={handleChange}
-              placeholder={getText("Ciudad", "city")}
+              placeholder={getText("Segunda nacionalidad", "city")}
               className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
             />
           </div>

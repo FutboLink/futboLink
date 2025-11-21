@@ -23,9 +23,9 @@ export class User {
   ubicacionActual?: string;
   
 
-  @ApiProperty({ example: 'Ejemplo', description: 'Apellido del usuario' })
-  @Column()
-  lastname: string;
+  @ApiProperty({ example: 'Ejemplo', description: 'Apellido del usuario (opcional para clubs)', nullable: true })
+  @Column({ nullable: true })
+  lastname?: string;
 
   @ApiProperty({ example: 'Agencia de Talentos', description: 'Nombre de la agencia (opcional)', nullable: true })
   @Column({ nullable: true })

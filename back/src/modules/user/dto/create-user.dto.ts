@@ -7,7 +7,8 @@ import {
   IsString,
   IsDate,
   IsNumber,
-  IsArray,  
+  IsArray,
+  ValidateIf,
 } from 'class-validator';
 import { PasaporteUe, UserType } from '../roles.enum';
 import { ApiProperty } from '@nestjs/swagger';
@@ -18,9 +19,13 @@ export class RegisterUserDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ description: 'Apellido del usuario', example: 'Pérez' })
-  @IsNotEmpty()
-  lastname: string;
+  @ApiProperty({ 
+    description: 'Apellido del usuario (opcional para clubs)', 
+    example: 'Pérez',
+    required: false,
+  })
+  @IsOptional()
+  lastname?: string | null;
 
   @ApiProperty({
     description: 'Nombre de la agencia (opcional)',

@@ -213,7 +213,14 @@ export class UserService {
     try {
       console.log("Attempting to register user with data:", JSON.stringify(registerUserDto, null, 2));
       
-      const { email, password, ...otherDetails } = registerUserDto;
+      const { email, password, role, ...otherDetails } = registerUserDto;
+
+      // Validar lastname manualmente: es requerido para todos los roles excepto CLUB
+      if (role !== UserType.CLUB) {
+        if (!registerUserDto.lastname || registerUserDto.lastname.trim() === '') {
+          throw new BadRequestException('lastname is required for this role');
+        }
+      }
 
       // Check if user already exists
       const existingUser = await this.userRepository.findOne({
@@ -227,12 +234,28 @@ export class UserService {
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Create new user
-      const newUser = this.userRepository.create({
+      // Create new user - si es CLUB y lastname no está presente, usar null
+      const userData: any = {
         email,
         password: hashedPassword,
+        role,
         ...otherDetails,
-      });
+      };
+
+      // Si es CLUB y lastname no está presente o está vacío, no incluirlo o usar null
+      if (role === UserType.CLUB) {
+        // Para CLUB, lastname puede ser null/undefined
+        if (registerUserDto.lastname === undefined || registerUserDto.lastname === null || registerUserDto.lastname === '') {
+          userData.lastname = null;
+        } else {
+          userData.lastname = registerUserDto.lastname;
+        }
+      } else {
+        // Para otros roles, usar el lastname proporcionado
+        userData.lastname = registerUserDto.lastname || null;
+      }
+
+      const newUser = this.userRepository.create(userData);
 
       console.log("User created successfully, saving to database");
       return this.userRepository.save(newUser);

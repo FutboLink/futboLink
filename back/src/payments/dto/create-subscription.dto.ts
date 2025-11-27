@@ -19,4 +19,13 @@ export class CreateSubscriptionDto extends PaymentBaseDto {
   @IsString()
   @IsOptional()
   productId?: string;
+
+  @ApiProperty({ 
+    description: 'Optional Stripe coupon/promotion code to apply discount', 
+    example: 'SUMMER2024',
+    required: false
+  })
+  @IsString()
+  @IsOptional()
+  couponCode?: string;
 } 

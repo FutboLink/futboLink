@@ -63,7 +63,7 @@ export class StripeService {
       this.logger.log(`Creating one-time payment session with product: ${this.productId}`);
       
       // Create checkout session
-      const session = await this.stripe.checkout.sessions.create({
+      const sessionParams: Stripe.Checkout.SessionCreateParams = {
         payment_method_types: ['card'],
         customer_email: dto.customerEmail,
         line_items: [
@@ -79,11 +79,23 @@ export class StripeService {
         mode: 'payment',
         success_url: successUrl,
         cancel_url: cancelUrl,
+        allow_promotion_codes: true, // Habilitar cupones de descuento
         metadata: {
           description: dto.description || 'One-time payment',
           productName: dto.productName,
         },
-      });
+      };
+
+      // Si se proporciona un código de cupón específico, aplicarlo directamente
+      if (dto.couponCode) {
+        sessionParams.discounts = [
+          {
+            coupon: dto.couponCode,
+          },
+        ];
+      }
+
+      const session = await this.stripe.checkout.sessions.create(sessionParams);
 
       // Save the payment in our database
       const payment = this.paymentRepo.create({
@@ -177,6 +189,7 @@ export class StripeService {
           mode: 'subscription' as Stripe.Checkout.SessionCreateParams.Mode,
           success_url: successUrl,
           cancel_url: cancelUrl,
+          allow_promotion_codes: true, // Habilitar cupones de descuento
         };
       } else {
         // Si no hay priceId, crear con datos directos
@@ -199,7 +212,17 @@ export class StripeService {
           mode: 'subscription' as Stripe.Checkout.SessionCreateParams.Mode,
           success_url: successUrl,
           cancel_url: cancelUrl,
+          allow_promotion_codes: true, // Habilitar cupones de descuento
         };
+      }
+
+      // Si se proporciona un código de cupón específico, aplicarlo directamente
+      if (dto.couponCode) {
+        createParams.discounts = [
+          {
+            coupon: dto.couponCode,
+          },
+        ];
       }
       
       console.log('Customer email: ', dto.customerEmail);

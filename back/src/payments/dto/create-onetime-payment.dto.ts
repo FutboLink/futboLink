@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { PaymentBaseDto } from './payment-base.dto';
 
 export class CreateOneTimePaymentDto extends PaymentBaseDto {
@@ -28,4 +28,13 @@ export class CreateOneTimePaymentDto extends PaymentBaseDto {
   @IsString()
   @IsNotEmpty()
   productName: string;
+
+  @ApiProperty({ 
+    description: 'Optional Stripe coupon/promotion code to apply discount', 
+    example: 'SUMMER2024',
+    required: false
+  })
+  @IsString()
+  @IsOptional()
+  couponCode?: string;
 } 

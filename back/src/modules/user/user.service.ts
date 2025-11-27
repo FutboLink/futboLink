@@ -235,10 +235,10 @@ export class UserService {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Create new user - si es CLUB y lastname no está presente, usar null
-      const userData: any = {
+      const userData: Partial<User> = {
         email,
         password: hashedPassword,
-        role,
+        role: role || UserType.PLAYER,
         ...otherDetails,
       };
 
@@ -258,7 +258,8 @@ export class UserService {
       const newUser = this.userRepository.create(userData);
 
       console.log("User created successfully, saving to database");
-      return this.userRepository.save(newUser);
+      const savedUser: User = await this.userRepository.save(newUser);
+      return savedUser;
     } catch (error) {
       console.error("Error in register service:", error);
       throw error;

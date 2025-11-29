@@ -208,6 +208,38 @@ export const canRequestVerification = (
 };
 
 /**
+ * Marca automáticamente al usuario como verificado después de pagar suscripción de verificación
+ */
+export const autoVerifyUserAfterPayment = async (
+  userId: string,
+  token: string,
+  verificationLevel: 'PROFESSIONAL' | 'SEMIPROFESSIONAL' | 'AMATEUR' = 'AMATEUR'
+): Promise<{ success: boolean; message: string; isVerified: boolean; verificationLevel: string }> => {
+  try {
+    const response = await fetch(`${API_URL}/user/${userId}/auto-verify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ verificationLevel }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const errorMessage = errorData.message || `Error ${response.status}: ${response.statusText}`;
+      throw new Error(errorMessage);
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Error al verificar automáticamente al usuario:', error);
+    throw error;
+  }
+};
+
+/**
  * Muestra mensajes de toast para diferentes estados de verificación
  */
 export const showVerificationToast = {

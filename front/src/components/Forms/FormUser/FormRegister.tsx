@@ -239,7 +239,7 @@ const RegistrationForm: React.FC = () => {
     // the fields we want to send to the backend
     const registrationData: IRegisterUser = {
       name: userRegister.name,
-      lastname: selectedCategory === UserType.CLUB ? "" : userRegister.lastname,
+      lastname: selectedCategory === UserType.CLUB ? undefined : userRegister.lastname,
       email: userRegister.email,
       password: userRegister.password,
       role: selectedRole as UserType,

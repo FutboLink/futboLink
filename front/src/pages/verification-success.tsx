@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useRouter } from "next/router";
 import { UserContext } from "../components/Context/UserContext";
-import { requestVerification, showVerificationToast } from "../services/VerificationService";
+import { requestVerification, showVerificationToast, autoVerifyUserAfterPayment } from "../services/VerificationService";
 import Head from "next/head";
 
 export default function VerificationSuccess() {
@@ -14,6 +14,45 @@ export default function VerificationSuccess() {
   const [verificationAttachment, setVerificationAttachment] = useState<File | null>(null);
   const [uploadingAttachment, setUploadingAttachment] = useState(false);
   const [loadingVerification, setLoadingVerification] = useState(false);
+  const [autoVerified, setAutoVerified] = useState(false);
+
+  // Automáticamente marcar como verificado cuando se carga la página
+  useEffect(() => {
+    const handleAutoVerification = async () => {
+      if (!user?.id || !token || autoVerified) {
+        return;
+      }
+
+      try {
+        console.log('Marcando automáticamente como verificado después del pago...');
+        
+        // Marcar como verificado automáticamente con nivel AMATEUR
+        // El usuario puede solicitar un nivel superior después
+        const result = await autoVerifyUserAfterPayment(user.id, token, 'AMATEUR');
+        
+        if (result.success) {
+          setAutoVerified(true);
+          console.log('Usuario marcado automáticamente como verificado:', result);
+          
+          // Mostrar mensaje de éxito
+          showVerificationToast.success(
+            `¡Tu perfil ha sido verificado automáticamente! Nivel: ${result.verificationLevel}`
+          );
+        } else {
+          console.warn('No se pudo verificar automáticamente:', result.message);
+        }
+      } catch (error) {
+        console.error('Error al verificar automáticamente:', error);
+        // No mostrar error al usuario, puede que ya esté verificado
+      }
+    };
+
+    // Solo ejecutar una vez cuando se carga la página
+    if (user?.id && token) {
+      handleAutoVerification();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, token]); // No incluir autoVerified en las dependencias para evitar loops
 
   // Función para manejar la subida de archivos
   const handleFileUpload = async (file: File): Promise<string> => {

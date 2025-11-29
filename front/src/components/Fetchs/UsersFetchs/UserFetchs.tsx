@@ -1,4 +1,4 @@
-import { ILoginUser, IProfileData, IRegisterUser } from "@/Interfaces/IUser";
+import { ILoginUser, IProfileData, IRegisterUser, UserType } from "@/Interfaces/IUser";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -30,9 +30,8 @@ export const fetchLoginUser = async (credentials: ILoginUser) => {
 export const fetchRegisterUser = async (user: IRegisterUser) => {
   try {
     // Create a basic registration object with required fields
-    const userToRegister = {
+    const userToRegister: any = {
       name: user.name,
-      lastname: user.lastname || "",
       email: user.email,
       password: user.password,
       role: user.role || "PLAYER",
@@ -53,6 +52,14 @@ export const fetchRegisterUser = async (user: IRegisterUser) => {
       bodyStructure: "",
       habilities: [],
     };
+
+    // Solo incluir lastname si el rol NO es CLUB
+    // Para CLUB, no incluimos lastname (el backend lo manejará como opcional)
+    if (user.role !== UserType.CLUB) {
+      // Para otros roles, incluir lastname (puede ser string vacío si no existe)
+      userToRegister.lastname = user.lastname || "";
+    }
+    // Para CLUB, simplemente no incluimos lastname en el objeto
 
     // Log the exact object we're sending
     console.log(

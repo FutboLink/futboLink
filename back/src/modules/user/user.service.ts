@@ -393,7 +393,54 @@ export class UserService {
     user.subscriptionExpiresAt = expirationDate;
     
     // Guardar los cambios
-    return this.userRepository.save(user);
+    const savedUser = await this.userRepository.save(user);
+    
+    // Si el usuario es un jugador y tiene suscripción Semiprofesional o Profesional,
+    // marcar automáticamente como verificado
+    if (user.role === UserType.PLAYER && 
+        (subscriptionType === 'Semiprofesional' || subscriptionType === 'Profesional')) {
+      try {
+        // Verificar si ya está verificado para evitar actualizaciones innecesarias
+        const isVerified = await this.isUserVerifiedSafe(user.id);
+        
+        if (!isVerified) {
+          // Marcar como verificado
+          const verifiedResult = await this.markUserAsVerifiedSafe(user.id);
+          
+          if (verifiedResult) {
+            // Establecer el nivel de verificación según el tipo de suscripción
+            let verificationLevel: 'SEMIPROFESSIONAL' | 'PROFESSIONAL' = 'SEMIPROFESSIONAL';
+            if (subscriptionType === 'Profesional') {
+              verificationLevel = 'PROFESSIONAL';
+            }
+            
+            await this.setUserVerificationLevelSafe(user.id, verificationLevel);
+            console.log(`Usuario ${user.id} marcado automáticamente como verificado con nivel ${verificationLevel} después de pagar suscripción ${subscriptionType}`);
+          } else {
+            console.warn(`No se pudo marcar como verificado al usuario ${user.id} después de pagar suscripción`);
+          }
+        } else {
+          // Si ya está verificado, actualizar el nivel si es necesario
+          const currentLevel = await this.getUserVerificationLevelSafe(user.id);
+          let newLevel: 'SEMIPROFESSIONAL' | 'PROFESSIONAL' = 'SEMIPROFESSIONAL';
+          if (subscriptionType === 'Profesional') {
+            newLevel = 'PROFESSIONAL';
+          }
+          
+          // Solo actualizar si el nuevo nivel es superior o diferente
+          if (currentLevel !== newLevel && 
+              (newLevel === 'PROFESSIONAL' || currentLevel === 'NONE' || currentLevel === 'AMATEUR')) {
+            await this.setUserVerificationLevelSafe(user.id, newLevel);
+            console.log(`Nivel de verificación actualizado a ${newLevel} para usuario ${user.id}`);
+          }
+        }
+      } catch (error) {
+        // No fallar la actualización de suscripción si hay error en la verificación
+        console.error(`Error al marcar usuario como verificado automáticamente: ${error.message}`, error);
+      }
+    }
+    
+    return savedUser;
   }
 
   /**
@@ -446,7 +493,54 @@ export class UserService {
     user.subscriptionExpiresAt = expirationDate;
     
     // Guardar los cambios
-    return this.userRepository.save(user);
+    const savedUser = await this.userRepository.save(user);
+    
+    // Si el usuario es un jugador y tiene suscripción Semiprofesional o Profesional,
+    // marcar automáticamente como verificado
+    if (user.role === UserType.PLAYER && 
+        (subscriptionType === 'Semiprofesional' || subscriptionType === 'Profesional')) {
+      try {
+        // Verificar si ya está verificado para evitar actualizaciones innecesarias
+        const isVerified = await this.isUserVerifiedSafe(user.id);
+        
+        if (!isVerified) {
+          // Marcar como verificado
+          const verifiedResult = await this.markUserAsVerifiedSafe(user.id);
+          
+          if (verifiedResult) {
+            // Establecer el nivel de verificación según el tipo de suscripción
+            let verificationLevel: 'SEMIPROFESSIONAL' | 'PROFESSIONAL' = 'SEMIPROFESSIONAL';
+            if (subscriptionType === 'Profesional') {
+              verificationLevel = 'PROFESSIONAL';
+            }
+            
+            await this.setUserVerificationLevelSafe(user.id, verificationLevel);
+            console.log(`Usuario ${user.id} marcado automáticamente como verificado con nivel ${verificationLevel} después de pagar suscripción ${subscriptionType}`);
+          } else {
+            console.warn(`No se pudo marcar como verificado al usuario ${user.id} después de pagar suscripción`);
+          }
+        } else {
+          // Si ya está verificado, actualizar el nivel si es necesario
+          const currentLevel = await this.getUserVerificationLevelSafe(user.id);
+          let newLevel: 'SEMIPROFESSIONAL' | 'PROFESSIONAL' = 'SEMIPROFESSIONAL';
+          if (subscriptionType === 'Profesional') {
+            newLevel = 'PROFESSIONAL';
+          }
+          
+          // Solo actualizar si el nuevo nivel es superior o diferente
+          if (currentLevel !== newLevel && 
+              (newLevel === 'PROFESSIONAL' || currentLevel === 'NONE' || currentLevel === 'AMATEUR')) {
+            await this.setUserVerificationLevelSafe(user.id, newLevel);
+            console.log(`Nivel de verificación actualizado a ${newLevel} para usuario ${user.id}`);
+          }
+        }
+      } catch (error) {
+        // No fallar la actualización de suscripción si hay error en la verificación
+        console.error(`Error al marcar usuario como verificado automáticamente: ${error.message}`, error);
+      }
+    }
+    
+    return savedUser;
   }
   
   /**
@@ -509,7 +603,54 @@ export class UserService {
     user.subscriptionExpiresAt = expirationDate;
     
     // Guardar los cambios
-    return this.userRepository.save(user);
+    const savedUser = await this.userRepository.save(user);
+    
+    // Si el usuario es un jugador y tiene suscripción Semiprofesional o Profesional,
+    // marcar automáticamente como verificado
+    if (user.role === UserType.PLAYER && 
+        (subscriptionType === 'Semiprofesional' || subscriptionType === 'Profesional')) {
+      try {
+        // Verificar si ya está verificado para evitar actualizaciones innecesarias
+        const isVerified = await this.isUserVerifiedSafe(user.id);
+        
+        if (!isVerified) {
+          // Marcar como verificado
+          const verifiedResult = await this.markUserAsVerifiedSafe(user.id);
+          
+          if (verifiedResult) {
+            // Establecer el nivel de verificación según el tipo de suscripción
+            let verificationLevel: 'SEMIPROFESSIONAL' | 'PROFESSIONAL' = 'SEMIPROFESSIONAL';
+            if (subscriptionType === 'Profesional') {
+              verificationLevel = 'PROFESSIONAL';
+            }
+            
+            await this.setUserVerificationLevelSafe(user.id, verificationLevel);
+            console.log(`Usuario ${user.id} marcado automáticamente como verificado con nivel ${verificationLevel} después de pagar suscripción ${subscriptionType}`);
+          } else {
+            console.warn(`No se pudo marcar como verificado al usuario ${user.id} después de pagar suscripción`);
+          }
+        } else {
+          // Si ya está verificado, actualizar el nivel si es necesario
+          const currentLevel = await this.getUserVerificationLevelSafe(user.id);
+          let newLevel: 'SEMIPROFESSIONAL' | 'PROFESSIONAL' = 'SEMIPROFESSIONAL';
+          if (subscriptionType === 'Profesional') {
+            newLevel = 'PROFESSIONAL';
+          }
+          
+          // Solo actualizar si el nuevo nivel es superior o diferente
+          if (currentLevel !== newLevel && 
+              (newLevel === 'PROFESSIONAL' || currentLevel === 'NONE' || currentLevel === 'AMATEUR')) {
+            await this.setUserVerificationLevelSafe(user.id, newLevel);
+            console.log(`Nivel de verificación actualizado a ${newLevel} para usuario ${user.id}`);
+          }
+        }
+      } catch (error) {
+        // No fallar la actualización de suscripción si hay error en la verificación
+        console.error(`Error al marcar usuario como verificado automáticamente: ${error.message}`, error);
+      }
+    }
+    
+    return savedUser;
   }
 
   /**

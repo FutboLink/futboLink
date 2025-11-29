@@ -1711,4 +1711,84 @@ export class UserService {
   ): Promise<boolean> {
     return await this.setUserVerificationLevelSafe(userId, level);
   }
+
+  /**
+   * Marca automáticamente al usuario como verificado después de pagar suscripción de verificación
+   * @param userId ID del usuario
+   * @param verificationLevel Nivel de verificación (default: AMATEUR)
+   * @returns Resultado de la operación
+   */
+  async autoVerifyUserAfterPayment(
+    userId: string,
+    verificationLevel: 'SEMIPROFESSIONAL' | 'PROFESSIONAL' | 'AMATEUR' = 'AMATEUR',
+  ): Promise<{ success: boolean; message: string; isVerified: boolean; verificationLevel: string }> {
+    try {
+      // Verificar que el usuario existe y es un jugador
+      const user = await this.userRepository.findOne({
+        where: { id: userId, role: UserType.PLAYER },
+      });
+
+      if (!user) {
+        throw new NotFoundException('Jugador no encontrado');
+      }
+
+      // Verificar si ya está verificado
+      const isVerified = await this.isUserVerifiedSafe(userId);
+      if (isVerified) {
+        // Si ya está verificado, actualizar el nivel si es necesario
+        const currentLevel = await this.getUserVerificationLevelSafe(userId);
+        
+        // Solo actualizar si el nuevo nivel es superior
+        if (verificationLevel === 'PROFESSIONAL' || 
+            (verificationLevel === 'SEMIPROFESSIONAL' && (currentLevel === 'NONE' || currentLevel === 'AMATEUR'))) {
+          await this.setUserVerificationLevelSafe(userId, verificationLevel);
+          return {
+            success: true,
+            message: 'Nivel de verificación actualizado',
+            isVerified: true,
+            verificationLevel,
+          };
+        }
+        
+        return {
+          success: true,
+          message: 'El usuario ya está verificado',
+          isVerified: true,
+          verificationLevel: currentLevel,
+        };
+      }
+
+      // Marcar como verificado
+      const verifiedResult = await this.markUserAsVerifiedSafe(userId);
+      if (!verifiedResult) {
+        return {
+          success: false,
+          message: 'No se pudo marcar como verificado - columna isVerified no existe',
+          isVerified: false,
+          verificationLevel: 'NONE',
+        };
+      }
+
+      // Establecer el nivel de verificación
+      const levelResult = await this.setUserVerificationLevelSafe(userId, verificationLevel);
+      if (!levelResult) {
+        return {
+          success: false,
+          message: 'No se pudo establecer el nivel de verificación',
+          isVerified: true,
+          verificationLevel: 'NONE',
+        };
+      }
+
+      return {
+        success: true,
+        message: 'Usuario marcado como verificado exitosamente',
+        isVerified: true,
+        verificationLevel,
+      };
+    } catch (error) {
+      console.error('Error al verificar automáticamente al usuario:', error);
+      throw error;
+    }
+  }
 }

@@ -455,6 +455,29 @@ export class UserController {
     return this.userService.getAllVerificationRequests();
   }
 
+  @ApiOperation({ summary: 'Verificación automática después de pago de suscripción' })
+  @ApiResponse({
+    status: 200,
+    description: 'Usuario verificado automáticamente',
+  })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  @UseGuards(AuthGuard)
+  @Post(':id/auto-verify')
+  async autoVerifyUser(
+    @Param('id', ParseUUIDPipe) userId: string,
+    @Body() body: { verificationLevel?: 'SEMIPROFESSIONAL' | 'PROFESSIONAL' | 'AMATEUR' },
+    @Req() req: any,
+  ) {
+    // Verificar que el usuario autenticado es el mismo
+    if (req.user.id !== userId) {
+      throw new UnauthorizedException('No tienes permiso para realizar esta acción');
+    }
+
+    const verificationLevel = body.verificationLevel || 'AMATEUR';
+    return this.userService.autoVerifyUserAfterPayment(userId, verificationLevel);
+  }
+
   @ApiOperation({ summary: 'Obtener estado de verificación de un usuario (público)' })
   @ApiResponse({
     status: 200,

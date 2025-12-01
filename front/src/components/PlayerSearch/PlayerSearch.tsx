@@ -225,7 +225,12 @@ const PlayerSearch: React.FC = () => {
       })
       .then((response) => {
         const { subscriptionType, isActive } = response.data;
-        if (subscriptionType !== "Profesional" || !isActive) {
+        // Permitir acceso con suscripción Profesional o Semiprofesional
+        const hasPaidSubscription = 
+          subscriptionType === "Profesional" || 
+          subscriptionType === "Semiprofesional";
+        
+        if (!hasPaidSubscription || !isActive) {
           toast.error(t("needProfessionalSubscription"));
           router.push("/Subs");
         } else {

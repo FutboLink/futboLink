@@ -169,13 +169,17 @@ export class UserController {
       return this.userService.searchPlayers(searchDto);
     }
     
-    // Para otros roles, verificar suscripción profesional
+    // Para otros roles, verificar suscripción profesional o semiprofesional
     const subscription = await this.userService.getUserSubscription(user.id);
     
-    // Solo permitir acceso a usuarios con suscripción profesional
-    if (subscription.subscriptionType !== 'Profesional' || !subscription.isActive) {
+    // Permitir acceso con suscripción Profesional o Semiprofesional
+    const hasPaidSubscription = 
+      subscription.subscriptionType === 'Profesional' || 
+      subscription.subscriptionType === 'Semiprofesional';
+    
+    if (!hasPaidSubscription || !subscription.isActive) {
       throw new UnauthorizedException(
-        'Se requiere una suscripción profesional activa para acceder a esta funcionalidad'
+        'Se requiere una suscripción Profesional o Semiprofesional activa para acceder a esta funcionalidad'
       );
     }
     
@@ -202,13 +206,17 @@ export class UserController {
       return this.userService.searchUsersAndRecruiters(searchDto);
     }
     
-    // Para otros roles, verificar suscripción profesional
+    // Para otros roles, verificar suscripción profesional o semiprofesional
     const subscription = await this.userService.getUserSubscription(user.id);
     
-    // Solo permitir acceso a usuarios con suscripción profesional
-    if (subscription.subscriptionType !== 'Profesional' || !subscription.isActive) {
+    // Permitir acceso con suscripción Profesional o Semiprofesional
+    const hasPaidSubscription = 
+      subscription.subscriptionType === 'Profesional' || 
+      subscription.subscriptionType === 'Semiprofesional';
+    
+    if (!hasPaidSubscription || !subscription.isActive) {
       throw new UnauthorizedException(
-        'Se requiere una suscripción profesional activa para acceder a esta funcionalidad'
+        'Se requiere una suscripción Profesional o Semiprofesional activa para acceder a esta funcionalidad'
       );
     }
     

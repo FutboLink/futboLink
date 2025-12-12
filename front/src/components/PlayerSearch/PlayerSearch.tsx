@@ -201,6 +201,9 @@ const PlayerSearch: React.FC = () => {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    let isMounted = true;
+    const abortController = new AbortController();
+
     if (!user || !token) {
       toast.error(t("needLogin"));
       router.push("/Login");
@@ -212,8 +215,13 @@ const PlayerSearch: React.FC = () => {
     // Permitir acceso a usuarios con rol RECRUITER sin verificar suscripción
     if (user.role === "RECRUITER") {
       // Cargar jugadores iniciales directamente
-      searchPlayers();
-      return;
+      if (isMounted) {
+        searchPlayers();
+      }
+      return () => {
+        isMounted = false;
+        abortController.abort();
+      };
     }
 
     // Para otros roles, verificar tipo de suscripción
@@ -222,8 +230,11 @@ const PlayerSearch: React.FC = () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        signal: abortController.signal,
       })
       .then((response) => {
+        if (!isMounted) return;
+        
         const { subscriptionType, isActive } = response.data;
         // Permitir acceso con suscripción Profesional o Semiprofesional
         const hasPaidSubscription = 
@@ -239,10 +250,17 @@ const PlayerSearch: React.FC = () => {
         }
       })
       .catch((error) => {
+        if (!isMounted || error.name === 'AbortError') return;
         console.error("Error al verificar suscripción:", error);
         toast.error(t("errorCheckingSubscription"));
         router.push("/");
       });
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+      abortController.abort();
+    };
   }, [user, token, router]);
 
   // Agregar una función para verificar y refrescar el token
@@ -305,9 +323,9 @@ const PlayerSearch: React.FC = () => {
   // Función para cargar perfiles prioritarios (profesionales y semiprofesionales)
   const loadPriorityProfiles = async (currentToken: string) => {
     try {
-      // Cargar perfiles en lotes más pequeños para evitar errores 400
-      const BATCH_SIZE = 50; // Tamaño de lote que el backend acepta
-      const MAX_BATCHES = 4; // Máximo número de lotes a cargar (hasta 200 perfiles)
+      // Cargar perfiles en lotes más pequeños para evitar errores 400 y reducir memoria
+      const BATCH_SIZE = 30; // Reducido de 50 a 30 para usar menos memoria
+      const MAX_BATCHES = 2; // Reducido de 4 a 2 (de 200 a 60 perfiles máximo)
 
       let allLoadedUsers: User[] = [];
       let hasMoreToLoad = true;
@@ -428,12 +446,13 @@ const PlayerSearch: React.FC = () => {
         professionalPlayers.length +
         semiProfessionalPlayers.length +
         recruiters.length;
-      if (priorityUsersCount < 50) {
-        const amateursToShow = amateurPlayers.slice(0, 50 - priorityUsersCount);
+      const DISPLAY_LIMIT = 30; // Reducido de 50 a 30 para usar menos memoria
+      if (priorityUsersCount < DISPLAY_LIMIT) {
+        const amateursToShow = amateurPlayers.slice(0, DISPLAY_LIMIT - priorityUsersCount);
         setPlayers((prev) => [...prev, ...amateursToShow]);
 
         // Actualizar la lista de amateurs restantes
-        setAllPlayersLoaded(amateurPlayers.slice(50 - priorityUsersCount));
+        setAllPlayersLoaded(amateurPlayers.slice(DISPLAY_LIMIT - priorityUsersCount));
       }
     } catch (error) {
       console.error("Error al cargar perfiles prioritarios:", error);
@@ -446,8 +465,9 @@ const PlayerSearch: React.FC = () => {
     try {
       // Si tenemos amateurs precargados, usarlos para paginación
       if (allPlayersLoaded.length > 0) {
-        const start = (page - 1) * 50;
-        const end = start + 50;
+        const PAGE_SIZE = 30; // Reducido de 50 a 30 para usar menos memoria
+        const start = (page - 1) * PAGE_SIZE;
+        const end = start + PAGE_SIZE;
         const nextBatch = allPlayersLoaded.slice(start, end);
 
         if (nextBatch.length > 0) {
@@ -457,9 +477,10 @@ const PlayerSearch: React.FC = () => {
       }
 
       // Si no hay suficientes amateurs precargados, cargar más del servidor
+      const PAGE_SIZE = 30; // Reducido de 50 a 30 para usar menos memoria
       const params = buildSearchParams();
-      params.append("limit", "50");
-      params.append("offset", String(page * 50));
+      params.append("limit", String(PAGE_SIZE));
+      params.append("offset", String(page * PAGE_SIZE));
 
       console.log("Cargando más perfiles...");
 
@@ -642,15 +663,35 @@ const PlayerSearch: React.FC = () => {
   // Efecto para buscar cuando cambia la página
   useEffect(() => {
     if (typeof window !== "undefined" && user && token) {
-      searchPlayers();
+      let isMounted = true;
+      const abortController = new AbortController();
+
+      if (isMounted) {
+        searchPlayers();
+      }
+
+      return () => {
+        isMounted = false;
+        abortController.abort();
+      };
     }
   }, [page, user, token]);
 
   // Efecto para buscar cuando cambia el filtro de rol
   useEffect(() => {
     if (typeof window !== "undefined" && user && token) {
-      setPage(0); // Resetear a la primera página
-      searchPlayers();
+      let isMounted = true;
+      const abortController = new AbortController();
+
+      if (isMounted) {
+        setPage(0); // Resetear a la primera página
+        searchPlayers();
+      }
+
+      return () => {
+        isMounted = false;
+        abortController.abort();
+      };
     }
   }, [filters.role, user, token]);
 

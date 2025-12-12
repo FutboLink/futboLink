@@ -2,6 +2,17 @@
 const nextConfig = {
   reactStrictMode: true,
   
+  // Optimizaciones para reducir uso de memoria
+  swcMinify: true, // Usar SWC para minificación (más eficiente que Terser)
+  compress: true, // Habilitar compresión gzip
+  poweredByHeader: false, // Remover header X-Powered-By para seguridad
+  
+  // Configuración de compilación para reducir memoria
+  experimental: {
+    // Optimizar el uso de memoria durante el build
+    optimizeCss: true,
+  },
+  
   // Configuración de imágenes
   images: {
     domains: [
@@ -10,9 +21,13 @@ const nextConfig = {
       'api.cloudinary.com',  // API de Cloudinary
       'img.freepik.com',     // Freepik para imágenes
       'dummyimage.com',      // Servicio de imágenes de marcador de posición
+      'u-storage.com.mx',    // Almacenamiento de imágenes
     ],
-    // Permitir que las imágenes se carguen sin optimización cuando sea necesario
-    unoptimized: process.env.NODE_ENV === 'production',
+    // HABILITAR optimización de imágenes para reducir uso de memoria
+    unoptimized: false,
+    // Configuración de tamaños de imagen para optimizar memoria
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     // Configuración de remotePatterns para imágenes externas
     remotePatterns: [
       {

@@ -82,7 +82,33 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onUpload }) => {
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
         console.error("Error de Cloudinary:", errorData);
-        throw new Error(errorData?.error?.message || "Error al subir la imagen");
+        
+        // Manejo específico de errores comunes
+        if (errorData?.error?.message) {
+          const errorMessage = errorData.error.message;
+          
+          if (errorMessage.includes("cloud_name is disabled") || errorMessage.includes("disabled")) {
+            throw new Error(
+              "La cuenta de Cloudinary está deshabilitada. Por favor, verifica tu cuenta en el dashboard de Cloudinary o contacta al administrador."
+            );
+          }
+          
+          if (errorMessage.includes("Upload preset not found") || errorMessage.includes("preset")) {
+            throw new Error(
+              `El preset de subida "${uploadPreset}" no existe. Verifica que el preset esté creado en tu dashboard de Cloudinary.`
+            );
+          }
+          
+          if (response.status === 401) {
+            throw new Error(
+              "No autorizado. Verifica que el cloud_name y el upload_preset sean correctos y que la cuenta de Cloudinary esté activa."
+            );
+          }
+          
+          throw new Error(`Error de Cloudinary: ${errorMessage}`);
+        }
+        
+        throw new Error(errorData?.error?.message || `Error al subir la imagen (${response.status})`);
       }
       
       const data = await response.json();

@@ -110,9 +110,13 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
       const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
       const uploadPreset = process.env.NEXT_PUBLIC_UPLOAD_PRESET;
 
+      if (!cloudName || !uploadPreset) {
+        throw new Error("Configuración de Cloudinary incompleta. Verifica las variables de entorno.");
+      }
+
       const formData = new FormData();
       formData.append("file", croppedBlob, "cropped.jpg");
-      formData.append("upload_preset", uploadPreset!);
+      formData.append("upload_preset", uploadPreset);
       formData.append("folder", "success_cases");
 
       const res = await fetch(
@@ -124,8 +128,34 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
       );
 
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error?.message || "Error al subir imagen");
+        const err = await res.json().catch(() => null);
+        
+        // Manejo específico de errores comunes
+        if (err?.error?.message) {
+          const errorMessage = err.error.message;
+          
+          if (errorMessage.includes("cloud_name is disabled") || errorMessage.includes("disabled")) {
+            throw new Error(
+              "La cuenta de Cloudinary está deshabilitada. Por favor, verifica tu cuenta en el dashboard de Cloudinary o contacta al administrador."
+            );
+          }
+          
+          if (errorMessage.includes("Upload preset not found") || errorMessage.includes("preset")) {
+            throw new Error(
+              `El preset de subida "${uploadPreset}" no existe. Verifica que el preset esté creado en tu dashboard de Cloudinary.`
+            );
+          }
+          
+          if (res.status === 401) {
+            throw new Error(
+              "No autorizado. Verifica que el cloud_name y el upload_preset sean correctos y que la cuenta de Cloudinary esté activa."
+            );
+          }
+          
+          throw new Error(`Error de Cloudinary: ${errorMessage}`);
+        }
+        
+        throw new Error(err?.error?.message || `Error al subir imagen (${res.status})`);
       }
 
       const data = await res.json();

@@ -91,6 +91,7 @@ export default function ViewNoticias() {
                   height={500}
                   alt={noticia.title}
                   className="w-full h-40 object-cover rounded-lg"
+                  loading="lazy"
                 />
                 <h3 className="text-xl font-semibold mt-4 text-gray-700">{noticia.title}</h3>
                 <p className="text-gray-700">{noticia.description}</p>

@@ -11,6 +11,42 @@ const nextConfig = {
   experimental: {
     // Optimizar el uso de memoria durante el build
     optimizeCss: true,
+    // Reducir el uso de memoria en runtime
+    optimizePackageImports: ['react-icons', 'framer-motion'],
+  },
+  
+  // Reducir el tamaño del bundle
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // Optimizar para cliente
+      config.optimization = {
+        ...config.optimization,
+        moduleIds: 'deterministic',
+        runtimeChunk: 'single',
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            default: false,
+            vendors: false,
+            // Agrupar vendor chunks para mejor caching
+            vendor: {
+              name: 'vendor',
+              chunks: 'all',
+              test: /node_modules/,
+              priority: 20,
+            },
+            // Separar react y react-dom
+            react: {
+              name: 'react',
+              chunks: 'all',
+              test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+              priority: 30,
+            },
+          },
+        },
+      };
+    }
+    return config;
   },
   
   // Configuración de imágenes

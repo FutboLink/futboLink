@@ -12,6 +12,8 @@ const NoticeSection = () => {
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
 
+  const MAX_NEWS_IN_MEMORY = 50; // Limitar noticias en memoria para reducir uso
+
   const fetchNews = async (pageNumber: number) => {
     setLoading(true);
     try {
@@ -34,6 +36,11 @@ const NoticeSection = () => {
 
         // Convertimos de vuelta a array
         const uniqueNews = Array.from(uniqueNewsMap.values());
+
+        // Limitar el número de noticias en memoria - mantener solo las más recientes
+        if (uniqueNews.length > MAX_NEWS_IN_MEMORY) {
+          return uniqueNews.slice(0, MAX_NEWS_IN_MEMORY);
+        }
 
         return uniqueNews;
       });

@@ -324,8 +324,8 @@ const PlayerSearch: React.FC = () => {
   const loadPriorityProfiles = async (currentToken: string) => {
     try {
       // Cargar perfiles en lotes más pequeños para evitar errores 400 y reducir memoria
-      const BATCH_SIZE = 30; // Reducido de 50 a 30 para usar menos memoria
-      const MAX_BATCHES = 2; // Reducido de 4 a 2 (de 200 a 60 perfiles máximo)
+      const BATCH_SIZE = 20; // Reducido de 30 a 20 para usar menos memoria
+      const MAX_BATCHES = 2; // Mantener en 2 (máximo 40 perfiles en memoria)
 
       let allLoadedUsers: User[] = [];
       let hasMoreToLoad = true;
@@ -446,7 +446,7 @@ const PlayerSearch: React.FC = () => {
         professionalPlayers.length +
         semiProfessionalPlayers.length +
         recruiters.length;
-      const DISPLAY_LIMIT = 30; // Reducido de 50 a 30 para usar menos memoria
+      const DISPLAY_LIMIT = 20; // Reducido de 30 a 20 para usar menos memoria
       if (priorityUsersCount < DISPLAY_LIMIT) {
         const amateursToShow = amateurPlayers.slice(0, DISPLAY_LIMIT - priorityUsersCount);
         setPlayers((prev) => [...prev, ...amateursToShow]);
@@ -465,7 +465,7 @@ const PlayerSearch: React.FC = () => {
     try {
       // Si tenemos amateurs precargados, usarlos para paginación
       if (allPlayersLoaded.length > 0) {
-        const PAGE_SIZE = 30; // Reducido de 50 a 30 para usar menos memoria
+        const PAGE_SIZE = 20; // Reducido de 30 a 20 para usar menos memoria
         const start = (page - 1) * PAGE_SIZE;
         const end = start + PAGE_SIZE;
         const nextBatch = allPlayersLoaded.slice(start, end);

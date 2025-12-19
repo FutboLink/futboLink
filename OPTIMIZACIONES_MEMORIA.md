@@ -1,7 +1,7 @@
 # Optimizaciones de Memoria para Render
 
 ## Problema
-La aplicación estaba consumiendo más de 512MB de memoria en Render, causando fallos constantes.
+La aplicación estaba consumiendo más de 512MB de memoria en Render, causando fallos constantes y reinicios automáticos.
 
 ## Optimizaciones Implementadas
 
@@ -10,6 +10,8 @@ La aplicación estaba consumiendo más de 512MB de memoria en Render, causando f
 - ✅ **Configurados tamaños de imagen**: Agregados `deviceSizes` e `imageSizes` para optimizar el uso de memoria
 - ✅ **Habilitada compresión**: `compress: true` para reducir el tamaño de las respuestas
 - ✅ **SWC Minify**: Habilitado para minificación más eficiente
+- ✅ **Optimización de imports**: `optimizePackageImports` para react-icons y framer-motion
+- ✅ **Webpack optimizations**: Configurado code splitting mejorado con separación de vendor chunks y React
 - ✅ **Eliminado archivo duplicado**: Removido `next.config.ts` que causaba conflictos
 
 ### 2. Límites de Memoria en Scripts (`front/package.json`)
@@ -17,12 +19,29 @@ La aplicación estaba consumiendo más de 512MB de memoria en Render, causando f
 - Esto limita el uso de memoria de Node.js a 512MB durante el build y runtime
 
 ### 3. Optimización del Componente PlayerSearch
-- ✅ **Reducido tamaño de lotes**: De 50 a 30 usuarios por lote
-- ✅ **Reducido número máximo de lotes**: De 4 a 2 (de 200 a 60 usuarios máximo en memoria)
+- ✅ **Reducido tamaño de lotes**: De 30 a 20 usuarios por lote
+- ✅ **Reducido número máximo de lotes**: Mantenido en 2 (máximo 40 perfiles en memoria)
+- ✅ **Reducido límite de visualización**: De 30 a 20 usuarios por página
 - ✅ **Agregado cleanup en useEffect**: Implementado `AbortController` y flags `isMounted` para evitar memory leaks
-- ✅ **Optimizada paginación**: Reducido límite de usuarios mostrados de 50 a 30
+- ✅ **Optimizada paginación**: Reducido límite de usuarios mostrados de 30 a 20
 
-### 4. Cleanup de Memory Leaks
+### 4. Paginación en AllApplications
+- ✅ **Implementada paginación**: Ahora muestra máximo 20 ofertas por página en lugar de cargar todas
+- ✅ **Límite de ofertas en memoria**: Máximo 100 ofertas cargadas (antes todas)
+- ✅ **Uso de useMemo**: Optimización de filtrado y paginación para reducir re-renders
+- ✅ **Paginación visual**: Controles de navegación entre páginas
+
+### 5. Optimización de Noticias (News/page.tsx)
+- ✅ **Límite de noticias en memoria**: Máximo 50 noticias acumuladas (antes ilimitado)
+- ✅ **Prevención de crecimiento indefinido**: Las noticias más antiguas se descartan automáticamente
+
+### 6. Lazy Loading de Imágenes
+- ✅ **CardNews**: Agregado `loading="lazy"` y placeholder blur
+- ✅ **CardJobsId**: Agregado `loading="lazy"` para imágenes de ofertas
+- ✅ **ViewNoticias**: Agregado `loading="lazy"` para imágenes en el panel admin
+- ✅ **Optimización general**: Todas las imágenes fuera del viewport usan lazy loading
+
+### 7. Cleanup de Memory Leaks
 - ✅ **Agregado cleanup en todos los useEffect críticos**:
   - Verificación de suscripción
   - Búsqueda de jugadores
@@ -47,11 +66,17 @@ La aplicación estaba consumiendo más de 512MB de memoria en Render, causando f
 - Revisa los logs de Render regularmente para detectar picos de memoria
 - Considera usar herramientas de monitoreo como New Relic o Datadog
 
-### 4. Optimizaciones Futuras
-- **Implementar paginación del lado del servidor**: En lugar de cargar todos los usuarios, implementar paginación real
-- **Lazy loading de imágenes**: Asegurar que todas las imágenes usen `loading="lazy"`
-- **Code splitting**: Verificar que Next.js esté haciendo code splitting correctamente
-- **Reducir bundle size**: Revisar dependencias innecesarias
+### 4. Optimizaciones Adicionales Implementadas
+- ✅ **Code splitting mejorado**: Configurado webpack para separar vendor chunks y React
+- ✅ **Lazy loading de imágenes**: Implementado en componentes críticos
+- ✅ **Paginación en componentes pesados**: AllApplications ahora usa paginación
+- ✅ **Límites de datos en memoria**: Noticias y ofertas tienen límites máximos
+
+### 5. Optimizaciones Futuras (Opcionales)
+- **Implementar paginación del lado del servidor**: Para componentes que aún cargan muchos datos
+- **Virtualización de listas**: Para listas muy largas (usar react-window o react-virtuoso)
+- **Service Worker para cache**: Implementar cache de recursos estáticos
+- **Reducir bundle size**: Revisar dependencias innecesarias y usar tree-shaking
 
 ### 5. Variables de Entorno Recomendadas
 ```bash

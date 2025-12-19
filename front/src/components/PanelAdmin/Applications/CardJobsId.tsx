@@ -16,6 +16,7 @@ const CardJobsId: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
             src={offer.imgUrl || "/cursosYFormaciones.JPG"}
             alt={offer.title}
             className="w-full h-full object-cover"
+            loading="lazy"
           />
         </div>
 

@@ -260,12 +260,27 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUpload, fileType = "cv" }) =>
           
           // Special handling for common errors
           if (data.error && data.error.message) {
-            if (data.error.message.includes("Upload preset not found")) {
+            const errorMessage = data.error.message;
+            
+            if (errorMessage.includes("cloud_name is disabled") || errorMessage.includes("disabled")) {
+              console.error(`Cloudinary error: Cloud name "${cloudName}" is disabled. Please check your Cloudinary account status.`);
+              throw new Error(
+                "La cuenta de Cloudinary está deshabilitada. Por favor, verifica tu cuenta en el dashboard de Cloudinary o contacta al administrador."
+              );
+            }
+            
+            if (errorMessage.includes("Upload preset not found") || errorMessage.includes("preset")) {
               console.error(`Cloudinary error: Upload preset "${uploadPreset}" not found. Please create this preset in your Cloudinary dashboard.`);
               throw new Error("El preset de subida de Cloudinary no existe. Necesitas crear un 'Upload Preset' sin firma en tu dashboard de Cloudinary.");
             }
             
-            throw new Error(`Error de Cloudinary: ${data.error.message}`);
+            if (response.status === 401) {
+              throw new Error(
+                "No autorizado. Verifica que el cloud_name y el upload_preset sean correctos y que la cuenta de Cloudinary esté activa."
+              );
+            }
+            
+            throw new Error(`Error de Cloudinary: ${errorMessage}`);
           }
           
           throw new Error(`Error ${response.status}: ${JSON.stringify(data)}`);

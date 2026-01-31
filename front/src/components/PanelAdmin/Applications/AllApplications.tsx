@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { IOfferCard } from "@/Interfaces/IOffer";
 import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
 import CardJobsId from "./CardJobsId";
@@ -9,15 +9,21 @@ const AllApplications: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const ITEMS_PER_PAGE = 20; // Limitar items por página para reducir memoria
+  const ITEMS_PER_PAGE = 12; // Reduced from 20 to 12 for better memory management
 
   useEffect(() => {
     const fetchOffers = async () => {
       setLoading(true);
       try {
         const data = await getOfertas();
-        // Limitar a máximo 100 ofertas en memoria para reducir uso
-        setOffers(data.slice(0, 100));
+        // Limit to 50 offers initially to reduce memory usage
+        // Only store essential data
+        const limitedData = data.slice(0, 50).map((offer) => ({
+          ...offer,
+          // Truncate description at source to reduce memory
+          description: offer.description?.substring(0, 200) || "",
+        }));
+        setOffers(limitedData);
       } catch (error) {
         console.error("Error fetching offers:", error);
       } finally {
@@ -27,28 +33,47 @@ const AllApplications: React.FC = () => {
     fetchOffers();
   }, []);
 
+  // Memoize search handler to prevent unnecessary re-renders
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page on search
+  }, []);
+
   // Filtrar y paginar ofertas usando useMemo para optimizar memoria
   const filteredOffers = useMemo(() => {
-    if (!searchTerm) {
+    if (!searchTerm.trim()) {
       return offers;
     }
-    const lowerSearchTerm = searchTerm.toLowerCase();
+    const lowerSearchTerm = searchTerm.toLowerCase().trim();
     return offers.filter((offer) => {
       return (
         offer.contractTypes?.toLowerCase().includes(lowerSearchTerm) ||
         offer.position?.toLowerCase().includes(lowerSearchTerm) ||
-        offer.location?.toLowerCase().includes(lowerSearchTerm)
+        offer.location?.toLowerCase().includes(lowerSearchTerm) ||
+        offer.title?.toLowerCase().includes(lowerSearchTerm)
       );
     });
   }, [searchTerm, offers]);
 
-  // Paginar resultados
+  // Paginar resultados - only compute what's needed
   const paginatedOffers = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     return filteredOffers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredOffers, currentPage]);
+  }, [filteredOffers, currentPage, ITEMS_PER_PAGE]);
 
-  const totalPages = Math.ceil(filteredOffers.length / ITEMS_PER_PAGE);
+  const totalPages = useMemo(
+    () => Math.ceil(filteredOffers.length / ITEMS_PER_PAGE),
+    [filteredOffers.length, ITEMS_PER_PAGE]
+  );
+
+  // Memoize pagination handlers
+  const handlePreviousPage = useCallback(() => {
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+  }, []);
+
+  const handleNextPage = useCallback(() => {
+    setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+  }, [totalPages]);
 
   if (loading) {
     return (
@@ -68,13 +93,13 @@ const AllApplications: React.FC = () => {
             type="text"
             placeholder="Buscar por tipo de oferta, posición o ubicación..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleSearchChange}
             className="w-full p-2 border border-gray-300 rounded-md text-gray-700"
           />
         </div>
       </div>
 
-      {/* Lista de ofertas paginada */}
+      {/* Lista de ofertas paginada - Using React.memo in CardJobsId prevents unnecessary re-renders */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
         {paginatedOffers.length > 0 ? (
           paginatedOffers.map((offer) => (
@@ -91,7 +116,7 @@ const AllApplications: React.FC = () => {
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-2 mt-6">
           <button
-            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+            onClick={handlePreviousPage}
             disabled={currentPage === 1}
             className="px-4 py-2 bg-gray-200 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300"
           >
@@ -101,7 +126,7 @@ const AllApplications: React.FC = () => {
             Página {currentPage} de {totalPages}
           </span>
           <button
-            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+            onClick={handleNextPage}
             disabled={currentPage === totalPages}
             className="px-4 py-2 bg-gray-200 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300"
           >

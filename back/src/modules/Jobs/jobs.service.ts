@@ -29,8 +29,32 @@ export class JobsService {
     return await this.jobRepository.save(job);
   }
 
-  async findAll(): Promise<Job[]> {
-    return await this.jobRepository.find({ relations: ['recruiter'] });
+  async findAll(limit: number = 100): Promise<Job[]> {
+    // Optimizado: Select específico y límite para reducir memoria
+    return await this.jobRepository.find({ 
+      relations: ['recruiter'],
+      select: {
+        id: true,
+        title: true,
+        location: true,
+        salary: true,
+        description: true,
+        contractTypes: true,
+        position: true,
+        nationality: true,
+        imgUrl: true,
+        status: true,
+        createdAt: true,
+        recruiter: {
+          id: true,
+          name: true,
+          lastname: true,
+          email: true,
+        }
+      },
+      take: limit,
+      order: { createdAt: 'DESC' }
+    });
   }
   
   async findOne(id: string): Promise<Job> {

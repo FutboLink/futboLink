@@ -102,17 +102,36 @@ export class ApplicationService {
 
   @ApiOperation({ summary: 'Listar aplicaciones por trabajo' })
   @ApiResponse({ status: 200, description: 'Lista de aplicaciones encontrada.' })
-  async listApplications(jobId: string): Promise<Application[]> {
+  async listApplications(jobId: string, limit: number = 100): Promise<Application[]> {
     try {
-      // Intentar usar la consulta con los nuevos campos
+      // Optimizado: Select específico y límite para reducir memoria
       return this.applicationRepository.find({
         where: { job: { id: String(jobId) } },
         relations: ['player'],
+        select: {
+          id: true,
+          message: true,
+          status: true,
+          appliedAt: true,
+          shortlistedAt: true,
+          playerId: true,
+          jobId: true,
+          player: {
+            id: true,
+            name: true,
+            lastname: true,
+            email: true,
+            role: true,
+            imgUrl: true,
+          }
+        },
+        take: limit,
+        order: { appliedAt: 'DESC' }
       });
     } catch (error) {
       console.error('Error al listar aplicaciones con nuevos campos:', error.message);
       
-      // Si falla, usar una consulta SQL directa que no dependa de los nuevos campos
+      // Si falla, usar una consulta SQL directa optimizada con límite
       const rawApplications = await this.applicationRepository.query(`
         SELECT 
           a.id, a.message, a.status, a."appliedAt", a."shortlistedAt", a."playerId", a."jobId",
@@ -121,7 +140,9 @@ export class ApplicationService {
         FROM application a
         LEFT JOIN users u ON u.id = a."playerId"
         WHERE a."jobId" = $1
-      `, [jobId]);
+        ORDER BY a."appliedAt" DESC
+        LIMIT $2
+      `, [jobId, limit]);
       
       // Transformar los resultados raw en entidades Application
       return rawApplications.map(raw => {

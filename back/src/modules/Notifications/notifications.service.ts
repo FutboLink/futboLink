@@ -222,17 +222,58 @@ export class NotificationsService {
     }
   }
 
-  async findAll(): Promise<Notification[]> {
+  async findAll(limit: number = 100): Promise<Notification[]> {
+    // Optimizado: Límite y select específico para reducir memoria
     return this.notificationsRepository.find({
       relations: ['user', 'sourceUser'],
+      select: {
+        id: true,
+        message: true,
+        type: true,
+        read: true,
+        userId: true,
+        sourceUserId: true,
+        createdAt: true,
+        metadata: true,
+        user: {
+          id: true,
+          name: true,
+          lastname: true,
+        },
+        sourceUser: {
+          id: true,
+          name: true,
+          lastname: true,
+          imgUrl: true,
+        }
+      },
+      take: limit,
       order: { createdAt: 'DESC' },
     });
   }
 
-  async findByUserId(userId: string): Promise<Notification[]> {
+  async findByUserId(userId: string, limit: number = 50): Promise<Notification[]> {
+    // Optimizado: Límite por defecto y select específico
     return this.notificationsRepository.find({
       where: { userId },
       relations: ['sourceUser'],
+      select: {
+        id: true,
+        message: true,
+        type: true,
+        read: true,
+        userId: true,
+        sourceUserId: true,
+        createdAt: true,
+        metadata: true,
+        sourceUser: {
+          id: true,
+          name: true,
+          lastname: true,
+          imgUrl: true,
+        }
+      },
+      take: limit,
       order: { createdAt: 'DESC' },
     });
   }

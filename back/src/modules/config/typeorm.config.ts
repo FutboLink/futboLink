@@ -18,8 +18,14 @@ const config: DataSourceOptions = {
   username: process.env.DATABASE_URL ? undefined : process.env.DB_USERNAME,
   password: process.env.DATABASE_URL ? undefined : process.env.DB_PASSWORD,
   dropSchema: false,
-  logging: true,
+  logging: process.env.NODE_ENV === 'development', // Solo logging en desarrollo para reducir memoria
   synchronize: false,
+  // Optimizaciones de memoria
+  extra: {
+    max: 10, // Reducir pool de conexiones (default 10, pero asegurarse)
+    connectionTimeoutMillis: 2000,
+    idleTimeoutMillis: 30000,
+  },
   entities: [
     __dirname + '/../**/*.entity.{js,ts}',
     __dirname + '/../../**/*.entity.{js,ts}',

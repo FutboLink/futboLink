@@ -11,15 +11,19 @@ export class SuccessCasesService {
         private successCaseRepository: Repository<SuccessCase>
     ) {}
 
-    async findAll(): Promise<SuccessCase[]> {
+    async findAll(limit: number = 50): Promise<SuccessCase[]> {
+        // Optimizado: Agregar límite para reducir memoria
         return this.successCaseRepository.find({
+            take: limit,
             order: { createdAt: 'DESC' }
         });
     }
 
-    async findPublished(): Promise<SuccessCase[]> {
+    async findPublished(limit: number = 50): Promise<SuccessCase[]> {
+        // Optimizado: Agregar límite para reducir memoria
         return this.successCaseRepository.find({
             where: { isPublished: true },
+            take: limit,
             order: { createdAt: 'DESC' }
         });
     }

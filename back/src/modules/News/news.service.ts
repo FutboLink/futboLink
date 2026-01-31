@@ -10,8 +10,12 @@ import { CreateNewsDto, UpdateNewsDto } from "./dto/createnews.dto";
 export class NewsService{
     constructor(@InjectRepository(News) private newsRepository: Repository<News>){}
 
-    async findAll(): Promise<News[]>{
-        return this.newsRepository.find()
+    async findAll(limit: number = 50): Promise<News[]>{
+        // Optimizado: Agregar límite y orden para reducir memoria
+        return this.newsRepository.find({
+            take: limit,
+            order: { id: 'DESC' } // Asumiendo que id es incremental
+        })
     }
 
     async findById(id:string): Promise <News>{

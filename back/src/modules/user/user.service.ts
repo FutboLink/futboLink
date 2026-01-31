@@ -266,8 +266,23 @@ export class UserService {
     }
   }
 
-  async findAll(): Promise<User[]> {
-    return this.userRepository.find();
+  async findAll(limit: number = 100): Promise<User[]> {
+    // Optimizado: Agregar límite y select específico para reducir memoria
+    return this.userRepository.find({
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        lastname: true,
+        role: true,
+        imgUrl: true,
+        subscriptionType: true,
+        createdAt: true,
+        // Excluir campos pesados como password, cvPath, etc.
+      },
+      take: limit,
+      order: { createdAt: 'DESC' }
+    });
   }
 
   async findOne(id: string): Promise<User> {

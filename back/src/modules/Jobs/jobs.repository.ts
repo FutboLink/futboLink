@@ -33,14 +33,58 @@ export class JobRepository {
   }
   
 
-  async getJobs(): Promise<Job[]> {
-    return await this.repository.find({ where: { status: 'OPEN' }, relations: ['recruiter', 'applications'] });
+  async getJobs(limit: number = 100): Promise<Job[]> {
+    // Optimizado: No cargar applications (muy pesado), solo datos básicos del recruiter
+    return await this.repository.find({ 
+      where: { status: 'OPEN' }, 
+      relations: ['recruiter'], // Removido 'applications' para reducir memoria
+      select: {
+        id: true,
+        title: true,
+        location: true,
+        salary: true,
+        description: true,
+        contractTypes: true,
+        position: true,
+        nationality: true,
+        imgUrl: true,
+        status: true,
+        createdAt: true,
+        recruiter: {
+          id: true,
+          name: true,
+          lastname: true,
+          email: true,
+        }
+      },
+      take: limit, // Limitar resultados
+      order: { createdAt: 'DESC' }
+    });
   }
 
   async getJobById(id: string): Promise<Job> {
     const job = await this.repository.findOne({
       where: { id },
-      relations: ['recruiter', 'applications'],
+      relations: ['recruiter'], // Cargar applications solo cuando sea necesario
+      select: {
+        id: true,
+        title: true,
+        location: true,
+        salary: true,
+        description: true,
+        contractTypes: true,
+        position: true,
+        nationality: true,
+        imgUrl: true,
+        status: true,
+        createdAt: true,
+        recruiter: {
+          id: true,
+          name: true,
+          lastname: true,
+          email: true,
+        }
+      }
     });
     if (!job) {
       throw new NotFoundException(`Trabajos con el id ${id} no se encontró`);

@@ -67,8 +67,10 @@ export class UserController {
   @ApiOperation({ summary: 'Traer los usuarios' })
   @ApiResponse({ status: 200, description: 'Lista de usuarios', type: [User] })
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  findAll(@Query('limit') limit?: string) {
+    const limitNumber = limit ? parseInt(limit, 10) : undefined;
+    // Si no se especifica límite, devolver todos los usuarios (sin límite)
+    return this.userService.findAll(limitNumber);
   }
 
   @ApiOperation({ summary: 'Traer usuario por Id' })

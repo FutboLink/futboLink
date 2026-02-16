@@ -390,9 +390,9 @@ export class UserService {
     }
   }
 
-  async findAll(limit: number = 100): Promise<User[]> {
+  async findAll(limit?: number): Promise<User[]> {
     // Optimizado: Agregar límite y select específico para reducir memoria
-    return this.userRepository.find({
+    const queryOptions: any = {
       select: {
         id: true,
         email: true,
@@ -404,9 +404,15 @@ export class UserService {
         createdAt: true,
         // Excluir campos pesados como password, cvPath, etc.
       },
-      take: limit,
       order: { createdAt: 'DESC' }
-    });
+    };
+    
+    // Solo agregar límite si se especifica
+    if (limit !== undefined && limit > 0) {
+      queryOptions.take = limit;
+    }
+    
+    return this.userRepository.find(queryOptions);
   }
 
   async findOne(id: string): Promise<User> {

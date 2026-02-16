@@ -14,7 +14,12 @@ export const fetchLoginUser = async (credentials: ILoginUser) => {
     });
 
     if (!response.ok) {
-      throw new Error("Error en la autenticación");
+      const errorData = await response.json().catch(() => ({}));
+      // Detectar error de email no verificado
+      if (response.status === 403 && errorData.message === "EMAIL_NOT_VERIFIED") {
+        throw new Error("EMAIL_NOT_VERIFIED");
+      }
+      throw new Error(errorData.message || "Error en la autenticación");
     }
 
     const data = await response.json();

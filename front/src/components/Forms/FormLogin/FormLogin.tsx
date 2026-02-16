@@ -63,10 +63,16 @@ function LoginForm() {
           setShowNotification(true);
           setTimeout(() => setShowNotification(false), 3000);
         }
-      } catch {
-        setNotificationMessage(getText("Ocurrió un error, intenta de nuevo", "generalError"));
-        setShowNotification(true);
-        setTimeout(() => setShowNotification(false), 3000);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "";
+        if (errorMessage === "EMAIL_NOT_VERIFIED") {
+          // Redirigir a la página de verificación pendiente
+          router.push(`/verify-email/pending?email=${encodeURIComponent(userData.email)}`);
+        } else {
+          setNotificationMessage(getText("Usuario o contraseña incorrectos", "loginError"));
+          setShowNotification(true);
+          setTimeout(() => setShowNotification(false), 3000);
+        }
       } finally {
         setIsLoggingIn(false);
       }

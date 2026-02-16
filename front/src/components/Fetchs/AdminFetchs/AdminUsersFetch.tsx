@@ -5,18 +5,27 @@ import { IProfileData } from "@/Interfaces/IUser";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ;
 
-// Función para obtener los usuarios
-export const getUsers =  async (): Promise<IProfileData[]> => {
+// Interfaz para la respuesta paginada
+export interface PaginatedUsersResponse {
+  data: IProfileData[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+// Función para obtener los usuarios (paginado)
+export const getUsers = async (page: number = 1, limit: number = 300): Promise<PaginatedUsersResponse> => {
     try {
-      const response = await fetch(`${apiUrl}/user`); 
+      const response = await fetch(`${apiUrl}/user?page=${page}&limit=${limit}`); 
       if (!response.ok) {
         throw new Error('Error al obtener los usuarios');
       }
-      const users: IProfileData[] = await response.json();
-      return users;
+      const result: PaginatedUsersResponse = await response.json();
+      return result;
     } catch (error) {
       console.error(error);
-      return [];
+      return { data: [], total: 0, page: 1, limit, totalPages: 0 };
     }
   };
   

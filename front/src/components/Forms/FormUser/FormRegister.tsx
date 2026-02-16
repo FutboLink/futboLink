@@ -261,11 +261,8 @@ const RegistrationForm: React.FC = () => {
     try {
       const isRegistered = await signUp(registrationData);
       if (isRegistered) {
-        setNotificationMessage(getText("Registro exitoso", "registerSuccess"));
-        setShowNotification(true);
-        setTimeout(async () => {
-          router.push("/");
-        }, 2000);
+        // Redirigir a la página de confirmación de email
+        router.push(`/verify-email/pending?email=${encodeURIComponent(registrationData.email)}`);
       } else {
         setErrors({
           ...errors,

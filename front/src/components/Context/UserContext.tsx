@@ -80,6 +80,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     } catch (error) {
       console.error("Error during sign in:", error);
+      // Re-throw para que el componente de login pueda manejar errores específicos
+      throw error;
     }
     return false;
   };
@@ -109,7 +111,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
       const data = await fetchRegisterUser(cleanUserData);
       if (data) {
-        await signIn({ email: user.email, password: user.password });
+        // No auto-login: el usuario debe verificar su email primero
         return true;
       }
       console.error(`Registration failed: ${JSON.stringify(data)}`);

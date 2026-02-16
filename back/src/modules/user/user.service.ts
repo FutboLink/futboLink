@@ -36,6 +36,8 @@ export class UserService {
     this.createRepresentationRequestsTableIfNotExists();
     // Intentar crear la tabla de solicitudes de verificación si no existe
     this.createVerificationRequestsTableIfNotExists();
+    // Asegurar que existan las columnas de verificación de email
+    this.ensureEmailVerificationColumnsExist();
   }
 
   /**
@@ -209,6 +211,36 @@ export class UserService {
     }
   }
 
+  /**
+   * Asegura que existan las columnas de verificación de email en la tabla users
+   */
+  private async ensureEmailVerificationColumnsExist() {
+    try {
+      const queryRunner = this.userRepository.manager.connection.createQueryRunner();
+      await queryRunner.connect();
+
+      // Verificar si la columna isEmailVerified existe
+      const hasIsEmailVerified = await queryRunner.hasColumn('users', 'isEmailVerified');
+      if (!hasIsEmailVerified) {
+        console.log('Creando columna isEmailVerified en tabla users...');
+        await queryRunner.query(`ALTER TABLE "users" ADD "isEmailVerified" boolean NOT NULL DEFAULT false`);
+        console.log('Columna isEmailVerified creada correctamente');
+      }
+
+      // Verificar si la columna emailVerificationToken existe
+      const hasEmailVerificationToken = await queryRunner.hasColumn('users', 'emailVerificationToken');
+      if (!hasEmailVerificationToken) {
+        console.log('Creando columna emailVerificationToken en tabla users...');
+        await queryRunner.query(`ALTER TABLE "users" ADD "emailVerificationToken" character varying`);
+        console.log('Columna emailVerificationToken creada correctamente');
+      }
+
+      await queryRunner.release();
+    } catch (error) {
+      console.error('Error al crear columnas de verificación de email:', error);
+    }
+  }
+
   async register(registerUserDto: RegisterUserDto): Promise<User> {
     try {
       console.log("Attempting to register user with data:", JSON.stringify(registerUserDto, null, 2));
@@ -255,13 +287,105 @@ export class UserService {
         userData.lastname = registerUserDto.lastname || null;
       }
 
+      // Generar token de verificación de email
+      const crypto = require('crypto');
+      const emailVerificationToken = crypto.randomBytes(32).toString('hex');
+      userData.isEmailVerified = false;
+      userData.emailVerificationToken = emailVerificationToken;
+
       const newUser = this.userRepository.create(userData);
 
       console.log("User created successfully, saving to database");
       const savedUser: User = await this.userRepository.save(newUser);
+
+      // Enviar email de verificación
+      try {
+        await this.emailService.sendEmailVerification(
+          savedUser.email,
+          savedUser.name,
+          emailVerificationToken,
+        );
+        console.log(`Verification email sent to ${savedUser.email}`);
+      } catch (emailError) {
+        console.error('Error sending verification email:', emailError);
+        // No lanzar error - el usuario ya fue creado, puede reenviar el email
+      }
+
       return savedUser;
     } catch (error) {
       console.error("Error in register service:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Verifica el email de un usuario usando el token enviado por email
+   */
+  async verifyEmail(token: string): Promise<{ message: string }> {
+    try {
+      if (!token) {
+        throw new BadRequestException('Token de verificación requerido');
+      }
+
+      const user = await this.userRepository.findOne({
+        where: { emailVerificationToken: token },
+      });
+
+      if (!user) {
+        throw new BadRequestException('Token de verificación inválido o expirado');
+      }
+
+      if (user.isEmailVerified) {
+        return { message: 'El email ya fue verificado anteriormente' };
+      }
+
+      // Marcar como verificado y limpiar el token
+      user.isEmailVerified = true;
+      user.emailVerificationToken = null;
+      await this.userRepository.save(user);
+
+      console.log(`Email verified successfully for user: ${user.email}`);
+      return { message: 'Email verificado exitosamente. Ya puedes iniciar sesión.' };
+    } catch (error) {
+      console.error('Error verifying email:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Reenvía el email de verificación a un usuario
+   */
+  async resendVerificationEmail(email: string): Promise<{ message: string }> {
+    try {
+      if (!email) {
+        throw new BadRequestException('Email requerido');
+      }
+
+      const user = await this.userRepository.findOne({
+        where: { email },
+      });
+
+      if (!user) {
+        throw new NotFoundException('Usuario no encontrado');
+      }
+
+      if (user.isEmailVerified) {
+        return { message: 'El email ya fue verificado' };
+      }
+
+      // Generar nuevo token
+      const crypto = require('crypto');
+      const newToken = crypto.randomBytes(32).toString('hex');
+      user.emailVerificationToken = newToken;
+      await this.userRepository.save(user);
+
+      // Enviar email
+      await this.emailService.sendEmailVerification(user.email, user.name, newToken);
+
+      console.log(`Verification email resent to: ${user.email}`);
+      return { message: 'Email de verificación reenviado exitosamente' };
+    } catch (error) {
+      console.error('Error resending verification email:', error);
       throw error;
     }
   }

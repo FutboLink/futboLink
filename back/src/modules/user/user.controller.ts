@@ -40,12 +40,28 @@ export class UserController {
   @ApiOperation({ summary: 'Registrar un nuevo usuario' })
   @ApiResponse({
     status: 201,
-    description: 'Usuario creado exitosamente',
+    description: 'Usuario creado exitosamente. Se envía email de verificación.',
     type: User,
   })
   @Post('register')
   create(@Body() createUserDto: RegisterUserDto) {
     return this.userService.register(createUserDto);
+  }
+
+  @ApiOperation({ summary: 'Verificar email del usuario con token' })
+  @ApiResponse({ status: 200, description: 'Email verificado exitosamente' })
+  @ApiResponse({ status: 400, description: 'Token inválido o expirado' })
+  @Get('verify-email')
+  async verifyEmail(@Query('token') token: string) {
+    return this.userService.verifyEmail(token);
+  }
+
+  @ApiOperation({ summary: 'Reenviar email de verificación' })
+  @ApiResponse({ status: 200, description: 'Email de verificación reenviado' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  @Post('resend-verification')
+  async resendVerificationEmail(@Body() body: { email: string }) {
+    return this.userService.resendVerificationEmail(body.email);
   }
 
   @ApiOperation({ summary: 'Traer los usuarios' })

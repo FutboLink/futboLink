@@ -337,6 +337,62 @@ export class EmailService {
     }
   }
 
+  async sendEmailVerification(email: string, name: string, token: string): Promise<boolean> {
+    try {
+      const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'https://futbolink.vercel.app';
+      const verifyUrl = `${frontendUrl}/verify-email?token=${token}`;
+      
+      this.logger.log(`Sending email verification to: ${email}`);
+      this.logger.log(`Verification URL: ${verifyUrl}`);
+
+      const mailOptions = {
+        from: `"FutboLink" <${this.configService.get<string>('MAIL_FROM')}>`,
+        to: email,
+        subject: 'Verifica tu cuenta - FutboLink',
+        html: `
+          <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 5px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <h2 style="color: #2c3e50;">¡Bienvenido a FutboLink!</h2>
+            </div>
+            <div style="margin-top: 20px; line-height: 1.6; color: #34495e;">
+              <p>Hola <strong>${name}</strong>,</p>
+              <p>Gracias por registrarte en FutboLink. Para completar tu registro y activar tu cuenta, por favor verifica tu dirección de correo electrónico haciendo clic en el siguiente botón:</p>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verifyUrl}" 
+                 style="display: inline-block; padding: 14px 28px; background-color: #27ae60; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">
+                Verificar mi cuenta
+              </a>
+            </div>
+            
+            <div style="margin-top: 20px; line-height: 1.6; color: #34495e;">
+              <p>Si no puedes hacer clic en el botón, copia y pega el siguiente enlace en tu navegador:</p>
+              <p style="word-break: break-all; background-color: #f8f9fa; padding: 10px; border-radius: 5px; font-size: 14px;">
+                <a href="${verifyUrl}" style="color: #27ae60;">${verifyUrl}</a>
+              </p>
+              <p>Este enlace expirará en 24 horas por motivos de seguridad.</p>
+              <p>Si no creaste una cuenta en FutboLink, puedes ignorar este correo.</p>
+            </div>
+            
+            <div style="margin-top: 30px; text-align: center; color: #7f8c8d; border-top: 1px solid #ecf0f1; padding-top: 15px;">
+              <p>FutboLink - Conectando el mundo del fútbol</p>
+              <p>© ${new Date().getFullYear()} FutboLink. Todos los derechos reservados.</p>
+            </div>
+          </div>
+        `
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      this.logger.log(`Verification email sent successfully to: ${email}`);
+      return true;
+    } catch (error) {
+      this.logger.error(`Error sending verification email: ${error.message}`);
+      this.logger.error(`Stack trace: ${error.stack}`);
+      return false;
+    }
+  }
+
   async sendRepresentationRequestEmail(
     email: string, 
     playerName: string, 

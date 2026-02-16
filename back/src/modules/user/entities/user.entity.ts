@@ -214,4 +214,12 @@ export class User {
     },
   })
   portfolioPlayers: User[];
+
+  @ApiProperty({ example: false, description: 'Indica si el email del usuario fue verificado' })
+  @Column({ default: false })
+  isEmailVerified: boolean;
+
+  @ApiProperty({ description: 'Token de verificación de email', nullable: true })
+  @Column({ nullable: true })
+  emailVerificationToken?: string;
 }

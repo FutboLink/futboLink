@@ -17,13 +17,20 @@ export class EmailService {
   constructor(
     private readonly configService: ConfigService
   ) {
+    const mailHost = this.configService.get<string>('MAIL_HOST');
+    const mailPort = this.configService.get<number>('MAIL_PORT');
+    const mailUser = this.configService.get<string>('MAIL_USER');
+    const mailFrom = this.configService.get<string>('MAIL_FROM');
+
+    this.logger.log(`Mail config: host=${mailHost}, port=${mailPort}, user=${mailUser}, from=${mailFrom}`);
+
     // Initialize nodemailer transporter
     this.transporter = nodemailer.createTransport({
-      host: this.configService.get<string>('MAIL_HOST'),
-      port: this.configService.get<number>('MAIL_PORT'),
-      secure: false, // true for 465, false for other ports
+      host: mailHost,
+      port: mailPort,
+      secure: mailPort === 465, // true for 465, false for other ports
       auth: {
-        user: this.configService.get<string>('MAIL_USER'),
+        user: mailUser,
         pass: this.configService.get<string>('MAIL_PASSWORD'),
       },
     });
@@ -385,8 +392,9 @@ export class EmailService {
         `
       };
 
-      await this.transporter.sendMail(mailOptions);
-      this.logger.log(`Verification email sent successfully to: ${email}`);
+      const info = await this.transporter.sendMail(mailOptions);
+      this.logger.log(`Verification email sent to: ${email}`);
+      this.logger.log(`SMTP response: messageId=${info.messageId}, accepted=${JSON.stringify(info.accepted)}, rejected=${JSON.stringify(info.rejected)}, response=${info.response}`);
       return true;
     } catch (error) {
       this.logger.error(`Error sending verification email: ${error.message}`);

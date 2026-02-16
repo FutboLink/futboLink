@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build && copyfiles back/src/templates/**/* dist/templates",
+    "build": "nest build --builder swc && copyfiles back/src/templates/**/* dist/templates",
     "postbuild": "node copy-templates.js",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "node --max-old-space-size=512 --expose-gc node_modules/@nestjs/cli/bin/nest.js start",
@@ -54,6 +54,8 @@
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
+    "@swc/cli": "^0.4.0",
+    "@swc/core": "^1.15.11",
     "@types/bcrypt": "^5.0.2",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.2",

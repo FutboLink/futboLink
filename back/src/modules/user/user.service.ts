@@ -390,9 +390,11 @@ export class UserService {
     }
   }
 
-  async findAll(limit?: number): Promise<User[]> {
-    // Optimizado: Agregar límite y select específico para reducir memoria
-    const queryOptions: any = {
+  async findAll(page: number = 1, limit: number = 300): Promise<{ data: User[]; total: number; page: number; limit: number; totalPages: number }> {
+    const take = Math.min(limit, 500); // máximo 500 por página
+    const skip = (page - 1) * take;
+
+    const [data, total] = await this.userRepository.findAndCount({
       select: {
         id: true,
         email: true,
@@ -402,17 +404,20 @@ export class UserService {
         imgUrl: true,
         subscriptionType: true,
         createdAt: true,
-        // Excluir campos pesados como password, cvPath, etc.
+        nationality: true,
       },
-      order: { createdAt: 'DESC' }
+      order: { createdAt: 'DESC' },
+      take,
+      skip,
+    });
+
+    return {
+      data,
+      total,
+      page,
+      limit: take,
+      totalPages: Math.ceil(total / take),
     };
-    
-    // Solo agregar límite si se especifica
-    if (limit !== undefined && limit > 0) {
-      queryOptions.take = limit;
-    }
-    
-    return this.userRepository.find(queryOptions);
   }
 
   async findOne(id: string): Promise<User> {

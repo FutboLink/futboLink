@@ -64,13 +64,13 @@ export class UserController {
     return this.userService.resendVerificationEmail(body.email);
   }
 
-  @ApiOperation({ summary: 'Traer los usuarios' })
-  @ApiResponse({ status: 200, description: 'Lista de usuarios', type: [User] })
+  @ApiOperation({ summary: 'Traer los usuarios (paginado)' })
+  @ApiResponse({ status: 200, description: 'Lista paginada de usuarios' })
   @Get()
-  findAll(@Query('limit') limit?: string) {
-    const limitNumber = limit ? parseInt(limit, 10) : undefined;
-    // Si no se especifica límite, devolver todos los usuarios (sin límite)
-    return this.userService.findAll(limitNumber);
+  findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
+    const pageNumber = page ? parseInt(page, 10) : 1;
+    const limitNumber = limit ? parseInt(limit, 10) : 300;
+    return this.userService.findAll(pageNumber, limitNumber);
   }
 
   @ApiOperation({ summary: 'Traer usuario por Id' })

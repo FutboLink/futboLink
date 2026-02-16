@@ -177,7 +177,8 @@ export class EmailService {
 
   async sendPasswordResetEmail(email: string, token: string) {
     try {
-      const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'https://futbolink.vercel.app';
+      const rawFrontendUrl = this.configService.get<string>('FRONTEND_URL') || 'https://futbolink.vercel.app';
+      const frontendUrl = rawFrontendUrl.replace(/\/+$/, ''); // Eliminar barras finales
       const resetUrl = `${frontendUrl}/resetPassword?token=${token}`;
       
       this.logger.log(`Sending password reset email to: ${email}`);
@@ -339,7 +340,8 @@ export class EmailService {
 
   async sendEmailVerification(email: string, name: string, token: string): Promise<boolean> {
     try {
-      const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'https://futbolink.vercel.app';
+      const rawFrontendUrl = this.configService.get<string>('FRONTEND_URL') || 'https://futbolink.vercel.app';
+      const frontendUrl = rawFrontendUrl.replace(/\/+$/, ''); // Eliminar barras finales
       const verifyUrl = `${frontendUrl}/verify-email?token=${token}`;
       
       this.logger.log(`Sending email verification to: ${email}`);

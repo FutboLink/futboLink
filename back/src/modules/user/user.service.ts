@@ -223,8 +223,11 @@ export class UserService {
       const hasIsEmailVerified = await queryRunner.hasColumn('users', 'isEmailVerified');
       if (!hasIsEmailVerified) {
         console.log('Creando columna isEmailVerified en tabla users...');
+        // Los usuarios existentes se marcan como verificados (true), solo los nuevos empiezan en false
         await queryRunner.query(`ALTER TABLE "users" ADD "isEmailVerified" boolean NOT NULL DEFAULT false`);
-        console.log('Columna isEmailVerified creada correctamente');
+        // Marcar todos los usuarios existentes como verificados
+        await queryRunner.query(`UPDATE "users" SET "isEmailVerified" = true`);
+        console.log('Columna isEmailVerified creada y usuarios existentes marcados como verificados');
       }
 
       // Verificar si la columna emailVerificationToken existe
@@ -233,6 +236,19 @@ export class UserService {
         console.log('Creando columna emailVerificationToken en tabla users...');
         await queryRunner.query(`ALTER TABLE "users" ADD "emailVerificationToken" character varying`);
         console.log('Columna emailVerificationToken creada correctamente');
+      }
+
+      // Migración: marcar usuarios existentes (sin token) como verificados
+      // Esto cubre el caso donde la columna ya existía pero los usuarios no fueron migrados
+      try {
+        const result = await queryRunner.query(
+          `UPDATE "users" SET "isEmailVerified" = true WHERE "isEmailVerified" = false AND "emailVerificationToken" IS NULL`
+        );
+        if (result && result[1] > 0) {
+          console.log(`Migración: ${result[1]} usuarios existentes marcados como verificados`);
+        }
+      } catch (migrationError) {
+        console.error('Error en migración de verificación:', migrationError);
       }
 
       await queryRunner.release();

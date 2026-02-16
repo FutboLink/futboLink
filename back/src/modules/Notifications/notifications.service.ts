@@ -234,7 +234,7 @@ export class NotificationsService {
         userId: true,
         sourceUserId: true,
         createdAt: true,
-        metadata: true,
+        metadata: true as any,
         user: {
           id: true,
           name: true,
@@ -265,7 +265,7 @@ export class NotificationsService {
         userId: true,
         sourceUserId: true,
         createdAt: true,
-        metadata: true,
+        metadata: true as any,
         sourceUser: {
           id: true,
           name: true,

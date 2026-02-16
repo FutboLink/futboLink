@@ -114,8 +114,6 @@ export class ApplicationService {
           status: true,
           appliedAt: true,
           shortlistedAt: true,
-          playerId: true,
-          jobId: true,
           player: {
             id: true,
             name: true,

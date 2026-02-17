@@ -9,7 +9,7 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 function VerificationPendingContent() {
   const searchParams = useSearchParams();
-  const email = searchParams.get("email") || "";
+  const email = searchParams?.get("email") || "";
   const [resending, setResending] = useState(false);
   const [resendMessage, setResendMessage] = useState("");
   const [resendError, setResendError] = useState(false);

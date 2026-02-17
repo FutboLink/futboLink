@@ -23,6 +23,8 @@ import Offer from "./Ofertas/Offer";
 import SuccessCasesAdmin from "./SuccessCasesAdmin";
 import UsersComponent from "./Users/UsersComponent";
 import VerificationRequests from "./VerificationRequests/VerificationRequests";
+import ViewNoticias from "./Noticias/ViewNoticias";
+import ViewCursos from "./Cursos/ViewCursos";
 
 const PanelAdmin = () => {
   const { token, logOut } = useContext(UserContext);
@@ -167,22 +169,24 @@ const PanelAdmin = () => {
               </button>
             </li>
             <li>
-              <Link
-                href="/PanelAdmin/News/crear-noticia"
+              <button
+                type="button"
+                onClick={() => handleSectionChange("noticias")}
                 className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
               >
                 <FaNewspaper className="text-white text-lg" />
-                <span className="text-white">Crear Noticia</span>
-              </Link>
+                <span className="text-white">Gestionar Noticias</span>
+              </button>
             </li>
             <li>
-              <Link
-                href="/PanelAdmin/Cursos/crear-curso"
+              <button
+                type="button"
+                onClick={() => handleSectionChange("cursos")}
                 className="w-full py-2 px-4 flex items-center space-x-2 text-left rounded-lg hover:bg-green-700 transition duration-200"
               >
                 <FaGraduationCap className="text-white text-lg" />
-                <span className="text-white">Crear Curso</span>
-              </Link>
+                <span className="text-white">Gestionar Cursos</span>
+              </button>
             </li>
           </ul>
         </nav>
@@ -291,6 +295,44 @@ const PanelAdmin = () => {
         {activeSection === "verifications" && (
           <div className="bg-white p-6 rounded-xl shadow-lg">
             <VerificationRequests />
+          </div>
+        )}
+
+        {/* Sección de Gestión de Noticias */}
+        {activeSection === "noticias" && (
+          <div className="bg-white p-6 rounded-xl shadow-lg" data-aos="fade-up">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-semibold text-gray-800">
+                Gestión de Noticias
+              </h3>
+              <Link
+                href="/PanelAdmin/News/crear-noticia"
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-200 flex items-center space-x-2"
+              >
+                <FaNewspaper />
+                <span>Crear Noticia</span>
+              </Link>
+            </div>
+            <ViewNoticias />
+          </div>
+        )}
+
+        {/* Sección de Gestión de Cursos */}
+        {activeSection === "cursos" && (
+          <div className="bg-white p-6 rounded-xl shadow-lg" data-aos="fade-up">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-semibold text-gray-800">
+                Gestión de Cursos
+              </h3>
+              <Link
+                href="/PanelAdmin/Cursos/crear-curso"
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-200 flex items-center space-x-2"
+              >
+                <FaGraduationCap />
+                <span>Crear Curso</span>
+              </Link>
+            </div>
+            <ViewCursos />
           </div>
         )}
       </div>

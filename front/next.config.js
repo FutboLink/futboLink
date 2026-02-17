@@ -3,22 +3,25 @@ const nextConfig = {
   reactStrictMode: true,
   
   // Optimizaciones para reducir uso de memoria
-  swcMinify: true, // Usar SWC para minificación (más eficiente que Terser)
+  // swcMinify ya no es necesario en Next.js 15 (SWC es el default)
   compress: true, // Habilitar compresión gzip
   poweredByHeader: false, // Remover header X-Powered-By para seguridad
   
   // Configuración de compilación para reducir memoria
   experimental: {
     // Optimizar el uso de memoria durante el build
-    optimizeCss: true,
+    optimizeCss: false, // Deshabilitar durante build para reducir memoria
     // Reducir el uso de memoria en runtime
     optimizePackageImports: ['react-icons', 'framer-motion'],
   },
   
-  // Reducir el tamaño del bundle
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      // Optimizar para cliente
+  // Deshabilitar source maps en producción para reducir memoria durante build
+  productionBrowserSourceMaps: false,
+  
+  // Reducir el tamaño del bundle (simplificado para reducir memoria durante build)
+  webpack: (config, { isServer, dev }) => {
+    // Solo optimizar en producción y para cliente
+    if (!isServer && !dev) {
       config.optimization = {
         ...config.optimization,
         moduleIds: 'deterministic',

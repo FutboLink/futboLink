@@ -347,8 +347,7 @@ export class EmailService {
 
   async sendEmailVerification(email: string, name: string, token: string): Promise<boolean> {
     try {
-      const rawFrontendUrl = this.configService.get<string>('FRONTEND_URL') || 'https://futbolink.vercel.app';
-      const frontendUrl = rawFrontendUrl.replace(/\/+$/, ''); // Eliminar barras finales
+      const frontendUrl = 'https://www.futbolink.net';
       const verifyUrl = `${frontendUrl}/verify-email?token=${token}`;
       
       this.logger.log(`Sending email verification to: ${email}`);

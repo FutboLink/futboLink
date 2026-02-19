@@ -19,7 +19,7 @@ const UsersComponentWithContext = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [roleFilter, setRoleFilter] = useState("");
   const [searchFilter, setSearchFilter] = useState("");
-  
+
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
@@ -27,19 +27,19 @@ const UsersComponentWithContext = () => {
   const [isPageLoading, setIsPageLoading] = useState(false);
 
   const fetchUsersPage = useCallback(async (page: number) => {
-    try {
+      try {
       setIsPageLoading(true);
       const result = await getUsers(page, USERS_PER_PAGE);
       setUsers(result.data);
       setTotalUsers(result.total);
       setTotalPages(result.totalPages);
       setCurrentPage(result.page);
-    } catch (error) {
-      console.error("Failed to fetch users:", error);
-    } finally {
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+      } finally {
       setIsPageLoading(false);
-      setIsLoading(false);
-    }
+        setIsLoading(false);
+      }
   }, []);
 
   useEffect(() => {

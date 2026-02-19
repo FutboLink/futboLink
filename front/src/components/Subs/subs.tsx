@@ -34,21 +34,86 @@ function Subs() {
       }, {} as { [key: number]: string })
   );
 
-  // URL del portal de billing de Stripe (autoadministrable)
-  const STRIPE_BILLING_URL = "https://billing.stripe.com/p/login/28E00j1FVcrleEBayigbm00";
-
   const handleSubscribe = async (index: number, priceId: string) => {
     if (!priceId) return;
     
     // Verificar si el usuario está autenticado
     if (!isLogged || !user) {
+      // Si no está autenticado, redirigir al login
       console.log("Usuario no autenticado. Redirigiendo al login...");
       router.push("/Login");
       return;
     }
+    
+    setIsLoading({ ...isLoading, [index]: true });
 
-    // Redirigir al portal de billing de Stripe
-    window.location.href = STRIPE_BILLING_URL;
+    try {
+      // Obtener el email del usuario del contexto
+      const userEmail = user.email || localStorage.getItem('userEmail');
+      
+      if (!userEmail) {
+        console.error("No se pudo obtener el email del usuario");
+        alert("Error: No se pudo obtener el email del usuario. Por favor, inicia sesión nuevamente.");
+        router.push("/Login");
+        return;
+      }
+      
+      // Get the product ID if available
+      const option = subscriptionOptions[index];
+      const productId = option.productId;
+      
+      // Determinar el tipo de plan basado en el nombre del plan
+      const planName = option.title;
+      
+      console.log(`Creating subscription with price ID: ${priceId}`);
+      console.log(`User email: ${userEmail}`);
+      if (productId) {
+        console.log(`Using product ID: ${productId}`);
+      }
+      console.log(`API URL: ${apiUrl}/payments/subscription`);
+      
+      // Crear la URL de éxito que incluye el parámetro del plan
+      const successUrl = `${window.location.origin}/payment/success?plan=${encodeURIComponent(planName)}`;
+      
+      const response = await fetch(
+        `${apiUrl}/payments/subscription`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ 
+            priceId,
+            customerEmail: userEmail,
+            successUrl: successUrl, // URL modificada con el parámetro del plan
+            cancelUrl: `${window.location.origin}/payment/cancel`,
+            description: "Suscripción a FutboLink",
+            ...(productId && { productId }), // Solo incluir productId si existe
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error("Error response:", errorData);
+        throw new Error(`Error HTTP: ${response.status}. ${errorData}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.url) {
+        console.log(`Redirecting to: ${data.url}`);
+        window.location.href = data.url;
+      } else {
+        console.error("Response data:", data);
+        throw new Error("No se recibió URL de pago");
+      }
+    } catch (error) {
+      console.error("Error al crear la sesión de pago:", error);
+      alert(`Error al procesar el pago: ${error instanceof Error ? error.message : 'Desconocido'}. Por favor, inténtelo de nuevo más tarde.`);
+    } finally {
+      setIsLoading({ ...isLoading, [index]: false });
+    }
   };
 
   return (

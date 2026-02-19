@@ -20,6 +20,7 @@ import {
   FaHome,
   FaNewspaper,
   FaQuestionCircle,
+  FaRegCreditCard,
   FaRocket,
   FaSearch,
   FaSignOutAlt,
@@ -118,6 +119,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
   // Generar items del sidebar según rol
   const getSidebarItems = (): {
     main: SidebarItem[];
+    subscription: SidebarItem | null;
     bottom: SidebarItem[];
     bottomNav: SidebarItem[];
   } => {
@@ -162,6 +164,11 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
             icon: <FaDumbbell />,
           },
         ],
+        subscription: {
+          label: getText("Administrar Suscripción", "manageSubscription"),
+          onClick: () => window.open("https://billing.stripe.com/p/login/28E00j1FVcrleEBayigbm00", "_blank"),
+          icon: <FaRegCreditCard />,
+        },
         bottom: [
           {
             label: getText("Configuración", "settings"),
@@ -244,6 +251,11 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
             icon: <FaNewspaper />,
           },
         ],
+        subscription: {
+          label: getText("Administrar Suscripción", "manageSubscription"),
+          onClick: () => window.open("https://billing.stripe.com/p/login/28E00j1FVcrleEBayigbm00", "_blank"),
+          icon: <FaRegCreditCard />,
+        },
         bottom: [
           {
             label: getText("Configuración", "settings"),
@@ -322,6 +334,11 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
           icon: <FaDumbbell />,
         },
       ],
+      subscription: {
+        label: getText("Administrar Suscripción", "manageSubscription"),
+        onClick: () => window.open("https://billing.stripe.com/p/login/28E00j1FVcrleEBayigbm00", "_blank"),
+        icon: <FaRegCreditCard />,
+      },
       bottom: [
         {
           label: getText("Configuración", "settings"),
@@ -521,7 +538,36 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
             </div>
 
             <div className="border-t border-gray-200 pt-4 mt-4 space-y-2">
+              {/* Botón de Suscripción - Mismo estilo que los demás */}
+              {sidebarItems.subscription && (
+                <button
+                  type="button"
+                  onClick={sidebarItems.subscription.onClick}
+                  className="flex items-center gap-4 px-3 py-2 rounded-lg text-sm font-medium transition-all text-gray-700 hover:bg-gray-100 w-full text-left"
+                >
+                  <span className="text-lg">{sidebarItems.subscription.icon}</span>
+                  <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    {sidebarItems.subscription.label}
+                  </span>
+                </button>
+              )}
+              
               {sidebarItems.bottom.map((item, index) => {
+                if (item.onClick) {
+                  return (
+                    <button
+                      key={`bottom-${item.label}-${index}`}
+                      type="button"
+                      onClick={item.onClick}
+                      className="flex items-center gap-4 px-3 py-2 rounded-lg text-sm font-medium transition-all text-gray-700 hover:bg-gray-100 w-full text-left"
+                    >
+                      <span className="text-lg">{item.icon}</span>
+                      <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        {item.label}
+                      </span>
+                    </button>
+                  );
+                }
                 return (
                   <Link
                     key={item.path || `bottom-${index}`}
@@ -649,18 +695,54 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
 
               <div className="mt-8 pt-4 border-t border-green-600">
                 <ul className="space-y-1">
-                  {sidebarItems.bottom.map((item, index) => (
-                    <li key={item.path || `bottom-mobile-${index}`}>
-                      <Link
-                        href={item.path || "/"}
-                        onClick={closeSidebar}
-                        className="flex items-center gap-4 px-4 py-2 rounded-lg text-sm font-medium text-white hover:bg-green-700"
+                  {/* Botón de Suscripción en Mobile - Mismo estilo */}
+                  {sidebarItems.subscription && (
+                    <li>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          sidebarItems.subscription?.onClick?.();
+                          closeSidebar();
+                        }}
+                        className="flex items-center gap-4 px-4 py-2 rounded-lg text-sm font-medium text-white hover:bg-green-700 w-full text-left"
                       >
-                        <span className="text-lg">{item.icon}</span>
-                        <span>{item.label}</span>
-                      </Link>
+                        <span className="text-lg">{sidebarItems.subscription.icon}</span>
+                        <span>{sidebarItems.subscription.label}</span>
+                      </button>
                     </li>
-                  ))}
+                  )}
+                  
+                  {sidebarItems.bottom.map((item, index) => {
+                    if (item.onClick) {
+                      return (
+                        <li key={`bottom-mobile-${item.label}-${index}`}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              item.onClick?.();
+                              closeSidebar();
+                            }}
+                            className="flex items-center gap-4 px-4 py-2 rounded-lg text-sm font-medium text-white hover:bg-green-700 w-full text-left"
+                          >
+                            <span className="text-lg">{item.icon}</span>
+                            <span>{item.label}</span>
+                          </button>
+                        </li>
+                      );
+                    }
+                    return (
+                      <li key={item.path || `bottom-mobile-${index}`}>
+                        <Link
+                          href={item.path || "/"}
+                          onClick={closeSidebar}
+                          className="flex items-center gap-4 px-4 py-2 rounded-lg text-sm font-medium text-white hover:bg-green-700"
+                        >
+                          <span className="text-lg">{item.icon}</span>
+                          <span>{item.label}</span>
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
 

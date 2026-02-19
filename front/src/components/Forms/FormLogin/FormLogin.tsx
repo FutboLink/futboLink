@@ -70,8 +70,8 @@ function LoginForm() {
           router.push(`/verify-email/pending?email=${encodeURIComponent(userData.email)}`);
         } else {
           setNotificationMessage(getText("Usuario o contraseña incorrectos", "loginError"));
-          setShowNotification(true);
-          setTimeout(() => setShowNotification(false), 3000);
+        setShowNotification(true);
+        setTimeout(() => setShowNotification(false), 3000);
         }
       } finally {
         setIsLoggingIn(false);

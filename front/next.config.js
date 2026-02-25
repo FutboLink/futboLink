@@ -55,9 +55,10 @@ const nextConfig = {
   // Configuración de imágenes
   images: {
     domains: [
-      'res.cloudinary.com',  // Dominio principal de Cloudinary
+      'res.cloudinary.com',  // Dominio principal de Cloudinary (mantener para compatibilidad)
       'cloudinary.com',      // Dominio alternativo
       'api.cloudinary.com',  // API de Cloudinary
+      'pub-a77ca935b7d648d68ee649162076971b.r2.dev',  // Cloudflare R2 - nuevo almacenamiento
       'img.freepik.com',     // Freepik para imágenes
       'dummyimage.com',      // Servicio de imágenes de marcador de posición
       'u-storage.com.mx',    // Almacenamiento de imágenes
@@ -72,6 +73,16 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '**.cloudinary.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'pub-a77ca935b7d648d68ee649162076971b.r2.dev',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.r2.dev',
         pathname: '/**',
       },
       {

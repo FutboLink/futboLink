@@ -68,9 +68,12 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#1d5126" />
         <meta name="theme-color" content="#1d5126" />
 
-        {/* Preconnect con Cloudinary para mejorar carga de imágenes */}
+        {/* Preconnect con Cloudinary para mejorar carga de imágenes (mantener para compatibilidad) */}
         <link rel="preconnect" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        {/* Preconnect con Cloudflare R2 para mejorar carga de imágenes */}
+        <link rel="preconnect" href="https://pub-a77ca935b7d648d68ee649162076971b.r2.dev" />
+        <link rel="dns-prefetch" href="https://pub-a77ca935b7d648d68ee649162076971b.r2.dev" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased hover:scale`}

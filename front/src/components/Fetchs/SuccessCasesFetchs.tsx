@@ -79,13 +79,19 @@ const isValidUrl = (url: string): boolean => {
       return false;
     }
     
-    // Verificar si es una URL de Cloudinary
+    // Verificar si es una URL de Cloudinary (mantener para compatibilidad)
     if (url.includes('cloudinary.com')) {
       console.log("URL de Cloudinary detectada:", url);
       return true;
     }
     
-    // Para URLs que no son de Cloudinary, comprobamos que sean de dominios permitidos
+    // Verificar si es una URL de Cloudflare R2
+    if (url.includes('r2.dev') || url.includes('pub-a77ca935b7d648d68ee649162076971b.r2.dev')) {
+      console.log("URL de Cloudflare R2 detectada:", url);
+      return true;
+    }
+    
+    // Para URLs que no son de Cloudinary o R2, comprobamos que sean de dominios permitidos
     const allowedDomains = ['dummyimage.com', 'img.freepik.com'];
     const isAllowedDomain = allowedDomains.some(domain => url.includes(domain));
     

@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Job } from 'src/modules/Jobs/entities/jobs.entity';
-import { User } from 'src/modules/user/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
@@ -24,9 +23,12 @@ export class Application {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty({ type: () => User, description: 'Usuario que aplica' })
-  @ManyToOne(() => User, (user) => user.applications, { onDelete: 'CASCADE' })
-  player: User;
+  @ApiProperty({ description: 'Usuario que aplica' })
+  @ManyToOne(() => {
+    const { User } = require('../user/entities/user.entity');
+    return User;
+  }, (user: any) => user.applications, { onDelete: 'CASCADE' })
+  player: any;
 
   @ApiProperty({
     example: 'Estoy interesado en esta posición.',
@@ -71,13 +73,15 @@ export class Application {
   appliedByRecruiter: boolean;
 
   @ApiProperty({
-    type: () => User,
     description: 'Reclutador que aplicó en nombre del jugador (si appliedByRecruiter es true)',
     nullable: true,
   })
-  @ManyToOne(() => User, { nullable: true })
+  @ManyToOne(() => {
+    const { User } = require('../user/entities/user.entity');
+    return User;
+  }, { nullable: true })
   @JoinColumn({ name: 'recruiterId' })
-  recruiter: User;
+  recruiter: any;
 
   @ApiProperty({
     example: 'El jugador tiene las habilidades perfectas para esta posición.',

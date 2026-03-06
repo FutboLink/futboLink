@@ -7,8 +7,6 @@ import {
   CreateDateColumn,
   OneToMany,
 } from 'typeorm';
-import { User } from '../../user/entities/user.entity';
-import { Application } from 'src/modules/Applications/entities/applications.entity';
 import { YesOrNo, YesOrNotravell } from '../jobs.enum';
 
 @Entity('jobs')
@@ -174,18 +172,22 @@ export class Job {
   
 
   @ApiProperty({
-    type: () => User,
     description: 'Reclutador que creó la oferta',
   })
-  @ManyToOne(() => User, (user) => user.jobs)
-  recruiter: User;
+  @ManyToOne(() => {
+    const { User } = require('../../user/entities/user.entity');
+    return User;
+  }, (user: any) => user.jobs)
+  recruiter: any;
 
 
   @ApiProperty({
-    type: () => [Application],
     description: 'Aplicaciones al trabajo',
   })
-  @OneToMany(() => Application, (application) => application.job)
-  applications: Application[];
+  @OneToMany(() => {
+    const { Application } = require('../../Applications/entities/applications.entity');
+    return Application;
+  }, (application: any) => application.job)
+  applications: any[];
 }
 

@@ -2,7 +2,6 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn
 import { ApiProperty } from '@nestjs/swagger';
 import { PasaporteUe, UserType } from '../roles.enum';
 import { Job } from 'src/modules/Jobs/entities/jobs.entity';
-import { Application } from 'src/modules/Applications/entities/applications.entity';
 import { Subscription } from 'src/modules/Subscriptions/entities/subscription.entity';
 
 @Entity('users')
@@ -122,9 +121,12 @@ export class User {
   @Column({ nullable: true })
   secondaryPosition?: string;
 
-  @ApiProperty({ description: 'Listado de postulaciones del usuario', type: () => [Application] })
-  @OneToMany(() => Application, (application) => application.player)
-  applications: Application[];
+  @ApiProperty({ description: 'Listado de postulaciones del usuario' })
+  @OneToMany(() => {
+    const { Application } = require('../../Applications/entities/applications.entity');
+    return Application;
+  }, (application: any) => application.player)
+  applications: any[];
 
   @ApiProperty({ example: 'https://example.com/video.mp4', description: 'URL de video del usuario', nullable: true })
   @Column({ nullable: true })

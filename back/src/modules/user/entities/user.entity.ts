@@ -1,7 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { PasaporteUe, UserType } from '../roles.enum';
-import { Job } from 'src/modules/Jobs/entities/jobs.entity';
 
 @Entity('users')
 export class User {
@@ -178,11 +177,13 @@ export class User {
   // isVerified: boolean;
 
   @ApiProperty({
-    type: () => Job,
     description: 'La oferta que creó el reclutador',
   })
-  @OneToMany(()=>Job,(job) =>job.recruiter)
-  jobs :Job[];
+  @OneToMany(() => {
+    const { Job } = require('../../Jobs/entities/jobs.entity');
+    return Job;
+  }, (job: any) => job.recruiter)
+  jobs: any[];
   
   @Column({ default: 'Amateur' })
   subscriptionType: string;

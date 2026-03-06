@@ -21,7 +21,7 @@ export class Contract {
   terms: string;
 
   @OneToOne(() => {
-    const { Application } = require('../Applications/entities/applications.entity');
+    const { Application } = require('../../Applications/entities/applications.entity');
     return Application;
   }, (application: any) => application.contract)
   @JoinColumn({ name: 'applicationId' })

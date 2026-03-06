@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Job } from 'src/modules/Jobs/entities/jobs.entity';
 import {
   Column,
   CreateDateColumn,
@@ -25,7 +24,7 @@ export class Application {
 
   @ApiProperty({ description: 'Usuario que aplica' })
   @ManyToOne(() => {
-    const { User } = require('../user/entities/user.entity');
+    const { User } = require('../../user/entities/user.entity');
     return User;
   }, (user: any) => user.applications, { onDelete: 'CASCADE' })
   player: any;
@@ -77,7 +76,7 @@ export class Application {
     nullable: true,
   })
   @ManyToOne(() => {
-    const { User } = require('../user/entities/user.entity');
+    const { User } = require('../../user/entities/user.entity');
     return User;
   }, { nullable: true })
   @JoinColumn({ name: 'recruiterId' })
@@ -92,12 +91,15 @@ export class Application {
   recruiterMessage: string;
 
   @OneToOne(() => {
-    const { Contract } = require('../contracts/entities/contract.entity');
+    const { Contract } = require('../../contracts/entities/contract.entity');
     return Contract;
   }, (contract: any) => contract.application)
   @JoinColumn({ name: 'Contracts' })
   contract: any;
 
-  @ManyToOne(() => Job, (job) => job.applications)
-  job: Job;
+  @ManyToOne(() => {
+    const { Job } = require('../../Jobs/entities/jobs.entity');
+    return Job;
+  }, (job: any) => job.applications)
+  job: any;
 }

@@ -2,7 +2,6 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn
 import { ApiProperty } from '@nestjs/swagger';
 import { PasaporteUe, UserType } from '../roles.enum';
 import { Job } from 'src/modules/Jobs/entities/jobs.entity';
-import { Subscription } from 'src/modules/Subscriptions/entities/subscription.entity';
 
 @Entity('users')
 export class User {
@@ -161,10 +160,13 @@ export class User {
   })
 
 
-  @OneToOne(() => Subscription, (subscription) => subscription.user, { cascade: true, onDelete: 'CASCADE' })
+  @OneToOne(() => {
+    const { Subscription } = require('../../Subscriptions/entities/subscription.entity');
+    return Subscription;
+  }, (subscription: any) => subscription.user, { cascade: true, onDelete: 'CASCADE' })
   @JoinColumn()
   @Column({ nullable: true })
-  subscription?: string;
+  subscription?: any;
 
   @ApiProperty({ description: 'CV del usuario (archivo PDF o TXT)', nullable: true })
   @Column({ nullable: true })

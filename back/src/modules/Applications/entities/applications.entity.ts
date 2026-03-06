@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Contract } from 'src/modules/contracts/entities/contract.entity';
 import { Job } from 'src/modules/Jobs/entities/jobs.entity';
 import { User } from 'src/modules/user/entities/user.entity';
 import {
@@ -88,9 +87,12 @@ export class Application {
   @Column('text', { nullable: true })
   recruiterMessage: string;
 
-  @OneToOne(() => Contract, (contract) => contract.application)
+  @OneToOne(() => {
+    const { Contract } = require('../contracts/entities/contract.entity');
+    return Contract;
+  }, (contract: any) => contract.application)
   @JoinColumn({ name: 'Contracts' })
-  contract: Contract;
+  contract: any;
 
   @ManyToOne(() => Job, (job) => job.applications)
   job: Job;

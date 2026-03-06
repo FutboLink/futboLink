@@ -1,4 +1,3 @@
-import { Application } from 'src/modules/Applications/entities/applications.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -21,7 +20,10 @@ export class Contract {
   @Column()
   terms: string;
 
-  @OneToOne(() => Application, (application) => application.contract)
+  @OneToOne(() => {
+    const { Application } = require('../Applications/entities/applications.entity');
+    return Application;
+  }, (application: any) => application.contract)
   @JoinColumn({ name: 'applicationId' })
-  application: Application;
+  application: any;
 }

@@ -19,6 +19,8 @@ npm install && NODE_OPTIONS=--max-old-space-size=1024 npm run build
 npm run start:prod
 ```
 
+⚠️ **IMPORTANTE**: Asegúrate de usar `start:prod` y NO `start:dev`. El comando `start:dev` es solo para desarrollo local y no funciona en producción.
+
 ### 2. Variables de Entorno en Render
 
 Asegúrate de tener estas variables configuradas en Render:

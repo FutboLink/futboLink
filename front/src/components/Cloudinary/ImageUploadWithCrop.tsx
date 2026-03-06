@@ -11,6 +11,8 @@ interface ImageUploadwithCropProps {
   initialImage?: string;
 }
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://futbolink.onrender.com";
+
 const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
   onUpload,
   onRemove,
@@ -60,7 +62,7 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
   };
 
   const onCropComplete = useCallback(
-    (croppedArea: any, croppedAreaPixels: any) => {
+    (_croppedArea: any, croppedAreaPixels: any) => {
       setCroppedAreaPixels(croppedAreaPixels);
     },
     []
@@ -102,65 +104,32 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
 
     try {
       setUploading(true);
-      setUploadProgress(10);
+      setUploadProgress(20);
 
       const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
       if (!croppedBlob) throw new Error("Error al procesar la imagen");
 
-      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-      const uploadPreset = process.env.NEXT_PUBLIC_UPLOAD_PRESET;
-
-      if (!cloudName || !uploadPreset) {
-        throw new Error("Configuración de Cloudinary incompleta. Verifica las variables de entorno.");
-      }
+      setUploadProgress(50);
 
       const formData = new FormData();
-      formData.append("file", croppedBlob, "cropped.jpg");
-      formData.append("upload_preset", uploadPreset);
-      formData.append("folder", "success_cases");
+      formData.append("file", croppedBlob, "profile.jpg");
 
-      const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const res = await fetch(`${BACKEND_URL}/upload/image`, {
+        method: "POST",
+        body: formData,
+      });
+
+      setUploadProgress(90);
 
       if (!res.ok) {
         const err = await res.json().catch(() => null);
-        
-        // Manejo específico de errores comunes
-        if (err?.error?.message) {
-          const errorMessage = err.error.message;
-          
-          if (errorMessage.includes("cloud_name is disabled") || errorMessage.includes("disabled")) {
-            throw new Error(
-              "La cuenta de Cloudinary está deshabilitada. Por favor, verifica tu cuenta en el dashboard de Cloudinary o contacta al administrador."
-            );
-          }
-          
-          if (errorMessage.includes("Upload preset not found") || errorMessage.includes("preset")) {
-            throw new Error(
-              `El preset de subida "${uploadPreset}" no existe. Verifica que el preset esté creado en tu dashboard de Cloudinary.`
-            );
-          }
-          
-          if (res.status === 401) {
-            throw new Error(
-              "No autorizado. Verifica que el cloud_name y el upload_preset sean correctos y que la cuenta de Cloudinary esté activa."
-            );
-          }
-          
-          throw new Error(`Error de Cloudinary: ${errorMessage}`);
-        }
-        
-        throw new Error(err?.error?.message || `Error al subir imagen (${res.status})`);
+        throw new Error(err?.message || `Error al subir imagen (${res.status})`);
       }
 
       const data = await res.json();
-      setImageUrl(data.secure_url);
-      onUpload(data.secure_url);
+      setUploadProgress(100);
+      setImageUrl(data.url);
+      onUpload(data.url);
       resetAll();
     } catch (err: any) {
       setError(err.message);
@@ -252,9 +221,7 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
           onClick={uploadCroppedImage}
           disabled={uploading}
           className={`w-64 py-2 rounded text-white ${
-            uploading
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-green-600 hover:bg-green-700"
+            uploading ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
           }`}
         >
           {uploading ? `Subiendo... ${uploadProgress}%` : "Confirmar Imagen"}

@@ -15,6 +15,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { SuccessCasesModule } from './modules/SuccessCases/success-cases.module';
 import { ContactModule } from './modules/Contact/contact.module';
 import { NotificationsModule } from './modules/Notifications/notifications.module';
+import { UploadModule } from './modules/Upload/upload.module';
 
 @Module({
   imports: [
@@ -36,7 +37,8 @@ import { NotificationsModule } from './modules/Notifications/notifications.modul
     PaymentsModule,
     SuccessCasesModule,
     ContactModule,
-    NotificationsModule
+    NotificationsModule,
+    UploadModule,
   ],
   
   controllers: [AppController],

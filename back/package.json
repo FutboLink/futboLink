@@ -6,8 +6,9 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build --builder swc && copyfiles back/src/templates/**/* dist/templates",
-    "postbuild": "node copy-templates.js",
+    "build": "NODE_OPTIONS=--max-old-space-size=1024 nest build --builder swc",
+    "build:render": "NODE_OPTIONS=--max-old-space-size=1024 nest build --builder swc",
+    "postbuild": "node copy-templates.js || true",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "node --max-old-space-size=512 --expose-gc node_modules/@nestjs/cli/bin/nest.js start",
     "start:dev": "node --max-old-space-size=512 --expose-gc node_modules/@nestjs/cli/bin/nest.js start --watch",

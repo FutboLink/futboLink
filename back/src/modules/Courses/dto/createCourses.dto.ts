@@ -19,7 +19,7 @@ export class CreateCursoDto {
   @IsString()
   title: string;
 
-  @ApiProperty({ enum: CategoryCursos })
+  @ApiProperty({ enum: CategoryCursos, enumName: 'CategoryCursos', type: String })
   @IsEnum(CategoryCursos)
   category: CategoryCursos;
 

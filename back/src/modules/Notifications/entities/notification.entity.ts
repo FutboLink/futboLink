@@ -30,6 +30,8 @@ export class Notification {
     example: 'PROFILE_VIEW',
     description: 'Tipo de notificación',
     enum: NotificationType,
+    enumName: 'NotificationType',
+    type: String,
   })
   @Column({
     type: 'enum',

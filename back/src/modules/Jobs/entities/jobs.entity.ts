@@ -147,6 +147,9 @@ export class Job {
   @ApiProperty({
     description: 'Disponibilidad para viajar',
     example: 'yes',
+    enum: YesOrNo,
+    enumName: 'YesOrNo',
+    type: String,
   })
   @Column({
     type: 'enum',
@@ -157,6 +160,9 @@ export class Job {
   @ApiProperty({
     description: '¿Requiere pasaporte de la UE?',
     example: 'no',
+    enum: YesOrNo,
+    enumName: 'YesOrNo',
+    type: String,
   })
   @Column({
     type: 'enum',

@@ -35,6 +35,8 @@ export class RepresentationRequest {
     example: 'PENDING',
     description: 'Estado de la solicitud',
     enum: RepresentationRequestStatus,
+    enumName: 'RepresentationRequestStatus',
+    type: String,
   })
   @Column({
     type: 'enum',

@@ -54,6 +54,8 @@ export class User {
     example: UserType.PLAYER,
     description: 'Rol del usuario',
     enum: UserType,
+    enumName: 'UserType',
+    type: String,
   })
   @Column({ type: 'enum', enum: UserType, default: UserType.PLAYER })
   role: UserType;
@@ -86,7 +88,7 @@ export class User {
   @Column({ nullable: true })
   countryToWork?: string;
 
-  @ApiProperty({ example: PasaporteUe.SI, description: '¿Tiene pasaporte de la UE?', enum: PasaporteUe })
+  @ApiProperty({ example: PasaporteUe.SI, description: '¿Tiene pasaporte de la UE?', enum: PasaporteUe, enumName: 'PasaporteUe', type: String })
   @Column({ type: 'enum', enum: PasaporteUe, nullable: true })
   pasaporteUe?: PasaporteUe;
 

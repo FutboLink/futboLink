@@ -38,6 +38,8 @@ export class Application {
 
   @ApiProperty({
     enum: ApplicationStatus,
+    enumName: 'ApplicationStatus',
+    type: String,
     example: 'PENDING',
     description: 'Estado de la aplicación',
   })

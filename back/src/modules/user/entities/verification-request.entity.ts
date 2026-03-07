@@ -28,6 +28,8 @@ export class VerificationRequest {
     example: 'PENDING',
     description: 'Estado de la solicitud de verificación',
     enum: VerificationRequestStatus,
+    enumName: 'VerificationRequestStatus',
+    type: String,
   })
   @Column({
     type: 'enum',

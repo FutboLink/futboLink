@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import type { User } from '../../user/entities/user.entity';
 
 export enum NotificationType {
   PROFILE_VIEW = 'PROFILE_VIEW',
@@ -47,12 +48,9 @@ export class Notification {
   @ApiProperty({
     description: 'Usuario que recibe la notificación',
   })
-  @ManyToOne(() => {
-    const { User } = require('../../user/entities/user.entity');
-    return User;
-  }, { onDelete: 'CASCADE' })
+  @ManyToOne('User', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
-  user: any;
+  user: User;
 
   @Column()
   userId: string;
@@ -60,12 +58,9 @@ export class Notification {
   @ApiProperty({
     description: 'Usuario que generó la notificación (opcional)',
   })
-  @ManyToOne(() => {
-    const { User } = require('../../user/entities/user.entity');
-    return User;
-  }, { onDelete: 'SET NULL', nullable: true })
+  @ManyToOne('User', { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'sourceUserId' })
-  sourceUser: any;
+  sourceUser: User;
 
   @Column({ nullable: true })
   sourceUserId: string;
@@ -83,4 +78,4 @@ export class Notification {
   })
   @Column('json', { nullable: true })
   metadata: Record<string, any>;
-} 
+}

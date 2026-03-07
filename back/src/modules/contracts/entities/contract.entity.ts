@@ -5,6 +5,7 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
+import type { Application } from '../../Applications/entities/applications.entity';
 
 @Entity()
 export class Contract {
@@ -20,10 +21,7 @@ export class Contract {
   @Column()
   terms: string;
 
-  @OneToOne(() => {
-    const { Application } = require('../../Applications/entities/applications.entity');
-    return Application;
-  }, (application: any) => application.contract)
+  @OneToOne('Application', 'contract')
   @JoinColumn({ name: 'applicationId' })
-  application: any;
+  application: Application;
 }

@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { User } from './user.entity';
+import type { User } from './user.entity';
 
 export enum RepresentationRequestStatus {
   PENDING = 'PENDING',
@@ -60,14 +60,14 @@ export class RepresentationRequest {
   @ApiProperty({
     description: 'Reclutador que envía la solicitud',
   })
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne('User', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'recruiterId' })
   recruiter: User;
 
   @ApiProperty({
     description: 'Jugador que recibe la solicitud',
   })
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne('User', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'playerId' })
   player: User;
-} 
+}

@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { User } from './user.entity';
+import type { User } from './user.entity';
 
 export enum VerificationRequestStatus {
   PENDING = 'PENDING',
@@ -82,14 +82,14 @@ export class VerificationRequest {
   @ApiProperty({
     description: 'Jugador que solicita la verificación',
   })
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne('User', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'playerId' })
   player: User;
 
   @ApiProperty({
     description: 'Administrador que procesó la solicitud (opcional)',
   })
-  @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
+  @ManyToOne('User', { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'processedBy' })
   admin: User;
-} 
+}

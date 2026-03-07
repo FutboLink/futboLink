@@ -8,6 +8,9 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import type { User } from '../../user/entities/user.entity';
+import type { Contract } from '../../contracts/entities/contract.entity';
+import type { Job } from '../../Jobs/entities/jobs.entity';
 
 export enum ApplicationStatus {
   PENDING = 'PENDING',
@@ -23,11 +26,8 @@ export class Application {
   id: string;
 
   @ApiProperty({ description: 'Usuario que aplica' })
-  @ManyToOne(() => {
-    const { User } = require('../../user/entities/user.entity');
-    return User;
-  }, (user: any) => user.applications, { onDelete: 'CASCADE' })
-  player: any;
+  @ManyToOne('User', 'applications', { onDelete: 'CASCADE' })
+  player: User;
 
   @ApiProperty({
     example: 'Estoy interesado en esta posición.',
@@ -75,12 +75,9 @@ export class Application {
     description: 'Reclutador que aplicó en nombre del jugador (si appliedByRecruiter es true)',
     nullable: true,
   })
-  @ManyToOne(() => {
-    const { User } = require('../../user/entities/user.entity');
-    return User;
-  }, { nullable: true })
+  @ManyToOne('User', { nullable: true })
   @JoinColumn({ name: 'recruiterId' })
-  recruiter: any;
+  recruiter: User;
 
   @ApiProperty({
     example: 'El jugador tiene las habilidades perfectas para esta posición.',
@@ -90,16 +87,10 @@ export class Application {
   @Column('text', { nullable: true })
   recruiterMessage: string;
 
-  @OneToOne(() => {
-    const { Contract } = require('../../contracts/entities/contract.entity');
-    return Contract;
-  }, (contract: any) => contract.application)
+  @OneToOne('Contract', 'application')
   @JoinColumn({ name: 'Contracts' })
-  contract: any;
+  contract: Contract;
 
-  @ManyToOne(() => {
-    const { Job } = require('../../Jobs/entities/jobs.entity');
-    return Job;
-  }, (job: any) => job.applications)
-  job: any;
+  @ManyToOne('Job', 'applications')
+  job: Job;
 }

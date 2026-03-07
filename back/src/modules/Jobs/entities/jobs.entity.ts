@@ -8,6 +8,8 @@ import {
   OneToMany,
 } from 'typeorm';
 import { YesOrNo, YesOrNotravell } from '../jobs.enum';
+import type { User } from '../../user/entities/user.entity';
+import type { Application } from '../../Applications/entities/applications.entity';
 
 @Entity('jobs')
 export class Job {
@@ -174,20 +176,14 @@ export class Job {
   @ApiProperty({
     description: 'Reclutador que creó la oferta',
   })
-  @ManyToOne(() => {
-    const { User } = require('../../user/entities/user.entity');
-    return User;
-  }, (user: any) => user.jobs)
-  recruiter: any;
+  @ManyToOne('User', 'jobs')
+  recruiter: User;
 
 
   @ApiProperty({
     description: 'Aplicaciones al trabajo',
   })
-  @OneToMany(() => {
-    const { Application } = require('../../Applications/entities/applications.entity');
-    return Application;
-  }, (application: any) => application.job)
-  applications: any[];
+  @OneToMany('Application', 'job')
+  applications: Application[];
 }
 

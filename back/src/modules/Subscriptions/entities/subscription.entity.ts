@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import type { User } from '../../user/entities/user.entity';
 
 @Entity('subscriptions')
 export class Subscription {
@@ -18,10 +19,6 @@ export class Subscription {
   @Column({ type: 'date', nullable: true })
   endDate?: Date;
 
-  @OneToOne(() => {
-    const { User } = require('../../user/entities/user.entity');
-    return User;
-  }, (user: any) => user.subscription)
-  user: any;
+  @OneToOne('User', 'subscription')
+  user: User;
 }
-

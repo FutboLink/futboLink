@@ -1,6 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { PasaporteUe, UserType } from '../roles.enum';
+import type { Job } from '../../Jobs/entities/jobs.entity';
+import type { Application } from '../../Applications/entities/applications.entity';
+import type { Subscription } from '../../Subscriptions/entities/subscription.entity';
 
 @Entity('users')
 export class User {
@@ -120,11 +123,8 @@ export class User {
   secondaryPosition?: string;
 
   @ApiProperty({ description: 'Listado de postulaciones del usuario' })
-  @OneToMany(() => {
-    const { Application } = require('../../Applications/entities/applications.entity');
-    return Application;
-  }, (application: any) => application.player)
-  applications: any[];
+  @OneToMany('Application', 'player')
+  applications: Application[];
 
   @ApiProperty({ example: 'https://example.com/video.mp4', description: 'URL de video del usuario', nullable: true })
   @Column({ nullable: true })
@@ -159,13 +159,10 @@ export class User {
   })
 
 
-  @OneToOne(() => {
-    const { Subscription } = require('../../Subscriptions/entities/subscription.entity');
-    return Subscription;
-  }, (subscription: any) => subscription.user, { cascade: true, onDelete: 'CASCADE' })
+  @OneToOne('Subscription', 'user', { cascade: true, onDelete: 'CASCADE' })
   @JoinColumn()
   @Column({ nullable: true })
-  subscription?: any;
+  subscription?: string;
 
   @ApiProperty({ description: 'CV del usuario (archivo PDF o TXT)', nullable: true })
   @Column({ nullable: true })
@@ -179,11 +176,8 @@ export class User {
   @ApiProperty({
     description: 'La oferta que creó el reclutador',
   })
-  @OneToMany(() => {
-    const { Job } = require('../../Jobs/entities/jobs.entity');
-    return Job;
-  }, (job: any) => job.recruiter)
-  jobs: any[];
+  @OneToMany('Job', 'recruiter')
+  jobs: Job[];
   
   @Column({ default: 'Amateur' })
   subscriptionType: string;

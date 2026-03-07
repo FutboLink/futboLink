@@ -55,7 +55,7 @@ export class User {
     description: 'Rol del usuario',
     enum: UserType,
   })
-  @Column({ default: UserType.PLAYER })
+  @Column({ type: 'enum', enum: UserType, default: UserType.PLAYER })
   role: UserType;
 
   @ApiProperty({ example: 'https://example.com/avatar.jpg', description: 'URL de la img de perfil', nullable: true })

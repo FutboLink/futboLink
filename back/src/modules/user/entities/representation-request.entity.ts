@@ -34,8 +34,7 @@ export class RepresentationRequest {
   @ApiProperty({
     example: 'PENDING',
     description: 'Estado de la solicitud',
-    enum: RepresentationRequestStatus,
-    enumName: 'RepresentationRequestStatus',
+    enum: ['PENDING', 'ACCEPTED', 'REJECTED'],
     type: String,
   })
   @Column({
@@ -43,7 +42,7 @@ export class RepresentationRequest {
     enum: RepresentationRequestStatus,
     default: RepresentationRequestStatus.PENDING,
   })
-  status: RepresentationRequestStatus;
+  status: string;
 
   @ApiProperty({
     example: 'Me gustaría representarte como agente',

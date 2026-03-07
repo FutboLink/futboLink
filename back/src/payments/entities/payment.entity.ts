@@ -51,14 +51,14 @@ export class Payment {
     enum: PaymentStatus,
     default: PaymentStatus.PENDING,
   })
-  status: PaymentStatus;
+  status: string;
 
   @Column({
     type: 'enum',
     enum: PaymentType,
     default: PaymentType.ONE_TIME,
   })
-  type: PaymentType;
+  type: string;
 
   @Column({ nullable: true })
   description?: string;
@@ -77,7 +77,7 @@ export class Payment {
     enum: SubscriptionPlan,
     nullable: true,
   })
-  subscriptionType?: SubscriptionPlan;
+  subscriptionType?: string;
 
   @Column({ nullable: true })
   failureReason?: string;

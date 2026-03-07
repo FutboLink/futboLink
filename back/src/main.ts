@@ -212,8 +212,13 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  try {
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api', app, document);
+  } catch (error) {
+    console.error('⚠️ Swagger documentation failed to generate:', error.message);
+    console.error('The application will continue without Swagger documentation.');
+  }
 
   // Configure body parser for stripe webhooks
   app.use(

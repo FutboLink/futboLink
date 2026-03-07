@@ -37,8 +37,7 @@ export class Application {
   message: string;
 
   @ApiProperty({
-    enum: ApplicationStatus,
-    enumName: 'ApplicationStatus',
+    enum: ['PENDING', 'SHORTLISTED', 'ACCEPTED', 'REJECTED'],
     type: String,
     example: 'PENDING',
     description: 'Estado de la aplicación',

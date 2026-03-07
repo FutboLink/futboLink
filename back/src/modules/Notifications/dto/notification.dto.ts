@@ -14,10 +14,11 @@ export class CreateNotificationDto {
   @ApiProperty({
     example: 'PROFILE_VIEW',
     description: 'Tipo de notificación',
-    enum: NotificationType,
+    enum: ['PROFILE_VIEW', 'APPLICATION_RECEIVED', 'JOB_UPDATED', 'APPLICATION_SHORTLISTED', 'REPRESENTATION_REQUEST'],
+    type: String,
   })
   @IsEnum(NotificationType)
-  type: NotificationType;
+  type: string;
 
   @ApiProperty({
     example: 'e58a5d5b-ffec-4f57-b6a5-2a5f12345678',
@@ -67,8 +68,10 @@ export class NotificationResponseDto {
   @ApiProperty({
     example: 'PROFILE_VIEW',
     description: 'Tipo de notificación',
+    enum: ['PROFILE_VIEW', 'APPLICATION_RECEIVED', 'JOB_UPDATED', 'APPLICATION_SHORTLISTED', 'REPRESENTATION_REQUEST'],
+    type: String,
   })
-  type: NotificationType;
+  type: string;
 
   @ApiProperty({
     example: false,

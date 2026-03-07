@@ -25,12 +25,13 @@ export class CreateVerificationRequestDto {
 export class UpdateVerificationRequestDto {
   @ApiProperty({
     description: 'Estado de la solicitud de verificación',
-    enum: VerificationRequestStatus,
-    example: VerificationRequestStatus.APPROVED,
+    enum: ['PENDING', 'APPROVED', 'REJECTED'],
+    type: String,
+    example: 'APPROVED',
   })
   @IsNotEmpty()
   @IsEnum(VerificationRequestStatus)
-  status: VerificationRequestStatus;
+  status: string;
 
   @ApiProperty({
     description: 'Comentarios del administrador sobre la decisión',

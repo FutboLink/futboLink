@@ -87,14 +87,14 @@ export class SearchPlayersDto {
   @ApiProperty({ 
     description: '¿Tiene pasaporte de la UE?', 
     required: false,
-    enum: PasaporteUe,
-    enumName: 'PasaporteUe',
+    enum: ['Si', 'No'],
+    type: String,
     example: 'Si'
   })
   @IsOptional()
   @IsEnum(PasaporteUe, { message: 'pasaporteUe must be either "Si" or "No"' })
   @Type(() => String)
-  pasaporteUe?: PasaporteUe;
+  pasaporteUe?: string;
 
   @ApiProperty({ 
     description: 'Número de resultados por página', 

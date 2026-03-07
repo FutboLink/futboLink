@@ -52,11 +52,12 @@ export class RegisterUserDto {
 
   @ApiProperty({
     description: 'Rol del usuario',
-    enum: UserType,
-    example: UserType.PLAYER,
+    enum: ['AGENCY', 'RECRUITER', 'PLAYER', 'CLUB', 'ADMIN', 'USER'],
+    type: String,
+    example: 'PLAYER',
   })
   @IsEnum(UserType)
-  role?: UserType;
+  role?: string;
 
   @ApiProperty({
     description: 'URL de la imagen del usuario (opcional)',
@@ -201,7 +202,7 @@ export class RegisterUserDto {
 
   @IsOptional()
   @IsEnum(PasaporteUe)
-  pasaporteUe?: PasaporteUe;
+  pasaporteUe?: string;
 
   @IsOptional()
   @IsString()

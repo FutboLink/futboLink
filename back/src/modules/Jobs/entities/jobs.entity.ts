@@ -146,29 +146,27 @@ export class Job {
 
   @ApiProperty({
     description: 'Disponibilidad para viajar',
-    example: 'yes',
-    enum: YesOrNo,
-    enumName: 'YesOrNo',
+    example: 'Si',
+    enum: ['Si', 'No'],
     type: String,
   })
   @Column({
     type: 'enum',
     enum: YesOrNo,
   })
-  availabilityToTravel: YesOrNotravell;
+  availabilityToTravel: string;
 
   @ApiProperty({
     description: '¿Requiere pasaporte de la UE?',
-    example: 'no',
-    enum: YesOrNo,
-    enumName: 'YesOrNo',
+    example: 'No',
+    enum: ['Si', 'No'],
     type: String,
   })
   @Column({
     type: 'enum',
     enum: YesOrNo,
   })
-  euPassport: YesOrNo;
+  euPassport: string;
 
 
   @ApiProperty({

@@ -29,8 +29,7 @@ export class Notification {
   @ApiProperty({
     example: 'PROFILE_VIEW',
     description: 'Tipo de notificación',
-    enum: NotificationType,
-    enumName: 'NotificationType',
+    enum: ['PROFILE_VIEW', 'APPLICATION_RECEIVED', 'JOB_UPDATED', 'APPLICATION_SHORTLISTED', 'REPRESENTATION_REQUEST'],
     type: String,
   })
   @Column({
@@ -38,7 +37,7 @@ export class Notification {
     enum: NotificationType,
     default: NotificationType.PROFILE_VIEW,
   })
-  type: NotificationType;
+  type: string;
 
   @ApiProperty({
     example: false,

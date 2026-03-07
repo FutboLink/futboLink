@@ -170,18 +170,22 @@ export class CreateJobDto {
   @ApiProperty({
     description: 'Disponibilidad para viajar',
     example: 'Si',
+    enum: ['Si', 'No'],
+    type: String,
   })
   @IsNotEmpty()
   @IsEnum(YesOrNotravell)
-  availabilityToTravel: YesOrNotravell;
+  availabilityToTravel: string;
 
   @ApiProperty({
     description: '¿Requiere pasaporte de la UE?',
     example: 'No',
+    enum: ['Si', 'No'],
+    type: String,
   })
   @IsNotEmpty()
   @IsEnum(YesOrNo)
-  euPassport: YesOrNo;
+  euPassport: string;
 
   
   @IsString()

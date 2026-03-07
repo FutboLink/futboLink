@@ -27,8 +27,7 @@ export class VerificationRequest {
   @ApiProperty({
     example: 'PENDING',
     description: 'Estado de la solicitud de verificación',
-    enum: VerificationRequestStatus,
-    enumName: 'VerificationRequestStatus',
+    enum: ['PENDING', 'APPROVED', 'REJECTED'],
     type: String,
   })
   @Column({
@@ -36,7 +35,7 @@ export class VerificationRequest {
     enum: VerificationRequestStatus,
     default: VerificationRequestStatus.PENDING,
   })
-  status: VerificationRequestStatus;
+  status: string;
 
   @ApiProperty({
     example: 'Solicito la verificación de mi perfil para aumentar mi credibilidad',

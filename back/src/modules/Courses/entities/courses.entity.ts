@@ -16,7 +16,7 @@ export class Curso {
   description: string;
 
   @Column({ type: 'enum', enum: CategoryCursos })
-  category: CategoryCursos;
+  category: string;
 
   @Column()
   country: string;

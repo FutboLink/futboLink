@@ -51,14 +51,13 @@ export class User {
 
 
   @ApiProperty({
-    example: UserType.PLAYER,
+    example: 'PLAYER',
     description: 'Rol del usuario',
-    enum: UserType,
-    enumName: 'UserType',
+    enum: ['AGENCY', 'RECRUITER', 'PLAYER', 'CLUB', 'ADMIN', 'USER'],
     type: String,
   })
   @Column({ type: 'enum', enum: UserType, default: UserType.PLAYER })
-  role: UserType;
+  role: string;
 
   @ApiProperty({ example: 'https://example.com/avatar.jpg', description: 'URL de la img de perfil', nullable: true })
   @Column({ nullable: true })
@@ -88,9 +87,9 @@ export class User {
   @Column({ nullable: true })
   countryToWork?: string;
 
-  @ApiProperty({ example: PasaporteUe.SI, description: '¿Tiene pasaporte de la UE?', enum: PasaporteUe, enumName: 'PasaporteUe', type: String })
+  @ApiProperty({ example: 'Si', description: '¿Tiene pasaporte de la UE?', enum: ['Si', 'No'], type: String })
   @Column({ type: 'enum', enum: PasaporteUe, nullable: true })
-  pasaporteUe?: PasaporteUe;
+  pasaporteUe?: string;
 
   @ApiProperty({ example: 180, description: 'Altura en cm', nullable: true })
   @Column({ type: 'int', nullable: true })

@@ -63,8 +63,8 @@ const nextConfig = {
       'dummyimage.com',      // Servicio de imágenes de marcador de posición
       'u-storage.com.mx',    // Almacenamiento de imágenes
     ],
-    // HABILITAR optimización de imágenes para reducir uso de memoria
-    unoptimized: false,
+    // Deshabilitar optimización de imágenes para evitar error 402 en Vercel free tier
+    unoptimized: true,
     // Configuración de tamaños de imagen para optimizar memoria
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],

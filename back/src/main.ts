@@ -174,6 +174,16 @@ async function bootstrap() {
         return callback(null, true);
       }
       
+      // Allow Vercel preview deployments (futbolink-xxx-yyy.vercel.app)
+      if (origin.match(/^https:\/\/futbolink[a-z0-9-]*\.vercel\.app$/)) {
+        return callback(null, true);
+      }
+
+      // Allow Vercel team preview deployments (futbolink-xxx-team.vercel.app)  
+      if (origin.match(/^https:\/\/futbolink.*vercel\.app$/)) {
+        return callback(null, true);
+      }
+      
       console.warn(`Blocked request from disallowed origin: ${origin}`);
       callback(new Error('Not allowed by CORS'), false);
     },

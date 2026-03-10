@@ -185,6 +185,11 @@ const nextConfig = {
         source: '/email/:path*',
         destination: `${baseUrl}/email/:path*`,
       },
+      // Upload endpoints (R2)
+      {
+        source: '/upload/:path*',
+        destination: `${baseUrl}/upload/:path*`,
+      },
     ];
   },
 };

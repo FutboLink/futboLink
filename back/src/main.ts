@@ -129,7 +129,10 @@ async function bootstrap() {
     'http://localhost:3001',  // Possible alternate port
     'https://futbolink.vercel.app', // Include www subdomain
     'https://futbolink.net',     // New domain
-    'https://www.futbolink.net'  // Include www subdomain for new domain
+    'https://www.futbolink.net' ,
+    'https://www.futbolink.it',
+    'https://futbolink.it',
+     // Include www subdomain for new domain
     //   // Production frontend
   ];
   
@@ -236,13 +239,13 @@ async function bootstrap() {
     bodyParser.raw({ type: 'application/json' })
   );
 
-  // Get port from environment or use default
-  const port = configService.get<number>('PORT') || 3000;
   
-  // Start the server
-  await app.listen(port);
 
-  console.log(`Application running on port ${port}`);
+  const port = configService.get<number>('PORT') || 3000;
+
+await app.listen(port, '0.0.0.0');
+
+console.log(`Application running on port ${port}`);
 }
 
 bootstrap();

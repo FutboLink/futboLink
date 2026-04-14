@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 interface EmailOptions {
   to: string;
@@ -12,79 +12,123 @@ interface EmailOptions {
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
-  private transporter: nodemailer.Transporter;
+  private readonly resend: Resend | null;
 
-  constructor(
-    private readonly configService: ConfigService
-  ) {
-    const mailHost = this.configService.get<string>('MAIL_HOST');
-    const mailPort = this.configService.get<number>('MAIL_PORT');
-    const mailUser = this.configService.get<string>('MAIL_USER');
+  constructor(private readonly configService: ConfigService) {
+    const apiKey = this.configService.get<string>('RESEND_API_KEY');
     const mailFrom = this.configService.get<string>('MAIL_FROM');
+    this.resend = apiKey ? new Resend(apiKey) : null;
 
-    this.logger.log(`Mail config: host=${mailHost}, port=${mailPort}, user=${mailUser}, from=${mailFrom}`);
-
-    // Initialize nodemailer transporter
-    this.transporter = nodemailer.createTransport({
-      host: mailHost,
-      port: mailPort,
-      secure: mailPort === 465, // true for 465, false for other ports
-      auth: {
-        user: mailUser,
-        pass: this.configService.get<string>('MAIL_PASSWORD'),
-      },
-    });
-
-    // Verify transporter configuration
-    this.transporter.verify((error) => {
-      if (error) {
-        this.logger.error(`Mail configuration error: ${error.message}`);
-      } else {
-        this.logger.log('Mail server is ready to send messages');
-      }
-    });
+    if (!apiKey) {
+      this.logger.warn(
+        'RESEND_API_KEY is not set — outbound email will fail until configured.',
+      );
+    } else {
+      this.logger.log(
+        `Resend email enabled (from=${mailFrom ?? 'not set — set MAIL_FROM'})`,
+      );
+    }
   }
 
-  // Método genérico para enviar emails
+  /** Verified domain address in Resend, e.g. onboarding@resend.dev or noreply@yourdomain.com */
+  private getDefaultFrom(displayName: string = 'FutboLink'): string {
+    const addr = this.configService.get<string>('MAIL_FROM');
+    if (!addr?.trim()) {
+      throw new Error(
+        'MAIL_FROM must be set to a Resend-verified sender address',
+      );
+    }
+    return `"${displayName}" <${addr.trim()}>`;
+  }
+
+  private async sendWithResend(params: {
+    to: string;
+    subject: string;
+    html: string;
+    from?: string;
+  }): Promise<void> {
+    if (!this.resend) {
+      throw new Error('RESEND_API_KEY is not configured');
+    }
+    const from = params.from ?? this.getDefaultFrom();
+    const { data, error } = await this.resend.emails.send({
+      from,
+      to: params.to,
+      subject: params.subject,
+      html: params.html,
+    });
+    if (error) {
+      this.logger.error(`Resend API error: ${JSON.stringify(error)}`);
+      throw new Error(
+        (error as { message?: string }).message || 'Resend send failed',
+      );
+    }
+    this.logger.log(`Email sent via Resend (id=${data?.id ?? 'n/a'})`);
+  }
+
+  /**
+   * HTML email for notification flows (profile view, shortlisted, etc.).
+   */
+  async sendHtmlEmail(
+    to: string,
+    subject: string,
+    html: string,
+  ): Promise<boolean> {
+    try {
+      await this.sendWithResend({ to, subject, html });
+      return true;
+    } catch (err) {
+      this.logger.error(
+        `sendHtmlEmail failed: ${err instanceof Error ? err.message : err}`,
+      );
+      return false;
+    }
+  }
+
   async sendEmail(options: EmailOptions): Promise<boolean> {
     try {
-      this.logger.log(`Sending email to: ${options.to}, subject: ${options.subject}`);
-      
+      this.logger.log(
+        `Sending email to: ${options.to}, subject: ${options.subject}`,
+      );
+
       let htmlContent = '';
-      
-      // Generar contenido HTML según la plantilla
+
       switch (options.template) {
         case 'contact':
           htmlContent = this.generateContactTemplate(options.context);
           break;
         case 'representation-request':
-          htmlContent = this.generateRepresentationRequestTemplate(options.context);
+          htmlContent = this.generateRepresentationRequestTemplate(
+            options.context,
+          );
           break;
         case 'representation-response':
-          htmlContent = this.generateRepresentationResponseTemplate(options.context);
+          htmlContent = this.generateRepresentationResponseTemplate(
+            options.context,
+          );
           break;
         default:
           htmlContent = this.generateDefaultTemplate(options.context);
       }
-      
-      const mailOptions = {
-        from: `"FutboLink" <${this.configService.get<string>('MAIL_FROM')}>`,
+
+      await this.sendWithResend({
         to: options.to,
         subject: options.subject,
-        html: htmlContent
-      };
-
-      await this.transporter.sendMail(mailOptions);
+        html: htmlContent,
+      });
       this.logger.log(`Email sent successfully to: ${options.to}`);
       return true;
     } catch (error) {
-      this.logger.error(`Error sending email: ${error.message}`);
-      this.logger.error(`Stack trace: ${error.stack}`);
+      this.logger.error(
+        `Error sending email: ${error instanceof Error ? error.message : error}`,
+      );
+      if (error instanceof Error && error.stack) {
+        this.logger.error(`Stack trace: ${error.stack}`);
+      }
       return false;
     }
   }
 
-  // Plantilla para solicitudes de representación
   private generateRepresentationRequestTemplate(context: any): string {
     return `
       <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 5px;">
@@ -114,7 +158,6 @@ export class EmailService {
     `;
   }
 
-  // Plantilla para respuestas a solicitudes de representación
   private generateRepresentationResponseTemplate(context: any): string {
     return `
       <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 5px;">
@@ -140,7 +183,6 @@ export class EmailService {
     `;
   }
 
-  // Plantilla de contacto
   private generateContactTemplate(context: any): string {
     return `
       <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 5px;">
@@ -165,7 +207,6 @@ export class EmailService {
     `;
   }
 
-  // Plantilla por defecto
   private generateDefaultTemplate(context: any): string {
     return `
       <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 5px;">
@@ -184,18 +225,16 @@ export class EmailService {
 
   async sendPasswordResetEmail(email: string, token: string) {
     try {
-      const rawFrontendUrl = this.configService.get<string>('FRONTEND_URL') || 'https://futbolink.vercel.app';
-      const frontendUrl = rawFrontendUrl.replace(/\/+$/, ''); // Eliminar barras finales
+      const rawFrontendUrl =
+        this.configService.get<string>('FRONTEND_URL') ||
+        'https://futbolink.vercel.app';
+      const frontendUrl = rawFrontendUrl.replace(/\/+$/, '');
       const resetUrl = `${frontendUrl}/resetPassword?token=${token}`;
-      
+
       this.logger.log(`Sending password reset email to: ${email}`);
       this.logger.log(`Reset URL: ${resetUrl}`);
 
-      const mailOptions = {
-        from: `"FutboLink" <${this.configService.get<string>('MAIL_FROM')}>`,
-        to: email,
-        subject: 'Recuperación de Contraseña - FutboLink',
-        html: `
+      const html = `
           <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 5px;">
             <h2 style="color: #2c3e50; text-align: center;">Recuperación de Contraseña</h2>
             <div style="margin-top: 20px; line-height: 1.6; color: #34495e;">
@@ -221,43 +260,46 @@ export class EmailService {
               <p>© ${new Date().getFullYear()} FutboLink. Todos los derechos reservados.</p>
             </div>
           </div>
-        `
-      };
+        `;
 
-      await this.transporter.sendMail(mailOptions);
+      await this.sendWithResend({
+        to: email,
+        subject: 'Recuperación de Contraseña - FutboLink',
+        html,
+      });
       this.logger.log(`Password reset email sent successfully to: ${email}`);
       return true;
     } catch (error) {
-      this.logger.error(`Error sending password reset email: ${error.message}`);
-      this.logger.error(`Stack trace: ${error.stack}`);
-      throw new Error('No se pudo enviar el correo de recuperación. Por favor, inténtelo más tarde.');
+      this.logger.error(
+        `Error sending password reset email: ${error instanceof Error ? error.message : error}`,
+      );
+      if (error instanceof Error && error.stack) {
+        this.logger.error(`Stack trace: ${error.stack}`);
+      }
+      throw new Error(
+        'No se pudo enviar el correo de recuperación. Por favor, inténtelo más tarde.',
+      );
     }
   }
-  
+
   async sendContactEmailToAdmin(email: string, name: string, mensaje: string) {
-    // Validate input parameters
     if (!email || !name || !mensaje) {
       this.logger.error('Missing required parameters for contact email');
       throw new Error('Missing required contact form fields');
     }
-    
+
     try {
-      // Get admin email from environment variables
       const adminEmail = this.configService.get<string>('MAIL_USER');
-      
+
       if (!adminEmail) {
         this.logger.error('MAIL_USER configuration is missing');
         throw new Error('Email configuration is incomplete');
       }
-      
+
       this.logger.log(`Preparing to send contact email to admin: ${adminEmail}`);
       this.logger.log(`From: ${email}, Name: ${name}`);
-      
-      const mailOptions = {
-        from: `"FutboLink Contact" <${this.configService.get<string>('MAIL_FROM')}>`,
-        to: adminEmail,
-        subject: `Nuevo mensaje de contacto de ${name}`,
-        html: `
+
+      const html = `
           <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 5px;">
             <h2 style="color: #2c3e50; border-bottom: 2px solid #27ae60; padding-bottom: 10px;">Nuevo mensaje de contacto recibido</h2>
             <div style="margin-top: 20px;">
@@ -279,33 +321,38 @@ export class EmailService {
               <p>Fecha: ${new Date().toLocaleString('es-ES')}</p>
             </div>
           </div>
-        `
-      };
+        `;
 
-      await this.transporter.sendMail(mailOptions);
+      await this.sendWithResend({
+        to: adminEmail,
+        subject: `Nuevo mensaje de contacto de ${name}`,
+        html,
+        from: this.getDefaultFrom('FutboLink Contact'),
+      });
+
       this.logger.log(`Contact email sent to admin successfully`);
-      
-      // Send confirmation email to the user
+
       await this.sendContactConfirmationToUser(email, name);
-      
+
       return true;
     } catch (error) {
-      this.logger.error(`Error sending contact email: ${error.message}`);
-      this.logger.error(`Stack trace: ${error.stack}`);
-      throw new Error('No se pudo enviar el mensaje. Por favor, inténtelo más tarde.');
+      this.logger.error(
+        `Error sending contact email: ${error instanceof Error ? error.message : error}`,
+      );
+      if (error instanceof Error && error.stack) {
+        this.logger.error(`Stack trace: ${error.stack}`);
+      }
+      throw new Error(
+        'No se pudo enviar el mensaje. Por favor, inténtelo más tarde.',
+      );
     }
   }
-  
-  // New method to send confirmation email to the user
+
   private async sendContactConfirmationToUser(email: string, name: string) {
     try {
       this.logger.log(`Sending confirmation email to user: ${email}`);
-      
-      const mailOptions = {
-        from: `"FutboLink" <${this.configService.get<string>('MAIL_FROM')}>`,
-        to: email,
-        subject: 'Hemos recibido tu mensaje - FutboLink',
-        html: `
+
+      const html = `
           <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 5px;">
             <h2 style="color: #2c3e50; text-align: center;">¡Gracias por contactar con FutboLink!</h2>
             <h3 style="color: #27ae60; text-align: center;">Hemos recibido tu mensaje</h3>
@@ -331,33 +378,36 @@ export class EmailService {
               <p>© ${new Date().getFullYear()} FutboLink. Todos los derechos reservados.</p>
             </div>
           </div>
-        `
-      };
-      
-      await this.transporter.sendMail(mailOptions);
+        `;
+
+      await this.sendWithResend({
+        to: email,
+        subject: 'Hemos recibido tu mensaje - FutboLink',
+        html,
+      });
       this.logger.log(`Confirmation email sent successfully to: ${email}`);
       return true;
     } catch (error) {
-      this.logger.error(`Error sending confirmation email: ${error.message}`);
-      // We don't throw here to avoid disrupting the main flow
-      // The contact email was already sent to admin
+      this.logger.error(
+        `Error sending confirmation email: ${error instanceof Error ? error.message : error}`,
+      );
       return false;
     }
   }
 
-  async sendEmailVerification(email: string, name: string, token: string): Promise<boolean> {
+  async sendEmailVerification(
+    email: string,
+    name: string,
+    token: string,
+  ): Promise<boolean> {
     try {
       const frontendUrl = 'https://www.futbolink.net';
       const verifyUrl = `${frontendUrl}/verify-email?token=${token}`;
-      
+
       this.logger.log(`Sending email verification to: ${email}`);
       this.logger.log(`Verification URL: ${verifyUrl}`);
 
-      const mailOptions = {
-        from: `"FutboLink" <${this.configService.get<string>('MAIL_FROM')}>`,
-        to: email,
-        subject: 'Verifica tu cuenta - FutboLink',
-        html: `
+      const html = `
           <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 5px;">
             <div style="text-align: center; margin-bottom: 20px;">
               <h2 style="color: #2c3e50;">¡Bienvenido a FutboLink!</h2>
@@ -388,31 +438,37 @@ export class EmailService {
               <p>© ${new Date().getFullYear()} FutboLink. Todos los derechos reservados.</p>
             </div>
           </div>
-        `
-      };
+        `;
 
-      const info = await this.transporter.sendMail(mailOptions);
+      await this.sendWithResend({
+        to: email,
+        subject: 'Verifica tu cuenta - FutboLink',
+        html,
+      });
       this.logger.log(`Verification email sent to: ${email}`);
-      this.logger.log(`SMTP response: messageId=${info.messageId}, accepted=${JSON.stringify(info.accepted)}, rejected=${JSON.stringify(info.rejected)}, response=${info.response}`);
       return true;
     } catch (error) {
-      this.logger.error(`Error sending verification email: ${error.message}`);
-      this.logger.error(`Stack trace: ${error.stack}`);
+      this.logger.error(
+        `Error sending verification email: ${error instanceof Error ? error.message : error}`,
+      );
+      if (error instanceof Error && error.stack) {
+        this.logger.error(`Stack trace: ${error.stack}`);
+      }
       return false;
     }
   }
 
   async sendRepresentationRequestEmail(
-    email: string, 
-    playerName: string, 
-    recruiterName: string, 
+    email: string,
+    playerName: string,
+    recruiterName: string,
     recruiterLastname: string,
     recruiterAgency: string,
-    message: string
+    message: string,
   ): Promise<boolean> {
     try {
       const subject = 'Nueva solicitud de representación en FutboLink';
-      
+
       return await this.sendEmail({
         to: email,
         subject,
@@ -421,11 +477,13 @@ export class EmailService {
           name: playerName,
           recruiterName: `${recruiterName} ${recruiterLastname}`,
           recruiterAgency,
-          message
-        }
+          message,
+        },
       });
     } catch (error) {
-      this.logger.error(`Error sending representation request email: ${error.message}`);
+      this.logger.error(
+        `Error sending representation request email: ${error instanceof Error ? error.message : error}`,
+      );
       return false;
     }
   }

@@ -316,15 +316,20 @@ export class UserService {
 
       // Enviar email de verificación
       try {
-        await this.emailService.sendEmailVerification(
+        const sent = await this.emailService.sendEmailVerification(
           savedUser.email,
           savedUser.name,
           emailVerificationToken,
         );
-        console.log(`Verification email sent to ${savedUser.email}`);
+        if (sent) {
+          console.log(`Verification email sent to ${savedUser.email}`);
+        } else {
+          console.warn(
+            `Verification email failed for ${savedUser.email} (user was created; they can resend)`,
+          );
+        }
       } catch (emailError) {
         console.error('Error sending verification email:', emailError);
-        // No lanzar error - el usuario ya fue creado, puede reenviar el email
       }
 
       return savedUser;
@@ -395,8 +400,16 @@ export class UserService {
       user.emailVerificationToken = newToken;
       await this.userRepository.save(user);
 
-      // Enviar email
-      await this.emailService.sendEmailVerification(user.email, user.name, newToken);
+      const sent = await this.emailService.sendEmailVerification(
+        user.email,
+        user.name,
+        newToken,
+      );
+      if (!sent) {
+        throw new BadRequestException(
+          'No se pudo enviar el correo. Revisa la configuración del servicio de email o inténtalo más tarde.',
+        );
+      }
 
       console.log(`Verification email resent to: ${user.email}`);
       return { message: 'Email de verificación reenviado exitosamente' };

@@ -11,10 +11,7 @@ interface ImageUploadwithCropProps {
   initialImage?: string;
 }
 
-// En producción, usar ruta relativa para que pase por el rewrite de Vercel (evita CORS)
-const BACKEND_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-  ? ''
-  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000');
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
   onUpload,
@@ -102,6 +99,10 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
   const uploadCroppedImage = async () => {
     if (!imageSrc || !croppedAreaPixels) {
       setError("No hay imagen o área seleccionada para subir");
+      return;
+    }
+    if (!BACKEND_URL) {
+      setError("API no configurada (NEXT_PUBLIC_API_URL).");
       return;
     }
 

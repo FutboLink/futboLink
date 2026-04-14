@@ -5,11 +5,7 @@ interface ImageUploadProps {
   onUpload: (url: string) => void;
 }
 
-// En producción, usar ruta relativa para que pase por el rewrite de Vercel (evita CORS)
-// En desarrollo, usar la URL del backend directamente
-const BACKEND_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-  ? '' // Ruta relativa en producción (Vercel rewrite)
-  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000');
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const ImageUpload: React.FC<ImageUploadProps> = ({ onUpload }) => {
   const [file, setFile] = useState<File | null>(null);
@@ -43,6 +39,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onUpload }) => {
   const uploadImage = async () => {
     if (!file) {
       setError("Por favor selecciona una imagen primero");
+      return;
+    }
+    if (!BACKEND_URL) {
+      setError("API no configurada (NEXT_PUBLIC_API_URL).");
       return;
     }
 

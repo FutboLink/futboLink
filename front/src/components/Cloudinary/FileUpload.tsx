@@ -7,10 +7,7 @@ interface FileUploadProps {
   fileType?: "cv" | "document";
 }
 
-// En producción, usar ruta relativa para que pase por el rewrite de Vercel (evita CORS)
-const BACKEND_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-  ? ''
-  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000');
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const FileUpload: React.FC<FileUploadProps> = ({ onUpload, fileType = "cv" }) => {
   const { token } = useContext(UserContext);
@@ -119,6 +116,10 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUpload, fileType = "cv" }) =>
 
     if (!token) {
       setError("Debes iniciar sesión para subir archivos");
+      return;
+    }
+    if (!BACKEND_URL) {
+      setError("API no configurada (NEXT_PUBLIC_API_URL).");
       return;
     }
 

@@ -297,7 +297,7 @@ export default function UserViewer() {
         console.log("Estado de verificación:", status);
         // Log para mostrar la estructura completa del objeto de verificación
         console.log(
-          "Estructura completa del objeto de verificación:",
+          "Estructura completa del objeto  verificación:",
           JSON.stringify(status, null, 2)
         );
       } else {

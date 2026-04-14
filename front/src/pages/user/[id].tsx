@@ -11,7 +11,7 @@ import { useUserContext } from "@/hook/useUserContext";
 import type { IProfileData } from "@/Interfaces/IUser";
 
 // URL del backend
-const API_URL = "https://futbolink.onrender.com";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Función para convertir el rol a un texto más amigable
 const getRoleDisplay = (role: string) => {
@@ -83,6 +83,11 @@ export default function UserProfilePage() {
     // Función para cargar el perfil directamente desde el backend
     const fetchUserProfile = async () => {
       try {
+        if (!API_URL) {
+          throw new Error(
+            "API no configurada. Definí NEXT_PUBLIC_API_URL apuntando a tu backend (Railway)."
+          );
+        }
         // Crear URL al backend
         const url = `${API_URL}/user/${id}`;
         console.log("Realizando solicitud a:", url);

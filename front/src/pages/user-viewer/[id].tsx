@@ -39,7 +39,7 @@ import { FaUsers } from "react-icons/fa6";
 import { checkUserSubscription } from "@/services/SubscriptionService";
 
 // URL del backend
-const API_URL = "https://futbolink.onrender.com";
+const API_URL = "https://futbolink-production.up.railway.app";
 
 // Función para convertir el rol a un texto más amigable
 const getRoleDisplay = (role: string) => {

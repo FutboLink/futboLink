@@ -1,12 +1,19 @@
 "use client";
 
 import axios from "axios";
+import { AnimatePresence, motion } from "framer-motion";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useRef, useState } from "react";
-import { FaEnvelope } from "react-icons/fa";
+import {
+  FaChevronDown,
+  FaCog,
+  FaEnvelope,
+  FaSignOutAlt,
+  FaUserEdit,
+} from "react-icons/fa";
 import { UserContext } from "../Context/UserContext";
 import HybridLanguageDropdown from "../LanguageToggle/HybridLanguageDropdown";
 import I18nModeToggle from "../LanguageToggle/I18nModeToggle";
@@ -19,10 +26,12 @@ function newNavbar() {
   const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [hasProfessionalSubscription, setHasProfessionalSubscription] =
     useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { isLogged, user, token } = useContext(UserContext);
+  const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const { isLogged, user, token, role, logOut } = useContext(UserContext);
   const { isNextIntlEnabled } = useI18nMode();
   const tNav = useNextIntlTranslations('navigation');
 
@@ -35,6 +44,48 @@ function newNavbar() {
   const navigateTo = (path: string) => {
     router.push(path);
     setIsMobileMenuOpen(false);
+  };
+
+  const getInitials = (): string => {
+    const first = user?.name?.charAt(0) ?? "";
+    const last = user?.lastname?.charAt(0) ?? "";
+    const initials = `${first}${last}`.toUpperCase();
+    return initials || "U";
+  };
+
+  const getRoleLabel = (): string => {
+    if (role === "RECRUITER") return getText("Reclutador", "recruiter");
+    if (role === "CLUB") return getText("Club", "club");
+    if (role === "AGENCY") return getText("Agente", "agent");
+    if (role === "PLAYER") return getText("Jugador", "player");
+    if (role === "ADMIN") return getText("Administrador", "admin");
+    return "";
+  };
+
+  const getEditProfilePath = (): string => {
+    if (role === "PLAYER" && user?.id) {
+      return `/user-viewer/${user.id}?edit=true`;
+    }
+    if (role === "RECRUITER" || role === "CLUB" || role === "AGENCY") {
+      return "/PanelUsers/Manager";
+    }
+    return "/profile";
+  };
+
+  const getSettingsPath = (): string => {
+    if (role === "PLAYER") {
+      return `/forgotPassword?email=${encodeURIComponent(user?.email || "")}`;
+    }
+    if (role === "RECRUITER" || role === "CLUB" || role === "AGENCY") {
+      return "/PanelUsers/Manager?section=config";
+    }
+    return "/profile";
+  };
+
+  const handleProfileLogout = () => {
+    setIsProfileDropdownOpen(false);
+    logOut();
+    router.push("/");
   };
 
   // Verificar si el usuario tiene suscripción profesional
@@ -72,6 +123,19 @@ function newNavbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        profileDropdownRef.current &&
+        !profileDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsProfileDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <>
       <Head>
@@ -98,14 +162,110 @@ function newNavbar() {
             </Link>
           </div>
 
-          {/* Language dropdown and login buttons */}
+          {/* Icono de usuario y notificaciones en escritorio */}
           <div className="hidden md:flex ml-auto items-center gap-4">
+            {isLogged && (
+              <>
+                <div className="relative" ref={profileDropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setIsProfileDropdownOpen(!isProfileDropdownOpen)
+                    }
+                    aria-expanded={isProfileDropdownOpen}
+                    aria-label={getText("Menú de perfil", "profileMenu")}
+                    className={`flex items-center gap-2 rounded-full px-3 py-1.5 hover:bg-gray-100 hover:shadow-sm transition-all ${isProfileDropdownOpen ? "bg-gray-100 shadow-sm" : ""}`}
+                  >
+                    {user?.imgUrl ? (
+                      <Image
+                        src={user.imgUrl}
+                        alt={`${user?.name ?? ""} ${user?.lastname ?? ""}`.trim() || "Usuario"}
+                        width={40}
+                        height={40}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div translate="no" className="notranslate w-10 h-10 rounded-full bg-verde-oscuro text-white flex items-center justify-center font-semibold text-sm uppercase">
+                        {getInitials()}
+                      </div>
+                    )}
+                    <div className="flex flex-col items-start leading-tight">
+                      <span className="text-sm font-semibold text-gray-800 leading-tight truncate max-w-[160px]">
+                        {`${user?.name ?? ""} ${user?.lastname ?? ""}`.trim()}
+                      </span>
+                      <span className="text-xs text-emerald-600 font-medium truncate max-w-[160px]">
+                        {(user as unknown as { puesto?: string })?.puesto ||
+                          getRoleLabel()}
+                      </span>
+                    </div>
+                    <FaChevronDown
+                      className={`text-gray-500 ml-1 transition-transform ${isProfileDropdownOpen ? "rotate-180" : ""}`}
+                      size={12}
+                    />
+                  </button>
+
+                  <AnimatePresence>
+                    {isProfileDropdownOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute right-0 top-full mt-2 bg-white rounded-lg shadow-xl border border-gray-100 py-2 w-52 z-50"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsProfileDropdownOpen(false);
+                            router.push(getEditProfilePath());
+                          }}
+                          className="flex items-center gap-3 w-full text-left px-4 py-2.5 mx-1 rounded-md text-sm text-gray-700 hover:bg-emerald-50 transition-colors"
+                        >
+                          <FaUserEdit className="text-gray-500" />
+                          <span>
+                            {getText("Editar Perfil", "profileMenuEdit")}
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsProfileDropdownOpen(false);
+                            router.push(getSettingsPath());
+                          }}
+                          className="flex items-center gap-3 w-full text-left px-4 py-2.5 mx-1 rounded-md text-sm text-gray-700 hover:bg-emerald-50 transition-colors"
+                        >
+                          <FaCog className="text-gray-500" />
+                          <span>
+                            {getText("Configuración", "profileMenuSettings")}
+                          </span>
+                        </button>
+                        <div className="border-t border-gray-100 mx-2 my-1" />
+                        <button
+                          type="button"
+                          onClick={handleProfileLogout}
+                          className="flex items-center gap-3 w-full text-left px-4 py-2.5 mx-1 rounded-md text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+                        >
+                          <FaSignOutAlt className="text-red-500" />
+                          <span>
+                            {getText("Cerrar Sesión", "profileMenuLogout")}
+                          </span>
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                <div className="h-6 w-px bg-gray-200" />
+                <NotificationsList />
+                <FaEnvelope className="text-gray-700" size={24} />
+                <div className="h-6 w-px bg-gray-200" />
+              </>
+            )}
             {/* Language Dropdown */}
             <HybridLanguageDropdown />
-            {/* Next-Intl Language Selector */}
-            <NextIntlLanguageSelector />
             {/* i18n Mode Toggle */}
             <I18nModeToggle showLabel={true} />
+            {/* Next-Intl Language Selector */}
+            <NextIntlLanguageSelector />
 
             {!isLogged && (
               <>
@@ -127,12 +287,6 @@ function newNavbar() {
                 </button>
               </>
             )}
-          </div>
-
-          {/* Icono de usuario y notificaciones en escritorio */}
-          <div className="hidden md:flex items-center gap-4">
-            {isLogged && <NotificationsList />}
-            {isLogged && <FaEnvelope className="text-gray-700" size={24} />}
           </div>
 
           {/* Menú móvil: hamburguesa + ícono de usuario + notificaciones */}

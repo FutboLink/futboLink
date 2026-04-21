@@ -1,9 +1,10 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { type ReactNode, useContext, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import {
   AiOutlineFileAdd,
@@ -12,6 +13,7 @@ import {
 } from "react-icons/ai";
 import {
   FaBars,
+  FaChevronDown,
   FaCog,
   FaDumbbell,
   FaEdit,
@@ -26,6 +28,7 @@ import {
   FaSignOutAlt,
   FaTimes,
   FaUser,
+  FaUserEdit,
   FaUsers,
 } from "react-icons/fa";
 import { MdSettings } from "react-icons/md";
@@ -59,6 +62,9 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
   const { isNextIntlEnabled } = useI18nMode();
   const tNav = useNextIntlTranslations("navigation");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isProfileDropdownMobileOpen, setIsProfileDropdownMobileOpen] =
+    useState(false);
+  const profileDropdownMobileRef = useRef<HTMLDivElement>(null);
 
   // Función para obtener el texto traducido o el texto original
   const getText = (originalText: string, translatedKey: string) => {
@@ -212,7 +218,10 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
       };
     }
 
-    if (role === "RECRUITER" || role === "CLUB" || role === "AGENCY") {
+    const puestoLower = (user?.puesto || "").toLowerCase();
+    const isFutbolista = role === "PLAYER" && puestoLower === "jugador";
+
+    if (!isFutbolista) {
       return {
         main: [
           {
@@ -417,7 +426,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
     const isPlayer = user?.role?.toString() !== "RECRUITER";
     const level = verificationStatus?.verificationLevel;
     if (verificationStatus?.isVerified && isPlayer) {
-      if (level === "PROFESSIONAL") return "border-yellow-500";
+      if (level === "PROFESSIONAL") return "border-verde-oscuro";
       if (level === "SEMIPROFESSIONAL") return "border-gray-400";
       return "border-gray-500";
     }
@@ -430,6 +439,73 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
       return user?.nameAgency || `${user?.name} ${user?.lastname}`;
     }
     return `${user?.name} ${user?.lastname}`;
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        profileDropdownMobileRef.current &&
+        !profileDropdownMobileRef.current.contains(event.target as Node)
+      ) {
+        setIsProfileDropdownMobileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const getInitials = (): string => {
+    const first = user?.name?.charAt(0) ?? "";
+    const last = user?.lastname?.charAt(0) ?? "";
+    const initials = `${first}${last}`.toUpperCase();
+    return initials || "U";
+  };
+
+  const getEditProfilePath = (): string => {
+    if (role === "PLAYER" && user?.id) {
+      return `/user-viewer/${user.id}?edit=true`;
+    }
+    if (role === "RECRUITER" || role === "CLUB" || role === "AGENCY") {
+      return "/PanelUsers/Manager";
+    }
+    return "/profile";
+  };
+
+  const getSettingsPath = (): string => {
+    if (role === "PLAYER") {
+      return `/forgotPassword?email=${encodeURIComponent(user?.email || "")}`;
+    }
+    if (role === "RECRUITER" || role === "CLUB" || role === "AGENCY") {
+      return "/PanelUsers/Manager?section=config";
+    }
+    return "/profile";
+  };
+
+  const handleProfileLogoutMobile = () => {
+    setIsProfileDropdownMobileOpen(false);
+    logOut();
+    router.push("/");
+  };
+
+  const getRoleTagLabel = (): string => {
+    const puesto = (user as unknown as { puesto?: string })?.puesto;
+    if (puesto && puesto.trim().length > 0) return puesto;
+    if (role === "ADMIN") return getText("Admin", "admin");
+    if (role === "RECRUITER") return getText("Reclutador", "recruiter");
+    if (role === "CLUB") return getText("Club", "club");
+    if (role === "AGENCY") return getText("Agente", "agent");
+    if (role === "PLAYER") return getText("Jugador", "player");
+    return getText("Usuario", "user");
+  };
+
+  const getRoleTagClasses = (): string => {
+    const puestoLower = (
+      (user as unknown as { puesto?: string })?.puesto || ""
+    ).toLowerCase();
+    const isFutbolista = role === "PLAYER" && puestoLower === "jugador";
+    if (isFutbolista) return "bg-blue-100 text-blue-700";
+    if (role === "PLAYER") return "bg-emerald-100 text-emerald-700";
+    return "bg-green-100 text-green-700";
   };
 
   return (
@@ -456,6 +532,80 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
 
           {/* Elementos a la derecha */}
           <div className="flex items-center space-x-3">
+            {isLogged && (
+              <div className="relative" ref={profileDropdownMobileRef}>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setIsProfileDropdownMobileOpen(!isProfileDropdownMobileOpen)
+                  }
+                  aria-expanded={isProfileDropdownMobileOpen}
+                  aria-label={getText("Menú de perfil", "profileMenu")}
+                  className={`flex items-center gap-1.5 rounded-full px-2 py-1 hover:bg-white/10 transition-colors ${isProfileDropdownMobileOpen ? "bg-white/10" : ""}`}
+                >
+                  {user?.imgUrl ? (
+                    <Image
+                      src={user.imgUrl}
+                      alt={`${user?.name ?? ""} ${user?.lastname ?? ""}`.trim() || "Usuario"}
+                      width={32}
+                      height={32}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div translate="no" className="notranslate w-8 h-8 rounded-full bg-verde-oscuro text-white flex items-center justify-center font-semibold text-xs uppercase ring-1 ring-white/30">
+                      {getInitials()}
+                    </div>
+                  )}
+                  <FaChevronDown
+                    className={`text-white transition-transform ${isProfileDropdownMobileOpen ? "rotate-180" : ""}`}
+                    size={10}
+                  />
+                </button>
+                <AnimatePresence>
+                  {isProfileDropdownMobileOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 top-full mt-2 bg-white rounded-lg shadow-xl border border-gray-100 py-2 w-52 z-[220]"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsProfileDropdownMobileOpen(false);
+                          router.push(getEditProfilePath());
+                        }}
+                        className="flex items-center gap-3 w-full text-left px-4 py-2.5 mx-1 rounded-md text-sm text-gray-700 hover:bg-emerald-50 transition-colors"
+                      >
+                        <FaUserEdit className="text-gray-500" />
+                        <span>{getText("Editar Perfil", "profileMenuEdit")}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsProfileDropdownMobileOpen(false);
+                          router.push(getSettingsPath());
+                        }}
+                        className="flex items-center gap-3 w-full text-left px-4 py-2.5 mx-1 rounded-md text-sm text-gray-700 hover:bg-emerald-50 transition-colors"
+                      >
+                        <FaCog className="text-gray-500" />
+                        <span>{getText("Configuración", "profileMenuSettings")}</span>
+                      </button>
+                      <div className="border-t border-gray-100 mx-2 my-1" />
+                      <button
+                        type="button"
+                        onClick={handleProfileLogoutMobile}
+                        className="flex items-center gap-3 w-full text-left px-4 py-2.5 mx-1 rounded-md text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+                      >
+                        <FaSignOutAlt className="text-red-500" />
+                        <span>{getText("Cerrar Sesión", "profileMenuLogout")}</span>
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
             <HybridLanguageDropdown />
             {/* Toggle para desarrollo - visible para testing */}
             <I18nModeToggle className="flex" showLabel={false} />
@@ -470,7 +620,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop Sidebar */}
         {isLogged && (
-          <aside className="hidden md:block group fixed top-0 left-0 h-screen z-40 transition-all duration-300 ease-in-out w-[72px] hover:w-[240px] bg-white border-r border-gray-200 px-4 py-8 pt-24 shadow-md  flex-col">
+          <aside className="hidden md:flex group fixed top-0 left-0 h-dvh z-40 transition-all duration-300 ease-in-out w-[72px] hover:w-[240px] bg-white border-r border-gray-200 px-4 py-8 pt-24 shadow-md flex-col overflow-y-auto overflow-x-hidden">
             {/* Desktop sidebar content - same as before */}
             <div>
               <div className="flex flex-col items-center mb-10">
@@ -489,13 +639,9 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
                   {getDisplayName()}
                 </span>
                 <span
-                  className={`mt-1 px-2 py-1 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 ${
-                    role === "RECRUITER"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-blue-100 text-blue-700"
-                  }`}
+                  className={`mt-1 px-2 py-1 text-xs rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 ${getRoleTagClasses()}`}
                 >
-                  {role === "RECRUITER" ? "Manager" : "Jugador"}
+                  {getRoleTagLabel()}
                 </span>
               </div>
 
@@ -609,7 +755,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
         {/* Mobile Sidebar */}
         {isLogged && (
           <aside
-            className={`md:hidden fixed top-0 left-0 h-full w-80 bg-green-800 text-white transform transition-transform duration-300 ease-in-out z-[200] ${
+            className={`md:hidden fixed top-0 left-0 h-dvh w-80 bg-green-800 text-white transform transition-transform duration-300 ease-in-out z-[200] overflow-y-auto ${
               isSidebarOpen ? "translate-x-0" : "-translate-x-full"
             }`}
           >
@@ -642,13 +788,9 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
                 <div>
                   <h3 className="font-medium text-white">{getDisplayName()}</h3>
                   <span
-                    className={`px-2 py-1 text-xs rounded-full ${
-                      role === "RECRUITER"
-                        ? "bg-green-600 text-white"
-                        : "bg-blue-600 text-white"
-                    }`}
+                    className={`px-2 py-1 text-xs rounded-full ${getRoleTagClasses()}`}
                   >
-                    {role === "RECRUITER" ? "Manager" : "Player"}
+                    {getRoleTagLabel()}
                   </span>
                 </div>
               </div>

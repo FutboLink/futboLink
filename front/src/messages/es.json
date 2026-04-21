@@ -55,12 +55,6 @@
     "agencyOrEntityName": "Nombre de la agencia o entidad",
     "changeLocation": "Cambiar ubicación",
     "selectOrWriteNationality": "Selecciona o escribe tu nacionalidad",
-    "organizationType": "Tipo de Organización",
-    "selectOrganizationType": "Selecciona el tipo de organización",
-    "professionalClub": "Club profesional",
-    "amateurClub": "Club amateur",
-    "recruitmentAgency": "Agencia de reclutamiento",
-    "footballSchools": "Escuelas de fútbol",
     "uploadImage": "Subir Imagen",
     "fillAllFields": "Por favor, completa todos los campos.",
     "validEmail": "Por favor, introduce un correo electrónico válido.",
@@ -127,7 +121,16 @@
     "create": "Crear",
     "menu": "Menu",
     "manager": "Manager",
-    "player": "Player"
+    "player": "Jugador",
+    "recruiter": "Reclutador",
+    "club": "Club",
+    "agent": "Agente",
+    "admin": "Administrador",
+    "user": "Usuario",
+    "profileMenu": "Menú de perfil",
+    "profileMenuEdit": "Editar Perfil",
+    "profileMenuSettings": "Configuración",
+    "profileMenuLogout": "Cerrar Sesión"
   },
   "language": {
     "spanish": "Español",
@@ -166,9 +169,6 @@
     "male": "Masculino",
     "female": "Femenino",
     "other": "Otr@s",
-    "currentLocation": "País donde resides actualmente",
-    "currentResidence": "País de Residencia Actual",
-    "agencyName": "Nombre de tu agencia o empresa",
     "confirmPassword": "Confirmar contraseña",
     "acceptTerms": "Debe aceptar los términos y condiciones.",
     "registerSuccess": "Registro exitoso",
@@ -178,10 +178,8 @@
     "footballer": "Futbolista",
     "technicalStaff": "Cuerpo Técnico / Staff Deportivo",
     "managementComm": "Dirección y Comunicación",
-    "agency": "Profesionales Independientes / Representación",
-    "entityClub": "Entidad / Club",
+    "agency": "Agente/Representante",
     "roleLabel": "Rol",
-    "agencyNameLabel": "Nombre de la Agencia",
     "nameLabel": "Nombre",
     "lastNameLabel": "Apellido",
     "emailLabel": "Email",
@@ -189,6 +187,8 @@
     "phoneLabel": "Teléfono:",
     "genderLabel": "Género",
     "passwordLabel": "Contraseña",
-    "confirmPasswordLabel": "Confirmar Contraseña"
+    "confirmPasswordLabel": "Confirmar Contraseña",
+    "nameNoDigits": "El nombre no puede contener números",
+    "lastNameNoDigits": "El apellido no puede contener números"
   }
 }

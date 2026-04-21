@@ -55,12 +55,6 @@
     "agencyOrEntityName": "Agency or entity name",
     "changeLocation": "Change location",
     "selectOrWriteNationality": "Select or type your nationality",
-    "organizationType": "Organization Type",
-    "selectOrganizationType": "Select organization type",
-    "professionalClub": "Professional club",
-    "amateurClub": "Amateur club",
-    "recruitmentAgency": "Recruitment agency",
-    "footballSchools": "Football schools",
     "uploadImage": "Upload Image",
     "fillAllFields": "Please fill in all fields.",
     "validEmail": "Please enter a valid email address.",
@@ -127,7 +121,16 @@
     "create": "Create",
     "menu": "Menu",
     "manager": "Manager",
-    "player": "Player"
+    "player": "Player",
+    "recruiter": "Recruiter",
+    "club": "Club",
+    "agent": "Agent",
+    "admin": "Admin",
+    "user": "User",
+    "profileMenu": "Profile menu",
+    "profileMenuEdit": "Edit Profile",
+    "profileMenuSettings": "Settings",
+    "profileMenuLogout": "Log Out"
   },
   "language": {
     "spanish": "Español",
@@ -166,9 +169,6 @@
     "male": "Male",
     "female": "Female",
     "other": "Others",
-    "currentLocation": "Country where you currently reside",
-    "currentResidence": "Current Country of Residence",
-    "agencyName": "Name of your agency or company",
     "confirmPassword": "Confirm password",
     "acceptTerms": "You must accept the terms and conditions.",
     "registerSuccess": "Registration successful",
@@ -178,10 +178,8 @@
     "footballer": "Footballer",
     "technicalStaff": "Technical Staff / Sports Staff",
     "managementComm": "Management and Communication",
-    "agency": "Independent Professionals / Representation",
-    "entityClub": "Entity / Club",
+    "agency": "Agent/Representative",
     "roleLabel": "Role",
-    "agencyNameLabel": "Agency Name",
     "nameLabel": "Name",
     "lastNameLabel": "Last Name",
     "emailLabel": "Email",
@@ -189,6 +187,8 @@
     "phoneLabel": "Phone:",
     "genderLabel": "Gender",
     "passwordLabel": "Password",
-    "confirmPasswordLabel": "Confirm Password"
+    "confirmPasswordLabel": "Confirm Password",
+    "nameNoDigits": "Name cannot contain numbers",
+    "lastNameNoDigits": "Last name cannot contain numbers"
   }
 }

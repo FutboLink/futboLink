@@ -448,24 +448,6 @@ const PanelManager = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">
-                          {getText("Nombre de la entidad", "entityName")}
-                        </span>
-                        <span className="text-gray-800">
-                          {userData?.nameAgency ||
-                            getText("No disponible", "notAvailable")}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">
-                          {getText("Tipo de organización", "organizationType")}
-                        </span>
-                        <span className="text-gray-800">
-                          {userData?.puesto ||
-                            getText("No especificado", "notSpecified")}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">
                           {getText("Año de fundación", "foundingYear")}
                         </span>
                         <span className="text-gray-800">

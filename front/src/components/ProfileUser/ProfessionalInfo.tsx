@@ -170,10 +170,11 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
     </button>
   );
 
-  // Condición: es PLAYER pero su puesto no es "Jugador"
-  const isNonPlayerProfessional =
+  // Condición: cualquier rol excepto PLAYER con puesto "Jugador"
+  const isNonPlayerProfessional = !(
     (formData?.role as unknown as UserType) === UserType.PLAYER &&
-    (formData?.puesto || "").toLowerCase() !== "jugador";
+    (formData?.puesto || "").toLowerCase() === "jugador"
+  );
 
   useEffect(() => {
     // Initialize experiences from profileData

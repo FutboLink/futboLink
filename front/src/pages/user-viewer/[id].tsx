@@ -1067,22 +1067,6 @@ export default function UserViewer() {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">
-                            Nombre de la entidad
-                          </span>
-                          <span className="text-gray-800">
-                            {profile?.nameAgency || "No disponible"}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">
-                            Tipo de organización
-                          </span>
-                          <span className="text-gray-800">
-                            {profile?.puesto || "No especificado"}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">
                             Año de fundación
                           </span>
                           <span className="text-gray-800">

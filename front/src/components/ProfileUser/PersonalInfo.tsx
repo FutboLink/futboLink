@@ -11,7 +11,7 @@ import {
   FaTiktok,
 } from "react-icons/fa";
 import { useUserContext } from "@/hook/useUserContext";
-import type { IProfileData } from "@/Interfaces/IUser";
+import { UserType, type IProfileData } from "@/Interfaces/IUser";
 import ImageUploadwithCrop from "../Cloudinary/ImageUploadWithCrop";
 import {
   fetchUserData,
@@ -356,23 +356,25 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               className="p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
             />
             {/* Agente o Representante */}
-            <div className="flex flex-col">
-              <label
-                htmlFor="nameAgencyProfile"
-                className="text-gray-700 font-semibold text-sm"
-              >
-                {getText("Agente o Representante", "agentOrRepresentative")}:
-              </label>
-              <input
-                id="nameAgencyProfile"
-                name="nameAgency"
-                type="text"
-                value={fetchedProfileData?.nameAgency || ""}
-                onChange={handleChange}
-                placeholder={getText("Nombre del agente o representante", "agentName")}
-                className="p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
-              />
-            </div>
+            {fetchedProfileData?.role === UserType.PLAYER && (
+              <div className="flex flex-col">
+                <label
+                  htmlFor="nameAgencyProfile"
+                  className="text-gray-700 font-semibold text-sm"
+                >
+                  {getText("Agente o Representante", "agentOrRepresentative")}:
+                </label>
+                <input
+                  id="nameAgencyProfile"
+                  name="nameAgency"
+                  type="text"
+                  value={fetchedProfileData?.nameAgency || ""}
+                  onChange={handleChange}
+                  placeholder={getText("Nombre del agente o representante", "agentName")}
+                  className="p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
+                />
+              </div>
+            )}
           </div>
           {/* Gender */}
           <div className="flex flex-col">

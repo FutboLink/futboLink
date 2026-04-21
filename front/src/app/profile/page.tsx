@@ -1,7 +1,6 @@
 "use client";
 import { UserContext } from "@/components/Context/UserContext";
 import ProfileAdmin from "@/components/ProfileAdmin/ProfileAdmin";
-import ProfileOfertante from "@/components/ProfileOfertante/ProfileOfertante";
 import Profile from "@/components/ProfileUser/ProfileUser";
 import { useContext } from "react";
 
@@ -14,10 +13,10 @@ function Page() {
 
   return (
     <div>
-      {role === "PLAYER" && <Profile />}
-      {(role === "RECRUITER" || role === "CLUB" || role === "AGENCY") && (
-        <ProfileOfertante />
-      )}
+      {(role === "PLAYER" ||
+        role === "AGENCY" ||
+        role === "RECRUITER" ||
+        role === "CLUB") && <Profile />}
       {role === "ADMIN" && <ProfileAdmin />}
     </div>
   );

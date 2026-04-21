@@ -1,5 +1,7 @@
 import { IRegisterUser } from "@/Interfaces/IUser";
 
+const noDigitsRegex = /^[^\d]*$/;
+
 export const validationRegister = (userRegister: IRegisterUser) => {
   const errors: {
     name?: string;
@@ -14,15 +16,18 @@ export const validationRegister = (userRegister: IRegisterUser) => {
     errors.name = "Debes ingresar un nombre";
   } else if (userRegister.name.length < 3 || userRegister.name.length > 50) {
     errors.name = "El nombre debe tener entre 3 y 50 caracteres";
+  } else if (!noDigitsRegex.test(userRegister.name)) {
+    errors.name = "El nombre no puede contener números";
   }
 
-  // ✅ Validar apellido (solo si existe)
   if (userRegister.lastname && userRegister.lastname.trim()) {
     if (
       userRegister.lastname.length < 3 ||
       userRegister.lastname.length > 50
     ) {
       errors.lastname = "Los apellidos deben tener entre 3 y 50 caracteres";
+    } else if (!noDigitsRegex.test(userRegister.lastname)) {
+      errors.lastname = "El apellido no puede contener números";
     }
   }
 

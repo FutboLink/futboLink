@@ -18,7 +18,7 @@ interface ISuccessCase {
 }
 
 // URL del backend
-const API_URL = "https://futbolink.onrender.com";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function SuccessCaseViewer() {
   const router = useRouter();

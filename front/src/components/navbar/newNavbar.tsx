@@ -164,8 +164,18 @@ function newNavbar() {
 
           {/* Icono de usuario y notificaciones en escritorio */}
           <div className="hidden md:flex ml-auto items-center gap-4">
+            {/* Language Dropdown */}
+            <HybridLanguageDropdown />
+            {/* i18n Mode Toggle */}
+            <I18nModeToggle showLabel={true} />
+            {/* Next-Intl Language Selector */}
+            <NextIntlLanguageSelector />
             {isLogged && (
               <>
+                <div className="h-6 w-px bg-gray-200" />
+                <NotificationsList />
+                <FaEnvelope className="text-gray-700" size={24} />
+                <div className="h-6 w-px bg-gray-200" />
                 <div className="relative" ref={profileDropdownRef}>
                   <button
                     type="button"
@@ -254,18 +264,8 @@ function newNavbar() {
                     )}
                   </AnimatePresence>
                 </div>
-                <div className="h-6 w-px bg-gray-200" />
-                <NotificationsList />
-                <FaEnvelope className="text-gray-700" size={24} />
-                <div className="h-6 w-px bg-gray-200" />
               </>
             )}
-            {/* Language Dropdown */}
-            <HybridLanguageDropdown />
-            {/* i18n Mode Toggle */}
-            <I18nModeToggle showLabel={true} />
-            {/* Next-Intl Language Selector */}
-            <NextIntlLanguageSelector />
 
             {!isLogged && (
               <>

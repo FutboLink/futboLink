@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
+  FaCheckCircle,
   FaEdit,
   FaEnvelope,
   FaGlobe,
@@ -118,68 +119,81 @@ function OrganizationPagePublic() {
   return (
     <main className="min-h-screen bg-gray-50 pt-20 pb-12">
       <article className="max-w-5xl mx-auto px-4">
-        <div className="relative rounded-2xl overflow-hidden shadow-sm bg-white">
-          <div
-            className="h-40 sm:h-60 lg:h-72 bg-gradient-to-br from-emerald-100 via-emerald-200 to-emerald-300 relative"
-            style={
-              page.bannerUrl
-                ? {
-                    backgroundImage: `url(${page.bannerUrl})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }
-                : undefined
-            }
-          >
-            {isOwner && (
-              <Link
-                href={`/pages/${page.slug}/edit`}
-                className="absolute top-4 right-4 inline-flex items-center gap-2 bg-white/90 hover:bg-white text-verde-oscuro font-semibold px-3 py-1.5 rounded-lg shadow-sm text-sm transition-colors"
-              >
-                <FaEdit className="h-3 w-3" />
-                {getText("Editar página", "editPage")}
-              </Link>
-            )}
+        <div className="relative rounded-2xl shadow-sm bg-white">
+          <div className="relative">
+            <div
+              className="h-40 sm:h-60 lg:h-72 rounded-t-2xl overflow-hidden bg-gradient-to-br from-emerald-100 via-emerald-200 to-emerald-300 relative"
+              style={
+                page.bannerUrl
+                  ? {
+                      backgroundImage: `url(${page.bannerUrl})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }
+                  : undefined
+              }
+            >
+              {isOwner && (
+                <Link
+                  href={`/pages/${page.slug}/edit`}
+                  className="absolute top-4 right-4 inline-flex items-center gap-2 bg-white/90 hover:bg-white text-verde-oscuro font-semibold px-3 py-1.5 rounded-lg shadow-sm text-sm transition-colors"
+                >
+                  <FaEdit className="h-3 w-3" />
+                  {getText("Editar página", "editPage")}
+                </Link>
+              )}
+            </div>
+            <div className="absolute left-5 sm:left-8 bottom-0 translate-y-1/2 h-28 w-28 sm:h-32 sm:w-32 rounded-2xl bg-white shadow-md overflow-hidden flex items-center justify-center">
+              {page.logoUrl ? (
+                <NextImage
+                  src={page.logoUrl}
+                  alt={page.name}
+                  width={128}
+                  height={128}
+                  className="object-contain w-full h-full p-1"
+                />
+              ) : (
+                <FaUsers className="h-12 w-12 text-gray-300" />
+              )}
+            </div>
           </div>
 
-          <div className="px-5 sm:px-8 pb-8 -mt-12 sm:-mt-16">
-            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4">
-              <div className="h-28 w-28 sm:h-32 sm:w-32 rounded-2xl bg-white border-4 border-white shadow-md overflow-hidden flex items-center justify-center flex-shrink-0">
-                {page.logoUrl ? (
-                  <NextImage
-                    src={page.logoUrl}
-                    alt={page.name}
-                    width={128}
-                    height={128}
-                    className="object-cover w-full h-full"
+          <div className="px-5 sm:px-8 pb-8 pt-20">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-verde-oscuro inline-flex items-center gap-2">
+                {page.name}
+                {page.status === "APPROVED" && (
+                  <FaCheckCircle
+                    className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-500"
+                    aria-label={getText("Verificado", "verified")}
                   />
-                ) : (
-                  <FaUsers className="h-12 w-12 text-gray-300" />
                 )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h1 className="text-2xl sm:text-3xl font-bold text-verde-oscuro">
-                  {page.name}
-                </h1>
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <PageTypeTag
-                    type={page.type}
-                    label={getText(typeMeta.original, typeMeta.key)}
-                    size="sm"
-                  />
-                  {page.country && (
-                    <span className="text-sm text-gray-600 inline-flex items-center gap-1">
-                      <FaGlobeAmericas className="h-3.5 w-3.5 text-gray-400" />
-                      {page.country}
-                      {page.region ? `, ${page.region}` : ""}
-                    </span>
-                  )}
-                  {page.foundationYear && (
-                    <span className="text-sm text-gray-500">
-                      {getText("Fundado en", "founded")} {page.foundationYear}
-                    </span>
-                  )}
+              </h1>
+              {page.ownerId && (
+                <div className="mt-1">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-xs font-medium">
+                    {getText("Perfil Administrado", "managedProfile")}
+                  </span>
                 </div>
+              )}
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <PageTypeTag
+                  type={page.type}
+                  label={getText(typeMeta.original, typeMeta.key)}
+                  size="sm"
+                />
+                {page.country && (
+                  <span className="text-sm text-gray-600 inline-flex items-center gap-1">
+                    <FaGlobeAmericas className="h-3.5 w-3.5 text-gray-400" />
+                    {page.country}
+                    {page.region ? `, ${page.region}` : ""}
+                  </span>
+                )}
+                {page.foundationYear && (
+                  <span className="text-sm text-gray-500">
+                    {getText("Fundado en", "founded")} {page.foundationYear}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -224,7 +238,7 @@ function OrganizationPagePublic() {
 
             {page.socialMedia && (
               <div className="mt-6">
-                <h2 className="text-sm font-semibold text-gray-700 mb-2">
+                <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
                   {getText("Redes sociales", "socialMedia")}
                 </h2>
                 <SocialMediaIcons socialMedia={page.socialMedia} />

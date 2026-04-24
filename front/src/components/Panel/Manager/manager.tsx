@@ -8,7 +8,7 @@ import axios from "axios";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
-import { FaChevronDown, FaChevronUp, FaGlobe } from "react-icons/fa";
+import { FaChevronDown, FaChevronRight, FaChevronUp, FaGlobe, FaPlus } from "react-icons/fa";
 import { FaUsers } from "react-icons/fa6";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
@@ -57,10 +57,18 @@ const PanelManager = () => {
   const { user, token } = useContext(UserContext);
   const { isNextIntlEnabled } = useI18nMode();
   const tCommon = useNextIntlTranslations("common");
+  const tOrgPages = useNextIntlTranslations("organizationPages");
+  const tNav = useNextIntlTranslations("navigation");
 
   // Función para obtener el texto traducido o el texto original
   const getText = (originalText: string, translatedKey: string) => {
     return isNextIntlEnabled ? tCommon.t(translatedKey) : originalText;
+  };
+  const getOrgPagesText = (originalText: string, translatedKey: string) => {
+    return isNextIntlEnabled ? tOrgPages.t(translatedKey) : originalText;
+  };
+  const getNavText = (originalText: string, translatedKey: string) => {
+    return isNextIntlEnabled ? tNav.t(translatedKey) : originalText;
   };
   const searchParams = useSearchParams();
   const sectionParam = searchParams?.get("section") || "profile";
@@ -425,6 +433,47 @@ const PanelManager = () => {
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* CTA Crear Página */}
+            <div className="group relative bg-gradient-to-br from-emerald-50 via-white to-blue-50 rounded-lg shadow-lg hover:shadow-xl border-2 border-emerald-200 p-4 mb-4 transition-all duration-300 hover:-translate-y-0.5 overflow-hidden">
+              <div className="absolute -top-6 -right-6 w-20 h-20 bg-emerald-400/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute -bottom-6 -left-6 w-20 h-20 bg-blue-400/10 rounded-full blur-2xl pointer-events-none" />
+              <span className="absolute top-2 right-2 inline-flex items-center gap-1 rounded-md bg-emerald-500 px-2 py-0.5 text-xs font-semibold text-white shadow-sm animate-pulse">
+                ✨ {getOrgPagesText("Nuevo", "profileCtaBadge")}
+              </span>
+              <div className="relative flex items-start gap-3 pr-16">
+                <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-500 ring-4 ring-blue-100/60">
+                  <FaUsers size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-bold text-gray-900">
+                    {getOrgPagesText(
+                      "¿Representás a un club, academia o agencia?",
+                      "profileCtaTitle"
+                    )}
+                  </h3>
+                  <p className="mt-1 text-xs text-gray-600 leading-relaxed">
+                    {getOrgPagesText(
+                      "Creá tu página para conectar con jugadores, publicar oportunidades y mucho más.",
+                      "profileCtaSubtitle"
+                    )}
+                  </p>
+                </div>
+              </div>
+              <Link
+                href="/pages/create"
+                className="relative mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-verde-oscuro to-verde-claro px-3 py-3 text-sm font-bold text-white shadow-md hover:shadow-lg transition-all duration-200 hover:brightness-110"
+              >
+                <FaPlus size={12} />
+                <span className="flex-1 text-center">
+                  {getNavText("Crear Página", "createPage")}
+                </span>
+                <FaChevronRight
+                  size={12}
+                  className="group-hover:translate-x-1 transition-transform duration-200"
+                />
+              </Link>
             </div>
           </div>
 

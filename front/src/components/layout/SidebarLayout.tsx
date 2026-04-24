@@ -25,6 +25,7 @@ import {
   FaPlus,
   FaQuestionCircle,
   FaRegCreditCard,
+  FaRegFileAlt,
   FaRocket,
   FaSearch,
   FaSignOutAlt,
@@ -255,6 +256,11 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
               ? `/user-viewer/${user.id}?tab=createOffer`
               : "/PanelUsers/Manager?section=createOffers",
             icon: <AiOutlineFileAdd />,
+          },
+          {
+            label: getText("Crear Página", "createPage"),
+            path: "/pages/create",
+            icon: <FaRegFileAlt />,
           },
           {
             label: getText("Mis Ofertas", "myOffers"),

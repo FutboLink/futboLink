@@ -532,6 +532,11 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
 
           {/* Elementos a la derecha */}
           <div className="flex items-center space-x-3">
+            <HybridLanguageDropdown />
+            {/* Toggle para desarrollo - visible para testing */}
+            <I18nModeToggle className="flex" showLabel={false} />
+            <NotificationsList />
+            <FaEnvelope className="text-gray-700" size={24} />
             {isLogged && (
               <div className="relative" ref={profileDropdownMobileRef}>
                 <button
@@ -606,11 +611,6 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
                 </AnimatePresence>
               </div>
             )}
-            <HybridLanguageDropdown />
-            {/* Toggle para desarrollo - visible para testing */}
-            <I18nModeToggle className="flex" showLabel={false} />
-            <NotificationsList />
-            <FaEnvelope className="text-gray-700" size={24} />
           </div>
         </div>
       ) : (

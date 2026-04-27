@@ -18,6 +18,8 @@ import { OrganizationPagesService } from './organization-pages.service';
 import { CreateOrganizationPageDto } from './dto/create-organization-page.dto';
 import { UpdateOrganizationPageDto } from './dto/update-organization-page.dto';
 import { ListOrganizationPagesQueryDto } from './dto/list-organization-pages-query.dto';
+import { CheckDuplicatesQueryDto } from './dto/check-duplicates-query.dto';
+import { RejectPageDto } from './dto/reject-page.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { RequestWithUser } from '../auth/RequestWithUser';
 
@@ -51,6 +53,57 @@ export class OrganizationPagesController {
   @ApiOperation({ summary: 'Listar páginas del usuario autenticado' })
   findMine(@Req() req: RequestWithUser) {
     return this.service.findMine(req.user);
+  }
+
+  @Get('check-duplicates')
+  @ApiOperation({
+    summary:
+      'Buscar coincidencias por similitud (pg_trgm) para detectar duplicados',
+  })
+  checkDuplicates(@Query() query: CheckDuplicatesQueryDto) {
+    return this.service.checkDuplicates(
+      query.name,
+      query.type,
+      query.country ?? null,
+    );
+  }
+
+  @Get('admin/pending')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Listar páginas pendientes de aprobación (admin)' })
+  findPending(
+    @Req() req: RequestWithUser,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.service.findPending(
+      req.user,
+      page ? Number(page) : 1,
+      limit ? Number(limit) : 20,
+    );
+  }
+
+  @Post(':id/approve')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Aprobar una página pendiente (admin)' })
+  approve(@Param('id') id: string, @Req() req: RequestWithUser) {
+    return this.service.approve(id, req.user);
+  }
+
+  @Post(':id/reject')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Rechazar una página pendiente (admin)' })
+  reject(
+    @Param('id') id: string,
+    @Body() dto: RejectPageDto,
+    @Req() req: RequestWithUser,
+  ) {
+    return this.service.reject(id, req.user, dto.reason);
   }
 
   @Get('slug/:slug')

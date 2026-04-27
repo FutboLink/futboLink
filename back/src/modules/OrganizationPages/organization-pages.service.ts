@@ -264,6 +264,94 @@ export class OrganizationPagesService {
     });
   }
 
+  async checkDuplicates(
+    name: string,
+    type: OrganizationPageType,
+    country: string | null,
+  ): Promise<{
+    matches: SimilarPageMatch[];
+    topScore: number;
+    willBePending: boolean;
+    pendingThreshold: number;
+    warnThreshold: number;
+  }> {
+    const matches = await this.findSimilarPages(
+      name,
+      type,
+      country,
+      SIMILARITY_WARN_THRESHOLD,
+    );
+    const topScore = matches[0]?.score ?? 0;
+    return {
+      matches,
+      topScore,
+      willBePending: topScore >= SIMILARITY_PENDING_THRESHOLD,
+      pendingThreshold: SIMILARITY_PENDING_THRESHOLD,
+      warnThreshold: SIMILARITY_WARN_THRESHOLD,
+    };
+  }
+
+  async findPending(
+    authUser: AuthUser,
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<{ data: OrganizationPage[]; total: number; page: number; limit: number }> {
+    if (authUser.role !== UserType.ADMIN) {
+      throw new ForbiddenException('Solo un ADMIN puede listar páginas pendientes');
+    }
+    const safePage = page > 0 ? page : 1;
+    const safeLimit = limit > 0 ? limit : 20;
+
+    const [data, total] = await this.pageRepository.findAndCount({
+      where: { status: OrganizationPageStatus.PENDING_REVIEW },
+      relations: ['owner'],
+      order: { createdAt: 'ASC' },
+      skip: (safePage - 1) * safeLimit,
+      take: safeLimit,
+    });
+    return { data, total, page: safePage, limit: safeLimit };
+  }
+
+  async approve(id: string, authUser: AuthUser): Promise<OrganizationPage> {
+    if (authUser.role !== UserType.ADMIN) {
+      throw new ForbiddenException('Solo un ADMIN puede aprobar páginas');
+    }
+    const page = await this.pageRepository.findOne({ where: { id } });
+    if (!page) {
+      throw new NotFoundException(`Organization page ${id} not found`);
+    }
+    if (
+      page.status !== OrganizationPageStatus.PENDING_REVIEW &&
+      page.status !== OrganizationPageStatus.REJECTED
+    ) {
+      throw new BadRequestException(
+        'Solo se pueden aprobar páginas pendientes o rechazadas',
+      );
+    }
+    page.status = OrganizationPageStatus.APPROVED;
+    return this.pageRepository.save(page);
+  }
+
+  async reject(
+    id: string,
+    authUser: AuthUser,
+    _reason?: string,
+  ): Promise<OrganizationPage> {
+    if (authUser.role !== UserType.ADMIN) {
+      throw new ForbiddenException('Solo un ADMIN puede rechazar páginas');
+    }
+    const page = await this.pageRepository.findOne({ where: { id } });
+    if (!page) {
+      throw new NotFoundException(`Organization page ${id} not found`);
+    }
+    if (page.status === OrganizationPageStatus.REJECTED) {
+      return page;
+    }
+    page.status = OrganizationPageStatus.REJECTED;
+    return this.pageRepository.save(page);
+    // TODO: enviar email + notificación al owner con `_reason` (próximo commit).
+  }
+
   async update(
     id: string,
     dto: UpdateOrganizationPageDto,

@@ -23,6 +23,22 @@ const ADMIN_ONLY_TYPES: OrganizationPageType[] = [
   OrganizationPageType.NATIONAL_TEAM,
 ];
 
+// Anti-duplicados: scores devueltos por pg_trgm.similarity().
+// >= PENDING_THRESHOLD: la página queda en PENDING_REVIEW (admin decide).
+// >= WARN_THRESHOLD: solo se muestra como advertencia al usuario en el wizard.
+const SIMILARITY_PENDING_THRESHOLD = 0.4;
+const SIMILARITY_WARN_THRESHOLD = 0.25;
+
+export type SimilarPageMatch = {
+  id: string;
+  name: string;
+  slug: string;
+  type: OrganizationPageType;
+  country: string | null;
+  status: OrganizationPageStatus;
+  score: number;
+};
+
 function slugify(input: string): string {
   return input
     .normalize('NFD')
@@ -86,6 +102,18 @@ export class OrganizationPagesService {
 
     const slug = await this.generateUniqueSlug(dto.name);
 
+    const matches = await this.findSimilarPages(
+      dto.name,
+      dto.type,
+      dto.country ?? null,
+      SIMILARITY_WARN_THRESHOLD,
+    );
+    const topScore = matches[0]?.score ?? 0;
+    const status =
+      topScore >= SIMILARITY_PENDING_THRESHOLD
+        ? OrganizationPageStatus.PENDING_REVIEW
+        : OrganizationPageStatus.APPROVED;
+
     const page = this.pageRepository.create({
       type: dto.type,
       name: dto.name,
@@ -100,12 +128,78 @@ export class OrganizationPagesService {
       contactEmail: dto.contactEmail ?? null,
       phone: dto.phone ?? null,
       socialMedia: dto.socialMedia ?? {},
-      status: OrganizationPageStatus.APPROVED,
+      status,
       ownerId: authUser.id,
       leagueId,
     });
 
     return this.pageRepository.save(page);
+  }
+
+  async findSimilarPages(
+    name: string,
+    type: OrganizationPageType,
+    country: string | null,
+    minScore: number = SIMILARITY_WARN_THRESHOLD,
+    excludeId?: string,
+  ): Promise<SimilarPageMatch[]> {
+    const trimmed = name?.trim();
+    if (!trimmed) return [];
+
+    const qb = this.pageRepository
+      .createQueryBuilder('op')
+      .select([
+        'op.id AS id',
+        'op.name AS name',
+        'op.slug AS slug',
+        'op.type AS type',
+        'op.country AS country',
+        'op.status AS status',
+      ])
+      .addSelect('similarity(op.name, :name)', 'score')
+      .where('op.type = :type', { type })
+      .andWhere('op.status IN (:...visibleStatuses)', {
+        visibleStatuses: [
+          OrganizationPageStatus.APPROVED,
+          OrganizationPageStatus.PENDING_REVIEW,
+        ],
+      })
+      .andWhere('similarity(op.name, :name) >= :minScore', {
+        name: trimmed,
+        minScore,
+      });
+
+    if (country) {
+      qb.andWhere('op.country = :country', { country });
+    } else {
+      qb.andWhere('op.country IS NULL');
+    }
+
+    if (excludeId) {
+      qb.andWhere('op.id != :excludeId', { excludeId });
+    }
+
+    qb.orderBy('score', 'DESC').limit(5);
+
+    const rows = await qb.getRawMany<{
+      id: string;
+      name: string;
+      slug: string;
+      type: OrganizationPageType;
+      country: string | null;
+      status: OrganizationPageStatus;
+      score: string;
+    }>();
+
+    return rows.map((r) => ({
+      id: r.id,
+      name: r.name,
+      slug: r.slug,
+      type: r.type,
+      country: r.country,
+      status: r.status,
+      score: Number(r.score),
+    }));
   }
 
   async findAll(
@@ -231,6 +325,8 @@ export class OrganizationPagesService {
   private assertVisibility(page: OrganizationPage, authUser?: AuthUser): void {
     const isAdmin = authUser?.role === UserType.ADMIN;
     if (isAdmin) return;
+    const isOwner = !!authUser?.id && page.ownerId === authUser.id;
+    if (isOwner) return;
     if (page.status !== OrganizationPageStatus.APPROVED) {
       throw new NotFoundException('Organization page not found');
     }

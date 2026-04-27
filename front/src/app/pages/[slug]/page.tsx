@@ -236,36 +236,58 @@ function OrganizationPagePublic() {
               )}
             </div>
 
+            {page.type === "CLUB" && page.leagueId && page.league && (
+              <div className="mt-6 rounded-xl border border-gray-200 bg-white p-4 flex items-center gap-3 hover:shadow-sm transition-shadow">
+                {page.league.logoUrl ? (
+                  <NextImage
+                    src={page.league.logoUrl}
+                    alt={page.league.name}
+                    width={48}
+                    height={48}
+                    className="rounded-lg object-contain bg-gray-50 p-1"
+                  />
+                ) : (
+                  <div className="h-12 w-12 rounded-lg bg-gray-50 flex items-center justify-center">
+                    <FaTrophy className="h-5 w-5 text-emerald-600" />
+                  </div>
+                )}
+                <div className="flex flex-col">
+                  <span className="text-xs text-gray-500 uppercase tracking-wide">
+                    {getText("Compite en", "competesIn")}
+                  </span>
+                  <Link
+                    href={`/pages/${page.league.slug}`}
+                    className="font-semibold text-verde-oscuro hover:underline"
+                  >
+                    {page.league.name}
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {page.type === "AGENCY" && (
+              <div className="mt-6 rounded-xl border border-gray-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-violet-600 to-purple-500 text-white px-4 py-2 rounded-t-xl font-semibold">
+                  {getText("Portafolio", "portfolioTitle")}
+                </div>
+                <div className="bg-white flex flex-col items-center justify-center gap-2 py-8 px-4 text-gray-400">
+                  <FaUsers className="h-10 w-10" />
+                  <p className="text-sm">
+                    {getText(
+                      "Sin jugadores representados",
+                      "noPlayersRepresented",
+                    )}
+                  </p>
+                </div>
+              </div>
+            )}
+
             {page.socialMedia && (
               <div className="mt-6">
                 <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
                   {getText("Redes sociales", "socialMedia")}
                 </h2>
                 <SocialMediaIcons socialMedia={page.socialMedia} />
-              </div>
-            )}
-
-            {page.type === "CLUB" && page.league && (
-              <div className="mt-6 p-4 rounded-xl bg-emerald-50/50 border border-emerald-100 flex items-center gap-3">
-                <FaTrophy className="h-5 w-5 text-emerald-600" />
-                <span className="text-sm text-gray-700">
-                  {getText("Compite en", "competesIn")}:{" "}
-                </span>
-                <Link
-                  href={`/pages/${page.league.slug}`}
-                  className="inline-flex items-center gap-2 font-semibold text-verde-oscuro hover:underline"
-                >
-                  {page.league.logoUrl && (
-                    <NextImage
-                      src={page.league.logoUrl}
-                      alt={page.league.name}
-                      width={24}
-                      height={24}
-                      className="rounded-full object-cover"
-                    />
-                  )}
-                  {page.league.name}
-                </Link>
               </div>
             )}
           </div>

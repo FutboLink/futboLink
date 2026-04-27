@@ -152,7 +152,10 @@ export class OrganizationPagesService {
   }
 
   async findBySlug(slug: string, authUser?: AuthUser): Promise<OrganizationPage> {
-    const page = await this.pageRepository.findOne({ where: { slug } });
+    const page = await this.pageRepository.findOne({
+      where: { slug },
+      relations: ['league'],
+    });
     if (!page) {
       throw new NotFoundException(`Organization page con slug "${slug}" no encontrada`);
     }

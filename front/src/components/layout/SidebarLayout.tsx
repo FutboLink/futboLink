@@ -263,6 +263,11 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
             icon: <FaRegFileAlt />,
           },
           {
+            label: getText("Mis páginas", "myPages"),
+            path: "/pages/mine",
+            icon: <FaRegFileAlt />,
+          },
+          {
             label: getText("Mis Ofertas", "myOffers"),
             path: user?.id
               ? `/user-viewer/${user.id}?tab=myOffers`

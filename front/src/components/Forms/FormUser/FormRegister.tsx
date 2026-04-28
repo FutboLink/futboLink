@@ -7,7 +7,6 @@ import { useContext, useRef, useState } from "react";
 import {
   FaArrowLeft,
   FaBriefcase,
-  FaBuilding,
   FaBullhorn,
   FaCheckCircle,
   FaChevronDown,
@@ -19,7 +18,6 @@ import {
   FaGlobeAmericas,
   FaLock,
   FaPhone,
-  FaShieldAlt,
   FaSpinner,
   FaUser,
   FaUsers,
@@ -110,25 +108,8 @@ const RegistrationForm: React.FC = () => {
       ],
     },
     [UserType.AGENCY]: {
-      name: "Profesionales Independientes / Representación",
-      roles: [
-        "Agente FIFA",
-        "Intermediario",
-        "Representante",
-        "Agencia de representación",
-      ],
-    },
-    [UserType.CLUB]: {
-      name: "Entidad / Club",
-      roles: [
-        "Club",
-        "Academia",
-        "Liga",
-        "Federación",
-        "Escuela de Formación",
-        "Organizador de torneos",
-        "Selecciones Nacionales",
-      ],
+      name: "Agente/Representante",
+      roles: ["Agente FIFA", "Representante"],
     },
   };
 
@@ -150,7 +131,6 @@ const RegistrationForm: React.FC = () => {
     name: "",
     lastname: "",
     email: "",
-    ubicacionActual: "",
     nationality: "",
     puesto: "",
     genre: "",
@@ -198,12 +178,7 @@ const RegistrationForm: React.FC = () => {
     const { name, value } = e.target;
     const updatedUser = { ...userRegister, [name]: value };
     setUserRegister(updatedUser);
-    const validationErrors = validationRegister(updatedUser);
-    // Si es CLUB, eliminar el error de lastname ya que no es requerido
-    if (selectedCategory === UserType.CLUB && validationErrors.lastname) {
-      delete validationErrors.lastname;
-    }
-    setErrors(validationErrors);
+    setErrors(validationRegister(updatedUser));
   };
 
   // Function to reset role selection when category changes
@@ -216,6 +191,20 @@ const RegistrationForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const validationErrors = validationRegister(userRegister as IRegisterUser);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      setTouched((prev) => ({
+        ...prev,
+        ...Object.keys(validationErrors).reduce(
+          (acc, key) => ({ ...acc, [key]: true }),
+          {} as { [key: string]: boolean }
+        ),
+      }));
+      return;
+    }
+
     setIsLoggingIn(true);
 
     if (userRegister.password !== userRegister.confirmPassword) {
@@ -239,15 +228,13 @@ const RegistrationForm: React.FC = () => {
     // the fields we want to send to the backend
     const registrationData: IRegisterUser = {
       name: userRegister.name,
-      lastname: selectedCategory === UserType.CLUB ? undefined : userRegister.lastname,
+      lastname: userRegister.lastname,
       email: userRegister.email,
       password: userRegister.password,
       role: selectedRole as UserType,
-      ubicacionActual: userRegister.ubicacionActual || "",
       nationality: selectedNationality || "",
       genre: userRegister.genre || "",
       puesto: userRegister.puesto || "",
-      nameAgency: userRegister.nameAgency || "",
       phone: userRegister.phone || "",
       competitionLevel: userRegister.competitionLevel || "amateur",
     };
@@ -359,18 +346,7 @@ const RegistrationForm: React.FC = () => {
           >
             <FaBriefcase className="h-10 w-10 text-gray-400 mb-3" />
             <span className="text-lg font-semibold text-emerald-800">
-              {getText("Profesionales Independientes / Representación", "agency")} 💼
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleCategoryChange(UserType.CLUB, UserType.CLUB)}
-            className="group bg-white border border-emerald-100 hover:border-emerald-400 rounded-2xl shadow-md hover:shadow-lg p-6 flex flex-col items-center justify-center transition-all md:col-span-2"
-          >
-            <FaShieldAlt className="h-10 w-10 text-gray-400 mb-3" />
-            <span className="text-lg font-semibold text-emerald-800">
-              {getText("Entidad / Club", "entityClub")}
+              {getText("Agente/Representante", "agency")}
             </span>
           </button>
         </div>
@@ -492,33 +468,6 @@ const RegistrationForm: React.FC = () => {
           )}
         </div>
 
-        {/* Nombre de la Agencia - Solo para agencias */}
-        {selectedCategory === UserType.AGENCY && (
-          <div className="flex flex-col col-span-full">
-            <label
-              htmlFor="nameAgent"
-              className="block text-gray-700 mb-2 font-medium"
-            >
-              {getText("Nombre de la Agencia", "agencyNameLabel")} <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <input
-                id="nameAgent"
-                type="text"
-                name="nameAgency"
-                value={userRegister.nameAgency || ""}
-                onChange={handleChange}
-                className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                placeholder={getText("Nombre de tu agencia o empresa", "agencyName")}
-                required={selectedCategory === UserType.AGENCY}
-              />
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaBuilding className="h-5 w-5 text-gray-400" />
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Sección de información personal */}
         <div className="md:col-span-2 mt-4">
           <h3 className="text-xl font-semibold text-emerald-700 border-b pb-2 mb-4 flex items-center">
@@ -561,39 +510,37 @@ const RegistrationForm: React.FC = () => {
           )}
         </div>
 
-        {/* Apellidos - Solo mostrar si NO es CLUB */}
-        {selectedCategory !== UserType.CLUB && (
-          <div className="flex flex-col">
-            <label
-              htmlFor="lastName"
-              className="block text-gray-700 mb-2 font-medium"
-            >
-              {getText("Apellido", "lastNameLabel")} <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <input
-                id="lastName"
-                type="text"
-                name="lastname"
-                value={userRegister.lastname}
-                onBlur={handleBlur}
-                onChange={handleChange}
-                className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                placeholder={getText("Tu apellido", "lastName")}
-                required
-              />
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaUsers className="h-5 w-5 text-gray-400" />
-              </div>
+        {/* Apellidos */}
+        <div className="flex flex-col">
+          <label
+            htmlFor="lastName"
+            className="block text-gray-700 mb-2 font-medium"
+          >
+            {getText("Apellido", "lastNameLabel")} <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <input
+              id="lastName"
+              type="text"
+              name="lastname"
+              value={userRegister.lastname}
+              onBlur={handleBlur}
+              onChange={handleChange}
+              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              placeholder={getText("Tu apellido", "lastName")}
+              required
+            />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaUsers className="h-5 w-5 text-gray-400" />
             </div>
-            {touched.lastname && errors.lastname && (
-              <p className="text-red-500 text-sm mt-1 flex items-center">
-                <FaExclamationCircle className="h-4 w-4 mr-1" />
-                {errors.lastname}
-              </p>
-            )}
           </div>
-        )}
+          {touched.lastname && errors.lastname && (
+            <p className="text-red-500 text-sm mt-1 flex items-center">
+              <FaExclamationCircle className="h-4 w-4 mr-1" />
+              {errors.lastname}
+            </p>
+          )}
+        </div>
 
         {/* Email */}
         <div className="flex flex-col">
@@ -749,30 +696,6 @@ const RegistrationForm: React.FC = () => {
               {errors.genre}
             </p>
           )}
-        </div>
-
-        {/* País de Residencia Actual - Para todas las categorías */}
-        <div className="flex flex-col">
-          <label
-            htmlFor="ubicacionActual"
-            className="block text-gray-700 mb-2 font-medium"
-          >
-            {getText("País de Residencia Actual", "currentResidence")}
-          </label>
-          <div className="relative">
-            <input
-              id="ubicacionActual"
-              type="text"
-              name="ubicacionActual"
-              value={userRegister.ubicacionActual}
-              onChange={handleChange}
-              className="w-full border border-gray-300 text-gray-700 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-              placeholder={getText("País donde resides actualmente", "currentLocation")}
-            />
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FaGlobeAmericas className="h-5 w-5 text-gray-400" />
-            </div>
-          </div>
         </div>
 
         {/* Sección de seguridad */}

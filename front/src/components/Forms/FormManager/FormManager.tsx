@@ -44,7 +44,6 @@ const ManagerForm: React.FC = () => {
     name: "",
     lastname: "",
     email: "",
-    ubicacionActual: "",
     nationality: "",
     genre: "",
     password: "",
@@ -102,6 +101,20 @@ const ManagerForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const validationErrors = validationRegister(userRegister);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      setTouched((prev) => ({
+        ...prev,
+        ...Object.keys(validationErrors).reduce(
+          (acc, key) => ({ ...acc, [key]: true }),
+          {} as { [key: string]: boolean }
+        ),
+      }));
+      return;
+    }
+
     setIsLoggingIn(true);
 
     // Verificar si las contraseñas coinciden

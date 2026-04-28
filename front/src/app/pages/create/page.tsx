@@ -77,8 +77,14 @@ function CreatePage() {
   useEffect(() => {
     if (!guardChecked) return;
     if (!isLogged) {
+      if (
+        typeof window !== "undefined" &&
+        window.localStorage.getItem("user")
+      ) {
+        return; // UserContext aún no hidrató, esperar.
+      }
       toast.error(
-        getText("Tenés que iniciar sesión para crear una página.", "mustLogin")
+        getText("Tenés que iniciar sesión para crear una página.", "mustLogin"),
       );
       router.push("/Login");
       return;
@@ -118,8 +124,18 @@ function CreatePage() {
       return null;
     }
     const created = (await res.json()) as OrganizationPage;
-    toast.success(getText("Página creada con éxito", "createSuccess"));
-    router.push(`/pages/${created.slug}`);
+    if (created.status === "PENDING_REVIEW") {
+      toast.success(
+        getText(
+          "Tu página fue creada y está en revisión por el admin. Solo vos podés verla por ahora.",
+          "pendingApprovalToast",
+        ),
+      );
+      router.push("/pages/mine");
+    } else {
+      toast.success(getText("Página creada con éxito", "createSuccess"));
+      router.push(`/pages/${created.slug}`);
+    }
     return created;
   };
 

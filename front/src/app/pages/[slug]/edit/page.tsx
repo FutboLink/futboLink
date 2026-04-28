@@ -56,27 +56,31 @@ function EditPage() {
   const [denied, setDenied] = useState(false);
 
   useEffect(() => {
-    if (!isLogged) {
-      toast.error(
-        getText("Tenés que iniciar sesión para editar una página.", "mustLogin")
-      );
-      router.push("/Login");
-    }
+    if (typeof window === "undefined") return;
+    if (isLogged) return;
+    if (window.localStorage.getItem("user")) return;
+    toast.error(
+      getText("Tenés que iniciar sesión para editar una página.", "mustLogin"),
+    );
+    router.push("/Login");
   }, [isLogged, router]);
 
   useEffect(() => {
-    if (!slug || !API_URL || !isLogged) {
+    if (!slug || !API_URL || !isLogged || !token) {
       return;
     }
     const controller = new AbortController();
     const fetchPage = async () => {
       setLoading(true);
+      setNotFound(false);
       try {
         const res = await fetch(`${API_URL}/organization-pages/slug/${slug}`, {
           signal: controller.signal,
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {
           setNotFound(true);
+          setPage(null);
           return;
         }
         const data = (await res.json()) as OrganizationPage;
@@ -93,6 +97,7 @@ function EditPage() {
         if ((err as Error).name !== "AbortError") {
           console.error("Error fetching page:", err);
           setNotFound(true);
+          setPage(null);
         }
       } finally {
         setLoading(false);
@@ -100,7 +105,7 @@ function EditPage() {
     };
     fetchPage();
     return () => controller.abort();
-  }, [slug, isLogged, user?.id, role]);
+  }, [slug, isLogged, user?.id, role, token]);
 
   const storageKey = slug ? `futbolink:page-edit-draft:${slug}` : "";
 

@@ -14,6 +14,7 @@ import {
   FaTrophy,
   FaUsers,
 } from "react-icons/fa";
+import ConfirmActionModal from "@/components/OrganizationPages/ConfirmActionModal";
 import { useI18nMode } from "@/components/Context/I18nModeContext";
 import PageTypeTag from "@/components/OrganizationPages/PageTypeTag";
 import SocialMediaIcons from "@/components/OrganizationPages/SocialMediaIcons";
@@ -43,7 +44,7 @@ const TYPE_LABELS: Record<string, { original: string; key: string }> = {
 function OrganizationPagePublic() {
   const params = useParams();
   const slug = Array.isArray(params?.slug) ? params.slug[0] : (params?.slug as string);
-  const { user } = useUserContext();
+  const { user, token } = useUserContext();
   const { isNextIntlEnabled } = useI18nMode();
   const tOrg = useNextIntlTranslations("organizationPages");
 
@@ -53,6 +54,8 @@ function OrganizationPagePublic() {
   const [page, setPage] = useState<OrganizationPage | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [confirmingRepublish, setConfirmingRepublish] = useState(false);
+  const [republishing, setRepublishing] = useState(false);
 
   useEffect(() => {
     if (!slug || !API_URL) {
@@ -63,20 +66,27 @@ function OrganizationPagePublic() {
     const controller = new AbortController();
     const fetchPage = async () => {
       setLoading(true);
+      setNotFound(false);
       try {
+        const headers: Record<string, string> = {};
+        if (token) headers.Authorization = `Bearer ${token}`;
         const res = await fetch(`${API_URL}/organization-pages/slug/${slug}`, {
           signal: controller.signal,
+          headers,
         });
         if (!res.ok) {
           setNotFound(true);
+          setPage(null);
           return;
         }
         const data = (await res.json()) as OrganizationPage;
         setPage(data);
+        setNotFound(false);
       } catch (err) {
         if ((err as Error).name !== "AbortError") {
           console.error("Error fetching page:", err);
           setNotFound(true);
+          setPage(null);
         }
       } finally {
         setLoading(false);
@@ -84,7 +94,7 @@ function OrganizationPagePublic() {
     };
     fetchPage();
     return () => controller.abort();
-  }, [slug]);
+  }, [slug, token]);
 
   if (loading) {
     return (
@@ -116,9 +126,89 @@ function OrganizationPagePublic() {
     key: `type${page.type}`,
   };
 
+  const ownerBanner = isOwner && page.status !== "APPROVED" ? (
+    <div
+      className={`mb-4 rounded-xl border px-4 py-3 text-sm flex flex-col sm:flex-row sm:items-center gap-3 ${
+        page.status === "PENDING_REVIEW"
+          ? "bg-amber-50 border-amber-200 text-amber-800"
+          : page.status === "REJECTED"
+          ? "bg-red-50 border-red-200 text-red-800"
+          : "bg-gray-50 border-gray-200 text-gray-700"
+      }`}
+    >
+      <div className="flex-1 flex items-start gap-3">
+        <span className="font-semibold uppercase tracking-wide text-xs shrink-0 mt-0.5">
+          {page.status === "PENDING_REVIEW"
+            ? getText("En revisión", "statusInReview")
+            : page.status === "REJECTED"
+            ? getText("Rechazada", "statusRejected")
+            : getText("Desactivada", "statusDeactivated")}
+        </span>
+        <div className="flex flex-col gap-1.5 min-w-0">
+          <span>
+            {page.status === "PENDING_REVIEW"
+              ? getText(
+                  "Detectamos coincidencias con otra página, así que esta queda esperando aprobación del admin. Solo vos podés verla por ahora.",
+                  "ownerBannerPending",
+                )
+              : page.status === "REJECTED"
+              ? getText(
+                  "Esta página fue rechazada por el admin. Editala con datos correctos y volvé a publicarla.",
+                  "ownerBannerRejected",
+                )
+              : getText(
+                  "Esta página fue desactivada por el admin.",
+                  "ownerBannerDeactivated",
+                )}
+          </span>
+          {page.status === "REJECTED" && page.rejectionReason && (
+            <span className="bg-white/70 rounded-md px-2 py-1.5 text-xs">
+              <strong className="font-semibold">
+                {getText("Motivo:", "rejectionReasonLabelInline")}
+              </strong>{" "}
+              {page.rejectionReason}
+            </span>
+          )}
+        </div>
+      </div>
+      {page.status === "REJECTED" && (
+        <button
+          type="button"
+          onClick={() => setConfirmingRepublish(true)}
+          className="shrink-0 self-stretch sm:self-center inline-flex items-center justify-center gap-1.5 bg-red-700 hover:bg-red-800 text-white text-xs font-semibold px-3 py-2 rounded-lg whitespace-nowrap"
+        >
+          {getText("Volver a publicar", "republishAction")}
+        </button>
+      )}
+    </div>
+  ) : null;
+
+  const confirmRepublish = async () => {
+    if (!page || !token || !API_URL) return;
+    setRepublishing(true);
+    try {
+      const res = await fetch(
+        `${API_URL}/organization-pages/${page.id}/republish`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      if (!res.ok) return;
+      const updated = (await res.json()) as OrganizationPage;
+      setPage(updated);
+      setConfirmingRepublish(false);
+    } catch {
+      // ignore
+    } finally {
+      setRepublishing(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-gray-50 pt-20 pb-12">
       <article className="max-w-5xl mx-auto px-4">
+        {ownerBanner}
         <div className="relative rounded-2xl shadow-sm bg-white">
           <div className="relative">
             <div
@@ -293,6 +383,21 @@ function OrganizationPagePublic() {
           </div>
         </div>
       </article>
+
+      <ConfirmActionModal
+        open={confirmingRepublish}
+        title={getText("Volver a publicar", "republishConfirmTitle")}
+        description={getText(
+          "Asegurate de haber modificado los datos para que no sea un duplicado de otra página existente. Si el sistema vuelve a detectar coincidencias, va a quedar esperando aprobación del admin.",
+          "republishConfirmDescription",
+        )}
+        confirmLabel={getText("Volver a publicar", "republishAction")}
+        cancelLabel={getText("Cancelar", "cancel")}
+        tone="primary"
+        busy={republishing}
+        onConfirm={() => confirmRepublish()}
+        onCancel={() => setConfirmingRepublish(false)}
+      />
     </main>
   );
 }

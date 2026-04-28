@@ -55,6 +55,7 @@ interface SidebarItem {
   icon: ReactNode;
   path?: string;
   onClick?: () => void;
+  children?: SidebarItem[];
 }
 
 const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
@@ -68,6 +69,14 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
   const [isProfileDropdownMobileOpen, setIsProfileDropdownMobileOpen] =
     useState(false);
   const profileDropdownMobileRef = useRef<HTMLDivElement>(null);
+  const [expandedSections, setExpandedSections] = useState<string[]>([]);
+  const toggleSection = (label: string) =>
+    setExpandedSections((prev) =>
+      prev.includes(label)
+        ? prev.filter((l) => l !== label)
+        : [...prev, label],
+    );
+  const isSectionExpanded = (label: string) => expandedSections.includes(label);
 
   // Función para obtener el texto traducido o el texto original
   const getText = (originalText: string, translatedKey: string) => {
@@ -172,6 +181,32 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
             path: "/PanelAdmin/Cursos/crear-curso",
             icon: <FaDumbbell />,
           },
+          {
+            label: getText("Páginas", "pagesMenu"),
+            icon: <FaRegFileAlt />,
+            children: [
+              {
+                label: getText("Crear Página", "createPage"),
+                path: "/pages/create",
+                icon: <FaRegFileAlt />,
+              },
+              {
+                label: getText("Mis páginas", "myPages"),
+                path: "/pages/mine",
+                icon: <FaRegFileAlt />,
+              },
+              {
+                label: getText("Todas las páginas", "allPages"),
+                path: "/admin/pages/all",
+                icon: <FaRegFileAlt />,
+              },
+              {
+                label: getText("Pendientes", "pendingPages"),
+                path: "/admin/pages/pending",
+                icon: <FaRegFileAlt />,
+              },
+            ],
+          },
         ],
         subscription: {
           label: getText("Administrar Suscripción", "manageSubscription"),
@@ -258,14 +293,29 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
             icon: <AiOutlineFileAdd />,
           },
           {
-            label: getText("Crear Página", "createPage"),
-            path: "/pages/create",
+            label: getText("Páginas", "pagesMenu"),
             icon: <FaRegFileAlt />,
-          },
-          {
-            label: getText("Mis páginas", "myPages"),
-            path: "/pages/mine",
-            icon: <FaRegFileAlt />,
+            children: [
+              {
+                label: getText("Crear Página", "createPage"),
+                path: "/pages/create",
+                icon: <FaRegFileAlt />,
+              },
+              {
+                label: getText("Mis páginas", "myPages"),
+                path: "/pages/mine",
+                icon: <FaRegFileAlt />,
+              },
+              ...(role === "ADMIN"
+                ? [
+                    {
+                      label: getText("Pendientes", "pendingPages"),
+                      path: "/admin/pages/pending",
+                      icon: <FaRegFileAlt />,
+                    },
+                  ]
+                : []),
+            ],
           },
           {
             label: getText("Mis Ofertas", "myOffers"),
@@ -707,6 +757,47 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
               <nav>
                 <ul className="space-y-2">
                   {sidebarItems.main.map((item, index) => {
+                    if (item.children && item.children.length > 0) {
+                      const expanded = isSectionExpanded(item.label);
+                      return (
+                        <li key={`main-${item.label}-${index}`}>
+                          <button
+                            type="button"
+                            onClick={() => toggleSection(item.label)}
+                            className="flex items-center gap-4 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 w-full text-left"
+                          >
+                            <span className="text-lg">{item.icon}</span>
+                            <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex-1">
+                              {item.label}
+                            </span>
+                            <span
+                              className={`opacity-0 group-hover:opacity-100 transition-all duration-300 text-xs ${
+                                expanded ? "rotate-180" : ""
+                              }`}
+                            >
+                              ▾
+                            </span>
+                          </button>
+                          {expanded && (
+                            <ul className="mt-1 ml-3 pl-3 border-l border-gray-200 space-y-1">
+                              {item.children.map((child, ci) => (
+                                <li key={`main-${item.label}-child-${ci}`}>
+                                  <Link
+                                    href={child.path || "/"}
+                                    className="flex items-center gap-3 px-2 py-1.5 rounded-lg text-xs text-gray-600 hover:bg-gray-100"
+                                  >
+                                    <span className="text-sm">{child.icon}</span>
+                                    <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                      {child.label}
+                                    </span>
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </li>
+                      );
+                    }
                     if (item.onClick) {
                       return (
                         <li key={`main-${item.label}-${index}`}>
@@ -859,6 +950,48 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
             <nav className="flex-1 p-4">
               <ul className="space-y-2">
                 {sidebarItems.main.map((item, index) => {
+                  if (item.children && item.children.length > 0) {
+                    const expanded = isSectionExpanded(item.label);
+                    return (
+                      <li key={`main-${item.label}-${index}`}>
+                        <button
+                          type="button"
+                          onClick={() => toggleSection(item.label)}
+                          className="flex items-center gap-4 px-3 py-2 rounded-lg text-sm font-medium text-white hover:bg-green-700 w-full text-left"
+                        >
+                          <span className="text-lg">{item.icon}</span>
+                          <span className="whitespace-nowrap flex-1">
+                            {item.label}
+                          </span>
+                          <span
+                            className={`text-xs transition-transform ${
+                              expanded ? "rotate-180" : ""
+                            }`}
+                          >
+                            ▾
+                          </span>
+                        </button>
+                        {expanded && (
+                          <ul className="mt-1 ml-3 pl-3 border-l border-green-600 space-y-1">
+                            {item.children.map((child, ci) => (
+                              <li key={`main-${item.label}-mchild-${ci}`}>
+                                <Link
+                                  href={child.path || "/"}
+                                  onClick={closeSidebar}
+                                  className="flex items-center gap-3 px-2 py-1.5 rounded-lg text-xs text-white/90 hover:bg-green-700"
+                                >
+                                  <span className="text-sm">{child.icon}</span>
+                                  <span className="whitespace-nowrap">
+                                    {child.label}
+                                  </span>
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </li>
+                    );
+                  }
                   if (item.onClick) {
                     return (
                       <li key={`main-${item.label}-${index}`}>

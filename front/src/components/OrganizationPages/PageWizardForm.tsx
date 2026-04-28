@@ -236,6 +236,24 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
   const [countrySearch, setCountrySearch] = useState("");
   const countryRef = useRef<HTMLDivElement | null>(null);
 
+  // Detección de duplicados: solo aplica al crear (en edit no chequeamos).
+  type WizardSimilarMatch = {
+    id: string;
+    name: string;
+    slug: string;
+    type: OrganizationPageType;
+    country: string | null;
+    status: string;
+    score: number;
+  };
+  const [duplicateMatches, setDuplicateMatches] = useState<WizardSimilarMatch[]>(
+    [],
+  );
+  const [duplicateLoading, setDuplicateLoading] = useState(false);
+  const [topScore, setTopScore] = useState(0);
+  const [willBePending, setWillBePending] = useState(false);
+  const [confirmedNotMine, setConfirmedNotMine] = useState(false);
+
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(storageKey);
@@ -268,6 +286,60 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
     return () => window.clearTimeout(handler);
   }, [draft, hydrated, storageKey]);
 
+  // Reset confirmation when name/type/country change so the user re-acknowledges.
+  useEffect(() => {
+    setConfirmedNotMine(false);
+  }, [draft.name, draft.type, draft.country]);
+
+  // Debounced search for similar pages while the user fills step 2.
+  // Only in create mode — edit doesn't re-check duplicates.
+  useEffect(() => {
+    if (mode === "edit" || !API_URL) return;
+    const trimmed = draft.name.trim();
+    if (
+      !draft.type ||
+      !draft.country ||
+      trimmed.length < 2 ||
+      draft.step !== 2
+    ) {
+      setDuplicateMatches([]);
+      setTopScore(0);
+      setWillBePending(false);
+      return;
+    }
+    const controller = new AbortController();
+    const handler = window.setTimeout(async () => {
+      setDuplicateLoading(true);
+      try {
+        const params = new URLSearchParams({
+          type: draft.type,
+          name: trimmed,
+          country: draft.country,
+        });
+        const res = await fetch(
+          `${API_URL}/organization-pages/check-duplicates?${params.toString()}`,
+          { signal: controller.signal },
+        );
+        if (res.ok) {
+          const data = await res.json();
+          setDuplicateMatches(data.matches ?? []);
+          setTopScore(data.topScore ?? 0);
+          setWillBePending(!!data.willBePending);
+        }
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") {
+          console.error("Error checking duplicates:", err);
+        }
+      } finally {
+        setDuplicateLoading(false);
+      }
+    }, 400);
+    return () => {
+      window.clearTimeout(handler);
+      controller.abort();
+    };
+  }, [draft.name, draft.type, draft.country, draft.step, mode]);
+
   useEffect(() => {
     if (draft.type !== "CLUB") {
       return;
@@ -290,7 +362,9 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
             : Array.isArray(data?.items)
             ? data.items
             : [];
-          setLeagues(list);
+          // El endpoint puede devolver ligas en otros estados al admin
+          // (OptionalAuthGuard). En el wizard solo se eligen ligas APPROVED.
+          setLeagues(list.filter((l) => l.status === "APPROVED"));
         }
       } catch (err) {
         if ((err as Error).name !== "AbortError") {
@@ -330,15 +404,19 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
   const validateStep = (step: PageDraft["step"]): boolean => {
     const nameOk = draft.name.trim().length > 0;
     const countryOk = draft.country.trim().length > 0;
+    // En create, si detectamos coincidencias, el usuario debe confirmar
+    // explícitamente que ninguna es su organización antes de avanzar.
+    const duplicateGate =
+      mode === "edit" || duplicateMatches.length === 0 || confirmedNotMine;
     switch (step) {
       case 1:
         return !!draft.type;
       case 2:
-        return !!draft.type && nameOk && countryOk;
+        return !!draft.type && nameOk && countryOk && duplicateGate;
       case 3:
-        return !!draft.type && nameOk && countryOk;
+        return !!draft.type && nameOk && countryOk && duplicateGate;
       case 4:
-        return !!draft.type && nameOk && countryOk;
+        return !!draft.type && nameOk && countryOk && duplicateGate;
       default:
         return false;
     }
@@ -531,6 +609,97 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
                   <span className="text-red-500 text-xs mt-1">{nameError}</span>
                 )}
               </div>
+
+              {mode !== "edit" && (duplicateLoading || duplicateMatches.length > 0) && (
+                <div
+                  className={`rounded-xl border p-4 flex flex-col gap-3 ${
+                    willBePending
+                      ? "border-amber-300 bg-amber-50"
+                      : "border-emerald-200 bg-emerald-50/40"
+                  }`}
+                >
+                  {duplicateLoading && duplicateMatches.length === 0 ? (
+                    <div className="text-sm text-gray-500">
+                      {getText("Buscando coincidencias...", "duplicateSearching")}
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-start gap-2">
+                        <span
+                          className={`text-xs font-bold uppercase tracking-wide shrink-0 mt-0.5 ${
+                            willBePending ? "text-amber-700" : "text-emerald-700"
+                          }`}
+                        >
+                          {willBePending
+                            ? getText(
+                                "Coincidencias detectadas",
+                                "duplicateMatchTitleHigh",
+                              )
+                            : getText(
+                                "Posibles coincidencias",
+                                "duplicateMatchTitle",
+                              )}
+                        </span>
+                        <span className="text-xs text-gray-600">
+                          {willBePending
+                            ? getText(
+                                "Si publicás esta página, va a quedar esperando aprobación del admin.",
+                                "duplicateWillBePending",
+                              )
+                            : getText(
+                                "Verificá si tu organización ya está creada antes de publicar.",
+                                "duplicateMatchHint",
+                              )}
+                        </span>
+                      </div>
+                      <ul className="flex flex-col gap-2">
+                        {duplicateMatches.map((m) => (
+                          <li
+                            key={m.id}
+                            className="bg-white rounded-lg border border-gray-200 px-3 py-2 flex items-center justify-between gap-3"
+                          >
+                            <div className="flex flex-col min-w-0">
+                              <span className="font-semibold text-sm text-gray-800 truncate">
+                                {m.name}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {m.country ?? "—"}
+                                {" · "}
+                                {Math.round(m.score * 100)}%{" "}
+                                {getText("similitud", "similarity")}
+                              </span>
+                            </div>
+                            <a
+                              href={`/pages/${m.slug}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs font-semibold text-emerald-700 hover:underline shrink-0"
+                            >
+                              {getText("Ver", "viewPage")}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                      <label className="flex items-start gap-2 text-sm text-gray-700 cursor-pointer mt-1">
+                        <input
+                          type="checkbox"
+                          checked={confirmedNotMine}
+                          onChange={(e) =>
+                            setConfirmedNotMine(e.target.checked)
+                          }
+                          className="mt-0.5 h-4 w-4 rounded border-gray-300 text-verde-oscuro focus:ring-emerald-500"
+                        />
+                        <span>
+                          {getText(
+                            "Ninguna de estas es mi organización, quiero crear una nueva.",
+                            "confirmNotMine",
+                          )}
+                        </span>
+                      </label>
+                    </>
+                  )}
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col relative" ref={countryRef}>

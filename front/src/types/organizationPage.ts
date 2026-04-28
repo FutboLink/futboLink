@@ -14,7 +14,9 @@ export type OrganizationPageType =
 
 export const ORGANIZATION_PAGE_STATUS = {
   DRAFT: "DRAFT",
+  PENDING_REVIEW: "PENDING_REVIEW",
   APPROVED: "APPROVED",
+  REJECTED: "REJECTED",
   DEACTIVATED: "DEACTIVATED",
 } as const;
 
@@ -52,6 +54,7 @@ export interface OrganizationPage {
   phone?: string | null;
   socialMedia?: OrganizationPageSocialMedia | null;
   status: OrganizationPageStatus;
+  rejectionReason?: string | null;
   ownerId?: string | null;
   leagueId?: string | null;
   league?: OrganizationLeagueSummary | null;

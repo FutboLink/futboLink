@@ -16,6 +16,7 @@ import { UserType } from '../user/roles.enum';
 import { CreateOrganizationPageDto } from './dto/create-organization-page.dto';
 import { UpdateOrganizationPageDto } from './dto/update-organization-page.dto';
 import { ListOrganizationPagesQueryDto } from './dto/list-organization-pages-query.dto';
+import { EmailService } from '../Mailing/email.service';
 
 const ADMIN_ONLY_TYPES: OrganizationPageType[] = [
   OrganizationPageType.LEAGUE,
@@ -60,6 +61,7 @@ export class OrganizationPagesService {
     private readonly pageRepository: Repository<OrganizationPage>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly emailService: EmailService,
   ) {}
 
   async create(
@@ -316,7 +318,10 @@ export class OrganizationPagesService {
     if (authUser.role !== UserType.ADMIN) {
       throw new ForbiddenException('Solo un ADMIN puede aprobar páginas');
     }
-    const page = await this.pageRepository.findOne({ where: { id } });
+    const page = await this.pageRepository.findOne({
+      where: { id },
+      relations: ['owner'],
+    });
     if (!page) {
       throw new NotFoundException(`Organization page ${id} not found`);
     }
@@ -329,27 +334,49 @@ export class OrganizationPagesService {
       );
     }
     page.status = OrganizationPageStatus.APPROVED;
-    return this.pageRepository.save(page);
+    page.rejectionReason = null;
+    const saved = await this.pageRepository.save(page);
+    if (page.owner?.email) {
+      const ownerName = `${page.owner.name ?? ''} ${page.owner.lastname ?? ''}`.trim();
+      void this.emailService.sendOrgPageApprovedEmail(
+        page.owner.email,
+        ownerName,
+        saved.name,
+        saved.slug,
+      );
+    }
+    return saved;
   }
 
   async reject(
     id: string,
     authUser: AuthUser,
-    _reason?: string,
+    reason?: string,
   ): Promise<OrganizationPage> {
     if (authUser.role !== UserType.ADMIN) {
       throw new ForbiddenException('Solo un ADMIN puede rechazar páginas');
     }
-    const page = await this.pageRepository.findOne({ where: { id } });
+    const page = await this.pageRepository.findOne({
+      where: { id },
+      relations: ['owner'],
+    });
     if (!page) {
       throw new NotFoundException(`Organization page ${id} not found`);
     }
-    if (page.status === OrganizationPageStatus.REJECTED) {
-      return page;
-    }
     page.status = OrganizationPageStatus.REJECTED;
-    return this.pageRepository.save(page);
-    // TODO: enviar email + notificación al owner con `_reason` (próximo commit).
+    page.rejectionReason = reason?.trim() ? reason.trim() : null;
+    const saved = await this.pageRepository.save(page);
+    if (page.owner?.email) {
+      const ownerName = `${page.owner.name ?? ''} ${page.owner.lastname ?? ''}`.trim();
+      void this.emailService.sendOrgPageRejectedEmail(
+        page.owner.email,
+        ownerName,
+        saved.name,
+        saved.slug,
+        saved.rejectionReason,
+      );
+    }
+    return saved;
   }
 
   async update(
@@ -384,6 +411,39 @@ export class OrganizationPagesService {
     }
 
     Object.assign(page, dto);
+    return this.pageRepository.save(page);
+  }
+
+  async republish(id: string, authUser: AuthUser): Promise<OrganizationPage> {
+    const page = await this.pageRepository.findOne({ where: { id } });
+    if (!page) {
+      throw new NotFoundException(`Organization page ${id} not found`);
+    }
+    const isAdmin = authUser.role === UserType.ADMIN;
+    const isOwner = page.ownerId === authUser.id;
+    if (!isAdmin && !isOwner) {
+      throw new ForbiddenException(
+        'No tenés permisos para republicar esta página',
+      );
+    }
+    if (page.status !== OrganizationPageStatus.REJECTED) {
+      throw new BadRequestException(
+        'Solo se pueden republicar páginas rechazadas',
+      );
+    }
+    const matches = await this.findSimilarPages(
+      page.name,
+      page.type,
+      page.country ?? null,
+      SIMILARITY_WARN_THRESHOLD,
+      page.id,
+    );
+    const topScore = matches[0]?.score ?? 0;
+    page.status =
+      topScore >= SIMILARITY_PENDING_THRESHOLD
+        ? OrganizationPageStatus.PENDING_REVIEW
+        : OrganizationPageStatus.APPROVED;
+    page.rejectionReason = null;
     return this.pageRepository.save(page);
   }
 

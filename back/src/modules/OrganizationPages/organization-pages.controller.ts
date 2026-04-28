@@ -21,6 +21,7 @@ import { ListOrganizationPagesQueryDto } from './dto/list-organization-pages-que
 import { CheckDuplicatesQueryDto } from './dto/check-duplicates-query.dto';
 import { RejectPageDto } from './dto/reject-page.dto';
 import { AuthGuard } from '../auth/auth.guard';
+import { OptionalAuthGuard } from '../auth/optional-auth.guard';
 import { RequestWithUser } from '../auth/RequestWithUser';
 
 type OptionalAuthRequest = Request & { user?: { id: string; role: string } };
@@ -39,6 +40,7 @@ export class OrganizationPagesController {
   }
 
   @Get()
+  @UseGuards(OptionalAuthGuard)
   @ApiOperation({ summary: 'Listar páginas de organización (público)' })
   findAll(
     @Query() query: ListOrganizationPagesQueryDto,
@@ -106,13 +108,27 @@ export class OrganizationPagesController {
     return this.service.reject(id, req.user, dto.reason);
   }
 
+  @Post(':id/republish')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      'Reenviar una página rechazada al flujo (owner o admin). Re-corre la detección de duplicados.',
+  })
+  republish(@Param('id') id: string, @Req() req: RequestWithUser) {
+    return this.service.republish(id, req.user);
+  }
+
   @Get('slug/:slug')
+  @UseGuards(OptionalAuthGuard)
   @ApiOperation({ summary: 'Obtener una página por slug' })
   findBySlug(@Param('slug') slug: string, @Req() req: OptionalAuthRequest) {
     return this.service.findBySlug(slug, req.user);
   }
 
   @Get(':id')
+  @UseGuards(OptionalAuthGuard)
   @ApiOperation({ summary: 'Obtener una página por ID' })
   findOne(@Param('id') id: string, @Req() req: OptionalAuthRequest) {
     return this.service.findOne(id, req.user);

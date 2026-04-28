@@ -101,6 +101,13 @@ export class OrganizationPage {
   })
   status: OrganizationPageStatus;
 
+  @ApiProperty({
+    nullable: true,
+    description: 'Motivo del rechazo (visible al dueño cuando status=REJECTED).',
+  })
+  @Column({ type: 'text', nullable: true })
+  rejectionReason?: string | null;
+
   @Index()
   @Column({ type: 'uuid', nullable: true })
   ownerId?: string;

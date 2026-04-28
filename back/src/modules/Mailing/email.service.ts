@@ -458,6 +458,85 @@ export class EmailService {
     }
   }
 
+  async sendOrgPageApprovedEmail(
+    to: string,
+    ownerName: string,
+    pageName: string,
+    pageSlug: string,
+  ): Promise<boolean> {
+    const rawFrontendUrl =
+      this.configService.get<string>('FRONTEND_URL') ||
+      'https://futbolink.vercel.app';
+    const frontendUrl = rawFrontendUrl.replace(/\/+$/, '');
+    const pageUrl = `${frontendUrl}/pages/${pageSlug}`;
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 5px;">
+        <h2 style="color: #2c3e50; text-align: center;">¡Tu página fue aprobada!</h2>
+        <div style="margin-top: 20px; line-height: 1.6; color: #34495e;">
+          <p>Hola ${ownerName || ''},</p>
+          <p>Buenas noticias: tu página <strong>${pageName}</strong> ya está publicada y visible en FutboLink.</p>
+        </div>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${pageUrl}"
+             style="display: inline-block; padding: 12px 20px; background-color: #27ae60; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Ver mi página
+          </a>
+        </div>
+        <div style="margin-top: 30px; text-align: center; color: #7f8c8d; border-top: 1px solid #ecf0f1; padding-top: 15px;">
+          <p>FutboLink - Conectando el mundo del fútbol</p>
+          <p>© ${new Date().getFullYear()} FutboLink. Todos los derechos reservados.</p>
+        </div>
+      </div>
+    `;
+    return this.sendHtmlEmail(to, `Tu página "${pageName}" fue aprobada — FutboLink`, html);
+  }
+
+  async sendOrgPageRejectedEmail(
+    to: string,
+    ownerName: string,
+    pageName: string,
+    pageSlug: string,
+    reason?: string | null,
+  ): Promise<boolean> {
+    const rawFrontendUrl =
+      this.configService.get<string>('FRONTEND_URL') ||
+      'https://futbolink.vercel.app';
+    const frontendUrl = rawFrontendUrl.replace(/\/+$/, '');
+    const editUrl = `${frontendUrl}/pages/${pageSlug}/edit`;
+
+    const reasonBlock = reason?.trim()
+      ? `
+        <div style="background-color: #fff5f5; padding: 15px; border-radius: 5px; border-left: 4px solid #e74c3c; margin-top: 15px;">
+          <p style="margin: 0;"><strong>Motivo:</strong> ${reason.trim()}</p>
+        </div>
+      `
+      : '';
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 5px;">
+        <h2 style="color: #2c3e50; text-align: center;">Tu página fue rechazada</h2>
+        <div style="margin-top: 20px; line-height: 1.6; color: #34495e;">
+          <p>Hola ${ownerName || ''},</p>
+          <p>Tu página <strong>${pageName}</strong> fue revisada por nuestro equipo y no pudo ser aprobada.</p>
+          ${reasonBlock}
+          <p style="margin-top: 15px;">Podés editarla con datos correctos y volver a enviarla a revisión.</p>
+        </div>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${editUrl}"
+             style="display: inline-block; padding: 12px 20px; background-color: #27ae60; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Editar página
+          </a>
+        </div>
+        <div style="margin-top: 30px; text-align: center; color: #7f8c8d; border-top: 1px solid #ecf0f1; padding-top: 15px;">
+          <p>FutboLink - Conectando el mundo del fútbol</p>
+          <p>© ${new Date().getFullYear()} FutboLink. Todos los derechos reservados.</p>
+        </div>
+      </div>
+    `;
+    return this.sendHtmlEmail(to, `Tu página "${pageName}" fue rechazada — FutboLink`, html);
+  }
+
   async sendRepresentationRequestEmail(
     email: string,
     playerName: string,

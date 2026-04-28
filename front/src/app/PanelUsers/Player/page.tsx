@@ -10,10 +10,17 @@ export default function PlayerPanel() {
 
   useEffect(() => {
     if (isLogged && user && user.id) {
-      // Redirigir al perfil del usuario
       router.push(`/user/${user.id}`);
-    } else if (!isLogged) {
-      // Si no está logueado, redirigir a inicio de sesión
+      return;
+    }
+    if (!isLogged) {
+      // Evita el redirect prematuro mientras UserContext hidrata desde localStorage.
+      if (
+        typeof window !== "undefined" &&
+        window.localStorage.getItem("user")
+      ) {
+        return;
+      }
       router.push('/Login');
     }
   }, [isLogged, user, router]);

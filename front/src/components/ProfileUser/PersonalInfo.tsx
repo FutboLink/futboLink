@@ -120,6 +120,28 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
     }
   }, [token]);
 
+  // Mantiene `age` derivada de `birthday` aunque la DB no la traiga calculada.
+  useEffect(() => {
+    if (!fetchedProfileData?.birthday) return;
+    const birthDate = new Date(fetchedProfileData.birthday);
+    if (Number.isNaN(birthDate.getTime())) return;
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+    const ageStr = age >= 0 ? age.toString() : "";
+    if (fetchedProfileData.age !== ageStr) {
+      setFetchedProfileData((prev) =>
+        prev ? { ...prev, age: ageStr } : prev,
+      );
+    }
+  }, [fetchedProfileData?.birthday]);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -221,7 +243,10 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
           {/* Imagen de perfil (URL) */}
-          <div className="sm:col-span-2 flex flex-col items-center">
+          <div
+            id="field-imgUrl"
+            className="sm:col-span-2 flex flex-col items-center rounded-lg p-1 transition-shadow"
+          >
             <ImageUploadwithCrop
               initialImage={fetchedProfileData?.imgUrl}
               onUpload={handleImageUpload}
@@ -274,7 +299,10 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           </div>
 
           {/* Nationality Selector - Fixed version */}
-          <div className="flex flex-col sm:col-span-2">
+          <div
+            id="field-nationality"
+            className="flex flex-col sm:col-span-2 rounded-lg p-1 transition-shadow"
+          >
             <label
               htmlFor="nationalitiesProfile"
               className="text-gray-700 font-semibold text-sm"
@@ -308,7 +336,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           </div>
 
           {/* País de residencia */}
-          <div className="flex flex-col">
+          <div id="field-ubicacionActual" className="flex flex-col rounded-lg p-1 transition-shadow">
             <label
               htmlFor="paisProfile"
               className="text-gray-700 font-semibold text-sm"
@@ -346,7 +374,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           </div>
 
           {/* Phone */}
-          <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div id="field-phone" className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-2 rounded-lg p-1 transition-shadow">
             <PhoneNumberInput
               mode="edit"
               name="phone"
@@ -399,7 +427,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           </div>
 
           {/* Birthdate */}
-          <div className="flex flex-col sm:flex-row sm:gap-4 sm:col-span-2">
+          <div id="field-birthday" className="flex flex-col sm:flex-row sm:gap-4 sm:col-span-2 rounded-lg p-1 transition-shadow">
             <div className="flex flex-col w-full sm:w-1/2">
               <label
                 htmlFor="birthdayProfile"
@@ -438,7 +466,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           </div>
 
           {/* Toggle redes sociales */}
-          <div className="sm:col-span-2">
+          <div id="field-socialMedia" className="sm:col-span-2 rounded-lg p-1 transition-shadow">
             <button
               type="button"
               onClick={() => setShowSocials(!showSocials)}
@@ -569,7 +597,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                   />
                 </div>
                 {/* Video */}
-                <div className="flex flex-col md:col-span-2">
+                <div id="field-videoUrl" className="flex flex-col md:col-span-2 rounded-lg p-1 transition-shadow">
                   <label
                     htmlFor="videoUrlProfile"
                     className="text-gray-700 font-semibold text-sm flex items-center gap-1"

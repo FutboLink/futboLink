@@ -381,7 +381,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Sección de Posiciones */}
         {!isNonPlayerProfessional && (
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <div id="field-primaryPosition" className="border border-gray-200 rounded-lg overflow-hidden">
             <SectionHeader
               title="Selección de Posiciones"
               section="positions"
@@ -432,7 +432,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
 
         {/* Sección de Datos Físicos */}
         {!isNonPlayerProfessional && (
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <div id="field-physicalData" className="border border-gray-200 rounded-lg overflow-hidden">
             <SectionHeader
               title="Datos Físicos"
               section="physicalData"
@@ -531,7 +531,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
         )}
 
         {/* Sección de CV */}
-        <div className="border border-gray-200 rounded-lg overflow-hidden">
+        <div id="field-cv" className="border border-gray-200 rounded-lg overflow-hidden">
           <SectionHeader title="Currículum Vitae" section="cv" icon="📄" />
           <div
             className={`transition-all duration-300 ease-in-out ${
@@ -594,7 +594,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
         </div>
 
         {/* Sección de Trayectoria */}
-        <div className="border border-gray-200 rounded-lg overflow-hidden">
+        <div id="field-trayectorias" className="border border-gray-200 rounded-lg overflow-hidden">
           <SectionHeader title="Trayectoria" section="trajectory" icon="🏆" />
           <div
             className={`transition-all duration-300 ease-in-out ${

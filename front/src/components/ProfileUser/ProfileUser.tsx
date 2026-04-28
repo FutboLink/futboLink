@@ -1,13 +1,16 @@
 "use client";
 
 import { useContext, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { IProfileData } from "@/Interfaces/IUser";
 import PersonalInfo from "./PersonalInfo";
 import ProfessionalInfo from "./ProfessionalInfo";
+import ProfileProgressBar from "./ProfileProgressBar";
 import { UserContext } from "../Context/UserContext";
 import { fetchUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { useI18nMode } from "../Context/I18nModeContext";
 import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
+import type { ProfileFieldStatus } from "@/lib/profileCompleteness";
 
 const Profile = () => {
   const { token } = useContext(UserContext);
@@ -21,7 +24,27 @@ const Profile = () => {
   
   const [error, setError] = useState<string | null>(null);
   const [userData, setUserData] = useState<IProfileData | null>(null);
-  const [activeTab, setActiveTab] = useState("Personal");
+  const searchParams = useSearchParams();
+  const initialTab = searchParams?.get("tab") === "Profesional"
+    ? "Profesional"
+    : "Personal";
+  const [activeTab, setActiveTab] = useState<string>(initialTab);
+
+  const handleTipClick = (field: ProfileFieldStatus) => {
+    setActiveTab(field.tab);
+    // Esperá un tick para que el tab cambie y el campo esté en el DOM.
+    setTimeout(() => {
+      const el = document.getElementById(field.anchor);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("ring-2", "ring-emerald-400");
+        setTimeout(
+          () => el.classList.remove("ring-2", "ring-emerald-400"),
+          1500,
+        );
+      }
+    }, 80);
+  };
 
   useEffect(() => {
     if (token) {
@@ -69,6 +92,14 @@ const Profile = () => {
       <div className="p-4 max-w-4xl mx-auto">
         {" "}
         {/* Reducir el padding */}
+        {userData && (
+          <div className="mb-4">
+            <ProfileProgressBar
+              profile={userData}
+              onTipClick={handleTipClick}
+            />
+          </div>
+        )}
         {/* Pestañas */}
         <div className="flex space-x-3 border-b pb-1 mt-2 mb-3 text-gray-700">
           {" "}

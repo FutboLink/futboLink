@@ -16,6 +16,7 @@ import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
 import { fetchUserId } from "@/components/Fetchs/UsersFetchs/UserFetchs";
 import FormComponent from "@/components/Jobs/CreateJob";
 import JobOfferDetails from "@/components/Jobs/JobOffertDetails";
+import ProfileProgressBar from "@/components/ProfileUser/ProfileProgressBar";
 import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
 import type { IOfferCard } from "@/Interfaces/IOffer";
 import type { IProfileData } from "@/Interfaces/IUser";
@@ -281,6 +282,13 @@ const PanelManager = () => {
                 )}
               </div>
             </div>
+
+            {/* Progreso de perfil */}
+            {userData && (
+              <div className="mb-4">
+                <ProfileProgressBar profile={userData} />
+              </div>
+            )}
 
             {/* Suscripción */}
             <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 shadow-md border border-green-200 mb-4">

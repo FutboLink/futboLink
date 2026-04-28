@@ -1,4 +1,6 @@
 import {
+  ArrayMaxSize,
+  IsBoolean,
   IsEmail,
   IsNotEmpty,
   MinLength,
@@ -156,10 +158,50 @@ export class RegisterUserDto {
   @IsString({ each: true })
   habilities?: string[];
 
-  @ApiProperty({ description: 'URL de video del usuario (opcional)', example: 'https://example.com/video.mp4', required: false })
+  @ApiProperty({ description: 'URL de video del usuario (legacy, usar videoUrls)', example: 'https://example.com/video.mp4', required: false })
   @IsOptional()
   @IsString()
   videoUrl?: string;
+
+  @ApiProperty({
+    description: 'Hasta 3 links de video (YouTube)',
+    example: ['https://youtu.be/abc'],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(3)
+  @IsString({ each: true })
+  videoUrls?: string[];
+
+  @ApiProperty({
+    description: 'Hasta 3 fotos extra del usuario',
+    example: ['https://res.cloudinary.com/.../1.jpg'],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(3)
+  @IsString({ each: true })
+  photoUrls?: string[];
+
+  @ApiProperty({
+    description: 'Segunda nacionalidad del usuario',
+    example: 'Italia',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  secondNationality?: string;
+
+  @ApiProperty({
+    description: 'Pasaporte UE asociado a la segunda nacionalidad',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  secondNationalityEuPassport?: boolean;
 
   @ApiProperty({
     description: 'Puestos del usuario (opcional)',

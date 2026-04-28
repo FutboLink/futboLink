@@ -127,9 +127,41 @@ export class User {
   @OneToMany('Application', 'player')
   applications: Application[];
 
-  @ApiProperty({ example: 'https://example.com/video.mp4', description: 'URL de video del usuario', nullable: true })
+  @ApiProperty({ example: 'https://example.com/video.mp4', description: 'URL de video del usuario (legacy, usar videoUrls)', nullable: true })
   @Column({ nullable: true })
   videoUrl?: string;
+
+  @ApiProperty({
+    example: ['https://youtu.be/abc', 'https://youtu.be/def'],
+    description: 'Hasta 3 links de video (YouTube)',
+    nullable: true,
+  })
+  @Column('text', { array: true, nullable: true, default: () => 'ARRAY[]::text[]' })
+  videoUrls?: string[];
+
+  @ApiProperty({
+    example: ['https://res.cloudinary.com/.../1.jpg'],
+    description: 'Hasta 3 fotos extra (alternativa o complemento del video)',
+    nullable: true,
+  })
+  @Column('text', { array: true, nullable: true, default: () => 'ARRAY[]::text[]' })
+  photoUrls?: string[];
+
+  @ApiProperty({
+    example: 'Italia',
+    description: 'Segunda nacionalidad del usuario',
+    nullable: true,
+  })
+  @Column({ nullable: true })
+  secondNationality?: string;
+
+  @ApiProperty({
+    example: true,
+    description: 'Indica si el usuario tiene pasaporte UE asociado a su segunda nacionalidad',
+    nullable: true,
+  })
+  @Column({ type: 'boolean', nullable: true, default: false })
+  secondNationalityEuPassport?: boolean;
 
   @ApiProperty({ example: [{ club: "FC Barcelona", fechaInicio: "2020-01-01", fechaFinalizacion: "2023-01-01", categoriaEquipo: "Primer Equipo", nivelCompetencia: "Profesional", logros: "Campeón liga", nacionalidadTrayectoria: "España" }], description: 'Trayectorias del usuario', nullable: true })
   @Column('jsonb', { array: true, nullable: true, default: () => "ARRAY[]::jsonb[]" })

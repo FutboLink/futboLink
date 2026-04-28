@@ -19,6 +19,11 @@ import {
 import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
 import ProfileUser from "@/components/ProfileUser/ProfileUser";
 import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
+import {
+  getPrimaryProfileVideo,
+  getProfilePhotos,
+  getProfileVideos,
+} from "@/lib/profileMedia";
 import { getDefaultPlayerImage } from "@/helpers/imageUtils";
 import {
   formatearFecha,
@@ -1226,23 +1231,64 @@ export default function UserViewer() {
                       </div>
                     </div>
 
-                    {/* Video de Presentación */}
-                    {profile?.videoUrl && (
-                      <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-                        <h3 className="text-lg font-medium mb-3 text-gray-800">
-                          Video de Presentación
-                        </h3>
-                        <div className="relative w-full bg-black rounded-lg overflow-hidden">
-                          <iframe
-                            src={profile.videoUrl}
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            className="w-full h-[350px]"
-                            title="Video de presentación"
-                          />
+                    {/* Videos de Presentación */}
+                    {(() => {
+                      const videos = getProfileVideos(profile);
+                      if (videos.length === 0) return null;
+                      return (
+                        <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+                          <h3 className="text-lg font-medium mb-3 text-gray-800">
+                            {videos.length === 1
+                              ? "Video de Presentación"
+                              : `Videos de Presentación (${videos.length})`}
+                          </h3>
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                            {videos.map((url, i) => (
+                              <div
+                                key={`v-${i}`}
+                                className="relative w-full bg-black rounded-lg overflow-hidden"
+                              >
+                                <iframe
+                                  src={url}
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                  className="w-full h-[350px]"
+                                  title={`Video ${i + 1}`}
+                                />
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      );
+                    })()}
+
+                    {/* Galería de fotos extra */}
+                    {(() => {
+                      const photos = getProfilePhotos(profile);
+                      if (photos.length === 0) return null;
+                      return (
+                        <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+                          <h3 className="text-lg font-medium mb-3 text-gray-800">
+                            Galería ({photos.length})
+                          </h3>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            {photos.map((src, i) => (
+                              <div
+                                key={`p-${i}`}
+                                className="relative aspect-square rounded overflow-hidden bg-gray-100"
+                              >
+                                <Image
+                                  src={src}
+                                  alt={`Foto ${i + 1}`}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })()}
 
                     {/* CV Section */}
                     {profile?.cv && (
@@ -1505,7 +1551,14 @@ export default function UserViewer() {
                   <div className="flex items-center text-sm text-gray-600 mb-4">
                     <div className="flex items-center">
                       <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-                      <span>{profile.primaryPosition}</span>
+                      <span>
+                        {profile.primaryPosition}
+                        {profile.secondaryPosition && (
+                          <span className="text-gray-500 ml-1">
+                            / {profile.secondaryPosition}
+                          </span>
+                        )}
+                      </span>
                     </div>
                     <span className="mx-2">|</span>
                     <span>{profile.age} años</span>
@@ -2650,25 +2703,38 @@ export default function UserViewer() {
                     )}
 
                     {/* Sección de video */}
+                    {(() => {
+                      const videos = getProfileVideos(profile);
+                      const primary = videos[0];
+                      return (
                     <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
                       <h3 className="text-lg font-medium mb-3 text-gray-800">
-                        {getText("Video de presentación", "presentationVideo")}
+                        {videos.length > 1
+                          ? `${getText("Video de presentación", "presentationVideo")} (${videos.length})`
+                          : getText("Video de presentación", "presentationVideo")}
                       </h3>
-                      {profile.videoUrl ? (
+                      {primary ? (
                         <>
-                          <div className="relative pt-[56.25%] bg-gray-100 rounded overflow-hidden">
-                            <iframe
-                              className="absolute top-0 left-0 w-full h-full"
-                              src={formatYoutubeUrl(profile.videoUrl)}
-                              title={`Video de ${profile.name} ${profile.lastname}`}
-                              frameBorder="0"
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
-                            ></iframe>
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                            {videos.map((url, i) => (
+                              <div
+                                key={`v-${i}`}
+                                className="relative pt-[56.25%] bg-gray-100 rounded overflow-hidden"
+                              >
+                                <iframe
+                                  className="absolute top-0 left-0 w-full h-full"
+                                  src={formatYoutubeUrl(url)}
+                                  title={`Video ${i + 1} de ${profile.name} ${profile.lastname}`}
+                                  frameBorder="0"
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                ></iframe>
+                              </div>
+                            ))}
                           </div>
                           <div className="mt-2 text-xs text-gray-500">
                             <a
-                              href={profile.videoUrl}
+                              href={primary}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="hover:underline"
@@ -2731,6 +2797,8 @@ export default function UserViewer() {
                         </div>
                       )}
                     </div>
+                      );
+                    })()}
                   </div>
                 )}
                 {activeTab === "stats" && (

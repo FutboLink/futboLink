@@ -40,7 +40,8 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const [notificationMessage, setNotificationMessage] = useState("");
   const [showErrorNotification, setShowErrorNotification] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [showSocials, setShowSocials] = useState(false);
+  const [showSocials, setShowSocials] = useState(true);
+  const [hasSecondNationality, setHasSecondNationality] = useState(false);
   // Normaliza valores de redes para evitar URLs pre-cargadas
   const normalizeSocialValue = (key: string, value: string): string => {
     const v = (value || "").trim();
@@ -119,6 +120,25 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
         });
     }
   }, [token]);
+
+  useEffect(() => {
+    if (fetchedProfileData?.secondNationality) {
+      setHasSecondNationality(true);
+    }
+  }, [fetchedProfileData?.secondNationality]);
+
+  // Si el user tiene videoUrl legacy y videoUrls está vacío, lo subimos al
+  // array nuevo para que aparezca en los 3 inputs de "Videos".
+  useEffect(() => {
+    if (!fetchedProfileData) return;
+    const legacy = fetchedProfileData.videoUrl?.trim();
+    const arr = fetchedProfileData.videoUrls ?? [];
+    if (legacy && arr.length === 0) {
+      setFetchedProfileData((prev) =>
+        prev ? { ...prev, videoUrls: [legacy] } : prev,
+      );
+    }
+  }, [fetchedProfileData?.videoUrl, fetchedProfileData?.videoUrls?.length]);
 
   // Mantiene `age` derivada de `birthday` aunque la DB no la traiga calculada.
   useEffect(() => {
@@ -208,6 +228,18 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           cleaned[k] = normalizeSocialValue(k, String(val || ""));
         });
         (dataToSend as any).socialMedia = cleaned;
+      }
+
+      // Filtrar strings vacíos en los arrays nuevos antes de enviar al backend.
+      if (Array.isArray(dataToSend.videoUrls)) {
+        dataToSend.videoUrls = dataToSend.videoUrls
+          .map((v) => (typeof v === "string" ? v.trim() : ""))
+          .filter((v) => v.length > 0);
+      }
+      if (Array.isArray(dataToSend.photoUrls)) {
+        dataToSend.photoUrls = dataToSend.photoUrls
+          .map((v) => (typeof v === "string" ? v.trim() : ""))
+          .filter((v) => v.length > 0);
       }
 
       const userId = JSON.parse(atob(token.split(".")[1])).id;
@@ -354,23 +386,80 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             />
           </div>
 
-          {/* Location */}
-          <div className="flex flex-col">
-            <label
-              htmlFor="cityProfile"
-              className="text-gray-700 font-semibold text-sm"
-            >
-              {getText("Segunda nacionalidad", "city")}:
-            </label>
-            <input
-              id="cityProfile"
-              name="location"
-              type="text"
-              value={fetchedProfileData?.location || ""}
-              onChange={handleChange}
-              placeholder={getText("Segunda nacionalidad", "city")}
-              className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
-            />
+          {/* Segunda nacionalidad (toggle + select + UE) */}
+          <div id="field-secondNationality" className="sm:col-span-2 flex flex-col gap-2 rounded-lg p-1 transition-shadow">
+            <span className="text-gray-700 font-semibold text-sm">
+              {getText("¿Tenés segunda nacionalidad?", "hasSecondNationality")}
+            </span>
+            <div className="flex gap-4 text-sm text-gray-700">
+              <label className="inline-flex items-center gap-1.5">
+                <input
+                  type="radio"
+                  name="hasSecondNationality"
+                  checked={hasSecondNationality}
+                  onChange={() => setHasSecondNationality(true)}
+                />
+                {getText("Sí", "yes")}
+              </label>
+              <label className="inline-flex items-center gap-1.5">
+                <input
+                  type="radio"
+                  name="hasSecondNationality"
+                  checked={!hasSecondNationality}
+                  onChange={() => {
+                    setHasSecondNationality(false);
+                    setFetchedProfileData((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            secondNationality: "",
+                            secondNationalityEuPassport: false,
+                          }
+                        : prev,
+                    );
+                  }}
+                />
+                {getText("No", "no")}
+              </label>
+            </div>
+            {hasSecondNationality && (
+                <>
+                  <select
+                    name="secondNationality"
+                    value={fetchedProfileData?.secondNationality || ""}
+                    onChange={handleChange}
+                    className="w-full p-2 border mt-1 rounded text-gray-700 focus:outline-none"
+                  >
+                    <option value="">
+                      {getText("Seleccione su nacionalidad", "selectNationality")}
+                    </option>
+                    {nationalities &&
+                      nationalities.length > 0 &&
+                      nationalities.map((nat) => (
+                        <option key={nat.value} value={nat.label}>
+                          {nat.label}
+                        </option>
+                      ))}
+                  </select>
+                  <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+                    <input
+                      type="checkbox"
+                      checked={!!fetchedProfileData?.secondNationalityEuPassport}
+                      onChange={(e) =>
+                        setFetchedProfileData((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                secondNationalityEuPassport: e.target.checked,
+                              }
+                            : prev,
+                        )
+                      }
+                    />
+                    {getText("Tengo Pasaporte UE", "hasEuPassport")}
+                  </label>
+                </>
+              )}
           </div>
 
           {/* Phone */}
@@ -596,27 +685,92 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                     className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
                   />
                 </div>
-                {/* Video */}
-                <div id="field-videoUrl" className="flex flex-col md:col-span-2 rounded-lg p-1 transition-shadow">
-                  <label
-                    htmlFor="videoUrlProfile"
-                    className="text-gray-700 font-semibold text-sm flex items-center gap-1"
-                  >
-                    <FaYoutube className="text-red-600" /> {getText("Agregar Video", "addVideo")}:
-                  </label>
-                  <input
-                    id="videoUrlProfile"
-                    type="text"
-                    name="videoUrl"
-                    value={fetchedProfileData?.videoUrl || ""}
-                    onChange={handleChange}
-                    placeholder={getText("link de Youtube", "youtubeLink")}
-                    className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
-                  />
-                </div>
               </div>
             </div>
           )}
+
+          {/* Videos (hasta 3) */}
+          <div id="field-videoUrls" className="sm:col-span-2 flex flex-col gap-2 mt-2 rounded-lg p-1 transition-shadow">
+            <span className="text-gray-700 font-semibold text-sm">
+              {getText("Videos de YouTube (hasta 3)", "videosTitle")}
+            </span>
+            <p className="text-xs text-gray-500">
+              {getText(
+                "Tip: copiá y pegá el link de YouTube. No subas el archivo.",
+                "videosHint",
+              )}
+            </p>
+            {[0, 1, 2].map((idx) => {
+              const current = fetchedProfileData?.videoUrls?.[idx] ?? "";
+              return (
+                <input
+                  key={`video-${idx}`}
+                  type="url"
+                  value={current}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setFetchedProfileData((prev) => {
+                      if (!prev) return prev;
+                      const arr = [...(prev.videoUrls ?? [])];
+                      while (arr.length <= idx) arr.push("");
+                      arr[idx] = value;
+                      return { ...prev, videoUrls: arr };
+                    });
+                  }}
+                  placeholder={`https://youtu.be/... (${idx + 1})`}
+                  className="w-full p-1.5 border rounded text-gray-700 focus:outline-none"
+                />
+              );
+            })}
+          </div>
+
+          {/* Fotos (hasta 3) */}
+          <div id="field-photoUrls" className="sm:col-span-2 flex flex-col gap-2 mt-2 rounded-lg p-1 transition-shadow">
+            <span className="text-gray-700 font-semibold text-sm">
+              {getText("Fotos extra (hasta 3)", "photosTitle")}
+            </span>
+            <p className="text-xs text-gray-500">
+              {getText(
+                "Si no tenés video, sumá fotos para mejorar tu perfil.",
+                "photosHint",
+              )}
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {[0, 1, 2].map((idx) => {
+                const url = fetchedProfileData?.photoUrls?.[idx] ?? "";
+                return (
+                  <div
+                    key={`photo-${idx}`}
+                    className="border border-dashed border-gray-300 rounded-lg p-2 flex flex-col items-center"
+                  >
+                    <ImageUploadwithCrop
+                      initialImage={url || undefined}
+                      onUpload={(uploaded) => {
+                        setFetchedProfileData((prev) => {
+                          if (!prev) return prev;
+                          const arr = [...(prev.photoUrls ?? [])];
+                          while (arr.length <= idx) arr.push("");
+                          arr[idx] = uploaded;
+                          return { ...prev, photoUrls: arr };
+                        });
+                      }}
+                      onRemove={() => {
+                        setFetchedProfileData((prev) => {
+                          if (!prev) return prev;
+                          const arr = [...(prev.photoUrls ?? [])];
+                          arr[idx] = "";
+                          return { ...prev, photoUrls: arr };
+                        });
+                      }}
+                      fileInputId={`photo-upload-${idx}`}
+                      label={getText(`Foto ${idx + 1}`, `photoSlot`)}
+                      buttonLabel={getText("Subir", "uploadShort")}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
       {/* Save Button */}

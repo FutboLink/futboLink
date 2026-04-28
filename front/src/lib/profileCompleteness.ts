@@ -222,7 +222,11 @@ const evalField = (profile: IProfileData, key: ProfileFieldKey): boolean => {
         (t) => isNonEmpty(t.club),
       );
     case "videoUrl":
-      return isNonEmpty(profile.videoUrl);
+      return (
+        isNonEmpty(profile.videoUrl) ||
+        (Array.isArray(profile.videoUrls) &&
+          profile.videoUrls.some((url) => isNonEmpty(url)))
+      );
     case "phone":
       return isNonEmpty(profile.phone);
     case "physicalData":

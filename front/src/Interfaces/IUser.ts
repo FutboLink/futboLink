@@ -53,6 +53,10 @@ export interface IProfileData {
   bodyStructure: string;
   habilities: string[];
   videoUrl: string;
+  videoUrls?: string[];
+  photoUrls?: string[];
+  secondNationality?: string;
+  secondNationalityEuPassport?: boolean;
   socialMedia?: Record<string, string>;
   primaryPosition?: string;
   secondaryPosition?: string;

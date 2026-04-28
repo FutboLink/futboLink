@@ -18,6 +18,7 @@ import FormComponent from "@/components/Jobs/CreateJob";
 import JobOfferDetails from "@/components/Jobs/JobOffertDetails";
 import ProfileProgressBar from "@/components/ProfileUser/ProfileProgressBar";
 import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
+import { getPrimaryProfileVideo } from "@/lib/profileMedia";
 import type { IOfferCard } from "@/Interfaces/IOffer";
 import type { IProfileData } from "@/Interfaces/IUser";
 import { useI18nMode } from "@/components/Context/I18nModeContext";
@@ -549,25 +550,29 @@ const PanelManager = () => {
                   </div>
 
                   {/* Video de Presentación */}
-                  {userData?.videoUrl && (
-                    <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-                      <h3 className="text-lg font-medium mb-3 text-gray-800">
-                        {getText("Video de Presentación", "presentationVideo")}
-                      </h3>
-                      <div className="relative w-full bg-black rounded-lg overflow-hidden">
-                        <iframe
-                          src={userData.videoUrl}
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                          className="w-full h-[350px]"
-                          title={getText(
-                            "Video de presentación",
-                            "presentationVideo"
-                          )}
-                        />
+                  {(() => {
+                    const primaryVideo = getPrimaryProfileVideo(userData);
+                    if (!primaryVideo) return null;
+                    return (
+                      <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+                        <h3 className="text-lg font-medium mb-3 text-gray-800">
+                          {getText("Video de Presentación", "presentationVideo")}
+                        </h3>
+                        <div className="relative w-full bg-black rounded-lg overflow-hidden">
+                          <iframe
+                            src={primaryVideo}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="w-full h-[350px]"
+                            title={getText(
+                              "Video de presentación",
+                              "presentationVideo"
+                            )}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   {/* CV Section */}
                   {userData?.cv && (

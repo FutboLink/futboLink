@@ -71,7 +71,7 @@ export enum PasaporteUe {
 export interface IRegisterUser {
   name: string;
   lastname?: string;
-  ubicacionActual: string;
+  ubicacionActual?: string;
   nameAgency?: string;
   puesto?: string;
   email: string;
@@ -114,6 +114,7 @@ export interface IUserResponse {
   jobs?: IJob[];
   genre?: string;
   nameAgency?: string;
+  puesto?: string;
 }
 
 export interface IApplication {

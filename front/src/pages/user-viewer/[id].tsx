@@ -38,8 +38,10 @@ import { FaBriefcase } from "react-icons/fa6";
 import { FaUsers } from "react-icons/fa6";
 import { checkUserSubscription } from "@/services/SubscriptionService";
 
-// URL del backend
-const API_URL = "https://futbolink-production.up.railway.app";
+// URL del backend (lee la env var para que el local apunte al back local)
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://futbolink-production.up.railway.app";
 
 // Función para convertir el rol a un texto más amigable
 const getRoleDisplay = (role: string) => {

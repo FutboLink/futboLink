@@ -55,6 +55,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
           token: data.token,
           role: payload.role,
           id: payload.id,
+          puesto: payload.puesto ?? undefined,
           name: "", // Deberías obtenerlo del backend si no está en el token
           lastname: "", // Igualmente, debería obtenerse del backend
           email: credentials.email,
@@ -164,6 +165,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
             token,
             role,
             id,
+            puesto: payload.puesto ?? parsedData.puesto ?? undefined,
             name: parsedData.name || "",
             lastname: parsedData.lastname || "",
             email: email || "",
@@ -193,11 +195,20 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
           email = parsedData.email;
         }
 
+        let puestoFromToken: string | undefined;
+        try {
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          puestoFromToken = payload.puesto ?? undefined;
+        } catch {
+          puestoFromToken = undefined;
+        }
+
         console.log("Token changed, setting user with email:", email);
         setUser({
           token,
           role,
           id,
+          puesto: puestoFromToken ?? parsedData.puesto ?? undefined,
           name: parsedData.name || "",
           lastname: parsedData.lastname || "",
           email: email || "",

@@ -11,7 +11,7 @@ import {
   FaTiktok,
 } from "react-icons/fa";
 import { useUserContext } from "@/hook/useUserContext";
-import { UserType, type IProfileData } from "@/Interfaces/IUser";
+import { PasaporteUe, UserType, type IProfileData } from "@/Interfaces/IUser";
 import ImageUploadwithCrop from "../Cloudinary/ImageUploadWithCrop";
 import {
   fetchUserData,
@@ -212,6 +212,12 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
         imgUrl: imageUrl, // Actualizar la URL de la imagen en fetchedProfileData
       };
     });
+    // Sync con contexto global para que la barra de progreso del padre
+    // refresque sin necesidad de F5.
+    setUser((prevUser) => {
+      if (!prevUser) return prevUser;
+      return { ...prevUser, imgUrl: imageUrl } as typeof prevUser;
+    });
   };
 
   // Handle form submission
@@ -296,9 +302,9 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             name="name"
             type="text"
             value={fetchedProfileData?.name || ""}
-            readOnly
+            onChange={handleChange}
             placeholder={getText("Nombre", "name")}
-            className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
+            className="w-full p-1.5 border rounded text-gray-700 focus:outline-none"
           />
 
           {/* Last name */}
@@ -306,9 +312,9 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             name="lastname"
             type="text"
             value={fetchedProfileData?.lastname || ""}
-            readOnly
+            onChange={handleChange}
             placeholder={getText("Apellido", "lastname")}
-            className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
+            className="w-full p-1.5 border rounded text-gray-700 focus:outline-none"
           />
 
           {/* Email */}
@@ -413,7 +419,6 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                         ? {
                             ...prev,
                             secondNationality: "",
-                            secondNationalityEuPassport: false,
                           }
                         : prev,
                     );
@@ -423,43 +428,48 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               </label>
             </div>
             {hasSecondNationality && (
-                <>
-                  <select
-                    name="secondNationality"
-                    value={fetchedProfileData?.secondNationality || ""}
-                    onChange={handleChange}
-                    className="w-full p-2 border mt-1 rounded text-gray-700 focus:outline-none"
-                  >
-                    <option value="">
-                      {getText("Seleccione su nacionalidad", "selectNationality")}
+              <select
+                name="secondNationality"
+                value={fetchedProfileData?.secondNationality || ""}
+                onChange={handleChange}
+                className="w-full p-2 border mt-1 rounded text-gray-700 focus:outline-none"
+              >
+                <option value="">
+                  {getText("Seleccione su nacionalidad", "selectNationality")}
+                </option>
+                {nationalities &&
+                  nationalities.length > 0 &&
+                  nationalities.map((nat) => (
+                    <option key={nat.value} value={nat.label}>
+                      {nat.label}
                     </option>
-                    {nationalities &&
-                      nationalities.length > 0 &&
-                      nationalities.map((nat) => (
-                        <option key={nat.value} value={nat.label}>
-                          {nat.label}
-                        </option>
-                      ))}
-                  </select>
-                  <label className="inline-flex items-center gap-2 text-sm text-gray-700">
-                    <input
-                      type="checkbox"
-                      checked={!!fetchedProfileData?.secondNationalityEuPassport}
-                      onChange={(e) =>
-                        setFetchedProfileData((prev) =>
-                          prev
-                            ? {
-                                ...prev,
-                                secondNationalityEuPassport: e.target.checked,
-                              }
-                            : prev,
-                        )
-                      }
-                    />
-                    {getText("Tengo Pasaporte UE", "hasEuPassport")}
-                  </label>
-                </>
-              )}
+                  ))}
+              </select>
+            )}
+          </div>
+
+          {/* Pasaporte UE — pregunta independiente. Aplica a quien tenga ciudadanía
+              de un país UE (sea por 1ra o 2da nacionalidad). */}
+          <div className="sm:col-span-2 flex flex-col gap-1 rounded-lg p-1 transition-shadow">
+            <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={fetchedProfileData?.pasaporteUe === PasaporteUe.SI}
+                onChange={(e) =>
+                  setFetchedProfileData((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          pasaporteUe: e.target.checked
+                            ? PasaporteUe.SI
+                            : PasaporteUe.NO,
+                        }
+                      : prev,
+                  )
+                }
+              />
+              {getText("Tengo Pasaporte UE", "hasEuPassport")}
+            </label>
           </div>
 
           {/* Phone */}
@@ -554,24 +564,37 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             </div>
           </div>
 
-          {/* Toggle redes sociales */}
+          {/* Header redes sociales — título + descripción + toggle sutil */}
           <div id="field-socialMedia" className="sm:col-span-2 rounded-lg p-1 transition-shadow">
-            <button
-              type="button"
-              onClick={() => setShowSocials(!showSocials)}
-              className="flex items-center justify-between w-full text-sm font-medium py-2 px-3 rounded bg-verde-claro  hover:bg-verde text-white transition-all duration-300 ease-in-out"
-            >
-              {showSocials
-                ? getText("Ocultar redes sociales", "hideSocialNetworks")
-                : getText("Agregar redes sociales / enlaces", "addSocialNetworks")}
-              <span
-                className={`transition-transform duration-300 ${
-                  showSocials ? "rotate-180" : "rotate-0"
-                }`}
+            <div className="flex items-start justify-between gap-3 mb-2">
+              <div className="flex-1">
+                <h3 className="text-gray-800 font-semibold text-base">
+                  {getText("Redes sociales y enlaces", "socialNetworksTitle")}
+                </h3>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {getText(
+                    "Agregá tus perfiles para que reclutadores y clubes te encuentren más fácil.",
+                    "socialNetworksHint",
+                  )}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowSocials(!showSocials)}
+                className="flex items-center gap-1 text-xs text-verde-oscuro hover:underline whitespace-nowrap shrink-0 mt-1"
               >
-                {showSocials ? <FaChevronUp /> : <FaChevronDown />}
-              </span>
-            </button>
+                {showSocials
+                  ? getText("Ocultar", "hide")
+                  : getText("Mostrar", "show")}
+                <span
+                  className={`transition-transform duration-300 ${
+                    showSocials ? "rotate-180" : "rotate-0"
+                  }`}
+                >
+                  {showSocials ? <FaChevronUp /> : <FaChevronDown />}
+                </span>
+              </button>
+            </div>
           </div>
 
           {showSocials && (
@@ -690,7 +713,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           )}
 
           {/* Videos (hasta 3) */}
-          <div id="field-videoUrls" className="sm:col-span-2 flex flex-col gap-2 mt-2 rounded-lg p-1 transition-shadow">
+          <div id="field-videoUrl" className="sm:col-span-2 flex flex-col gap-2 mt-2 rounded-lg p-1 transition-shadow">
             <span className="text-gray-700 font-semibold text-sm">
               {getText("Videos de YouTube (hasta 3)", "videosTitle")}
             </span>

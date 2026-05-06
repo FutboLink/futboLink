@@ -277,6 +277,10 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
       ...prev,
       cv: fileInfo.url,
     }));
+    setUser((prevUser) => {
+      if (!prevUser) return prevUser;
+      return { ...prevUser, cv: fileInfo.url } as typeof prevUser;
+    });
   };
 
   const handleDownloadCv = async () => {

@@ -13,7 +13,7 @@ import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
 import type { ProfileFieldStatus } from "@/lib/profileCompleteness";
 
 const Profile = () => {
-  const { token } = useContext(UserContext);
+  const { token, user } = useContext(UserContext);
   const { isNextIntlEnabled } = useI18nMode();
   const tCommon = useNextIntlTranslations('common');
   
@@ -84,6 +84,27 @@ const Profile = () => {
         .catch(() => setError("Error al cargar los datos."));
     }
   }, [token]);
+
+  // Sync userData con cambios del contexto global (ej: subida de CV / avatar
+  // hace setUser({ ..., cv: url })). Sin esto, la barra de progreso solo
+  // refresca al hacer F5.
+  useEffect(() => {
+    if (!user || !userData) return;
+    const u = user as unknown as { cv?: string; imgUrl?: string };
+    setUserData((prev) => {
+      if (!prev) return prev;
+      const next = {
+        ...prev,
+        cv: u.cv ?? prev.cv,
+        imgUrl: u.imgUrl ?? prev.imgUrl,
+      };
+      if (next.cv === prev.cv && next.imgUrl === prev.imgUrl) return prev;
+      return next;
+    });
+    // Solo me interesa reaccionar a cv/imgUrl que son los que actualizamos
+    // post-upload desde el contexto global.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [(user as unknown as { cv?: string })?.cv, (user as unknown as { imgUrl?: string })?.imgUrl]);
 
   return (
     <div>

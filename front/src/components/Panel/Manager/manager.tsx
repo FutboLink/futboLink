@@ -12,11 +12,13 @@ import { FaGlobe } from "react-icons/fa";
 import { FaUsers } from "react-icons/fa6";
 import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
 import { UserContext } from "@/components/Context/UserContext";
-import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
+import { getMyOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
 import { fetchUserId } from "@/components/Fetchs/UsersFetchs/UserFetchs";
 import FormComponent from "@/components/Jobs/CreateJob";
 import JobOfferDetails from "@/components/Jobs/JobOffertDetails";
+import ProfileProgressBar from "@/components/ProfileUser/ProfileProgressBar";
 import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
+import { getPrimaryProfileVideo } from "@/lib/profileMedia";
 import type { IOfferCard } from "@/Interfaces/IOffer";
 import type { IProfileData } from "@/Interfaces/IUser";
 import { useI18nMode } from "@/components/Context/I18nModeContext";
@@ -38,6 +40,11 @@ const PanelManager = () => {
   const [userData, setUserData] = useState<IProfileData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [appliedJobs, setAppliedJobs] = useState<IOfferCard[]>([]);
+  const [jobsPage, setJobsPage] = useState<number>(1);
+  const [jobsLimit, setJobsLimit] = useState<number>(10);
+  const [jobsTotal, setJobsTotal] = useState<number>(0);
+  const [jobsTotalPages, setJobsTotalPages] = useState<number>(0);
+  const [jobsLoading, setJobsLoading] = useState<boolean>(false);
   const [portfolioPlayers, setPortfolioPlayers] = useState<any[]>([]);
   const [loadingPortfolio, setLoadingPortfolio] = useState(false);
   const [subscriptionInfo, setSubscriptionInfo] = useState<{
@@ -142,23 +149,24 @@ const PanelManager = () => {
   }, [user, apiUrl]);
 
   useEffect(() => {
-    const loadAppliedJobs = async () => {
-      if (user?.id) {
-        try {
-          const jobs = await getOfertas();
-          console.log("Ofertas obtenidas:", jobs);
-          const filteredJobs = jobs.filter(
-            (job) => job.recruiter && job.recruiter.id === user.id
-          );
-          setAppliedJobs(filteredJobs);
-        } catch (error) {
-          console.error("Error loading applied jobs:", error);
-          setError("Error al obtener las ofertas.");
-        }
+    if (activeSection !== "appliedOffers") return;
+    const loadMyJobs = async () => {
+      if (!user?.id || !token) return;
+      setJobsLoading(true);
+      try {
+        const result = await getMyOfertas(token, jobsPage, jobsLimit);
+        setAppliedJobs(result.data);
+        setJobsTotal(result.total);
+        setJobsTotalPages(result.totalPages);
+      } catch (err) {
+        console.error("Error loading my jobs:", err);
+        setError("Error al obtener las ofertas.");
+      } finally {
+        setJobsLoading(false);
       }
     };
-    loadAppliedJobs();
-  }, [user]);
+    loadMyJobs();
+  }, [activeSection, user, token, jobsPage, jobsLimit]);
 
   // Función para cargar la Portafolio de jugadores
   const loadPortfolio = async () => {
@@ -281,6 +289,13 @@ const PanelManager = () => {
                 )}
               </div>
             </div>
+
+            {/* Progreso de perfil */}
+            {userData && (
+              <div className="mb-4">
+                <ProfileProgressBar profile={userData} />
+              </div>
+            )}
 
             {/* Suscripción */}
             <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 shadow-md border border-green-200 mb-4">
@@ -448,24 +463,6 @@ const PanelManager = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">
-                          {getText("Nombre de la entidad", "entityName")}
-                        </span>
-                        <span className="text-gray-800">
-                          {userData?.nameAgency ||
-                            getText("No disponible", "notAvailable")}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">
-                          {getText("Tipo de organización", "organizationType")}
-                        </span>
-                        <span className="text-gray-800">
-                          {userData?.puesto ||
-                            getText("No especificado", "notSpecified")}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">
                           {getText("Año de fundación", "foundingYear")}
                         </span>
                         <span className="text-gray-800">
@@ -559,25 +556,29 @@ const PanelManager = () => {
                   </div>
 
                   {/* Video de Presentación */}
-                  {userData?.videoUrl && (
-                    <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-                      <h3 className="text-lg font-medium mb-3 text-gray-800">
-                        {getText("Video de Presentación", "presentationVideo")}
-                      </h3>
-                      <div className="relative w-full bg-black rounded-lg overflow-hidden">
-                        <iframe
-                          src={userData.videoUrl}
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                          className="w-full h-[350px]"
-                          title={getText(
-                            "Video de presentación",
-                            "presentationVideo"
-                          )}
-                        />
+                  {(() => {
+                    const primaryVideo = getPrimaryProfileVideo(userData);
+                    if (!primaryVideo) return null;
+                    return (
+                      <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+                        <h3 className="text-lg font-medium mb-3 text-gray-800">
+                          {getText("Video de Presentación", "presentationVideo")}
+                        </h3>
+                        <div className="relative w-full bg-black rounded-lg overflow-hidden">
+                          <iframe
+                            src={primaryVideo}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="w-full h-[350px]"
+                            title={getText(
+                              "Video de presentación",
+                              "presentationVideo"
+                            )}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   {/* CV Section */}
                   {userData?.cv && (
@@ -668,7 +669,11 @@ const PanelManager = () => {
                       Crear Oferta
                     </button>
                   </div>
-                  {appliedJobs.length === 0 ? (
+                  {jobsLoading && appliedJobs.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      Cargando ofertas...
+                    </div>
+                  ) : appliedJobs.length === 0 ? (
                     <div className="text-center py-8 bg-gray-50 rounded-lg">
                       <div className="text-gray-500 mb-4">
                         <svg
@@ -698,19 +703,68 @@ const PanelManager = () => {
                       </button>
                     </div>
                   ) : (
-                    <div className="max-h-[600px] overflow-y-auto pr-2 space-y-6">
-                      {[...appliedJobs]
-                        .sort(
-                          (a, b) =>
-                            new Date(b.createdAt).getTime() -
-                            new Date(a.createdAt).getTime()
-                        )
-                        .map((job) => (
+                    <>
+                      <div className="space-y-6">
+                        {appliedJobs.map((job) => (
                           <div key={job.id} className="cursor-pointer">
                             <JobOfferDetails jobId={job.id || ""} />
                           </div>
                         ))}
-                    </div>
+                      </div>
+
+                      {/* Paginación */}
+                      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-6 pt-4 border-t border-gray-200 text-sm">
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <span>Mostrar</span>
+                          <select
+                            value={jobsLimit}
+                            onChange={(e) => {
+                              setJobsLimit(Number(e.target.value));
+                              setJobsPage(1);
+                            }}
+                            className="border rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-green-600"
+                          >
+                            <option value={5}>5</option>
+                            <option value={10}>10</option>
+                            <option value={20}>20</option>
+                            <option value={50}>50</option>
+                          </select>
+                          <span>por página</span>
+                        </div>
+
+                        <div className="text-gray-600">
+                          Página <strong>{jobsPage}</strong> de{" "}
+                          <strong>{Math.max(jobsTotalPages, 1)}</strong>
+                          {" — "}
+                          <strong>{jobsTotal}</strong> ofertas en total
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            disabled={jobsPage <= 1 || jobsLoading}
+                            onClick={() => setJobsPage((p) => Math.max(1, p - 1))}
+                            className="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                          >
+                            Anterior
+                          </button>
+                          <button
+                            type="button"
+                            disabled={
+                              jobsPage >= jobsTotalPages || jobsLoading
+                            }
+                            onClick={() =>
+                              setJobsPage((p) =>
+                                Math.min(jobsTotalPages, p + 1),
+                              )
+                            }
+                            className="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                          >
+                            Siguiente
+                          </button>
+                        </div>
+                      </div>
+                    </>
                   )}
                 </section>
               )}

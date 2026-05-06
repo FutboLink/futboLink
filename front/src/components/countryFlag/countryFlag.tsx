@@ -206,8 +206,20 @@ export const CountryToCode: Record<string, string> = {
   Peru: "PE",
 };
 
+// Lookup tolerante: el mapeo está en PascalCase sin espacios pero los
+// valores en DB pueden venir con espacios ("Arabia Saudita") o minúsculas
+// ("argentina"). Normalizamos ambos lados antes de comparar.
+const NORMALIZED_COUNTRY_INDEX: Record<string, string> = Object.fromEntries(
+  Object.entries(CountryToCode).map(([name, code]) => [
+    name.replace(/\s+/g, "").toLowerCase(),
+    code,
+  ]),
+);
+
 export const renderCountryFlag = (country: string) => {
-  const code = CountryToCode[country];
+  if (!country) return null;
+  const normalized = country.replace(/\s+/g, "").toLowerCase();
+  const code = CountryToCode[country] ?? NORMALIZED_COUNTRY_INDEX[normalized];
   if (!code) return <span>🏳️</span>; // Icono por defecto si no se encuentra el país
   return (
     <CountryFlag

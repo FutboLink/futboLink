@@ -9,6 +9,10 @@ import ProfileUser from "@/components/ProfileUser/ProfileUser";
 import { getDefaultPlayerImage } from "@/helpers/imageUtils";
 import { useUserContext } from "@/hook/useUserContext";
 import type { IProfileData } from "@/Interfaces/IUser";
+import {
+  getProfilePhotos,
+  getProfileVideos,
+} from "@/lib/profileMedia";
 
 // URL del backend
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -288,7 +292,14 @@ export default function UserProfilePage() {
                   <div className="flex items-center text-sm text-gray-600 mb-4">
                     <div className="flex items-center">
                       <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-                      <span>{profile.primaryPosition}</span>
+                      <span>
+                        {profile.primaryPosition}
+                        {profile.secondaryPosition && (
+                          <span className="text-gray-500 ml-1">
+                            / {profile.secondaryPosition}
+                          </span>
+                        )}
+                      </span>
                     </div>
                     <span className="mx-2">|</span>
                     <span>{profile.age} años</span>
@@ -430,9 +441,11 @@ export default function UserProfilePage() {
                       <span className="text-sm text-gray-600">
                         {profile.primaryPosition}
                       </span>
-                      <span className="text-xs text-gray-500">
-                        {profile.primaryPosition}
-                      </span>
+                      {profile.secondaryPosition && (
+                        <span className="text-xs text-gray-500">
+                          {profile.secondaryPosition}
+                        </span>
+                      )}
                     </div>
 
                     <div className="flex flex-col items-center">
@@ -565,6 +578,24 @@ export default function UserProfilePage() {
                               </span>
                             </span>
                           </div>
+                          {profile.secondNationality && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">
+                                Segunda nacionalidad
+                              </span>
+                              <span className="flex items-center text-gray-800">
+                                {renderCountryFlag(profile.secondNationality)}
+                                <span className="ml-2">
+                                  {profile.secondNationality}
+                                </span>
+                                {profile.secondNationalityEuPassport && (
+                                  <span className="ml-2 inline-flex items-center text-[10px] font-semibold uppercase tracking-wide bg-blue-100 text-blue-700 border border-blue-200 rounded-full px-2 py-0.5">
+                                    Pasaporte UE
+                                  </span>
+                                )}
+                              </span>
+                            </div>
+                          )}
                           <div className="flex justify-between">
                             <span className="text-gray-600">Altura</span>
                             <span className="text-gray-800">
@@ -641,35 +672,65 @@ export default function UserProfilePage() {
                         </div>
                       </div>
 
-                      {/* Sección de video */}
-                      {profile.videoUrl && (
-                        <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-                          <h3 className="text-lg font-medium mb-3 text-gray-800">
-                            Video de presentación
-                          </h3>
-                          <div className="relative pt-[56.25%] bg-gray-100 rounded overflow-hidden">
-                            <iframe
-                              className="absolute top-0 left-0 w-full h-full"
-                              src={formatYoutubeUrl(profile.videoUrl)}
-                              title={`Video de ${profile.name} ${profile.lastname}`}
-                              frameBorder="0"
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
-                            ></iframe>
+                      {/* Sección de videos */}
+                      {(() => {
+                        const videos = getProfileVideos(profile);
+                        if (videos.length === 0) return null;
+                        return (
+                          <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+                            <h3 className="text-lg font-medium mb-3 text-gray-800">
+                              {videos.length === 1
+                                ? "Video de presentación"
+                                : `Videos de presentación (${videos.length})`}
+                            </h3>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                              {videos.map((url, i) => (
+                                <div
+                                  key={`video-${i}`}
+                                  className="relative pt-[56.25%] bg-gray-100 rounded overflow-hidden"
+                                >
+                                  <iframe
+                                    className="absolute top-0 left-0 w-full h-full"
+                                    src={formatYoutubeUrl(url)}
+                                    title={`Video ${i + 1} de ${profile.name}`}
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                  ></iframe>
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                          {/* Mostrar la URL original como fallback en caso de problemas */}
-                          <div className="mt-2 text-xs text-gray-500">
-                            <a
-                              href={profile.videoUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="hover:underline"
-                            >
-                              Ver video en YouTube
-                            </a>
+                        );
+                      })()}
+
+                      {/* Galería de fotos extra */}
+                      {(() => {
+                        const photos = getProfilePhotos(profile);
+                        if (photos.length === 0) return null;
+                        return (
+                          <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mt-3">
+                            <h3 className="text-lg font-medium mb-3 text-gray-800">
+                              Galería ({photos.length})
+                            </h3>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                              {photos.map((src, i) => (
+                                <div
+                                  key={`photo-${i}`}
+                                  className="relative aspect-square rounded overflow-hidden bg-gray-100"
+                                >
+                                  <Image
+                                    src={src}
+                                    alt={`Foto ${i + 1} de ${profile.name}`}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        );
+                      })()}
                     </div>
                   )}
 

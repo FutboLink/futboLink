@@ -26,6 +26,11 @@ import { getDefaultPlayerImage } from "@/helpers/imageUtils";
 import { useUserContext } from "@/hook/useUserContext";
 import type { IProfileData } from "@/Interfaces/IUser";
 import {
+  getPrimaryProfileVideo,
+  getProfilePhotos,
+  getProfileVideos,
+} from "@/lib/profileMedia";
+import {
   clearSubscriptionCache,
   type SubscriptionInfo,
 } from "@/services/SubscriptionService";
@@ -837,25 +842,56 @@ const UserProfile = () => {
                       </div>
                     </div>
 
-                    {/* Video de Presentación */}
-                    <div>
-                      <span className="font-medium text-lg mb-4 text-[#1d5126] block border-b pb-1">
-                        Video de Presentación
-                      </span>
-                      <div className="relative w-full bg-black shadow-md mt-2 rounded-lg overflow-hidden">
-                        {isClient && userData?.videoUrl ? (
-                          <YouTubeEmbed
-                            url={getYouTubeEmbedUrl(userData.videoUrl)}
-                          />
-                        ) : (
-                          <div className="flex items-center justify-center h-[200px]">
-                            <p className="text-white text-center p-4">
-                              No hay video disponible
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    {/* Videos de Presentación */}
+                    {(() => {
+                      const videos = getProfileVideos(userData);
+                      const photos = getProfilePhotos(userData);
+                      return (
+                        <div>
+                          <span className="font-medium text-lg mb-4 text-[#1d5126] block border-b pb-1">
+                            {videos.length > 1
+                              ? `Videos de Presentación (${videos.length})`
+                              : "Video de Presentación"}
+                          </span>
+                          {isClient && videos.length > 0 ? (
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-2">
+                              {videos.map((url, i) => (
+                                <div
+                                  key={`v-${i}`}
+                                  className="relative w-full bg-black shadow-md rounded-lg overflow-hidden"
+                                >
+                                  <YouTubeEmbed url={getYouTubeEmbedUrl(url)} />
+                                </div>
+                              ))}
+                            </div>
+                          ) : photos.length > 0 ? (
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
+                              {photos.map((src, i) => (
+                                <div
+                                  key={`p-${i}`}
+                                  className="relative aspect-square rounded overflow-hidden bg-gray-100"
+                                >
+                                  <Image
+                                    src={src}
+                                    alt={`Foto ${i + 1}`}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="relative w-full bg-black shadow-md mt-2 rounded-lg overflow-hidden">
+                              <div className="flex items-center justify-center h-[200px]">
+                                <p className="text-white text-center p-4">
+                                  No hay video disponible
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
 
                     {/* Verification Section */}
                     <div className="mt-4">

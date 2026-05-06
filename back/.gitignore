@@ -3,6 +3,9 @@
 /node_modules
 /build
 
+# Local file uploads (dev fallback when R2 is not configured)
+/uploads
+
 # Logs
 logs
 *.log

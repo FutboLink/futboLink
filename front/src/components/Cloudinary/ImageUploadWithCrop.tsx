@@ -9,6 +9,9 @@ interface ImageUploadwithCropProps {
   onUpload: (url: string) => void;
   onRemove?: () => void;
   initialImage?: string;
+  fileInputId?: string;
+  label?: string;
+  buttonLabel?: string;
 }
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -17,6 +20,9 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
   onUpload,
   onRemove,
   initialImage,
+  fileInputId = "file-input",
+  label = "Foto de Perfil",
+  buttonLabel = "Cambiar imagen",
 }) => {
   const [imageSrc, setImageSrc] = useState<string>("");
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -144,7 +150,7 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
 
   return (
     <div className="w-full flex flex-col items-center gap-4">
-      <label className="text-gray-700 font-semibold">Foto de Perfil</label>
+      {label && <label className="text-gray-700 font-semibold">{label}</label>}
 
       {/* Imagen actual */}
       {!showCropper && imageUrl && (
@@ -163,16 +169,16 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
       {!showCropper && (
         <button
           type="button"
-          onClick={() => document.getElementById("file-input")?.click()}
+          onClick={() => document.getElementById(fileInputId)?.click()}
           className="flex items-center gap-2 text-sm bg-verde-oscuro text-white py-2 px-4 rounded-md hover:bg-verde-mas-claro transition-colors"
         >
           <FaCamera />
-          Cambiar imagen
+          {buttonLabel}
         </button>
       )}
 
       <input
-        id="file-input"
+        id={fileInputId}
         type="file"
         accept="image/*"
         onChange={onFileChange}

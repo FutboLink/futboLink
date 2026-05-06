@@ -68,8 +68,14 @@ const ESTRUCTURA_CORPORAL_OPTIONS = [
 ];
 const PIE_HABIL_OPTIONS = ["Derecho", "Izquierdo", "Ambidiestro"];
 
-const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
+interface ProfessionalInfoProps {
+  profileData: IProfileData;
+  onProfileChange?: (updates: Partial<IProfileData>) => void;
+}
+
+const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
   profileData,
+  onProfileChange,
 }) => {
   const { token, setUser } = useUserContext();
   const [loading, setLoading] = useState(false);
@@ -170,10 +176,19 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
     </button>
   );
 
-  // Condición: es PLAYER pero su puesto no es "Jugador"
-  const isNonPlayerProfessional =
+  // Condición: cualquier rol excepto PLAYER con puesto "Jugador"
+  const isNonPlayerProfessional = !(
     (formData?.role as unknown as UserType) === UserType.PLAYER &&
-    (formData?.puesto || "").toLowerCase() !== "jugador";
+    (formData?.puesto || "").toLowerCase() === "jugador"
+  );
+
+  // Sync en tiempo real con el padre — cada cambio en formData se propaga
+  // para que la barra de progreso recalcule sin Guardar ni F5.
+  useEffect(() => {
+    if (formData) {
+      onProfileChange?.(formData);
+    }
+  }, [formData, onProfileChange]);
 
   useEffect(() => {
     // Initialize experiences from profileData
@@ -276,6 +291,10 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
       ...prev,
       cv: fileInfo.url,
     }));
+    setUser((prevUser) => {
+      if (!prevUser) return prevUser;
+      return { ...prevUser, cv: fileInfo.url } as typeof prevUser;
+    });
   };
 
   const handleDownloadCv = async () => {
@@ -380,7 +399,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Sección de Posiciones */}
         {!isNonPlayerProfessional && (
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <div id="field-primaryPosition" className="border border-gray-200 rounded-lg overflow-hidden">
             <SectionHeader
               title="Selección de Posiciones"
               section="positions"
@@ -431,7 +450,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
 
         {/* Sección de Datos Físicos */}
         {!isNonPlayerProfessional && (
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <div id="field-physicalData" className="border border-gray-200 rounded-lg overflow-hidden">
             <SectionHeader
               title="Datos Físicos"
               section="physicalData"
@@ -530,7 +549,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
         )}
 
         {/* Sección de CV */}
-        <div className="border border-gray-200 rounded-lg overflow-hidden">
+        <div id="field-cv" className="border border-gray-200 rounded-lg overflow-hidden">
           <SectionHeader title="Currículum Vitae" section="cv" icon="📄" />
           <div
             className={`transition-all duration-300 ease-in-out ${
@@ -593,7 +612,7 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
         </div>
 
         {/* Sección de Trayectoria */}
-        <div className="border border-gray-200 rounded-lg overflow-hidden">
+        <div id="field-trayectorias" className="border border-gray-200 rounded-lg overflow-hidden">
           <SectionHeader title="Trayectoria" section="trajectory" icon="🏆" />
           <div
             className={`transition-all duration-300 ease-in-out ${

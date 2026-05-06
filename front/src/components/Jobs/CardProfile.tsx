@@ -9,6 +9,7 @@ import {
   FaYoutube,
 } from "react-icons/fa";
 import type { IProfileData } from "@/Interfaces/IUser";
+import { getPrimaryProfileVideo } from "@/lib/profileMedia";
 import BackButton from "../utils/BackButton";
 import "aos/dist/aos.css";
 import { getDefaultPlayerImage } from "@/helpers/imageUtils";
@@ -229,16 +230,19 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
                               />
                             </a>
                           )}
-                          {profile.videoUrl && (
-                            <a
-                              href={profile.videoUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-red-600 hover:text-red-800 transition-colors"
-                            >
-                              <FaYoutube size={24} />
-                            </a>
-                          )}
+                          {(() => {
+                            const v = getPrimaryProfileVideo(profile);
+                            return v ? (
+                              <a
+                                href={v}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-red-600 hover:text-red-800 transition-colors"
+                              >
+                                <FaYoutube size={24} />
+                              </a>
+                            ) : null;
+                          })()}
                           {profile.socialMedia?.transfermarkt && (
                             <a
                               href={`${profile.socialMedia.transfermarkt}`}
@@ -268,23 +272,29 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
                   Video de Presentación
                 </span>
                 <div className="relative w-full pt-[56.25%] bg-black rounded-lg shadow-md mt-2 overflow-hidden">
-                  {isClient && profile?.videoUrl ? (
-                    <iframe
-                      className="absolute top-0 left-0 w-full h-full"
-                      src={getYouTubeEmbedUrl(profile.videoUrl)}
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      referrerPolicy="strict-origin-when-cross-origin"
-                      allowFullScreen
-                      title="Video del jugador"
-                    ></iframe>
-                  ) : (
-                    <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
-                      <p className="text-white text-center p-4">
-                        No hay video disponible
-                      </p>
-                    </div>
-                  )}
+                  {(() => {
+                    const primaryVideo = getPrimaryProfileVideo(profile);
+                    if (isClient && primaryVideo) {
+                      return (
+                        <iframe
+                          className="absolute top-0 left-0 w-full h-full"
+                          src={getYouTubeEmbedUrl(primaryVideo)}
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          referrerPolicy="strict-origin-when-cross-origin"
+                          allowFullScreen
+                          title="Video del jugador"
+                        ></iframe>
+                      );
+                    }
+                    return (
+                      <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+                        <p className="text-white text-center p-4">
+                          No hay video disponible
+                        </p>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             </div>

@@ -1,16 +1,19 @@
 "use client";
 
-import { useContext, useState, useEffect } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { IProfileData } from "@/Interfaces/IUser";
 import PersonalInfo from "./PersonalInfo";
 import ProfessionalInfo from "./ProfessionalInfo";
+import ProfileProgressBar from "./ProfileProgressBar";
 import { UserContext } from "../Context/UserContext";
 import { fetchUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { useI18nMode } from "../Context/I18nModeContext";
 import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
+import type { ProfileFieldStatus } from "@/lib/profileCompleteness";
 
 const Profile = () => {
-  const { token } = useContext(UserContext);
+  const { token, user } = useContext(UserContext);
   const { isNextIntlEnabled } = useI18nMode();
   const tCommon = useNextIntlTranslations('common');
   
@@ -21,7 +24,39 @@ const Profile = () => {
   
   const [error, setError] = useState<string | null>(null);
   const [userData, setUserData] = useState<IProfileData | null>(null);
-  const [activeTab, setActiveTab] = useState("Personal");
+  const searchParams = useSearchParams();
+  const initialTab = searchParams?.get("tab") === "Profesional"
+    ? "Profesional"
+    : "Personal";
+  const [activeTab, setActiveTab] = useState<string>(initialTab);
+
+  // Sync en tiempo real desde los hijos (PersonalInfo / ProfessionalInfo) con
+  // el state local de userData. Cada vez que el usuario completa o borra un
+  // campo, la barra de progreso refleja el cambio sin necesidad de Guardar+F5.
+  // useCallback con deps vacías = referencia estable, evita re-disparo del
+  // useEffect de los hijos en cada render del padre (loop infinito).
+  const handleProfileFieldsChange = useCallback(
+    (updates: Partial<IProfileData>) => {
+      setUserData((prev) => (prev ? { ...prev, ...updates } : prev));
+    },
+    [],
+  );
+
+  const handleTipClick = (field: ProfileFieldStatus) => {
+    setActiveTab(field.tab);
+    // Esperá un tick para que el tab cambie y el campo esté en el DOM.
+    setTimeout(() => {
+      const el = document.getElementById(field.anchor);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("ring-2", "ring-emerald-400");
+        setTimeout(
+          () => el.classList.remove("ring-2", "ring-emerald-400"),
+          1500,
+        );
+      }
+    }, 80);
+  };
 
   useEffect(() => {
     if (token) {
@@ -62,6 +97,27 @@ const Profile = () => {
     }
   }, [token]);
 
+  // Sync userData con cambios del contexto global (ej: subida de CV / avatar
+  // hace setUser({ ..., cv: url })). Sin esto, la barra de progreso solo
+  // refresca al hacer F5.
+  useEffect(() => {
+    if (!user || !userData) return;
+    const u = user as unknown as { cv?: string; imgUrl?: string };
+    setUserData((prev) => {
+      if (!prev) return prev;
+      const next = {
+        ...prev,
+        cv: u.cv ?? prev.cv,
+        imgUrl: u.imgUrl ?? prev.imgUrl,
+      };
+      if (next.cv === prev.cv && next.imgUrl === prev.imgUrl) return prev;
+      return next;
+    });
+    // Solo me interesa reaccionar a cv/imgUrl que son los que actualizamos
+    // post-upload desde el contexto global.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [(user as unknown as { cv?: string })?.cv, (user as unknown as { imgUrl?: string })?.imgUrl]);
+
   return (
     <div>
       {" "}
@@ -69,6 +125,14 @@ const Profile = () => {
       <div className="p-4 max-w-4xl mx-auto">
         {" "}
         {/* Reducir el padding */}
+        {userData && (
+          <div className="mb-4">
+            <ProfileProgressBar
+              profile={userData}
+              onTipClick={handleTipClick}
+            />
+          </div>
+        )}
         {/* Pestañas */}
         <div className="flex space-x-3 border-b pb-1 mt-2 mb-3 text-gray-700">
           {" "}
@@ -92,10 +156,10 @@ const Profile = () => {
         </div>
         {/* Contenido de cada pestaña */}
         {activeTab === "Personal" && userData && (
-          <PersonalInfo profileData={userData} />
+          <PersonalInfo profileData={userData} onProfileChange={handleProfileFieldsChange} />
         )}
         {activeTab === "Profesional" && userData && (
-          <ProfessionalInfo profileData={userData} />
+          <ProfessionalInfo profileData={userData} onProfileChange={handleProfileFieldsChange} />
         )}
         {error && <p className="text-red-600 mt-2">{error}</p>}{" "}
         {/* Reducir el margen inferior del error */}

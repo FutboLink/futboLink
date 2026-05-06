@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { DataSource } from 'typeorm';
@@ -6,6 +7,7 @@ import * as bodyParser from 'body-parser';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
+import * as path from 'path';
 
 async function ensureIsVerifiedColumn() {
   let dataSource: DataSource | null = null;
@@ -116,10 +118,16 @@ async function bootstrap() {
   await ensureIsVerifiedColumn();
 
   // Create the application with logging
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['error', 'warn', 'log', 'debug', 'verbose'],
   });
-  
+
+  // Serve local uploads (dev fallback when R2 is not configured).
+  // Files written to back/uploads/ are exposed at /uploads/*.
+  app.useStaticAssets(path.join(process.cwd(), 'uploads'), {
+    prefix: '/uploads/',
+  });
+
   // Get config service
   const configService = app.get(ConfigService);
   

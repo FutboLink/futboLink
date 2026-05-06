@@ -11,7 +11,7 @@ import {
   FaTiktok,
 } from "react-icons/fa";
 import { useUserContext } from "@/hook/useUserContext";
-import type { IProfileData } from "@/Interfaces/IUser";
+import { PasaporteUe, UserType, type IProfileData } from "@/Interfaces/IUser";
 import ImageUploadwithCrop from "../Cloudinary/ImageUploadWithCrop";
 import {
   fetchUserData,
@@ -23,7 +23,12 @@ import PhoneNumberInput from "../utils/PhoneNumberInput";
 import { useI18nMode } from "../Context/I18nModeContext";
 import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
 
-const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
+interface PersonalInfoProps {
+  profileData: IProfileData;
+  onProfileChange?: (updates: Partial<IProfileData>) => void;
+}
+
+const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
   const { token, setUser } = useUserContext();
   const { isNextIntlEnabled } = useI18nMode();
   const tCommon = useNextIntlTranslations('common');
@@ -40,7 +45,8 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
   const [notificationMessage, setNotificationMessage] = useState("");
   const [showErrorNotification, setShowErrorNotification] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [showSocials, setShowSocials] = useState(false);
+  const [showSocials, setShowSocials] = useState(true);
+  const [hasSecondNationality, setHasSecondNationality] = useState(false);
   // Normaliza valores de redes para evitar URLs pre-cargadas
   const normalizeSocialValue = (key: string, value: string): string => {
     const v = (value || "").trim();
@@ -120,6 +126,47 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
     }
   }, [token]);
 
+  useEffect(() => {
+    if (fetchedProfileData?.secondNationality) {
+      setHasSecondNationality(true);
+    }
+  }, [fetchedProfileData?.secondNationality]);
+
+  // Si el user tiene videoUrl legacy y videoUrls está vacío, lo subimos al
+  // array nuevo para que aparezca en los 3 inputs de "Videos".
+  useEffect(() => {
+    if (!fetchedProfileData) return;
+    const legacy = fetchedProfileData.videoUrl?.trim();
+    const arr = fetchedProfileData.videoUrls ?? [];
+    if (legacy && arr.length === 0) {
+      setFetchedProfileData((prev) =>
+        prev ? { ...prev, videoUrls: [legacy] } : prev,
+      );
+    }
+  }, [fetchedProfileData?.videoUrl, fetchedProfileData?.videoUrls?.length]);
+
+  // Mantiene `age` derivada de `birthday` aunque la DB no la traiga calculada.
+  useEffect(() => {
+    if (!fetchedProfileData?.birthday) return;
+    const birthDate = new Date(fetchedProfileData.birthday);
+    if (Number.isNaN(birthDate.getTime())) return;
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+    const ageStr = age >= 0 ? age.toString() : "";
+    if (fetchedProfileData.age !== ageStr) {
+      setFetchedProfileData((prev) =>
+        prev ? { ...prev, age: ageStr } : prev,
+      );
+    }
+  }, [fetchedProfileData?.birthday]);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -162,6 +209,15 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
     }
   };
 
+  // Sync en tiempo real con el padre — cada cambio en fetchedProfileData
+  // se propaga para que la barra de progreso recalcule sin necesidad de
+  // Guardar ni F5.
+  useEffect(() => {
+    if (fetchedProfileData) {
+      onProfileChange?.(fetchedProfileData);
+    }
+  }, [fetchedProfileData, onProfileChange]);
+
   const handleImageUpload = (imageUrl: string) => {
     setFetchedProfileData((prev) => {
       if (!prev) return prev; // Si prev es null, no hacemos nada
@@ -169,6 +225,12 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
         ...prev,
         imgUrl: imageUrl, // Actualizar la URL de la imagen en fetchedProfileData
       };
+    });
+    // Sync con contexto global para que la barra de progreso del padre
+    // refresque sin necesidad de F5.
+    setUser((prevUser) => {
+      if (!prevUser) return prevUser;
+      return { ...prevUser, imgUrl: imageUrl } as typeof prevUser;
     });
   };
 
@@ -186,6 +248,18 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           cleaned[k] = normalizeSocialValue(k, String(val || ""));
         });
         (dataToSend as any).socialMedia = cleaned;
+      }
+
+      // Filtrar strings vacíos en los arrays nuevos antes de enviar al backend.
+      if (Array.isArray(dataToSend.videoUrls)) {
+        dataToSend.videoUrls = dataToSend.videoUrls
+          .map((v) => (typeof v === "string" ? v.trim() : ""))
+          .filter((v) => v.length > 0);
+      }
+      if (Array.isArray(dataToSend.photoUrls)) {
+        dataToSend.photoUrls = dataToSend.photoUrls
+          .map((v) => (typeof v === "string" ? v.trim() : ""))
+          .filter((v) => v.length > 0);
       }
 
       const userId = JSON.parse(atob(token.split(".")[1])).id;
@@ -221,7 +295,10 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
           {/* Imagen de perfil (URL) */}
-          <div className="sm:col-span-2 flex flex-col items-center">
+          <div
+            id="field-imgUrl"
+            className="sm:col-span-2 flex flex-col items-center rounded-lg p-1 transition-shadow"
+          >
             <ImageUploadwithCrop
               initialImage={fetchedProfileData?.imgUrl}
               onUpload={handleImageUpload}
@@ -239,9 +316,9 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             name="name"
             type="text"
             value={fetchedProfileData?.name || ""}
-            readOnly
+            onChange={handleChange}
             placeholder={getText("Nombre", "name")}
-            className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
+            className="w-full p-1.5 border rounded text-gray-700 focus:outline-none"
           />
 
           {/* Last name */}
@@ -249,9 +326,9 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             name="lastname"
             type="text"
             value={fetchedProfileData?.lastname || ""}
-            readOnly
+            onChange={handleChange}
             placeholder={getText("Apellido", "lastname")}
-            className="w-full p-1.5 border rounded text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
+            className="w-full p-1.5 border rounded text-gray-700 focus:outline-none"
           />
 
           {/* Email */}
@@ -274,7 +351,10 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           </div>
 
           {/* Nationality Selector - Fixed version */}
-          <div className="flex flex-col sm:col-span-2">
+          <div
+            id="field-nationality"
+            className="flex flex-col sm:col-span-2 rounded-lg p-1 transition-shadow"
+          >
             <label
               htmlFor="nationalitiesProfile"
               className="text-gray-700 font-semibold text-sm"
@@ -308,7 +388,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           </div>
 
           {/* País de residencia */}
-          <div className="flex flex-col">
+          <div id="field-ubicacionActual" className="flex flex-col rounded-lg p-1 transition-shadow">
             <label
               htmlFor="paisProfile"
               className="text-gray-700 font-semibold text-sm"
@@ -326,27 +406,88 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             />
           </div>
 
-          {/* Location */}
-          <div className="flex flex-col">
-            <label
-              htmlFor="cityProfile"
-              className="text-gray-700 font-semibold text-sm"
-            >
-              {getText("Segunda nacionalidad", "city")}:
+          {/* Segunda nacionalidad (toggle + select + UE) */}
+          <div id="field-secondNationality" className="sm:col-span-2 flex flex-col gap-2 rounded-lg p-1 transition-shadow">
+            <span className="text-gray-700 font-semibold text-sm">
+              {getText("¿Tenés segunda nacionalidad?", "hasSecondNationality")}
+            </span>
+            <div className="flex gap-4 text-sm text-gray-700">
+              <label className="inline-flex items-center gap-1.5">
+                <input
+                  type="radio"
+                  name="hasSecondNationality"
+                  checked={hasSecondNationality}
+                  onChange={() => setHasSecondNationality(true)}
+                />
+                {getText("Sí", "yes")}
+              </label>
+              <label className="inline-flex items-center gap-1.5">
+                <input
+                  type="radio"
+                  name="hasSecondNationality"
+                  checked={!hasSecondNationality}
+                  onChange={() => {
+                    setHasSecondNationality(false);
+                    setFetchedProfileData((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            secondNationality: "",
+                          }
+                        : prev,
+                    );
+                  }}
+                />
+                {getText("No", "no")}
+              </label>
+            </div>
+            {hasSecondNationality && (
+              <select
+                name="secondNationality"
+                value={fetchedProfileData?.secondNationality || ""}
+                onChange={handleChange}
+                className="w-full p-2 border mt-1 rounded text-gray-700 focus:outline-none"
+              >
+                <option value="">
+                  {getText("Seleccione su nacionalidad", "selectNationality")}
+                </option>
+                {nationalities &&
+                  nationalities.length > 0 &&
+                  nationalities.map((nat) => (
+                    <option key={nat.value} value={nat.label}>
+                      {nat.label}
+                    </option>
+                  ))}
+              </select>
+            )}
+          </div>
+
+          {/* Pasaporte UE — pregunta independiente. Aplica a quien tenga ciudadanía
+              de un país UE (sea por 1ra o 2da nacionalidad). */}
+          <div className="sm:col-span-2 flex flex-col gap-1 rounded-lg p-1 transition-shadow">
+            <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={fetchedProfileData?.pasaporteUe === PasaporteUe.SI}
+                onChange={(e) =>
+                  setFetchedProfileData((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          pasaporteUe: e.target.checked
+                            ? PasaporteUe.SI
+                            : PasaporteUe.NO,
+                        }
+                      : prev,
+                  )
+                }
+              />
+              {getText("Tengo Pasaporte UE", "hasEuPassport")}
             </label>
-            <input
-              id="cityProfile"
-              name="location"
-              type="text"
-              value={fetchedProfileData?.location || ""}
-              onChange={handleChange}
-              placeholder={getText("Segunda nacionalidad", "city")}
-              className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
-            />
           </div>
 
           {/* Phone */}
-          <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div id="field-phone" className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-2 rounded-lg p-1 transition-shadow">
             <PhoneNumberInput
               mode="edit"
               name="phone"
@@ -356,23 +497,25 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
               className="p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
             />
             {/* Agente o Representante */}
-            <div className="flex flex-col">
-              <label
-                htmlFor="nameAgencyProfile"
-                className="text-gray-700 font-semibold text-sm"
-              >
-                {getText("Agente o Representante", "agentOrRepresentative")}:
-              </label>
-              <input
-                id="nameAgencyProfile"
-                name="nameAgency"
-                type="text"
-                value={fetchedProfileData?.nameAgency || ""}
-                onChange={handleChange}
-                placeholder={getText("Nombre del agente o representante", "agentName")}
-                className="p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
-              />
-            </div>
+            {fetchedProfileData?.role === UserType.PLAYER && (
+              <div className="flex flex-col">
+                <label
+                  htmlFor="nameAgencyProfile"
+                  className="text-gray-700 font-semibold text-sm"
+                >
+                  {getText("Agente o Representante", "agentOrRepresentative")}:
+                </label>
+                <input
+                  id="nameAgencyProfile"
+                  name="nameAgency"
+                  type="text"
+                  value={fetchedProfileData?.nameAgency || ""}
+                  onChange={handleChange}
+                  placeholder={getText("Nombre del agente o representante", "agentName")}
+                  className="p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
+                />
+              </div>
+            )}
           </div>
           {/* Gender */}
           <div className="flex flex-col">
@@ -397,7 +540,7 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
           </div>
 
           {/* Birthdate */}
-          <div className="flex flex-col sm:flex-row sm:gap-4 sm:col-span-2">
+          <div id="field-birthday" className="flex flex-col sm:flex-row sm:gap-4 sm:col-span-2 rounded-lg p-1 transition-shadow">
             <div className="flex flex-col w-full sm:w-1/2">
               <label
                 htmlFor="birthdayProfile"
@@ -435,24 +578,37 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
             </div>
           </div>
 
-          {/* Toggle redes sociales */}
-          <div className="sm:col-span-2">
-            <button
-              type="button"
-              onClick={() => setShowSocials(!showSocials)}
-              className="flex items-center justify-between w-full text-sm font-medium py-2 px-3 rounded bg-verde-claro  hover:bg-verde text-white transition-all duration-300 ease-in-out"
-            >
-              {showSocials
-                ? getText("Ocultar redes sociales", "hideSocialNetworks")
-                : getText("Agregar redes sociales / enlaces", "addSocialNetworks")}
-              <span
-                className={`transition-transform duration-300 ${
-                  showSocials ? "rotate-180" : "rotate-0"
-                }`}
+          {/* Header redes sociales — título + descripción + toggle sutil */}
+          <div id="field-socialMedia" className="sm:col-span-2 rounded-lg p-1 transition-shadow">
+            <div className="flex items-start justify-between gap-3 mb-2">
+              <div className="flex-1">
+                <h3 className="text-gray-800 font-semibold text-base">
+                  {getText("Redes sociales y enlaces", "socialNetworksTitle")}
+                </h3>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {getText(
+                    "Agregá tus perfiles para que reclutadores y clubes te encuentren más fácil.",
+                    "socialNetworksHint",
+                  )}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowSocials(!showSocials)}
+                className="flex items-center gap-1 text-xs text-verde-oscuro hover:underline whitespace-nowrap shrink-0 mt-1"
               >
-                {showSocials ? <FaChevronUp /> : <FaChevronDown />}
-              </span>
-            </button>
+                {showSocials
+                  ? getText("Ocultar", "hide")
+                  : getText("Mostrar", "show")}
+                <span
+                  className={`transition-transform duration-300 ${
+                    showSocials ? "rotate-180" : "rotate-0"
+                  }`}
+                >
+                  {showSocials ? <FaChevronUp /> : <FaChevronDown />}
+                </span>
+              </button>
+            </div>
           </div>
 
           {showSocials && (
@@ -566,27 +722,92 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
                     className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
                   />
                 </div>
-                {/* Video */}
-                <div className="flex flex-col md:col-span-2">
-                  <label
-                    htmlFor="videoUrlProfile"
-                    className="text-gray-700 font-semibold text-sm flex items-center gap-1"
-                  >
-                    <FaYoutube className="text-red-600" /> {getText("Agregar Video", "addVideo")}:
-                  </label>
-                  <input
-                    id="videoUrlProfile"
-                    type="text"
-                    name="videoUrl"
-                    value={fetchedProfileData?.videoUrl || ""}
-                    onChange={handleChange}
-                    placeholder={getText("link de Youtube", "youtubeLink")}
-                    className="w-full p-1.5 border rounded mt-2 focus:outline-none text-gray-700"
-                  />
-                </div>
               </div>
             </div>
           )}
+
+          {/* Videos (hasta 3) */}
+          <div id="field-videoUrl" className="sm:col-span-2 flex flex-col gap-2 mt-2 rounded-lg p-1 transition-shadow">
+            <span className="text-gray-700 font-semibold text-sm">
+              {getText("Videos de YouTube (hasta 3)", "videosTitle")}
+            </span>
+            <p className="text-xs text-gray-500">
+              {getText(
+                "Tip: copiá y pegá el link de YouTube. No subas el archivo.",
+                "videosHint",
+              )}
+            </p>
+            {[0, 1, 2].map((idx) => {
+              const current = fetchedProfileData?.videoUrls?.[idx] ?? "";
+              return (
+                <input
+                  key={`video-${idx}`}
+                  type="url"
+                  value={current}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setFetchedProfileData((prev) => {
+                      if (!prev) return prev;
+                      const arr = [...(prev.videoUrls ?? [])];
+                      while (arr.length <= idx) arr.push("");
+                      arr[idx] = value;
+                      return { ...prev, videoUrls: arr };
+                    });
+                  }}
+                  placeholder={`https://youtu.be/... (${idx + 1})`}
+                  className="w-full p-1.5 border rounded text-gray-700 focus:outline-none"
+                />
+              );
+            })}
+          </div>
+
+          {/* Fotos (hasta 3) */}
+          <div id="field-photoUrls" className="sm:col-span-2 flex flex-col gap-2 mt-2 rounded-lg p-1 transition-shadow">
+            <span className="text-gray-700 font-semibold text-sm">
+              {getText("Fotos extra (hasta 3)", "photosTitle")}
+            </span>
+            <p className="text-xs text-gray-500">
+              {getText(
+                "Si no tenés video, sumá fotos para mejorar tu perfil.",
+                "photosHint",
+              )}
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {[0, 1, 2].map((idx) => {
+                const url = fetchedProfileData?.photoUrls?.[idx] ?? "";
+                return (
+                  <div
+                    key={`photo-${idx}`}
+                    className="border border-dashed border-gray-300 rounded-lg p-2 flex flex-col items-center"
+                  >
+                    <ImageUploadwithCrop
+                      initialImage={url || undefined}
+                      onUpload={(uploaded) => {
+                        setFetchedProfileData((prev) => {
+                          if (!prev) return prev;
+                          const arr = [...(prev.photoUrls ?? [])];
+                          while (arr.length <= idx) arr.push("");
+                          arr[idx] = uploaded;
+                          return { ...prev, photoUrls: arr };
+                        });
+                      }}
+                      onRemove={() => {
+                        setFetchedProfileData((prev) => {
+                          if (!prev) return prev;
+                          const arr = [...(prev.photoUrls ?? [])];
+                          arr[idx] = "";
+                          return { ...prev, photoUrls: arr };
+                        });
+                      }}
+                      fileInputId={`photo-upload-${idx}`}
+                      label={getText(`Foto ${idx + 1}`, `photoSlot`)}
+                      buttonLabel={getText("Subir", "uploadShort")}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
       {/* Save Button */}

@@ -68,8 +68,14 @@ const ESTRUCTURA_CORPORAL_OPTIONS = [
 ];
 const PIE_HABIL_OPTIONS = ["Derecho", "Izquierdo", "Ambidiestro"];
 
-const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
+interface ProfessionalInfoProps {
+  profileData: IProfileData;
+  onProfileChange?: (updates: Partial<IProfileData>) => void;
+}
+
+const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
   profileData,
+  onProfileChange,
 }) => {
   const { token, setUser } = useUserContext();
   const [loading, setLoading] = useState(false);
@@ -175,6 +181,14 @@ const ProfessionalInfo: React.FC<{ profileData: IProfileData }> = ({
     (formData?.role as unknown as UserType) === UserType.PLAYER &&
     (formData?.puesto || "").toLowerCase() === "jugador"
   );
+
+  // Sync en tiempo real con el padre — cada cambio en formData se propaga
+  // para que la barra de progreso recalcule sin Guardar ni F5.
+  useEffect(() => {
+    if (formData) {
+      onProfileChange?.(formData);
+    }
+  }, [formData, onProfileChange]);
 
   useEffect(() => {
     // Initialize experiences from profileData

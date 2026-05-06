@@ -23,7 +23,12 @@ import PhoneNumberInput from "../utils/PhoneNumberInput";
 import { useI18nMode } from "../Context/I18nModeContext";
 import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
 
-const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
+interface PersonalInfoProps {
+  profileData: IProfileData;
+  onProfileChange?: (updates: Partial<IProfileData>) => void;
+}
+
+const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
   const { token, setUser } = useUserContext();
   const { isNextIntlEnabled } = useI18nMode();
   const tCommon = useNextIntlTranslations('common');
@@ -203,6 +208,15 @@ const PersonalInfo: React.FC<{ profileData: IProfileData }> = () => {
       }
     }
   };
+
+  // Sync en tiempo real con el padre — cada cambio en fetchedProfileData
+  // se propaga para que la barra de progreso recalcule sin necesidad de
+  // Guardar ni F5.
+  useEffect(() => {
+    if (fetchedProfileData) {
+      onProfileChange?.(fetchedProfileData);
+    }
+  }, [fetchedProfileData, onProfileChange]);
 
   const handleImageUpload = (imageUrl: string) => {
     setFetchedProfileData((prev) => {

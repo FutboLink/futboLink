@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState, useEffect } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { IProfileData } from "@/Interfaces/IUser";
 import PersonalInfo from "./PersonalInfo";
@@ -29,6 +29,18 @@ const Profile = () => {
     ? "Profesional"
     : "Personal";
   const [activeTab, setActiveTab] = useState<string>(initialTab);
+
+  // Sync en tiempo real desde los hijos (PersonalInfo / ProfessionalInfo) con
+  // el state local de userData. Cada vez que el usuario completa o borra un
+  // campo, la barra de progreso refleja el cambio sin necesidad de Guardar+F5.
+  // useCallback con deps vacías = referencia estable, evita re-disparo del
+  // useEffect de los hijos en cada render del padre (loop infinito).
+  const handleProfileFieldsChange = useCallback(
+    (updates: Partial<IProfileData>) => {
+      setUserData((prev) => (prev ? { ...prev, ...updates } : prev));
+    },
+    [],
+  );
 
   const handleTipClick = (field: ProfileFieldStatus) => {
     setActiveTab(field.tab);
@@ -144,10 +156,10 @@ const Profile = () => {
         </div>
         {/* Contenido de cada pestaña */}
         {activeTab === "Personal" && userData && (
-          <PersonalInfo profileData={userData} />
+          <PersonalInfo profileData={userData} onProfileChange={handleProfileFieldsChange} />
         )}
         {activeTab === "Profesional" && userData && (
-          <ProfessionalInfo profileData={userData} />
+          <ProfessionalInfo profileData={userData} onProfileChange={handleProfileFieldsChange} />
         )}
         {error && <p className="text-red-600 mt-2">{error}</p>}{" "}
         {/* Reducir el margen inferior del error */}

@@ -31,7 +31,7 @@ export class JobsService {
 
   async findAll(limit: number = 100): Promise<Job[]> {
     // Optimizado: Select específico y límite para reducir memoria
-    return await this.jobRepository.find({ 
+    return await this.jobRepository.find({
       relations: ['recruiter'],
       select: {
         id: true,
@@ -56,7 +56,35 @@ export class JobsService {
       order: { createdAt: 'DESC' }
     });
   }
-  
+
+  async findByRecruiter(
+    recruiterId: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<{
+    data: Job[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const [data, total] = await this.jobRepository.findAndCount({
+      where: { recruiter: { id: recruiterId } },
+      relations: ['recruiter'],
+      order: { createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: total === 0 ? 0 : Math.ceil(total / limit),
+    };
+  }
+
   async findOne(id: string): Promise<Job> {
     const job = await this.jobRepository.findOne({ where: { id }, relations: ['recruiter'] });
     if (!job) {

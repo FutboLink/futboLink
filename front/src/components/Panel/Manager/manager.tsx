@@ -8,8 +8,14 @@ import axios from "axios";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
-import { FaGlobe } from "react-icons/fa";
+import { FaChevronDown, FaChevronUp, FaGlobe } from "react-icons/fa";
 import { FaUsers } from "react-icons/fa6";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Navigation, Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "@/Styles/help-swiper.css";
 import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
 import { UserContext } from "@/components/Context/UserContext";
 import { getMyOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
@@ -18,12 +24,34 @@ import FormComponent from "@/components/Jobs/CreateJob";
 import JobOfferDetails from "@/components/Jobs/JobOffertDetails";
 import ProfileProgressBar from "@/components/ProfileUser/ProfileProgressBar";
 import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
-import { getPrimaryProfileVideo } from "@/lib/profileMedia";
+import {
+  getProfilePhotos,
+  getProfileVideos,
+} from "@/lib/profileMedia";
 import type { IOfferCard } from "@/Interfaces/IOffer";
 import type { IProfileData } from "@/Interfaces/IUser";
 import { useI18nMode } from "@/components/Context/I18nModeContext";
 import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
 import { FaBriefcase } from "react-icons/fa6";
+
+// Convierte URLs de YouTube de formato watch a embed para que el iframe
+// no sea bloqueado por X-Frame-Options. Espejo del helper que usamos en
+// user-viewer/[id].tsx.
+const formatYoutubeUrl = (url: string): string => {
+  if (!url) return url;
+  const patterns = [
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/i,
+    /(?:https?:\/\/)?(?:www\.)?youtu\.be\/([^?]+)/i,
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([^?]+)/i,
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      return `https://www.youtube.com/embed/${match[1]}`;
+    }
+  }
+  return url;
+};
 
 const PanelManager = () => {
   const { user, token } = useContext(UserContext);
@@ -39,6 +67,10 @@ const PanelManager = () => {
   const [activeSection, setActiveSection] = useState(sectionParam || "profile");
   const [userData, setUserData] = useState<IProfileData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Bloque "Información de la agencia" colapsable, cerrado por default.
+  const [isAgencyInfoOpen, setIsAgencyInfoOpen] = useState(false);
+  // Lightbox de fotos del carrusel multimedia.
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [appliedJobs, setAppliedJobs] = useState<IOfferCard[]>([]);
   const [jobsPage, setJobsPage] = useState<number>(1);
   const [jobsLimit, setJobsLimit] = useState<number>(10);
@@ -444,23 +476,29 @@ const PanelManager = () => {
               {/* Sección de Perfil */}
               {activeSection === "profile" && (
                 <div className="space-y-4">
-                  {/* Información de la agencia */}
+                  {/* Información de la agencia — colapsable, cerrado por
+                      default. Igual que en el perfil del jugador. */}
                   <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-                    <h3 className="text-lg font-medium mb-3 text-gray-800">
-                      {getText(
-                        "Información de la agencia",
-                        "agencyInformation"
-                      )}
-                    </h3>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">
-                          {getText("Nombre completo", "fullName")}
-                        </span>
-                        <span className="text-gray-800">
-                          {userData?.name} {userData?.lastname}
-                        </span>
-                      </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsAgencyInfoOpen((v) => !v)}
+                      aria-expanded={isAgencyInfoOpen}
+                      className="w-full flex items-center justify-between text-left text-lg font-medium text-gray-800 mb-0"
+                    >
+                      <span>
+                        {getText(
+                          "Información de la agencia",
+                          "agencyInformation"
+                        )}
+                      </span>
+                      <span className="text-gray-500">
+                        {isAgencyInfoOpen ? <FaChevronUp /> : <FaChevronDown />}
+                      </span>
+                    </button>
+                    {isAgencyInfoOpen && (
+                    <div className="space-y-3 mt-3">
+                      {/* "Nombre completo" se sacó: ya está en el header del
+                          perfil arriba del bloque, mostrarlo acá era duplicar. */}
                       <div className="flex justify-between">
                         <span className="text-gray-600">
                           {getText("Año de fundación", "foundingYear")}
@@ -483,6 +521,42 @@ const PanelManager = () => {
                           </span>
                         </span>
                       </div>
+
+                      {/* Segunda nacionalidad — del 1B. Solo se renderiza si
+                          está cargada. */}
+                      {(
+                        userData as
+                          | (IProfileData & { secondNationality?: string })
+                          | null
+                      )?.secondNationality && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">
+                            {getText(
+                              "Segunda nacionalidad",
+                              "secondNationality",
+                            )}
+                          </span>
+                          <span className="flex items-center text-gray-800">
+                            {renderCountryFlag(
+                              (
+                                userData as IProfileData & {
+                                  secondNationality?: string;
+                                }
+                              ).secondNationality as string,
+                            )}
+                            <span className="ml-2">
+                              {
+                                (
+                                  userData as IProfileData & {
+                                    secondNationality?: string;
+                                  }
+                                ).secondNationality
+                              }
+                            </span>
+                          </span>
+                        </div>
+                      )}
+
                       <div className="flex justify-between">
                         <span className="text-gray-600">
                           {getText("País de Residencia", "countryOfResidence")}
@@ -506,6 +580,7 @@ const PanelManager = () => {
                         </span>
                       </div>
                     </div>
+                    )}
                   </div>
 
                   {/* Información de contacto */}
@@ -555,27 +630,93 @@ const PanelManager = () => {
                     </div>
                   </div>
 
-                  {/* Video de Presentación */}
+                  {/* Multimedia — un solo carrusel combinado con videos +
+                      fotos. Mismo patrón que el perfil del jugador:
+                      - autoplay solo si son todas fotos
+                      - click en foto abre lightbox
+                      - pausa videos al cambiar de slide
+                      - estilos custom de .profile-media-swiper
+                  */}
                   {(() => {
-                    const primaryVideo = getPrimaryProfileVideo(userData);
-                    if (!primaryVideo) return null;
+                    if (!userData) return null;
+                    const videos = getProfileVideos(userData);
+                    const photos = getProfilePhotos(userData);
+                    const totalSlides = videos.length + photos.length;
+                    if (totalSlides === 0) return null;
+                    const shouldAutoplay =
+                      videos.length === 0 && photos.length > 1;
                     return (
                       <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
                         <h3 className="text-lg font-medium mb-3 text-gray-800">
-                          {getText("Video de Presentación", "presentationVideo")}
+                          {getText("Multimedia", "multimedia")}
+                          {totalSlides > 1 && (
+                            <span className="text-sm font-normal text-gray-500">
+                              {" "}
+                              ({totalSlides})
+                            </span>
+                          )}
                         </h3>
-                        <div className="relative w-full bg-black rounded-lg overflow-hidden">
-                          <iframe
-                            src={primaryVideo}
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            className="w-full h-[350px]"
-                            title={getText(
-                              "Video de presentación",
-                              "presentationVideo"
-                            )}
-                          />
-                        </div>
+                        <Swiper
+                          className="profile-media-swiper"
+                          modules={[Navigation, Pagination, Autoplay]}
+                          navigation={totalSlides > 1}
+                          pagination={
+                            totalSlides > 1 ? { clickable: true } : false
+                          }
+                          autoplay={
+                            shouldAutoplay
+                              ? {
+                                  delay: 4500,
+                                  disableOnInteraction: false,
+                                  pauseOnMouseEnter: true,
+                                }
+                              : false
+                          }
+                          loop={totalSlides > 1}
+                          spaceBetween={16}
+                          slidesPerView={1}
+                          onSlideChange={(swiper) => {
+                            swiper.el
+                              .querySelectorAll("iframe")
+                              .forEach((iframe) => {
+                                iframe.contentWindow?.postMessage(
+                                  '{"event":"command","func":"pauseVideo","args":""}',
+                                  "*",
+                                );
+                              });
+                          }}
+                        >
+                          {videos.map((url, i) => (
+                            <SwiperSlide key={`v-${i}`}>
+                              <div className="relative pt-[56.25%] bg-black rounded-lg overflow-hidden">
+                                <iframe
+                                  src={`${formatYoutubeUrl(url)}?enablejsapi=1`}
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                  className="absolute top-0 left-0 w-full h-full"
+                                  title={`Video ${i + 1}`}
+                                />
+                              </div>
+                            </SwiperSlide>
+                          ))}
+                          {photos.map((src, i) => (
+                            <SwiperSlide key={`p-${i}`}>
+                              <button
+                                type="button"
+                                onClick={() => setLightboxIndex(i)}
+                                className="block w-full relative pt-[56.25%] rounded-lg overflow-hidden bg-gray-900 cursor-zoom-in group"
+                                aria-label={`Abrir foto ${i + 1} en pantalla completa`}
+                              >
+                                <Image
+                                  src={src}
+                                  alt={`Foto ${i + 1}`}
+                                  fill
+                                  className="object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                                />
+                              </button>
+                            </SwiperSlide>
+                          ))}
+                        </Swiper>
                       </div>
                     );
                   })()}
@@ -1022,6 +1163,91 @@ const PanelManager = () => {
           </div>
         </div>
       </div>
+
+      {/* Lightbox del carrusel multimedia — mismo patrón que el perfil del
+          jugador. Click afuera o en × cierra. */}
+      {lightboxIndex !== null &&
+        userData &&
+        (() => {
+          const photos = getProfilePhotos(userData);
+          if (!photos[lightboxIndex]) return null;
+          const goPrev = () =>
+            setLightboxIndex((idx) =>
+              idx === null ? null : (idx - 1 + photos.length) % photos.length,
+            );
+          const goNext = () =>
+            setLightboxIndex((idx) =>
+              idx === null ? null : (idx + 1) % photos.length,
+            );
+          return (
+            <div
+              className="fixed inset-0 z-[100] bg-black/85 flex items-center justify-center p-4 backdrop-blur-sm"
+              onClick={() => setLightboxIndex(null)}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Vista ampliada de la foto"
+            >
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex(null);
+                }}
+                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white text-2xl flex items-center justify-center transition-colors"
+                aria-label="Cerrar"
+              >
+                ×
+              </button>
+
+              {photos.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      goPrev();
+                    }}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white text-2xl flex items-center justify-center transition-colors"
+                    aria-label="Foto anterior"
+                  >
+                    ‹
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      goNext();
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white text-2xl flex items-center justify-center transition-colors"
+                    aria-label="Foto siguiente"
+                  >
+                    ›
+                  </button>
+                </>
+              )}
+
+              <div
+                className="relative w-full max-w-5xl h-[85vh] flex items-center justify-center"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Image
+                  src={photos[lightboxIndex]}
+                  alt={`Foto ${lightboxIndex + 1}`}
+                  width={1600}
+                  height={1200}
+                  className="max-w-full max-h-full w-auto h-auto object-contain"
+                  priority
+                />
+              </div>
+
+              {photos.length > 1 && (
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/40 px-3 py-1 rounded-full">
+                  {lightboxIndex + 1} / {photos.length}
+                </div>
+              )}
+            </div>
+          );
+        })()}
     </div>
   );
 };

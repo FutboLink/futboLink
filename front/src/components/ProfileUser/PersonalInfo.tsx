@@ -237,6 +237,24 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
   // Handle form submission
   const handleSubmit = async () => {
     if (!token || !fetchedProfileData) return;
+
+    // Validación: no permitir subir el mismo link de video en dos slots.
+    // Si hay duplicados, abortamos antes de pegarle al backend para evitar
+    // que la galería del perfil termine con slides idénticos.
+    const videosNorm = (fetchedProfileData.videoUrls ?? [])
+      .map((v) => (v ?? "").trim().toLowerCase())
+      .filter((v) => v.length > 0);
+    if (new Set(videosNorm).size !== videosNorm.length) {
+      setErrorMessage(
+        getText(
+          "No podés cargar dos videos con el mismo link. Quitá los duplicados antes de guardar.",
+          "videoDuplicateError",
+        ),
+      );
+      setShowErrorNotification(true);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -737,28 +755,57 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
                 "videosHint",
               )}
             </p>
-            {[0, 1, 2].map((idx) => {
-              const current = fetchedProfileData?.videoUrls?.[idx] ?? "";
-              return (
-                <input
-                  key={`video-${idx}`}
-                  type="url"
-                  value={current}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setFetchedProfileData((prev) => {
-                      if (!prev) return prev;
-                      const arr = [...(prev.videoUrls ?? [])];
-                      while (arr.length <= idx) arr.push("");
-                      arr[idx] = value;
-                      return { ...prev, videoUrls: arr };
-                    });
-                  }}
-                  placeholder={`https://youtu.be/... (${idx + 1})`}
-                  className="w-full p-1.5 border rounded text-gray-700 focus:outline-none"
-                />
+            {(() => {
+              // Validación: marcar como duplicado los inputs cuya URL ya
+              // aparece en otro slot (case-insensitive, ignorando espacios).
+              // El primer slot que tenga una URL queda OK; los siguientes con
+              // la misma URL salen con borde rojo y mensaje.
+              const slots = [0, 1, 2].map(
+                (idx) => (fetchedProfileData?.videoUrls?.[idx] ?? "").trim().toLowerCase(),
               );
-            })}
+              const isDuplicate = (idx: number) => {
+                const v = slots[idx];
+                if (!v) return false;
+                return slots.findIndex((s) => s === v) !== idx;
+              };
+              return [0, 1, 2].map((idx) => {
+                const current = fetchedProfileData?.videoUrls?.[idx] ?? "";
+                const dup = isDuplicate(idx);
+                return (
+                  <div key={`video-${idx}`} className="flex flex-col gap-1">
+                    <input
+                      type="url"
+                      value={current}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFetchedProfileData((prev) => {
+                          if (!prev) return prev;
+                          const arr = [...(prev.videoUrls ?? [])];
+                          while (arr.length <= idx) arr.push("");
+                          arr[idx] = value;
+                          return { ...prev, videoUrls: arr };
+                        });
+                      }}
+                      placeholder={`https://youtu.be/... (${idx + 1})`}
+                      className={`w-full p-1.5 border rounded text-gray-700 focus:outline-none ${
+                        dup
+                          ? "border-red-500 bg-red-50 focus:ring-2 focus:ring-red-200"
+                          : ""
+                      }`}
+                      aria-invalid={dup}
+                    />
+                    {dup && (
+                      <span className="text-xs text-red-600">
+                        {getText(
+                          "Este video ya está cargado en otro slot.",
+                          "videoDuplicate",
+                        )}
+                      </span>
+                    )}
+                  </div>
+                );
+              });
+            })()}
           </div>
 
           {/* Fotos (hasta 3) */}
@@ -802,6 +849,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
                       fileInputId={`photo-upload-${idx}`}
                       label={getText(`Foto ${idx + 1}`, `photoSlot`)}
                       buttonLabel={getText("Subir", "uploadShort")}
+                      cropShape="rect"
                     />
                   </div>
                 );

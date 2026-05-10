@@ -19,3 +19,53 @@
 .swiper-pagination-bullet-active{
   background-color: #eab308 !important;
 }
+
+/* ─── Swiper de la sección multimedia del perfil ─────────────────────────
+   Estilo más sutil que el default: flechas circulares blancas con fondo
+   oscuro semi-transparente, bullets verdes alineados con la marca.
+*/
+.profile-media-swiper {
+  padding-bottom: 36px !important; /* hueco abajo para que las bullets no se superpongan al contenido */
+}
+
+.profile-media-swiper .swiper-button-prev,
+.profile-media-swiper .swiper-button-next {
+  width: 36px;
+  height: 36px;
+  background-color: rgba(0, 0, 0, 0.45);
+  border-radius: 9999px;
+  color: #ffffff;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  margin-top: -28px; /* compensa el padding-bottom para mantener el centrado vertical */
+}
+
+.profile-media-swiper .swiper-button-prev:hover,
+.profile-media-swiper .swiper-button-next:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+  transform: scale(1.05);
+}
+
+.profile-media-swiper .swiper-button-prev::after,
+.profile-media-swiper .swiper-button-next::after {
+  font-size: 14px !important;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.profile-media-swiper .swiper-pagination {
+  bottom: 8px !important;
+}
+
+.profile-media-swiper .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  background: #d1d5db; /* gray-300 */
+  opacity: 1;
+  transition: all 0.25s ease;
+}
+
+.profile-media-swiper .swiper-pagination-bullet-active {
+  background: #1d5126 !important; /* verde de la marca */
+  width: 24px;
+  border-radius: 9999px;
+}

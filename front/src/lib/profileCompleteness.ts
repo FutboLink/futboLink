@@ -201,9 +201,10 @@ const isNonEmpty = (v: unknown): boolean => {
   return Boolean(v);
 };
 
+// Cliente confirmó: TODOS los PLAYER (cualquier puesto) usan el schema
+// de Futbolista. Solo AGENCY / RECRUITER / CLUB usan el schema no-Futbolista.
 export const isFootballer = (profile: Pick<IProfileData, "role" | "puesto">) =>
-  profile.role === ("PLAYER" as IProfileData["role"]) &&
-  (profile.puesto || "").toLowerCase() === "jugador";
+  profile.role === ("PLAYER" as IProfileData["role"]);
 
 const evalField = (profile: IProfileData, key: ProfileFieldKey): boolean => {
   switch (key) {

@@ -12,6 +12,10 @@ interface ImageUploadwithCropProps {
   fileInputId?: string;
   label?: string;
   buttonLabel?: string;
+  // Forma del recorte y del preview. Default "round" para mantener el avatar
+  // redondo. La galería de fotos pasa "rect" para mostrar las imágenes
+  // cuadradas/rectangulares.
+  cropShape?: "round" | "rect";
 }
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -23,6 +27,7 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
   fileInputId = "file-input",
   label = "Foto de Perfil",
   buttonLabel = "Cambiar imagen",
+  cropShape = "round",
 }) => {
   const [imageSrc, setImageSrc] = useState<string>("");
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -152,9 +157,13 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
     <div className="w-full flex flex-col items-center gap-4">
       {label && <label className="text-gray-700 font-semibold">{label}</label>}
 
-      {/* Imagen actual */}
+      {/* Imagen actual — circular para avatar (round), cuadrada para galería (rect). */}
       {!showCropper && imageUrl && (
-        <div className="relative w-32 h-32 rounded-full overflow-hidden border border-gray-300 shadow">
+        <div
+          className={`relative w-32 h-32 ${
+            cropShape === "rect" ? "rounded-md" : "rounded-full"
+          } overflow-hidden border border-gray-300 shadow`}
+        >
           <NextImage
             src={imageUrl}
             alt="Imagen actual"
@@ -165,16 +174,34 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
         </div>
       )}
 
-      {/* Selector de archivo */}
+      {/* Acciones: Subir / Cambiar y, si hay imagen + onRemove, Eliminar.
+          El botón Eliminar solo aparece cuando el padre pasa onRemove,
+          así no rompe usos donde el remove no aplica. */}
       {!showCropper && (
-        <button
-          type="button"
-          onClick={() => document.getElementById(fileInputId)?.click()}
-          className="flex items-center gap-2 text-sm bg-verde-oscuro text-white py-2 px-4 rounded-md hover:bg-verde-mas-claro transition-colors"
-        >
-          <FaCamera />
-          {buttonLabel}
-        </button>
+        <div className="flex items-center gap-2 flex-wrap justify-center">
+          <button
+            type="button"
+            onClick={() => document.getElementById(fileInputId)?.click()}
+            className="flex items-center gap-2 text-sm bg-verde-oscuro text-white py-2 px-4 rounded-md hover:bg-verde-mas-claro transition-colors"
+          >
+            <FaCamera />
+            {buttonLabel}
+          </button>
+          {imageUrl && onRemove && (
+            <button
+              type="button"
+              onClick={() => {
+                setImageUrl("");
+                onRemove();
+              }}
+              className="flex items-center gap-2 text-sm bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors"
+              aria-label="Eliminar imagen"
+            >
+              <FaTimesCircle />
+              Eliminar
+            </button>
+          )}
+        </div>
       )}
 
       <input
@@ -193,7 +220,7 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
             crop={crop}
             zoom={zoom}
             aspect={1}
-            cropShape="round"
+            cropShape={cropShape}
             onCropChange={setCrop}
             onZoomChange={setZoom}
             onCropComplete={onCropComplete}

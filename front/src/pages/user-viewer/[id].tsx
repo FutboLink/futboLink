@@ -6,6 +6,8 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import {
   FaArrowLeft,
+  FaChevronDown,
+  FaChevronUp,
   FaCog,
   FaEllipsisH,
   FaGlobe,
@@ -110,6 +112,7 @@ export default function UserViewer() {
   const [urlCopied, setUrlCopied] = useState(false);
   const [liked, setLiked] = useState(false);
   const [showShareOptions, setShowShareOptions] = useState(false);
+  const [isPersonalInfoOpen, setIsPersonalInfoOpen] = useState(false);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [
@@ -2433,103 +2436,130 @@ export default function UserViewer() {
                 {activeTab === "info" && (
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-                      <h3 className="text-lg font-medium mb-3 text-gray-800">
-                        {(profile.role as UserType) === UserType.RECRUITER
-                          ? getText(
-                              "Información de la agencia",
-                              "agencyInformation"
-                            )
-                          : getText(
-                              "Información personal",
-                              "personalInformation"
-                            )}
-                      </h3>
-                      <div className="space-y-3">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">
-                            {getText("Nombre completo", "fullName")}
-                          </span>
-                          <span className="text-gray-800">
-                            {profile.name} {profile.lastname}
-                          </span>
-                        </div>
-                        {/* Información específica para jugadores */}
-                        {isPurePlayer && (
-                          <>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">
-                                {getText("Fecha de nacimiento", "birthdate")}
-                              </span>
-                              <span className="text-gray-800">
-                                {profile.birthday ||
-                                  getText("No especificada", "notSpecified")}
-                              </span>
-                            </div>
-                          </>
-                        )}
+                      <button
+                        type="button"
+                        onClick={() => setIsPersonalInfoOpen((v) => !v)}
+                        aria-expanded={isPersonalInfoOpen}
+                        className="w-full flex items-center justify-between text-left text-lg font-medium text-gray-800 mb-0"
+                      >
+                        <span>
+                          {(profile.role as UserType) === UserType.RECRUITER
+                            ? getText(
+                                "Información de la agencia",
+                                "agencyInformation"
+                              )
+                            : getText(
+                                "Información personal",
+                                "personalInformation"
+                              )}
+                        </span>
+                        <span className="text-gray-500">
+                          {isPersonalInfoOpen ? <FaChevronUp /> : <FaChevronDown />}
+                        </span>
+                      </button>
+                      {isPersonalInfoOpen && (
+                        <div className="space-y-3 mt-3">
+                          {/* Información específica para jugadores */}
+                          {isPurePlayer && (
+                            <>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">
+                                  {getText("Fecha de nacimiento", "birthdate")}
+                                </span>
+                                <span className="text-gray-800">
+                                  {profile.birthday ||
+                                    getText("No especificada", "notSpecified")}
+                                </span>
+                              </div>
+                            </>
+                          )}
 
-                        {/* Información específica para profesionales no jugadores */}
-                        {!isPurePlayer &&
-                          (profile.role as UserType) !== UserType.RECRUITER && (
+                          {/* Información específica para profesionales no jugadores */}
+                          {!isPurePlayer &&
+                            (profile.role as UserType) !== UserType.RECRUITER && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">
+                                  {getText("Fecha de nacimiento", "birthdate")}
+                                </span>
+                                <span className="text-gray-800">
+                                  {profile.birthday ||
+                                    getText("No especificada", "notSpecified")}
+                                </span>
+                              </div>
+                            )}
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">
+                              {getText("Nacionalidad", "nationality")}
+                            </span>
+                            <span className="flex items-center text-gray-800">
+                              {profile.nationality &&
+                                renderCountryFlag(profile.nationality)}
+                              <span className="ml-2">{profile.nationality}</span>
+                            </span>
+                          </div>
+
+                          {/* Segunda nacionalidad — solo si está cargada */}
+                          {(profile as IProfileData & { secondNationality?: string })
+                            .secondNationality && (
                             <div className="flex justify-between">
                               <span className="text-gray-600">
-                                {getText("Fecha de nacimiento", "birthdate")}
+                                {getText("Segunda nacionalidad", "secondNationality")}
                               </span>
-                              <span className="text-gray-800">
-                                {profile.birthday ||
-                                  getText("No especificada", "notSpecified")}
+                              <span className="flex items-center text-gray-800">
+                                {renderCountryFlag(
+                                  (profile as IProfileData & {
+                                    secondNationality?: string;
+                                  }).secondNationality as string,
+                                )}
+                                <span className="ml-2">
+                                  {(profile as IProfileData & {
+                                    secondNationality?: string;
+                                  }).secondNationality}
+                                </span>
                               </span>
                             </div>
                           )}
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">
-                            {getText("Nacionalidad", "nationality")}
-                          </span>
-                          <span className="flex items-center text-gray-800">
-                            {profile.nationality &&
-                              renderCountryFlag(profile.nationality)}
-                            <span className="ml-2">{profile.nationality}</span>
-                          </span>
-                        </div>
-                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
-                          <span className="text-gray-600">
-                            {getText(
-                              "País de Residencia",
-                              "countryOfResidence"
-                            )}
-                          </span>
 
-                          <span className="flex flex-wrap items-start sm:items-center text-gray-800 text-right sm:text-left sm:justify-end">
-                            <span className="flex items-center flex-shrink-0 gap-x-1">
-                              {profile.ubicacionActual &&
-                                renderCountryFlag(profile.ubicacionActual)}
-                              <span>
-                                {profile.ubicacionActual}
-                                {profile.location && ","}
-                              </span>
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                            <span className="text-gray-600">
+                              {getText(
+                                "País de Residencia",
+                                "countryOfResidence"
+                              )}
                             </span>
 
-                            {profile.location && (
-                              <span className="ml-1 break-words sm:whitespace-nowrap">
-                                {profile.location}
+                            <span className="flex flex-wrap items-start sm:items-center text-gray-800 text-right sm:text-left sm:justify-end">
+                              <span className="flex items-center flex-shrink-0 gap-x-1">
+                                {profile.ubicacionActual &&
+                                  renderCountryFlag(profile.ubicacionActual)}
+                                <span>
+                                  {profile.ubicacionActual}
+                                  {profile.location && ","}
+                                </span>
                               </span>
-                            )}
-                          </span>
-                        </div>
 
-                        {/* Pasaporte UE - Para todos los perfiles excepto reclutadores */}
-                        {profile.pasaporteUe &&
-                          (profile.role as UserType) !== UserType.RECRUITER && (
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">
-                                {getText("Pasaporte UE", "euPassport")}
-                              </span>
-                              <span className="text-gray-800">
-                                {profile.pasaporteUe}
-                              </span>
-                            </div>
-                          )}
-                      </div>
+                              {profile.location && (
+                                <span className="ml-1 break-words sm:whitespace-nowrap">
+                                  {profile.location}
+                                </span>
+                              )}
+                            </span>
+                          </div>
+
+                          {/* Pasaporte UE - Para todos los perfiles excepto reclutadores */}
+                          {profile.pasaporteUe &&
+                            (profile.role as UserType) !== UserType.RECRUITER && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">
+                                  {getText("Pasaporte UE", "euPassport")}
+                                </span>
+                                <span className="text-gray-800">
+                                  {profile.pasaporteUe}
+                                </span>
+                              </div>
+                            )}
+                        </div>
+                      )}
                     </div>
 
                     {(isPurePlayer ||

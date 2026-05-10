@@ -176,10 +176,14 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
     </button>
   );
 
-  // Condición: cualquier rol excepto PLAYER con puesto "Jugador"
+  // Condición: cualquier rol excepto PLAYER con puesto "Jugador" (o vacío,
+  // tomado como Jugador por defecto). Los PLAYERs legacy en prod no tenían
+  // `puesto` asignado — sin este fallback caían como no-Jugador y veían el
+  // perfil del agente.
+  const puestoLower = (formData?.puesto || "").toLowerCase();
   const isNonPlayerProfessional = !(
     (formData?.role as unknown as UserType) === UserType.PLAYER &&
-    (formData?.puesto || "").toLowerCase() === "jugador"
+    (puestoLower === "" || puestoLower === "jugador")
   );
 
   // Sync en tiempo real con el padre — cada cambio en formData se propaga

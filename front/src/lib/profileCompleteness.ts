@@ -201,9 +201,14 @@ const isNonEmpty = (v: unknown): boolean => {
   return Boolean(v);
 };
 
-export const isFootballer = (profile: Pick<IProfileData, "role" | "puesto">) =>
-  profile.role === ("PLAYER" as IProfileData["role"]) &&
-  (profile.puesto || "").toLowerCase() === "jugador";
+export const isFootballer = (profile: Pick<IProfileData, "role" | "puesto">) => {
+  if (profile.role !== ("PLAYER" as IProfileData["role"])) return false;
+  // PLAYERs legacy en prod no tienen `puesto` asignado; tratar puesto vacío
+  // como Jugador por defecto. Solo PLAYER+puesto explícito de Cuerpo Técnico
+  // (Entrenador, DT, Preparador, etc) cae como no-Futbolista.
+  const puestoLower = (profile.puesto || "").toLowerCase();
+  return puestoLower === "" || puestoLower === "jugador";
+};
 
 const evalField = (profile: IProfileData, key: ProfileFieldKey): boolean => {
   switch (key) {

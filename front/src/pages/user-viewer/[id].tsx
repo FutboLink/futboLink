@@ -25,6 +25,9 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "@/Styles/help-swiper.css";
 import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
+import { getMyOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
+import FormComponent from "@/components/Jobs/CreateJob";
+import JobOfferDetails from "@/components/Jobs/JobOffertDetails";
 import ProfileUser from "@/components/ProfileUser/ProfileUser";
 import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
 import {
@@ -112,8 +115,16 @@ export default function UserViewer() {
   const [error, setError] = useState<string | null>(null);
   const [notificationSent, setNotificationSent] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    "info" | "stats" | "career" | "portfolio"
+    "info" | "stats" | "career" | "portfolio" | "myOffers" | "createOffer"
   >("info");
+  // Paginación de "Mis Ofertas" (solo visible para dueños no-Jugadores).
+  // Estado separado del listado público de ofertas.
+  const [myOffers, setMyOffers] = useState<unknown[]>([]);
+  const [myOffersPage, setMyOffersPage] = useState(1);
+  const [myOffersLimit, setMyOffersLimit] = useState(10);
+  const [myOffersTotal, setMyOffersTotal] = useState(0);
+  const [myOffersTotalPages, setMyOffersTotalPages] = useState(0);
+  const [myOffersLoading, setMyOffersLoading] = useState(false);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [urlCopied, setUrlCopied] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -121,10 +132,12 @@ export default function UserViewer() {
   // Bloque "Información personal" / "Información de la agencia" — colapsable,
   // cerrado por default. Cliente pidió que no se muestre todo expandido al
   // entrar al perfil (era ruido visual).
-  const [isPersonalInfoOpen, setIsPersonalInfoOpen] = useState(false);
   // Lightbox / modal de imágenes del carrusel multimedia. null = cerrado,
   // número = index en el array de photos para mostrar en grande.
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  // Bloque "Contacto" — colapsable, cerrado por default. Estos son los
+  // datos que más adelante se quieren proteger con suscripción.
+  const [isContactOpen, setIsContactOpen] = useState(false);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [
@@ -228,6 +241,45 @@ export default function UserViewer() {
   const isPurePlayer =
     profile?.role === UserType.PLAYER &&
     (!profile?.puesto || profile?.puesto.toLowerCase() === "jugador");
+
+  // ¿Este perfil puede publicar ofertas?
+  // Por contrato: TODO menos el Futbolista puro publica ofertas. Acá lo
+  // usamos para mostrar/ocultar las tabs "Mis Ofertas" y "Crear Oferta",
+  // que solo aparecen cuando el visitante ES el dueño del perfil y además
+  // tiene capacidad de publicar (Cuerpo Técnico, Dirección, AGENCY,
+  // RECRUITER, CLUB). El Futbolista puro NO ve esas tabs.
+  const canPublishOffers = isOwnProfile && !isPurePlayer;
+
+  // Si la URL trae ?tab=myOffers o ?tab=createOffer (desde el sidebar del
+  // Cuerpo Técnico), activamos esa tab automáticamente. Sólo aplica para
+  // dueños que puedan publicar — si no, ignoramos el query.
+  useEffect(() => {
+    const queryTab = router.query.tab;
+    if (typeof queryTab !== "string") return;
+    if (!canPublishOffers) return;
+    if (queryTab === "myOffers" || queryTab === "createOffer") {
+      setActiveTab(queryTab);
+    }
+  }, [router.query.tab, canPublishOffers]);
+
+  // Cargar "Mis Ofertas" cuando el dueño abre esa tab o cambia paginación.
+  // Reutilizamos el endpoint /jobs/my que devuelve solo las ofertas
+  // publicadas por el user del JWT, con paginación server-side.
+  useEffect(() => {
+    if (activeTab !== "myOffers") return;
+    if (!canPublishOffers || !token) return;
+    setMyOffersLoading(true);
+    getMyOfertas(token, myOffersPage, myOffersLimit)
+      .then((result) => {
+        setMyOffers(result.data);
+        setMyOffersTotal(result.total);
+        setMyOffersTotalPages(result.totalPages);
+      })
+      .catch((err) => {
+        console.error("Error cargando Mis Ofertas:", err);
+      })
+      .finally(() => setMyOffersLoading(false));
+  }, [activeTab, canPublishOffers, token, myOffersPage, myOffersLimit]);
 
   // Referencias para los menús desplegables
   const shareMenuRef = useRef<HTMLDivElement>(null);
@@ -2471,6 +2523,35 @@ export default function UserViewer() {
                   >
                     Trayectoria
                   </button>
+                  {/* Tabs extra solo para dueños que pueden publicar ofertas
+                      (Cuerpo Técnico, Dirección y todos los no-Jugadores que
+                      por alguna razón entran a su propio user-viewer). */}
+                  {canPublishOffers && (
+                    <>
+                      <button
+                        onClick={() => setActiveTab("myOffers")}
+                        type="button"
+                        className={`flex-1 py-3 text-center ${
+                          activeTab === "myOffers"
+                            ? "text-green-600 border-b-2 border-green-600"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        Mis Ofertas
+                      </button>
+                      <button
+                        onClick={() => setActiveTab("createOffer")}
+                        type="button"
+                        className={`flex-1 py-3 text-center ${
+                          activeTab === "createOffer"
+                            ? "text-green-600 border-b-2 border-green-600"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        Crear Oferta
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -2479,29 +2560,18 @@ export default function UserViewer() {
                 {activeTab === "info" && (
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-                      <button
-                        type="button"
-                        onClick={() => setIsPersonalInfoOpen((v) => !v)}
-                        aria-expanded={isPersonalInfoOpen}
-                        className="w-full flex items-center justify-between text-left text-lg font-medium text-gray-800 mb-0"
-                      >
-                        <span>
-                          {(profile.role as UserType) === UserType.RECRUITER
-                            ? getText(
-                                "Información de la agencia",
-                                "agencyInformation"
-                              )
-                            : getText(
-                                "Información personal",
-                                "personalInformation"
-                              )}
-                        </span>
-                        <span className="text-gray-500">
-                          {isPersonalInfoOpen ? <FaChevronUp /> : <FaChevronDown />}
-                        </span>
-                      </button>
-                      {isPersonalInfoOpen && (
-                        <div className="space-y-3 mt-3">
+                      <h3 className="text-lg font-medium text-gray-800 mb-3">
+                        {(profile.role as UserType) === UserType.RECRUITER
+                          ? getText(
+                              "Información de la agencia",
+                              "agencyInformation"
+                            )
+                          : getText(
+                              "Información personal",
+                              "personalInformation"
+                            )}
+                      </h3>
+                      <div className="space-y-3">
                           {/* "Nombre completo" se sacó: ya está en el header del
                               perfil arriba, mostrarlo acá era duplicar info. */}
                           {/* Información específica para jugadores */}
@@ -2606,17 +2676,29 @@ export default function UserViewer() {
                               </div>
                             )}
                         </div>
-                      )}
                     </div>
 
                     {(isPurePlayer ||
                       (!isPurePlayer &&
                         (profile.role as UserType) !== UserType.RECRUITER)) && (
                       <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-                        <h3 className="text-lg font-medium mb-3 text-gray-800">
-                          {getText("Contacto", "contact")}
-                        </h3>
-                        <div className="space-y-3">
+                        {/* "Contacto" arranca cerrado por default. Esta info
+                            (email, teléfono, redes) se va a proteger a futuro
+                            con suscripción — empezar oculta facilita el
+                            cambio sin redibujar el layout. */}
+                        <button
+                          type="button"
+                          onClick={() => setIsContactOpen((v) => !v)}
+                          aria-expanded={isContactOpen}
+                          className="w-full flex items-center justify-between text-left text-lg font-medium text-gray-800 mb-0"
+                        >
+                          <span>{getText("Contacto", "contact")}</span>
+                          <span className="text-gray-500">
+                            {isContactOpen ? <FaChevronUp /> : <FaChevronDown />}
+                          </span>
+                        </button>
+                        {isContactOpen && (
+                        <div className="space-y-3 mt-3">
                           <div className="flex justify-between">
                             <span className="text-gray-600">
                               {getText("Email", "email")}
@@ -2776,6 +2858,7 @@ export default function UserViewer() {
                               </div>
                             )}
                         </div>
+                        )}
                       </div>
                     )}
 
@@ -2983,6 +3066,112 @@ export default function UserViewer() {
                         No career information available.
                       </p>
                     )}
+                  </div>
+                )}
+
+                {/* Tab: Mis Ofertas — solo dueño + no-Jugador. */}
+                {activeTab === "myOffers" && canPublishOffers && (
+                  <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+                    <h3 className="text-lg font-medium mb-3 text-gray-800">
+                      Mis Ofertas Publicadas
+                    </h3>
+                    {myOffersLoading && myOffers.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        Cargando ofertas...
+                      </div>
+                    ) : myOffers.length === 0 ? (
+                      <div className="text-center py-8 bg-gray-50 rounded-lg">
+                        <p className="text-gray-500">
+                          No has publicado ninguna oferta aún
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setActiveTab("createOffer")}
+                          className="mt-3 inline-block px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                        >
+                          Crear mi primera oferta
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="space-y-4">
+                          {myOffers.map((job) => {
+                            const offerId =
+                              (job as { id?: string }).id ?? "";
+                            return (
+                              <div key={offerId} className="cursor-pointer">
+                                <JobOfferDetails jobId={offerId} />
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Paginación */}
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-6 pt-4 border-t border-gray-200 text-sm">
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <span>Mostrar</span>
+                            <select
+                              value={myOffersLimit}
+                              onChange={(e) => {
+                                setMyOffersLimit(Number(e.target.value));
+                                setMyOffersPage(1);
+                              }}
+                              className="border rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-green-600"
+                            >
+                              <option value={5}>5</option>
+                              <option value={10}>10</option>
+                              <option value={20}>20</option>
+                              <option value={50}>50</option>
+                            </select>
+                            <span>por página</span>
+                          </div>
+
+                          <div className="text-gray-600">
+                            Página <strong>{myOffersPage}</strong> de{" "}
+                            <strong>{Math.max(myOffersTotalPages, 1)}</strong>
+                            {" — "}
+                            <strong>{myOffersTotal}</strong> ofertas
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              disabled={myOffersPage <= 1 || myOffersLoading}
+                              onClick={() =>
+                                setMyOffersPage((p) => Math.max(1, p - 1))
+                              }
+                              className="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            >
+                              Anterior
+                            </button>
+                            <button
+                              type="button"
+                              disabled={
+                                myOffersPage >= myOffersTotalPages ||
+                                myOffersLoading
+                              }
+                              onClick={() =>
+                                setMyOffersPage((p) =>
+                                  Math.min(myOffersTotalPages, p + 1),
+                                )
+                              }
+                              className="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            >
+                              Siguiente
+                            </button>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* Tab: Crear Oferta — solo dueño + no-Jugador. Reutiliza el
+                    FormComponent del módulo de Jobs (mismo que usa el panel
+                    del agente). */}
+                {activeTab === "createOffer" && canPublishOffers && (
+                  <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+                    <FormComponent />
                   </div>
                 )}
               </div>

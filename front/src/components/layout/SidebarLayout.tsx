@@ -218,8 +218,9 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
       };
     }
 
-    const puestoLower = (user?.puesto || "").toLowerCase();
-    const isFutbolista = role === "PLAYER" && puestoLower === "jugador";
+    // Cliente confirmó: TODOS los PLAYER (cualquier puesto) ven el sidebar
+    // del Futbolista. Solo AGENCY / RECRUITER / CLUB van al panel del agente.
+    const isFutbolista = role === "PLAYER";
 
     if (!isFutbolista) {
       return {
@@ -499,12 +500,10 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
   };
 
   const getRoleTagClasses = (): string => {
-    const puestoLower = (
-      (user as unknown as { puesto?: string })?.puesto || ""
-    ).toLowerCase();
-    const isFutbolista = role === "PLAYER" && puestoLower === "jugador";
+    // Cliente confirmó: TODOS los PLAYER (cualquier puesto) son tratados como
+    // Futbolista. Color azul. Otros roles (AGENCY/RECRUITER/CLUB) van en verde.
+    const isFutbolista = role === "PLAYER";
     if (isFutbolista) return "bg-blue-100 text-blue-700";
-    if (role === "PLAYER") return "bg-emerald-100 text-emerald-700";
     return "bg-green-100 text-green-700";
   };
 

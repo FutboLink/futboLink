@@ -176,19 +176,28 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
     </button>
   );
 
-  // Condición: cualquier rol excepto PLAYER con puesto "Jugador"
-  const isNonPlayerProfessional = !(
-    (formData?.role as unknown as UserType) === UserType.PLAYER &&
-    (formData?.puesto || "").toLowerCase() === "jugador"
-  );
+  // Cliente confirmó: TODOS los PLAYER (Jugador, Entrenador, DT, Preparador,
+  // etc) ven el perfil del Futbolista. Solo AGENCY / RECRUITER / CLUB ven el
+  // perfil del agente.
+  const isNonPlayerProfessional =
+    (formData?.role as unknown as UserType) !== UserType.PLAYER;
 
-  // Sync en tiempo real con el padre — cada cambio en formData se propaga
-  // para que la barra de progreso recalcule sin Guardar ni F5.
-  useEffect(() => {
-    if (formData) {
-      onProfileChange?.(formData);
-    }
-  }, [formData, onProfileChange]);
+  // NOTA sobre la barra de progreso en tiempo real:
+  // Probamos sincronizar formData + sub-states (primaryPosition,
+  // secondaryPosition, altura, peso, etc) hacia el padre con un useEffect
+  // que disparaba onProfileChange en cada cambio. Eso causaba un loop
+  // infinito porque el padre re-pasa profileData al hijo, que re-corre el
+  // useEffect de inicialización (setFormData(profileData)), que dispara el
+  // sync, que actualiza el padre, que re-pasa profileData... etc.
+  //
+  // Solución: ProfessionalInfo NO empuja sus cambios al padre en tiempo
+  // real. La barra de progreso refleja los campos de ProfessionalInfo
+  // recién después de "Guardar" (cuando se persisten en DB y el padre
+  // refetchea). PersonalInfo sí sincroniza en tiempo real porque trabaja
+  // directamente sobre fetchedProfileData sin states paralelos.
+  // Si después se necesita real-time también acá, hay que mover los sub-
+  // states adentro de formData y dispar onProfileChange por handler, no
+  // vía useEffect.
 
   useEffect(() => {
     // Initialize experiences from profileData
@@ -408,7 +417,7 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
             <div
               className={`transition-all duration-300 ease-in-out ${
                 sectionsExpanded.positions
-                  ? "max-h-full opacity-100"
+                  ? "max-h-[3000px] opacity-100"
                   : "max-h-0 opacity-0 overflow-hidden"
               }`}
             >
@@ -459,7 +468,7 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
             <div
               className={`transition-all duration-300 ease-in-out ${
                 sectionsExpanded.physicalData
-                  ? "max-h-full opacity-100"
+                  ? "max-h-[3000px] opacity-100"
                   : "max-h-0 opacity-0 overflow-hidden"
               }`}
             >

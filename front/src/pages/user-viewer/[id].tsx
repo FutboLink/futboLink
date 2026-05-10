@@ -6,6 +6,8 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import {
   FaArrowLeft,
+  FaChevronDown,
+  FaChevronUp,
   FaCog,
   FaEllipsisH,
   FaGlobe,
@@ -16,6 +18,12 @@ import {
   FaSignOutAlt,
   FaUserSlash,
 } from "react-icons/fa";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Navigation, Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "@/Styles/help-swiper.css";
 import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
 import ProfileUser from "@/components/ProfileUser/ProfileUser";
 import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
@@ -110,6 +118,13 @@ export default function UserViewer() {
   const [urlCopied, setUrlCopied] = useState(false);
   const [liked, setLiked] = useState(false);
   const [showShareOptions, setShowShareOptions] = useState(false);
+  // Bloque "Información personal" / "Información de la agencia" — colapsable,
+  // cerrado por default. Cliente pidió que no se muestre todo expandido al
+  // entrar al perfil (era ruido visual).
+  const [isPersonalInfoOpen, setIsPersonalInfoOpen] = useState(false);
+  // Lightbox / modal de imágenes del carrusel multimedia. null = cerrado,
+  // número = index en el array de photos para mostrar en grande.
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [
@@ -1231,61 +1246,92 @@ export default function UserViewer() {
                       </div>
                     </div>
 
-                    {/* Videos de Presentación */}
+                    {/* Multimedia — un solo carrusel combinado con videos +
+                        fotos. Autoplay solo cuando son todas fotos para no
+                        cortar reproducción de video. Estilos custom desde
+                        .profile-media-swiper. */}
                     {(() => {
                       const videos = getProfileVideos(profile);
-                      if (videos.length === 0) return null;
-                      return (
-                        <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-                          <h3 className="text-lg font-medium mb-3 text-gray-800">
-                            {videos.length === 1
-                              ? "Video de Presentación"
-                              : `Videos de Presentación (${videos.length})`}
-                          </h3>
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                            {videos.map((url, i) => (
-                              <div
-                                key={`v-${i}`}
-                                className="relative w-full bg-black rounded-lg overflow-hidden"
-                              >
-                                <iframe
-                                  src={url}
-                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                  allowFullScreen
-                                  className="w-full h-[350px]"
-                                  title={`Video ${i + 1}`}
-                                />
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    })()}
-
-                    {/* Galería de fotos extra */}
-                    {(() => {
                       const photos = getProfilePhotos(profile);
-                      if (photos.length === 0) return null;
+                      const totalSlides = videos.length + photos.length;
+                      if (totalSlides === 0) return null;
+                      const shouldAutoplay =
+                        videos.length === 0 && photos.length > 1;
                       return (
                         <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
                           <h3 className="text-lg font-medium mb-3 text-gray-800">
-                            Galería ({photos.length})
+                            {getText("Multimedia", "multimedia")}
+                            {totalSlides > 1 && (
+                              <span className="text-sm font-normal text-gray-500">
+                                {" "}
+                                ({totalSlides})
+                              </span>
+                            )}
                           </h3>
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                            {photos.map((src, i) => (
-                              <div
-                                key={`p-${i}`}
-                                className="relative aspect-square rounded overflow-hidden bg-gray-100"
-                              >
-                                <Image
-                                  src={src}
-                                  alt={`Foto ${i + 1}`}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
+                          <Swiper
+                            className="profile-media-swiper"
+                            modules={[Navigation, Pagination, Autoplay]}
+                            navigation={totalSlides > 1}
+                            pagination={
+                              totalSlides > 1 ? { clickable: true } : false
+                            }
+                            autoplay={
+                              shouldAutoplay
+                                ? {
+                                    delay: 4500,
+                                    disableOnInteraction: false,
+                                    pauseOnMouseEnter: true,
+                                  }
+                                : false
+                            }
+                            loop={totalSlides > 1}
+                            spaceBetween={16}
+                            slidesPerView={1}
+                            onSlideChange={(swiper) => {
+                              // Al cambiar de slide, pausar cualquier video
+                              // que estuviera reproduciéndose. Requiere
+                              // ?enablejsapi=1 en la URL del iframe.
+                              swiper.el
+                                .querySelectorAll("iframe")
+                                .forEach((iframe) => {
+                                  iframe.contentWindow?.postMessage(
+                                    '{"event":"command","func":"pauseVideo","args":""}',
+                                    "*",
+                                  );
+                                });
+                            }}
+                          >
+                            {videos.map((url, i) => (
+                              <SwiperSlide key={`v-${i}`}>
+                                <div className="relative pt-[56.25%] bg-black rounded-lg overflow-hidden">
+                                  <iframe
+                                    src={`${formatYoutubeUrl(url)}?enablejsapi=1`}
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                    className="absolute top-0 left-0 w-full h-full"
+                                    title={`Video ${i + 1}`}
+                                  />
+                                </div>
+                              </SwiperSlide>
                             ))}
-                          </div>
+                            {photos.map((src, i) => (
+                              <SwiperSlide key={`p-${i}`}>
+                                <button
+                                  type="button"
+                                  onClick={() => setLightboxIndex(i)}
+                                  className="block w-full relative pt-[56.25%] rounded-lg overflow-hidden bg-gray-900 cursor-zoom-in group"
+                                  aria-label={`Abrir foto ${i + 1} en pantalla completa`}
+                                >
+                                  <Image
+                                    src={src}
+                                    alt={`Foto ${i + 1}`}
+                                    fill
+                                    className="object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                                  />
+                                </button>
+                              </SwiperSlide>
+                            ))}
+                          </Swiper>
                         </div>
                       );
                     })()}
@@ -2433,103 +2479,134 @@ export default function UserViewer() {
                 {activeTab === "info" && (
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-                      <h3 className="text-lg font-medium mb-3 text-gray-800">
-                        {(profile.role as UserType) === UserType.RECRUITER
-                          ? getText(
-                              "Información de la agencia",
-                              "agencyInformation"
-                            )
-                          : getText(
-                              "Información personal",
-                              "personalInformation"
-                            )}
-                      </h3>
-                      <div className="space-y-3">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">
-                            {getText("Nombre completo", "fullName")}
-                          </span>
-                          <span className="text-gray-800">
-                            {profile.name} {profile.lastname}
-                          </span>
-                        </div>
-                        {/* Información específica para jugadores */}
-                        {isPurePlayer && (
-                          <>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">
-                                {getText("Fecha de nacimiento", "birthdate")}
-                              </span>
-                              <span className="text-gray-800">
-                                {profile.birthday ||
-                                  getText("No especificada", "notSpecified")}
-                              </span>
-                            </div>
-                          </>
-                        )}
+                      <button
+                        type="button"
+                        onClick={() => setIsPersonalInfoOpen((v) => !v)}
+                        aria-expanded={isPersonalInfoOpen}
+                        className="w-full flex items-center justify-between text-left text-lg font-medium text-gray-800 mb-0"
+                      >
+                        <span>
+                          {(profile.role as UserType) === UserType.RECRUITER
+                            ? getText(
+                                "Información de la agencia",
+                                "agencyInformation"
+                              )
+                            : getText(
+                                "Información personal",
+                                "personalInformation"
+                              )}
+                        </span>
+                        <span className="text-gray-500">
+                          {isPersonalInfoOpen ? <FaChevronUp /> : <FaChevronDown />}
+                        </span>
+                      </button>
+                      {isPersonalInfoOpen && (
+                        <div className="space-y-3 mt-3">
+                          {/* "Nombre completo" se sacó: ya está en el header del
+                              perfil arriba, mostrarlo acá era duplicar info. */}
+                          {/* Información específica para jugadores */}
+                          {isPurePlayer && (
+                            <>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">
+                                  {getText("Fecha de nacimiento", "birthdate")}
+                                </span>
+                                <span className="text-gray-800">
+                                  {profile.birthday ||
+                                    getText("No especificada", "notSpecified")}
+                                </span>
+                              </div>
+                            </>
+                          )}
 
-                        {/* Información específica para profesionales no jugadores */}
-                        {!isPurePlayer &&
-                          (profile.role as UserType) !== UserType.RECRUITER && (
+                          {/* Información específica para profesionales no jugadores */}
+                          {!isPurePlayer &&
+                            (profile.role as UserType) !== UserType.RECRUITER && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">
+                                  {getText("Fecha de nacimiento", "birthdate")}
+                                </span>
+                                <span className="text-gray-800">
+                                  {profile.birthday ||
+                                    getText("No especificada", "notSpecified")}
+                                </span>
+                              </div>
+                            )}
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">
+                              {getText("Nacionalidad", "nationality")}
+                            </span>
+                            <span className="flex items-center text-gray-800">
+                              {profile.nationality &&
+                                renderCountryFlag(profile.nationality)}
+                              <span className="ml-2">{profile.nationality}</span>
+                            </span>
+                          </div>
+
+                          {/* Segunda nacionalidad — del 1B. Solo se renderiza si
+                              está cargada. Antes el viewer no la mostraba aunque
+                              el campo existía en DB. */}
+                          {(profile as IProfileData & { secondNationality?: string })
+                            .secondNationality && (
                             <div className="flex justify-between">
                               <span className="text-gray-600">
-                                {getText("Fecha de nacimiento", "birthdate")}
+                                {getText("Segunda nacionalidad", "secondNationality")}
                               </span>
-                              <span className="text-gray-800">
-                                {profile.birthday ||
-                                  getText("No especificada", "notSpecified")}
+                              <span className="flex items-center text-gray-800">
+                                {renderCountryFlag(
+                                  (profile as IProfileData & {
+                                    secondNationality?: string;
+                                  }).secondNationality as string,
+                                )}
+                                <span className="ml-2">
+                                  {(profile as IProfileData & {
+                                    secondNationality?: string;
+                                  }).secondNationality}
+                                </span>
                               </span>
                             </div>
                           )}
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">
-                            {getText("Nacionalidad", "nationality")}
-                          </span>
-                          <span className="flex items-center text-gray-800">
-                            {profile.nationality &&
-                              renderCountryFlag(profile.nationality)}
-                            <span className="ml-2">{profile.nationality}</span>
-                          </span>
-                        </div>
-                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
-                          <span className="text-gray-600">
-                            {getText(
-                              "País de Residencia",
-                              "countryOfResidence"
-                            )}
-                          </span>
 
-                          <span className="flex flex-wrap items-start sm:items-center text-gray-800 text-right sm:text-left sm:justify-end">
-                            <span className="flex items-center flex-shrink-0 gap-x-1">
-                              {profile.ubicacionActual &&
-                                renderCountryFlag(profile.ubicacionActual)}
-                              <span>
-                                {profile.ubicacionActual}
-                                {profile.location && ","}
-                              </span>
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                            <span className="text-gray-600">
+                              {getText(
+                                "País de Residencia",
+                                "countryOfResidence"
+                              )}
                             </span>
 
-                            {profile.location && (
-                              <span className="ml-1 break-words sm:whitespace-nowrap">
-                                {profile.location}
+                            <span className="flex flex-wrap items-start sm:items-center text-gray-800 text-right sm:text-left sm:justify-end">
+                              <span className="flex items-center flex-shrink-0 gap-x-1">
+                                {profile.ubicacionActual &&
+                                  renderCountryFlag(profile.ubicacionActual)}
+                                <span>
+                                  {profile.ubicacionActual}
+                                  {profile.location && ","}
+                                </span>
                               </span>
-                            )}
-                          </span>
-                        </div>
 
-                        {/* Pasaporte UE - Para todos los perfiles excepto reclutadores */}
-                        {profile.pasaporteUe &&
-                          (profile.role as UserType) !== UserType.RECRUITER && (
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">
-                                {getText("Pasaporte UE", "euPassport")}
-                              </span>
-                              <span className="text-gray-800">
-                                {profile.pasaporteUe}
-                              </span>
-                            </div>
-                          )}
-                      </div>
+                              {profile.location && (
+                                <span className="ml-1 break-words sm:whitespace-nowrap">
+                                  {profile.location}
+                                </span>
+                              )}
+                            </span>
+                          </div>
+
+                          {/* Pasaporte UE - Para todos los perfiles excepto reclutadores */}
+                          {profile.pasaporteUe &&
+                            (profile.role as UserType) !== UserType.RECRUITER && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">
+                                  {getText("Pasaporte UE", "euPassport")}
+                                </span>
+                                <span className="text-gray-800">
+                                  {profile.pasaporteUe}
+                                </span>
+                              </div>
+                            )}
+                        </div>
+                      )}
                     </div>
 
                     {(isPurePlayer ||
@@ -2702,81 +2779,32 @@ export default function UserViewer() {
                       </div>
                     )}
 
-                    {/* Sección de video */}
+                    {/* Multimedia — un solo carrusel con videos + fotos.
+                        Autoplay solo si no hay videos (no queremos cortar
+                        una reproducción en curso). Bullets verdes y flechas
+                        circulares discretas vienen del CSS custom de
+                        .profile-media-swiper. */}
                     {(() => {
                       const videos = getProfileVideos(profile);
-                      const primary = videos[0];
-                      return (
-                    <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-                      <h3 className="text-lg font-medium mb-3 text-gray-800">
-                        {videos.length > 1
-                          ? `${getText("Video de presentación", "presentationVideo")} (${videos.length})`
-                          : getText("Video de presentación", "presentationVideo")}
-                      </h3>
-                      {primary ? (
-                        <>
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                            {videos.map((url, i) => (
-                              <div
-                                key={`v-${i}`}
-                                className="relative pt-[56.25%] bg-gray-100 rounded overflow-hidden"
-                              >
-                                <iframe
-                                  className="absolute top-0 left-0 w-full h-full"
-                                  src={formatYoutubeUrl(url)}
-                                  title={`Video ${i + 1} de ${profile.name} ${profile.lastname}`}
-                                  frameBorder="0"
-                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                  allowFullScreen
-                                ></iframe>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="mt-2 text-xs text-gray-500">
-                            <a
-                              href={primary}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="hover:underline"
-                            >
-                              {getText(
-                                "Ver video en YouTube",
-                                "viewVideoOnYoutube"
-                              )}
-                            </a>
-                          </div>
-                        </>
-                      ) : (
-                        <div className="relative pt-[56.25%] bg-gray-100 rounded overflow-hidden flex items-center justify-center">
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="text-center text-gray-500">
-                              <svg
-                                className="mx-auto h-12 w-12 text-gray-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                aria-hidden="true"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                                />
-                              </svg>
-                              <p className="mt-2 text-sm mb-4">
-                                No hay video de presentación
-                              </p>
-                              {isOwnProfile && (
-                                <button
-                                  onClick={() =>
-                                    router.push(`/user-viewer/${id}?edit=true`)
-                                  }
-                                  className="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium inline-flex items-center gap-2"
-                                  type="button"
-                                >
+                      const photos = getProfilePhotos(profile);
+                      const hasMedia = videos.length > 0 || photos.length > 0;
+                      const totalSlides = videos.length + photos.length;
+                      // Si hay videos, no autoplay (interrumpiría la
+                      // reproducción). Solo cuando son todas fotos.
+                      const shouldAutoplay =
+                        videos.length === 0 && photos.length > 1;
+
+                      if (!hasMedia) {
+                        return (
+                          <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+                            <h3 className="text-lg font-medium mb-3 text-gray-800">
+                              {getText("Multimedia", "multimedia")}
+                            </h3>
+                            <div className="relative pt-[56.25%] bg-gray-100 rounded overflow-hidden flex items-center justify-center">
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="text-center text-gray-500">
                                   <svg
-                                    className="w-4 h-4"
+                                    className="mx-auto h-12 w-12 text-gray-400"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
@@ -2786,17 +2814,121 @@ export default function UserViewer() {
                                       strokeLinecap="round"
                                       strokeLinejoin="round"
                                       strokeWidth={2}
-                                      d="M12 4v16m8-8H4"
+                                      d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
                                     />
                                   </svg>
-                                  Agregar Video
-                                </button>
-                              )}
+                                  <p className="mt-2 text-sm mb-4">
+                                    {getText(
+                                      "No hay videos ni fotos cargadas",
+                                      "noMedia"
+                                    )}
+                                  </p>
+                                  {isOwnProfile && (
+                                    <button
+                                      onClick={() =>
+                                        router.push(`/user-viewer/${id}?edit=true`)
+                                      }
+                                      className="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium inline-flex items-center gap-2"
+                                      type="button"
+                                    >
+                                      <svg
+                                        className="w-4 h-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M12 4v16m8-8H4"
+                                        />
+                                      </svg>
+                                      {getText("Agregar contenido", "addContent")}
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                           </div>
+                        );
+                      }
+
+                      return (
+                        <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+                          <h3 className="text-lg font-medium mb-3 text-gray-800">
+                            {getText("Multimedia", "multimedia")}
+                            {totalSlides > 1 && (
+                              <span className="text-sm font-normal text-gray-500">
+                                {" "}
+                                ({totalSlides})
+                              </span>
+                            )}
+                          </h3>
+                          <Swiper
+                            className="profile-media-swiper"
+                            modules={[Navigation, Pagination, Autoplay]}
+                            navigation={totalSlides > 1}
+                            pagination={
+                              totalSlides > 1 ? { clickable: true } : false
+                            }
+                            autoplay={
+                              shouldAutoplay
+                                ? {
+                                    delay: 4500,
+                                    disableOnInteraction: false,
+                                    pauseOnMouseEnter: true,
+                                  }
+                                : false
+                            }
+                            loop={totalSlides > 1}
+                            spaceBetween={16}
+                            slidesPerView={1}
+                            onSlideChange={(swiper) => {
+                              swiper.el
+                                .querySelectorAll("iframe")
+                                .forEach((iframe) => {
+                                  iframe.contentWindow?.postMessage(
+                                    '{"event":"command","func":"pauseVideo","args":""}',
+                                    "*",
+                                  );
+                                });
+                            }}
+                          >
+                            {videos.map((url, i) => (
+                              <SwiperSlide key={`v-${i}`}>
+                                <div className="relative pt-[56.25%] bg-black rounded-lg overflow-hidden">
+                                  <iframe
+                                    className="absolute top-0 left-0 w-full h-full"
+                                    src={`${formatYoutubeUrl(url)}?enablejsapi=1`}
+                                    title={`Video ${i + 1} de ${profile.name} ${profile.lastname}`}
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                  ></iframe>
+                                </div>
+                              </SwiperSlide>
+                            ))}
+                            {photos.map((src, i) => (
+                              <SwiperSlide key={`p-${i}`}>
+                                <button
+                                  type="button"
+                                  onClick={() => setLightboxIndex(i)}
+                                  className="block w-full relative pt-[56.25%] rounded-lg overflow-hidden bg-gray-900 cursor-zoom-in group"
+                                  aria-label={`Abrir foto ${i + 1} en pantalla completa`}
+                                >
+                                  <Image
+                                    src={src}
+                                    alt={`Foto ${i + 1}`}
+                                    fill
+                                    className="object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                                  />
+                                </button>
+                              </SwiperSlide>
+                            ))}
+                          </Swiper>
                         </div>
-                      )}
-                    </div>
                       );
                     })()}
                   </div>
@@ -3146,6 +3278,91 @@ export default function UserViewer() {
           isOpen={showVerificationSubscriptionModal}
           onClose={() => setShowVerificationSubscriptionModal(false)}
         />
+
+        {/* Lightbox / modal de imágenes — se abre al clickear una foto del
+            carrusel multimedia. Permite navegar entre fotos con flechas o
+            teclado, y cerrar con click afuera, botón × o Escape. */}
+        {lightboxIndex !== null &&
+          (() => {
+            const photos = getProfilePhotos(profile);
+            if (!photos[lightboxIndex]) return null;
+            const goPrev = () =>
+              setLightboxIndex((idx) =>
+                idx === null ? null : (idx - 1 + photos.length) % photos.length,
+              );
+            const goNext = () =>
+              setLightboxIndex((idx) =>
+                idx === null ? null : (idx + 1) % photos.length,
+              );
+            return (
+              <div
+                className="fixed inset-0 z-[100] bg-black/85 flex items-center justify-center p-4 backdrop-blur-sm"
+                onClick={() => setLightboxIndex(null)}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Vista ampliada de la foto"
+              >
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setLightboxIndex(null);
+                  }}
+                  className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white text-2xl flex items-center justify-center transition-colors"
+                  aria-label="Cerrar"
+                >
+                  ×
+                </button>
+
+                {photos.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        goPrev();
+                      }}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white text-2xl flex items-center justify-center transition-colors"
+                      aria-label="Foto anterior"
+                    >
+                      ‹
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        goNext();
+                      }}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white text-2xl flex items-center justify-center transition-colors"
+                      aria-label="Foto siguiente"
+                    >
+                      ›
+                    </button>
+                  </>
+                )}
+
+                <div
+                  className="relative w-full max-w-5xl h-[85vh] flex items-center justify-center"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Image
+                    src={photos[lightboxIndex]}
+                    alt={`Foto ${lightboxIndex + 1}`}
+                    width={1600}
+                    height={1200}
+                    className="max-w-full max-h-full w-auto h-auto object-contain"
+                    priority
+                  />
+                </div>
+
+                {photos.length > 1 && (
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/40 px-3 py-1 rounded-full">
+                    {lightboxIndex + 1} / {photos.length}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
       </div>
     </div>
   );

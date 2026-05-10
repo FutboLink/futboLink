@@ -176,54 +176,19 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
     </button>
   );
 
-  // Condición: cualquier rol excepto PLAYER con puesto "Jugador" (o vacío,
-  // tomado como Jugador por defecto). Los PLAYERs legacy en prod no tenían
-  // `puesto` asignado — sin este fallback caían como no-Jugador y veían el
-  // perfil del agente.
-  const puestoLower = (formData?.puesto || "").toLowerCase();
+  // Condición: cualquier rol excepto PLAYER con puesto "Jugador"
   const isNonPlayerProfessional = !(
     (formData?.role as unknown as UserType) === UserType.PLAYER &&
-    (puestoLower === "" || puestoLower === "jugador")
+    (formData?.puesto || "").toLowerCase() === "jugador"
   );
 
-  // Sync en tiempo real con el padre — incluye TODOS los states sub-locales
-  // (primaryPosition, secondaryPosition, altura, peso, etc) que NO viven en
-  // formData. Sin esto el padre escribía valores viejos sobre los nuevos y
-  // los revertía al re-renderear.
+  // Sync en tiempo real con el padre — cada cambio en formData se propaga
+  // para que la barra de progreso recalcule sin Guardar ni F5.
   useEffect(() => {
-    if (!formData || !onProfileChange) return;
-    onProfileChange({
-      ...formData,
-      primaryPosition,
-      secondaryPosition,
-      height: altura,
-      weight: peso,
-      bodyStructure: estructuraCorporal,
-      skillfulFoot: pieHabil,
-      pasaporteUe:
-        pasaporteUE === "Sí" ? PasaporteUe.SI : PasaporteUe.NO,
-      trayectorias: experiences.map((e) => ({
-        club: e.club,
-        fechaInicio: e.fechaInicio,
-        fechaFinalizacion: e.fechaFinalizacion,
-        categoriaEquipo: e.categoriaEquipo,
-        nivelCompetencia: e.nivelCompetencia,
-        logros: e.logros,
-        nacionalidadTrayectoria: e.nacionalidadTrayectoria,
-      })),
-    });
-  }, [
-    formData,
-    primaryPosition,
-    secondaryPosition,
-    altura,
-    peso,
-    estructuraCorporal,
-    pieHabil,
-    pasaporteUE,
-    experiences,
-    onProfileChange,
-  ]);
+    if (formData) {
+      onProfileChange?.(formData);
+    }
+  }, [formData, onProfileChange]);
 
   useEffect(() => {
     // Initialize experiences from profileData

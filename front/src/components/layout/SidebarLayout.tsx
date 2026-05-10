@@ -219,10 +219,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
     }
 
     const puestoLower = (user?.puesto || "").toLowerCase();
-    // PLAYERs legacy no tienen `puesto`; tratar vacío como "jugador" por
-    // defecto. Solo PLAYER+puesto Entrenador/DT/etc cae como no-Futbolista.
-    const isFutbolista =
-      role === "PLAYER" && (puestoLower === "" || puestoLower === "jugador");
+    const isFutbolista = role === "PLAYER" && puestoLower === "jugador";
 
     if (!isFutbolista) {
       return {

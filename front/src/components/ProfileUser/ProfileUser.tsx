@@ -34,10 +34,31 @@ const Profile = () => {
   // el state local de userData. Cada vez que el usuario completa o borra un
   // campo, la barra de progreso refleja el cambio sin necesidad de Guardar+F5.
   // useCallback con deps vacías = referencia estable, evita re-disparo del
-  // useEffect de los hijos en cada render del padre (loop infinito).
+  // useEffect de los hijos en cada render del padre.
+  // Comparamos los valores antes de actualizar: si las claves entrantes no
+  // cambian respecto al state actual, devolvemos prev (misma referencia) para
+  // que React no re-rendee y evitemos un loop con el sync del hijo (que se
+  // re-dispara en cada cambio de profileData).
   const handleProfileFieldsChange = useCallback(
     (updates: Partial<IProfileData>) => {
-      setUserData((prev) => (prev ? { ...prev, ...updates } : prev));
+      setUserData((prev) => {
+        if (!prev) return prev;
+        const keys = Object.keys(updates) as (keyof IProfileData)[];
+        const hasChanges = keys.some((k) => {
+          const a = prev[k];
+          const b = updates[k];
+          // Comparación shallow para arrays/objetos — para el caso típico de
+          // strings/números/booleanos esto detecta el cambio correcto.
+          if (a === b) return false;
+          if (Array.isArray(a) && Array.isArray(b)) {
+            if (a.length !== b.length) return true;
+            return a.some((item, i) => item !== b[i]);
+          }
+          return true;
+        });
+        if (!hasChanges) return prev;
+        return { ...prev, ...updates };
+      });
     },
     [],
   );

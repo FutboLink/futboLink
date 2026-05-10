@@ -186,13 +186,44 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
     (puestoLower === "" || puestoLower === "jugador")
   );
 
-  // Sync en tiempo real con el padre — cada cambio en formData se propaga
-  // para que la barra de progreso recalcule sin Guardar ni F5.
+  // Sync en tiempo real con el padre — incluye TODOS los states sub-locales
+  // (primaryPosition, secondaryPosition, altura, peso, etc) que NO viven en
+  // formData. Sin esto el padre escribía valores viejos sobre los nuevos y
+  // los revertía al re-renderear.
   useEffect(() => {
-    if (formData) {
-      onProfileChange?.(formData);
-    }
-  }, [formData, onProfileChange]);
+    if (!formData || !onProfileChange) return;
+    onProfileChange({
+      ...formData,
+      primaryPosition,
+      secondaryPosition,
+      height: altura,
+      weight: peso,
+      bodyStructure: estructuraCorporal,
+      skillfulFoot: pieHabil,
+      pasaporteUe:
+        pasaporteUE === "Sí" ? PasaporteUe.SI : PasaporteUe.NO,
+      trayectorias: experiences.map((e) => ({
+        club: e.club,
+        fechaInicio: e.fechaInicio,
+        fechaFinalizacion: e.fechaFinalizacion,
+        categoriaEquipo: e.categoriaEquipo,
+        nivelCompetencia: e.nivelCompetencia,
+        logros: e.logros,
+        nacionalidadTrayectoria: e.nacionalidadTrayectoria,
+      })),
+    });
+  }, [
+    formData,
+    primaryPosition,
+    secondaryPosition,
+    altura,
+    peso,
+    estructuraCorporal,
+    pieHabil,
+    pasaporteUE,
+    experiences,
+    onProfileChange,
+  ]);
 
   useEffect(() => {
     // Initialize experiences from profileData

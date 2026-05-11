@@ -13,6 +13,7 @@ import {
 } from "react-icons/ai";
 import {
   FaBars,
+  FaBriefcase,
   FaChevronDown,
   FaCog,
   FaDumbbell,
@@ -21,6 +22,7 @@ import {
   FaExchangeAlt,
   FaHome,
   FaNewspaper,
+  FaPlus,
   FaQuestionCircle,
   FaRegCreditCard,
   FaRocket,
@@ -219,7 +221,8 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
     }
 
     // Cliente confirmó: TODOS los PLAYER (cualquier puesto) ven el sidebar
-    // del Futbolista. Solo AGENCY / RECRUITER / CLUB van al panel del agente.
+    // del Futbolista. El Cuerpo Técnico publica ofertas vía tabs propias
+    // dentro de su user-viewer, no desde el sidebar del agente.
     const isFutbolista = role === "PLAYER";
 
     if (!isFutbolista) {
@@ -310,6 +313,16 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
     }
 
     // Sidebar para jugadores
+    // El Cuerpo Técnico / Dirección (PLAYER + puesto != "jugador") puede
+    // publicar ofertas. Las gestiona vía tabs dentro de su propio
+    // user-viewer (?tab=myOffers / ?tab=createOffer), así no necesitamos
+    // un sidebar paralelo al del agente.
+    const puestoLowerForOffers = (user?.puesto || "").toLowerCase();
+    const canPublishOffersFromSidebar =
+      role === "PLAYER" &&
+      puestoLowerForOffers !== "" &&
+      puestoLowerForOffers !== "jugador";
+
     return {
       main: [
         { label: getText("Inicio", "home"), path: "/", icon: <FaHome /> },
@@ -323,6 +336,20 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
           path: `/user-viewer/${user?.id}?edit=true`,
           icon: <FaEdit />,
         },
+        ...(canPublishOffersFromSidebar
+          ? [
+              {
+                label: getText("Mis Ofertas", "myOffers"),
+                path: `/user-viewer/${user?.id}?tab=myOffers`,
+                icon: <FaBriefcase />,
+              },
+              {
+                label: getText("Crear Oferta", "createOffer"),
+                path: `/user-viewer/${user?.id}?tab=createOffer`,
+                icon: <FaPlus />,
+              },
+            ]
+          : []),
         {
           label: getText("Buscador", "search"),
           path: "/player-search",

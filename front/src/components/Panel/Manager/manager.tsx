@@ -67,8 +67,9 @@ const PanelManager = () => {
   const [activeSection, setActiveSection] = useState(sectionParam || "profile");
   const [userData, setUserData] = useState<IProfileData | null>(null);
   const [error, setError] = useState<string | null>(null);
-  // Bloque "Información de la agencia" colapsable, cerrado por default.
-  const [isAgencyInfoOpen, setIsAgencyInfoOpen] = useState(false);
+  // "Contacto" colapsable, cerrado por default. Esta info (email, teléfono,
+  // redes) se va a proteger a futuro con suscripción.
+  const [isContactOpen, setIsContactOpen] = useState(false);
   // Lightbox de fotos del carrusel multimedia.
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [appliedJobs, setAppliedJobs] = useState<IOfferCard[]>([]);
@@ -101,6 +102,7 @@ const PanelManager = () => {
       setActiveSection(sectionParam);
     }
   }, [sectionParam]);
+
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -476,27 +478,15 @@ const PanelManager = () => {
               {/* Sección de Perfil */}
               {activeSection === "profile" && (
                 <div className="space-y-4">
-                  {/* Información de la agencia — colapsable, cerrado por
-                      default. Igual que en el perfil del jugador. */}
+                  {/* Información de la agencia */}
                   <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-                    <button
-                      type="button"
-                      onClick={() => setIsAgencyInfoOpen((v) => !v)}
-                      aria-expanded={isAgencyInfoOpen}
-                      className="w-full flex items-center justify-between text-left text-lg font-medium text-gray-800 mb-0"
-                    >
-                      <span>
-                        {getText(
-                          "Información de la agencia",
-                          "agencyInformation"
-                        )}
-                      </span>
-                      <span className="text-gray-500">
-                        {isAgencyInfoOpen ? <FaChevronUp /> : <FaChevronDown />}
-                      </span>
-                    </button>
-                    {isAgencyInfoOpen && (
-                    <div className="space-y-3 mt-3">
+                    <h3 className="text-lg font-medium text-gray-800 mb-3">
+                      {getText(
+                        "Información de la agencia",
+                        "agencyInformation"
+                      )}
+                    </h3>
+                    <div className="space-y-3">
                       {/* "Nombre completo" se sacó: ya está en el header del
                           perfil arriba del bloque, mostrarlo acá era duplicar. */}
                       <div className="flex justify-between">
@@ -580,15 +570,24 @@ const PanelManager = () => {
                         </span>
                       </div>
                     </div>
-                    )}
                   </div>
 
-                  {/* Información de contacto */}
+                  {/* Información de contacto — colapsable, cerrado por
+                      default. Se va a proteger a futuro con suscripción. */}
                   <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-                    <h3 className="text-lg font-medium mb-3 text-gray-800">
-                      {getText("Contacto", "contact")}
-                    </h3>
-                    <div className="space-y-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsContactOpen((v) => !v)}
+                      aria-expanded={isContactOpen}
+                      className="w-full flex items-center justify-between text-left text-lg font-medium text-gray-800 mb-0"
+                    >
+                      <span>{getText("Contacto", "contact")}</span>
+                      <span className="text-gray-500">
+                        {isContactOpen ? <FaChevronUp /> : <FaChevronDown />}
+                      </span>
+                    </button>
+                    {isContactOpen && (
+                    <div className="space-y-3 mt-3">
                       <div className="flex justify-between">
                         <span className="text-gray-600">
                           {getText("Email", "email")}
@@ -628,6 +627,7 @@ const PanelManager = () => {
                           </div>
                         )}
                     </div>
+                    )}
                   </div>
 
                   {/* Multimedia — un solo carrusel combinado con videos +

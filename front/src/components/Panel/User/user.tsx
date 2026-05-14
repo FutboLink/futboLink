@@ -40,6 +40,7 @@ import {
   showVerificationToast,
   type VerificationRequest,
 } from "@/services/VerificationService";
+import { resolveTransfermarktUrl } from "@/utils/transfermarkt";
 
 // Añadimos una interfaz para las trayectorias
 interface Trayectoria {
@@ -753,22 +754,30 @@ const UserProfile = () => {
                                   <FaYoutube size={24} />
                                 </a>
                               )}
-                              {userData?.socialMedia?.transfermarkt && (
-                                <a
-                                  href={`https://www.transfermarkt.com/${userData.socialMedia.transfermarkt}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="hover:opacity-80 transition-opacity"
-                                >
-                                  <Image
-                                    src="/transfermarkt.png"
-                                    alt="Transfermarkt"
-                                    width={60}
-                                    height={60}
-                                    className="shadow-sm rounded-sm"
-                                  />
-                                </a>
-                              )}
+                              {(() => {
+                                const transfermarktUrl =
+                                  resolveTransfermarktUrl(
+                                    userData?.socialMedia?.transfermarkt,
+                                  );
+                                return (
+                                  transfermarktUrl && (
+                                    <a
+                                      href={transfermarktUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="hover:opacity-80 transition-opacity"
+                                    >
+                                      <Image
+                                        src="/transfermarkt.png"
+                                        alt="Transfermarkt"
+                                        width={60}
+                                        height={60}
+                                        className="shadow-sm rounded-sm"
+                                      />
+                                    </a>
+                                  )
+                                );
+                              })()}
                             </div>
                           </div>
                         </div>

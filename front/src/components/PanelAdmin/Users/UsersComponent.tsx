@@ -19,6 +19,7 @@ const UsersComponentWithContext = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [roleFilter, setRoleFilter] = useState("");
   const [searchFilter, setSearchFilter] = useState("");
+  const [emailFilter, setEmailFilter] = useState("");
 
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,10 +27,10 @@ const UsersComponentWithContext = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [isPageLoading, setIsPageLoading] = useState(false);
 
-  const fetchUsersPage = useCallback(async (page: number) => {
+  const fetchUsersPage = useCallback(async (page: number, email?: string) => {
       try {
       setIsPageLoading(true);
-      const result = await getUsers(page, USERS_PER_PAGE);
+      const result = await getUsers(page, USERS_PER_PAGE, email);
       setUsers(result.data);
       setTotalUsers(result.total);
       setTotalPages(result.totalPages);
@@ -45,6 +46,15 @@ const UsersComponentWithContext = () => {
   useEffect(() => {
     fetchUsersPage(1);
   }, [fetchUsersPage]);
+
+  // Server-side email filter (debounced). Name/nationality filter stays client-side
+  // because those are already in the loaded page — email requires server-side to cross pages.
+  useEffect(() => {
+    const id = setTimeout(() => {
+      fetchUsersPage(1, emailFilter || undefined);
+    }, 300);
+    return () => clearTimeout(id);
+  }, [emailFilter, fetchUsersPage]);
 
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages || page === currentPage) return;
@@ -159,6 +169,17 @@ const UsersComponentWithContext = () => {
             className="border rounded p-2 text-gray-600 hover:cursor-pointer"
             value={searchFilter}
             onChange={(e) => setSearchFilter(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label className="mr-2 font-bold text-gray-600">Buscar por email:</label>
+          <input
+            type="email"
+            placeholder="Ingrese email"
+            className="border rounded p-2 text-gray-600 hover:cursor-pointer"
+            value={emailFilter}
+            onChange={(e) => setEmailFilter(e.target.value)}
           />
         </div>
 

@@ -13,6 +13,7 @@ import {
   getProfilePhotos,
   getProfileVideos,
 } from "@/lib/profileMedia";
+import { resolveTransfermarktUrl } from "@/utils/transfermarkt";
 
 // URL del backend
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -646,16 +647,25 @@ export default function UserProfilePage() {
                                   Redes sociales
                                 </span>
                                 <div className="flex space-x-2">
-                                  {profile.socialMedia?.transfermarkt && (
-                                    <a
-                                      href={profile.socialMedia.transfermarkt}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-green-600"
-                                    >
-                                      Transfermarkt
-                                    </a>
-                                  )}
+                                  {(() => {
+                                    const transfermarktUrl =
+                                      resolveTransfermarktUrl(
+                                        profile.socialMedia?.trasnfermarkt ||
+                                          profile.socialMedia?.transfermarkt,
+                                      );
+                                    return (
+                                      transfermarktUrl && (
+                                        <a
+                                          href={transfermarktUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-green-600"
+                                        >
+                                          Transfermarkt
+                                        </a>
+                                      )
+                                    );
+                                  })()}
                                   {profile.socialMedia?.x && (
                                     <a
                                       href={`https://x.com/${profile.socialMedia.x}`}

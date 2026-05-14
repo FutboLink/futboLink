@@ -15,9 +15,13 @@ export interface PaginatedUsersResponse {
 }
 
 // Función para obtener los usuarios (paginado)
-export const getUsers = async (page: number = 1, limit: number = 300): Promise<PaginatedUsersResponse> => {
+export const getUsers = async (page: number = 1, limit: number = 300, email?: string): Promise<PaginatedUsersResponse> => {
     try {
-      const response = await fetch(`${apiUrl}/user?page=${page}&limit=${limit}`); 
+      let url = `${apiUrl}/user?page=${page}&limit=${limit}`;
+      if (email && email.trim()) {
+        url += `&email=${encodeURIComponent(email)}`;
+      }
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error('Error al obtener los usuarios');
       }

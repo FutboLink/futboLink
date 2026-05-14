@@ -67,10 +67,14 @@ export class UserController {
   @ApiOperation({ summary: 'Traer los usuarios (paginado)' })
   @ApiResponse({ status: 200, description: 'Lista paginada de usuarios' })
   @Get()
-  findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
+  findAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('email') email?: string,
+  ) {
     const pageNumber = page ? parseInt(page, 10) : 1;
     const limitNumber = limit ? parseInt(limit, 10) : 300;
-    return this.userService.findAll(pageNumber, limitNumber);
+    return this.userService.findAll(pageNumber, limitNumber, email);
   }
 
   @ApiOperation({ summary: 'Traer usuario por Id' })

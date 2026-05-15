@@ -29,6 +29,7 @@ import { getMyOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch
 import FormComponent from "@/components/Jobs/CreateJob";
 import JobOfferDetails from "@/components/Jobs/JobOffertDetails";
 import ProfileUser from "@/components/ProfileUser/ProfileUser";
+import SubscriptionCard from "@/components/Subscription/SubscriptionCard";
 import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
 import {
   getPrimaryProfileVideo,
@@ -47,6 +48,7 @@ import {
   requestVerification,
   showVerificationToast,
 } from "@/services/VerificationService";
+import { resolveTransfermarktUrl } from "@/utils/transfermarkt";
 import VerificationSubscription from "../verification-subscription";
 import { useI18nMode } from "@/components/Context/I18nModeContext";
 import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
@@ -171,6 +173,20 @@ export default function UserViewer() {
   });
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
 
+  const [sub, setSub] = useState<{
+    planName: string;
+    isActive: boolean;
+    renewalDate: string | null;
+    loading: boolean;
+    error: boolean;
+  }>({
+    planName: "Amateur",
+    isActive: false,
+    renewalDate: null,
+    loading: false,
+    error: false,
+  });
+
   // Nivel del perfil (deportivo) considerando verificación y competitionLevel
   const computeProfileLevel = ():
     | "Profesional"
@@ -236,6 +252,31 @@ export default function UserViewer() {
       }
     })();
   }, [user?.email]);
+
+  // Carga el plan del propio usuario para la card de suscripción en su perfil
+  useEffect(() => {
+    if (!isOwnProfile || !user?.email) return;
+    let cancelled = false;
+    setSub((s) => ({ ...s, loading: true, error: false }));
+    checkUserSubscription(user.email)
+      .then((info) => {
+        if (cancelled) return;
+        setSub({
+          planName: info.subscriptionType ?? "Amateur",
+          isActive: info.hasActiveSubscription,
+          renewalDate: info.expiresAt ?? null,
+          loading: false,
+          error: false,
+        });
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setSub((s) => ({ ...s, loading: false, error: true }));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isOwnProfile, user?.email]);
 
   // Determina si es un jugador "puro": rol PLAYER y puesto vacío o igual a "Jugador"
   const isPurePlayer =
@@ -767,13 +808,21 @@ export default function UserViewer() {
 
       {/* Contenido principal - Ajustado para tener en cuenta la navbar y el powered by */}
       <div className="pt-1 mt-4 container mx-auto px-4 md:px-8 lg:px-12 xl:px-24">
+        <div
+          className={
+            isOwnProfile
+              ? "grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_200px] gap-4 items-start"
+              : "contents"
+          }
+        >
+          <div className={isOwnProfile ? "min-w-0" : "contents"}>
         {/* Botón de edición (solo visible si es el propio perfil) */}
 
         {/* Conditional rendering: Manager interface for recruiters */}
         {profile?.role === UserType.RECRUITER ? (
           <div className="lg:flex lg:gap-8">
             {/* Columna izquierda - Card de perfil del manager */}
-            <div className="lg:w-1/3">
+            <div className="lg:w-2/5">
               <div className="pt-8 pb-4 px-4 bg-white rounded-lg shadow-sm mb-4">
                 <div className="flex items-center mb-4">
                   <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-purple-500">
@@ -1081,7 +1130,7 @@ export default function UserViewer() {
             </div>
 
             {/* Columna derecha - Tabs y contenido del manager */}
-            <div className="lg:w-2/3">
+            <div className="lg:w-3/5">
               {/* Pestañas de navegación para reclutadores */}
               <div className="px-4 mb-4">
                 <div className="flex border-b border-gray-200">
@@ -1550,7 +1599,7 @@ export default function UserViewer() {
           /* Original layout for non-recruiters */
           <div className="lg:flex lg:gap-8">
             {/* Columna izquierda - Información del perfil */}
-            <div className="lg:w-1/3">
+            <div className="lg:w-2/5">
               {/* Header con información del usuario */}
               <div className="pt-8 pb-4 px-4 from-gray-100 bg-white rounded-lg shadow-sm mb-4">
                 <div className="flex items-center mb-2">
@@ -2486,7 +2535,7 @@ export default function UserViewer() {
             </div>
 
             {/* Columna derecha - Pestañas y contenido */}
-            <div className="lg:w-2/3">
+            <div className="lg:w-3/5">
               {/* Pestañas de navegación */}
               <div className="px-4 mb-4">
                 <div className="flex border-b border-gray-200">
@@ -2744,27 +2793,32 @@ export default function UserViewer() {
                                   {getText("Redes sociales", "socialNetworks")}
                                 </span>
                                 <div className="flex space-x-3">
-                                  {(profile.socialMedia?.trasnfermarkt ||
-                                    profile.socialMedia?.transfermarkt) && (
-                                    <a
-                                      href={
-                                        profile.socialMedia.trasnfermarkt ||
-                                        profile.socialMedia.transfermarkt
-                                      }
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-green-600 hover:text-green-800 transition-colors"
-                                      title="Transfermarkt"
-                                    >
-                                      <svg
-                                        className="w-5 h-5"
-                                        viewBox="0 0 24 24"
-                                        fill="currentColor"
-                                      >
-                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                                      </svg>
-                                    </a>
-                                  )}
+                                  {(() => {
+                                    const transfermarktUrl =
+                                      resolveTransfermarktUrl(
+                                        profile.socialMedia?.trasnfermarkt ||
+                                          profile.socialMedia?.transfermarkt,
+                                      );
+                                    return (
+                                      transfermarktUrl && (
+                                        <a
+                                          href={transfermarktUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="hover:opacity-80 transition-opacity"
+                                          title="Transfermarkt"
+                                        >
+                                          <Image
+                                            src="/transfermarkt.png"
+                                            alt="Transfermarkt"
+                                            width={28}
+                                            height={28}
+                                            className="rounded-sm"
+                                          />
+                                        </a>
+                                      )
+                                    );
+                                  })()}
                                   {(profile.socialMedia?.twitter ||
                                     profile.socialMedia?.x) && (
                                     <a
@@ -3461,6 +3515,19 @@ export default function UserViewer() {
             </div>
           </div>
         )}
+
+          </div>
+          {isOwnProfile && (
+            <SubscriptionCard
+              planName={sub.planName}
+              isActive={sub.isActive}
+              renewalDate={sub.renewalDate}
+              userRole={user?.role ?? "USER"}
+              isLoading={sub.loading}
+              hasError={sub.error}
+            />
+          )}
+        </div>
 
         {/* Verification Subscription Modal */}
         <VerificationSubscription

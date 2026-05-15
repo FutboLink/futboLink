@@ -17,6 +17,7 @@ export interface IProfileData {
   password?: string;
   puesto: string;
   subscriptionType?: string;
+  subscriptionExpiresAt?: string | null;
   subscription?: string;
   competitionLevel?: string;
   role: UserType;

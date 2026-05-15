@@ -8,6 +8,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository, EntityManager } from 'typeorm';
+import { isSubscriptionActive } from './subscription-status.util';
 import { RegisterUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { join } from 'path';
@@ -419,26 +420,37 @@ export class UserService {
     }
   }
 
-  async findAll(page: number = 1, limit: number = 300): Promise<{ data: User[]; total: number; page: number; limit: number; totalPages: number }> {
-    const take = Math.min(limit, 500); // máximo 500 por página
+  async findAll(
+    page: number = 1,
+    limit: number = 300,
+    emailFragment?: string,
+  ): Promise<{ data: User[]; total: number; page: number; limit: number; totalPages: number }> {
+    const take = Math.min(limit, 500);
     const skip = (page - 1) * take;
 
-    const [data, total] = await this.userRepository.findAndCount({
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        lastname: true,
-        role: true,
-        imgUrl: true,
-        subscriptionType: true,
-        createdAt: true,
-        nationality: true,
-      },
-      order: { createdAt: 'DESC' },
-      take,
-      skip,
-    });
+    const qb = this.userRepository
+      .createQueryBuilder('user')
+      .select([
+        'user.id',
+        'user.email',
+        'user.name',
+        'user.lastname',
+        'user.role',
+        'user.imgUrl',
+        'user.subscriptionType',
+        'user.subscriptionExpiresAt',
+        'user.createdAt',
+        'user.nationality',
+      ]);
+
+    const trimmed = emailFragment?.trim() ?? '';
+    if (trimmed) {
+      qb.andWhere('LOWER(user.email) LIKE LOWER(:email)', { email: `%${trimmed}%` });
+    }
+
+    qb.orderBy('user.createdAt', 'DESC').take(take).skip(skip);
+
+    const [data, total] = await qb.getManyAndCount();
 
     return {
       data,
@@ -633,21 +645,25 @@ export class UserService {
     expiresAt?: Date;
   }> {
     const user = await this.findOne(userId);
-    
+
     if (!user) {
       throw new NotFoundException(`Usuario con ID ${userId} no encontrado`);
     }
-    
-    // Verificar si la suscripción está activa
-    const isActive = user.subscriptionType !== 'Amateur' && 
-                     user.subscriptionExpiresAt &&
-                     new Date(user.subscriptionExpiresAt) > new Date();
-    
+
     return {
       subscriptionType: user.subscriptionType,
-      isActive,
+      isActive: this.computeIsActive(user),
       expiresAt: user.subscriptionExpiresAt
     };
+  }
+
+  // Subscription is active when the user is on a paid tier (Profesional / Semiprofesional).
+  // Invariant: cancellation flows write 'Amateur' to subscriptionType. This bypasses
+  // subscriptionExpiresAt because Stripe webhooks can fail to write that column even when
+  // the user has paid — see fix-recruiter-search-subscription-gate.
+  private computeIsActive(user: User): boolean {
+    const tier = user.subscriptionType;
+    return tier === 'Profesional' || tier === 'Semiprofesional';
   }
 
   /**
@@ -741,15 +757,10 @@ export class UserService {
     }
     
     console.log(`[UserService] Usuario encontrado: ${user.id}, tipo de suscripción: ${user.subscriptionType}, expira: ${user.subscriptionExpiresAt}`);
-    
-    // Verificar si la suscripción está activa
-    const isActive = user.subscriptionType !== 'Amateur' && 
-                     user.subscriptionExpiresAt &&
-                     new Date(user.subscriptionExpiresAt) > new Date();
-    
+
     const result = {
       subscriptionType: user.subscriptionType || 'Amateur',
-      isActive,
+      isActive: this.computeIsActive(user),
       expiresAt: user.subscriptionExpiresAt
     };
     
@@ -1858,16 +1869,7 @@ export class UserService {
       const user = await this.userRepository.findOne({ where: { email } });
       if (!user) return false;
       
-      // Verificar si el usuario tiene una suscripción Semiprofesional o Profesional
-      const validSubscriptionType = user.subscriptionType === 'Semiprofesional' || 
-                                   user.subscriptionType === 'Profesional';
-      
-      // Verificar si no ha expirado
-      const isActive = validSubscriptionType && 
-                      user.subscriptionExpiresAt &&
-                      new Date(user.subscriptionExpiresAt) > new Date();
-      
-      return isActive || validSubscriptionType; // Por ahora permitimos también sin expiración
+      return isSubscriptionActive(user);
     } catch (error) {
       console.error('Error verificando suscripción:', error);
       return false;

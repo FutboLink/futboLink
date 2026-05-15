@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 import type { IProfileData } from "@/Interfaces/IUser";
 import { getPrimaryProfileVideo } from "@/lib/profileMedia";
+import { resolveTransfermarktUrl } from "@/utils/transfermarkt";
 import BackButton from "../utils/BackButton";
 import "aos/dist/aos.css";
 import { getDefaultPlayerImage } from "@/helpers/imageUtils";
@@ -243,22 +244,29 @@ const CardProfile: React.FC<CardProfileProps> = ({ profile }) => {
                               </a>
                             ) : null;
                           })()}
-                          {profile.socialMedia?.transfermarkt && (
-                            <a
-                              href={`${profile.socialMedia.transfermarkt}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="hover:opacity-80 transition-opacity"
-                            >
-                              <Image
-                                src="/transfermarkt.png"
-                                alt="Transfermarkt"
-                                width={60}
-                                height={60}
-                                className="shadow-sm rounded-sm"
-                              />
-                            </a>
-                          )}
+                          {(() => {
+                            const transfermarktUrl = resolveTransfermarktUrl(
+                              profile.socialMedia?.transfermarkt,
+                            );
+                            return (
+                              transfermarktUrl && (
+                                <a
+                                  href={transfermarktUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="hover:opacity-80 transition-opacity"
+                                >
+                                  <Image
+                                    src="/transfermarkt.png"
+                                    alt="Transfermarkt"
+                                    width={60}
+                                    height={60}
+                                    className="shadow-sm rounded-sm"
+                                  />
+                                </a>
+                              )
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>

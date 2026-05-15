@@ -5,6 +5,7 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 export interface SubscriptionInfo {
   hasActiveSubscription: boolean;
   subscriptionType?: string;
+  expiresAt?: string | null;
 }
 
 export interface CancelSubscriptionResult {
@@ -39,7 +40,8 @@ export const checkUserSubscription = async (email: string): Promise<Subscription
     
     const result = {
       hasActiveSubscription: data.isActive === true,
-      subscriptionType: data.subscriptionType || 'Amateur'
+      subscriptionType: data.subscriptionType || 'Amateur',
+      expiresAt: data.expiresAt ?? null,
     };
     
     console.log(`Resultado de verificación de suscripción: activa=${result.hasActiveSubscription}, tipo=${result.subscriptionType}`);

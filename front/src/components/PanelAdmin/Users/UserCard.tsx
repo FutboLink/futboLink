@@ -3,6 +3,7 @@ import { IProfileData } from "@/Interfaces/IUser";
 import React, { useState } from "react";
 import DeleteUser from "./DeleteUser"; // Componente para manejar la eliminación
 import { SubscriptionType } from "./UsersComponent";
+import { getSubscriptionStatus } from "@/utils/subscriptionStatus";
 
 interface UserCardProps {
   user: IProfileData;
@@ -29,7 +30,10 @@ const UserCard: React.FC<UserCardProps> = ({ user, onDelete, onSubscriptionChang
     genre,
     birthday,
     subscriptionType,
+    subscriptionExpiresAt,
   } = user;
+
+  const subscriptionStatus = getSubscriptionStatus(subscriptionType, subscriptionExpiresAt);
 
   const handleSubscriptionChange = async () => {
     if (selectedSubscription === subscriptionType) return;
@@ -74,11 +78,21 @@ const UserCard: React.FC<UserCardProps> = ({ user, onDelete, onSubscriptionChang
       <p className="text-gray-700">
         <span className="font-semibold">Subscription:</span>{" "}
         <span className={`
-          ${subscriptionType === 'Profesional' ? 'text-green-600 font-bold' : ''} 
-          ${subscriptionType === 'Semiprofesional' ? 'text-blue-600 font-bold' : ''} 
+          ${subscriptionType === 'Profesional' ? 'text-green-600 font-bold' : ''}
+          ${subscriptionType === 'Semiprofesional' ? 'text-blue-600 font-bold' : ''}
           ${subscriptionType === 'Amateur' || !subscriptionType ? 'text-gray-600' : ''}
         `}>
           {subscriptionType || "Amateur"}
+        </span>
+        {" "}
+        <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${
+          subscriptionStatus === 'active'
+            ? 'bg-green-100 text-green-700'
+            : subscriptionStatus === 'expired'
+            ? 'bg-red-100 text-red-700'
+            : 'bg-gray-100 text-gray-600'
+        }`}>
+          {subscriptionStatus === 'active' ? 'Activa' : subscriptionStatus === 'expired' ? 'Vencida' : 'Amateur'}
         </span>
       </p>
 

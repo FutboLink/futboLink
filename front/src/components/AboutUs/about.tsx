@@ -27,7 +27,7 @@ function About() {
             clubes de fútbol con oportunidades únicas para crecer y
             desarrollarse en el mundo del fútbol profesional. En <strong>Futbolink</strong> ofrecemos
             ofertas de empleo, cursos de formación y todo lo necesario para
-            llevar tu carrera al siguiente nivel.
+            llevar tu carrera al siguiente nivel
           </p>
           <p className="text-base sm:text-lg">
             El equipo de <strong>Futbolink</strong> está formado por profesionales apasionados por el

@@ -176,11 +176,15 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
     </button>
   );
 
-  // Cliente confirmó: TODOS los PLAYER (Jugador, Entrenador, DT, Preparador,
-  // etc) ven el perfil del Futbolista. Solo AGENCY / RECRUITER / CLUB ven el
-  // perfil del agente.
-  const isNonPlayerProfessional =
-    (formData?.role as unknown as UserType) !== UserType.PLAYER;
+  // Solo el Futbolista puro (PLAYER + puesto = Jugador, o legacy sin
+  // puesto) muestra Posiciones y Datos Físicos. El Cuerpo Técnico
+  // (Entrenador, DT, etc.) y AGENCY/RECRUITER/CLUB no tienen esos campos.
+  // Trayectoria se muestra para todos (NO depende de este flag).
+  const puestoLower = (formData?.puesto || "").toLowerCase();
+  const isNonPlayerProfessional = !(
+    (formData?.role as unknown as UserType) === UserType.PLAYER &&
+    (puestoLower === "" || puestoLower === "jugador")
+  );
 
   // NOTA sobre la barra de progreso en tiempo real:
   // Probamos sincronizar formData + sub-states (primaryPosition,

@@ -201,10 +201,14 @@ const isNonEmpty = (v: unknown): boolean => {
   return Boolean(v);
 };
 
-// Cliente confirmó: TODOS los PLAYER (cualquier puesto) usan el schema
-// de Futbolista. Solo AGENCY / RECRUITER / CLUB usan el schema no-Futbolista.
-export const isFootballer = (profile: Pick<IProfileData, "role" | "puesto">) =>
-  profile.role === ("PLAYER" as IProfileData["role"]);
+// Solo el Futbolista puro (PLAYER + puesto = Jugador, o legacy sin puesto)
+// usa el schema de Futbolista (incluye posición principal, datos físicos).
+// El Cuerpo Técnico y los demás roles van por el schema no-Futbolista.
+export const isFootballer = (profile: Pick<IProfileData, "role" | "puesto">) => {
+  if (profile.role !== ("PLAYER" as IProfileData["role"])) return false;
+  const puestoLower = (profile.puesto || "").toLowerCase();
+  return puestoLower === "" || puestoLower === "jugador";
+};
 
 const evalField = (profile: IProfileData, key: ProfileFieldKey): boolean => {
   switch (key) {

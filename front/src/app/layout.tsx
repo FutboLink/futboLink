@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 import { TranslationProvider } from "@/components/Context/TranslationContext";
@@ -78,6 +79,23 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased hover:scale`}
       >
+        {/* Google Ads — gtag.js. Carga después del primer render
+            (afterInteractive) para no bloquear el TTFB. Solo trackea page
+            views por defecto; las conversiones específicas se disparan con
+            gtag('event', 'conversion', {...}) desde el código que cierre
+            cada acción (registro, publicar oferta, etc.). */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17160740489"
+          strategy="afterInteractive"
+        />
+        <Script id="google-ads-gtag" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-17160740489');
+          `}
+        </Script>
         <I18nModeProvider>
           <UserProvider>
             <TranslationProvider>

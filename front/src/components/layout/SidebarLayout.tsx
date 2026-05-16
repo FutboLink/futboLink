@@ -229,23 +229,45 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
       return {
         main: [
           {
+            // Para AGENCY / RECRUITER / CLUB el perfil pasa a verse en
+            // /user-viewer/{id} (misma estructura que Futbolista y CT,
+            // con tab "Portafolio" extra). El panel del agente legacy
+            // queda solo como vista de respaldo para crear/listar ofertas
+            // si alguien llega por URL directa.
             label: getText("Mi Perfil", "myProfile"),
-            path: "/PanelUsers/Manager",
+            path: user?.id ? `/user-viewer/${user.id}` : "/PanelUsers/Manager",
             icon: <AiOutlineUser />,
           },
           {
+            // El editor unificado del 1B vive en user-viewer/{id}?edit=true.
+            // Para el agente carga PersonalInfo (sin Posiciones ni Datos
+            // Físicos porque role != PLAYER+Jugador) y guarda los campos
+            // de agencia (Año de fundación, etc.).
+            label: getText("Editar Perfil", "editProfile"),
+            path: user?.id
+              ? `/user-viewer/${user.id}?edit=true`
+              : "/PanelUsers/Manager",
+            icon: <FaEdit />,
+          },
+          {
             label: getText("Crear Oferta", "createOffer"),
-            path: "/PanelUsers/Manager?section=createOffers",
+            path: user?.id
+              ? `/user-viewer/${user.id}?tab=createOffer`
+              : "/PanelUsers/Manager?section=createOffers",
             icon: <AiOutlineFileAdd />,
           },
           {
             label: getText("Mis Ofertas", "myOffers"),
-            path: "/PanelUsers/Manager?section=appliedOffers",
+            path: user?.id
+              ? `/user-viewer/${user.id}?tab=myOffers`
+              : "/PanelUsers/Manager?section=appliedOffers",
             icon: <AiOutlineFileText />,
           },
           {
             label: getText("Portafolio", "portfolio"),
-            path: "/PanelUsers/Manager?section=portfolio",
+            path: user?.id
+              ? `/user-viewer/${user.id}?tab=portfolio`
+              : "/PanelUsers/Manager?section=portfolio",
             icon: <FaUsers />,
           },
           {

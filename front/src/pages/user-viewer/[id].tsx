@@ -25,9 +25,11 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "@/Styles/help-swiper.css";
 import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
+import axios from "axios";
 import { getMyOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
 import FormComponent from "@/components/Jobs/CreateJob";
 import JobOfferDetails from "@/components/Jobs/JobOffertDetails";
+import ProfileProgressBar from "@/components/ProfileUser/ProfileProgressBar";
 import ProfileUser from "@/components/ProfileUser/ProfileUser";
 import SubscriptionCard from "@/components/Subscription/SubscriptionCard";
 import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
@@ -127,6 +129,8 @@ export default function UserViewer() {
   const [myOffersTotal, setMyOffersTotal] = useState(0);
   const [myOffersTotalPages, setMyOffersTotalPages] = useState(0);
   const [myOffersLoading, setMyOffersLoading] = useState(false);
+  // Portafolio: usamos las declaraciones existentes más abajo
+  // (portfolioPlayers / loadingPortfolio) en lugar de redeclararlas acá.
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [urlCopied, setUrlCopied] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -291,17 +295,68 @@ export default function UserViewer() {
   // RECRUITER, CLUB). El Futbolista puro NO ve esas tabs.
   const canPublishOffers = isOwnProfile && !isPurePlayer;
 
-  // Si la URL trae ?tab=myOffers o ?tab=createOffer (desde el sidebar del
-  // Cuerpo Técnico), activamos esa tab automáticamente. Sólo aplica para
-  // dueños que puedan publicar — si no, ignoramos el query.
+  // ¿Este perfil tiene Portafolio de jugadores?
+  // Solo Agentes/Reclutadores/Clubes (dueño del perfil). Cuerpo Técnico
+  // y Futbolista no tienen jugadores representados.
+  const canShowPortfolio =
+    isOwnProfile &&
+    profile?.role !== undefined &&
+    (profile.role === UserType.AGENCY ||
+      profile.role === UserType.RECRUITER ||
+      profile.role === UserType.CLUB);
+
+  // Si la URL trae ?tab=myOffers / ?tab=createOffer / ?tab=portfolio
+  // (desde el sidebar), activamos esa tab automáticamente. Cada tab
+  // tiene su propio gate de visibilidad — si el rol no la habilita,
+  // ignoramos el query y queda en "info".
   useEffect(() => {
     const queryTab = router.query.tab;
     if (typeof queryTab !== "string") return;
-    if (!canPublishOffers) return;
-    if (queryTab === "myOffers" || queryTab === "createOffer") {
+    if (
+      (queryTab === "myOffers" || queryTab === "createOffer") &&
+      canPublishOffers
+    ) {
       setActiveTab(queryTab);
+      return;
     }
-  }, [router.query.tab, canPublishOffers]);
+    if (queryTab === "portfolio" && canShowPortfolio) {
+      setActiveTab("portfolio");
+    }
+  }, [router.query.tab, canPublishOffers, canShowPortfolio]);
+
+  // Cargar Portafolio cuando el dueño Agente abre esa tab.
+  // Usamos fetch (no axios) porque el endpoint /user/{id}/portfolio puede
+  // devolver 404 (todavía no está implementado en algunos ambientes) y
+  // axios rechaza con error que dispara el overlay de Next.js dev. fetch
+  // no rechaza con 4xx, solo marca response.ok=false.
+  useEffect(() => {
+    if (activeTab !== "portfolio") return;
+    if (!canShowPortfolio || !user?.id || !token) return;
+    let cancelled = false;
+    setLoadingPortfolio(true);
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/${user.id}/portfolio`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(async (res) => {
+        if (cancelled) return;
+        if (!res.ok) {
+          // 404 o cualquier otro error: lista vacía sin overlay.
+          setPortfolioPlayers([]);
+          return;
+        }
+        const data = await res.json().catch(() => null);
+        setPortfolioPlayers(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        if (!cancelled) setPortfolioPlayers([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingPortfolio(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTab, canShowPortfolio, user?.id, token]);
 
   // Cargar "Mis Ofertas" cuando el dueño abre esa tab o cambia paginación.
   // Reutilizamos el endpoint /jobs/my que devuelve solo las ofertas
@@ -2532,6 +2587,99 @@ export default function UserViewer() {
                     </div>
                   ))}
               </div>
+
+              {/* Card lateral "Portafolio" — solo Agentes/Reclutadores/Clubes
+                  dueños. Mismo bloque visual que el panel legacy de manager.tsx.
+                  Lista los primeros 5 jugadores representados y un link a la
+                  tab portfolio si hay más. */}
+              {canShowPortfolio && (
+                <div className="bg-white rounded-lg shadow-md border border-gray-200 mb-4">
+                  <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-3 rounded-t-lg flex items-center gap-2">
+                    <FaBriefcase
+                      size={20}
+                      className="text-white"
+                      aria-label="Maletín"
+                    />
+                    <h3 className="text-base font-bold text-white">Portafolio</h3>
+                  </div>
+                  <div className="p-3">
+                    {loadingPortfolio ? (
+                      <div className="flex justify-center py-4">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+                      </div>
+                    ) : portfolioPlayers.length > 0 ? (
+                      <div className="space-y-2">
+                        {portfolioPlayers.slice(0, 5).map((player) => (
+                          <div
+                            key={player.id}
+                            className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors border-b border-gray-100 last:border-0"
+                          >
+                            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-purple-200 flex-shrink-0">
+                              <Image
+                                src={player.imgUrl || "/default-player.png"}
+                                alt={`${player.name} ${player.lastname}`}
+                                width={40}
+                                height={40}
+                                className="object-cover w-full h-full"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-sm text-gray-800 truncate">
+                                {player.name} {player.lastname}
+                              </p>
+                              <p className="text-xs text-gray-500 truncate">
+                                {player.puesto || "N/D"}
+                              </p>
+                            </div>
+                            <Link
+                              href={`/user-viewer/${player.id}`}
+                              className="px-3 py-1 bg-purple-600 text-white rounded-md text-xs hover:bg-purple-700 transition-colors flex-shrink-0"
+                            >
+                              Ver perfil
+                            </Link>
+                          </div>
+                        ))}
+                        {portfolioPlayers.length > 5 && (
+                          <div className="pt-2 text-center">
+                            <button
+                              type="button"
+                              onClick={() => setActiveTab("portfolio")}
+                              className="text-xs text-purple-600 hover:text-purple-800 font-medium"
+                            >
+                              Ver todos ({portfolioPlayers.length})
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center py-6">
+                        <FaUsers className="mx-auto text-3xl text-gray-300 mb-2" />
+                        <p className="text-xs text-gray-500">
+                          Sin jugadores representados
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Barra "TU PERFIL %" — al final de la columna izquierda, solo
+                  visible para el dueño del perfil. Click en un tip lo manda
+                  al editor unificado del 1B con el anchor del campo. */}
+              {isOwnProfile && (
+                <div className="mt-6 mb-4">
+                  <ProfileProgressBar
+                    profile={profile}
+                    onTipClick={(field) => {
+                      router.push(
+                        `/user-viewer/${profile.id}?edit=true&tab=${
+                          field.tab
+                        }#${field.anchor}`,
+                      );
+                    }}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Columna derecha - Pestañas y contenido */}
@@ -2600,6 +2748,19 @@ export default function UserViewer() {
                         Crear Oferta
                       </button>
                     </>
+                  )}
+                  {canShowPortfolio && (
+                    <button
+                      onClick={() => setActiveTab("portfolio")}
+                      type="button"
+                      className={`flex-1 py-3 text-center ${
+                        activeTab === "portfolio"
+                          ? "text-green-600 border-b-2 border-green-600"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      Portafolio
+                    </button>
                   )}
                 </div>
               </div>
@@ -3226,6 +3387,62 @@ export default function UserViewer() {
                 {activeTab === "createOffer" && canPublishOffers && (
                   <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
                     <FormComponent />
+                  </div>
+                )}
+
+                {/* Tab Portafolio — solo Agentes/Reclutadores/Clubes dueños
+                    del perfil. Lista de jugadores representados. */}
+                {activeTab === "portfolio" && canShowPortfolio && (
+                  <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+                    <h3 className="text-lg font-medium mb-3 text-gray-800">
+                      Portafolio de Jugadores
+                    </h3>
+                    {loadingPortfolio ? (
+                      <div className="text-center py-8 text-gray-500">
+                        Cargando portafolio...
+                      </div>
+                    ) : portfolioPlayers.length === 0 ? (
+                      <div className="text-center py-8 bg-gray-50 rounded-lg">
+                        <p className="text-gray-500">
+                          Sin jugadores representados
+                        </p>
+                      </div>
+                    ) : (
+                      <ul className="divide-y divide-gray-200">
+                        {portfolioPlayers.map((player) => (
+                          <li
+                            key={player.id}
+                            className="py-3 flex items-center gap-3"
+                          >
+                            {player.imgUrl && (
+                              <Image
+                                src={player.imgUrl}
+                                alt={`${player.name} ${player.lastname}`}
+                                width={48}
+                                height={48}
+                                className="w-12 h-12 rounded-full object-cover"
+                              />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-gray-800 truncate">
+                                {player.name} {player.lastname}
+                              </p>
+                              {player.puesto && (
+                                <p className="text-xs text-gray-500 truncate">
+                                  {player.puesto}
+                                </p>
+                              )}
+                            </div>
+                            <a
+                              href={`/user-viewer/${player.id}`}
+                              className="text-sm text-green-600 hover:underline"
+                            >
+                              Ver
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 )}
               </div>

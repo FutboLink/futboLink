@@ -1,7 +1,7 @@
 "use client";
 
 import NextImage from "next/image";
-import { useState, useCallback } from "react";
+import { useCallback, useId, useRef, useState } from "react";
 import { FaCamera, FaTimesCircle } from "react-icons/fa";
 import Cropper from "react-easy-crop";
 
@@ -9,13 +9,16 @@ interface ImageUploadwithCropProps {
   onUpload: (url: string) => void;
   onRemove?: () => void;
   initialImage?: string;
-  fileInputId?: string;
-  label?: string;
-  buttonLabel?: string;
-  // Forma del recorte y del preview. Default "round" para mantener el avatar
-  // redondo. La galería de fotos pasa "rect" para mostrar las imágenes
-  // cuadradas/rectangulares.
+  aspect?: number;
   cropShape?: "round" | "rect";
+  label?: string;
+  previewShape?: "circle" | "rect";
+  previewWidthClass?: string;
+  previewHeightClass?: string;
+  cropAreaWidthClass?: string;
+  cropAreaHeightClass?: string;
+  fileInputId?: string;
+  buttonLabel?: string;
 }
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -24,11 +27,21 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
   onUpload,
   onRemove,
   initialImage,
-  fileInputId = "file-input",
-  label = "Foto de Perfil",
-  buttonLabel = "Cambiar imagen",
+  aspect = 1,
   cropShape = "round",
+  label = "Foto de Perfil",
+  previewShape = "circle",
+  previewWidthClass = "w-32",
+  previewHeightClass = "h-32",
+  cropAreaWidthClass = "w-64",
+  cropAreaHeightClass = "h-64",
+  fileInputId,
+  buttonLabel = "Cambiar imagen",
 }) => {
+  const autoId = useId();
+  const inputId = fileInputId ?? `image-upload-${autoId}`;
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
   const [imageSrc, setImageSrc] = useState<string>("");
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -38,6 +51,8 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string>(initialImage || "");
   const [showCropper, setShowCropper] = useState(false);
+
+  const previewRounding = previewShape === "circle" ? "rounded-full" : "rounded-lg";
 
   const resetAll = () => {
     setImageSrc("");
@@ -155,71 +170,51 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
 
   return (
     <div className="w-full flex flex-col items-center gap-4">
-      {label && <label className="text-gray-700 font-semibold">{label}</label>}
+      <label className="text-gray-700 font-semibold">{label}</label>
 
-      {/* Imagen actual — circular para avatar (round), cuadrada para galería (rect). */}
       {!showCropper && imageUrl && (
         <div
-          className={`relative w-32 h-32 ${
-            cropShape === "rect" ? "rounded-md" : "rounded-full"
-          } overflow-hidden border border-gray-300 shadow`}
+          className={`relative ${previewWidthClass} ${previewHeightClass} ${previewRounding} overflow-hidden border border-gray-300 shadow bg-gray-100`}
         >
           <NextImage
             src={imageUrl}
             alt="Imagen actual"
-            width={128}
-            height={128}
-            className="object-cover w-full h-full"
+            fill
+            sizes="(max-width: 768px) 100vw, 512px"
+            className="object-cover"
           />
         </div>
       )}
 
-      {/* Acciones: Subir / Cambiar y, si hay imagen + onRemove, Eliminar.
-          El botón Eliminar solo aparece cuando el padre pasa onRemove,
-          así no rompe usos donde el remove no aplica. */}
       {!showCropper && (
-        <div className="flex items-center gap-2 flex-wrap justify-center">
-          <button
-            type="button"
-            onClick={() => document.getElementById(fileInputId)?.click()}
-            className="flex items-center gap-2 text-sm bg-verde-oscuro text-white py-2 px-4 rounded-md hover:bg-verde-mas-claro transition-colors"
-          >
-            <FaCamera />
-            {buttonLabel}
-          </button>
-          {imageUrl && onRemove && (
-            <button
-              type="button"
-              onClick={() => {
-                setImageUrl("");
-                onRemove();
-              }}
-              className="flex items-center gap-2 text-sm bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors"
-              aria-label="Eliminar imagen"
-            >
-              <FaTimesCircle />
-              Eliminar
-            </button>
-          )}
-        </div>
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          className="flex items-center gap-2 text-sm bg-verde-oscuro text-white py-2 px-4 rounded-md hover:bg-verde-mas-claro transition-colors"
+        >
+          <FaCamera />
+          {buttonLabel}
+        </button>
       )}
 
       <input
-        id={fileInputId}
+        id={inputId}
+        ref={inputRef}
         type="file"
         accept="image/*"
         onChange={onFileChange}
         className="hidden"
       />
 
-      {/* Cropper */}
       {showCropper && (
-        <div className="relative w-64 h-64 bg-gray-100">
+        <div
+          className={`relative ${cropAreaWidthClass} ${cropAreaHeightClass} bg-gray-100`}
+        >
           <Cropper
             image={imageSrc}
             crop={crop}
             zoom={zoom}
-            aspect={1}
+            aspect={aspect}
             cropShape={cropShape}
             onCropChange={setCrop}
             onZoomChange={setZoom}
@@ -236,7 +231,6 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
         </div>
       )}
 
-      {/* Zoom */}
       {showCropper && (
         <input
           type="range"
@@ -245,19 +239,17 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
           step={0.1}
           value={zoom}
           onChange={(e) => setZoom(Number(e.target.value))}
-          className="w-64"
+          className={cropAreaWidthClass}
         />
       )}
 
-      {/* Error */}
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      {/* Subir botón */}
       {showCropper && (
         <button
           onClick={uploadCroppedImage}
           disabled={uploading}
-          className={`w-64 py-2 rounded text-white ${
+          className={`${cropAreaWidthClass} py-2 rounded text-white ${
             uploading ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
           }`}
         >

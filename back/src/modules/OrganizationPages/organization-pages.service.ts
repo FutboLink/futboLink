@@ -84,7 +84,14 @@ export class OrganizationPagesService {
       if (!dbUser) {
         throw new ForbiddenException('Usuario no encontrado');
       }
-      if (dbUser.role === UserType.PLAYER && dbUser.puesto === 'Jugador') {
+      // Solo el Futbolista puro (PLAYER + puesto "Jugador" o vacío) está
+      // bloqueado. Cuerpo Técnico, Agente, Dirección y demás puestos
+      // pueden crear páginas. Espejo de `isFootballer` en el front.
+      const puestoLower = (dbUser.puesto || '').toLowerCase();
+      const isPureFootballer =
+        dbUser.role === UserType.PLAYER &&
+        (puestoLower === '' || puestoLower === 'jugador');
+      if (isPureFootballer) {
         throw new ForbiddenException(
           'Los futbolistas no pueden crear páginas de organizaciones',
         );

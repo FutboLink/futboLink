@@ -89,7 +89,13 @@ function CreatePage() {
       router.push("/Login");
       return;
     }
-    if (role === "PLAYER" && puesto === "Jugador") {
+    // Solo el Futbolista puro (PLAYER + puesto "Jugador" o vacío) está
+    // bloqueado. Cuerpo Técnico, Agente, Dirección y demás puestos pueden
+    // crear páginas. Espejo de `isFootballer` en lib/profileCompleteness.
+    const puestoLower = (puesto || "").toLowerCase();
+    const isPureFootballer =
+      role === "PLAYER" && (puestoLower === "" || puestoLower === "jugador");
+    if (isPureFootballer) {
       toast.error(
         getText(
           "Los futbolistas no pueden crear páginas. Iniciá sesión con otro rol.",

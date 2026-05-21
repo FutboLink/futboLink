@@ -229,6 +229,10 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
   const [hydrated, setHydrated] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [nameError, setNameError] = useState<string | null>(null);
+  const [logoError, setLogoError] = useState<string | null>(null);
+  const [bannerError, setBannerError] = useState<string | null>(null);
+  const [contactEmailError, setContactEmailError] = useState<string | null>(null);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [leagues, setLeagues] = useState<OrganizationPage[]>([]);
   const [leaguesLoading, setLeaguesLoading] = useState(false);
 
@@ -408,6 +412,15 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
     // explícitamente que ninguna es su organización antes de avanzar.
     const duplicateGate =
       mode === "edit" || duplicateMatches.length === 0 || confirmedNotMine;
+    // En create, paso 3 también requiere logo/banner/email/teléfono.
+    // En edit se mantiene flexible para no romper páginas que se crearon
+    // antes de esta regla.
+    const detailsRequired =
+      mode === "edit" ||
+      (draft.logoUrl.trim().length > 0 &&
+        draft.bannerUrl.trim().length > 0 &&
+        /^.+@.+\..+$/.test(draft.contactEmail.trim()) &&
+        draft.phone.trim().length > 0);
     switch (step) {
       case 1:
         return !!draft.type;
@@ -416,7 +429,7 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
       case 3:
         return !!draft.type && nameOk && countryOk && duplicateGate;
       case 4:
-        return !!draft.type && nameOk && countryOk && duplicateGate;
+        return !!draft.type && nameOk && countryOk && duplicateGate && detailsRequired;
       default:
         return false;
     }
@@ -457,6 +470,49 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
     }
     setNameError(null);
     goToStep(3);
+  };
+
+  // Validación de paso 3 (Detalles) — solo en create. En edit no obligamos
+  // estos campos para no bloquear ediciones de páginas viejas.
+  const handleNextFromDetails = () => {
+    if (mode === "edit") {
+      goToStep(4);
+      return;
+    }
+    let hasError = false;
+    if (!draft.logoUrl.trim()) {
+      setLogoError(getText("El logo es obligatorio", "logoRequired"));
+      hasError = true;
+    } else {
+      setLogoError(null);
+    }
+    if (!draft.bannerUrl.trim()) {
+      setBannerError(getText("El banner es obligatorio", "bannerRequired"));
+      hasError = true;
+    } else {
+      setBannerError(null);
+    }
+    const emailTrim = draft.contactEmail.trim();
+    if (!emailTrim) {
+      setContactEmailError(
+        getText("El email es obligatorio", "contactEmailRequired"),
+      );
+      hasError = true;
+    } else if (!/^.+@.+\..+$/.test(emailTrim)) {
+      setContactEmailError(
+        getText("Email inválido", "contactEmailInvalid"),
+      );
+      hasError = true;
+    } else {
+      setContactEmailError(null);
+    }
+    if (!draft.phone.trim()) {
+      setPhoneError(getText("El teléfono es obligatorio", "phoneRequired"));
+      hasError = true;
+    } else {
+      setPhoneError(null);
+    }
+    if (!hasError) goToStep(4);
   };
 
   const updateField = <K extends keyof PageDraft>(key: K, value: PageDraft[K]) => {
@@ -895,7 +951,11 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
 
           {draft.step === 3 && (
             <div className="flex flex-col gap-6">
-              <div className="bg-emerald-50/40 border border-emerald-100 rounded-xl p-4">
+              <div
+                className={`bg-emerald-50/40 border rounded-xl p-4 ${
+                  logoError ? "border-red-400" : "border-emerald-100"
+                }`}
+              >
                 <ImageUploadwithCrop
                   fileInputId="page-logo-file"
                   label={getText("Logo", "logo")}
@@ -904,12 +964,24 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
                   cropShape="round"
                   previewShape="circle"
                   initialImage={draft.logoUrl || undefined}
-                  onUpload={(url) => updateField("logoUrl", url)}
+                  onUpload={(url) => {
+                    updateField("logoUrl", url);
+                    if (logoError) setLogoError(null);
+                  }}
                   onRemove={() => updateField("logoUrl", "")}
                 />
+                {logoError && (
+                  <span className="text-red-500 text-xs mt-2 block">
+                    {logoError}
+                  </span>
+                )}
               </div>
 
-              <div className="bg-emerald-50/40 border border-emerald-100 rounded-xl p-4">
+              <div
+                className={`bg-emerald-50/40 border rounded-xl p-4 ${
+                  bannerError ? "border-red-400" : "border-emerald-100"
+                }`}
+              >
                 <ImageUploadwithCrop
                   fileInputId="page-banner-file"
                   label={getText("Banner", "banner")}
@@ -922,9 +994,17 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
                   cropAreaWidthClass="w-full max-w-lg"
                   cropAreaHeightClass="h-48"
                   initialImage={draft.bannerUrl || undefined}
-                  onUpload={(url) => updateField("bannerUrl", url)}
+                  onUpload={(url) => {
+                    updateField("bannerUrl", url);
+                    if (bannerError) setBannerError(null);
+                  }}
                   onRemove={() => updateField("bannerUrl", "")}
                 />
+                {bannerError && (
+                  <span className="text-red-500 text-xs mt-2 block">
+                    {bannerError}
+                  </span>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -954,9 +1034,19 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
                       "contacto@tusitio.com",
                       "contactEmailPlaceholder"
                     )}
-                    onChange={(e) => updateField("contactEmail", e.target.value)}
-                    className="border border-gray-300 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    onChange={(e) => {
+                      updateField("contactEmail", e.target.value);
+                      if (contactEmailError) setContactEmailError(null);
+                    }}
+                    className={`border rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                      contactEmailError ? "border-red-400" : "border-gray-300"
+                    }`}
                   />
+                  {contactEmailError && (
+                    <span className="text-red-500 text-xs mt-1">
+                      {contactEmailError}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -969,9 +1059,19 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
                   name="phone"
                   label=""
                   value={draft.phone}
-                  onChange={(e) => updateField("phone", e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  onChange={(e) => {
+                    updateField("phone", e.target.value);
+                    if (phoneError) setPhoneError(null);
+                  }}
+                  className={`w-full border rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                    phoneError ? "border-red-400" : "border-gray-300"
+                  }`}
                 />
+                {phoneError && (
+                  <span className="text-red-500 text-xs mt-1">
+                    {phoneError}
+                  </span>
+                )}
               </div>
 
               <div className="flex flex-col gap-3">
@@ -1007,7 +1107,7 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
                 </button>
                 <button
                   type="button"
-                  onClick={() => goToStep(4)}
+                  onClick={handleNextFromDetails}
                   className="flex items-center gap-2 bg-verde-oscuro hover:bg-verde-mas-claro text-white font-semibold px-5 py-2.5 rounded-lg transition-colors"
                 >
                   {getText("Siguiente", "next")}

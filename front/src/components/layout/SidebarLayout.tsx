@@ -405,6 +405,9 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
       role === "PLAYER" &&
       puestoLowerForOffers !== "" &&
       puestoLowerForOffers !== "jugador";
+    // Misma regla del contrato 1F: todos menos Futbolista puro pueden crear
+    // páginas. El Futbolista puro (PLAYER + puesto vacío o "Jugador") no.
+    const canCreatePagesFromSidebar = canPublishOffersFromSidebar;
 
     return {
       main: [
@@ -430,6 +433,26 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
                 label: getText("Crear Oferta", "createOffer"),
                 path: `/user-viewer/${user?.id}?tab=createOffer`,
                 icon: <FaPlus />,
+              },
+            ]
+          : []),
+        ...(canCreatePagesFromSidebar
+          ? [
+              {
+                label: getText("Páginas", "pagesMenu"),
+                icon: <FaRegFileAlt />,
+                children: [
+                  {
+                    label: getText("Crear Página", "createPage"),
+                    path: "/pages/create",
+                    icon: <FaRegFileAlt />,
+                  },
+                  {
+                    label: getText("Mis páginas", "myPages"),
+                    path: "/pages/mine",
+                    icon: <FaRegFileAlt />,
+                  },
+                ],
               },
             ]
           : []),

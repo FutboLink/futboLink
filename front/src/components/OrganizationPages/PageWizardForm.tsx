@@ -315,8 +315,9 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
     const handler = window.setTimeout(async () => {
       setDuplicateLoading(true);
       try {
+        // El early return de arriba ya garantiza que draft.type != null aquí.
         const params = new URLSearchParams({
-          type: draft.type,
+          type: draft.type as string,
           name: trimmed,
           country: draft.country,
         });
@@ -437,7 +438,7 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
 
   const canReachStep = (step: PageDraft["step"]): boolean => {
     const start: PageDraft["step"] = mode === "edit" ? 2 : 1;
-    for (let s = start; s < step; s = (s + 1) as PageDraft["step"]) {
+    for (let s: PageDraft["step"] = start; s < step; s = (s + 1) as PageDraft["step"]) {
       if (!validateStep(s)) return false;
     }
     return true;
@@ -451,7 +452,7 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
         return { ...prev, step: clamped };
       }
       let target: PageDraft["step"] = prev.step;
-      for (let s = prev.step; s < clamped; s = (s + 1) as PageDraft["step"]) {
+      for (let s: PageDraft["step"] = prev.step; s < clamped; s = (s + 1) as PageDraft["step"]) {
         if (!validateStep(s)) break;
         target = (s + 1) as PageDraft["step"];
       }

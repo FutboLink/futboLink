@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { useI18nMode } from "@/components/Context/I18nModeContext";
 import PageWizardForm, {
   type PageWizardSubmitBody,
@@ -89,12 +89,20 @@ function CreatePage() {
       router.push("/Login");
       return;
     }
-    // Solo el Futbolista puro (PLAYER + puesto "Jugador" o vacío) está
-    // bloqueado. Cuerpo Técnico, Agente, Dirección y demás puestos pueden
-    // crear páginas. Espejo de `isFootballer` en lib/profileCompleteness.
-    const puestoLower = (puesto || "").toLowerCase();
+    // Solo el Futbolista puro (PLAYER + puesto explícito "Jugador" o vacío
+    // string "") está bloqueado. Cuerpo Técnico, Agente, Dirección y demás
+    // puestos pueden crear páginas.
+    //
+    // OJO: si puesto viene `null` significa que el fetch al /user/{id} aún
+    // no resolvió o falló. NO redirigimos en ese caso para evitar falsos
+    // positivos. El backend tiene su propio guard que valida con la data
+    // real de la DB, así que si pasa el guard del front y el user es
+    // futbolista, el backend lo va a rechazar igual.
+    const puestoLower =
+      typeof puesto === "string" ? puesto.toLowerCase() : null;
     const isPureFootballer =
-      role === "PLAYER" && (puestoLower === "" || puestoLower === "jugador");
+      role === "PLAYER" &&
+      (puestoLower === "" || puestoLower === "jugador");
     if (isPureFootballer) {
       toast.error(
         getText(

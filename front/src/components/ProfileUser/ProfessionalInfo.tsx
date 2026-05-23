@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa";
 import { useUserContext } from "@/hook/useUserContext";
 import { type IProfileData, PasaporteUe, UserType } from "@/Interfaces/IUser";
+import ClubAutocomplete from "../OrganizationPages/ClubAutocomplete";
 import FileUpload from "../Cloudinary/FileUpload";
 import { updateUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
@@ -107,6 +108,9 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
     nivelCompetencia: NIVEL_COMPETENCIA_OPTIONS[0],
     logros: "",
     nacionalidadTrayectoria: "",
+    clubPageId: undefined as string | undefined,
+    clubPageSlug: undefined as string | undefined,
+    clubPageLogo: undefined as string | undefined,
   };
 
   // Información general del perfil
@@ -140,6 +144,11 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
     nivelCompetencia: string;
     nacionalidadTrayectoria: string;
     logros: string;
+    // Si el club fue elegido del autocomplete (módulo 1F),
+    // guardamos también el id+slug para poder linkear al perfil del club.
+    clubPageId?: string;
+    clubPageSlug?: string;
+    clubPageLogo?: string;
   }
 
   // State for experiences (trayectorias)
@@ -251,6 +260,9 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
           nivelCompetencia: exp.nivelCompetencia || NIVEL_COMPETENCIA_OPTIONS[0],
           logros: exp.logros || "",
           nacionalidadTrayectoria: exp.nacionalidadTrayectoria || "",
+          clubPageId: exp.clubPageId,
+          clubPageSlug: exp.clubPageSlug,
+          clubPageLogo: exp.clubPageLogo,
         }));
 
         setExperiences(updatedExperiences);
@@ -335,6 +347,10 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
         categoriaEquipo: String(exp.categoriaEquipo || ""),
         nivelCompetencia: String(exp.nivelCompetencia || ""),
         logros: String(exp.logros || ""),
+        nacionalidadTrayectoria: String(exp.nacionalidadTrayectoria || ""),
+        ...(exp.clubPageId ? { clubPageId: exp.clubPageId } : {}),
+        ...(exp.clubPageSlug ? { clubPageSlug: exp.clubPageSlug } : {}),
+        ...(exp.clubPageLogo ? { clubPageLogo: exp.clubPageLogo } : {}),
       }));
 
       // Base updated data (always allowed)
@@ -657,19 +673,29 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="mb-4">
                       <label
-                        htmlFor="club"
+                        htmlFor={`club-${index}`}
                         className="block text-gray-700 text-sm font-bold mb-2"
                       >
                         Club/Institución
                       </label>
-                      <input
-                        id="club"
-                        type="text"
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      <ClubAutocomplete
+                        inputId={`club-${index}`}
                         value={exp.club}
-                        onChange={(e) =>
-                          handleExperienceChange(index, "club", e.target.value)
-                        }
+                        selectedPageId={exp.clubPageId}
+                        selectedPageSlug={exp.clubPageSlug}
+                        onChange={(next) => {
+                          setExperiences((prev) => {
+                            const copy = [...prev];
+                            copy[index] = {
+                              ...copy[index],
+                              club: next.club,
+                              clubPageId: next.clubPageId,
+                              clubPageSlug: next.clubPageSlug,
+                              clubPageLogo: next.clubPageLogo,
+                            };
+                            return copy;
+                          });
+                        }}
                       />
                     </div>
 

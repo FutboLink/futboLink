@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { useI18nMode } from "@/components/Context/I18nModeContext";
 import PageWizardForm, {
   type PageWizardSubmitBody,
@@ -134,7 +134,8 @@ function EditPage() {
     }
     const updated = (await res.json()) as OrganizationPage;
     toast.success(getText("Cambios guardados", "saveChangesSuccess"));
-    router.push(`/pages/${updated.slug}`);
+    setPage(updated);
+    setInitialDraft(toPageDraft(updated));
     return updated;
   };
 
@@ -210,6 +211,7 @@ function EditPage() {
           errorLabelKey="createError"
           errorLabelOriginal="No se pudo guardar la página"
           onSubmit={handleSubmit}
+          viewHref={`/pages/${page.slug}`}
         />
 
         <div className="text-center mt-6">

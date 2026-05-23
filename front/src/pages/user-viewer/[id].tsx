@@ -7,11 +7,13 @@ import { toast } from "react-hot-toast";
 import {
   FaArrowLeft,
   FaChevronDown,
+  FaChevronRight,
   FaChevronUp,
   FaCog,
   FaEllipsisH,
   FaGlobe,
   FaHeart,
+  FaPlus,
   FaRegHeart,
   FaShareAlt,
   FaShieldAlt,
@@ -866,7 +868,7 @@ export default function UserViewer() {
         <div
           className={
             isOwnProfile
-              ? "grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_200px] gap-4 items-start"
+              ? "grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_220px] gap-4 items-start"
               : "contents"
           }
         >
@@ -1341,13 +1343,30 @@ export default function UserViewer() {
               {currentClub && isPurePlayer && (
                 <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mb-4">
                   <div className="flex items-center">
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3 border border-gray-200">
-                      {/* Aquí iría el logo del club si está disponible */}
-                      <FaShieldAlt className="w-7 h-7 text-gray-500" />
+                    <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center mr-3 border border-gray-200 overflow-hidden">
+                      {currentClub.clubPageLogo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={currentClub.clubPageLogo}
+                          alt={currentClub.club}
+                          className="w-full h-full object-contain"
+                        />
+                      ) : (
+                        <FaShieldAlt className="w-7 h-7 text-gray-500" />
+                      )}
                     </div>
                     <div>
                       <h3 className="font-bold text-gray-800">
-                        {currentClub.club}
+                        {currentClub.clubPageSlug ? (
+                          <Link
+                            href={`/pages/${currentClub.clubPageSlug}`}
+                            className="text-green-700 hover:underline"
+                          >
+                            {currentClub.club}
+                          </Link>
+                        ) : (
+                          currentClub.club
+                        )}
                       </h3>
                       <div className="flex items-center text-sm text-gray-600">
                         {profile.nationality && (
@@ -1374,13 +1393,30 @@ export default function UserViewer() {
                 (profile.role as UserType) !== UserType.RECRUITER && (
                   <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mb-4">
                     <div className="flex items-center">
-                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3 border border-gray-200">
-                        {/* Aquí iría el logo del club si está disponible */}
-                        <FaShieldAlt className="w-7 h-7 text-gray-500" />
+                      <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center mr-3 border border-gray-200 overflow-hidden">
+                        {currentClub.clubPageLogo ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={currentClub.clubPageLogo}
+                            alt={currentClub.club}
+                            className="w-full h-full object-contain"
+                          />
+                        ) : (
+                          <FaShieldAlt className="w-7 h-7 text-gray-500" />
+                        )}
                       </div>
                       <div>
                         <h3 className="font-bold text-gray-800">
-                          {currentClub.club}
+                          {currentClub.clubPageSlug ? (
+                            <Link
+                              href={`/pages/${currentClub.clubPageSlug}`}
+                              className="text-green-700 hover:underline"
+                            >
+                              {currentClub.club}
+                            </Link>
+                          ) : (
+                            currentClub.club
+                          )}
                         </h3>
                         <div className="flex items-center text-sm text-gray-600">
                           {profile.nationality && (
@@ -1634,6 +1670,42 @@ export default function UserViewer() {
                 )}
               </div>
 
+              {/* CTA "Crear Página" — solo visible para el dueño que NO es
+                  Futbolista puro. Espejo del CTA que vive en manager.tsx. */}
+              {isOwnProfile && !isPurePlayer && (
+                <div className="group relative bg-gradient-to-br from-emerald-50 via-white to-blue-50 rounded-lg shadow-lg hover:shadow-xl border-2 border-emerald-200 p-4 mt-4 transition-all duration-300 hover:-translate-y-0.5 overflow-hidden">
+                  <div className="absolute -top-6 -right-6 w-20 h-20 bg-emerald-400/10 rounded-full blur-2xl pointer-events-none" />
+                  <div className="absolute -bottom-6 -left-6 w-20 h-20 bg-blue-400/10 rounded-full blur-2xl pointer-events-none" />
+                  <span className="absolute top-2 right-2 inline-flex items-center gap-1 rounded-md bg-emerald-500 px-2 py-0.5 text-xs font-semibold text-white shadow-sm animate-pulse">
+                    ✨ Nuevo
+                  </span>
+                  <div className="relative flex items-start gap-3 pr-16">
+                    <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-500 ring-4 ring-blue-100/60">
+                      <FaUsers size={18} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-bold text-gray-900">
+                        ¿Representás a un club, academia o agencia?
+                      </h3>
+                      <p className="mt-1 text-xs text-gray-600 leading-relaxed">
+                        Creá tu página para conectar con jugadores, publicar oportunidades y mucho más.
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/pages/create"
+                    className="relative mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-verde-oscuro to-verde-claro px-3 py-3 text-sm font-bold text-white shadow-md hover:shadow-lg transition-all duration-200 hover:brightness-110"
+                  >
+                    <FaPlus size={12} />
+                    <span className="flex-1 text-center">Crear Página</span>
+                    <FaChevronRight
+                      size={12}
+                      className="group-hover:translate-x-1 transition-transform duration-200"
+                    />
+                  </Link>
+                </div>
+              )}
+
               {/* Información de contacto para reclutadores */}
               {(profile.role as UserType) === UserType.RECRUITER && (
                 <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mb-4">
@@ -1884,23 +1956,6 @@ export default function UserViewer() {
                 </div>
               )}
 
-              {/* Barra "TU PERFIL %" — al final de la columna izquierda, solo
-                  visible para el dueño del perfil. Click en un tip lo manda
-                  al editor unificado del 1B con el anchor del campo. */}
-              {isOwnProfile && (
-                <div className="mt-6 mb-4">
-                  <ProfileProgressBar
-                    profile={profile}
-                    onTipClick={(field) => {
-                      router.push(
-                        `/user-viewer/${profile.id}?edit=true&tab=${
-                          field.tab
-                        }#${field.anchor}`,
-                      );
-                    }}
-                  />
-                </div>
-              )}
             </div>
 
             {/* Columna derecha - Pestañas y contenido */}
@@ -2298,6 +2353,85 @@ export default function UserViewer() {
                       </div>
                     )}
 
+                    {(() => {
+                      const validTrayectorias = (profile.trayectorias ?? []).filter(
+                        (t) => t.club && t.club.trim().length > 0,
+                      );
+                      if (validTrayectorias.length === 0) return null;
+                      return (
+                      <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200 mb-4">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-lg font-medium text-gray-800">
+                            Trayectoria
+                          </h3>
+                          <button
+                            type="button"
+                            onClick={() => setActiveTab("career")}
+                            className="text-sm text-green-600 hover:underline font-medium"
+                          >
+                            Ver Más
+                          </button>
+                        </div>
+                        <div className="relative">
+                          <div className="absolute left-0 right-0 top-[34px] h-0.5 bg-gray-200" />
+                          <div className="flex items-start justify-around gap-2 overflow-x-auto pb-1">
+                            {sortTrayectoriasByFechaDesc(validTrayectorias)
+                              .slice(0, 6)
+                              .reverse()
+                              .map((t, i) => {
+                                const yearFrom = (d: string | undefined | null) =>
+                                  d && /^(\d{4})/.test(d) ? d.slice(0, 4) : "";
+                                const startYear = yearFrom(t.fechaInicio);
+                                const endYear = yearFrom(t.fechaFinalizacion);
+                                const year =
+                                  startYear && endYear
+                                    ? `${startYear}–${endYear}`
+                                    : startYear || endYear || "";
+                                const node = (
+                                  <>
+                                    <div className="w-14 h-14 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center overflow-hidden">
+                                      {t.clubPageLogo ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img
+                                          src={t.clubPageLogo}
+                                          alt={t.club}
+                                          className="w-full h-full object-contain"
+                                        />
+                                      ) : (
+                                        <FaShieldAlt className="w-7 h-7 text-gray-400" />
+                                      )}
+                                    </div>
+                                    <div className="w-3 h-3 rounded-full bg-green-500 mt-2 border-2 border-white shadow" />
+                                    <span className="text-xs text-gray-700 mt-1 font-medium">
+                                      {year}
+                                    </span>
+                                  </>
+                                );
+                                return t.clubPageSlug ? (
+                                  <Link
+                                    key={`${t.club}-${i}`}
+                                    href={`/pages/${t.clubPageSlug}`}
+                                    title={t.club}
+                                    className="flex flex-col items-center relative z-10 min-w-[64px] hover:opacity-80 transition-opacity"
+                                  >
+                                    {node}
+                                  </Link>
+                                ) : (
+                                  <div
+                                    key={`${t.club}-${i}`}
+                                    title={t.club}
+                                    className="flex flex-col items-center relative z-10 min-w-[64px]"
+                                  >
+                                    {node}
+                                  </div>
+                                );
+                              })}
+                          </div>
+                        </div>
+                      </div>
+                      );
+                    })()}
+
                     {/* Multimedia — un solo carrusel con videos + fotos.
                         Autoplay solo si no hay videos (no queremos cortar
                         una reproducción en curso). Bullets verdes y flechas
@@ -2474,25 +2608,48 @@ export default function UserViewer() {
                           (trayectoria, index) => (
                             <div
                               key={`${trayectoria.club}-${index}`}
-                              className="border-l-2 border-green-500 pl-4 pb-4"
+                              className="border-l-2 border-green-500 pl-4 pb-4 flex items-center gap-3"
                             >
-                              <div className="flex justify-between mb-1">
-                                <h4 className="font-medium text-gray-800">
-                                  {trayectoria.club}
-                                </h4>
-                                <span className="text-sm text-gray-600">
-                                  {formatearFecha(trayectoria.fechaInicio)} -{" "}
-                                  {trayectoria.fechaFinalizacion
-                                    ? formatearFecha(
-                                        trayectoria.fechaFinalizacion
-                                      )
-                                    : "Present"}
-                                </span>
+                              <div className="w-10 h-10 shrink-0 rounded bg-white border border-gray-200 flex items-center justify-center overflow-hidden">
+                                {trayectoria.clubPageLogo ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={trayectoria.clubPageLogo}
+                                    alt={trayectoria.club}
+                                    className="w-full h-full object-contain"
+                                  />
+                                ) : (
+                                  <FaShieldAlt className="w-5 h-5 text-gray-400" />
+                                )}
                               </div>
-                              <p className="text-sm text-gray-600">
-                                {trayectoria.nivelCompetencia} -{" "}
-                                {trayectoria.categoriaEquipo}
-                              </p>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex justify-between gap-2 mb-1">
+                                  <h4 className="font-medium text-gray-800 truncate">
+                                    {trayectoria.clubPageSlug ? (
+                                      <Link
+                                        href={`/pages/${trayectoria.clubPageSlug}`}
+                                        className="text-green-700 hover:underline"
+                                      >
+                                        {trayectoria.club}
+                                      </Link>
+                                    ) : (
+                                      trayectoria.club
+                                    )}
+                                  </h4>
+                                  <span className="text-sm text-gray-600 whitespace-nowrap">
+                                    {formatearFecha(trayectoria.fechaInicio)} -{" "}
+                                    {trayectoria.fechaFinalizacion
+                                      ? formatearFecha(
+                                          trayectoria.fechaFinalizacion
+                                        )
+                                      : "Present"}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-600">
+                                  {trayectoria.nivelCompetencia} -{" "}
+                                  {trayectoria.categoriaEquipo}
+                                </p>
+                              </div>
                             </div>
                           )
                         )}
@@ -2955,14 +3112,26 @@ export default function UserViewer() {
 
           </div>
           {isOwnProfile && (
-            <SubscriptionCard
-              planName={sub.planName}
-              isActive={sub.isActive}
-              renewalDate={sub.renewalDate}
-              userRole={user?.role ?? "USER"}
-              isLoading={sub.loading}
-              hasError={sub.error}
-            />
+            <div className="flex flex-col gap-12">
+              <SubscriptionCard
+                planName={sub.planName}
+                isActive={sub.isActive}
+                renewalDate={sub.renewalDate}
+                userRole={user?.role ?? "USER"}
+                isLoading={sub.loading}
+                hasError={sub.error}
+              />
+              <ProfileProgressBar
+                profile={profile}
+                onTipClick={(field) => {
+                  router.push(
+                    `/user-viewer/${profile.id}?edit=true&tab=${
+                      field.tab
+                    }#${field.anchor}`,
+                  );
+                }}
+              />
+            </div>
           )}
         </div>
 

@@ -5,6 +5,12 @@ export interface Trayectoria {
   fechaFinalizacion?: string | null;
   categoriaEquipo: string;
   nivelCompetencia: string;
+  nacionalidadTrayectoria?: string;
+  // 1F: si el club fue elegido del autocomplete de páginas, guardamos
+  // el id+slug para linkear desde la trayectoria al perfil del club.
+  clubPageId?: string;
+  clubPageSlug?: string;
+  clubPageLogo?: string;
 }
 
 // Helper para ordenar por fecha finalización descendente
@@ -22,9 +28,16 @@ export function sortTrayectoriasByFechaDesc(
   });
 }
 
-// Helper para formatear la Fecha
+// Helper para formatear la Fecha sin timezone shift.
+// Parseamos manualmente "YYYY-MM-DD" para evitar que new Date() lo trate
+// como UTC midnight y termine mostrando el mes anterior en zonas UTC-.
 export function formatearFecha(fecha: string): string {
-  return new Date(fecha).toLocaleDateString("en-US", {
+  if (!fecha) return "";
+  const match = fecha.match(/^(\d{4})-(\d{2})/);
+  if (!match) return fecha;
+  const year = Number(match[1]);
+  const monthIdx = Number(match[2]) - 1;
+  return new Date(year, monthIdx, 1).toLocaleDateString("en-US", {
     month: "short",
     year: "numeric",
   });

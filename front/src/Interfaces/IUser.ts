@@ -48,6 +48,12 @@ export interface IProfileData {
     nivelCompetencia: string;
     logros: string;
     nacionalidadTrayectoria?: string;
+    // Si el club de esta experiencia tiene una OrganizationPage en la
+    // plataforma, guardamos id + slug para linkear directamente al perfil
+    // del club desde la trayectoria del user (módulo 1F).
+    clubPageId?: string;
+    clubPageSlug?: string;
+    clubPageLogo?: string;
   }[];
   pasaporteUe?: PasaporteUe;
   skillfulFoot: string;

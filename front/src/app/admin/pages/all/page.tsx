@@ -15,7 +15,7 @@ import {
   FaTimesCircle,
   FaUsers,
 } from "react-icons/fa";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import ConfirmActionModal from "@/components/OrganizationPages/ConfirmActionModal";
 import { useI18nMode } from "@/components/Context/I18nModeContext";
 import PageTypeTag from "@/components/OrganizationPages/PageTypeTag";

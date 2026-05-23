@@ -160,6 +160,12 @@ export const updateUserData = async (
           categoriaEquipo: String(exp.categoriaEquipo || ""),
           nivelCompetencia: String(exp.nivelCompetencia || ""),
           logros: String(exp.logros || ""),
+          ...(exp.nacionalidadTrayectoria
+            ? { nacionalidadTrayectoria: String(exp.nacionalidadTrayectoria) }
+            : {}),
+          ...(exp.clubPageId ? { clubPageId: exp.clubPageId } : {}),
+          ...(exp.clubPageSlug ? { clubPageSlug: exp.clubPageSlug } : {}),
+          ...(exp.clubPageLogo ? { clubPageLogo: exp.clubPageLogo } : {}),
         }));
 
       // Asignamos las trayectorias formateadas de vuelta al objeto

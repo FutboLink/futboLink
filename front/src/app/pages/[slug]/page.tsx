@@ -240,7 +240,7 @@ function OrganizationPagePublic() {
                   alt={page.name}
                   width={128}
                   height={128}
-                  className="object-contain w-full h-full p-1"
+                  className="object-contain w-full h-full"
                 />
               ) : (
                 <FaUsers className="h-12 w-12 text-gray-300" />
@@ -259,7 +259,10 @@ function OrganizationPagePublic() {
                   />
                 )}
               </h1>
-              {page.ownerId && (
+              {/* "Perfil Administrado" solo si la página tiene un dueño que
+                  NO es admin. Las páginas creadas o curadas por admin no se
+                  consideran administradas hasta que alguien las reclame. */}
+              {page.ownerId && page.owner?.role && page.owner.role !== "ADMIN" && (
                 <div className="mt-1">
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-xs font-medium">
                     {getText("Perfil Administrado", "managedProfile")}

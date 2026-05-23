@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import NextImage from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import CountryFlag from "react-country-flag";
 import type { IconType } from "react-icons";
@@ -26,7 +27,7 @@ import {
   FaUsers,
   FaYoutube,
 } from "react-icons/fa";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import ImageUploadwithCrop from "@/components/Cloudinary/ImageUploadWithCrop";
 import { useI18nMode } from "@/components/Context/I18nModeContext";
 import { CountryToCode } from "@/components/countryFlag/countryFlag";
@@ -165,7 +166,7 @@ const getCountryCode = (name: string): string | null => {
 };
 
 export type PageWizardSubmitBody = {
-  type: OrganizationPageType;
+  type?: OrganizationPageType;
   name: string;
   country?: string;
   region?: string;
@@ -187,6 +188,7 @@ export interface PageWizardFormProps {
   role: string | null;
   submitLabelKey: string;
   submitLabelOriginal: string;
+  viewHref?: string;
   submittingLabelKey: string;
   submittingLabelOriginal: string;
   errorLabelKey: string;
@@ -208,6 +210,7 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
   errorLabelOriginal,
   onSubmit,
   onCancelHref,
+  viewHref,
 }) => {
   const { isNextIntlEnabled } = useI18nMode();
   const tOrg = useNextIntlTranslations("organizationPages");
@@ -233,6 +236,11 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
   const [bannerError, setBannerError] = useState<string | null>(null);
   const [contactEmailError, setContactEmailError] = useState<string | null>(null);
   const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [websiteError, setWebsiteError] = useState<string | null>(null);
+  // Error específico de la "gate" de duplicados — se muestra adentro del
+  // bloque de coincidencias, no en el input del nombre. Así el cliente
+  // ve el mensaje en el lugar donde tiene que tomar acción (el checkbox).
+  const [duplicateGateError, setDuplicateGateError] = useState<string | null>(null);
   const [leagues, setLeagues] = useState<OrganizationPage[]>([]);
   const [leaguesLoading, setLeaguesLoading] = useState(false);
 
@@ -413,15 +421,14 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
     // explícitamente que ninguna es su organización antes de avanzar.
     const duplicateGate =
       mode === "edit" || duplicateMatches.length === 0 || confirmedNotMine;
-    // En create, paso 3 también requiere logo/banner/email/teléfono.
-    // En edit se mantiene flexible para no romper páginas que se crearon
-    // antes de esta regla.
+    // Paso 3 requiere logo/banner/email/teléfono tanto en create como en
+    // edit — el cliente confirmó que se aplica en los dos modos para
+    // mantener la calidad de las páginas.
     const detailsRequired =
-      mode === "edit" ||
-      (draft.logoUrl.trim().length > 0 &&
-        draft.bannerUrl.trim().length > 0 &&
-        /^.+@.+\..+$/.test(draft.contactEmail.trim()) &&
-        draft.phone.trim().length > 0);
+      draft.logoUrl.trim().length > 0 &&
+      draft.bannerUrl.trim().length > 0 &&
+      /^.+@.+\..+$/.test(draft.contactEmail.trim()) &&
+      draft.phone.trim().length > 0;
     switch (step) {
       case 1:
         return !!draft.type;
@@ -469,17 +476,26 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
       setNameError(getText("El país es obligatorio", "countryRequired"));
       return;
     }
+    if (
+      mode !== "edit" &&
+      duplicateMatches.length > 0 &&
+      !confirmedNotMine
+    ) {
+      setDuplicateGateError(
+        getText(
+          "Tildá \"Ninguna de estas es mi organización\" para continuar, o cambiá el nombre para evitar duplicados.",
+          "confirmDuplicateGate",
+        ),
+      );
+      return;
+    }
     setNameError(null);
+    setDuplicateGateError(null);
     goToStep(3);
   };
 
-  // Validación de paso 3 (Detalles) — solo en create. En edit no obligamos
-  // estos campos para no bloquear ediciones de páginas viejas.
+  // Validación de paso 3 (Detalles). Se aplica en create y edit.
   const handleNextFromDetails = () => {
-    if (mode === "edit") {
-      goToStep(4);
-      return;
-    }
     let hasError = false;
     if (!draft.logoUrl.trim()) {
       setLogoError(getText("El logo es obligatorio", "logoRequired"));
@@ -513,6 +529,24 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
     } else {
       setPhoneError(null);
     }
+    // Sitio web es opcional, pero si cargaste algo debe ser una URL válida.
+    // Antes el backend rechazaba con @IsUrl() y el publish fallaba silencioso.
+    const websiteTrim = draft.website.trim();
+    if (websiteTrim) {
+      const looksLikeUrl =
+        /^https?:\/\/[^\s]+\.[^\s]+/.test(websiteTrim) ||
+        /^[^\s]+\.[a-z]{2,}/i.test(websiteTrim);
+      if (!looksLikeUrl) {
+        setWebsiteError(
+          getText("Sitio web inválido (ej: https://tusitio.com)", "websiteInvalid"),
+        );
+        hasError = true;
+      } else {
+        setWebsiteError(null);
+      }
+    } else {
+      setWebsiteError(null);
+    }
     if (!hasError) goToStep(4);
   };
 
@@ -538,9 +572,11 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
     }
 
     const body: PageWizardSubmitBody = {
-      type: draft.type,
       name: draft.name.trim(),
     };
+    if (mode !== "edit") {
+      body.type = draft.type;
+    }
     if (draft.country.trim()) body.country = draft.country.trim();
     if (draft.region.trim()) body.region = draft.region.trim();
     if (draft.foundationYear.trim())
@@ -571,6 +607,7 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
         } catch {
           // ignore
         }
+        setIsSubmitting(false);
       } else {
         setIsSubmitting(false);
       }
@@ -741,9 +778,10 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
                         <input
                           type="checkbox"
                           checked={confirmedNotMine}
-                          onChange={(e) =>
-                            setConfirmedNotMine(e.target.checked)
-                          }
+                          onChange={(e) => {
+                            setConfirmedNotMine(e.target.checked);
+                            if (e.target.checked) setDuplicateGateError(null);
+                          }}
                           className="mt-0.5 h-4 w-4 rounded border-gray-300 text-verde-oscuro focus:ring-emerald-500"
                         />
                         <span>
@@ -753,6 +791,11 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
                           )}
                         </span>
                       </label>
+                      {duplicateGateError && (
+                        <p className="text-red-600 text-xs mt-2 leading-snug">
+                          {duplicateGateError}
+                        </p>
+                      )}
                     </>
                   )}
                 </div>
@@ -962,8 +1005,11 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
                   label={getText("Logo", "logo")}
                   buttonLabel={getText("Subir logo", "uploadLogo")}
                   aspect={1}
-                  cropShape="round"
-                  previewShape="circle"
+                  // Logos de clubes/agencias suelen venir sin margen; un crop
+                  // redondo cortaba esquinas. Mantenemos 1:1 pero con crop
+                  // cuadrado para preservar el escudo completo.
+                  cropShape="rect"
+                  previewShape="rect"
                   initialImage={draft.logoUrl || undefined}
                   onUpload={(url) => {
                     updateField("logoUrl", url);
@@ -1019,10 +1065,20 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
                       type="url"
                       value={draft.website}
                       placeholder={getText("https://tusitio.com", "websitePlaceholder")}
-                      onChange={(e) => updateField("website", e.target.value)}
-                      className="w-full border border-gray-300 rounded-lg p-3 pl-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      onChange={(e) => {
+                        updateField("website", e.target.value);
+                        if (websiteError) setWebsiteError(null);
+                      }}
+                      className={`w-full border rounded-lg p-3 pl-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                        websiteError ? "border-red-400" : "border-gray-300"
+                      }`}
                     />
                   </div>
+                  {websiteError && (
+                    <span className="text-red-500 text-xs mt-1">
+                      {websiteError}
+                    </span>
+                  )}
                 </div>
                 <div className="flex flex-col">
                   <label className="text-sm font-semibold text-gray-700 mb-1">
@@ -1252,7 +1308,7 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-2">
+              <div className="flex items-center justify-between pt-2 gap-3 flex-wrap">
                 <button
                   type="button"
                   onClick={() => goToStep(3)}
@@ -1262,16 +1318,26 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
                   <FaArrowLeft className="h-3 w-3" />
                   {getText("Atrás", "back")}
                 </button>
-                <button
-                  type="button"
-                  onClick={submit}
-                  disabled={isSubmitting}
-                  className="flex items-center gap-2 bg-verde-oscuro hover:bg-verde-mas-claro disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold px-6 py-2.5 rounded-lg transition-colors"
-                >
-                  {isSubmitting
-                    ? getText(submittingLabelOriginal, submittingLabelKey)
-                    : getText(submitLabelOriginal, submitLabelKey)}
-                </button>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {viewHref && (
+                    <Link
+                      href={viewHref}
+                      className="inline-flex items-center bg-white border border-verde-oscuro text-verde-oscuro font-semibold px-5 py-2.5 rounded-lg hover:bg-emerald-50 transition-colors"
+                    >
+                      {getText("Ver página", "viewPage")}
+                    </Link>
+                  )}
+                  <button
+                    type="button"
+                    onClick={submit}
+                    disabled={isSubmitting}
+                    className="flex items-center gap-2 bg-verde-oscuro hover:bg-verde-mas-claro disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold px-6 py-2.5 rounded-lg transition-colors"
+                  >
+                    {isSubmitting
+                      ? getText(submittingLabelOriginal, submittingLabelKey)
+                      : getText(submitLabelOriginal, submitLabelKey)}
+                  </button>
+                </div>
               </div>
             </div>
           )}

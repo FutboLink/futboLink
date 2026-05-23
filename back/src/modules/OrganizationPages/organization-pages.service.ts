@@ -255,10 +255,19 @@ export class OrganizationPagesService {
   }
 
   async findBySlug(slug: string, authUser?: AuthUser): Promise<OrganizationPage> {
-    const page = await this.pageRepository.findOne({
-      where: { slug },
-      relations: ['league'],
-    });
+    // Cargamos también `owner` (solo id + role) para que el front pueda
+    // distinguir "Perfil Administrado" — una página creada por un user
+    // común que la representa — de las páginas creadas/curadas por un
+    // admin, que no tienen un dueño que las administre.
+    // Usamos queryBuilder para no exponer todas las columnas de User
+    // (especialmente password).
+    const page = await this.pageRepository
+      .createQueryBuilder('page')
+      .leftJoinAndSelect('page.league', 'league')
+      .leftJoin('page.owner', 'owner')
+      .addSelect(['owner.id', 'owner.role'])
+      .where('page.slug = :slug', { slug })
+      .getOne();
     if (!page) {
       throw new NotFoundException(`Organization page con slug "${slug}" no encontrada`);
     }
@@ -417,8 +426,21 @@ export class OrganizationPagesService {
       }
     }
 
-    Object.assign(page, dto);
-    return this.pageRepository.save(page);
+    // Usamos `update()` (UPDATE directo) en vez de `Object.assign + save()`
+    // para evitar la ambigüedad de TypeORM con FKs declarados como `@Column`
+    // + `@ManyToOne` con el mismo nombre — el `save` a veces no detecta el
+    // cambio del leagueId cuando la relación no está cargada. Después
+    // recargamos con `relations: ['league']` para devolver la entidad
+    // hidratada al front.
+    await this.pageRepository.update(id, dto);
+    const reloaded = await this.pageRepository.findOne({
+      where: { id },
+      relations: ['league'],
+    });
+    if (!reloaded) {
+      throw new NotFoundException(`Organization page ${id} not found`);
+    }
+    return reloaded;
   }
 
   async republish(id: string, authUser: AuthUser): Promise<OrganizationPage> {

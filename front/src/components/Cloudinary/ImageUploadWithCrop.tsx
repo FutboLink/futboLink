@@ -105,6 +105,13 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
         const ctx = canvas.getContext("2d");
         if (!ctx) return resolve(null);
 
+        // Fondo blanco — sin esto, cuando el user hace zoom out y la
+        // imagen no cubre todo el canvas, los pixeles sin pintar quedan
+        // transparentes y al exportar como JPEG aparecen NEGROS. También
+        // ayuda a logos con transparencia (PNG) que vienen sin margen.
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, crop.width, crop.height);
+
         ctx.drawImage(
           image,
           crop.x,
@@ -117,7 +124,9 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
           crop.height
         );
 
-        canvas.toBlob((blob) => resolve(blob), "image/jpeg");
+        // Exportamos como PNG para preservar la calidad de logos
+        // (los JPEG comprimen y arruinan bordes nítidos de los escudos).
+        canvas.toBlob((blob) => resolve(blob), "image/png");
       };
     });
   };
@@ -142,7 +151,7 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
       setUploadProgress(50);
 
       const formData = new FormData();
-      formData.append("file", croppedBlob, "profile.jpg");
+      formData.append("file", croppedBlob, "profile.png");
 
       const res = await fetch(`${BACKEND_URL}/upload/image`, {
         method: "POST",
@@ -220,6 +229,12 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
             onZoomChange={setZoom}
             onCropComplete={onCropComplete}
             showGrid={false}
+            // Permitir zoom OUT por debajo de 1 para que entren logos sin
+            // margen (escudos típicos de clubes). Y dejar posicionar
+            // libremente sin restringir al área de crop, así si la imagen
+            // queda más chica que el crop el user la puede centrar.
+            minZoom={0.5}
+            restrictPosition={false}
           />
           <button
             onClick={resetAll}
@@ -234,9 +249,9 @@ const ImageUploadwithCrop: React.FC<ImageUploadwithCropProps> = ({
       {showCropper && (
         <input
           type="range"
-          min={1}
+          min={0.5}
           max={3}
-          step={0.1}
+          step={0.05}
           value={zoom}
           onChange={(e) => setZoom(Number(e.target.value))}
           className={cropAreaWidthClass}

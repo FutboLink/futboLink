@@ -173,6 +173,12 @@ export class User {
   nivelCompetencia: string;
   logros: string;
   nacionalidadTrayectoria?: string;
+  // Opcional — si el club de esta experiencia tiene una OrganizationPage
+  // creada en la plataforma, guardamos su id + slug para poder linkear
+  // desde el perfil del usuario a la página del club sin hacer N+1 fetches.
+  clubPageId?: string;
+  clubPageSlug?: string;
+  clubPageLogo?: string;
  }[];
 
 

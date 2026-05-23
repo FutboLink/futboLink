@@ -17,7 +17,7 @@ import {
   FaSearch,
   FaUsers,
 } from "react-icons/fa";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import ConfirmActionModal from "@/components/OrganizationPages/ConfirmActionModal";
 import { useI18nMode } from "@/components/Context/I18nModeContext";
 import { CountryToCode } from "@/components/countryFlag/countryFlag";
@@ -360,7 +360,7 @@ function MyPagesPage() {
                           alt={page.name}
                           width={56}
                           height={56}
-                          className="object-contain w-full h-full p-1"
+                          className="object-contain w-full h-full"
                         />
                       ) : (
                         <FaUsers className="h-6 w-6 text-gray-300" />
@@ -466,7 +466,8 @@ function MyPagesPage() {
                   setCurrentPage((p) => Math.min(totalPages, p + 1))
                 }
                 disabled={safePage >= totalPages}
-                className="inline-flex items-center gap-1.5 border border-gray-200 hover:border-verde-oscuro hover:text-verde-oscuro text-gray-600 text-sm font-medium px-3 py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed"
+                class
+                Name="inline-flex items-center gap-1.5 border border-gray-200 hover:border-verde-oscuro hover:text-verde-oscuro text-gray-600 text-sm font-medium px-3 py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {getText("Siguiente", "nextPage")}
                 <FaChevronRight className="h-3 w-3" />

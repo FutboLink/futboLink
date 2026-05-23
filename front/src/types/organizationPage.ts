@@ -56,6 +56,7 @@ export interface OrganizationPage {
   status: OrganizationPageStatus;
   rejectionReason?: string | null;
   ownerId?: string | null;
+  owner?: { id: string; role: string } | null;
   leagueId?: string | null;
   league?: OrganizationLeagueSummary | null;
   createdAt: string;

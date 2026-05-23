@@ -466,8 +466,7 @@ function MyPagesPage() {
                   setCurrentPage((p) => Math.min(totalPages, p + 1))
                 }
                 disabled={safePage >= totalPages}
-                class
-                Name="inline-flex items-center gap-1.5 border border-gray-200 hover:border-verde-oscuro hover:text-verde-oscuro text-gray-600 text-sm font-medium px-3 py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-1.5 border border-gray-200 hover:border-verde-oscuro hover:text-verde-oscuro text-gray-600 text-sm font-medium px-3 py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {getText("Siguiente", "nextPage")}
                 <FaChevronRight className="h-3 w-3" />

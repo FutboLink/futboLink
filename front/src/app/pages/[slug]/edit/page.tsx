@@ -27,12 +27,14 @@ const toPageDraft = (page: OrganizationPage): PageDraft => ({
   foundationYear: page.foundationYear ?? "",
   description: page.description ?? "",
   leagueId: page.leagueId ?? null,
+  federationId: page.federationId ?? null,
   logoUrl: page.logoUrl ?? "",
   bannerUrl: page.bannerUrl ?? "",
   website: page.website ?? "",
   contactEmail: page.contactEmail ?? "",
   phone: page.phone ?? "",
   socialMedia: { ...EMPTY_PAGE_DRAFT.socialMedia, ...(page.socialMedia ?? {}) },
+  photoUrls: page.photoUrls ?? [],
 });
 
 function EditPage() {

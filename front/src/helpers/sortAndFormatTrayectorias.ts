@@ -37,10 +37,13 @@ export function formatearFecha(fecha: string): string {
   if (!match) return fecha;
   const year = Number(match[1]);
   const monthIdx = Number(match[2]) - 1;
-  return new Date(year, monthIdx, 1).toLocaleDateString("en-US", {
+  // App en español: usamos locale es-AR para que los meses salgan en español
+  // ("ene", "feb", ...) y capitalizamos la inicial → "Ene 2026".
+  const formatted = new Date(year, monthIdx, 1).toLocaleDateString("es-AR", {
     month: "short",
     year: "numeric",
   });
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 }
 
 // Helper para formatear los logros

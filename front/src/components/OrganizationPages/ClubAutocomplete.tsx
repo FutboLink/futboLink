@@ -11,6 +11,20 @@ export type ClubSuggestion = {
   slug: string;
   country?: string | null;
   logoUrl?: string | null;
+  type?: string | null;
+};
+
+// Etiquetas en español para cada tipo de OrganizationPage. Si el tipo no está
+// en el mapa (o falta), no se renderiza el chip.
+const TYPE_LABELS: Record<string, string> = {
+  CLUB: "Club",
+  ACADEMY: "Academia",
+  FORMATION_SCHOOL: "Escuela de formación",
+  AGENCY: "Agencia",
+  TOURNAMENT_ORGANIZER: "Organizador de torneos",
+  LEAGUE: "Liga",
+  FEDERATION: "Federación",
+  NATIONAL_TEAM: "Selección nacional",
 };
 
 type Props = {
@@ -26,10 +40,13 @@ type Props = {
   placeholder?: string;
   disabled?: boolean;
   inputId?: string;
+  // Solo el rol Agente puede ver/seleccionar páginas de tipo AGENCY en la
+  // trayectoria. Para el resto de los roles las agencias se ocultan.
+  includeAgency?: boolean;
 };
 
-// Autocomplete para vincular trayectorias con OrganizationPages tipo CLUB,
-// ACADEMY o FORMATION_SCHOOL. El user puede:
+// Autocomplete para vincular trayectorias con cualquier OrganizationPage
+// (CLUB, ACADEMY, AGENCY, etc.). El user puede:
 //   - Tipear libre — guarda solo el nombre (sin clubPageId/Slug).
 //   - Seleccionar una sugerencia — guarda nombre + clubPageId + clubPageSlug.
 // El backend acepta ambos casos (los campos clubPage* son opcionales).
@@ -38,10 +55,16 @@ const ClubAutocomplete: React.FC<Props> = ({
   selectedPageId,
   selectedPageSlug,
   onChange,
-  placeholder = "Club o institución",
+  placeholder,
   disabled = false,
   inputId,
+  includeAgency = false,
 }) => {
+  // El placeholder por defecto depende del rol: el Agente ve "agencia" como
+  // opción, el resto no. Si el caller pasa un placeholder explícito, gana.
+  const resolvedPlaceholder =
+    placeholder ??
+    (includeAgency ? "Club, agencia o institución" : "Club o institución");
   const [suggestions, setSuggestions] = useState<ClubSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -62,37 +85,44 @@ const ClubAutocomplete: React.FC<Props> = ({
     const handler = window.setTimeout(async () => {
       setLoading(true);
       try {
-        // Buscamos CLUB + ACADEMY + FORMATION_SCHOOL en serie — pocos
-        // resultados cada uno, suficiente para los casos comunes. El user
-        // ve los 3 tipos mezclados ordenados por nombre. Si esto pesa, se
-        // puede pasar a un endpoint dedicado en el backend.
-        const types = ["CLUB", "ACADEMY", "FORMATION_SCHOOL"];
-        const calls = types.map((t) =>
-          fetch(
-            `${API_URL}/organization-pages?q=${encodeURIComponent(
-              trimmed,
-            )}&type=${t}&limit=5`,
-            { signal: controller.signal },
-          ).then((r) => (r.ok ? r.json() : { data: [] })),
+        // Sin filtro de type — el backend devuelve TODOS los tipos de
+        // OrganizationPage (CLUB, ACADEMY, AGENCY, etc.) ordenados por nombre.
+        // Así un Agente puede vincular su propia agencia en la trayectoria.
+        const res = await fetch(
+          `${API_URL}/organization-pages?q=${encodeURIComponent(
+            trimmed,
+          )}&limit=15`,
+          { signal: controller.signal },
         );
-        const results = await Promise.all(calls);
-        const flat = results
-          .flatMap((r) => (Array.isArray(r?.data) ? r.data : []))
+        const data = res.ok ? await res.json() : { data: [] };
+        const rows = Array.isArray(data?.data) ? data.data : [];
+        const flat = rows
           .map((p: {
             id: string;
             name: string;
             slug: string;
             country?: string | null;
             logoUrl?: string | null;
+            type?: string | null;
           }) => ({
             id: p.id,
             name: p.name,
             slug: p.slug,
             country: p.country ?? null,
             logoUrl: p.logoUrl ?? null,
+            type: p.type ?? null,
           }))
-          .sort((a, b) => a.name.localeCompare(b.name));
-        setSuggestions(flat);
+          .sort((a: ClubSuggestion, b: ClubSuggestion) =>
+            a.name.localeCompare(b.name),
+          );
+        // Solo el Agente puede ver páginas de tipo AGENCY. Para el resto, se
+        // filtran del lado del cliente (por eso pedimos limit=15 y recortamos).
+        const filtered = (
+          includeAgency
+            ? flat
+            : flat.filter((s: ClubSuggestion) => s.type !== "AGENCY")
+        ).slice(0, 10);
+        setSuggestions(filtered);
       } catch (err) {
         if ((err as Error).name !== "AbortError") {
           console.error("Error buscando páginas para trayectoria:", err);
@@ -105,7 +135,7 @@ const ClubAutocomplete: React.FC<Props> = ({
       window.clearTimeout(handler);
       controller.abort();
     };
-  }, [value, open]);
+  }, [value, open, includeAgency]);
 
   // Cierra el dropdown al click afuera.
   useEffect(() => {
@@ -142,7 +172,7 @@ const ClubAutocomplete: React.FC<Props> = ({
             isLinked ? "border-emerald-400" : "border-gray-300"
           }`}
           value={value}
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           disabled={disabled}
           onChange={(e) => {
             onChange({
@@ -196,9 +226,16 @@ const ClubAutocomplete: React.FC<Props> = ({
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-800 truncate">
-                  {s.name}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-medium text-gray-800 truncate">
+                    {s.name}
+                  </p>
+                  {s.type && TYPE_LABELS[s.type] && (
+                    <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
+                      {TYPE_LABELS[s.type]}
+                    </span>
+                  )}
+                </div>
                 {s.country && (
                   <p className="text-xs text-gray-500 truncate">{s.country}</p>
                 )}

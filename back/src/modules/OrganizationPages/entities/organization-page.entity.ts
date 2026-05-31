@@ -73,6 +73,14 @@ export class OrganizationPage {
   @Column({ nullable: true })
   bannerUrl?: string;
 
+  @ApiProperty({
+    example: ['https://res.cloudinary.com/.../1.jpg'],
+    description: 'Hasta 3 fotos extra',
+    nullable: true,
+  })
+  @Column('text', { array: true, nullable: true, default: () => 'ARRAY[]::text[]' })
+  photoUrls?: string[];
+
   @ApiProperty({ nullable: true })
   @Column({ nullable: true })
   website?: string;
@@ -123,6 +131,14 @@ export class OrganizationPage {
   @ManyToOne(() => OrganizationPage, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'leagueId' })
   league?: OrganizationPage;
+
+  @ApiProperty({ nullable: true, description: 'Solo aplica cuando type=LEAGUE' })
+  @Column({ type: 'uuid', nullable: true })
+  federationId?: string;
+
+  @ManyToOne(() => OrganizationPage, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'federationId' })
+  federation?: OrganizationPage;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository, EntityManager } from 'typeorm';
+import { Repository, EntityManager, In } from 'typeorm';
 import { isSubscriptionActive } from './subscription-status.util';
 import { RegisterUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -1073,15 +1073,15 @@ export class UserService {
     try {
       console.log(`Intentando añadir jugador ${playerId} a la cartera del reclutador ${recruiterId}`);
       
-      // Verificar que el reclutador existe y es de tipo RECRUITER
+      // Verificar que el reclutador existe y es de tipo RECRUITER o AGENCY
       const recruiter = await this.userRepository.findOne({
-        where: { id: recruiterId, role: UserType.RECRUITER },
+        where: { id: recruiterId, role: In([UserType.RECRUITER, UserType.AGENCY]) },
         relations: ['portfolioPlayers']
       });
-      
+
       if (!recruiter) {
-        console.log(`Reclutador no encontrado o no tiene permisos: ${recruiterId}`);
-        throw new NotFoundException('Reclutador no encontrado o no tiene permisos');
+        console.log(`Reclutador o agencia no encontrado o no tiene permisos: ${recruiterId}`);
+        throw new NotFoundException('Reclutador o agencia no encontrado o no tiene permisos');
       }
       
       // Verificar que el jugador existe y es de tipo PLAYER
@@ -1131,14 +1131,14 @@ export class UserService {
   async removePlayerFromPortfolio(recruiterId: string, playerId: string): Promise<User> {
     // Verificar que el reclutador existe
     const recruiter = await this.userRepository.findOne({
-      where: { id: recruiterId, role: UserType.RECRUITER },
+      where: { id: recruiterId, role: In([UserType.RECRUITER, UserType.AGENCY]) },
       relations: ['portfolioPlayers']
     });
-    
+
     if (!recruiter) {
-      throw new NotFoundException('Reclutador no encontrado o no tiene permisos');
+      throw new NotFoundException('Reclutador o agencia no encontrado o no tiene permisos');
     }
-    
+
     // Verificar si el jugador está en la cartera
     if (!recruiter.portfolioPlayers) {
       throw new NotFoundException('El jugador no está en la cartera');
@@ -1161,14 +1161,14 @@ export class UserService {
    */
   async getPortfolioPlayers(recruiterId: string): Promise<User[]> {
     const recruiter = await this.userRepository.findOne({
-      where: { id: recruiterId, role: UserType.RECRUITER },
+      where: { id: recruiterId, role: In([UserType.RECRUITER, UserType.AGENCY]) },
       relations: ['portfolioPlayers']
     });
-    
+
     if (!recruiter) {
-      throw new NotFoundException('Reclutador no encontrado o no tiene permisos');
+      throw new NotFoundException('Reclutador o agencia no encontrado o no tiene permisos');
     }
-    
+
     return recruiter.portfolioPlayers || [];
   }
 
@@ -1192,9 +1192,9 @@ export class UserService {
       throw new NotFoundException(`Reclutador con ID ${recruiterId} no encontrado`);
     }
 
-    // Verificar que el reclutador es de tipo RECRUITER
-    if (recruiter.role !== UserType.RECRUITER) {
-      throw new BadRequestException('Solo los reclutadores pueden enviar solicitudes de representación');
+    // Verificar que el reclutador es de tipo RECRUITER o AGENCY
+    if (recruiter.role !== UserType.RECRUITER && recruiter.role !== UserType.AGENCY) {
+      throw new BadRequestException('Solo reclutadores y agencias pueden enviar solicitudes de representación');
     }
 
     // Verificar que el jugador existe

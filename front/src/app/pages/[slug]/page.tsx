@@ -6,18 +6,20 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   FaCheckCircle,
+  FaCrown,
   FaEdit,
   FaEnvelope,
   FaGlobe,
-  FaGlobeAmericas,
   FaPhone,
   FaTrophy,
   FaUsers,
 } from "react-icons/fa";
 import ConfirmActionModal from "@/components/OrganizationPages/ConfirmActionModal";
+import MediaCarousel from "@/components/Multimedia/MediaCarousel";
 import { useI18nMode } from "@/components/Context/I18nModeContext";
 import PageTypeTag from "@/components/OrganizationPages/PageTypeTag";
 import SocialMediaIcons from "@/components/OrganizationPages/SocialMediaIcons";
+import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
 import { useUserContext } from "@/hook/useUserContext";
 import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
 import type { OrganizationPage } from "@/types/organizationPage";
@@ -44,7 +46,7 @@ const TYPE_LABELS: Record<string, { original: string; key: string }> = {
 function OrganizationPagePublic() {
   const params = useParams();
   const slug = Array.isArray(params?.slug) ? params.slug[0] : (params?.slug as string);
-  const { user, token } = useUserContext();
+  const { user, token, role } = useUserContext();
   const { isNextIntlEnabled } = useI18nMode();
   const tOrg = useNextIntlTranslations("organizationPages");
 
@@ -121,6 +123,7 @@ function OrganizationPagePublic() {
   }
 
   const isOwner = user?.id && page.ownerId && user.id === page.ownerId;
+  const isAdmin = role === "ADMIN";
   const typeMeta = TYPE_LABELS[page.type] ?? {
     original: page.type,
     key: `type${page.type}`,
@@ -223,7 +226,7 @@ function OrganizationPagePublic() {
                   : undefined
               }
             >
-              {isOwner && (
+              {(isOwner || isAdmin) && (
                 <Link
                   href={`/pages/${page.slug}/edit`}
                   className="absolute top-4 right-4 inline-flex items-center gap-2 bg-white/90 hover:bg-white text-verde-oscuro font-semibold px-3 py-1.5 rounded-lg shadow-sm text-sm transition-colors"
@@ -277,7 +280,9 @@ function OrganizationPagePublic() {
                 />
                 {page.country && (
                   <span className="text-sm text-gray-600 inline-flex items-center gap-1">
-                    <FaGlobeAmericas className="h-3.5 w-3.5 text-gray-400" />
+                    <span className="inline-flex items-center">
+                      {renderCountryFlag(page.country)}
+                    </span>
                     {page.country}
                     {page.region ? `, ${page.region}` : ""}
                   </span>
@@ -358,29 +363,110 @@ function OrganizationPagePublic() {
               </div>
             )}
 
+            {page.type === "LEAGUE" && page.federationId && page.federation && (
+              <div className="mt-6 rounded-xl border border-gray-200 bg-white p-4 flex items-center gap-3 hover:shadow-sm transition-shadow">
+                {page.federation.logoUrl ? (
+                  <NextImage
+                    src={page.federation.logoUrl}
+                    alt={page.federation.name}
+                    width={48}
+                    height={48}
+                    className="rounded-lg object-contain bg-gray-50 p-1"
+                  />
+                ) : (
+                  <div className="h-12 w-12 rounded-lg bg-gray-50 flex items-center justify-center">
+                    <FaCrown className="h-5 w-5 text-violet-600" />
+                  </div>
+                )}
+                <div className="flex flex-col">
+                  <span className="text-xs text-gray-500 uppercase tracking-wide">
+                    {getText("Federación", "federation")}
+                  </span>
+                  <Link
+                    href={`/pages/${page.federation.slug}`}
+                    className="font-semibold text-verde-oscuro hover:underline"
+                  >
+                    {page.federation.name}
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            <div className="mt-6">
+              <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                {getText("Redes sociales", "socialMedia")}
+              </h2>
+              {page.socialMedia &&
+              Object.values(page.socialMedia).some((v) => v?.trim()) ? (
+                <SocialMediaIcons socialMedia={page.socialMedia} />
+              ) : (
+                <p className="text-sm text-gray-400">
+                  {getText("Aún no hay nada cargado", "noContentLoaded")}
+                </p>
+              )}
+            </div>
+
             {page.type === "AGENCY" && (
               <div className="mt-6 rounded-xl border border-gray-200 overflow-hidden">
                 <div className="bg-gradient-to-r from-violet-600 to-purple-500 text-white px-4 py-2 rounded-t-xl font-semibold">
                   {getText("Portafolio", "portfolioTitle")}
                 </div>
-                <div className="bg-white flex flex-col items-center justify-center gap-2 py-8 px-4 text-gray-400">
-                  <FaUsers className="h-10 w-10" />
-                  <p className="text-sm">
-                    {getText(
-                      "Sin jugadores representados",
-                      "noPlayersRepresented",
-                    )}
-                  </p>
-                </div>
+                {(page.owner?.portfolioPlayers?.length ?? 0) > 0 ? (
+                  <div className="bg-white p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {page.owner!.portfolioPlayers!.map((player) => (
+                        <Link
+                          key={player.id}
+                          href={`/user-viewer/${player.id}`}
+                          className="bg-gray-50 rounded-lg shadow p-4 hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-gray-200 shrink-0">
+                              <NextImage
+                                src={player.imgUrl || "/default-player.png"}
+                                alt={`${player.name ?? ""} ${player.lastname ?? ""}`.trim()}
+                                width={56}
+                                height={56}
+                                className="object-cover w-full h-full"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-bold text-base text-gray-800 truncate">
+                                {`${player.name ?? ""} ${player.lastname ?? ""}`.trim() ||
+                                  getText("Jugador", "player")}
+                              </h3>
+                              <p className="text-sm text-gray-600 truncate">
+                                {player.primaryPosition ||
+                                  getText("Sin posición", "noPosition")}
+                                {player.age ? ` • ${player.age} ${getText("años", "years")}` : ""}
+                              </p>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-white flex flex-col items-center justify-center gap-2 py-8 px-4 text-gray-400">
+                    <FaUsers className="h-10 w-10" />
+                    <p className="text-sm">
+                      {getText(
+                        "Sin jugadores representados",
+                        "noPlayersRepresented",
+                      )}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
-            {page.socialMedia && (
+            {(page.photoUrls ?? []).some((p) => p?.trim()) && (
               <div className="mt-6">
-                <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                  {getText("Redes sociales", "socialMedia")}
-                </h2>
-                <SocialMediaIcons socialMedia={page.socialMedia} />
+                <MediaCarousel
+                  videos={[]}
+                  photos={page.photoUrls ?? []}
+                  title={getText("Multimedia", "multimedia")}
+                />
               </div>
             )}
           </div>

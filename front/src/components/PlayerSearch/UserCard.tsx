@@ -295,7 +295,7 @@ const UserCard: React.FC<UserCardProps> = ({
                 {t("viewProfile")}
               </Link>
 
-              {user && user.role === "RECRUITER" && isPlayer && (
+              {user && (user.role === "RECRUITER" || user.role === "AGENCY") && isPlayer && (
                 <button
                   type="button"
                   onClick={(e) => {

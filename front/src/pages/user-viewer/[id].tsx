@@ -33,6 +33,7 @@ import FormComponent from "@/components/Jobs/CreateJob";
 import JobOfferDetails from "@/components/Jobs/JobOffertDetails";
 import ProfileProgressBar from "@/components/ProfileUser/ProfileProgressBar";
 import ProfileUser from "@/components/ProfileUser/ProfileUser";
+import TrayectoriaTimeline from "@/components/ProfileUser/TrayectoriaTimeline";
 import SubscriptionCard from "@/components/Subscription/SubscriptionCard";
 import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
 import {
@@ -178,6 +179,13 @@ export default function UserViewer() {
     subscriptionType: "Gratuito",
   });
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+
+  // País del club del "último club" (card). Se resuelve fetcheando la
+  // OrganizationPage del club por slug, ya que la trayectoria no guarda el
+  // país del club (solo del jugador). null = club free-text o sin país.
+  const [currentClubCountry, setCurrentClubCountry] = useState<string | null>(
+    null,
+  );
 
   const [sub, setSub] = useState<{
     planName: string;
@@ -733,6 +741,39 @@ export default function UserViewer() {
     fetchUserProfile();
   }, [id, token, notificationSent, user, role]);
 
+  // Resolver el país del club del "último club" (card). La trayectoria solo
+  // guarda el slug del club, no su país, así que lo fetcheamos de la
+  // OrganizationPage por slug (mismo endpoint que la página pública del club).
+  // Si el club es free-text (sin slug), no fetcheamos ni mostramos bandera.
+  const ultimoClubSlug = getUltimoClub(profile?.trayectorias)?.clubPageSlug;
+  useEffect(() => {
+    if (!ultimoClubSlug || !API_URL) {
+      setCurrentClubCountry(null);
+      return;
+    }
+    const controller = new AbortController();
+    const fetchClubCountry = async () => {
+      try {
+        const res = await fetch(
+          `${API_URL}/organization-pages/slug/${ultimoClubSlug}`,
+          { signal: controller.signal }
+        );
+        if (!res.ok) {
+          setCurrentClubCountry(null);
+          return;
+        }
+        const data = await res.json();
+        setCurrentClubCountry(data?.country || null);
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") {
+          setCurrentClubCountry(null);
+        }
+      }
+    };
+    fetchClubCountry();
+    return () => controller.abort();
+  }, [ultimoClubSlug]);
+
   // Mostrar carga
   if (loading) {
     return (
@@ -821,14 +862,15 @@ export default function UserViewer() {
   // Determinar la última trayectoria (club actual)
   const currentClub = getUltimoClub(profile?.trayectorias);
 
-  // Obtener la fecha de finalización del contrato
-  const contractEndDate = currentClub?.fechaFinalizacion
-    ? new Date(currentClub.fechaFinalizacion).toLocaleDateString("es-ES", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      })
-    : "No especificada";
+  // Rango de fechas del club actual para las cards. Reusa formatearFecha (misma
+  // convención que la lista completa de Trayectoria) y "Present" cuando no hay
+  // fecha de finalización (contrato vigente).
+  const currentClubInicio = currentClub?.fechaInicio
+    ? formatearFecha(currentClub.fechaInicio)
+    : null;
+  const currentClubFin = currentClub?.fechaFinalizacion
+    ? formatearFecha(currentClub.fechaFinalizacion)
+    : "Present";
 
   // Renderizar el perfil
   return (
@@ -1369,20 +1411,28 @@ export default function UserViewer() {
                         )}
                       </h3>
                       <div className="flex items-center text-sm text-gray-600">
-                        {profile.nationality && (
-                          <span className="mr-1">
-                            {renderCountryFlag(profile.nationality)}
+                        {currentClubCountry && (
+                          <span className="mr-1 inline-flex items-center gap-1">
+                            {renderCountryFlag(currentClubCountry)}
+                            <span>{currentClubCountry}</span>
                           </span>
                         )}
                         <span>
                           {currentClub.nivelCompetencia || "Primera división"}
+                          {currentClub.categoriaEquipo
+                            ? ` · ${currentClub.categoriaEquipo}`
+                            : ""}
                         </span>
                       </div>
                     </div>
                     <div className="ml-auto"></div>
                   </div>
                   <div className="mt-3 text-sm text-gray-600">
-                    <span>Hasta {contractEndDate}</span>
+                    <span>
+                      {currentClubInicio
+                        ? `Desde ${currentClubInicio} · Hasta ${currentClubFin}`
+                        : `Hasta ${currentClubFin}`}
+                    </span>
                   </div>
                 </div>
               )}
@@ -1418,16 +1468,25 @@ export default function UserViewer() {
                             currentClub.club
                           )}
                         </h3>
-                        <div className="flex items-center text-sm text-gray-600">
-                          {profile.nationality && (
-                            <span className="mr-1">
-                              {renderCountryFlag(profile.nationality)}
+                        <div className="flex flex-col items-center text-sm text-gray-600">
+                          {currentClubCountry && (
+                            <span className="mr-1 inline-flex items-center w-full gap-1">
+                              {renderCountryFlag(currentClubCountry)}
+                              <span>{currentClubCountry}</span>
                             </span>
                           )}
-                          <span>
+                          <span className="w-full">
                             {currentClub.nivelCompetencia ||
                               "Organización deportiva"}
+                            {currentClub.categoriaEquipo
+                              ? ` · ${currentClub.categoriaEquipo}`
+                              : ""}
                           </span>
+                          <span className="w-full">
+                              {currentClubInicio
+                                  ? `Desde ${currentClubInicio} · Hasta ${currentClubFin}`
+                                  : `Hasta ${currentClubFin}`}
+                            </span>
                         </div>
                         <div className="text-sm text-gray-600 mt-1">
                           <span>
@@ -1437,9 +1496,6 @@ export default function UserViewer() {
                         </div>
                       </div>
                       <div className="ml-auto"></div>
-                    </div>
-                    <div className="mt-3 text-sm text-gray-600">
-                      <span>Hasta {contractEndDate}</span>
                     </div>
                   </div>
                 )}
@@ -1962,11 +2018,11 @@ export default function UserViewer() {
             <div className="lg:w-3/5">
               {/* Pestañas de navegación */}
               <div className="px-4 mb-4">
-                <div className="flex border-b border-gray-200">
+                <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-b border-gray-200">
                   <button
                     onClick={() => setActiveTab("info")}
                     type="button"
-                    className={`flex-1 py-3 text-center ${
+                    className={`shrink-0 whitespace-nowrap py-3 text-center ${
                       activeTab === "info"
                         ? "text-green-600 border-b-2 border-green-600"
                         : "text-gray-500"
@@ -1977,7 +2033,7 @@ export default function UserViewer() {
                   <button
                     onClick={() => setActiveTab("stats")}
                     type="button"
-                    className={`flex-1 py-3 text-center ${
+                    className={`shrink-0 whitespace-nowrap py-3 text-center ${
                       activeTab === "stats"
                         ? "text-green-600 border-b-2 border-green-600"
                         : "text-gray-500"
@@ -1988,7 +2044,7 @@ export default function UserViewer() {
                   <button
                     onClick={() => setActiveTab("career")}
                     type="button"
-                    className={`flex-1 py-3 text-center ${
+                    className={`shrink-0 whitespace-nowrap py-3 text-center ${
                       activeTab === "career"
                         ? "text-green-600 border-b-2 border-green-600"
                         : "text-gray-500"
@@ -2004,7 +2060,7 @@ export default function UserViewer() {
                       <button
                         onClick={() => setActiveTab("myOffers")}
                         type="button"
-                        className={`flex-1 py-3 text-center ${
+                        className={`shrink-0 whitespace-nowrap py-3 text-center ${
                           activeTab === "myOffers"
                             ? "text-green-600 border-b-2 border-green-600"
                             : "text-gray-500"
@@ -2015,7 +2071,7 @@ export default function UserViewer() {
                       <button
                         onClick={() => setActiveTab("createOffer")}
                         type="button"
-                        className={`flex-1 py-3 text-center ${
+                        className={`shrink-0 whitespace-nowrap py-3 text-center ${
                           activeTab === "createOffer"
                             ? "text-green-600 border-b-2 border-green-600"
                             : "text-gray-500"
@@ -2029,7 +2085,7 @@ export default function UserViewer() {
                     <button
                       onClick={() => setActiveTab("portfolio")}
                       type="button"
-                      className={`flex-1 py-3 text-center ${
+                      className={`shrink-0 whitespace-nowrap py-3 text-center ${
                         activeTab === "portfolio"
                           ? "text-green-600 border-b-2 border-green-600"
                           : "text-gray-500"
@@ -2600,65 +2656,18 @@ export default function UserViewer() {
                 {activeTab === "career" && (
                   <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
                     <h3 className="text-lg font-medium mb-3 text-gray-800">
-                      Trayectoria profesional
+                      {getText("Trayectoria profesional", "professionalCareer")}
                     </h3>
-                    {profile.trayectorias && profile.trayectorias.length > 0 ? (
-                      <div className="space-y-4">
-                        {sortTrayectoriasByFechaDesc(profile.trayectorias).map(
-                          (trayectoria, index) => (
-                            <div
-                              key={`${trayectoria.club}-${index}`}
-                              className="border-l-2 border-green-500 pl-4 pb-4 flex items-center gap-3"
-                            >
-                              <div className="w-10 h-10 shrink-0 rounded bg-white border border-gray-200 flex items-center justify-center overflow-hidden">
-                                {trayectoria.clubPageLogo ? (
-                                  // eslint-disable-next-line @next/next/no-img-element
-                                  <img
-                                    src={trayectoria.clubPageLogo}
-                                    alt={trayectoria.club}
-                                    className="w-full h-full object-contain"
-                                  />
-                                ) : (
-                                  <FaShieldAlt className="w-5 h-5 text-gray-400" />
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex justify-between gap-2 mb-1">
-                                  <h4 className="font-medium text-gray-800 truncate">
-                                    {trayectoria.clubPageSlug ? (
-                                      <Link
-                                        href={`/pages/${trayectoria.clubPageSlug}`}
-                                        className="text-green-700 hover:underline"
-                                      >
-                                        {trayectoria.club}
-                                      </Link>
-                                    ) : (
-                                      trayectoria.club
-                                    )}
-                                  </h4>
-                                  <span className="text-sm text-gray-600 whitespace-nowrap">
-                                    {formatearFecha(trayectoria.fechaInicio)} -{" "}
-                                    {trayectoria.fechaFinalizacion
-                                      ? formatearFecha(
-                                          trayectoria.fechaFinalizacion
-                                        )
-                                      : "Present"}
-                                  </span>
-                                </div>
-                                <p className="text-sm text-gray-600">
-                                  {trayectoria.nivelCompetencia} -{" "}
-                                  {trayectoria.categoriaEquipo}
-                                </p>
-                              </div>
-                            </div>
-                          )
-                        )}
-                      </div>
-                    ) : (
-                      <p className="text-gray-600">
-                        No career information available.
-                      </p>
-                    )}
+                    <TrayectoriaTimeline
+                      trayectorias={profile.trayectorias ?? []}
+                      apiUrl={API_URL}
+                      emptyMessage={getText(
+                        "No career information available.",
+                        "noCareerInfo"
+                      )}
+                      timelineLabel={getText("Línea de tiempo", "timeline")}
+                      presentLabel={getText("Presente", "present")}
+                    />
                   </div>
                 )}
 

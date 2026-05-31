@@ -109,6 +109,22 @@ export class OrganizationPagesService {
       }
     }
 
+    const federationId =
+      dto.type === OrganizationPageType.LEAGUE ? dto.federationId : null;
+    if (federationId) {
+      const federation = await this.pageRepository.findOne({
+        where: { id: federationId },
+      });
+      if (!federation) {
+        throw new BadRequestException('La federación referenciada no existe');
+      }
+      if (federation.type !== OrganizationPageType.FEDERATION) {
+        throw new BadRequestException(
+          'El federationId debe apuntar a una página tipo FEDERATION',
+        );
+      }
+    }
+
     const slug = await this.generateUniqueSlug(dto.name);
 
     const matches = await this.findSimilarPages(
@@ -133,6 +149,7 @@ export class OrganizationPagesService {
       description: dto.description ?? null,
       logoUrl: dto.logoUrl ?? null,
       bannerUrl: dto.bannerUrl ?? null,
+      photoUrls: dto.photoUrls ?? [],
       website: dto.website ?? null,
       contactEmail: dto.contactEmail ?? null,
       phone: dto.phone ?? null,
@@ -140,6 +157,7 @@ export class OrganizationPagesService {
       status,
       ownerId: authUser.id,
       leagueId,
+      federationId,
     });
 
     return this.pageRepository.save(page);
@@ -230,7 +248,9 @@ export class OrganizationPagesService {
     }
 
     if (query.country) {
-      qb.andWhere('op.country = :country', { country: query.country });
+      qb.andWhere('LOWER(TRIM(op.country)) = LOWER(TRIM(:country))', {
+        country: query.country,
+      });
     }
 
     if (query.q) {
@@ -264,8 +284,20 @@ export class OrganizationPagesService {
     const page = await this.pageRepository
       .createQueryBuilder('page')
       .leftJoinAndSelect('page.league', 'league')
+      .leftJoinAndSelect('page.federation', 'federation')
       .leftJoin('page.owner', 'owner')
       .addSelect(['owner.id', 'owner.role'])
+      // Portafolio del dueño: solo campos públicos seguros (NUNCA email,
+      // teléfono ni password). Se muestra en la página pública de agencia.
+      .leftJoin('owner.portfolioPlayers', 'pp')
+      .addSelect([
+        'pp.id',
+        'pp.name',
+        'pp.lastname',
+        'pp.imgUrl',
+        'pp.primaryPosition',
+        'pp.age',
+      ])
       .where('page.slug = :slug', { slug })
       .getOne();
     if (!page) {
@@ -426,6 +458,21 @@ export class OrganizationPagesService {
       }
     }
 
+    if (dto.federationId !== undefined) {
+      if (page.type !== OrganizationPageType.LEAGUE) {
+        dto.federationId = null as unknown as string;
+      } else if (dto.federationId) {
+        const federation = await this.pageRepository.findOne({
+          where: { id: dto.federationId },
+        });
+        if (!federation || federation.type !== OrganizationPageType.FEDERATION) {
+          throw new BadRequestException(
+            'El federationId debe apuntar a una página tipo FEDERATION existente',
+          );
+        }
+      }
+    }
+
     // Usamos `update()` (UPDATE directo) en vez de `Object.assign + save()`
     // para evitar la ambigüedad de TypeORM con FKs declarados como `@Column`
     // + `@ManyToOne` con el mismo nombre — el `save` a veces no detecta el
@@ -435,7 +482,7 @@ export class OrganizationPagesService {
     await this.pageRepository.update(id, dto);
     const reloaded = await this.pageRepository.findOne({
       where: { id },
-      relations: ['league'],
+      relations: ['league', 'federation'],
     });
     if (!reloaded) {
       throw new NotFoundException(`Organization page ${id} not found`);

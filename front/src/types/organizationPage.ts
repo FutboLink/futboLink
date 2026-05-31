@@ -38,6 +38,19 @@ export interface OrganizationLeagueSummary {
   logoUrl?: string | null;
 }
 
+/**
+ * Jugador del portafolio del dueño de la página, expuesto en la página
+ * pública. Solo campos seguros (NUNCA email, teléfono ni password).
+ */
+export interface OrganizationPortfolioPlayer {
+  id: string;
+  name?: string;
+  lastname?: string;
+  imgUrl?: string | null;
+  primaryPosition?: string | null;
+  age?: number | null;
+}
+
 export interface OrganizationPage {
   id: string;
   type: OrganizationPageType;
@@ -53,12 +66,19 @@ export interface OrganizationPage {
   contactEmail?: string | null;
   phone?: string | null;
   socialMedia?: OrganizationPageSocialMedia | null;
+  photoUrls?: string[] | null;
   status: OrganizationPageStatus;
   rejectionReason?: string | null;
   ownerId?: string | null;
-  owner?: { id: string; role: string } | null;
+  owner?: {
+    id: string;
+    role: string;
+    portfolioPlayers?: OrganizationPortfolioPlayer[];
+  } | null;
   leagueId?: string | null;
   league?: OrganizationLeagueSummary | null;
+  federationId?: string | null;
+  federation?: OrganizationLeagueSummary | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -72,12 +92,14 @@ export interface PageDraft {
   foundationYear: string;
   description: string;
   leagueId: string | null;
+  federationId: string | null;
   logoUrl: string;
   bannerUrl: string;
   website: string;
   contactEmail: string;
   phone: string;
   socialMedia: OrganizationPageSocialMedia;
+  photoUrls: string[];
 }
 
 export const EMPTY_PAGE_DRAFT: PageDraft = {
@@ -89,12 +111,14 @@ export const EMPTY_PAGE_DRAFT: PageDraft = {
   foundationYear: "",
   description: "",
   leagueId: null,
+  federationId: null,
   logoUrl: "",
   bannerUrl: "",
   website: "",
   contactEmail: "",
   phone: "",
   socialMedia: {},
+  photoUrls: [],
 };
 
 export const PAGE_DRAFT_STORAGE_KEY = "futbolink:page-create-draft";

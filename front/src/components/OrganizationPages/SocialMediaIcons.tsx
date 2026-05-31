@@ -5,9 +5,9 @@ import {
   FaFacebookF,
   FaInstagram,
   FaTiktok,
-  FaTwitter,
   FaYoutube,
 } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import type { OrganizationPageSocialMedia } from "@/types/organizationPage";
 
 interface SocialMediaIconsProps {
@@ -28,7 +28,7 @@ const SocialMediaIcons: React.FC<SocialMediaIconsProps> = ({
     color: string;
   }> = [
     { key: "instagram", label: "Instagram", Icon: FaInstagram, color: "text-pink-600 hover:bg-pink-50" },
-    { key: "twitter", label: "Twitter", Icon: FaTwitter, color: "text-sky-500 hover:bg-sky-50" },
+    { key: "twitter", label: "X", Icon: FaXTwitter, color: "text-gray-900 hover:bg-gray-100" },
     { key: "youtube", label: "YouTube", Icon: FaYoutube, color: "text-red-600 hover:bg-red-50" },
     { key: "facebook", label: "Facebook", Icon: FaFacebookF, color: "text-blue-600 hover:bg-blue-50" },
     { key: "tiktok", label: "TikTok", Icon: FaTiktok, color: "text-gray-800 hover:bg-gray-100" },

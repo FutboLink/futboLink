@@ -139,6 +139,38 @@ const TYPE_OPTIONS: TypeOption[] = [
   },
 ];
 
+// Placeholder de ejemplo para el campo "Nombre" según el tipo de página.
+// Un placeholder de club ("River Plate") no tiene sentido al crear una
+// Federación, así que lo hacemos dependiente de draft.type.
+const NAME_PLACEHOLDER_BY_TYPE: Record<OrganizationPageType, string> = {
+  [ORGANIZATION_PAGE_TYPE.CLUB]: "Ej: Club Atlético River Plate",
+  [ORGANIZATION_PAGE_TYPE.ACADEMY]: "Ej: Academia de Fútbol Carlos Bianchi",
+  [ORGANIZATION_PAGE_TYPE.FORMATION_SCHOOL]: "Ej: Escuela de Formación La Cantera",
+  [ORGANIZATION_PAGE_TYPE.AGENCY]: "Ej: Representaciones Deportivas Sur",
+  [ORGANIZATION_PAGE_TYPE.TOURNAMENT_ORGANIZER]: "Ej: Copa Verano Juvenil",
+  [ORGANIZATION_PAGE_TYPE.LEAGUE]: "Ej: Liga Profesional de Fútbol",
+  [ORGANIZATION_PAGE_TYPE.FEDERATION]: "Ej: Asociación del Fútbol Argentino",
+  [ORGANIZATION_PAGE_TYPE.NATIONAL_TEAM]: "Ej: Selección Argentina",
+};
+
+const NAME_PLACEHOLDER_FALLBACK = "Ej: Nombre de la organización";
+
+// Clases estáticas por accent para el chip "Estás creando:" del paso 2.
+// Espeja el patrón de ACCENT_MAP de TypeCard (Tailwind necesita strings
+// estáticos, por eso se replican acá en vez de derivarlos en runtime).
+const BADGE_ACCENT_MAP: Record<
+  TypeCardAccent,
+  { bg: string; text: string; border: string }
+> = {
+  emerald: { bg: "bg-emerald-50", text: "text-emerald-600", border: "border-emerald-200" },
+  orange: { bg: "bg-orange-50", text: "text-orange-500", border: "border-orange-200" },
+  teal: { bg: "bg-teal-50", text: "text-teal-600", border: "border-teal-200" },
+  amber: { bg: "bg-amber-50", text: "text-amber-500", border: "border-amber-200" },
+  sky: { bg: "bg-sky-50", text: "text-sky-600", border: "border-sky-200" },
+  rose: { bg: "bg-rose-50", text: "text-rose-600", border: "border-rose-200" },
+  violet: { bg: "bg-violet-50", text: "text-violet-600", border: "border-violet-200" },
+};
+
 const SOCIAL_FIELDS: Array<{
   key: keyof PageDraft["socialMedia"];
   labelKey: string;
@@ -178,7 +210,9 @@ export type PageWizardSubmitBody = {
   contactEmail?: string;
   phone?: string;
   leagueId?: string | null;
+  federationId?: string | null;
   socialMedia?: Record<string, string>;
+  photoUrls?: string[];
 };
 
 export interface PageWizardFormProps {
@@ -243,10 +277,18 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
   const [duplicateGateError, setDuplicateGateError] = useState<string | null>(null);
   const [leagues, setLeagues] = useState<OrganizationPage[]>([]);
   const [leaguesLoading, setLeaguesLoading] = useState(false);
+  const [federations, setFederations] = useState<OrganizationPage[]>([]);
+  const [federationsLoading, setFederationsLoading] = useState(false);
 
   const [countryOpen, setCountryOpen] = useState(false);
   const [countrySearch, setCountrySearch] = useState("");
   const countryRef = useRef<HTMLDivElement | null>(null);
+
+  const [leagueOpen, setLeagueOpen] = useState(false);
+  const leagueRef = useRef<HTMLDivElement | null>(null);
+
+  const [federationOpen, setFederationOpen] = useState(false);
+  const federationRef = useRef<HTMLDivElement | null>(null);
 
   // Detección de duplicados: solo aplica al crear (en edit no chequeamos).
   type WizardSimilarMatch = {
@@ -357,13 +399,21 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
     if (draft.type !== "CLUB") {
       return;
     }
+    // La Liga depende del país: sin país no se cargan ligas. Limpiamos la
+    // lista para que el control quede deshabilitado con su placeholder.
+    if (!draft.country || draft.country.trim().length === 0) {
+      setLeagues([]);
+      return;
+    }
     if (!API_URL) return;
     const controller = new AbortController();
     const loadLeagues = async () => {
       setLeaguesLoading(true);
       try {
         const res = await fetch(
-          `${API_URL}/organization-pages?type=LEAGUE&limit=100`,
+          `${API_URL}/organization-pages?type=LEAGUE&limit=100&country=${encodeURIComponent(
+            draft.country
+          )}`,
           { signal: controller.signal }
         );
         if (res.ok) {
@@ -389,17 +439,75 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
     };
     loadLeagues();
     return () => controller.abort();
-  }, [draft.type]);
+  }, [draft.type, draft.country]);
+
+  useEffect(() => {
+    if (draft.type !== "LEAGUE") {
+      return;
+    }
+    // La Federación depende del país: sin país no se cargan federaciones.
+    // Limpiamos la lista para que el control quede deshabilitado con su
+    // placeholder.
+    if (!draft.country || draft.country.trim().length === 0) {
+      setFederations([]);
+      return;
+    }
+    if (!API_URL) return;
+    const controller = new AbortController();
+    const loadFederations = async () => {
+      setFederationsLoading(true);
+      try {
+        const res = await fetch(
+          `${API_URL}/organization-pages?type=FEDERATION&limit=100&country=${encodeURIComponent(
+            draft.country
+          )}`,
+          { signal: controller.signal }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          const list: OrganizationPage[] = Array.isArray(data)
+            ? data
+            : Array.isArray(data?.data)
+            ? data.data
+            : Array.isArray(data?.items)
+            ? data.items
+            : [];
+          // El endpoint puede devolver federaciones en otros estados al admin
+          // (OptionalAuthGuard). En el wizard solo se eligen las APPROVED.
+          setFederations(list.filter((f) => f.status === "APPROVED"));
+        }
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") {
+          console.error("Error loading federations:", err);
+        }
+      } finally {
+        setFederationsLoading(false);
+      }
+    };
+    loadFederations();
+    return () => controller.abort();
+  }, [draft.type, draft.country]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (countryRef.current && !countryRef.current.contains(e.target as Node)) {
         setCountryOpen(false);
       }
+      if (leagueRef.current && !leagueRef.current.contains(e.target as Node)) {
+        setLeagueOpen(false);
+      }
+      if (
+        federationRef.current &&
+        !federationRef.current.contains(e.target as Node)
+      ) {
+        setFederationOpen(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const isAdmin = role === "ADMIN";
 
   const availableTypes = TYPE_OPTIONS.filter(
     (opt) => !opt.adminOnly || role === "ADMIN"
@@ -411,6 +519,7 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
       type,
       step: 2,
       leagueId: type === "CLUB" ? prev.leagueId : null,
+      federationId: type === "LEAGUE" ? prev.federationId : null,
     }));
   };
 
@@ -421,14 +530,18 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
     // explícitamente que ninguna es su organización antes de avanzar.
     const duplicateGate =
       mode === "edit" || duplicateMatches.length === 0 || confirmedNotMine;
-    // Paso 3 requiere logo/banner/email/teléfono tanto en create como en
-    // edit — el cliente confirmó que se aplica en los dos modos para
-    // mantener la calidad de las páginas.
+    // Paso 3 requiere logo/banner tanto en create como en edit — el cliente
+    // confirmó que se aplica en los dos modos para mantener la calidad de las
+    // páginas. Email y teléfono son obligatorios para no-admin; para ADMIN son
+    // opcionales (pero si el admin carga un email, debe ser válido).
     const detailsRequired =
       draft.logoUrl.trim().length > 0 &&
       draft.bannerUrl.trim().length > 0 &&
-      /^.+@.+\..+$/.test(draft.contactEmail.trim()) &&
-      draft.phone.trim().length > 0;
+      (isAdmin
+        ? draft.contactEmail.trim() === "" ||
+          /^.+@.+\..+$/.test(draft.contactEmail.trim())
+        : /^.+@.+\..+$/.test(draft.contactEmail.trim())) &&
+      (isAdmin || draft.phone.trim().length > 0);
     switch (step) {
       case 1:
         return !!draft.type;
@@ -511,10 +624,15 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
     }
     const emailTrim = draft.contactEmail.trim();
     if (!emailTrim) {
-      setContactEmailError(
-        getText("El email es obligatorio", "contactEmailRequired"),
-      );
-      hasError = true;
+      // Para ADMIN el email es opcional: no se exige cuando está vacío.
+      if (!isAdmin) {
+        setContactEmailError(
+          getText("El email es obligatorio", "contactEmailRequired"),
+        );
+        hasError = true;
+      } else {
+        setContactEmailError(null);
+      }
     } else if (!/^.+@.+\..+$/.test(emailTrim)) {
       setContactEmailError(
         getText("Email inválido", "contactEmailInvalid"),
@@ -524,8 +642,13 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
       setContactEmailError(null);
     }
     if (!draft.phone.trim()) {
-      setPhoneError(getText("El teléfono es obligatorio", "phoneRequired"));
-      hasError = true;
+      // Para ADMIN el teléfono es opcional: no se exige cuando está vacío.
+      if (!isAdmin) {
+        setPhoneError(getText("El teléfono es obligatorio", "phoneRequired"));
+        hasError = true;
+      } else {
+        setPhoneError(null);
+      }
     } else {
       setPhoneError(null);
     }
@@ -588,6 +711,7 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
     if (draft.contactEmail.trim()) body.contactEmail = draft.contactEmail.trim();
     if (draft.phone.trim()) body.phone = draft.phone.trim();
     if (draft.type === "CLUB") body.leagueId = draft.leagueId ?? null;
+    if (draft.type === "LEAGUE") body.federationId = draft.federationId ?? null;
 
     const socialEntries = Object.entries(draft.socialMedia).filter(
       ([, v]) => typeof v === "string" && v.trim() !== ""
@@ -597,6 +721,11 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
         socialEntries.map(([k, v]) => [k, (v as string).trim()])
       );
     }
+
+    const photoUrls = draft.photoUrls
+      .map((p) => p.trim())
+      .filter((p) => p.length > 0);
+    body.photoUrls = photoUrls;
 
     setIsSubmitting(true);
     try {
@@ -681,6 +810,28 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
 
           {draft.step === 2 && (
             <div className="flex flex-col gap-5">
+              {selectedTypeOption &&
+                (() => {
+                  const a = BADGE_ACCENT_MAP[selectedTypeOption.accent];
+                  const Icon = selectedTypeOption.Icon;
+                  return (
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-gray-500">
+                        {getText("Estás creando:", "creatingTypeLabel")}
+                      </span>
+                      <span
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-semibold ${a.bg} ${a.text} ${a.border}`}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                        {getText(
+                          selectedTypeOption.originalTitle,
+                          selectedTypeOption.titleKey
+                        )}
+                      </span>
+                    </div>
+                  );
+                })()}
+
               <div className="flex flex-col">
                 <label className="text-sm font-semibold text-gray-700 mb-1">
                   {getText("Nombre", "name")}{" "}
@@ -689,10 +840,11 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
                 <input
                   type="text"
                   value={draft.name}
-                  placeholder={getText(
-                    "Ej: Club Atlético River Plate",
-                    "namePlaceholder"
-                  )}
+                  placeholder={
+                    draft.type
+                      ? NAME_PLACEHOLDER_BY_TYPE[draft.type]
+                      : NAME_PLACEHOLDER_FALLBACK
+                  }
                   onChange={(e) => {
                     updateField("name", e.target.value);
                     if (nameError) setNameError(null);
@@ -830,6 +982,12 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
                       onChange={(e) => {
                         setCountrySearch(e.target.value);
                         setCountryOpen(true);
+                        // Al limpiar/editar el país, la liga/federación deja
+                        // de ser válida (cambia el set disponible por país).
+                        if (draft.country) {
+                          updateField("leagueId", null);
+                          updateField("federationId", null);
+                        }
                         updateField("country", "");
                       }}
                       placeholder={getText("Buscar país...", "searchCountry")}
@@ -860,6 +1018,15 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
                               key={n.value}
                               className="p-3 cursor-pointer text-gray-700 hover:bg-emerald-50 text-sm flex items-center gap-2"
                               onClick={() => {
+                                // Cambiar de país invalida la liga/federación
+                                // elegida: una de otro país no debe quedar
+                                // pegada. Solo se resetea en cambios reales del
+                                // usuario (este handler), no en el mount de
+                                // edición.
+                                if (draft.country !== n.label) {
+                                  updateField("leagueId", null);
+                                  updateField("federationId", null);
+                                }
                                 updateField("country", n.label);
                                 setCountrySearch(n.label);
                                 setCountryOpen(false);
@@ -916,36 +1083,287 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
                   />
                 </div>
 
-                {draft.type === "CLUB" && (
-                  <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-gray-700 mb-1 inline-flex items-center gap-1.5">
-                      <FaTrophy className="h-3.5 w-3.5 text-amber-500" />
-                      {getText("Liga", "league")}
-                    </label>
-                    <select
-                      value={draft.leagueId ?? ""}
-                      onChange={(e) =>
-                        updateField("leagueId", e.target.value || null)
-                      }
-                      className="border border-gray-300 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
-                      disabled={leaguesLoading}
-                    >
-                      <option value="">
-                        {leaguesLoading
-                          ? getText("Cargando ligas...", "loadingLeagues")
-                          : getText(
-                              "Seleccionar liga (opcional)",
-                              "leagueSelectPlaceholder"
+                {draft.type === "CLUB" &&
+                  (() => {
+                    const hasCountry = draft.country.trim().length > 0;
+                    const selectedLeague =
+                      leagues.find((l) => l.id === draft.leagueId) ?? null;
+                    const isDisabled = !hasCountry;
+                    let placeholder: string;
+                    if (!hasCountry) {
+                      placeholder = getText(
+                        "Seleccioná un país primero",
+                        "leagueSelectNeedsCountry"
+                      );
+                    } else if (leaguesLoading) {
+                      placeholder = getText("Cargando ligas...", "loadingLeagues");
+                    } else {
+                      placeholder = getText(
+                        "Seleccionar liga (opcional)",
+                        "leagueSelectPlaceholder"
+                      );
+                    }
+                    return (
+                      <div className="flex flex-col relative" ref={leagueRef}>
+                        <label className="text-sm font-semibold text-gray-700 mb-1 inline-flex items-center gap-1.5">
+                          <FaTrophy className="h-3.5 w-3.5 text-amber-500" />
+                          {getText("Liga", "league")}{" "}
+                          <span className="text-gray-400 font-normal">
+                            {getText("(opcional)", "optional")}
+                          </span>
+                        </label>
+                        <div className="relative">
+                          <button
+                            type="button"
+                            disabled={isDisabled}
+                            onClick={() => setLeagueOpen((v) => !v)}
+                            className={`w-full border border-gray-300 rounded-lg p-3 pl-3 pr-10 text-left flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white ${
+                              isDisabled
+                                ? "opacity-60 cursor-not-allowed text-gray-400"
+                                : "text-gray-700"
+                            }`}
+                          >
+                            {selectedLeague ? (
+                              <>
+                                {selectedLeague.logoUrl ? (
+                                  <NextImage
+                                    src={selectedLeague.logoUrl}
+                                    alt={selectedLeague.name}
+                                    width={20}
+                                    height={20}
+                                    className="h-5 w-5 rounded-full object-cover"
+                                  />
+                                ) : (
+                                  <FaTrophy className="h-4 w-4 text-amber-500" />
+                                )}
+                                <span className="truncate">
+                                  {selectedLeague.name}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="truncate">{placeholder}</span>
                             )}
-                      </option>
-                      {leagues.map((l) => (
-                        <option key={l.id} value={l.id}>
-                          {l.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+                          </button>
+                          <FaChevronDown
+                            className={`absolute top-1/2 right-3 -translate-y-1/2 ${
+                              isDisabled
+                                ? "text-gray-300"
+                                : "text-gray-400 cursor-pointer"
+                            }`}
+                            onClick={() => {
+                              if (!isDisabled) setLeagueOpen((v) => !v);
+                            }}
+                          />
+                        </div>
+                        {leagueOpen && !isDisabled && (
+                          <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto z-20">
+                            {leaguesLoading && (
+                              <div className="p-3 text-gray-500 text-sm">
+                                {getText("Cargando ligas...", "loadingLeagues")}
+                              </div>
+                            )}
+                            {!leaguesLoading && leagues.length === 0 && (
+                              <div className="p-3 text-gray-400 text-sm">
+                                {getText(
+                                  "No hay ligas cargadas para este país",
+                                  "leagueSelectEmptyForCountry"
+                                )}
+                              </div>
+                            )}
+                            {!leaguesLoading && leagues.length > 0 && (
+                              <ul>
+                                <li
+                                  className="p-3 cursor-pointer text-gray-500 hover:bg-emerald-50 text-sm flex items-center gap-2"
+                                  onClick={() => {
+                                    updateField("leagueId", null);
+                                    setLeagueOpen(false);
+                                  }}
+                                >
+                                  <span className="inline-block w-5 text-center">
+                                    —
+                                  </span>
+                                  <span>
+                                    {getText(
+                                      "Sin liga",
+                                      "leagueSelectNone"
+                                    )}
+                                  </span>
+                                </li>
+                                {leagues.map((l) => (
+                                  <li
+                                    key={l.id}
+                                    className="p-3 cursor-pointer text-gray-700 hover:bg-emerald-50 text-sm flex items-center gap-2"
+                                    onClick={() => {
+                                      updateField("leagueId", l.id);
+                                      setLeagueOpen(false);
+                                    }}
+                                  >
+                                    {l.logoUrl ? (
+                                      <NextImage
+                                        src={l.logoUrl}
+                                        alt={l.name}
+                                        width={20}
+                                        height={20}
+                                        className="h-5 w-5 rounded-full object-cover"
+                                      />
+                                    ) : (
+                                      <FaTrophy className="h-4 w-4 text-amber-500" />
+                                    )}
+                                    <span>{l.name}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+
+                {draft.type === "LEAGUE" &&
+                  (() => {
+                    const hasCountry = draft.country.trim().length > 0;
+                    const selectedFederation =
+                      federations.find((f) => f.id === draft.federationId) ??
+                      null;
+                    const isDisabled = !hasCountry;
+                    let placeholder: string;
+                    if (!hasCountry) {
+                      placeholder = getText(
+                        "Seleccioná un país primero",
+                        "federationSelectNeedsCountry"
+                      );
+                    } else if (federationsLoading) {
+                      placeholder = getText(
+                        "Cargando federaciones...",
+                        "loadingFederations"
+                      );
+                    } else {
+                      placeholder = getText(
+                        "Seleccionar federación (opcional)",
+                        "federationSelectPlaceholder"
+                      );
+                    }
+                    return (
+                      <div className="flex flex-col relative" ref={federationRef}>
+                        <label className="text-sm font-semibold text-gray-700 mb-1 inline-flex items-center gap-1.5">
+                          <FaCrown className="h-3.5 w-3.5 text-violet-500" />
+                          {getText("Federación", "federation")}{" "}
+                          <span className="text-gray-400 font-normal">
+                            {getText("(opcional)", "optional")}
+                          </span>
+                        </label>
+                        <div className="relative">
+                          <button
+                            type="button"
+                            disabled={isDisabled}
+                            onClick={() => setFederationOpen((v) => !v)}
+                            className={`w-full border border-gray-300 rounded-lg p-3 pl-3 pr-10 text-left flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white ${
+                              isDisabled
+                                ? "opacity-60 cursor-not-allowed text-gray-400"
+                                : "text-gray-700"
+                            }`}
+                          >
+                            {selectedFederation ? (
+                              <>
+                                {selectedFederation.logoUrl ? (
+                                  <NextImage
+                                    src={selectedFederation.logoUrl}
+                                    alt={selectedFederation.name}
+                                    width={20}
+                                    height={20}
+                                    className="h-5 w-5 rounded-full object-cover"
+                                  />
+                                ) : (
+                                  <FaCrown className="h-4 w-4 text-violet-500" />
+                                )}
+                                <span className="truncate">
+                                  {selectedFederation.name}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="truncate">{placeholder}</span>
+                            )}
+                          </button>
+                          <FaChevronDown
+                            className={`absolute top-1/2 right-3 -translate-y-1/2 ${
+                              isDisabled
+                                ? "text-gray-300"
+                                : "text-gray-400 cursor-pointer"
+                            }`}
+                            onClick={() => {
+                              if (!isDisabled) setFederationOpen((v) => !v);
+                            }}
+                          />
+                        </div>
+                        {federationOpen && !isDisabled && (
+                          <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto z-20">
+                            {federationsLoading && (
+                              <div className="p-3 text-gray-500 text-sm">
+                                {getText(
+                                  "Cargando federaciones...",
+                                  "loadingFederations"
+                                )}
+                              </div>
+                            )}
+                            {!federationsLoading &&
+                              federations.length === 0 && (
+                                <div className="p-3 text-gray-400 text-sm">
+                                  {getText(
+                                    "No hay federaciones cargadas para este país",
+                                    "federationSelectEmptyForCountry"
+                                  )}
+                                </div>
+                              )}
+                            {!federationsLoading && federations.length > 0 && (
+                              <ul>
+                                <li
+                                  className="p-3 cursor-pointer text-gray-500 hover:bg-emerald-50 text-sm flex items-center gap-2"
+                                  onClick={() => {
+                                    updateField("federationId", null);
+                                    setFederationOpen(false);
+                                  }}
+                                >
+                                  <span className="inline-block w-5 text-center">
+                                    —
+                                  </span>
+                                  <span>
+                                    {getText(
+                                      "Sin federación",
+                                      "federationSelectNone"
+                                    )}
+                                  </span>
+                                </li>
+                                {federations.map((f) => (
+                                  <li
+                                    key={f.id}
+                                    className="p-3 cursor-pointer text-gray-700 hover:bg-emerald-50 text-sm flex items-center gap-2"
+                                    onClick={() => {
+                                      updateField("federationId", f.id);
+                                      setFederationOpen(false);
+                                    }}
+                                  >
+                                    {f.logoUrl ? (
+                                      <NextImage
+                                        src={f.logoUrl}
+                                        alt={f.name}
+                                        width={20}
+                                        height={20}
+                                        className="h-5 w-5 rounded-full object-cover"
+                                      />
+                                    ) : (
+                                      <FaCrown className="h-4 w-4 text-violet-500" />
+                                    )}
+                                    <span>{f.name}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
               </div>
 
               <div className="flex flex-col">
@@ -1153,6 +1571,55 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
                 </div>
               </div>
 
+              {/* Multimedia (opcional): fotos extra. Espeja la UX del form de
+                  perfil (PersonalInfo). Nunca bloquea por estar vacío. */}
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-semibold text-gray-700">
+                  {getText("Fotos extra (hasta 3)", "photosTitle")}
+                </span>
+                <p className="text-xs text-gray-500">
+                  {getText(
+                    "Sumá fotos para mejorar la página.",
+                    "photosHint",
+                  )}
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {[0, 1, 2].map((idx) => {
+                    const url = draft.photoUrls[idx] ?? "";
+                    return (
+                      <div
+                        key={`page-photo-${idx}`}
+                        className="border border-dashed border-gray-300 rounded-lg p-2 flex flex-col items-center"
+                      >
+                        <ImageUploadwithCrop
+                          initialImage={url || undefined}
+                          onUpload={(uploaded) => {
+                            setDraft((prev) => {
+                              const arr = [...prev.photoUrls];
+                              while (arr.length <= idx) arr.push("");
+                              arr[idx] = uploaded;
+                              return { ...prev, photoUrls: arr };
+                            });
+                          }}
+                          onRemove={() => {
+                            setDraft((prev) => {
+                              const arr = [...prev.photoUrls];
+                              while (arr.length <= idx) arr.push("");
+                              arr[idx] = "";
+                              return { ...prev, photoUrls: arr };
+                            });
+                          }}
+                          fileInputId={`page-photo-${idx}`}
+                          label={getText(`Foto ${idx + 1}`, "photoSlot")}
+                          buttonLabel={getText("Subir", "uploadShort")}
+                          cropShape="rect"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="flex items-center justify-between pt-2">
                 <button
                   type="button"
@@ -1305,6 +1772,19 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
                       <SocialMediaIcons socialMedia={draft.socialMedia} />
                     </div>
                   )}
+
+                  {(() => {
+                    const photoCount = draft.photoUrls.filter((p) =>
+                      p.trim(),
+                    ).length;
+                    if (photoCount === 0) return null;
+                    return (
+                      <p className="mt-5 border-t border-gray-100 pt-4 text-xs text-gray-500">
+                        {getText("Multimedia", "multimedia")}:{" "}
+                        {photoCount} {getText("fotos", "photosLabel")}
+                      </p>
+                    );
+                  })()}
                 </div>
               </div>
 

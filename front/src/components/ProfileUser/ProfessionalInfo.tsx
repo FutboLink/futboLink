@@ -195,6 +195,10 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
     (puestoLower === "" || puestoLower === "jugador")
   );
 
+  // Solo el rol Agente puede ver/seleccionar páginas de tipo AGENCY en la
+  // trayectoria. El resto de los roles no ve agencias en el autocomplete.
+  const isAgente = (formData?.role as unknown as UserType) === UserType.AGENCY;
+
   // NOTA sobre la barra de progreso en tiempo real:
   // Probamos sincronizar formData + sub-states (primaryPosition,
   // secondaryPosition, altura, peso, etc) hacia el padre con un useEffect
@@ -680,6 +684,7 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
                       </label>
                       <ClubAutocomplete
                         inputId={`club-${index}`}
+                        includeAgency={isAgente}
                         value={exp.club}
                         selectedPageId={exp.clubPageId}
                         selectedPageSlug={exp.clubPageSlug}

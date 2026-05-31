@@ -7,6 +7,8 @@ import {
   IsEmail,
   IsObject,
   IsUUID,
+  IsArray,
+  ArrayMaxSize,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { OrganizationPageType } from '../entities/organization-page.entity';
@@ -51,6 +53,13 @@ export class CreateOrganizationPageDto {
   @IsString()
   bannerUrl?: string;
 
+  @ApiPropertyOptional({ type: [String] })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(3)
+  @IsString({ each: true })
+  photoUrls?: string[];
+
   @ApiPropertyOptional({ example: 'https://www.example.com' })
   @IsOptional()
   @IsUrl()
@@ -77,4 +86,9 @@ export class CreateOrganizationPageDto {
   @IsOptional()
   @IsUUID()
   leagueId?: string;
+
+  @ApiPropertyOptional({ description: 'Solo aplica cuando type=LEAGUE' })
+  @IsOptional()
+  @IsUUID()
+  federationId?: string;
 }

@@ -28,6 +28,7 @@ const toPageDraft = (page: OrganizationPage): PageDraft => ({
   description: page.description ?? "",
   leagueId: page.leagueId ?? null,
   federationId: page.federationId ?? null,
+  division: page.division ?? null,
   logoUrl: page.logoUrl ?? "",
   bannerUrl: page.bannerUrl ?? "",
   website: page.website ?? "",

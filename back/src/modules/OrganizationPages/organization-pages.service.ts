@@ -158,6 +158,7 @@ export class OrganizationPagesService {
       ownerId: authUser.id,
       leagueId,
       federationId,
+      division: dto.division ?? null,
     });
 
     return this.pageRepository.save(page);
@@ -251,6 +252,10 @@ export class OrganizationPagesService {
       qb.andWhere('LOWER(TRIM(op.country)) = LOWER(TRIM(:country))', {
         country: query.country,
       });
+    }
+
+    if (query.division) {
+      qb.andWhere('op.division = :division', { division: query.division });
     }
 
     if (query.q) {

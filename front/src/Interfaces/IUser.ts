@@ -59,7 +59,8 @@ export interface IProfileData {
   skillfulFoot: string;
   bodyStructure: string;
   habilities: string[];
-  videoUrl: string;
+  /** @deprecated Campo legacy. El video vive en `videoUrls`. No se envía ni se muestra. */
+  videoUrl?: string;
   videoUrls?: string[];
   photoUrls?: string[];
   secondNationality?: string;

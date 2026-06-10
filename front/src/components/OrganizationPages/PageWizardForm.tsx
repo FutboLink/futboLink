@@ -42,6 +42,7 @@ import PhoneNumberInput from "@/components/utils/PhoneNumberInput";
 import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
 import {
   EMPTY_PAGE_DRAFT,
+  LEAGUE_DIVISIONS,
   ORGANIZATION_PAGE_TYPE,
   type OrganizationPage,
   type OrganizationPageType,
@@ -211,6 +212,7 @@ export type PageWizardSubmitBody = {
   phone?: string;
   leagueId?: string | null;
   federationId?: string | null;
+  division?: string | null;
   socialMedia?: Record<string, string>;
   photoUrls?: string[];
 };
@@ -277,6 +279,9 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
   const [duplicateGateError, setDuplicateGateError] = useState<string | null>(null);
   const [leagues, setLeagues] = useState<OrganizationPage[]>([]);
   const [leaguesLoading, setLeaguesLoading] = useState(false);
+  // Filtro local (NO se persiste en el draft del club). Acota las ligas
+  // disponibles por división. Vacío = todas las ligas del país.
+  const [clubDivisionFilter, setClubDivisionFilter] = useState("");
   const [federations, setFederations] = useState<OrganizationPage[]>([]);
   const [federationsLoading, setFederationsLoading] = useState(false);
 
@@ -410,10 +415,15 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
     const loadLeagues = async () => {
       setLeaguesLoading(true);
       try {
+        // El filtro de división es opcional: si está vacío se omite el param
+        // y se traen todas las ligas del país.
+        const divisionParam = clubDivisionFilter
+          ? `&division=${encodeURIComponent(clubDivisionFilter)}`
+          : "";
         const res = await fetch(
           `${API_URL}/organization-pages?type=LEAGUE&limit=100&country=${encodeURIComponent(
             draft.country
-          )}`,
+          )}${divisionParam}`,
           { signal: controller.signal }
         );
         if (res.ok) {
@@ -439,7 +449,7 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
     };
     loadLeagues();
     return () => controller.abort();
-  }, [draft.type, draft.country]);
+  }, [draft.type, draft.country, clubDivisionFilter]);
 
   useEffect(() => {
     if (draft.type !== "LEAGUE") {
@@ -677,6 +687,13 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
     setDraft((prev) => ({ ...prev, [key]: value }));
   };
 
+  // Cambiar el filtro de división (solo CLUB) resetea la liga elegida: una
+  // liga de otra división no debe quedar pegada al draft.
+  const handleClubDivisionFilterChange = (value: string) => {
+    setClubDivisionFilter(value);
+    updateField("leagueId", null);
+  };
+
   const updateSocial = (
     key: keyof PageDraft["socialMedia"],
     value: string
@@ -712,6 +729,9 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
     if (draft.phone.trim()) body.phone = draft.phone.trim();
     if (draft.type === "CLUB") body.leagueId = draft.leagueId ?? null;
     if (draft.type === "LEAGUE") body.federationId = draft.federationId ?? null;
+    // La división solo se persiste en páginas LEAGUE. Para CLUB es solo un
+    // filtro local; el club hereda la división de su liga.
+    if (draft.type === "LEAGUE") body.division = draft.division ?? null;
 
     const socialEntries = Object.entries(draft.socialMedia).filter(
       ([, v]) => typeof v === "string" && v.trim() !== ""
@@ -1086,6 +1106,51 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
                 {draft.type === "CLUB" &&
                   (() => {
                     const hasCountry = draft.country.trim().length > 0;
+                    return (
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700 mb-1 inline-flex items-center gap-1.5">
+                          <FaFutbol className="h-3.5 w-3.5 text-sky-500" />
+                          {getText("División", "division")}{" "}
+                          <span className="text-gray-400 font-normal">
+                            {getText("(opcional)", "optional")}
+                          </span>
+                        </label>
+                        <select
+                          value={clubDivisionFilter}
+                          disabled={!hasCountry}
+                          onChange={(e) =>
+                            handleClubDivisionFilterChange(e.target.value)
+                          }
+                          className={`w-full border border-gray-300 rounded-lg p-3 pr-10 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                            !hasCountry
+                              ? "opacity-60 cursor-not-allowed text-gray-400"
+                              : "text-gray-700"
+                          }`}
+                        >
+                          <option value="">
+                            {hasCountry
+                              ? getText(
+                                  "Todas las divisiones",
+                                  "divisionFilterAll"
+                                )
+                              : getText(
+                                  "Seleccioná un país primero",
+                                  "leagueSelectNeedsCountry"
+                                )}
+                          </option>
+                          {LEAGUE_DIVISIONS.map((d) => (
+                            <option key={d} value={d}>
+                              {d}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    );
+                  })()}
+
+                {draft.type === "CLUB" &&
+                  (() => {
+                    const hasCountry = draft.country.trim().length > 0;
                     const selectedLeague =
                       leagues.find((l) => l.id === draft.leagueId) ?? null;
                     const isDisabled = !hasCountry;
@@ -1364,6 +1429,37 @@ const PageWizardForm: React.FC<PageWizardFormProps> = ({
                       </div>
                     );
                   })()}
+
+                {draft.type === "LEAGUE" && (
+                  <div className="flex flex-col">
+                    <label className="text-sm font-semibold text-gray-700 mb-1 inline-flex items-center gap-1.5">
+                      <FaFutbol className="h-3.5 w-3.5 text-sky-500" />
+                      {getText("División", "division")}{" "}
+                      <span className="text-gray-400 font-normal">
+                        {getText("(opcional)", "optional")}
+                      </span>
+                    </label>
+                    <select
+                      value={draft.division ?? ""}
+                      onChange={(e) =>
+                        updateField("division", e.target.value || null)
+                      }
+                      className="w-full border border-gray-300 rounded-lg p-3 pr-10 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    >
+                      <option value="">
+                        {getText(
+                          "Seleccionar división (opcional)",
+                          "divisionSelectPlaceholder"
+                        )}
+                      </option>
+                      {LEAGUE_DIVISIONS.map((d) => (
+                        <option key={d} value={d}>
+                          {d}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col">

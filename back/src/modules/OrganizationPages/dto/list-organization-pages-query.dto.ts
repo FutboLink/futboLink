@@ -14,6 +14,11 @@ export class ListOrganizationPagesQueryDto {
   @IsString()
   country?: string;
 
+  @ApiPropertyOptional({ description: 'Filtrar por división (solo type=LEAGUE)' })
+  @IsOptional()
+  @IsString()
+  division?: string;
+
   @ApiPropertyOptional({ description: 'Búsqueda por nombre (ILIKE)' })
   @IsOptional()
   @IsString()

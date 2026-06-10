@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { User } from '../../user/entities/user.entity';
 
 export enum OrganizationPageType {
@@ -139,6 +139,13 @@ export class OrganizationPage {
   @ManyToOne(() => OrganizationPage, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'federationId' })
   federation?: OrganizationPage;
+
+  @ApiPropertyOptional({
+    description: 'División de la liga. Solo aplica cuando type=LEAGUE',
+    example: 'Primera división',
+  })
+  @Column({ type: 'varchar', nullable: true })
+  division?: string;
 
   @CreateDateColumn()
   createdAt: Date;

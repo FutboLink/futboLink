@@ -9,9 +9,22 @@ import {
   IsUUID,
   IsArray,
   ArrayMaxSize,
+  IsIn,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { OrganizationPageType } from '../entities/organization-page.entity';
+
+export const LEAGUE_DIVISIONS = [
+  'Primera división',
+  'Segunda división',
+  'Tercera división',
+  'Cuarta división',
+  'Quinta división',
+  'Sexta división',
+  'Séptima división',
+  'Octava división',
+  'Novena división',
+] as const;
 
 export class CreateOrganizationPageDto {
   @ApiProperty({ enum: OrganizationPageType })
@@ -91,4 +104,12 @@ export class CreateOrganizationPageDto {
   @IsOptional()
   @IsUUID()
   federationId?: string;
+
+  @ApiPropertyOptional({
+    enum: LEAGUE_DIVISIONS,
+    description: 'División de la liga. Solo aplica cuando type=LEAGUE',
+  })
+  @IsOptional()
+  @IsIn(LEAGUE_DIVISIONS as unknown as string[])
+  division?: string;
 }

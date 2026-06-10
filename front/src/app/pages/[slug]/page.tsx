@@ -9,6 +9,7 @@ import {
   FaCrown,
   FaEdit,
   FaEnvelope,
+  FaFutbol,
   FaGlobe,
   FaPhone,
   FaTrophy,
@@ -262,14 +263,21 @@ function OrganizationPagePublic() {
                   />
                 )}
               </h1>
-              {/* "Perfil Administrado" solo si la página tiene un dueño que
-                  NO es admin. Las páginas creadas o curadas por admin no se
-                  consideran administradas hasta que alguien las reclame. */}
-              {page.ownerId && page.owner?.role && page.owner.role !== "ADMIN" && (
+              {/* Badge de administración del perfil:
+                  - Dueño que NO es admin -> "Perfil Administrado" (verde).
+                  - Dueño admin -> "No administrado" (gris neutro).
+                  - Sin dueño -> no se muestra nada. */}
+              {page.ownerId && page.owner?.role && (
                 <div className="mt-1">
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-xs font-medium">
-                    {getText("Perfil Administrado", "managedProfile")}
-                  </span>
+                  {page.owner.role !== "ADMIN" ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-xs font-medium">
+                      {getText("Perfil Administrado", "managedProfile")}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gray-100 text-gray-600 border border-gray-200 text-xs font-medium">
+                      {getText("No administrado", "notManagedProfile")}
+                    </span>
+                  )}
                 </div>
               )}
               <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -290,6 +298,12 @@ function OrganizationPagePublic() {
                 {page.foundationYear && (
                   <span className="text-sm text-gray-500">
                     {getText("Fundado en", "founded")} {page.foundationYear}
+                  </span>
+                )}
+                {page.type === "LEAGUE" && page.division && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+                    <FaFutbol className="h-3 w-3 text-sky-500" />
+                    {page.division}
                   </span>
                 )}
               </div>
@@ -359,6 +373,12 @@ function OrganizationPagePublic() {
                   >
                     {page.league.name}
                   </Link>
+                  {page.league.division && (
+                    <span className="mt-0.5 inline-flex items-center gap-1 text-xs font-medium text-gray-500">
+                      <FaFutbol className="h-2.5 w-2.5 text-sky-500" />
+                      {page.league.division}
+                    </span>
+                  )}
                 </div>
               </div>
             )}

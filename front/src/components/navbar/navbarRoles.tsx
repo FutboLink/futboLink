@@ -112,7 +112,20 @@ function NavbarRoles() {
   };
 
   const getEditProfilePath = (): string => {
-    if (role === "PLAYER" && user?.id) {
+    // PLAYER, AGENCY, RECRUITER y CLUB editan en la MISMA vista pública
+    // (user-viewer) en modo edición. Así no salta del perfil nuevo al panel
+    // viejo de gestión al tocar "Editar Perfil". El modo edición de esa vista
+    // (?edit=true) no está atado al rol: renderiza ProfileUser para cualquier
+    // dueño, igual que /profile. Mis Ofertas / Crear Oferta / Portafolio siguen
+    // en las tabs de esa misma vista. La Configuración (cambio de contraseña,
+    // suscripción) sigue yendo al panel vía getSettingsPath.
+    if (
+      (role === "PLAYER" ||
+        role === "RECRUITER" ||
+        role === "CLUB" ||
+        role === "AGENCY") &&
+      user?.id
+    ) {
       return `/user-viewer/${user.id}?edit=true`;
     }
     if (role === "RECRUITER" || role === "CLUB" || role === "AGENCY") {

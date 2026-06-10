@@ -31,11 +31,30 @@ export interface OrganizationPageSocialMedia {
   tiktok?: string;
 }
 
+/**
+ * Divisiones canónicas para páginas de tipo LEAGUE. Los strings deben
+ * coincidir EXACTAMENTE con el validador @IsIn del backend.
+ */
+export const LEAGUE_DIVISIONS = [
+  "Primera división",
+  "Segunda división",
+  "Tercera división",
+  "Cuarta división",
+  "Quinta división",
+  "Sexta división",
+  "Séptima división",
+  "Octava división",
+  "Novena división",
+] as const;
+
+export type LeagueDivision = (typeof LEAGUE_DIVISIONS)[number];
+
 export interface OrganizationLeagueSummary {
   id: string;
   name: string;
   slug: string;
   logoUrl?: string | null;
+  division?: string | null;
 }
 
 /**
@@ -79,6 +98,7 @@ export interface OrganizationPage {
   league?: OrganizationLeagueSummary | null;
   federationId?: string | null;
   federation?: OrganizationLeagueSummary | null;
+  division?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -93,6 +113,7 @@ export interface PageDraft {
   description: string;
   leagueId: string | null;
   federationId: string | null;
+  division: string | null;
   logoUrl: string;
   bannerUrl: string;
   website: string;
@@ -112,6 +133,7 @@ export const EMPTY_PAGE_DRAFT: PageDraft = {
   description: "",
   leagueId: null,
   federationId: null,
+  division: null,
   logoUrl: "",
   bannerUrl: "",
   website: "",

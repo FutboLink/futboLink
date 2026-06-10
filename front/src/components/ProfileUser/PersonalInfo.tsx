@@ -132,18 +132,8 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
     }
   }, [fetchedProfileData?.secondNationality]);
 
-  // Si el user tiene videoUrl legacy y videoUrls está vacío, lo subimos al
-  // array nuevo para que aparezca en los 3 inputs de "Videos".
-  useEffect(() => {
-    if (!fetchedProfileData) return;
-    const legacy = fetchedProfileData.videoUrl?.trim();
-    const arr = fetchedProfileData.videoUrls ?? [];
-    if (legacy && arr.length === 0) {
-      setFetchedProfileData((prev) =>
-        prev ? { ...prev, videoUrls: [legacy] } : prev,
-      );
-    }
-  }, [fetchedProfileData?.videoUrl, fetchedProfileData?.videoUrls?.length]);
+  // El campo legacy `videoUrl` ya no se usa: la migración de backend movió su
+  // valor a `videoUrls`. Acá solo trabajamos con los 3 slots de `videoUrls`.
 
   // Mantiene `age` derivada de `birthday` aunque la DB no la traiga calculada.
   useEffect(() => {
@@ -267,6 +257,10 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
         });
         (dataToSend as any).socialMedia = cleaned;
       }
+
+      // El campo legacy `videoUrl` quedó deprecado: nunca lo enviamos al
+      // backend. El video vive solo en `videoUrls`.
+      delete (dataToSend as Partial<IProfileData>).videoUrl;
 
       // Filtrar strings vacíos en los arrays nuevos antes de enviar al backend.
       if (Array.isArray(dataToSend.videoUrls)) {

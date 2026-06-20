@@ -473,8 +473,17 @@ function NavbarRoles() {
                     className="w-full flex items-center justify-center gap-2 bg-verde-oscuro text-white px-5 py-2.5 rounded-xl mt-2 hover:bg-green-800 hover:shadow-lg transition-all duration-200"
                   >
                     <>
-  <FaUserEdit className="mr-2" />
-  Crear cuenta gratis →
+  <div className="flex items-center justify-between w-full">
+  <FaUserEdit className="text-lg" />
+
+  <span className="font-semibold">
+    Crear cuenta gratis
+  </span>
+
+  <span className="text-lg">
+    →
+  </span>
+</div>
                   </button>
                     <div className="mt-4 bg-gray-50 rounded-xl p-4 border border-gray-100">
   <div className="flex items-center gap-3">

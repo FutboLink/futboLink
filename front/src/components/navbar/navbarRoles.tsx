@@ -475,11 +475,11 @@ function NavbarRoles() {
                     <>
   <FaUserEdit className="mr-2" />
   Crear cuenta gratis →
-</>
                   </button>
-                   <div className="mt-4 bg-gray-50 rounded-xl p-4 border border-gray-100">
+                    <div className="mt-4 bg-gray-50 rounded-xl p-4 border border-gray-100">
   <div className="flex items-center gap-3">
-    <div className="text-2xl">🛡️</div>
+
+    <FaUsers className="text-verde-oscuro text-2xl" />
 
     <div>
       <p className="font-semibold text-verde-oscuro">
@@ -490,8 +490,10 @@ function NavbarRoles() {
         Conecta, crece y alcanza tu próximo nivel.
       </p>
     </div>
+
   </div>
 </div>
+                   
                 </>
               ) : (  
                 <div className="mb-4 mt-2 border-t pt-4 border-gray-200">

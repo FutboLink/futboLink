@@ -469,7 +469,7 @@ function NavbarRoles() {
                     onClick={() => navigateTo("/Login/register")}
                     className="w-full bg-verde-oscuro text-white px-5 py-2.5 rounded-xl mt-2 hover:bg-green-800 hover:shadow-lg transition-all duration-200"
                   >
-                    ➕ Crear cuenta gratis →
+                    Crear cuenta gratis →
                   </button>
                 </>
               ) : (

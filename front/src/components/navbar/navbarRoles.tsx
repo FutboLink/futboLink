@@ -467,9 +467,12 @@ function NavbarRoles() {
                   <button
                     type="button"
                     onClick={() => navigateTo("/Login/register")}
-                    className="w-full bg-verde-oscuro text-white px-5 py-2.5 rounded-xl mt-2 hover:bg-green-800 hover:shadow-lg transition-all duration-200"
+                    className="w-full flex items-center justify-center gap-2 bg-verde-oscuro text-white px-5 py-2.5 rounded-xl mt-2 hover:bg-green-800 hover:shadow-lg transition-all duration-200"
                   >
-                    Crear cuenta gratis →
+                    <>
+  <FaUserEdit className="mr-2" />
+  Crear cuenta gratis →
+</>
                   </button>
                 </>
               ) : (

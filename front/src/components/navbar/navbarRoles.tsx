@@ -459,11 +459,19 @@ function NavbarRoles() {
                     <button
                       type="button"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="w-full flex items-center justify-center gap-2 bg-white border border-gray-200 text-verde-oscuro px-5 py-2.5 rounded-xl hover:shadow-md transition-all duration-200"
+                      className="w-full bg-white border border-gray-200 text-verde-oscuro px-5 py-3 rounded-xl hover:shadow-md transition-all duration-200"
                     >
-                      <>
-  <FaUser className="mr-2" />
-  Iniciar sesión
+                <div className="flex items-center justify-between w-full">
+  <FaUser className="text-xl" />
+
+  <span className="font-semibold flex-1 text-center">
+    Iniciar sesión
+  </span>
+
+  <span className="text-xl">
+    →
+  </span>
+</div>
 </>
                     </button>
                   </Link>

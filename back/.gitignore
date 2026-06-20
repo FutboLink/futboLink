@@ -57,3 +57,7 @@ pids
 *.pid.lock
 
 
+
+# Credenciales de PRODUCCIÓN (Railway) — NUNCA commitear
+.env.prod
+.env.prod.local

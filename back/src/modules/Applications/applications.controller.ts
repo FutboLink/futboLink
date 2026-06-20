@@ -76,6 +76,44 @@ export class ApplicationController {
     return this.applicationService.listApplications(jobId);
   }
 
+  @Get('/player/:id')
+  @ApiOperation({ summary: 'Listar las postulaciones de un jugador (panel)' })
+  @ApiResponse({ status: 200, description: 'Postulaciones del jugador con su estado' })
+  async findByPlayer(@Param('id') playerId: string) {
+    return this.applicationService.findByPlayer(playerId);
+  }
+
+  @Get('/recruiter/:id')
+  @ApiOperation({ summary: 'Listar las postulaciones hechas por un reclutador/agente' })
+  @ApiResponse({ status: 200, description: 'Postulaciones hechas en nombre de jugadores de la cartera' })
+  async findByRecruiter(@Param('id') recruiterId: string) {
+    return this.applicationService.findByRecruiter(recruiterId);
+  }
+
+  @Post('/jobs/:id/review')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Marcar "En revisión" a los candidatos de una oferta (al abrir la lista)' })
+  @ApiResponse({ status: 200, description: 'Candidatos marcados en revisión' })
+  async markJobInReview(@Param('id') jobId: string, @Req() req: any) {
+    return this.applicationService.markJobInReview(jobId, req.user.id);
+  }
+
+  @Patch('/:id/profile-viewed')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Marcar "Perfil visto" (al abrir el perfil de un candidato)' })
+  @ApiResponse({ status: 200, description: 'Postulación marcada como perfil visto' })
+  async markProfileViewed(@Param('id') applicationId: string, @Req() req: any) {
+    return this.applicationService.markProfileViewed(applicationId, req.user.id);
+  }
+
+  @Patch('/:id/interest')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Botón "Me interesa" del ofertante sobre un candidato' })
+  @ApiResponse({ status: 200, description: 'Interés registrado' })
+  async markInterest(@Param('id') applicationId: string, @Req() req: any) {
+    return this.applicationService.markInterest(applicationId, req.user.id);
+  }
+
   @Patch('/:id/status')
   @ApiOperation({ summary: 'Actualizar el estado de una aplicación' })
   @ApiResponse({ status: 200, description: 'Estado actualizado exitosamente' })

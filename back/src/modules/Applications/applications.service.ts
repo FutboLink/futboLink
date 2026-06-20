@@ -29,6 +29,40 @@ export class ApplicationService {
     private readonly notificationsService: NotificationsService,
   ) {}
 
+  // Escalera de una sola dirección del panel. Los estados legacy
+  // (SHORTLISTED/ACCEPTED/REJECTED) NO están en la escalera: los autoavances no
+  // los tocan para no pisar data existente.
+  private readonly LADDER: string[] = [
+    ApplicationStatus.PENDING,
+    ApplicationStatus.IN_REVIEW,
+    ApplicationStatus.PROFILE_VIEWED,
+    ApplicationStatus.INTERESTED,
+  ];
+
+  // ¿Se puede avanzar `current` -> `next`? Solo si current está en la escalera
+  // (vacío/null se trata como PENDING) y next está más adelante.
+  private canPromote(current: string | null | undefined, next: ApplicationStatus): boolean {
+    const cur = current && current.length > 0 ? current : ApplicationStatus.PENDING;
+    const curIdx = this.LADDER.indexOf(cur);
+    const nextIdx = this.LADDER.indexOf(next);
+    return curIdx !== -1 && nextIdx > curIdx;
+  }
+
+  // Crea una notificación sin romper el flujo si falla (best-effort).
+  private async safeNotify(payload: {
+    message: string;
+    type: NotificationType;
+    userId: string;
+    sourceUserId?: string;
+    metadata?: Record<string, any>;
+  }): Promise<void> {
+    try {
+      await this.notificationsService.create(payload as any);
+    } catch (error) {
+      console.error('Error al enviar notificación:', error?.message || error);
+    }
+  }
+
   @ApiOperation({ summary: 'Aplicar a un trabajo' })
   @ApiResponse({ status: 201, description: 'Aplicación creada exitosamente.' })
   @ApiResponse({ status: 404, description: 'Jugador o trabajo no encontrado.' })
@@ -97,7 +131,29 @@ export class ApplicationService {
 
     // Create and save the application
     const application = this.applicationRepository.create({ player, job, message });
-    return this.applicationRepository.save(application);
+    const saved = await this.applicationRepository.save(application);
+
+    // Confirmación al jugador de que su postulación se envió.
+    await this.safeNotify({
+      message: `Tu perfil fue enviado correctamente a la oferta "${job.title}". Te notificaremos sobre el proceso.`,
+      type: NotificationType.APPLICATION_SENT,
+      userId: player.id,
+      sourceUserId: job.recruiter?.id,
+      metadata: { jobId: job.id, jobTitle: job.title, applicationId: saved.id },
+    });
+
+    // Aviso al ofertante (dueño de la oferta) de que llegó una nueva postulación.
+    if (job.recruiter) {
+      await this.safeNotify({
+        message: `${player.name}${player.lastname ? ' ' + player.lastname : ''} se postuló a tu oferta "${job.title}".`,
+        type: NotificationType.APPLICATION_RECEIVED,
+        userId: job.recruiter.id,
+        sourceUserId: player.id,
+        metadata: { jobId: job.id, jobTitle: job.title, applicationId: saved.id },
+      });
+    }
+
+    return saved;
   }
 
   @ApiOperation({ summary: 'Listar aplicaciones por trabajo' })
@@ -388,5 +444,113 @@ export class ApplicationService {
       
       return savedApplication;
     }
+  }
+
+  @ApiOperation({ summary: 'Listar las postulaciones de un jugador (panel)' })
+  @ApiResponse({ status: 200, description: 'Postulaciones del jugador con su estado.' })
+  async findByPlayer(playerId: string): Promise<Application[]> {
+    return this.applicationRepository.find({
+      where: { player: { id: String(playerId) } },
+      relations: ['job', 'job.recruiter'],
+      order: { appliedAt: 'DESC' },
+    });
+  }
+
+  // Postulaciones que un reclutador/agente hizo en nombre de jugadores de su
+  // cartera (panel del Agente -> "Mis postulaciones").
+  async findByRecruiter(recruiterId: string): Promise<Application[]> {
+    return this.applicationRepository.find({
+      where: { recruiter: { id: String(recruiterId) }, appliedByRecruiter: true },
+      relations: ['job', 'job.recruiter', 'player'],
+      order: { appliedAt: 'DESC' },
+    });
+  }
+
+  // Cuando el ofertante entra a ver los candidatos de su oferta, todas las
+  // postulaciones PENDING pasan a IN_REVIEW ("En revisión") y se avisa al jugador.
+  async markJobInReview(jobId: string, ownerId: string): Promise<{ updated: number }> {
+    const job = await this.jobRepository.findOne({
+      where: { id: String(jobId) },
+      relations: ['recruiter'],
+    });
+    if (!job) throw new NotFoundException('Oferta no encontrada');
+    if (job.recruiter?.id !== ownerId) {
+      throw new ForbiddenException('No sos el dueño de esta oferta');
+    }
+
+    const apps = await this.applicationRepository.find({
+      where: { job: { id: String(jobId) } },
+      relations: ['player'],
+    });
+
+    let updated = 0;
+    for (const app of apps) {
+      if (!this.canPromote(app.status, ApplicationStatus.IN_REVIEW)) continue;
+      app.status = ApplicationStatus.IN_REVIEW;
+      await this.applicationRepository.save(app);
+      updated++;
+      if (app.player) {
+        await this.safeNotify({
+          message: `Tu postulación a "${job.title}" está en revisión.`,
+          type: NotificationType.APPLICATION_IN_REVIEW,
+          userId: app.player.id,
+          sourceUserId: ownerId,
+          metadata: { jobId: job.id, jobTitle: job.title, applicationId: app.id },
+        });
+      }
+    }
+    return { updated };
+  }
+
+  // Cuando el ofertante abre el perfil de un candidato -> PROFILE_VIEWED.
+  async markProfileViewed(applicationId: string, ownerId: string): Promise<Application> {
+    const app = await this.applicationRepository.findOne({
+      where: { id: String(applicationId) },
+      relations: ['player', 'job', 'job.recruiter'],
+    });
+    if (!app) throw new NotFoundException('Postulación no encontrada');
+    if (app.job?.recruiter?.id !== ownerId) {
+      throw new ForbiddenException('No sos el dueño de esta oferta');
+    }
+    if (this.canPromote(app.status, ApplicationStatus.PROFILE_VIEWED)) {
+      app.status = ApplicationStatus.PROFILE_VIEWED;
+      await this.applicationRepository.save(app);
+      if (app.player) {
+        await this.safeNotify({
+          message: `Vieron tu perfil en la oferta "${app.job.title}".`,
+          type: NotificationType.APPLICATION_PROFILE_VIEWED,
+          userId: app.player.id,
+          sourceUserId: ownerId,
+          metadata: { jobId: app.job.id, jobTitle: app.job.title, applicationId: app.id },
+        });
+      }
+    }
+    return app;
+  }
+
+  // Botón "Me interesa" del ofertante -> INTERESTED (acción explícita).
+  async markInterest(applicationId: string, ownerId: string): Promise<Application> {
+    const app = await this.applicationRepository.findOne({
+      where: { id: String(applicationId) },
+      relations: ['player', 'job', 'job.recruiter'],
+    });
+    if (!app) throw new NotFoundException('Postulación no encontrada');
+    if (app.job?.recruiter?.id !== ownerId) {
+      throw new ForbiddenException('No sos el dueño de esta oferta');
+    }
+    if (app.status !== ApplicationStatus.INTERESTED) {
+      app.status = ApplicationStatus.INTERESTED;
+      await this.applicationRepository.save(app);
+      if (app.player) {
+        await this.safeNotify({
+          message: `Mostraron interés en tu perfil para la oferta "${app.job.title}".`,
+          type: NotificationType.APPLICATION_INTEREST,
+          userId: app.player.id,
+          sourceUserId: ownerId,
+          metadata: { jobId: app.job.id, jobTitle: app.job.title, applicationId: app.id },
+        });
+      }
+    }
+    return app;
   }
 }

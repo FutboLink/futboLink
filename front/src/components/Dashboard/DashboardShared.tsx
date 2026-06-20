@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { FaShieldAlt } from "react-icons/fa";
+import { FaBell, FaShieldAlt } from "react-icons/fa";
 import {
   type DashboardApplication,
+  type DashNotification,
   statusLabel,
   statusStyle,
+  timeAgo,
 } from "./dashboardFetch";
 
 // Tarjeta de número del resumen (postulaciones, visitas, interesados, etc.).
@@ -85,6 +87,51 @@ export function ApplicationRow({ app }: { app: DashboardApplication }) {
       >
         {statusLabel(app.status)}
       </span>
+    </div>
+  );
+}
+
+// Feed de avisos recientes del proceso (lee las notificaciones del usuario).
+export function AvisosRecientes({
+  notifications,
+  loading,
+}: {
+  notifications: DashNotification[];
+  loading?: boolean;
+}) {
+  return (
+    <SectionCard title="Avisos recientes">
+      {loading ? (
+        <p className="py-3 text-sm text-gray-500">Cargando...</p>
+      ) : notifications.length === 0 ? (
+        <p className="py-3 text-sm text-gray-500">Todavía no tenés avisos.</p>
+      ) : (
+        notifications.slice(0, 6).map((n) => (
+          <div
+            key={n.id}
+            className="flex items-start gap-2.5 border-b border-gray-100 py-2.5 last:border-b-0"
+          >
+            <span className="mt-0.5 text-verde-oscuro">
+              <FaBell className="h-3.5 w-3.5" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm text-gray-700">{n.message}</p>
+              <p className="text-xs text-gray-400">{timeAgo(n.createdAt)}</p>
+            </div>
+          </div>
+        ))
+      )}
+    </SectionCard>
+  );
+}
+
+// Banner de candidatos sin revisar (para el ofertante/agente).
+export function SinRevisarBanner({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <div className="mb-4 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+      <FaBell className="h-4 w-4 shrink-0" />
+      Tenés <b>{count}</b> candidato{count === 1 ? "" : "s"} sin revisar.
     </div>
   );
 }

@@ -6,15 +6,23 @@ import { FaChevronDown, FaChevronRight, FaHeart, FaUsers } from "react-icons/fa"
 import {
   type DashboardApplication,
   type DashboardJob,
+  type DashNotification,
   getJobCandidates,
   getMyOffers,
+  getNotifications,
   markInterest,
   markJobInReview,
   markProfileViewed,
   statusLabel,
   statusStyle,
 } from "./dashboardFetch";
-import { DashboardHeader, SectionCard, StatCard } from "./DashboardShared";
+import {
+  AvisosRecientes,
+  DashboardHeader,
+  SectionCard,
+  SinRevisarBanner,
+  StatCard,
+} from "./DashboardShared";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -162,15 +170,21 @@ export default function DashboardOfertante({
   const [offers, setOffers] = useState<DashboardJob[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [interested, setInterested] = useState(0);
+  const [sinRevisar, setSinRevisar] = useState(0);
+  const [notifs, setNotifs] = useState<DashNotification[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!token) return;
     let cancelled = false;
     (async () => {
-      const myOffers = await getMyOffers(token);
+      const [myOffers, n] = await Promise.all([
+        getMyOffers(token),
+        getNotifications(userId, token),
+      ]);
       if (cancelled) return;
       setOffers(myOffers);
+      setNotifs(n);
       // Conteo de candidatos por oferta (GET sin efectos secundarios).
       const lists = await Promise.all(
         myOffers.map((o) => getJobCandidates(o.id)),
@@ -178,18 +192,24 @@ export default function DashboardOfertante({
       if (cancelled) return;
       const c: Record<string, number> = {};
       let totalInterested = 0;
+      let totalSinRevisar = 0;
       myOffers.forEach((o, i) => {
         c[o.id] = lists[i].length;
         totalInterested += lists[i].filter((a) => a.status === "INTERESTED").length;
+        // "Sin revisar" = postulaciones todavía en PENDING (o sin estado).
+        totalSinRevisar += lists[i].filter(
+          (a) => !a.status || a.status === "PENDING",
+        ).length;
       });
       setCounts(c);
       setInterested(totalInterested);
+      setSinRevisar(totalSinRevisar);
       setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [token, userId]);
 
   const totalCandidatos = Object.values(counts).reduce((a, b) => a + b, 0);
 
@@ -214,12 +234,14 @@ export default function DashboardOfertante({
         </>
       )}
 
+      {!loading && <SinRevisarBanner count={sinRevisar} />}
+
       <div className={hideHeader ? "" : "mt-6"}>
         <SectionCard
           title="Mis ofertas publicadas"
           action={
             <Link
-              href="/PanelUsers/Manager"
+              href={`/user-viewer/${userId}?tab=createOffer`}
               className="text-xs font-medium text-verde-oscuro hover:underline"
             >
               Crear oferta
@@ -241,6 +263,12 @@ export default function DashboardOfertante({
           )}
         </SectionCard>
       </div>
+
+      {!hideHeader && (
+        <div className="mt-6">
+          <AvisosRecientes notifications={notifs} loading={loading} />
+        </div>
+      )}
     </div>
   );
 }

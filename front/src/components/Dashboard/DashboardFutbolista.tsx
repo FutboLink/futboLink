@@ -5,34 +5,18 @@ import { useEffect, useState } from "react";
 import { FaEye, FaPaperPlane, FaStar } from "react-icons/fa";
 import {
   type DashboardApplication,
+  type DashNotification,
+  getNotifications,
   getPlayerApplications,
 } from "./dashboardFetch";
 import {
   ApplicationRow,
+  AvisosRecientes,
   DashboardHeader,
   HelpCards,
   SectionCard,
   StatCard,
 } from "./DashboardShared";
-
-const API = process.env.NEXT_PUBLIC_API_URL;
-
-// Cuenta las notificaciones de tipo PROFILE_VIEW del usuario (visitas al perfil).
-// El endpoint requiere auth, así que mandamos el token si lo tenemos.
-async function getProfileViews(userId: string, token?: string): Promise<number> {
-  try {
-    const res = await fetch(`${API}/notifications/user/${userId}`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-    });
-    if (!res.ok) return 0;
-    const data = await res.json();
-    const list = Array.isArray(data) ? data : (data?.data ?? []);
-    return list.filter((n: { type?: string }) => n.type === "PROFILE_VIEW")
-      .length;
-  } catch {
-    return 0;
-  }
-}
 
 export default function DashboardFutbolista({
   userId,
@@ -44,20 +28,20 @@ export default function DashboardFutbolista({
   token?: string;
 }) {
   const [apps, setApps] = useState<DashboardApplication[]>([]);
-  const [views, setViews] = useState(0);
+  const [notifs, setNotifs] = useState<DashNotification[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!userId) return;
     let cancelled = false;
     (async () => {
-      const [a, v] = await Promise.all([
+      const [a, n] = await Promise.all([
         getPlayerApplications(userId),
-        getProfileViews(userId, token),
+        getNotifications(userId, token),
       ]);
       if (cancelled) return;
       setApps(a);
-      setViews(v);
+      setNotifs(n);
       setLoading(false);
     })();
     return () => {
@@ -67,6 +51,7 @@ export default function DashboardFutbolista({
 
   const activas = apps.filter((a) => a.status !== "REJECTED").length;
   const interesados = apps.filter((a) => a.status === "INTERESTED").length;
+  const views = notifs.filter((n) => n.type === "PROFILE_VIEW").length;
 
   return (
     <div>
@@ -97,7 +82,7 @@ export default function DashboardFutbolista({
             title="Postulaciones enviadas"
             action={
               <Link
-                href="/player-search"
+                href="/jobs"
                 className="text-xs font-medium text-verde-oscuro hover:underline"
               >
                 Buscar ofertas
@@ -117,7 +102,10 @@ export default function DashboardFutbolista({
             )}
           </SectionCard>
         </div>
-        <HelpCards />
+        <div className="space-y-6">
+          <AvisosRecientes notifications={notifs} loading={loading} />
+          <HelpCards />
+        </div>
       </div>
     </div>
   );

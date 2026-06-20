@@ -6,13 +6,21 @@ import { FaUsers } from "react-icons/fa";
 import {
   type DashboardApplication,
   type DashboardJob,
+  type DashNotification,
   getJobCandidates,
   getMyOffers,
+  getNotifications,
   getPortfolio,
   getRecruiterApplications,
 } from "./dashboardFetch";
 import DashboardOfertante from "./DashboardOfertante";
-import { ApplicationRow, DashboardHeader, SectionCard, StatCard } from "./DashboardShared";
+import {
+  ApplicationRow,
+  AvisosRecientes,
+  DashboardHeader,
+  SectionCard,
+  StatCard,
+} from "./DashboardShared";
 
 type Tab = "ofertas" | "postulaciones" | "portafolio";
 
@@ -37,20 +45,23 @@ export default function DashboardAgente({
   const [portfolio, setPortfolio] = useState<PortfolioPlayer[]>([]);
   const [offersCount, setOffersCount] = useState(0);
   const [candidatesCount, setCandidatesCount] = useState(0);
+  const [notifs, setNotifs] = useState<DashNotification[]>([]);
 
   useEffect(() => {
     if (!userId) return;
     let cancelled = false;
     (async () => {
-      const [a, p, offers] = await Promise.all([
+      const [a, p, offers, n] = await Promise.all([
         getRecruiterApplications(userId),
         getPortfolio(userId, token),
         getMyOffers(token),
+        getNotifications(userId, token),
       ]);
       if (cancelled) return;
       setApps(a);
       setPortfolio(p);
       setOffersCount(offers.length);
+      setNotifs(n);
       // Conteo total de candidatos de las ofertas del agente.
       const lists = await Promise.all(
         offers.map((o: DashboardJob) => getJobCandidates(o.id)),
@@ -153,6 +164,10 @@ export default function DashboardAgente({
             )}
           </SectionCard>
         )}
+      </div>
+
+      <div className="mt-6">
+        <AvisosRecientes notifications={notifs} loading={false} />
       </div>
     </div>
   );

@@ -60,6 +60,47 @@ export function statusStyle(status?: string): string {
   return STATUS_STYLES[status] ?? "bg-gray-100 text-gray-600";
 }
 
+export interface DashNotification {
+  id: string;
+  message: string;
+  type?: string;
+  read?: boolean;
+  createdAt?: string;
+}
+
+// Avisos (notificaciones) del usuario, más recientes primero. Requiere token.
+export async function getNotifications(
+  userId: string,
+  token?: string,
+): Promise<DashNotification[]> {
+  try {
+    const res = await fetch(`${API}/notifications/user/${userId}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const list = Array.isArray(data) ? data : (data?.data ?? []);
+    return list as DashNotification[];
+  } catch {
+    return [];
+  }
+}
+
+// Tiempo relativo simple en español ("hace 3 h", "hace 2 d").
+export function timeAgo(iso?: string): string {
+  if (!iso) return "";
+  const ms = Date.now() - new Date(iso).getTime();
+  if (Number.isNaN(ms)) return "";
+  const min = Math.floor(ms / 60000);
+  if (min < 1) return "recién";
+  if (min < 60) return `hace ${min} min`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `hace ${h} h`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `hace ${d} d`;
+  return new Date(iso).toLocaleDateString("es-AR");
+}
+
 // Postulaciones de un jugador (las que hizo él, o las que le hizo su agente).
 export async function getPlayerApplications(
   playerId: string,

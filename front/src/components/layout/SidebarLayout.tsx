@@ -265,6 +265,11 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
       return {
         main: [
           {
+            label: getText("Dashboard", "dashboard"),
+            path: "/dashboard",
+            icon: <FaHome />,
+          },
+          {
             // Para AGENCY / RECRUITER / CLUB el perfil pasa a verse en
             // /user-viewer/{id} (misma estructura que Futbolista y CT,
             // con tab "Portafolio" extra). El panel del agente legacy

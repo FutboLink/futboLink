@@ -459,7 +459,7 @@ function NavbarRoles() {
                     <button
                       type="button"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="w-full bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
+                      className="w-full bg-white border border-gray-200 text-verde-oscuro px-5 py-2.5 rounded-xl hover:shadow-md transition-all duration-200"
                     >
                       Iniciar sesión
                     </button>
@@ -467,7 +467,7 @@ function NavbarRoles() {
                   <button
                     type="button"
                     onClick={() => navigateTo("/Login/register")}
-                    className="w-full bg-white text-verde-oscuro px-4 py-2 rounded-md mt-2 hover:bg-gray-200"
+                    className="w-full bg-verde-oscuro text-white px-5 py-2.5 rounded-xl mt-2 hover:bg-green-800 hover:shadow-lg transition-all duration-200"
                   >
                     Registrarse
                   </button>

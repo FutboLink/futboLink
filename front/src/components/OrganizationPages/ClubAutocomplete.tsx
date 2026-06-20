@@ -43,6 +43,14 @@ type Props = {
   // Solo el rol Agente puede ver/seleccionar páginas de tipo AGENCY en la
   // trayectoria. Para el resto de los roles las agencias se ocultan.
   includeAgency?: boolean;
+  // Filtra las sugerencias por país (organization_pages.country). Si está
+  // presente, el backend solo devuelve páginas de ese país.
+  country?: string | null;
+  // Restringe la búsqueda a un solo tipo de página (ej. "LEAGUE"). Si se pasa,
+  // el backend filtra por ese type y se omite el filtro client-side de AGENCY.
+  typeFilter?: string;
+  // Texto del cartelito "Vinculado a ..." cuando se selecciona una página.
+  linkedLabel?: string;
 };
 
 // Autocomplete para vincular trayectorias con cualquier OrganizationPage
@@ -59,6 +67,9 @@ const ClubAutocomplete: React.FC<Props> = ({
   disabled = false,
   inputId,
   includeAgency = false,
+  country,
+  typeFilter,
+  linkedLabel = "la página oficial del club",
 }) => {
   // El placeholder por defecto depende del rol: el Agente ve "agencia" como
   // opción, el resto no. Si el caller pasa un placeholder explícito, gana.
@@ -85,13 +96,15 @@ const ClubAutocomplete: React.FC<Props> = ({
     const handler = window.setTimeout(async () => {
       setLoading(true);
       try {
-        // Sin filtro de type — el backend devuelve TODOS los tipos de
-        // OrganizationPage (CLUB, ACADEMY, AGENCY, etc.) ordenados por nombre.
-        // Así un Agente puede vincular su propia agencia en la trayectoria.
+        // Por defecto, sin filtro de type — el backend devuelve TODOS los tipos
+        // de OrganizationPage (CLUB, ACADEMY, AGENCY, etc.) ordenados por nombre,
+        // así un Agente puede vincular su propia agencia en la trayectoria.
+        // Si se pasa `typeFilter` (ej. "LEAGUE") o `country`, el backend acota.
+        const params = new URLSearchParams({ q: trimmed, limit: "15" });
+        if (typeFilter) params.set("type", typeFilter);
+        if (country) params.set("country", country);
         const res = await fetch(
-          `${API_URL}/organization-pages?q=${encodeURIComponent(
-            trimmed,
-          )}&limit=15`,
+          `${API_URL}/organization-pages?${params.toString()}`,
           { signal: controller.signal },
         );
         const data = res.ok ? await res.json() : { data: [] };
@@ -117,8 +130,10 @@ const ClubAutocomplete: React.FC<Props> = ({
           );
         // Solo el Agente puede ver páginas de tipo AGENCY. Para el resto, se
         // filtran del lado del cliente (por eso pedimos limit=15 y recortamos).
+        // Si hay un typeFilter explícito, el backend ya acotó el type y no hace
+        // falta el filtro de AGENCY.
         const filtered = (
-          includeAgency
+          includeAgency || typeFilter
             ? flat
             : flat.filter((s: ClubSuggestion) => s.type !== "AGENCY")
         ).slice(0, 10);
@@ -135,7 +150,7 @@ const ClubAutocomplete: React.FC<Props> = ({
       window.clearTimeout(handler);
       controller.abort();
     };
-  }, [value, open, includeAgency]);
+  }, [value, open, includeAgency, country, typeFilter]);
 
   // Cierra el dropdown al click afuera.
   useEffect(() => {
@@ -190,7 +205,7 @@ const ClubAutocomplete: React.FC<Props> = ({
       {isLinked && (
         <div className="mt-1 text-xs text-emerald-600 flex items-center gap-1">
           <FaShieldAlt className="h-3 w-3" />
-          Vinculado a la página oficial del club
+          Vinculado a {linkedLabel}
         </div>
       )}
 

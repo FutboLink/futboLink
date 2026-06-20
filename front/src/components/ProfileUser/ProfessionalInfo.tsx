@@ -13,6 +13,7 @@ import {
 import { useUserContext } from "@/hook/useUserContext";
 import { type IProfileData, PasaporteUe, UserType } from "@/Interfaces/IUser";
 import ClubAutocomplete from "../OrganizationPages/ClubAutocomplete";
+import useNationalities from "../Forms/FormUser/useNationalitys";
 import FileUpload from "../Cloudinary/FileUpload";
 import { updateUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
@@ -111,6 +112,9 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
     clubPageId: undefined as string | undefined,
     clubPageSlug: undefined as string | undefined,
     clubPageLogo: undefined as string | undefined,
+    liga: "",
+    ligaPageId: undefined as string | undefined,
+    ligaPageSlug: undefined as string | undefined,
   };
 
   // Información general del perfil
@@ -149,10 +153,18 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
     clubPageId?: string;
     clubPageSlug?: string;
     clubPageLogo?: string;
+    // Liga en la que compitió. Igual que el club: texto libre o, si se eligió
+    // una página LEAGUE del autocomplete, guardamos id+slug.
+    liga: string;
+    ligaPageId?: string;
+    ligaPageSlug?: string;
   }
 
   // State for experiences (trayectorias)
   const [experiences, setExperiences] = useState<Experience[]>([{ ...emptyExperience, id: Date.now().toString() }]);
+
+  // Lista de países para el selector de la trayectoria (País → Club → Liga).
+  const { nationalities } = useNationalities();
 
   // Función para togglear secciones
   const toggleSection = (section: keyof typeof sectionsExpanded) => {
@@ -195,9 +207,13 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
     (puestoLower === "" || puestoLower === "jugador")
   );
 
-  // Solo el rol Agente puede ver/seleccionar páginas de tipo AGENCY en la
-  // trayectoria. El resto de los roles no ve agencias en el autocomplete.
-  const isAgente = (formData?.role as unknown as UserType) === UserType.AGENCY;
+  // Los roles "ofertantes" (Agente y Reclutador) pueden ver/seleccionar páginas
+  // de tipo AGENCY en la trayectoria. Incluye los perfiles RECRUITER migrados
+  // ("Agencia de reclutamiento") que son dueños de su propia página de agencia.
+  // El resto de los roles no ve agencias en el autocomplete.
+  const userRole = formData?.role as unknown as UserType;
+  const isAgente =
+    userRole === UserType.AGENCY || userRole === UserType.RECRUITER;
 
   // NOTA sobre la barra de progreso en tiempo real:
   // Probamos sincronizar formData + sub-states (primaryPosition,
@@ -267,6 +283,9 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
           clubPageId: exp.clubPageId,
           clubPageSlug: exp.clubPageSlug,
           clubPageLogo: exp.clubPageLogo,
+          liga: exp.liga || "",
+          ligaPageId: exp.ligaPageId,
+          ligaPageSlug: exp.ligaPageSlug,
         }));
 
         setExperiences(updatedExperiences);
@@ -281,6 +300,7 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
           nivelCompetencia: profileData.nivelCompetencia || NIVEL_COMPETENCIA_OPTIONS[0],
           logros: profileData.logros || "",
           nacionalidadTrayectoria: profileData.nacionalidadTrayectoria || "",
+          liga: "",
         };
 
         setExperiences([legacyExperience]);
@@ -352,9 +372,12 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
         nivelCompetencia: String(exp.nivelCompetencia || ""),
         logros: String(exp.logros || ""),
         nacionalidadTrayectoria: String(exp.nacionalidadTrayectoria || ""),
+        liga: String(exp.liga || ""),
         ...(exp.clubPageId ? { clubPageId: exp.clubPageId } : {}),
         ...(exp.clubPageSlug ? { clubPageSlug: exp.clubPageSlug } : {}),
         ...(exp.clubPageLogo ? { clubPageLogo: exp.clubPageLogo } : {}),
+        ...(exp.ligaPageId ? { ligaPageId: exp.ligaPageId } : {}),
+        ...(exp.ligaPageSlug ? { ligaPageSlug: exp.ligaPageSlug } : {}),
       }));
 
       // Base updated data (always allowed)
@@ -675,6 +698,49 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* 1) País — filtra los clubes y ligas que se ofrecen */}
+                    <div className="mb-4">
+                      <label
+                        htmlFor={`pais-${index}`}
+                        className="block text-gray-700 text-sm font-bold mb-2"
+                      >
+                        País
+                      </label>
+                      <select
+                        id={`pais-${index}`}
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        value={exp.nacionalidadTrayectoria}
+                        onChange={(e) => {
+                          const pais = e.target.value;
+                          setExperiences((prev) => {
+                            const copy = [...prev];
+                            // Al cambiar el país reseteamos club y liga, que
+                            // dependen del país elegido.
+                            copy[index] = {
+                              ...copy[index],
+                              nacionalidadTrayectoria: pais,
+                              club: "",
+                              clubPageId: undefined,
+                              clubPageSlug: undefined,
+                              clubPageLogo: undefined,
+                              liga: "",
+                              ligaPageId: undefined,
+                              ligaPageSlug: undefined,
+                            };
+                            return copy;
+                          });
+                        }}
+                      >
+                        <option value="">Seleccioná un país</option>
+                        {nationalities.map((n) => (
+                          <option key={n.value} value={n.value}>
+                            {n.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* 2) Club/Institución — filtrado por el país elegido */}
                     <div className="mb-4">
                       <label
                         htmlFor={`club-${index}`}
@@ -685,6 +751,13 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
                       <ClubAutocomplete
                         inputId={`club-${index}`}
                         includeAgency={isAgente}
+                        country={exp.nacionalidadTrayectoria}
+                        disabled={!exp.nacionalidadTrayectoria}
+                        placeholder={
+                          exp.nacionalidadTrayectoria
+                            ? undefined
+                            : "Elegí primero el país"
+                        }
                         value={exp.club}
                         selectedPageId={exp.clubPageId}
                         selectedPageSlug={exp.clubPageSlug}
@@ -697,6 +770,45 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
                               clubPageId: next.clubPageId,
                               clubPageSlug: next.clubPageSlug,
                               clubPageLogo: next.clubPageLogo,
+                            };
+                            return copy;
+                          });
+                        }}
+                      />
+                    </div>
+
+                    {/* 3) Liga — autocomplete de páginas LEAGUE del país elegido,
+                        con fallback de texto libre (muchos países no tienen
+                        ligas cargadas todavía). */}
+                    <div className="mb-4">
+                      <label
+                        htmlFor={`liga-${index}`}
+                        className="block text-gray-700 text-sm font-bold mb-2"
+                      >
+                        Liga
+                      </label>
+                      <ClubAutocomplete
+                        inputId={`liga-${index}`}
+                        typeFilter="LEAGUE"
+                        linkedLabel="la liga oficial"
+                        country={exp.nacionalidadTrayectoria}
+                        disabled={!exp.nacionalidadTrayectoria}
+                        placeholder={
+                          exp.nacionalidadTrayectoria
+                            ? "Liga"
+                            : "Elegí primero el país"
+                        }
+                        value={exp.liga}
+                        selectedPageId={exp.ligaPageId}
+                        selectedPageSlug={exp.ligaPageSlug}
+                        onChange={(next) => {
+                          setExperiences((prev) => {
+                            const copy = [...prev];
+                            copy[index] = {
+                              ...copy[index],
+                              liga: next.club,
+                              ligaPageId: next.clubPageId,
+                              ligaPageSlug: next.clubPageSlug,
                             };
                             return copy;
                           });

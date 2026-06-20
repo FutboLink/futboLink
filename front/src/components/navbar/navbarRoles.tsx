@@ -456,25 +456,24 @@ function NavbarRoles() {
               {!isLogged ? (
                 <>
                   <Link href={"/Login"}>
-                    <button
-                      type="button"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="w-full bg-white border border-gray-200 text-verde-oscuro px-5 py-3 rounded-xl hover:shadow-md transition-all duration-200"
-                    >
-                <div className="flex items-center justify-between w-full">
-  <FaUser className="text-xl" />
+  <button
+    type="button"
+    onClick={() => setIsMobileMenuOpen(false)}
+    className="w-full bg-white border border-gray-200 text-verde-oscuro px-5 py-3 rounded-xl hover:shadow-md transition-all duration-200"
+  >
+    <div className="flex items-center justify-between w-full">
+      <FaUser className="text-xl" />
 
-  <span className="font-semibold flex-1 text-center">
-    Iniciar sesión
-  </span>
+      <span className="font-semibold flex-1 text-center">
+        Iniciar sesión
+      </span>
 
-  <span className="text-xl">
-    →
-  </span>
-</div>
-</>
-                    </button>
-                  </Link>
+      <span className="text-xl">
+        →
+      </span>
+    </div>
+  </button>
+</Link>
                   <button
                     type="button"
                     onClick={() => navigateTo("/Login/register")}

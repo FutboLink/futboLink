@@ -40,7 +40,7 @@ const Home = () => {
   const images = [
     {
       src: futA,
-      text: getText("Buscador de ofertas laborales", "jobSearcher"),
+      text: getText("Encuentra tu próxima oportunidad", "jobSearcher"),
       link: "/jobs",
     },
     {

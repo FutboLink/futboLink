@@ -139,7 +139,7 @@ export class ApplicationService {
       type: NotificationType.APPLICATION_SENT,
       userId: player.id,
       sourceUserId: job.recruiter?.id,
-      metadata: { jobId: job.id, jobTitle: job.title, applicationId: saved.id },
+      metadata: { jobId: job.id, jobTitle: job.title, jobImgUrl: job.imgUrl, applicationId: saved.id },
     });
 
     // Aviso al ofertante (dueño de la oferta) de que llegó una nueva postulación.
@@ -149,7 +149,7 @@ export class ApplicationService {
         type: NotificationType.APPLICATION_RECEIVED,
         userId: job.recruiter.id,
         sourceUserId: player.id,
-        metadata: { jobId: job.id, jobTitle: job.title, applicationId: saved.id },
+        metadata: { jobId: job.id, jobTitle: job.title, jobImgUrl: job.imgUrl, applicationId: saved.id },
       });
     }
 
@@ -495,7 +495,7 @@ export class ApplicationService {
           type: NotificationType.APPLICATION_IN_REVIEW,
           userId: app.player.id,
           sourceUserId: ownerId,
-          metadata: { jobId: job.id, jobTitle: job.title, applicationId: app.id },
+          metadata: { jobId: job.id, jobTitle: job.title, jobImgUrl: job.imgUrl, applicationId: app.id },
         });
       }
     }
@@ -521,7 +521,7 @@ export class ApplicationService {
           type: NotificationType.APPLICATION_PROFILE_VIEWED,
           userId: app.player.id,
           sourceUserId: ownerId,
-          metadata: { jobId: app.job.id, jobTitle: app.job.title, applicationId: app.id },
+          metadata: { jobId: app.job.id, jobTitle: app.job.title, jobImgUrl: app.job.imgUrl, applicationId: app.id },
         });
       }
     }
@@ -547,7 +547,7 @@ export class ApplicationService {
           type: NotificationType.APPLICATION_INTEREST,
           userId: app.player.id,
           sourceUserId: ownerId,
-          metadata: { jobId: app.job.id, jobTitle: app.job.title, applicationId: app.id },
+          metadata: { jobId: app.job.id, jobTitle: app.job.title, jobImgUrl: app.job.imgUrl, applicationId: app.id },
         });
       }
     }

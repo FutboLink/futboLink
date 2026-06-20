@@ -3,17 +3,21 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FaEye, FaPaperPlane, FaStar } from "react-icons/fa";
+import type { IProfileData } from "@/Interfaces/IUser";
+import ProfileProgressBar from "@/components/ProfileUser/ProfileProgressBar";
 import {
   type DashboardApplication,
   type DashNotification,
   getNotifications,
   getPlayerApplications,
+  getUserProfile,
 } from "./dashboardFetch";
 import {
   ApplicationRow,
   AvisosRecientes,
   DashboardHeader,
   HelpCards,
+  PlanCard,
   SectionCard,
   StatCard,
 } from "./DashboardShared";
@@ -29,19 +33,22 @@ export default function DashboardFutbolista({
 }) {
   const [apps, setApps] = useState<DashboardApplication[]>([]);
   const [notifs, setNotifs] = useState<DashNotification[]>([]);
+  const [profile, setProfile] = useState<IProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!userId) return;
     let cancelled = false;
     (async () => {
-      const [a, n] = await Promise.all([
+      const [a, n, pr] = await Promise.all([
         getPlayerApplications(userId),
         getNotifications(userId, token),
+        getUserProfile(userId, token),
       ]);
       if (cancelled) return;
       setApps(a);
       setNotifs(n);
+      setProfile(pr as IProfileData | null);
       setLoading(false);
     })();
     return () => {
@@ -51,7 +58,10 @@ export default function DashboardFutbolista({
 
   const activas = apps.filter((a) => a.status !== "REJECTED").length;
   const interesados = apps.filter((a) => a.status === "INTERESTED").length;
-  const views = notifs.filter((n) => n.type === "PROFILE_VIEW").length;
+  const views = notifs.filter(
+    (n) =>
+      n.type === "PROFILE_VIEW" || n.type === "APPLICATION_PROFILE_VIEWED",
+  ).length;
 
   return (
     <div>
@@ -77,9 +87,10 @@ export default function DashboardFutbolista({
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+        <div className="space-y-6 lg:col-span-2">
           <SectionCard
             title="Postulaciones enviadas"
+            scroll
             action={
               <Link
                 href="/jobs"
@@ -97,14 +108,22 @@ export default function DashboardFutbolista({
               </p>
             ) : (
               apps
-                .slice(0, 8)
+                .slice(0, 50)
                 .map((a) => <ApplicationRow key={a.id} app={a} />)
             )}
           </SectionCard>
+          <AvisosRecientes notifications={notifs} loading={loading} />
         </div>
         <div className="space-y-6">
-          <AvisosRecientes notifications={notifs} loading={loading} />
+          <PlanCard
+            subscriptionType={profile?.subscriptionType}
+            expiresAt={
+              (profile as { subscriptionExpiresAt?: string | null })
+                ?.subscriptionExpiresAt
+            }
+          />
           <HelpCards />
+          {profile && <ProfileProgressBar profile={profile} />}
         </div>
       </div>
     </div>

@@ -60,12 +60,34 @@ export function statusStyle(status?: string): string {
   return STATUS_STYLES[status] ?? "bg-gray-100 text-gray-600";
 }
 
+// Perfil completo del usuario (para la barra de % de perfil del panel).
+export async function getUserProfile(
+  userId: string,
+  token?: string,
+): Promise<Record<string, unknown> | null> {
+  try {
+    const res = await fetch(`${API}/user/${userId}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
 export interface DashNotification {
   id: string;
   message: string;
   type?: string;
   read?: boolean;
   createdAt?: string;
+  metadata?: {
+    jobId?: string;
+    jobTitle?: string;
+    jobImgUrl?: string;
+    [k: string]: unknown;
+  };
 }
 
 // Avisos (notificaciones) del usuario, más recientes primero. Requiere token.

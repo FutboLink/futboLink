@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FaChevronDown, FaChevronRight, FaHeart, FaUsers } from "react-icons/fa";
+import type { IProfileData } from "@/Interfaces/IUser";
+import ProfileProgressBar from "@/components/ProfileUser/ProfileProgressBar";
 import {
   type DashboardApplication,
   type DashboardJob,
@@ -10,6 +12,7 @@ import {
   getJobCandidates,
   getMyOffers,
   getNotifications,
+  getUserProfile,
   markInterest,
   markJobInReview,
   markProfileViewed,
@@ -19,6 +22,8 @@ import {
 import {
   AvisosRecientes,
   DashboardHeader,
+  HelpCards,
+  PlanCard,
   SectionCard,
   SinRevisarBanner,
   StatCard,
@@ -172,16 +177,19 @@ export default function DashboardOfertante({
   const [interested, setInterested] = useState(0);
   const [sinRevisar, setSinRevisar] = useState(0);
   const [notifs, setNotifs] = useState<DashNotification[]>([]);
+  const [profile, setProfile] = useState<IProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!token) return;
     let cancelled = false;
     (async () => {
-      const [myOffers, n] = await Promise.all([
+      const [myOffers, n, pr] = await Promise.all([
         getMyOffers(token),
         getNotifications(userId, token),
+        getUserProfile(userId, token),
       ]);
+      if (!cancelled) setProfile(pr as IProfileData | null);
       if (cancelled) return;
       setOffers(myOffers);
       setNotifs(n);
@@ -236,39 +244,59 @@ export default function DashboardOfertante({
 
       {!loading && <SinRevisarBanner count={sinRevisar} />}
 
-      <div className={hideHeader ? "" : "mt-6"}>
-        <SectionCard
-          title="Mis ofertas publicadas"
-          action={
-            <Link
-              href={`/user-viewer/${userId}?tab=createOffer`}
-              className="text-xs font-medium text-verde-oscuro hover:underline"
-            >
-              Crear oferta
-            </Link>
-          }
-        >
-          {loading ? (
-            <p className="py-4 text-sm text-gray-500">Cargando...</p>
-          ) : offers.length === 0 ? (
-            <p className="py-4 text-sm text-gray-500">
-              Todavía no publicaste ofertas.
-            </p>
-          ) : (
-            <div className="space-y-2">
-              {offers.map((o) => (
-                <OfferCard key={o.id} job={o} count={counts[o.id] ?? 0} token={token} />
-              ))}
-            </div>
-          )}
-        </SectionCard>
-      </div>
+      {(() => {
+        const offersSection = (
+          <SectionCard
+            title="Mis ofertas publicadas"
+            scroll
+            action={
+              <Link
+                href={`/user-viewer/${userId}?tab=createOffer`}
+                className="text-xs font-medium text-verde-oscuro hover:underline"
+              >
+                Crear oferta
+              </Link>
+            }
+          >
+            {loading ? (
+              <p className="py-4 text-sm text-gray-500">Cargando...</p>
+            ) : offers.length === 0 ? (
+              <p className="py-4 text-sm text-gray-500">
+                Todavía no publicaste ofertas.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {offers.map((o) => (
+                  <OfferCard key={o.id} job={o} count={counts[o.id] ?? 0} token={token} />
+                ))}
+              </div>
+            )}
+          </SectionCard>
+        );
 
-      {!hideHeader && (
-        <div className="mt-6">
-          <AvisosRecientes notifications={notifs} loading={loading} />
-        </div>
-      )}
+        // Reusado dentro del Agente: solo las ofertas (sin columna derecha).
+        if (hideHeader) return offersSection;
+
+        return (
+          <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <div className="space-y-6 lg:col-span-2">
+              {offersSection}
+              <AvisosRecientes notifications={notifs} loading={loading} />
+            </div>
+            <div className="space-y-6">
+              <PlanCard
+                subscriptionType={profile?.subscriptionType}
+                expiresAt={
+                  (profile as { subscriptionExpiresAt?: string | null })
+                    ?.subscriptionExpiresAt
+                }
+              />
+              <HelpCards />
+              {profile && <ProfileProgressBar profile={profile} />}
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

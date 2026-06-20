@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FaUsers } from "react-icons/fa";
+import type { IProfileData } from "@/Interfaces/IUser";
+import ProfileProgressBar from "@/components/ProfileUser/ProfileProgressBar";
 import {
   type DashboardApplication,
   type DashboardJob,
@@ -12,12 +14,15 @@ import {
   getNotifications,
   getPortfolio,
   getRecruiterApplications,
+  getUserProfile,
 } from "./dashboardFetch";
 import DashboardOfertante from "./DashboardOfertante";
 import {
   ApplicationRow,
   AvisosRecientes,
   DashboardHeader,
+  HelpCards,
+  PlanCard,
   SectionCard,
   StatCard,
 } from "./DashboardShared";
@@ -46,22 +51,25 @@ export default function DashboardAgente({
   const [offersCount, setOffersCount] = useState(0);
   const [candidatesCount, setCandidatesCount] = useState(0);
   const [notifs, setNotifs] = useState<DashNotification[]>([]);
+  const [profile, setProfile] = useState<IProfileData | null>(null);
 
   useEffect(() => {
     if (!userId) return;
     let cancelled = false;
     (async () => {
-      const [a, p, offers, n] = await Promise.all([
+      const [a, p, offers, n, pr] = await Promise.all([
         getRecruiterApplications(userId),
         getPortfolio(userId, token),
         getMyOffers(token),
         getNotifications(userId, token),
+        getUserProfile(userId, token),
       ]);
       if (cancelled) return;
       setApps(a);
       setPortfolio(p);
       setOffersCount(offers.length);
       setNotifs(n);
+      setProfile(pr as IProfileData | null);
       // Conteo total de candidatos de las ofertas del agente.
       const lists = await Promise.all(
         offers.map((o: DashboardJob) => getJobCandidates(o.id)),
@@ -98,11 +106,13 @@ export default function DashboardAgente({
         <StatCard value={candidatesCount} label="Candidatos recibidos" />
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-2">
-        {tabBtn("ofertas", "Mis ofertas")}
-        {tabBtn("postulaciones", "Mis postulaciones")}
-        {tabBtn("portafolio", "Mi portafolio")}
-      </div>
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+       <div className="lg:col-span-2">
+        <div className="flex flex-wrap gap-2">
+          {tabBtn("ofertas", "Mis ofertas")}
+          {tabBtn("postulaciones", "Mis postulaciones")}
+          {tabBtn("portafolio", "Mi portafolio")}
+        </div>
 
       <div className="mt-4">
         {tab === "ofertas" && (
@@ -111,7 +121,7 @@ export default function DashboardAgente({
         )}
 
         {tab === "postulaciones" && (
-          <SectionCard title="Postulaciones que hice por mi cartera">
+          <SectionCard title="Postulaciones que hice por mi cartera" scroll>
             {apps.length === 0 ? (
               <p className="py-4 text-sm text-gray-500">
                 Todavía no postulaste jugadores de tu cartera.
@@ -125,6 +135,7 @@ export default function DashboardAgente({
         {tab === "portafolio" && (
           <SectionCard
             title="Mi portafolio"
+            scroll
             action={
               <Link
                 href={`/user-viewer/${userId}?tab=portfolio`}
@@ -166,8 +177,22 @@ export default function DashboardAgente({
         )}
       </div>
 
-      <div className="mt-6">
-        <AvisosRecientes notifications={notifs} loading={false} />
+        <div className="mt-6">
+          <AvisosRecientes notifications={notifs} loading={false} />
+        </div>
+       </div>
+
+       <div className="space-y-6">
+         <PlanCard
+           subscriptionType={profile?.subscriptionType}
+           expiresAt={
+             (profile as { subscriptionExpiresAt?: string | null })
+               ?.subscriptionExpiresAt
+           }
+         />
+         <HelpCards />
+         {profile && <ProfileProgressBar profile={profile} />}
+       </div>
       </div>
     </div>
   );

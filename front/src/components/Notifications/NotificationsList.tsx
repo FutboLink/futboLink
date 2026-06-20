@@ -13,6 +13,7 @@ const API_URL =
 interface NotificationMetadata {
   jobId?: string;
   jobTitle?: string;
+  jobImgUrl?: string;
   applicationId?: string;
   requestId?: string;
   recruiterName?: string;
@@ -368,7 +369,18 @@ export const NotificationsList: React.FC = () => {
                 >
                   <div className="flex items-start">
                     <div className="mr-3">
-                      {notification.sourceUser?.imgUrl ? (
+                      {/* Si la notificación tiene logo de oferta, lo mostramos
+                          (genérico: no revelamos al usuario que vio el perfil).
+                          Si no, caemos a la foto del que generó el aviso. */}
+                      {notification.metadata?.jobImgUrl ? (
+                        <Image
+                          src={notification.metadata.jobImgUrl}
+                          alt={notification.metadata.jobTitle || "Oferta"}
+                          width={40}
+                          height={40}
+                          className="rounded-lg object-cover h-10 w-10"
+                        />
+                      ) : notification.sourceUser?.imgUrl ? (
                         <Image
                           src={notification.sourceUser.imgUrl}
                           alt={`${notification.sourceUser.name} ${notification.sourceUser.lastname}`}

@@ -57,7 +57,7 @@ function LoginForm() {
           setNotificationMessage(getText("Has ingresado correctamente", "loginSuccess"));
           setShowNotification(true);
           setTimeout(() => setShowNotification(false), 2000);
-          router.push("/");
+          router.push("/dashboard");
         } else {
           setNotificationMessage(getText("Usuario o contraseña incorrectos", "loginError"));
           setShowNotification(true);

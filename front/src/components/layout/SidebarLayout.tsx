@@ -241,7 +241,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
             path: "/profile",
             icon: <FaEdit />,
           },
-          { label: getText("Inicio", "home"), path: "/", icon: <FaHome /> },
+          { label: getText("Dashboard", "dashboard"), path: "/dashboard", icon: <FaHome /> },
           {
             label: getText("Buscar", "search"),
             path: "/player-search",
@@ -264,6 +264,11 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
     if (!isFutbolista) {
       return {
         main: [
+          {
+            label: getText("Dashboard", "dashboard"),
+            path: "/dashboard",
+            icon: <FaHome />,
+          },
           {
             // Para AGENCY / RECRUITER / CLUB el perfil pasa a verse en
             // /user-viewer/{id} (misma estructura que Futbolista y CT,
@@ -380,7 +385,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
             path: "/PanelUsers/Manager?section=createOffers",
             icon: <AiOutlineFileAdd />,
           },
-          { label: getText("Inicio", "home"), path: "/", icon: <FaHome /> },
+          { label: getText("Dashboard", "dashboard"), path: "/dashboard", icon: <FaHome /> },
           {
             label: getText("Buscar", "search"),
             path: "/player-search",
@@ -411,7 +416,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
 
     return {
       main: [
-        { label: getText("Inicio", "home"), path: "/", icon: <FaHome /> },
+        { label: getText("Dashboard", "dashboard"), path: "/dashboard", icon: <FaHome /> },
         {
           label: getText("Perfil", "profile"),
           path: `/user-viewer/${user?.id}`,
@@ -512,7 +517,7 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
           path: `/user-viewer/${user?.id}?edit=true`,
           icon: <FaEdit />,
         },
-        { label: getText("Inicio", "home"), path: "/", icon: <FaHome /> },
+        { label: getText("Dashboard", "dashboard"), path: "/dashboard", icon: <FaHome /> },
         {
           label: getText("Buscar", "search"),
           path: "/player-search",

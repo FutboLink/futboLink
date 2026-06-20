@@ -164,7 +164,7 @@ function newNavbar() {
         <section className="flex items-center justify-between py-2 px-4">
           {/* Logo + Menú escritorio */}
           <div className="flex items-center gap-6">
-            <Link href={"/"}>
+            <Link href={"/dashboard"}>
               <Image
                 src="/logoD.png"
                 height={60}

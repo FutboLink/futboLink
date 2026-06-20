@@ -14,6 +14,12 @@ import type { Job } from '../../Jobs/entities/jobs.entity';
 
 export enum ApplicationStatus {
   PENDING = 'PENDING',
+  // Estados del panel (escalera de una dirección):
+  // PENDING(enviada) -> IN_REVIEW -> PROFILE_VIEWED -> INTERESTED
+  IN_REVIEW = 'IN_REVIEW',
+  PROFILE_VIEWED = 'PROFILE_VIEWED',
+  INTERESTED = 'INTERESTED',
+  // Estados legacy/internos (no forman parte de la escalera del panel):
   SHORTLISTED = 'SHORTLISTED',
   ACCEPTED = 'ACCEPTED',
   REJECTED = 'REJECTED',

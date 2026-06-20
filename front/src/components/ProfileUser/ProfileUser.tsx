@@ -81,7 +81,9 @@ const Profile = () => {
               data.trayectorias = [];
             }
           } else {
-            // Ensure each property is properly formatted
+            // Ensure each property is properly formatted. IMPORTANTE: preservar
+            // TODOS los campos (país, vínculo al club y liga) — si se dropean acá,
+            // al guardar se sobreescriben con vacío y se pierde la liga/el club.
             data.trayectorias = data.trayectorias.map((exp: any) => ({
               club: String(exp.club || ""),
               fechaInicio: String(exp.fechaInicio || ""),
@@ -89,6 +91,13 @@ const Profile = () => {
               categoriaEquipo: String(exp.categoriaEquipo || ""),
               nivelCompetencia: String(exp.nivelCompetencia || ""),
               logros: String(exp.logros || ""),
+              nacionalidadTrayectoria: exp.nacionalidadTrayectoria ?? "",
+              clubPageId: exp.clubPageId,
+              clubPageSlug: exp.clubPageSlug,
+              clubPageLogo: exp.clubPageLogo,
+              liga: exp.liga ?? "",
+              ligaPageId: exp.ligaPageId,
+              ligaPageSlug: exp.ligaPageSlug,
             }));
           }
           setUserData(data);

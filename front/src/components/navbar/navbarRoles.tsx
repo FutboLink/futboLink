@@ -366,7 +366,8 @@ function NavbarRoles() {
                   <button
                     type="button"
                     onClick={() => setIsDropdownOpen(false)}
-                    className="px-4 py-2 bg-yellow-500 text-black rounded-md hover:bg-yellow-600"
+                    className="px-4 py-2 bg-white text-verde-oscuro rounded-xl border border-gray-200"
+                    
                   >
                     Iniciar sesión
                   </button>
@@ -374,7 +375,7 @@ function NavbarRoles() {
                 <button
                   type="button"
                   onClick={() => navigateTo("/Login/register")}
-                  className="px-4 py-2 bg-white text-verde-oscuro rounded-md  hover:bg-gray-200 m-0"
+                  className="px-4 py-2 bg-white text-verde-oscuro rounded-xl border border-gray-200 hover:shadow-md transition-all duration-200"
                 >
                   Registrarse
                 </button>

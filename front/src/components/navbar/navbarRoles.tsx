@@ -482,9 +482,11 @@ function NavbarRoles() {
                   <div className="relative w-full">
   <FaUserEdit className="absolute left-0 top-1/2 -translate-y-1/2 text-xl" />
 
-  <div className="text-center font-semibold">
-    Crear cuenta gratis
-    <span
+<div className="text-center font-semibold">
+  Crear cuenta gratis
+</div>
+
+<span
   className="
     absolute
     inset-0
@@ -498,7 +500,6 @@ function NavbarRoles() {
     duration-700
   "
 ></span>
-  </div>
 
   <span className="absolute right-0 top-1/2 -translate-y-1/2 text-2xl">
     →

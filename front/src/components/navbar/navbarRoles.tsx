@@ -477,13 +477,27 @@ function NavbarRoles() {
                   <button
                     type="button"
                     onClick={() => navigateTo("/Login/register")}
-                    className="w-full bg-verde-oscuro text-white px-5 py-3 rounded-xl mt-2 hover:bg-green-800 hover:shadow-lg transition-all duration-200"
+                    className="w-full relative overflow-hidden bg-verde-oscuro text-white px-5 py-3 rounded-xl mt-2 hover:bg-green-800 hover:shadow-lg transition-all duration-200"
                   >
                   <div className="relative w-full">
   <FaUserEdit className="absolute left-0 top-1/2 -translate-y-1/2 text-xl" />
 
   <div className="text-center font-semibold">
     Crear cuenta gratis
+    <span
+  className="
+    absolute
+    inset-0
+    -translate-x-full
+    bg-gradient-to-r
+    from-transparent
+    via-white/20
+    to-transparent
+    hover:translate-x-full
+    transition-transform
+    duration-700
+  "
+></span>
   </div>
 
   <span className="absolute right-0 top-1/2 -translate-y-1/2 text-2xl">

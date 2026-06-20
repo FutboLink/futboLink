@@ -477,9 +477,7 @@ function NavbarRoles() {
   Crear cuenta gratis →
 </>
                   </button>
-                </>
-              ) : (
-            <div className="mt-4 bg-gray-50 rounded-xl p-4 border border-gray-100">
+                   <div className="mt-4 bg-gray-50 rounded-xl p-4 border border-gray-100">
   <div className="flex items-center gap-3">
     <div className="text-2xl">🛡️</div>
 
@@ -494,6 +492,8 @@ function NavbarRoles() {
     </div>
   </div>
 </div>
+                </>
+              ) : (  
                 <div className="mb-4 mt-2 border-t pt-4 border-gray-200">
                   <p className="text-sm text-gray-500 mb-2">Tu cuenta</p>
                   <button

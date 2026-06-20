@@ -54,6 +54,10 @@ export interface IProfileData {
     clubPageId?: string;
     clubPageSlug?: string;
     clubPageLogo?: string;
+    // Liga en la que compitió (texto libre o vinculada a una página LEAGUE).
+    liga?: string;
+    ligaPageId?: string;
+    ligaPageSlug?: string;
   }[];
   pasaporteUe?: PasaporteUe;
   skillfulFoot: string;

@@ -11,6 +11,10 @@ export interface Trayectoria {
   clubPageId?: string;
   clubPageSlug?: string;
   clubPageLogo?: string;
+  // Liga cargada por el usuario (texto libre o vinculada a una página LEAGUE).
+  liga?: string;
+  ligaPageId?: string;
+  ligaPageSlug?: string;
 }
 
 // Helper para ordenar por fecha finalización descendente

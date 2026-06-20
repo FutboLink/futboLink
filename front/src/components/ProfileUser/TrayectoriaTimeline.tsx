@@ -116,8 +116,12 @@ export default function TrayectoriaTimeline({
             const club = t.clubPageSlug
               ? resolved[t.clubPageSlug]
               : undefined;
-            const leagueName = club?.leagueName || t.nivelCompetencia || "";
-            const country = club?.country ?? null;
+            // Preferimos la liga y el país cargados por el usuario; si no, los
+            // resolvemos desde la página del club (fallback histórico).
+            const leagueName =
+              t.liga || club?.leagueName || t.nivelCompetencia || "";
+            const country =
+              t.nacionalidadTrayectoria || club?.country || null;
             const isLeft = index % 2 === 0;
             const year = getYearMarker(t);
 

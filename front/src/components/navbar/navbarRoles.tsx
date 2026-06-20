@@ -480,14 +480,14 @@ function NavbarRoles() {
                     onClick={() => navigateTo("/Login/register")}
                     className="w-full bg-verde-oscuro text-white px-5 py-3 rounded-xl mt-2 hover:bg-green-800 hover:shadow-lg transition-all duration-200"
                   >
-                    <div className="flex items-center justify-between w-full">
-  <FaUserEdit className="text-xl" />
+                  <div className="relative w-full">
+  <FaUserEdit className="absolute left-0 top-1/2 -translate-y-1/2 text-xl" />
 
-  <span className="font-semibold flex-1 text-center">
+  <div className="text-center font-semibold">
     Crear cuenta gratis
-  </span>
+  </div>
 
-  <span className="text-xl">
+  <span className="absolute right-0 top-1/2 -translate-y-1/2 text-2xl">
     →
   </span>
 </div>

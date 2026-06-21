@@ -54,11 +54,11 @@ export default function ContactoPage() {
                 ¡Bienvenido a FutboLink!
               </h1>
               <p className="text-lg sm:text-xl text-gray-600 mt-4">
-                Somos una agencia con sede en Italia, dedicada a conectar
-                jugadores, representantes y agencias de fútbol de todo el mundo.
-                Nuestro equipo de profesionales está aquí para ayudarte a dar el
-                siguiente paso en tu carrera o negocio. ¡Contáctanos y
-                comencemos hoy mismo!
+                FutboLink es la plataforma que conecta a futbolistas y 
+                profesionales del fútbol con clubes, agencias y 
+                reclutadores a nivel internacional.
+
+Crea tu perfil, completa tu información y forma parte de la comunidad.
               </p>
             </div>
 

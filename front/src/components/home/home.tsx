@@ -102,14 +102,29 @@ const Home = () => {
                   className="object-cover"
                   priority
                 />
-                <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col items-center justify-center hover:bg-opacity-50 transition-all duration-300">
-                  <h2 className=" hidden text-white text-3xl sm:text-5xl font-bold mb-4">
-                    Futbolink
-                  </h2>
-                  <div className="text-white text-xl sm:text-3xl font-bold bg-black bg-opacity-50 px-8 py-4 rounded-lg">
-                    {image.text}
-                  </div>
-                </div>
+               <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+
+  <div className="text-center max-w-3xl px-6">
+
+    <span className="inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-sm font-medium mb-6">
+      Plataforma líder en oportunidades deportivas
+    </span>
+
+    <h2 className="text-white text-4xl md:text-6xl font-bold mb-6">
+      {image.text}
+    </h2>
+
+    <p className="text-white/90 text-lg md:text-xl mb-8">
+      Conecta con clubes, agencias y oportunidades profesionales del fútbol.
+    </p>
+
+    <div className="inline-flex items-center bg-[#3e7b26] hover:bg-[#2f641d] text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 hover:scale-105">
+      Descubrir ahora →
+    </div>
+
+  </div>
+
+</div>
               </div>
             </SwiperSlide>
           ))}

@@ -82,7 +82,7 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 px-4">
       {/* Spinner de pantalla completa */}
       {isLoggingIn && (
         <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
@@ -90,10 +90,13 @@ function LoginForm() {
         </div>
       )}
 
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
+      <div className="w-full max-w-md bg-white/95 backdrop-blur-sm p-10 rounded-3xl shadow-2xl border border-white">
         <h2 className="text-2xl font-bold text-center mb-6 text-verde-oscuro">
           {getText("Iniciar sesión", "loginTitle")}
         </h2>
+        <p className="text-center text-gray-500 mb-8">
+  Accede a tu cuenta y continúa tu carrera profesional.
+</p>
         <form onSubmit={handleSubmit}>
           {/* Campo de correo */}
           <div className="mb-4">

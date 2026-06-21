@@ -4,7 +4,7 @@ import axios from "axios";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
   FaChevronDown,
@@ -24,6 +24,7 @@ import NotificationsList from "../Notifications/NotificationsList";
 
 function NavbarRoles() {
   const router = useRouter();
+  const pathname = usePathname();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
@@ -253,12 +254,16 @@ function NavbarRoles() {
               />
             </Link>
 
-            <ul className="hidden md:flex gap-6 text-lg text-verde-oscuro">
+            <ul className="hidden md:flex gap-8 text-lg text-verde-oscuro font-medium">
               {menuItems.map((item) => (
                 <li
                   key={item.path}
                   onClick={() => navigateTo(item.path)}
-                  className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer flex items-center gap-2"
+                  className={`px-4 py-2 transition-all duration-200 cursor-pointer flex items-center gap-2 hover:bg-green-50 hover:text-[#3e7b26] ${
+  pathname === item.path
+    ? "text-[#3e7b26] border-b-2 border-[#3e7b26] font-semibold"
+    : "border-b-2 border-transparent"
+}`}
                 >
                   {item.label}
                 </li>

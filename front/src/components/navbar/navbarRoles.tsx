@@ -371,7 +371,7 @@ function NavbarRoles() {
                   <button
                     type="button"
                     onClick={() => setIsDropdownOpen(false)}
-                    className="px-5 py-2.5 bg-white border border-gray-200 text-verde-oscuro rounded-xl hover:shadow-md transition-all duration-200 active:scale-95 transition-all duration-150"
+                    className="px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 hover:border-gray-300"
                     
                   >
                     Iniciar sesión
@@ -380,9 +380,14 @@ function NavbarRoles() {
                 <button
                   type="button"
                   onClick={() => navigateTo("/Login/register")}
-                  className="px-5 py-2.5 bg-[#3e7b26] text-white rounded-xl hover:bg-[#356a20] hover:shadow-lg transition-all duration-200 m-0 active:scale-95 duration-150"
+                  className="group px-6 py-3 bg-[#3e7b26] text-white rounded-xl font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-green-200 hover:-translate-y-0.5 hover:bg-[#4a9130]"
                 >
-                  Registrarse
+                  <span className="flex items-center gap-2">
+  Registrarse
+  <span className="transition-transform duration-300 group-hover:translate-x-1">
+  ↗
+</span>
+</span>
                 </button>
               </>
             )}

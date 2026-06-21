@@ -259,10 +259,10 @@ function NavbarRoles() {
                 <li
                   key={item.path}
                   onClick={() => navigateTo(item.path)}
-                  className={`px-4 py-2 transition-all duration-200 cursor-pointer flex items-center gap-2 hover:bg-green-50 hover:text-[#3e7b26] ${
+                  className={`px-4 py-4 transition-all duration-200 cursor-pointer flex items-center gap-2 hover:bg-green-50 hover:text-[#3e7b26] ${
   pathname === item.path
-    ? "text-[#3e7b26] border-b-2 border-[#3e7b26] font-semibold"
-    : "border-b-2 border-transparent"
+    ? "text-[#3e7b26] border-b-4 border-[#3e7b26] font-semibold"
+    : "border-b-4 border-transparent"
 }`}
                 >
                   {item.label}

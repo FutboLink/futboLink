@@ -104,13 +104,13 @@ const Home = () => {
                 />
                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
 
-  <div className="text-center max-w-3xl px-10 py-10 rounded-3xl bg-black/20 backdrop-blur-md border border-white/10">
+  <div className="text-center max-w-3xl px-6">
 
     <span className="inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-sm font-medium mb-6">
       Plataforma líder en oportunidades deportivas
     </span>
 
-    <h2 className="text-white text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
+    <h2 className="text-white text-4xl md:text-6xl font-bold mb-6">
       {image.text}
     </h2>
 

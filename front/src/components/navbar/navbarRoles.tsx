@@ -445,7 +445,7 @@ function NavbarRoles() {
                 <li
                   key={item.path}
                   onClick={() => navigateTo(item.path)}
-                  className="px-4 py-2 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer flex items-center gap-2"
+                  className="px-4 py-3 border-b border-gray-100 hover:bg-verde-oscuro hover:text-white rounded-md transition-all cursor-pointer flex items-center gap-2"
                 >
                   <div className="flex items-center justify-between w-full">
   <span>{item.label}</span>

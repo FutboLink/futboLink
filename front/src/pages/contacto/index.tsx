@@ -54,7 +54,7 @@ export default function ContactoPage() {
                 ¡Bienvenido a FutboLink!
               </h1>
               <p className="text-lg sm:text-xl text-gray-600 mt-4">
-                FutboLink es la plataforma que conecta a futbolistas y 
+                FutboLink es una plataforma que conecta a futbolistas y 
                 profesionales del fútbol con clubes, agencias y 
                 reclutadores a nivel internacional.
 

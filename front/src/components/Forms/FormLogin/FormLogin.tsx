@@ -112,7 +112,7 @@ function LoginForm() {
               value={userData.email}
               onChange={handleChange}
               placeholder={getText("Email", "emailPlaceholder")}
-              className="w-full mt-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro focus:border-transparent"
+              className="w-full mt-2 px-4 py-3 text-gray-700 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3e7b26] focus:border-[#3e7b26] transition-all"
             />
             {errors.email && (
               <p className="text-red-500 text-sm mt-1">{errors.email}</p>
@@ -134,7 +134,7 @@ function LoginForm() {
                 value={userData.password}
                 onChange={handleChange}
                 placeholder={getText("Contraseña", "passwordPlaceholder")}
-                className="w-full mt-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-verde-claro focus:border-transparent pr-10"
+                className="w-full mt-2 px-4 py-3 text-gray-700 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3e7b26] focus:border-[#3e7b26] transition-all pr-10"
               />
               {/* Botón para mostrar/ocultar contraseña */}
               <button
@@ -157,7 +157,7 @@ function LoginForm() {
           {/* Botón de iniciar sesión */}
           <button
             type="submit"
-            className="w-full py-2 bg-verde-oscuro text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-verde-claro focus:ring-opacity-50"
+            className="w-full py-3 rounded-xl bg-[#3e7b26] text-white font-semibold hover:scale-[1.02] hover:shadow-lg transition-all duration-300"
           >
             {getText("Ingresar", "loginButton")}
           </button>

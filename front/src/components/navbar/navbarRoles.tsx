@@ -241,7 +241,7 @@ function NavbarRoles() {
       </Head>
 
       <nav className="sticky top-0 left-0 w-full z-50 bg-white shadow-md">
-        <section className="flex items-center justify-between py-2 px-4">
+        <section className="flex items-center justify-between h-20 px-4">
           {/* Logo + Menú escritorio */}
           <div className="flex items-center gap-6">
             <Link href={"/"}>
@@ -254,12 +254,12 @@ function NavbarRoles() {
               />
             </Link>
 
-            <ul className="hidden md:flex gap-8 text-lg text-verde-oscuro font-medium">
+           <ul className="hidden md:flex items-stretch gap-8 text-lg text-verde-oscuro font-medium h-20">
               {menuItems.map((item) => (
                 <li
                   key={item.path}
                   onClick={() => navigateTo(item.path)}
-                  className={`px-4 py-4 transition-all duration-200 cursor-pointer flex items-center gap-2 hover:bg-green-50 hover:text-[#3e7b26] ${
+                  className={`px-4 h-full transition-all duration-200 cursor-pointer flex items-center gap-2 hover:bg-green-50 hover:text-[#3e7b26] ${
   pathname === item.path
     ? "text-[#3e7b26] border-b-4 border-[#3e7b26] font-semibold"
     : "border-b-4 border-transparent"

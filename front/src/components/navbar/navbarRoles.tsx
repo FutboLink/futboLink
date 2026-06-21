@@ -509,24 +509,6 @@ function NavbarRoles() {
   </span>
 </div>
                   </button>
-                    <div className="mt-4 bg-gray-50 rounded-xl p-4 border border-gray-100">
-  <div className="flex items-center gap-3">
-
-    <FaUsers className="text-verde-oscuro text-2xl" />
-
-    <div>
-      <p className="font-semibold text-verde-oscuro">
-        Únete a la comunidad de fútbol
-      </p>
-
-      <p className="text-sm text-gray-600">
-        Conecta, crece y alcanza tu próximo nivel.
-      </p>
-    </div>
-
-  </div>
-</div>
-                   
                 </>
               ) : (  
                 <div className="mb-4 mt-2 border-t pt-4 border-gray-200">

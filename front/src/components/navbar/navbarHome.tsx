@@ -137,7 +137,7 @@ function NavbarHome() {
               <>
                 <button
                   onClick={() => navigateTo("/Login")}
-                  className="bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600"
+                  className="bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600 transition-all duration-150 active:scale-[0.98]"
                   aria-label="Iniciar sesión"
                 >
                   Iniciar sesión
@@ -145,7 +145,7 @@ function NavbarHome() {
 
                 <button
                   onClick={() => navigateTo("/OptionUsers")}
-                  className="bg-white text-verde-oscuro px-4 py-2 rounded-md ml-4 hover:bg-gray-200"
+                  className="bg-white text-verde-oscuro px-4 py-2 rounded-md ml-4 hover:bg-gray-200 transition-all duration-150 active:scale-[0.98]"
                   aria-label="Registrarse"
                 >
                   Registrarse

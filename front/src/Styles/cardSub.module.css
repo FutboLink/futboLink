@@ -161,8 +161,6 @@
   0 8px 22px rgba(0,126,51,.22);
   transition: all .25s ease;
 }
-}
-
 .button:hover{
     transform:translateY(-3px);
     box-shadow:
@@ -261,22 +259,10 @@
   border-color: #06b44b;
 }
 
-.selectContainer button {
-  background-color: #007e33;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  margin-top: 1rem;
-  transition: background 0.3s, transform 0.3s;
+.selectContainer button{
+   margin-top:1rem;
+  
 }
-
-.selectContainer button:hover {
-  background-color: #06b44b;
-  transform: scale(1.05);
-}
-
 @media (max-width:768px){
 
   .cardContainer{

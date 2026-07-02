@@ -35,8 +35,13 @@ export class UserService {
     private readonly verificationRequestRepository: Repository<VerificationRequest>,
     private readonly entityManager: EntityManager,
     private readonly emailService: EmailService,
+    // Typed `any` (not `StripeService`) on purpose: a concrete type here makes
+    // TS/SWC emit an eager `design:paramtypes` reference to StripeService, which
+    // deadlocks the circular require (UserService <-> StripeService) at boot with
+    // "ReferenceError: Cannot access 'StripeService' before initialization".
+    // forwardRef() alone only fixes Nest's DI resolution order, not this.
     @Optional() @Inject(forwardRef(() => StripeService))
-    private readonly stripeService?: StripeService,
+    private readonly stripeService?: any,
   ) {
     // Intentar crear la tabla de cartera de reclutadores si no existe
     this.createPortfolioTableIfNotExists();

@@ -242,18 +242,23 @@ function Subs() {
         ))}
       </div>
 
-      <div className={styles.benefits}>
+<div className={styles.benefits}>
+
   <div className={styles.benefit}>
-    ⚽ Más de 10.000 usuarios registrados
+    <FaUsers />
+    <span>Más de 10.000 jugadores registrados</span>
   </div>
 
   <div className={styles.benefit}>
-    🔎 Clubes y reclutadores buscan talento todos los días
+    <FaSearch />
+    <span>Clubes y reclutadores buscan talento todos los días</span>
   </div>
 
   <div className={styles.benefit}>
-    🚀 Tu perfil permanece visible las 24 horas
+    <FaRocket />
+    <span>Tu perfil permanece visible las 24 horas</span>
   </div>
+
 </div>
 
 <div className={styles.line}>

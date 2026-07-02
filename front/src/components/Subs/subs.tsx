@@ -11,6 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { UserContext } from "../Context/UserContext";
 import { useRouter } from "next/navigation";
+import { FaUsers, FaSearch, FaRocket } from "react-icons/fa";
 
 function Subs() {
   const subscriptionOptions = Subscription();

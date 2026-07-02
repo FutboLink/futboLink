@@ -279,18 +279,22 @@
 }
 .recommended {
   position: absolute;
-  top: 18px;
-  right: 18px;
+  top: 16px;
+  right: 16px;
 
-  background: #facc15;
-  color: #222;
+  background: linear-gradient(135deg, #facc15, #f59e0b);
+  color: white;
 
-  font-size: .75rem;
+  font-size: 0.7rem;
   font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
 
-  padding: .35rem .7rem;
+  padding: 6px 12px;
 
   border-radius: 999px;
 
-  box-shadow: 0 6px 14px rgba(0,0,0,.12);
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.35);
+
+  z-index: 5;
 }

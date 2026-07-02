@@ -377,8 +377,14 @@
     font-size: .65rem;
     padding: 6px 14px;
   }
+  .benefitHeader{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:18px;
+}
 
-}.iconCircle{
+.iconCircle{
 
     width:58px;
 

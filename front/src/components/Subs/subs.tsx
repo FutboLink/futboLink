@@ -245,18 +245,24 @@ function Subs() {
 <div className={styles.benefits}>
 
   <div className={styles.benefit}>
-    <FaUsers />
-    <span>Más de 10.000 jugadores registrados</span>
+    <h3>10.000+ jugadores</h3>
+<p>
+Forma parte de una comunidad internacional de futbolistas que buscan oportunidades todos los días.
+</p>
   </div>
 
   <div className={styles.benefit}>
-    <FaSearch />
-    <span>Clubes y reclutadores buscan talento todos los días</span>
+    <h3>Oportunidades diarias</h3>
+<p>
+Clubes, agentes y reclutadores publican nuevas búsquedas constantemente.
+</p>
   </div>
 
   <div className={styles.benefit}>
-    <FaRocket />
-    <span>Tu perfil permanece visible las 24 horas</span>
+ <h3>Mayor visibilidad</h3>
+<p>
+Tu perfil permanece disponible las 24 horas para ser encontrado por reclutadores.
+</p>
   </div>
 
 </div>

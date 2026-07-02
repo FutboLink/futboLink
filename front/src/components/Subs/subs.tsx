@@ -141,7 +141,15 @@ function Subs() {
                   styles[option.title.toLowerCase()]
                 }`}
               >
-                <h3 className={styles.title}>{option.title}</h3>
+                {option.title === "Profesional" && (
+  <div className={styles.recommended}>
+    ⭐ Más elegido
+  </div>
+)}
+
+<h3 className={styles.title}>
+  {option.title}
+</h3>
                 <p className={`${styles.slogan}`}>{option.slogan}</p>
                 <Image
                   src={option.image}

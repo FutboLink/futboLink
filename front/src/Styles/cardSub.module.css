@@ -13,22 +13,27 @@
 
 .intro {
   text-align: center;
-  margin-bottom: 3rem;
-  background: linear-gradient(
-    to bottom right,
-    #87da3a,
-    #007e33
-  ); /* Fondo igual */
+  margin-bottom: 2.5rem;
+  background: linear-gradient(to bottom right, #87da3a, #007e33);
   color: white;
-  padding: 4rem 1.5rem;
-  width: 100%; /* Banner ocupa todo el ancho de la pantalla */
-  border-radius: 0; /* No bordes redondeados */
+
+  padding: 2.8rem 1.5rem;
+
+  width: 100%;
+  border-radius: 0;
 }
 
 .intro h1 {
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin-bottom: 1.5rem;
+  font-size: 2.3rem;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+}
+
+.intro p {
+  font-size: 1.05rem;
+  opacity: .95;
+  max-width: 760px;
+  margin: auto;
 }
 
 .grid {

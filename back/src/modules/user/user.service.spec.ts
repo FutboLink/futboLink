@@ -297,3 +297,288 @@ describe('UserService - findAll', () => {
     expect(result.total).toBe(2);
   });
 });
+
+// ===========================================================================
+// Phase 1 TDD — auto-verify elimination
+// ===========================================================================
+
+// Helpers for auto-verify tests — we need a service where save() returns the user
+// and the private safe methods are spied on.
+async function buildServiceWithSave() {
+  const userRepo = {
+    ...makeUserRepoMock(),
+    save: jest.fn().mockImplementation(async (u: User) => u),
+  };
+  const verificationRepo = { findOne: jest.fn() };
+  const entityManager = { query: jest.fn().mockResolvedValue([]) } as unknown as EntityManager;
+  const emailService = { sendMail: jest.fn() } as unknown as EmailService;
+
+  const module: TestingModule = await Test.createTestingModule({
+    providers: [
+      UserService,
+      { provide: getRepositoryToken(User), useValue: userRepo },
+      { provide: getRepositoryToken(VerificationRequest), useValue: verificationRepo },
+      { provide: EntityManager, useValue: entityManager },
+      { provide: EmailService, useValue: emailService },
+    ],
+  }).compile();
+
+  const service = module.get<UserService>(UserService);
+
+  // Spy on private safe helpers to assert they are NOT called
+  const markVerifiedSpy = jest
+    .spyOn(service as any, 'markUserAsVerifiedSafe')
+    .mockResolvedValue(true);
+  const setLevelSpy = jest
+    .spyOn(service as any, 'setUserVerificationLevelSafe')
+    .mockResolvedValue(true);
+  const isVerifiedSpy = jest
+    .spyOn(service as any, 'isUserVerifiedSafe')
+    .mockResolvedValue(false);
+
+  // findOne delegates to userRepo.findOne
+  jest.spyOn(service, 'findOne' as any).mockImplementation(async (id: any) => {
+    const user = await (userRepo.findOne as jest.Mock)({ where: { id } });
+    if (!user) {
+      throw new (require('@nestjs/common').NotFoundException)(
+        `Usuario con ID ${id} no encontrado`,
+      );
+    }
+    return user;
+  });
+
+  return { service, userRepo, markVerifiedSpy, setLevelSpy, isVerifiedSpy };
+}
+
+describe('updateUserSubscription - auto-verify eliminado (Fase 1)', () => {
+  it('A.1.a: PLAYER + Semiprofesional -> isVerified permanece false, markUserAsVerifiedSafe NO invocado', async () => {
+    const { service, userRepo, markVerifiedSpy, setLevelSpy } = await buildServiceWithSave();
+    const user = makeUser({
+      role: 'PLAYER' as any,
+      isVerified: false as any,
+      subscriptionType: 'Amateur',
+    });
+    userRepo.findOne.mockResolvedValue(user);
+
+    const result = await service.updateUserSubscription(user.id, 'Semiprofesional');
+
+    expect(result.subscriptionType).toBe('Semiprofesional');
+    expect(markVerifiedSpy).not.toHaveBeenCalled();
+    expect(setLevelSpy).not.toHaveBeenCalled();
+  });
+
+  it('A.1.b: PLAYER + Profesional -> isVerified permanece false, setUserVerificationLevelSafe NO invocado', async () => {
+    const { service, userRepo, markVerifiedSpy, setLevelSpy } = await buildServiceWithSave();
+    const user = makeUser({
+      role: 'PLAYER' as any,
+      isVerified: false as any,
+      subscriptionType: 'Amateur',
+    });
+    userRepo.findOne.mockResolvedValue(user);
+
+    const result = await service.updateUserSubscription(user.id, 'Profesional');
+
+    expect(result.subscriptionType).toBe('Profesional');
+    expect(markVerifiedSpy).not.toHaveBeenCalled();
+    expect(setLevelSpy).not.toHaveBeenCalled();
+  });
+
+  it('A.1.c: usuario con isVerified=true previo -> isVerified permanece true (no alterado)', async () => {
+    const { service, userRepo, markVerifiedSpy, setLevelSpy, isVerifiedSpy } =
+      await buildServiceWithSave();
+    isVerifiedSpy.mockResolvedValue(true);
+    const user = makeUser({
+      role: 'PLAYER' as any,
+      isVerified: true as any,
+      subscriptionType: 'Amateur',
+    });
+    userRepo.findOne.mockResolvedValue(user);
+
+    const result = await service.updateUserSubscription(user.id, 'Semiprofesional');
+
+    expect(result.subscriptionType).toBe('Semiprofesional');
+    expect(markVerifiedSpy).not.toHaveBeenCalled();
+    expect(setLevelSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe('updateUserSubscriptionByEmail - auto-verify eliminado (Fase 1)', () => {
+  it('A.2.a: PLAYER + Profesional por email -> isVerified permanece false, markUserAsVerifiedSafe NO invocado', async () => {
+    const { service, userRepo, markVerifiedSpy, setLevelSpy } = await buildServiceWithSave();
+    const user = makeUser({
+      role: 'PLAYER' as any,
+      isVerified: false as any,
+      subscriptionType: 'Amateur',
+    });
+    userRepo.findOne.mockResolvedValue(user);
+
+    const result = await service.updateUserSubscriptionByEmail(user.email, 'Profesional');
+
+    expect(result.subscriptionType).toBe('Profesional');
+    expect(markVerifiedSpy).not.toHaveBeenCalled();
+    expect(setLevelSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe('updateUserSubscriptionWithExpiration - auto-verify eliminado (Fase 1)', () => {
+  it('A.3.a: PLAYER + Semiprofesional con fecha -> isVerified permanece false, markUserAsVerifiedSafe NO invocado', async () => {
+    const { service, userRepo, markVerifiedSpy, setLevelSpy } = await buildServiceWithSave();
+    const expirationDate = new Date(Date.now() + 30 * 24 * 3600 * 1000);
+    const user = makeUser({
+      role: 'PLAYER' as any,
+      isVerified: false as any,
+      subscriptionType: 'Amateur',
+    });
+    userRepo.findOne.mockResolvedValue(user);
+
+    const result = await service.updateUserSubscriptionWithExpiration(
+      user.id,
+      'Semiprofesional',
+      expirationDate,
+    );
+
+    expect(result.subscriptionType).toBe('Semiprofesional');
+    expect(result.subscriptionExpiresAt).toBe(expirationDate);
+    expect(markVerifiedSpy).not.toHaveBeenCalled();
+    expect(setLevelSpy).not.toHaveBeenCalled();
+  });
+});
+
+// ===========================================================================
+// Phase 4 Task 4.1 — RED tests: remediateSubscriptionVerification
+// ===========================================================================
+
+const VERIFICATION_PRICE_IDS = [
+  'price_1S5Z3lGbCHvHfqXFd1Xkxf54',
+  'price_1S5ZCrGbCHvHfqXFSySOSYdQ',
+];
+
+const CANDIDATE_ROW = {
+  id: 'cand-uuid-1',
+  email: 'candidate@example.com',
+  verificationLevel: 'SEMIPROFESSIONAL',
+};
+
+async function buildServiceForRemediation(queryResults: any[] = []) {
+  const userRepo = makeUserRepoMock();
+  const verificationRepo = { findOne: jest.fn() };
+  const entityManager = {
+    query: jest.fn().mockResolvedValue(queryResults),
+  } as unknown as EntityManager;
+  const emailService = { sendMail: jest.fn() } as unknown as EmailService;
+
+  const module: TestingModule = await Test.createTestingModule({
+    providers: [
+      UserService,
+      { provide: getRepositoryToken(User), useValue: userRepo },
+      { provide: getRepositoryToken(VerificationRequest), useValue: verificationRepo },
+      { provide: EntityManager, useValue: entityManager },
+      { provide: EmailService, useValue: emailService },
+    ],
+  }).compile();
+
+  const service = module.get<UserService>(UserService);
+  return { service, entityManager };
+}
+
+describe('remediateSubscriptionVerification (Fase 4, Task 4.1)', () => {
+  it('C.1.a dry-run=true: returns candidate list without calling UPDATE', async () => {
+    const { service, entityManager } = await buildServiceForRemediation([CANDIDATE_ROW]);
+
+    const result = await service.remediateSubscriptionVerification(true);
+
+    expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0].id).toBe('cand-uuid-1');
+    expect(result.applied).toBe(false);
+
+    // Must NOT have issued any UPDATE query
+    const queryCalls: string[] = (entityManager.query as jest.Mock).mock.calls.map(
+      (c: any[]) => (c[0] as string).trim().toUpperCase(),
+    );
+    expect(queryCalls.some((q) => q.startsWith('UPDATE'))).toBe(false);
+  });
+
+  it('C.1.b dry-run=true: user with a SUCCEEDED verification payment is NOT a candidate', async () => {
+    // Simulate the query returning 0 rows (user excluded because they have a verif payment)
+    const { service } = await buildServiceForRemediation([]);
+
+    const result = await service.remediateSubscriptionVerification(true);
+
+    expect(result.candidates).toHaveLength(0);
+    expect(result.applied).toBe(false);
+  });
+
+  it('C.2.a dryRun=false: calls UPDATE for candidates returned by the SELECT', async () => {
+    const { service, entityManager } = await buildServiceForRemediation([CANDIDATE_ROW]);
+
+    const result = await service.remediateSubscriptionVerification(false);
+
+    expect(result.candidates).toHaveLength(1);
+    expect(result.applied).toBe(true);
+    expect(result.affectedCount).toBe(1);
+
+    // Must have issued an UPDATE query
+    const queryCalls: string[] = (entityManager.query as jest.Mock).mock.calls.map(
+      (c: any[]) => (c[0] as string).trim().toUpperCase(),
+    );
+    expect(queryCalls.some((q) => q.startsWith('UPDATE'))).toBe(true);
+  });
+
+  it('C.2.b dryRun=false with 0 candidates: no UPDATE called, affectedCount=0', async () => {
+    const { service, entityManager } = await buildServiceForRemediation([]);
+
+    const result = await service.remediateSubscriptionVerification(false);
+
+    expect(result.candidates).toHaveLength(0);
+    expect(result.applied).toBe(true);
+    expect(result.affectedCount).toBe(0);
+
+    const queryCalls: string[] = (entityManager.query as jest.Mock).mock.calls.map(
+      (c: any[]) => (c[0] as string).trim().toUpperCase(),
+    );
+    expect(queryCalls.some((q) => q.startsWith('UPDATE'))).toBe(false);
+  });
+});
+
+// ===========================================================================
+// Phase 1 Task 1.3 — no-regression tests A.4.a and D.2.a
+// (these should be GREEN immediately after 1.2 deletion)
+// ===========================================================================
+
+describe('No-regresión A.4 y D.2 (Fase 1, Task 1.3)', () => {
+  it('A.4.a: downgrade Amateur sobre usuario Profesional/isVerified=true -> subscriptionType=Amateur, isVerified no modificado', async () => {
+    const { service, userRepo, markVerifiedSpy, setLevelSpy } = await buildServiceWithSave();
+    const user = makeUser({
+      role: 'PLAYER' as any,
+      isVerified: true as any,
+      subscriptionType: 'Profesional',
+    });
+    userRepo.findOne.mockResolvedValue(user);
+
+    const result = await service.updateUserSubscription(user.id, 'Amateur');
+
+    expect(result.subscriptionType).toBe('Amateur');
+    expect(markVerifiedSpy).not.toHaveBeenCalled();
+    expect(setLevelSpy).not.toHaveBeenCalled();
+  });
+
+  it('D.2.a: updateUserSubscriptionByEmail -> subscriptionType=Profesional, isVerified no cambia', async () => {
+    const { service, userRepo, markVerifiedSpy, setLevelSpy } = await buildServiceWithSave();
+    const user = makeUser({
+      role: 'PLAYER' as any,
+      isVerified: false as any,
+      subscriptionType: 'Amateur',
+      email: 'matiasolguin48@example.com',
+    });
+    userRepo.findOne.mockResolvedValue(user);
+
+    const result = await service.updateUserSubscriptionByEmail(
+      'matiasolguin48@example.com',
+      'Profesional',
+    );
+
+    expect(result.subscriptionType).toBe('Profesional');
+    expect(markVerifiedSpy).not.toHaveBeenCalled();
+    expect(setLevelSpy).not.toHaveBeenCalled();
+  });
+});

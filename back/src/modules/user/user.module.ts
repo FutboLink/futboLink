@@ -8,11 +8,13 @@ import { ConfigService } from '@nestjs/config';
 import { RepresentationRequest } from './entities/representation-request.entity';
 import { VerificationRequest } from './entities/verification-request.entity';
 import { NotificationsModule } from '../Notifications/notifications.module';
+import { PaymentsModule } from '../../payments/payments.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, RepresentationRequest, VerificationRequest]),
     forwardRef(() => NotificationsModule),
+    forwardRef(() => PaymentsModule),
   ],
   controllers: [UserController],
   providers: [UserService, EmailService, ConfigService],

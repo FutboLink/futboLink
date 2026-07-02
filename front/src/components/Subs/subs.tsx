@@ -73,7 +73,8 @@ function Subs() {
       console.log(`API URL: ${apiUrl}/payments/subscription`);
       
       // Crear la URL de éxito que incluye el parámetro del plan
-      const successUrl = `${window.location.origin}/payment/success?plan=${encodeURIComponent(planName)}`;
+      // session_id={CHECKOUT_SESSION_ID} es un placeholder literal que Stripe sustituye en el redirect
+      const successUrl = `${window.location.origin}/payment/success?plan=${encodeURIComponent(planName)}&session_id={CHECKOUT_SESSION_ID}`;
       
       const response = await fetch(
         `${apiUrl}/payments/subscription`,

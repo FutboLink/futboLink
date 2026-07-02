@@ -96,39 +96,49 @@ export const refreshUserSubscription = async (email: string): Promise<Subscripti
 };
 
 /**
- * Update user subscription directly in database
- * @param email User's email
- * @param subscriptionType New subscription type
+ * Activate user subscription via a confirmed Stripe session.
+ * Sends the session_id to PUT /user/subscription/activate (authenticated).
+ * The backend validates payment_status === 'paid' server-side and derives
+ * the email + plan from the Payment record — NOT from client input.
+ *
+ * @param sessionId Stripe checkout session ID (from URL ?session_id=...)
+ * @param token JWT bearer token from UserContext
+ * @param email User email (used only to refresh subscription info afterwards)
  * @returns Success status
  */
-export const updateUserSubscription = async (email: string, subscriptionType: string): Promise<SyncSubscriptionResult> => {
+export const updateUserSubscription = async (
+  sessionId: string,
+  token: string,
+  email: string,
+): Promise<SyncSubscriptionResult> => {
   try {
-    const response = await fetch(`${apiUrl}/user/subscription/update-by-email`, {
+    const response = await fetch(`${apiUrl}/user/subscription/activate`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify({ email, subscriptionType }),
+      body: JSON.stringify({ sessionId }),
     });
-    
+
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `Error ${response.status}: No se pudo actualizar la suscripción`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Error ${response.status}: No se pudo activar la suscripción`);
     }
-    
-    // Obtener la nueva información de suscripción
+
+    // Refresh subscription info from server to reflect the updated plan
     const subInfo = await refreshUserSubscription(email);
-    
+
     return {
       success: true,
-      message: 'Suscripción actualizada correctamente',
-      subscriptionInfo: subInfo
+      message: 'Suscripción activada correctamente',
+      subscriptionInfo: subInfo,
     };
   } catch (error: any) {
-    console.error('Error updating subscription:', error);
+    console.error('Error activating subscription:', error);
     return {
       success: false,
-      message: error.message || 'Error al actualizar la suscripción. Por favor, intenta de nuevo más tarde.'
+      message: error.message || 'Error al activar la suscripción. Por favor, intenta de nuevo más tarde.',
     };
   }
 };

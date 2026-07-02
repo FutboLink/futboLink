@@ -11,6 +11,8 @@ import {
   UseGuards,
   Req,
   UnauthorizedException,
+  ForbiddenException,
+  HttpCode,
   } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/create-user.dto';
@@ -103,32 +105,45 @@ export class UserController {
   }
   
   /**
-   * Actualiza el tipo de suscripción de un usuario
+   * Actualiza el tipo de suscripción de un usuario (solo administradores)
    */
-  @ApiOperation({ summary: 'Actualizar tipo de suscripción de un usuario' })
+  @ApiOperation({ summary: 'Actualizar tipo de suscripción de un usuario (admin only)' })
   @ApiResponse({ status: 200, description: 'Suscripción actualizada' })
+  @ApiResponse({ status: 401, description: 'No autenticado' })
+  @ApiResponse({ status: 403, description: 'Solo administradores' })
   @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  @UseGuards(AuthGuard)
   @Put(':id/subscription')
   async updateSubscription(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() data: { subscriptionType: string }
+    @Body() data: { subscriptionType: string },
+    @Req() req: any,
   ) {
+    if (req.user.role !== 'ADMIN') {
+      throw new ForbiddenException('Solo los administradores pueden actualizar suscripciones');
+    }
     return this.userService.updateUserSubscription(id, data.subscriptionType);
   }
   
   /**
-   * Endpoint específico para actualizar la suscripción desde el panel admin
+   * Endpoint específico para actualizar la suscripción desde el panel admin (solo administradores)
    */
-  @ApiOperation({ summary: 'Actualizar suscripción de usuario desde el panel admin' })
+  @ApiOperation({ summary: 'Actualizar suscripción de usuario desde el panel admin (admin only)' })
   @ApiResponse({ status: 200, description: 'Suscripción actualizada exitosamente' })
+  @ApiResponse({ status: 401, description: 'No autenticado' })
+  @ApiResponse({ status: 403, description: 'Solo administradores' })
   @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  @UseGuards(AuthGuard)
   @Put('update-subscription/:id')
   async updateUserSubscriptionAdmin(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() data: { subscriptionType: string, subscriptionExpiresAt?: Date }
+    @Body() data: { subscriptionType: string, subscriptionExpiresAt?: Date },
+    @Req() req: any,
   ) {
+    if (req.user.role !== 'ADMIN') {
+      throw new ForbiddenException('Solo los administradores pueden actualizar suscripciones');
+    }
     const { subscriptionType, subscriptionExpiresAt } = data;
-    // Si se proporciona una fecha de expiración, usarla; de lo contrario, usar lógica predeterminada
     if (subscriptionExpiresAt) {
       return this.userService.updateUserSubscriptionWithExpiration(id, subscriptionType, subscriptionExpiresAt);
     } else {
@@ -148,16 +163,21 @@ export class UserController {
   }
   
   /**
-   * Actualiza el tipo de suscripción de un usuario por email
+   * Activates a user subscription after a confirmed Stripe payment.
+   * Requires authentication. The session_id is validated server-side against Stripe.
+   * The plan and email are derived from the Payment record — NOT from client input.
    */
-  @ApiOperation({ summary: 'Actualizar tipo de suscripción por email' })
-  @ApiResponse({ status: 200, description: 'Suscripción actualizada' })
-  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
-  @Put('subscription/update-by-email')
-  async updateSubscriptionByEmail(
-    @Body() data: { email: string, subscriptionType: string }
+  @ApiOperation({ summary: 'Activar suscripción tras pago confirmado por Stripe' })
+  @ApiResponse({ status: 200, description: 'Suscripción activada' })
+  @ApiResponse({ status: 401, description: 'No autenticado' })
+  @ApiResponse({ status: 403, description: 'Sesión de pago no válida o no pagada' })
+  @ApiResponse({ status: 404, description: 'Sesión de pago o usuario no encontrado' })
+  @UseGuards(AuthGuard)
+  @Put('subscription/activate')
+  async activateSubscription(
+    @Body() data: { sessionId: string },
   ) {
-    return this.userService.updateUserSubscriptionByEmail(data.email, data.subscriptionType);
+    return this.userService.activateSubscription(data.sessionId);
   }
   
   /**
@@ -585,6 +605,34 @@ export class UserController {
       throw new UnauthorizedException('Solo administradores');
     }
     return this.userService.updateUserVerificationLevel(userId, data.level);
+  }
+
+  // =========================================================================
+  // Phase 4 — Admin remediation endpoint (D4)
+  // =========================================================================
+
+  @ApiOperation({
+    summary: 'Remediación de verificación incorrecta por suscripción (ADMIN)',
+    description:
+      'Identifica usuarios cuya tilde azul proviene del auto-verify eliminado (no de un producto de verificación). ' +
+      'Con dryRun=true (default) solo lista candidatos. Con dryRun=false revoca isVerified y verificationLevel.',
+  })
+  @ApiResponse({ status: 200, description: 'Reporte de remediación' })
+  @ApiResponse({ status: 401, description: 'No autenticado' })
+  @ApiResponse({ status: 403, description: 'Se requiere rol ADMIN' })
+  @UseGuards(AuthGuard)
+  @HttpCode(200)
+  @Post('admin/remediate-subscription-verification')
+  async remediateSubscriptionVerification(
+    @Query('dryRun') dryRunParam: string,
+    @Req() req: any,
+  ) {
+    if (req.user.role !== 'ADMIN') {
+      throw new ForbiddenException('Solo administradores pueden ejecutar la remediación');
+    }
+    // Default: dryRun=true (safe — requires explicit ?dryRun=false to apply)
+    const dryRun = dryRunParam !== 'false';
+    return this.userService.remediateSubscriptionVerification(dryRun);
   }
 
   @ApiOperation({ summary: 'Obtener solicitudes de verificación de un jugador específico' })

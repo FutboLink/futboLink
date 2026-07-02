@@ -107,7 +107,8 @@ export default function SubsSimple() {
       const planName = 'Profesional';
       
       // URL de éxito con el parámetro del plan
-      const successUrl = `${window.location.origin}/payment/success?plan=${planName}`;
+      // session_id={CHECKOUT_SESSION_ID} es un placeholder literal que Stripe sustituye en el redirect
+      const successUrl = `${window.location.origin}/payment/success?plan=${planName}&session_id={CHECKOUT_SESSION_ID}`;
       
       console.log('Creating subscription with email:', userEmail);
       setDebugInfo(`Using email: ${userEmail}`);

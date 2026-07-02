@@ -12,9 +12,9 @@ import Link from "next/link";
 import { UserContext } from "../Context/UserContext";
 import { useRouter } from "next/navigation";
 import {
- HiUserGroup,
- HiMagnifyingGlass,
- HiSparkles,
+  FaUsers,
+  FaSearch,
+  FaStar
 } from "react-icons/fa";
 
 function Subs() {

@@ -312,11 +312,17 @@
 .benefits{
   display:flex;
   justify-content:center;
-  gap:20px;
+  align-items:stretch;
+
   flex-wrap:wrap;
 
-  margin-top:180px;
-  margin-bottom:60px;
+  gap:32px;
+
+  width:100%;
+  max-width:1200px;
+
+  margin-top:250px;
+  margin-bottom:90px;
 }
 
 .benefit{

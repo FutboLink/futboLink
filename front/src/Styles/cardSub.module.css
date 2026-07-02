@@ -339,3 +339,15 @@
 
   text-align:center;
 }
+@media (max-width: 768px) {
+
+  .recommended{
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    font-size: .65rem;
+    padding: 6px 14px;
+  }
+
+}

@@ -137,10 +137,10 @@ function Subs() {
           >
             <div className={styles.card}>
               <div
-                className={`${styles.cardFront} ${
-                  styles[option.title.toLowerCase()]
-                }`}
-              >
+  className={`${styles.cardFront} ${
+    styles[option.title.toLowerCase()]
+  } ${option.title === "Profesional" ? styles.featuredCard : ""}`}
+>
 {option.title === "Profesional" && (
   <div className={styles.recommended}>
     RECOMENDADO

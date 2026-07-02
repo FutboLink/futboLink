@@ -6,7 +6,7 @@ import { IProfileData } from "@/Interfaces/IUser";
 import { useSubscription } from "@/components/Context/SubscriptionContext";
 import { SubscriptionProvider } from "@/components/Context/SubscriptionContext";
 import { UserContext } from "@/components/Context/UserContext";
-import { FaChevronLeft, FaChevronRight, FaSpinner } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaChevronDown, FaChevronUp, FaSpinner } from "react-icons/fa";
 
 export type SubscriptionType = 'Amateur' | 'Semiprofesional' | 'Profesional';
 
@@ -29,6 +29,10 @@ const UsersComponentWithContext = () => {
   const [statsError, setStatsError] = useState(false);
 
   const [isExporting, setIsExporting] = useState(false);
+
+  // Colapsados por defecto: no ocupar pantalla con el detalle de nacionalidades/posiciones
+  const [showNationalities, setShowNationalities] = useState(false);
+  const [showPositions, setShowPositions] = useState(false);
 
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -188,36 +192,54 @@ const UsersComponentWithContext = () => {
               </div>
             </div>
 
-            <div className="mb-3">
-              <p className="text-sm font-semibold text-gray-600 mb-1">Top nacionalidades</p>
-              <div className="flex flex-wrap gap-2">
-                {(stats.byNationality ?? []).length === 0 ? (
-                  <p className="text-sm text-gray-400">Sin datos de nacionalidades.</p>
-                ) : (
-                  (stats.byNationality ?? []).map(({ nationality, count }) => (
-                    <div key={nationality} className="bg-green-50 rounded px-3 py-2 border border-green-200 text-sm">
-                      <span className="font-medium capitalize">{nationality}</span>
-                      <span className="ml-2 font-bold text-green-700">{count}</span>
-                    </div>
-                  ))
-                )}
-              </div>
+            <div className="mb-3 border-t border-gray-100 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowNationalities((prev) => !prev)}
+                className="flex items-center gap-2 text-sm font-semibold text-gray-600 mb-1 hover:text-gray-800"
+              >
+                {showNationalities ? <FaChevronUp className="h-3 w-3" /> : <FaChevronDown className="h-3 w-3" />}
+                Top nacionalidades
+              </button>
+              {showNationalities && (
+                <div className="flex flex-wrap gap-2">
+                  {(stats.byNationality ?? []).length === 0 ? (
+                    <p className="text-sm text-gray-400">Sin datos de nacionalidades.</p>
+                  ) : (
+                    (stats.byNationality ?? []).map(({ nationality, count }) => (
+                      <div key={nationality} className="bg-green-50 rounded px-3 py-2 border border-green-200 text-sm">
+                        <span className="font-medium capitalize">{nationality}</span>
+                        <span className="ml-2 font-bold text-green-700">{count}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
 
             <div>
-              <p className="text-sm font-semibold text-gray-600 mb-1">Posiciones (jugadores)</p>
-              <div className="flex flex-wrap gap-2">
-                {(stats.byPosition ?? []).length === 0 ? (
-                  <p className="text-sm text-gray-400">Sin datos de posiciones.</p>
-                ) : (
-                  (stats.byPosition ?? []).map(({ position, count }) => (
-                    <div key={position} className="bg-yellow-50 rounded px-3 py-2 border border-yellow-200 text-sm">
-                      <span className="font-medium capitalize">{position}</span>
-                      <span className="ml-2 font-bold text-yellow-700">{count}</span>
-                    </div>
-                  ))
-                )}
-              </div>
+              <button
+                type="button"
+                onClick={() => setShowPositions((prev) => !prev)}
+                className="flex items-center gap-2 text-sm font-semibold text-gray-600 mb-1 hover:text-gray-800"
+              >
+                {showPositions ? <FaChevronUp className="h-3 w-3" /> : <FaChevronDown className="h-3 w-3" />}
+                Posiciones (jugadores)
+              </button>
+              {showPositions && (
+                <div className="flex flex-wrap gap-2">
+                  {(stats.byPosition ?? []).length === 0 ? (
+                    <p className="text-sm text-gray-400">Sin datos de posiciones.</p>
+                  ) : (
+                    (stats.byPosition ?? []).map(({ position, count }) => (
+                      <div key={position} className="bg-yellow-50 rounded px-3 py-2 border border-yellow-200 text-sm">
+                        <span className="font-medium capitalize">{position}</span>
+                        <span className="ml-2 font-bold text-yellow-700">{count}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           </>
         )}

@@ -4,6 +4,9 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  Optional,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -20,6 +23,7 @@ import { VerificationRequest, VerificationRequestStatus } from './entities/verif
 import { EmailService } from '../Mailing/email.service';
 import { CreateRepresentationRequestDto, UpdateRepresentationRequestDto } from './dto/representation-request.dto';
 import { CreateVerificationRequestDto, UpdateVerificationRequestDto } from './dto/verification-request.dto';
+import { StripeService } from '../../payments/services/stripe.service';
 
 @Injectable()
 export class UserService {
@@ -30,6 +34,8 @@ export class UserService {
     private readonly verificationRequestRepository: Repository<VerificationRequest>,
     private readonly entityManager: EntityManager,
     private readonly emailService: EmailService,
+    @Optional() @Inject(forwardRef(() => StripeService))
+    private readonly stripeService?: StripeService,
   ) {
     // Intentar crear la tabla de cartera de reclutadores si no existe
     this.createPortfolioTableIfNotExists();
@@ -585,52 +591,7 @@ export class UserService {
     
     // Guardar los cambios
     const savedUser = await this.userRepository.save(user);
-    
-    // Si el usuario es un jugador y tiene suscripción Semiprofesional o Profesional,
-    // marcar automáticamente como verificado
-    if (user.role === UserType.PLAYER && 
-        (subscriptionType === 'Semiprofesional' || subscriptionType === 'Profesional')) {
-      try {
-        // Verificar si ya está verificado para evitar actualizaciones innecesarias
-        const isVerified = await this.isUserVerifiedSafe(user.id);
-        
-        if (!isVerified) {
-          // Marcar como verificado
-          const verifiedResult = await this.markUserAsVerifiedSafe(user.id);
-          
-          if (verifiedResult) {
-            // Establecer el nivel de verificación según el tipo de suscripción
-            let verificationLevel: 'SEMIPROFESSIONAL' | 'PROFESSIONAL' = 'SEMIPROFESSIONAL';
-            if (subscriptionType === 'Profesional') {
-              verificationLevel = 'PROFESSIONAL';
-            }
-            
-            await this.setUserVerificationLevelSafe(user.id, verificationLevel);
-            console.log(`Usuario ${user.id} marcado automáticamente como verificado con nivel ${verificationLevel} después de pagar suscripción ${subscriptionType}`);
-          } else {
-            console.warn(`No se pudo marcar como verificado al usuario ${user.id} después de pagar suscripción`);
-          }
-        } else {
-          // Si ya está verificado, actualizar el nivel si es necesario
-          const currentLevel = await this.getUserVerificationLevelSafe(user.id);
-          let newLevel: 'SEMIPROFESSIONAL' | 'PROFESSIONAL' = 'SEMIPROFESSIONAL';
-          if (subscriptionType === 'Profesional') {
-            newLevel = 'PROFESSIONAL';
-          }
-          
-          // Solo actualizar si el nuevo nivel es superior o diferente
-          if (currentLevel !== newLevel && 
-              (newLevel === 'PROFESSIONAL' || currentLevel === 'NONE' || currentLevel === 'AMATEUR')) {
-            await this.setUserVerificationLevelSafe(user.id, newLevel);
-            console.log(`Nivel de verificación actualizado a ${newLevel} para usuario ${user.id}`);
-          }
-        }
-      } catch (error) {
-        // No fallar la actualización de suscripción si hay error en la verificación
-        console.error(`Error al marcar usuario como verificado automáticamente: ${error.message}`, error);
-      }
-    }
-    
+
     return savedUser;
   }
 
@@ -689,55 +650,116 @@ export class UserService {
     
     // Guardar los cambios
     const savedUser = await this.userRepository.save(user);
-    
-    // Si el usuario es un jugador y tiene suscripción Semiprofesional o Profesional,
-    // marcar automáticamente como verificado
-    if (user.role === UserType.PLAYER && 
-        (subscriptionType === 'Semiprofesional' || subscriptionType === 'Profesional')) {
-      try {
-        // Verificar si ya está verificado para evitar actualizaciones innecesarias
-        const isVerified = await this.isUserVerifiedSafe(user.id);
-        
-        if (!isVerified) {
-          // Marcar como verificado
-          const verifiedResult = await this.markUserAsVerifiedSafe(user.id);
-          
-          if (verifiedResult) {
-            // Establecer el nivel de verificación según el tipo de suscripción
-            let verificationLevel: 'SEMIPROFESSIONAL' | 'PROFESSIONAL' = 'SEMIPROFESSIONAL';
-            if (subscriptionType === 'Profesional') {
-              verificationLevel = 'PROFESSIONAL';
-            }
-            
-            await this.setUserVerificationLevelSafe(user.id, verificationLevel);
-            console.log(`Usuario ${user.id} marcado automáticamente como verificado con nivel ${verificationLevel} después de pagar suscripción ${subscriptionType}`);
-          } else {
-            console.warn(`No se pudo marcar como verificado al usuario ${user.id} después de pagar suscripción`);
-          }
-        } else {
-          // Si ya está verificado, actualizar el nivel si es necesario
-          const currentLevel = await this.getUserVerificationLevelSafe(user.id);
-          let newLevel: 'SEMIPROFESSIONAL' | 'PROFESSIONAL' = 'SEMIPROFESSIONAL';
-          if (subscriptionType === 'Profesional') {
-            newLevel = 'PROFESSIONAL';
-          }
-          
-          // Solo actualizar si el nuevo nivel es superior o diferente
-          if (currentLevel !== newLevel && 
-              (newLevel === 'PROFESSIONAL' || currentLevel === 'NONE' || currentLevel === 'AMATEUR')) {
-            await this.setUserVerificationLevelSafe(user.id, newLevel);
-            console.log(`Nivel de verificación actualizado a ${newLevel} para usuario ${user.id}`);
-          }
-        }
-      } catch (error) {
-        // No fallar la actualización de suscripción si hay error en la verificación
-        console.error(`Error al marcar usuario como verificado automáticamente: ${error.message}`, error);
-      }
-    }
-    
+
     return savedUser;
   }
-  
+
+  /**
+   * Activates a user subscription after a confirmed Stripe checkout session.
+   * Server-side validation: session must be paid and in subscription mode.
+   * The email and plan are sourced from the Payment record in the DB, NOT from client input.
+   *
+   * @param sessionId - Stripe checkout session ID from the success redirect URL
+   * @returns Updated user with the new subscriptionType
+   * @throws ForbiddenException if the session was not paid
+   * @throws NotFoundException if the session or user is not found
+   */
+  async activateSubscription(sessionId: string): Promise<User> {
+    if (!this.stripeService) {
+      throw new ForbiddenException('StripeService not available — check module DI setup');
+    }
+
+    // 1. Validate that Stripe session is paid
+    await this.stripeService.validatePaidSession(sessionId);
+
+    // 2. Load the Payment record (contains trusted email + subscriptionType)
+    const payment = await this.stripeService.getPaymentBySessionId(sessionId);
+
+    const email = payment.customerEmail;
+    const plan = payment.subscriptionType ?? 'Semiprofesional';
+
+    // 3. Update the user's subscription — does NOT touch isVerified (D1 rule)
+    return this.updateUserSubscriptionByEmail(email, plan);
+  }
+
+  /**
+   * Identifica (dry-run) or revokes (dryRun=false) isVerified for users whose
+   * verification came ONLY from the now-deleted auto-verify-by-subscription logic.
+   *
+   * Candidate heuristic (per design D4):
+   *   isVerified = true
+   *   AND verificationLevel IN ('SEMIPROFESSIONAL', 'PROFESSIONAL')
+   *   AND role = 'PLAYER'
+   *   AND no Payment row with stripePriceId IN verificationPriceIds AND status = 'succeeded'
+   *       for that user's email
+   *
+   * @param dryRun - When true (default) returns the candidate list without writing. When false,
+   *                 sets isVerified=false and verificationLevel='NONE' for all candidates.
+   */
+  async remediateSubscriptionVerification(dryRun = true): Promise<{
+    candidates: Array<{ id: string; email: string; verificationLevel: string }>;
+    applied: boolean;
+    affectedCount: number;
+    dryRun: boolean;
+  }> {
+    const verificationPriceIds = [
+      'price_1S5Z3lGbCHvHfqXFd1Xkxf54',
+      'price_1S5ZCrGbCHvHfqXFSySOSYdQ',
+    ];
+
+    // Single SELECT — joins via NOT EXISTS to avoid N+1
+    // Finds PLAYER users that are isVerified + SEMIPRO/PRO level but have NO succeeded
+    // verification payment row.
+    const candidates: Array<{ id: string; email: string; verificationLevel: string }> =
+      await this.entityManager.query(
+        `
+        SELECT u.id, u.email, u."verificationLevel"
+        FROM users u
+        WHERE u."isVerified" = true
+          AND u."verificationLevel" IN ('SEMIPROFESSIONAL', 'PROFESSIONAL')
+          AND u.role = 'PLAYER'
+          AND NOT EXISTS (
+            SELECT 1 FROM payments p
+            WHERE p."customerEmail" = u.email
+              AND p."stripePriceId" = ANY($1::text[])
+              AND p.status = 'succeeded'
+          )
+        `,
+        [verificationPriceIds],
+      );
+
+    if (dryRun || candidates.length === 0) {
+      return {
+        candidates,
+        applied: !dryRun,
+        affectedCount: 0,
+        dryRun,
+      };
+    }
+
+    // Apply: revoke isVerified + reset verificationLevel for the exact IDs found
+    const ids = candidates.map((c) => c.id);
+    await this.entityManager.query(
+      `
+      UPDATE users
+      SET "isVerified" = false, "verificationLevel" = 'NONE'
+      WHERE id = ANY($1::uuid[])
+      `,
+      [ids],
+    );
+
+    console.log(
+      `[remediateSubscriptionVerification] Revoked isVerified for ${ids.length} users: ${ids.join(', ')}`,
+    );
+
+    return {
+      candidates,
+      applied: true,
+      affectedCount: ids.length,
+      dryRun,
+    };
+  }
+
   /**
    * Obtiene la información de suscripción de un usuario por email
    * @param email Email del usuario
@@ -794,52 +816,7 @@ export class UserService {
     
     // Guardar los cambios
     const savedUser = await this.userRepository.save(user);
-    
-    // Si el usuario es un jugador y tiene suscripción Semiprofesional o Profesional,
-    // marcar automáticamente como verificado
-    if (user.role === UserType.PLAYER && 
-        (subscriptionType === 'Semiprofesional' || subscriptionType === 'Profesional')) {
-      try {
-        // Verificar si ya está verificado para evitar actualizaciones innecesarias
-        const isVerified = await this.isUserVerifiedSafe(user.id);
-        
-        if (!isVerified) {
-          // Marcar como verificado
-          const verifiedResult = await this.markUserAsVerifiedSafe(user.id);
-          
-          if (verifiedResult) {
-            // Establecer el nivel de verificación según el tipo de suscripción
-            let verificationLevel: 'SEMIPROFESSIONAL' | 'PROFESSIONAL' = 'SEMIPROFESSIONAL';
-            if (subscriptionType === 'Profesional') {
-              verificationLevel = 'PROFESSIONAL';
-            }
-            
-            await this.setUserVerificationLevelSafe(user.id, verificationLevel);
-            console.log(`Usuario ${user.id} marcado automáticamente como verificado con nivel ${verificationLevel} después de pagar suscripción ${subscriptionType}`);
-          } else {
-            console.warn(`No se pudo marcar como verificado al usuario ${user.id} después de pagar suscripción`);
-          }
-        } else {
-          // Si ya está verificado, actualizar el nivel si es necesario
-          const currentLevel = await this.getUserVerificationLevelSafe(user.id);
-          let newLevel: 'SEMIPROFESSIONAL' | 'PROFESSIONAL' = 'SEMIPROFESSIONAL';
-          if (subscriptionType === 'Profesional') {
-            newLevel = 'PROFESSIONAL';
-          }
-          
-          // Solo actualizar si el nuevo nivel es superior o diferente
-          if (currentLevel !== newLevel && 
-              (newLevel === 'PROFESSIONAL' || currentLevel === 'NONE' || currentLevel === 'AMATEUR')) {
-            await this.setUserVerificationLevelSafe(user.id, newLevel);
-            console.log(`Nivel de verificación actualizado a ${newLevel} para usuario ${user.id}`);
-          }
-        }
-      } catch (error) {
-        // No fallar la actualización de suscripción si hay error en la verificación
-        console.error(`Error al marcar usuario como verificado automáticamente: ${error.message}`, error);
-      }
-    }
-    
+
     return savedUser;
   }
 

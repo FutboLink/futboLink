@@ -11,10 +11,11 @@ import {
   clearSubscriptionCache,
 } from "@/services/SubscriptionService";
 
+
 // Componente que usa useSearchParams (debe estar dentro de Suspense)
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
-  const plan = searchParams?.get("plan") || "Semiprofesional"; // Valor por defecto si no hay parámetro o searchParams es null
+  const sessionId = searchParams?.get("session_id") || ""; // Stripe session ID from redirect URL
   const type = searchParams?.get("type") || ""; // Tipo de suscripción (verification, etc.)
   const redirect = searchParams?.get("redirect") || ""; // URL de redirección
   const [status, setStatus] = useState<"loading" | "success" | "error">(
@@ -26,6 +27,7 @@ function PaymentSuccessContent() {
   const userContext = useContext(UserContext);
   const userEmail = userContext?.user?.email; // Acceder al email de manera segura
   const userRole = userContext?.role; // Get the user role
+  const token = userContext?.token; // JWT bearer token for authenticated requests
   const refreshUserData = userContext?.refreshUserData; // Get refresh function
 
   // Determine the correct profile path based on role
@@ -33,10 +35,10 @@ function PaymentSuccessContent() {
     if (!userRole) return "/";
 
     if (userRole === "PLAYER") return "/PanelUsers/Player";
-    if (userRole === "RECRUITER") return "/PanelUsers/Manager";
+    if (userRole === "RECRUITER" || userRole === "AGENCY" || userRole === "CLUB") return "/PanelUsers/Manager";
     if (userRole === "ADMIN") return "/PanelAdmin";
 
-    return "/"; // Default fallback
+    return "/PanelUsers/Manager";
   };
 
   useEffect(() => {
@@ -47,18 +49,17 @@ function PaymentSuccessContent() {
         return;
       }
 
-      // Si no hay plan en los parámetros, intentamos determinar si es un pago por defecto
-      let subType = plan;
-
-      // Validar que el plan sea uno de los tipos válidos
-      if (!["Amateur", "Semiprofesional", "Profesional"].includes(subType)) {
-        subType = "Semiprofesional"; // Si no es válido, usamos el valor por defecto
+      // Verificar que tenemos el session_id de Stripe
+      if (!sessionId) {
+        setStatus("error");
+        setMessage(
+          "No se encontró el identificador de sesión de pago. Por favor, contacta a soporte."
+        );
+        return;
       }
 
-      setSubscriptionType(subType);
-
-      // Verificar que tenemos el email del usuario
-      if (!userEmail) {
+      // Verificar que tenemos el email y token del usuario autenticado
+      if (!userEmail || !token) {
         setStatus("error");
         setMessage(
           "No se pudo identificar al usuario. Por favor, inicia sesión nuevamente."
@@ -67,13 +68,13 @@ function PaymentSuccessContent() {
       }
 
       try {
-        // Actualizar el tipo de suscripción en la base de datos
-        const result = await updateUserSubscription(userEmail, subType);
+        // Activar la suscripción enviando session_id al backend (validación server-side)
+        const result = await updateUserSubscription(sessionId, token, userEmail);
 
         if (result.success) {
           // Limpiar caché de suscripción para forzar una recarga
           clearSubscriptionCache();
-          
+
           // Refrescar los datos del usuario en el contexto
           if (refreshUserData) {
             try {
@@ -83,18 +84,21 @@ function PaymentSuccessContent() {
               console.error("Error refreshing user context:", error);
             }
           }
-          
+
+          const activatedPlan = result.subscriptionInfo?.subscriptionType || "Suscripción";
+          setSubscriptionType(activatedPlan);
+
           // Disparar evento personalizado para notificar a otros componentes
           if (typeof window !== "undefined") {
             window.dispatchEvent(new CustomEvent('subscriptionUpdated', {
-              detail: { subscriptionType: subType, isActive: true }
+              detail: { subscriptionType: activatedPlan, isActive: true }
             }));
             console.log("Subscription update event dispatched");
           }
-          
+
           setStatus("success");
           setMessage(
-            `¡Tu suscripción al plan ${subType} ha sido activada correctamente!`
+            `¡Tu suscripción al plan ${activatedPlan} ha sido activada correctamente!`
           );
         } else {
           setStatus("error");
@@ -110,7 +114,7 @@ function PaymentSuccessContent() {
     };
 
     processPayment();
-  }, [plan, type, userEmail, router]);
+  }, [sessionId, type, userEmail, token, router]);
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">

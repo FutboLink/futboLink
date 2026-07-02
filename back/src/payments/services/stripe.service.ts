@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, Logger, NotFoundException, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger, NotFoundException, ForbiddenException, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -1078,5 +1078,41 @@ export class StripeService {
     } catch (error) {
       this.logger.error(`Error al marcar usuario como verificado: ${error.message}`, error);
     }
+  }
+
+  /**
+   * Validates that a Stripe checkout session was paid and is a subscription session.
+   * Used by the activate endpoint to prevent client-side bypass of the payment step.
+   *
+   * @param sessionId - Stripe checkout session ID (cs_xxx)
+   * @returns { paid: true, customerEmail } if the session is valid
+   * @throws ForbiddenException if the session was not paid or is not a subscription
+   * @throws NotFoundException if the session does not exist in Stripe
+   */
+  async validatePaidSession(sessionId: string): Promise<{ paid: true; customerEmail: string }> {
+    let session: Stripe.Checkout.Session;
+
+    try {
+      session = await this.stripe.checkout.sessions.retrieve(sessionId);
+    } catch (err: any) {
+      if (err?.type === 'StripeInvalidRequestError') {
+        throw new NotFoundException(`Stripe session not found: ${sessionId}`);
+      }
+      throw new InternalServerErrorException('Could not reach Stripe to validate session');
+    }
+
+    if (session.payment_status !== 'paid' || session.mode !== 'subscription') {
+      throw new ForbiddenException(
+        'Subscription session not paid or not a subscription mode',
+      );
+    }
+
+    const customerEmail = session.customer_email || (session.customer_details?.email ?? '');
+
+    if (!customerEmail) {
+      throw new ForbiddenException('Could not determine customer email from Stripe session');
+    }
+
+    return { paid: true, customerEmail };
   }
 } 

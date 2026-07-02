@@ -194,6 +194,7 @@ function makeQueryBuilderStub(resolvedData: [User[], number]) {
     take: jest.fn(),
     skip: jest.fn(),
     getManyAndCount: jest.fn().mockResolvedValue(resolvedData),
+    getMany: jest.fn().mockResolvedValue(resolvedData[0]),
   };
   stub.select.mockReturnThis();
   stub.leftJoinAndSelect.mockReturnThis();
@@ -707,5 +708,58 @@ describe('No-regresión A.4 y D.2 (Fase 1, Task 1.3)', () => {
     expect(result.subscriptionType).toBe('Profesional');
     expect(markVerifiedSpy).not.toHaveBeenCalled();
     expect(setLevelSpy).not.toHaveBeenCalled();
+  });
+
+  // ===========================================================================
+  // excel-export-users — exportUsersToExcel
+  // ===========================================================================
+
+  describe('UserService - exportUsersToExcel', () => {
+    it('applies the same role/nationality/email filters as findAll', async () => {
+      const qbStub = makeQueryBuilderStub([[], 0]);
+      const { service } = await buildServiceWithQb(qbStub);
+
+      await service.exportUsersToExcel('john', 'PLAYER', 'argentina');
+
+      expect(qbStub.andWhere).toHaveBeenCalledWith('LOWER(user.email) LIKE LOWER(:email)', {
+        email: '%john%',
+      });
+      expect(qbStub.andWhere).toHaveBeenCalledWith('user.role = :role', { role: 'PLAYER' });
+      expect(qbStub.andWhere).toHaveBeenCalledWith(
+        'LOWER(user.nationality) LIKE LOWER(:nat)',
+        { nat: '%argentina%' },
+      );
+    });
+
+    it('returns a non-empty xlsx Buffer with one row per matched user', async () => {
+      const users = [
+        makeUser({
+          email: 'player@example.com',
+          name: 'Juan',
+          lastname: 'Perez',
+          role: 'PLAYER' as any,
+          nationality: 'argentina',
+          phone: '+541122334455',
+          primaryPosition: 'delantero',
+        } as Partial<User>),
+      ];
+      const qbStub = makeQueryBuilderStub([users, 1]);
+      const { service } = await buildServiceWithQb(qbStub);
+
+      const buffer = await service.exportUsersToExcel();
+
+      expect(Buffer.isBuffer(buffer)).toBe(true);
+      expect(buffer.length).toBeGreaterThan(0);
+    });
+
+    it('does not throw and returns a valid (empty) workbook when no users match', async () => {
+      const qbStub = makeQueryBuilderStub([[], 0]);
+      const { service } = await buildServiceWithQb(qbStub);
+
+      const buffer = await service.exportUsersToExcel(undefined, 'GHOST');
+
+      expect(Buffer.isBuffer(buffer)).toBe(true);
+      expect(buffer.length).toBeGreaterThan(0);
+    });
   });
 });

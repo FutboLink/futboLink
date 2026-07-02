@@ -40,6 +40,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "dotenv": "^16.4.7",
+    "exceljs": "^4.4.0",
     "handlebars": "^4.7.8",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
@@ -93,7 +94,14 @@
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": ["ts-jest", { "diagnostics": { "warnOnly": true } }]
+      "^.+\\.(t|j)s$": [
+        "ts-jest",
+        {
+          "diagnostics": {
+            "warnOnly": true
+          }
+        }
+      ]
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"

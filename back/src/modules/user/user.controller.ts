@@ -10,10 +10,12 @@ import {
   Query,
   UseGuards,
   Req,
+  Res,
   UnauthorizedException,
   ForbiddenException,
   HttpCode,
   } from '@nestjs/common';
+import { Response } from 'express';
 import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/create-user.dto';
 import {
@@ -92,6 +94,31 @@ export class UserController {
       throw new ForbiddenException('Solo los administradores pueden ver las estadísticas');
     }
     return this.userService.getUserStats();
+  }
+
+  @ApiOperation({ summary: 'Exportar usuarios filtrados a Excel (admin only)' })
+  @ApiResponse({ status: 200, description: 'Archivo .xlsx con los usuarios filtrados' })
+  @ApiResponse({ status: 401, description: 'No autenticado' })
+  @ApiResponse({ status: 403, description: 'Solo administradores' })
+  @UseGuards(AuthGuard)
+  @Get('export')
+  async exportUsers(
+    @Query('email') email: string,
+    @Query('role') role: string,
+    @Query('nationality') nationality: string,
+    @Req() req: any,
+    @Res() res: Response,
+  ) {
+    if (req.user?.role !== 'ADMIN') {
+      throw new ForbiddenException('Solo los administradores pueden exportar usuarios');
+    }
+    const buffer = await this.userService.exportUsersToExcel(email, role, nationality);
+    res.set({
+      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': 'attachment; filename="usuarios.xlsx"',
+      'Content-Length': buffer.length,
+    });
+    res.send(buffer);
   }
 
   @ApiOperation({ summary: 'Traer usuario por Id' })

@@ -24,6 +24,7 @@ import { EmailService } from '../Mailing/email.service';
 import { CreateRepresentationRequestDto, UpdateRepresentationRequestDto } from './dto/representation-request.dto';
 import { CreateVerificationRequestDto, UpdateVerificationRequestDto } from './dto/verification-request.dto';
 import { StripeService } from '../../payments/services/stripe.service';
+import * as ExcelJS from 'exceljs';
 
 @Injectable()
 export class UserService {
@@ -510,6 +511,76 @@ export class UserService {
       })),
       byPosition: byPositionRaw.map((r: any) => ({ position: r.position, count: Number(r.count) })),
     };
+  }
+
+  /**
+   * Genera un .xlsx con los usuarios que matchean los mismos filtros de findAll
+   * (email/role/nationality), sin paginar. Columnas: rol, posición, nacionalidad,
+   * teléfono, email.
+   */
+  async exportUsersToExcel(
+    emailFragment?: string,
+    role?: string,
+    nationality?: string,
+  ): Promise<Buffer> {
+    const qb = this.userRepository
+      .createQueryBuilder('user')
+      .select([
+        'user.email',
+        'user.name',
+        'user.lastname',
+        'user.role',
+        'user.nationality',
+        'user.phone',
+        'user.primaryPosition',
+      ]);
+
+    const trimmed = emailFragment?.trim() ?? '';
+    if (trimmed) {
+      qb.andWhere('LOWER(user.email) LIKE LOWER(:email)', { email: `%${trimmed}%` });
+    }
+
+    const roleTrim = role?.trim() ?? '';
+    if (roleTrim) {
+      qb.andWhere('user.role = :role', { role: roleTrim });
+    }
+
+    const natTrim = nationality?.trim() ?? '';
+    if (natTrim) {
+      qb.andWhere('LOWER(user.nationality) LIKE LOWER(:nat)', { nat: `%${natTrim}%` });
+    }
+
+    qb.orderBy('user.createdAt', 'DESC');
+
+    const users = await qb.getMany();
+
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet('Usuarios');
+    sheet.columns = [
+      { header: 'Nombre', key: 'name', width: 25 },
+      { header: 'Apellido', key: 'lastname', width: 25 },
+      { header: 'Rol', key: 'role', width: 15 },
+      { header: 'Posición', key: 'primaryPosition', width: 20 },
+      { header: 'Nacionalidad', key: 'nationality', width: 20 },
+      { header: 'Teléfono', key: 'phone', width: 18 },
+      { header: 'Email', key: 'email', width: 30 },
+    ];
+    sheet.getRow(1).font = { bold: true };
+
+    for (const user of users) {
+      sheet.addRow({
+        name: user.name ?? '',
+        lastname: user.lastname ?? '',
+        role: user.role ?? '',
+        primaryPosition: user.primaryPosition ?? '',
+        nationality: user.nationality ?? '',
+        phone: user.phone ?? '',
+        email: user.email ?? '',
+      });
+    }
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    return Buffer.from(buffer);
   }
 
   async findOne(id: string): Promise<User> {

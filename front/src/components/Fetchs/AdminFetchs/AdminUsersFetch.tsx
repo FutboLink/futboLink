@@ -58,6 +58,34 @@ export const getUserStats = async (token: string): Promise<UserStats> => {
   if (!res.ok) throw new Error('Error al obtener estadísticas');
   return res.json();
 };
+
+// Exportar a Excel los usuarios que matchean los filtros activos (admin only)
+export const exportUsersToExcel = async (
+  token: string,
+  opts?: { email?: string; role?: string; nationality?: string },
+): Promise<void> => {
+  let url = `${apiUrl}/user/export?`;
+  const params = new URLSearchParams();
+  if (opts?.email?.trim()) params.set('email', opts.email);
+  if (opts?.role?.trim()) params.set('role', opts.role);
+  if (opts?.nationality?.trim()) params.set('nationality', opts.nationality);
+  url += params.toString();
+
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Error al exportar usuarios');
+
+  const blob = await res.blob();
+  const downloadUrl = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = downloadUrl;
+  link.download = 'usuarios.xlsx';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(downloadUrl);
+};
   
 
   export const fetchApplications = async (application: IApplication) => {

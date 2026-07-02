@@ -28,6 +28,7 @@ function makeUserService() {
       byNationality: [{ nationality: 'argentina', count: 5 }],
       byPosition: [{ position: 'delantero', count: 3 }],
     }),
+    exportUsersToExcel: jest.fn().mockResolvedValue(Buffer.from('fake-xlsx-content')),
   };
 }
 
@@ -295,6 +296,47 @@ describe('UserController — GET /user/stats (admin guard)', () => {
     expect(res.body).toHaveProperty('byNationality');
     expect(res.body).toHaveProperty('byPosition');
     expect(mockUserService.getUserStats).toHaveBeenCalled();
+  });
+});
+
+// ===========================================================================
+// excel-export-users — GET /user/export controller guard
+// ===========================================================================
+
+describe('UserController — GET /user/export (admin guard)', () => {
+  let app: INestApplication;
+  let mockUserService: ReturnType<typeof makeUserService>;
+
+  beforeAll(async () => {
+    ({ app, mockUserService } = await buildHttpApp());
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('non-admin user gets 403', async () => {
+    const token = makeToken({ id: 'player-1', role: 'PLAYER' });
+    await supertest(app.getHttpServer())
+      .get('/user/export')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(403);
+  });
+
+  it('unauthenticated request gets 401', async () => {
+    await supertest(app.getHttpServer()).get('/user/export').expect(401);
+  });
+
+  it('admin user gets 200 with an .xlsx attachment built from the current filters', async () => {
+    const token = makeToken({ id: 'admin-1', role: 'ADMIN' });
+    const res = await supertest(app.getHttpServer())
+      .get('/user/export?role=PLAYER&nationality=argentina&email=john')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(res.headers['content-type']).toMatch(/spreadsheetml/);
+    expect(res.headers['content-disposition']).toMatch(/attachment/);
+    expect(mockUserService.exportUsersToExcel).toHaveBeenCalledWith('john', 'PLAYER', 'argentina');
   });
 });
 

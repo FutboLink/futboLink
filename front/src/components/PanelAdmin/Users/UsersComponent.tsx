@@ -1,7 +1,7 @@
 "use client"
 import React, { useEffect, useState, useCallback, useContext } from "react";
 import UserCard from "./UserCard";
-import { getUsers, getUserStats, UserStats } from "@/components/Fetchs/AdminFetchs/AdminUsersFetch";
+import { getUsers, getUserStats, exportUsersToExcel, UserStats } from "@/components/Fetchs/AdminFetchs/AdminUsersFetch";
 import { IProfileData } from "@/Interfaces/IUser";
 import { useSubscription } from "@/components/Context/SubscriptionContext";
 import { SubscriptionProvider } from "@/components/Context/SubscriptionContext";
@@ -27,6 +27,8 @@ const UsersComponentWithContext = () => {
   // T7.1 — server-fetched stats state
   const [stats, setStats] = useState<UserStats | null>(null);
   const [statsError, setStatsError] = useState(false);
+
+  const [isExporting, setIsExporting] = useState(false);
 
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -87,6 +89,22 @@ const UsersComponentWithContext = () => {
       role: roleFilter || undefined,
       nationality: nationalityFilter || undefined,
     });
+  };
+
+  const handleExportExcel = async () => {
+    if (!token) return;
+    try {
+      setIsExporting(true);
+      await exportUsersToExcel(token, {
+        email: emailFilter || undefined,
+        role: roleFilter || undefined,
+        nationality: nationalityFilter || undefined,
+      });
+    } catch (error) {
+      console.error("Failed to export users:", error);
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const handleUserDeleted = (deletedId: string) => {
@@ -246,6 +264,16 @@ const UsersComponentWithContext = () => {
             value={nationalityFilter}
             onChange={(e) => setNationalityFilter(e.target.value)}
           />
+        </div>
+
+        <div>
+          <button
+            onClick={handleExportExcel}
+            disabled={isExporting || !token}
+            className="border rounded p-2 bg-emerald-600 text-white font-semibold hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isExporting ? "Exportando..." : "Exportar a Excel"}
+          </button>
         </div>
 
         <div className="text-sm text-gray-500">

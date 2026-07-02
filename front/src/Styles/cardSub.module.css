@@ -300,3 +300,12 @@
 
   z-index: 10;
 }
+.featuredCard {
+  border: 2px solid #facc15;
+
+  box-shadow:
+    0 20px 45px rgba(0, 0, 0, 0.12),
+    0 0 0 4px rgba(250, 204, 21, 0.15);
+
+  overflow: visible;
+}

@@ -60,7 +60,7 @@ const formatYoutubeUrl = (url: string): string => {
 export default function UserProfilePage() {
   const router = useRouter();
   const { id } = router.query;
-  const { user } = useUserContext();
+  const { user, token } = useUserContext();
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<IProfileData | null>(null);
@@ -70,12 +70,20 @@ export default function UserProfilePage() {
   );
 
   useEffect(() => {
-    // Verificar si el ID de la URL coincide con el ID del usuario logueado
-    if (id && user && user.id) {
-      setIsOwnProfile(id === user.id);
-    } else if (id && !user) {
-      // Si hay un ID pero no hay usuario logueado, no es su propio perfil
-      setIsOwnProfile(false);
+    if (id) {
+      const contextId = user?.id;
+      let resolvedId = contextId;
+      if (!resolvedId && token) {
+        try {
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          resolvedId = payload.id;
+        } catch {}
+      }
+      if (resolvedId) {
+        setIsOwnProfile(id === resolvedId);
+      } else if (!user) {
+        setIsOwnProfile(false);
+      }
     }
 
     // Solo cargar datos cuando tengamos un ID válido
@@ -146,7 +154,7 @@ export default function UserProfilePage() {
     };
 
     fetchUserProfile();
-  }, [id, user]);
+  }, [id, user, token]);
 
   if (loading) {
     return (

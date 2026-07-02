@@ -73,10 +73,25 @@ export class UserController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('email') email?: string,
+    @Query('role') role?: string,
+    @Query('nationality') nationality?: string,
   ) {
     const pageNumber = page ? parseInt(page, 10) : 1;
     const limitNumber = limit ? parseInt(limit, 10) : 300;
-    return this.userService.findAll(pageNumber, limitNumber, email);
+    return this.userService.findAll(pageNumber, limitNumber, email, role, nationality);
+  }
+
+  @ApiOperation({ summary: 'Estadísticas agregadas de usuarios (admin only)' })
+  @ApiResponse({ status: 200, description: 'Conteos por rol, nacionalidad y posición' })
+  @ApiResponse({ status: 401, description: 'No autenticado' })
+  @ApiResponse({ status: 403, description: 'Solo administradores' })
+  @UseGuards(AuthGuard)
+  @Get('stats')
+  async getUserStats(@Req() req: any) {
+    if (req.user?.role !== 'ADMIN') {
+      throw new ForbiddenException('Solo los administradores pueden ver las estadísticas');
+    }
+    return this.userService.getUserStats();
   }
 
   @ApiOperation({ summary: 'Traer usuario por Id' })

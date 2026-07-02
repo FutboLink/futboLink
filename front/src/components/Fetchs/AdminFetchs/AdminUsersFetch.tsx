@@ -14,12 +14,29 @@ export interface PaginatedUsersResponse {
   totalPages: number;
 }
 
-// Función para obtener los usuarios (paginado)
-export const getUsers = async (page: number = 1, limit: number = 300, email?: string): Promise<PaginatedUsersResponse> => {
+// T6.1 — UserStats interface
+export interface UserStats {
+  byRole: { role: string; count: number }[];
+  byNationality: { nationality: string; count: number }[];
+  byPosition: { position: string; count: number }[];
+}
+
+// T6.2 — Función para obtener los usuarios (paginado), extendida con role y nationality
+export const getUsers = async (
+  page: number = 1,
+  limit: number = 300,
+  opts?: { email?: string; role?: string; nationality?: string },
+): Promise<PaginatedUsersResponse> => {
     try {
       let url = `${apiUrl}/user?page=${page}&limit=${limit}`;
-      if (email && email.trim()) {
-        url += `&email=${encodeURIComponent(email)}`;
+      if (opts?.email?.trim()) {
+        url += `&email=${encodeURIComponent(opts.email)}`;
+      }
+      if (opts?.role?.trim()) {
+        url += `&role=${encodeURIComponent(opts.role)}`;
+      }
+      if (opts?.nationality?.trim()) {
+        url += `&nationality=${encodeURIComponent(opts.nationality)}`;
       }
       const response = await fetch(url);
       if (!response.ok) {
@@ -32,6 +49,15 @@ export const getUsers = async (page: number = 1, limit: number = 300, email?: st
       return { data: [], total: 0, page: 1, limit, totalPages: 0 };
     }
   };
+
+// T6.3 — Obtener estadísticas de usuarios (admin only)
+export const getUserStats = async (token: string): Promise<UserStats> => {
+  const res = await fetch(`${apiUrl}/user/stats`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Error al obtener estadísticas');
+  return res.json();
+};
   
 
   export const fetchApplications = async (application: IApplication) => {

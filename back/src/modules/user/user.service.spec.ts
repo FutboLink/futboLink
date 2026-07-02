@@ -541,6 +541,133 @@ describe('remediateSubscriptionVerification (Fase 4, Task 4.1)', () => {
 });
 
 // ===========================================================================
+// admin-user-filters-stats — Phase 1: findAll filtering (RED)
+// ===========================================================================
+
+describe('UserService - findAll role/nationality filtering', () => {
+  it('T1.1 / T1.6 — baseline: no extra andWhere calls when no role or nationality given', async () => {
+    const qbStub = makeQueryBuilderStub([[], 0]);
+    const { service } = await buildServiceWithQb(qbStub);
+    await service.findAll(1, 300);
+    // andWhere should not be called at all (no email, no role, no nationality)
+    expect(qbStub.andWhere).not.toHaveBeenCalled();
+  });
+
+  it('T1.2 — role=PLAYER adds andWhere("user.role = :role", { role: "PLAYER" })', async () => {
+    const players = [makeUser({ role: 'PLAYER' as any })];
+    const qbStub = makeQueryBuilderStub([players, 1]);
+    const { service } = await buildServiceWithQb(qbStub);
+    await service.findAll(1, 300, undefined, 'PLAYER');
+    expect(qbStub.andWhere).toHaveBeenCalledWith('user.role = :role', { role: 'PLAYER' });
+  });
+
+  it('T1.3 — nationality=argentina adds LOWER(user.nationality) LIKE LOWER(:nat)', async () => {
+    const qbStub = makeQueryBuilderStub([[], 0]);
+    const { service } = await buildServiceWithQb(qbStub);
+    await service.findAll(1, 300, undefined, undefined, 'argentina');
+    expect(qbStub.andWhere).toHaveBeenCalledWith(
+      'LOWER(user.nationality) LIKE LOWER(:nat)',
+      { nat: '%argentina%' },
+    );
+  });
+
+  it('T1.4 — role=PLAYER + nationality=brasil applies BOTH andWhere clauses', async () => {
+    const qbStub = makeQueryBuilderStub([[], 0]);
+    const { service } = await buildServiceWithQb(qbStub);
+    await service.findAll(1, 300, undefined, 'PLAYER', 'brasil');
+    expect(qbStub.andWhere).toHaveBeenCalledWith('user.role = :role', { role: 'PLAYER' });
+    expect(qbStub.andWhere).toHaveBeenCalledWith(
+      'LOWER(user.nationality) LIKE LOWER(:nat)',
+      { nat: '%brasil%' },
+    );
+  });
+
+  it('T1.5 — role=GHOST returns { data: [], total: 0, totalPages: 0 } without throwing', async () => {
+    const qbStub = makeQueryBuilderStub([[], 0]);
+    const { service } = await buildServiceWithQb(qbStub);
+    const result = await service.findAll(1, 300, undefined, 'GHOST');
+    expect(result.data).toEqual([]);
+    expect(result.total).toBe(0);
+    expect(result.totalPages).toBe(0);
+  });
+});
+
+// ===========================================================================
+// admin-user-filters-stats — Phase 2: getUserStats (RED)
+// ===========================================================================
+
+async function buildServiceWithEntityManagerMock(queryResults: any[][]) {
+  let callIndex = 0;
+  const userRepo = {
+    ...makeUserRepoMock(),
+    createQueryBuilder: jest.fn(),
+  };
+  const verificationRepo = { findOne: jest.fn() };
+  const entityManager = {
+    query: jest.fn().mockImplementation(async () => {
+      const result = queryResults[callIndex] ?? [];
+      callIndex++;
+      return result;
+    }),
+  } as unknown as EntityManager;
+  const emailService = { sendMail: jest.fn() } as unknown as EmailService;
+
+  const module: TestingModule = await Test.createTestingModule({
+    providers: [
+      UserService,
+      { provide: getRepositoryToken(User), useValue: userRepo },
+      { provide: getRepositoryToken(VerificationRequest), useValue: verificationRepo },
+      { provide: EntityManager, useValue: entityManager },
+      { provide: EmailService, useValue: emailService },
+    ],
+  }).compile();
+
+  const service = module.get<UserService>(UserService);
+  return { service, entityManager };
+}
+
+describe('UserService - getUserStats', () => {
+  const byRoleRows = [{ role: 'PLAYER', count: '120' }, { role: 'AGENCY', count: '30' }];
+  const byNatRows = [{ nationality: 'argentina', count: '45' }, { nationality: 'brasil', count: '20' }];
+  const byPosRows = [{ position: 'delantero', count: '22' }];
+
+  it('T2.1 — calls entityManager.query exactly 3 times with GROUP BY patterns', async () => {
+    const { service, entityManager } = await buildServiceWithEntityManagerMock([
+      byRoleRows,
+      byNatRows,
+      byPosRows,
+    ]);
+    await service.getUserStats();
+
+    expect((entityManager.query as jest.Mock)).toHaveBeenCalledTimes(3);
+    const calls: string[] = (entityManager.query as jest.Mock).mock.calls.map((c: any[]) => c[0] as string);
+    expect(calls[0]).toMatch(/GROUP BY role/i);
+    expect(calls[1]).toMatch(/GROUP BY LOWER\(nationality\)/i);
+    expect(calls[1]).toMatch(/LIMIT 10/i);
+    expect(calls[2]).toMatch(/role\s*=\s*'PLAYER'/i);
+    expect(calls[2]).toMatch(/GROUP BY LOWER\("primaryPosition"\)/i);
+  });
+
+  it('T2.2 — returned shape has byRole, byNationality, byPosition; counts are JS numbers', async () => {
+    const { service } = await buildServiceWithEntityManagerMock([
+      byRoleRows,
+      byNatRows,
+      byPosRows,
+    ]);
+    const result = await service.getUserStats();
+
+    expect(result).toHaveProperty('byRole');
+    expect(result).toHaveProperty('byNationality');
+    expect(result).toHaveProperty('byPosition');
+    expect(typeof result.byRole[0].count).toBe('number');
+    expect(result.byRole[0].count).toBe(120);
+    expect(typeof result.byNationality[0].count).toBe('number');
+    expect(result.byPosition[0].position).toBe('delantero');
+    expect(result.byPosition[0].count).toBe(22);
+  });
+});
+
+// ===========================================================================
 // Phase 1 Task 1.3 — no-regression tests A.4.a and D.2.a
 // (these should be GREEN immediately after 1.2 deletion)
 // ===========================================================================

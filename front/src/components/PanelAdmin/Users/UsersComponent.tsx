@@ -1,10 +1,11 @@
-"use client" 
-import React, { useEffect, useState, useCallback } from "react";
+"use client"
+import React, { useEffect, useState, useCallback, useContext } from "react";
 import UserCard from "./UserCard";
-import { getUsers } from "@/components/Fetchs/AdminFetchs/AdminUsersFetch";
+import { getUsers, getUserStats, UserStats } from "@/components/Fetchs/AdminFetchs/AdminUsersFetch";
 import { IProfileData } from "@/Interfaces/IUser";
 import { useSubscription } from "@/components/Context/SubscriptionContext";
 import { SubscriptionProvider } from "@/components/Context/SubscriptionContext";
+import { UserContext } from "@/components/Context/UserContext";
 import { FaChevronLeft, FaChevronRight, FaSpinner } from "react-icons/fa";
 
 export type SubscriptionType = 'Amateur' | 'Semiprofesional' | 'Profesional';
@@ -14,12 +15,18 @@ const USERS_PER_PAGE = 300;
 // Internal component that uses the subscription context
 const UsersComponentWithContext = () => {
   const { updateSubscription, isLoading: subscriptionLoading } = useSubscription();
-  
+  const { token } = useContext(UserContext);
+
   const [users, setUsers] = useState<IProfileData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [roleFilter, setRoleFilter] = useState("");
-  const [searchFilter, setSearchFilter] = useState("");
   const [emailFilter, setEmailFilter] = useState("");
+  // T7.1 — separate nationality filter state
+  const [nationalityFilter, setNationalityFilter] = useState("");
+
+  // T7.1 — server-fetched stats state
+  const [stats, setStats] = useState<UserStats | null>(null);
+  const [statsError, setStatsError] = useState(false);
 
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,10 +34,14 @@ const UsersComponentWithContext = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [isPageLoading, setIsPageLoading] = useState(false);
 
-  const fetchUsersPage = useCallback(async (page: number, email?: string) => {
+  // T7.4 — fetchUsersPage forwards role, nationality, email opts
+  const fetchUsersPage = useCallback(async (
+    page: number,
+    opts?: { email?: string; role?: string; nationality?: string },
+  ) => {
       try {
       setIsPageLoading(true);
-      const result = await getUsers(page, USERS_PER_PAGE, email);
+      const result = await getUsers(page, USERS_PER_PAGE, opts);
       setUsers(result.data);
       setTotalUsers(result.total);
       setTotalPages(result.totalPages);
@@ -47,19 +58,35 @@ const UsersComponentWithContext = () => {
     fetchUsersPage(1);
   }, [fetchUsersPage]);
 
-  // Server-side email filter (debounced). Name/nationality filter stays client-side
-  // because those are already in the loaded page — email requires server-side to cross pages.
+  // T7.4 — debounced effect for all three filters
   useEffect(() => {
     const id = setTimeout(() => {
-      fetchUsersPage(1, emailFilter || undefined);
+      fetchUsersPage(1, {
+        email: emailFilter || undefined,
+        role: roleFilter || undefined,
+        nationality: nationalityFilter || undefined,
+      });
     }, 300);
     return () => clearTimeout(id);
-  }, [emailFilter, fetchUsersPage]);
+  }, [emailFilter, roleFilter, nationalityFilter, fetchUsersPage]);
 
+  // T7.5 — mount-only stats fetch
+  useEffect(() => {
+    if (!token) return;
+    getUserStats(token)
+      .then(setStats)
+      .catch(() => setStatsError(true));
+  }, [token]);
+
+  // T7.4 — handlePageChange passes current filters
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages || page === currentPage) return;
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    fetchUsersPage(page);
+    fetchUsersPage(page, {
+      email: emailFilter || undefined,
+      role: roleFilter || undefined,
+      nationality: nationalityFilter || undefined,
+    });
   };
 
   const handleUserDeleted = (deletedId: string) => {
@@ -72,10 +99,10 @@ const UsersComponentWithContext = () => {
     try {
       await updateSubscription(userId, newSubscriptionType);
       // Update local state to reflect the change
-      setUsers(prevUsers => 
-        prevUsers.map(user => 
-          user.id === userId 
-            ? {...user, subscriptionType: newSubscriptionType} 
+      setUsers(prevUsers =>
+        prevUsers.map(user =>
+          user.id === userId
+            ? {...user, subscriptionType: newSubscriptionType}
             : user
         )
       );
@@ -84,27 +111,12 @@ const UsersComponentWithContext = () => {
     }
   };
 
-  const filteredUsers = users.filter((user) => {
-    const matchesRole = roleFilter ? user.role === roleFilter : true;
-    const matchesSearch =
-      searchFilter
-        ? (user.name && user.name.toLowerCase().includes(searchFilter.toLowerCase())) ||
-          (user.nationality && user.nationality.toLowerCase().includes(searchFilter.toLowerCase()))
-        : true;
-
-    return matchesRole && matchesSearch;
-  });
+  // T7.1 — role filtering is now server-side; no client-side filteredUsers needed
+  const filteredUsers = users;
 
   if (isLoading || subscriptionLoading) {
     return <p className="text-center text-verde-oscuro mt-40">Cargando usuarios</p>;
   }
-  
-  // Calculate user statistics from current page
-  const usersByRole = users.reduce((acc, user) => {
-    const role = user.role || 'Unknown';
-    acc[role] = (acc[role] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
 
   // Calcular rango de usuarios mostrados
   const startUser = (currentPage - 1) * USERS_PER_PAGE + 1;
@@ -129,23 +141,72 @@ const UsersComponentWithContext = () => {
 
   return (
     <div className="container mx-auto mt-28 p-6">
+      {/* T7.5 — Stats panel sourced from server */}
       <div className="mb-6 bg-white shadow-md rounded-lg p-4 border border-gray-200">
         <h2 className="text-xl font-bold text-gray-700 mb-2">Estadísticas de Usuarios</h2>
-        <div className="flex flex-wrap gap-4">
-          <div className="bg-blue-50 rounded-lg p-3 flex-1 min-w-[120px] border border-blue-200">
-            <p className="text-sm text-gray-600">Total de usuarios</p>
-            <p className="text-2xl font-bold text-blue-700">{totalUsers}</p>
-          </div>
-          {Object.entries(usersByRole).map(([role, count]) => (
-            <div key={role} className="bg-gray-50 rounded-lg p-3 flex-1 min-w-[120px] border border-gray-200">
-              <p className="text-sm text-gray-600">{role}</p>
-              <p className="text-2xl font-bold text-gray-700">{count}</p>
+        {statsError ? (
+          <p className="text-sm text-gray-400">No se pudieron cargar las estadísticas.</p>
+        ) : !stats ? (
+          <p className="text-sm text-gray-400">Cargando estadísticas...</p>
+        ) : (
+          <>
+            <div className="mb-3">
+              <p className="text-sm font-semibold text-gray-600 mb-1">Por rol</p>
+              <div className="flex flex-wrap gap-3">
+                <div className="bg-blue-50 rounded-lg p-3 flex-1 min-w-[120px] border border-blue-200">
+                  <p className="text-sm text-gray-600">Total de usuarios</p>
+                  <p className="text-2xl font-bold text-blue-700">{totalUsers}</p>
+                </div>
+                {(stats.byRole ?? []).length === 0 ? (
+                  <p className="text-sm text-gray-400">Sin datos de roles.</p>
+                ) : (
+                  (stats.byRole ?? []).map(({ role, count }) => (
+                    <div key={role} className="bg-gray-50 rounded-lg p-3 flex-1 min-w-[120px] border border-gray-200">
+                      <p className="text-sm text-gray-600">{role}</p>
+                      <p className="text-2xl font-bold text-gray-700">{count}</p>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
-          ))}
-        </div>
+
+            <div className="mb-3">
+              <p className="text-sm font-semibold text-gray-600 mb-1">Top nacionalidades</p>
+              <div className="flex flex-wrap gap-2">
+                {(stats.byNationality ?? []).length === 0 ? (
+                  <p className="text-sm text-gray-400">Sin datos de nacionalidades.</p>
+                ) : (
+                  (stats.byNationality ?? []).map(({ nationality, count }) => (
+                    <div key={nationality} className="bg-green-50 rounded px-3 py-2 border border-green-200 text-sm">
+                      <span className="font-medium capitalize">{nationality}</span>
+                      <span className="ml-2 font-bold text-green-700">{count}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold text-gray-600 mb-1">Posiciones (jugadores)</p>
+              <div className="flex flex-wrap gap-2">
+                {(stats.byPosition ?? []).length === 0 ? (
+                  <p className="text-sm text-gray-400">Sin datos de posiciones.</p>
+                ) : (
+                  (stats.byPosition ?? []).map(({ position, count }) => (
+                    <div key={position} className="bg-yellow-50 rounded px-3 py-2 border border-yellow-200 text-sm">
+                      <span className="font-medium capitalize">{position}</span>
+                      <span className="ml-2 font-bold text-yellow-700">{count}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       <div className="mb-6 flex flex-wrap justify-between items-center gap-4">
+        {/* T7.2 — Role dropdown with all 6 UserType values */}
         <div>
           <label className="mr-2 font-bold text-gray-600">Rol:</label>
           <select
@@ -158,28 +219,32 @@ const UsersComponentWithContext = () => {
             <option value="PLAYER">Candidato</option>
             <option value="AGENCY">Agencia</option>
             <option value="RECRUITER">Ofertante</option>
+            <option value="CLUB">Club</option>
+            <option value="USER">Usuario</option>
           </select>
         </div>
 
+        {/* T7.3 — Name/email input (server-side via email param) */}
         <div>
-          <label className="mr-2 font-bold text-gray-600">Buscar por nombre o país:</label>
+          <label className="mr-2 font-bold text-gray-600">Buscar por nombre:</label>
           <input
             type="text"
-            placeholder="Ingrese nombre o país"
-            className="border rounded p-2 text-gray-600 hover:cursor-pointer"
-            value={searchFilter}
-            onChange={(e) => setSearchFilter(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <label className="mr-2 font-bold text-gray-600">Buscar por email:</label>
-          <input
-            type="email"
-            placeholder="Ingrese email"
+            placeholder="Ingrese nombre"
             className="border rounded p-2 text-gray-600 hover:cursor-pointer"
             value={emailFilter}
             onChange={(e) => setEmailFilter(e.target.value)}
+          />
+        </div>
+
+        {/* T7.3 — Separate nationality input */}
+        <div>
+          <label className="mr-2 font-bold text-gray-600">Buscar por país:</label>
+          <input
+            type="text"
+            placeholder="Ingrese país"
+            className="border rounded p-2 text-gray-600 hover:cursor-pointer"
+            value={nationalityFilter}
+            onChange={(e) => setNationalityFilter(e.target.value)}
           />
         </div>
 
@@ -202,10 +267,10 @@ const UsersComponentWithContext = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredUsers.map((user) => (
-          <UserCard 
-            key={user.id} 
-            user={user} 
-            onDelete={handleUserDeleted} 
+          <UserCard
+            key={user.id}
+            user={user}
+            onDelete={handleUserDeleted}
             onSubscriptionChange={handleSubscriptionChange}
           />
         ))}

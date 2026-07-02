@@ -29,8 +29,7 @@ export class JobsService {
     return await this.jobRepository.save(job);
   }
 
-  async findAll(limit: number = 100): Promise<Job[]> {
-    // Optimizado: Select específico y límite para reducir memoria
+  async findAll(): Promise<Job[]> {
     return await this.jobRepository.find({
       relations: ['recruiter'],
       select: {
@@ -52,7 +51,6 @@ export class JobsService {
           email: true,
         }
       },
-      take: limit,
       order: { createdAt: 'DESC' }
     });
   }

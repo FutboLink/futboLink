@@ -658,11 +658,23 @@ export default function UserViewer() {
   };
 
   useEffect(() => {
-    // Verificar si el ID de la URL coincide con el ID del usuario logueado
-    if (id && user && user.id) {
-      const isSameUser = id === user.id;
-      setIsOwnProfile(isSameUser);
-      console.log(`¿Es el propio perfil del usuario? ${isSameUser}`);
+    // Verificar si el ID de la URL coincide con el ID del usuario logueado.
+    // Fallback al payload del JWT si user.id no está disponible (sesión antigua
+    // en localStorage sin campo id).
+    if (id) {
+      const contextId = user?.id;
+      let resolvedId = contextId;
+      if (!resolvedId && token) {
+        try {
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          resolvedId = payload.id;
+        } catch {}
+      }
+      if (resolvedId) {
+        const isSameUser = id === resolvedId;
+        setIsOwnProfile(isSameUser);
+        console.log(`¿Es el propio perfil del usuario? ${isSameUser}`);
+      }
     }
 
     // Solo cargar datos cuando tengamos un ID válido

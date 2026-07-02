@@ -430,6 +430,8 @@ export class UserService {
     page: number = 1,
     limit: number = 300,
     emailFragment?: string,
+    role?: string,
+    nationality?: string,
   ): Promise<{ data: User[]; total: number; page: number; limit: number; totalPages: number }> {
     const take = Math.min(limit, 500);
     const skip = (page - 1) * take;
@@ -454,6 +456,16 @@ export class UserService {
       qb.andWhere('LOWER(user.email) LIKE LOWER(:email)', { email: `%${trimmed}%` });
     }
 
+    const roleTrim = role?.trim() ?? '';
+    if (roleTrim) {
+      qb.andWhere('user.role = :role', { role: roleTrim });
+    }
+
+    const natTrim = nationality?.trim() ?? '';
+    if (natTrim) {
+      qb.andWhere('LOWER(user.nationality) LIKE LOWER(:nat)', { nat: `%${natTrim}%` });
+    }
+
     qb.orderBy('user.createdAt', 'DESC').take(take).skip(skip);
 
     const [data, total] = await qb.getManyAndCount();
@@ -464,6 +476,39 @@ export class UserService {
       page,
       limit: take,
       totalPages: Math.ceil(total / take),
+    };
+  }
+
+  async getUserStats(): Promise<{
+    byRole: { role: string; count: number }[];
+    byNationality: { nationality: string; count: number }[];
+    byPosition: { position: string; count: number }[];
+  }> {
+    const byRoleRaw = await this.entityManager.query(
+      `SELECT role, COUNT(*)::int AS count FROM users GROUP BY role ORDER BY count DESC`,
+    );
+    const byNationalityRaw = await this.entityManager.query(
+      `SELECT LOWER(nationality) AS nationality, COUNT(*)::int AS count
+       FROM users
+       WHERE nationality IS NOT NULL AND nationality != ''
+       GROUP BY LOWER(nationality)
+       ORDER BY count DESC
+       LIMIT 10`,
+    );
+    const byPositionRaw = await this.entityManager.query(
+      `SELECT LOWER("primaryPosition") AS position, COUNT(*)::int AS count
+       FROM users
+       WHERE role = 'PLAYER' AND "primaryPosition" IS NOT NULL AND "primaryPosition" != ''
+       GROUP BY LOWER("primaryPosition")
+       ORDER BY count DESC`,
+    );
+    return {
+      byRole: byRoleRaw.map((r: any) => ({ role: r.role, count: Number(r.count) })),
+      byNationality: byNationalityRaw.map((r: any) => ({
+        nationality: r.nationality,
+        count: Number(r.count),
+      })),
+      byPosition: byPositionRaw.map((r: any) => ({ position: r.position, count: Number(r.count) })),
     };
   }
 

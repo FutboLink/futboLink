@@ -164,7 +164,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
           setUser({
             token,
             role,
-            id,
+            id: id || payload.id,
             puesto: payload.puesto ?? parsedData.puesto ?? undefined,
             name: parsedData.name || "",
             lastname: parsedData.lastname || "",
@@ -196,9 +196,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
         }
 
         let puestoFromToken: string | undefined;
+        let idFromToken: string | undefined;
         try {
           const payload = JSON.parse(atob(token.split(".")[1]));
           puestoFromToken = payload.puesto ?? undefined;
+          idFromToken = payload.id;
         } catch {
           puestoFromToken = undefined;
         }
@@ -207,7 +209,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
         setUser({
           token,
           role,
-          id,
+          id: id || idFromToken,
           puesto: puestoFromToken ?? parsedData.puesto ?? undefined,
           name: parsedData.name || "",
           lastname: parsedData.lastname || "",
@@ -234,11 +236,17 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
           const email =
             localStorage.getItem("userEmail") || parsedData.email || "";
 
+          let idFromToken: string | undefined;
+          try {
+            const payload = JSON.parse(atob(token.split(".")[1]));
+            idFromToken = payload.id;
+          } catch {}
+
           // Actualizar el usuario en el contexto para forzar re-renders
           setUser({
             token,
             role,
-            id,
+            id: id || idFromToken,
             name: parsedData.name || "",
             lastname: parsedData.lastname || "",
             email: email,

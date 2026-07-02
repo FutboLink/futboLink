@@ -11,7 +11,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { UserContext } from "../Context/UserContext";
 import { useRouter } from "next/navigation";
-import { FaUsers, FaSearch, FaRocket } from "react-icons/fa";
+import {
+  FaUsers,
+  FaSearch,
+  FaStar
+} from "react-icons/fa";
 
 function Subs() {
   const subscriptionOptions = Subscription();
@@ -244,26 +248,45 @@ function Subs() {
 
 <div className={styles.benefits}>
 
-  <div className={styles.benefit}>
-    <h3>10.000+ jugadores</h3>
-<p>
-Forma parte de una comunidad internacional de futbolistas que buscan oportunidades todos los días.
-</p>
+<div className={styles.benefit}>
+
+  <div className={styles.iconCircle}>
+    <FaUsers />
   </div>
 
-  <div className={styles.benefit}>
-    <h3>Oportunidades diarias</h3>
-<p>
-Clubes, agentes y reclutadores publican nuevas búsquedas constantemente.
-</p>
+  <h3>10.000+ jugadores</h3>
+
+  <p>
+    Forma parte de una comunidad internacional de fútbol.
+  </p>
+
+</div>
+
+ <div className={styles.benefit}>
+
+  <div className={styles.iconCircle}>
+    <FaSearch />
   </div>
 
-  <div className={styles.benefit}>
- <h3>Mayor visibilidad</h3>
-<p>
-Tu perfil permanece disponible las 24 horas para ser encontrado por reclutadores.
-</p>
+  <h3>Oportunidades diarias</h3>
+
+  <p>
+    Clubes, agencias y reclutadores publican nuevas búsquedas constantemente.
+  </p>
+
+</div>
+
+ <div className={styles.benefit}>
+
+  <div className={styles.iconCircle}>
+    <FaStar />
   </div>
+
+  <h3>Mayor visibilidad</h3>
+
+  <p>
+    Destacá tu perfil y aumentá tus posibilidades de ser encontrado.
+  </p>
 
 </div>
 

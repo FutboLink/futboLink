@@ -12,9 +12,9 @@ import Link from "next/link";
 import { UserContext } from "../Context/UserContext";
 import { useRouter } from "next/navigation";
 import {
-  FaUsers,
-  FaSearch,
-  FaStar
+ HiUserGroup,
+ HiMagnifyingGlass,
+ HiSparkles,
 } from "react-icons/fa";
 
 function Subs() {
@@ -250,11 +250,15 @@ function Subs() {
 
 <div className={styles.benefit}>
 
-  <div className={styles.iconCircle}>
-    <FaUsers />
-  </div>
+  <div className={styles.benefitHeader}>
 
-  <h3>10.000+ jugadores</h3>
+    <div className={styles.iconCircle}>
+      <FaUsers />
+    </div>
+
+    <h3>10.000+ usuarios</h3>
+
+  </div>
 
   <p>
     Forma parte de una comunidad internacional de fútbol.
@@ -262,13 +266,17 @@ function Subs() {
 
 </div>
 
- <div className={styles.benefit}>
+<div className={styles.benefit}>
 
-  <div className={styles.iconCircle}>
-    <FaSearch />
+  <div className={styles.benefitHeader}>
+
+    <div className={styles.iconCircle}>
+      <FaUsers />
+    </div>
+
+    <h3> Oportunidades diarias</h3>
+
   </div>
-
-  <h3>Oportunidades diarias</h3>
 
   <p>
     Clubes, agencias y reclutadores publican nuevas búsquedas constantemente.
@@ -276,18 +284,23 @@ function Subs() {
 
 </div>
 
- <div className={styles.benefit}>
+<div className={styles.benefit}>
 
-  <div className={styles.iconCircle}>
-    <FaStar />
+  <div className={styles.benefitHeader}>
+
+    <div className={styles.iconCircle}>
+      <FaUsers />
+    </div>
+
+    <h3>Mayor visibilidad</h3>
+
   </div>
-
-  <h3>Mayor visibilidad</h3>
 
   <p>
     Destacá tu perfil y aumentá tus posibilidades de ser encontrado.
   </p>
 
+   </div>
 </div>
 
 <div className={styles.line}>

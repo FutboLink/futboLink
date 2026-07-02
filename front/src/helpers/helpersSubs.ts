@@ -1,3 +1,9 @@
+interface SubscriptionFeature {
+  text: string;
+  available: boolean;
+  highlight?: boolean;
+}
+
 export function Subscription() {
   return [
     {
@@ -11,7 +17,7 @@ export function Subscription() {
   { text: "Aplicar a ofertas", available: false },
   { text: "Perfil destacado", available: false },
   { text: "Prioridad en búsquedas", available: false },
-],
+] as SubscriptionFeature[],
       monthlyPrice: "GRATIS",
       buttonLabel: "Registrate Gratis",
       bgColor: "bg-white",

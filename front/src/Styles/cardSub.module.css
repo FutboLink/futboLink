@@ -327,23 +327,36 @@
 
 .benefit{
 
+  flex:1;
+
+  min-width:280px;
+
+  max-width:360px;
+
   background:white;
 
-  border:1px solid #e5e7eb;
+  border:1px solid #edf0f2;
 
-  border-radius:16px;
+  border-radius:22px;
 
-  padding:18px 26px;
+  padding:28px;
 
-  font-weight:600;
+  text-align:left;
 
-  color:#374151;
+  box-shadow:
+      0 10px 30px rgba(0,0,0,.05);
 
-  box-shadow:0 10px 25px rgba(0,0,0,.05);
+  transition:all .25s ease;
+}
+.benefit:hover{
 
-  min-width:260px;
+    transform:translateY(-6px);
 
-  text-align:center;
+    border-color:#d9e8db;
+
+    box-shadow:
+        0 18px 40px rgba(0,0,0,.08);
+
 }
 @media (max-width: 768px) {
 

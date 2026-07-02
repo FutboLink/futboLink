@@ -148,18 +148,25 @@
 }
 
 .button {
-  background-color: #007e33;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  width: 180px;
+  height: 52px;
   border: none;
+  border-radius: 14px;
   cursor: pointer;
-  transition: background 0.3s, transform 0.3s;
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg,#007e33,#169d4d);
+  box-shadow:
+  0 8px 22px rgba(0,126,51,.22);
+  transition: all .25s ease;
+}
 }
 
-.button:hover {
-  background-color: #06b44b;
-  transform: scale(1.05);
+.button:hover{
+    transform:translateY(-3px);
+    box-shadow:
+    0 14px 28px rgba(0,126,51,.30);
 }
 
 .line {

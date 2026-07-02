@@ -141,9 +141,9 @@ function Subs() {
                   styles[option.title.toLowerCase()]
                 }`}
               >
-                {option.title === "Profesional" && (
+{option.title === "Profesional" && (
   <div className={styles.recommended}>
-    ⭐ Más elegido
+    RECOMENDADO
   </div>
 )}
 

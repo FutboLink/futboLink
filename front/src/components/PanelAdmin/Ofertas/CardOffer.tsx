@@ -100,7 +100,7 @@ const CardOffer: React.FC<{
 
       {/* Salario + botones */}
       <div className="flex flex-col mt-auto border-t border-gray-200">
-        <<div className="flex justify-center py-3">
+        <div className="flex justify-center py-3">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-50 border border-green-200 text-green-700 font-semibold shadow-sm">
           
         <FaMoneyBillWave className="text-green-600" />

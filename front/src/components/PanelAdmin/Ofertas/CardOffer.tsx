@@ -31,7 +31,7 @@ const CardOffer: React.FC<{
           />
         </div>
         <div>
-          <h3 className="text-xl font-bold text-gray-900 leading-snug">
+          <h3 className="text-lg font-semibold leading-tight text-gray-900 line-clamp-2">
             {offer.title}
           </h3>
         </div>

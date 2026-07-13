@@ -139,13 +139,13 @@ const JobDetail: React.FC = () => {
       <div className="flex-1 w-full min-w-0 rounded-xl shadow-md p-6 bg-white">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-4">
           {offer.imgUrl && (
-            <div className="w-24 h-24 flex-shrink-0 rounded-md overflow-hidden shadow-md">
+            <div className="w-36 h-36 flex-shrink-0 flex items-center justify-center">
               <Image
-                width={100}
-                height={100}
+                width={140}
+                height={140}
                 src={offer.imgUrl || "/cursosYFormaciones.JPG"}
                 alt={offer.title}
-                className="w-full h-full object-contain rounded-md"
+                className="w-full h-full object-contain"
               />
             </div>
           )}

@@ -150,7 +150,7 @@ const JobDetail: React.FC = () => {
             </div>
           )}
           {offer.title && (
-            <h1 className="text-3xl font-bold leading-tight text-[#1d5126]">
+            <h1 className="text-4xl font-extrabold leading-tight text-[#1d5126]">
               {offer.title}
             </h1>
           )}

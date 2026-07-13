@@ -373,8 +373,7 @@ const JobDetail: React.FC = () => {
 
         <button
         onClick={() => handleApplyClick(offer)}
-        className="mt-3 w-full py-4 rounded-xl bg-white text-[#1d5126] font-bold text-base shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
->
+        className="mt-3 w-full py-4 rounded-xl bg-white text-[#1d5126] font-bold text-base shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
   Enviar candidatura →
 </button>
 

@@ -23,8 +23,8 @@ const CardOffer: React.FC<{
       <div className="flex items-center p-4 bg-gray-50 border-b border-gray-100">
         <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden mr-3">
           <Image
-            width={56}
-            height={56}
+            width={64}
+            height={64}
             src={offer.imgUrl || "/cursosYFormaciones.JPG"}
             alt={offer.title}
             className="w-full h-full object-contain rounded-md"

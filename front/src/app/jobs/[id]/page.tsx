@@ -307,12 +307,27 @@ const JobDetail: React.FC = () => {
           revisarlo.
         </p>
       </div>
-
+        
       {/* Sidebar */}
-      <div className="w-full lg:w-80 bg-gradient-to-r from-[#1d5126] to-[#3e7c27] text-white rounded-xl shadow-md p-6">
-        <h2 className="text-lg font-semibold mb-2">Información adicional</h2>
-
-        {offer.position && (
+      <div className="
+      w-full
+      lg:w-80
+      bg-white
+      border
+      border-gray-200
+      rounded-3xl
+      shadow-xl
+      p-6
+      sticky
+      top-24
+      ">
+        <h2 className="text-lg font-bold text-gray-900">
+        Información de la oferta
+      </h2>
+      <p className="text-sm text-gray-500 mb-6">
+     Resumen rápido
+    </p>
+       {offer.position && (
           <p className="mb-1">
             <strong>Puesto:</strong> {offer.position}
           </p>

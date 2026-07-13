@@ -106,16 +106,16 @@ const CardOffer: React.FC<{
         <div className="flex space-x-2 p-3">
           <Link
             href={`/jobs/${offer.id}`}
-            className="flex-1 text-center py-1.5 text-xs font-bold rounded-md text-white bg-[#1d5126] border border-[#1d5126] hover:bg-[#245a2d] hover:text-white transition"
+            className="flex-1 flex items-center justify-center py-3 rounded-xl border border-gray-300 bg-white text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-all duration-200"
           >
             Ver más
           </Link>
           <button
             type="button"
             onClick={handleApplyClick}
-            className="flex-1 text-center py-1.5 text-xs font-bold rounded-md bg-gray-100 text-[#26441b] border border-[#3e7c27] hover:bg-[#4e6d43] hover:text-white transition"
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#15803d] text-white font-semibold text-sm shadow-md hover:bg-[#166534] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
           >
-            {role === "RECRUITER" ? "Ofrecer Candidato" : "Aplicar"}
+            {role === "RECRUITER" ? "Ofrecer Candidato" : "Aplicar ahora"}
           </button>
         </div>
       </div>

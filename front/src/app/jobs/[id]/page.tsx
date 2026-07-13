@@ -149,19 +149,35 @@ const JobDetail: React.FC = () => {
               />
             </div>
           )}
-          {offer.title && (
-            <h1 className="text-4xl font-extrabold leading-tight text-[#1d5126]">
-              {offer.title}
-            </h1>
-          )}
-        </div>
-
-        {offer.position && (
-        <div className="inline-flex items-center px-4 py-2 rounded-full bg-green-100 text-[#1d5126] font-semibold text-sm">
-        {offer.position}
-     </div>
+          <div className="flex-1">
+  {offer.title && (
+    <h1 className="text-4xl font-bold leading-tight text-[#1d5126]">
+      {offer.title}
+    </h1>
   )}
 
+  <div className="flex flex-wrap gap-2 mt-4">
+
+    {offer.position && (
+      <span className="px-3 py-1 rounded-full bg-green-100 text-[#1d5126] text-sm font-semibold">
+        ⚽ {offer.position}
+      </span>
+    )}
+
+    {offer.location && (
+      <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-sm">
+        📍 {offer.location}
+      </span>
+    )}
+
+    {offer.contractTypes && (
+      <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm">
+        💼 {offer.contractTypes}
+      </span>
+    )}
+
+  </div>
+</div>
         {offer.description && (
           <>
             <h2 className="text-lg font-semibold text-verde-oscuro mt-4 mb-2">

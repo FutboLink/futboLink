@@ -20,18 +20,18 @@ const CardOffer: React.FC<{
   return (
     <div className="flex flex-col bg-white border border-gray-200 rounded-2xl w-full min-h-[420px] shadow-sm overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#3e7b26]">
       {/* Encabezado */}
-      <div className="flex items-center p-4 bg-gray-50 border-b border-gray-100">
-        <div className="w-24 h-24 flex-shrink-0 rounded-2xl overflow-hidden bg-white shadow-md p-2">
+      <div className="flex items-center gap-4 p-5 border-b border-gray-100">
+        <div className="w-20 h-20 flex-shrink-0 flex items-center justify-center">
           <Image
-            width={96}
-            height={96}
+            width={80}
+            height={80}
             src={offer.imgUrl || "/cursosYFormaciones.JPG"}
             alt={offer.title}
             className="w-full h-full object-contain"
           />
         </div>
         <div>
-          <h3 className="text-base font-bold text-gray-900 leading-tight break-words max-w-[220px]">
+          <h3 className="text-xl font-bold text-gray-900 leading-snug">
             {offer.title}
           </h3>
         </div>

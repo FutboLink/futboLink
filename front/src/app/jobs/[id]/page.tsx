@@ -159,7 +159,7 @@ const JobDetail: React.FC = () => {
         {offer.position && (
           className="inline-flex items-center px-4 py-2 rounded-full bg-green-100 text-[#1d5126] font-semibold text-sm"
             {offer.position}
-          </h1>
+         </div>
         )}
 
         {offer.description && (

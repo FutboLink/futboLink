@@ -27,7 +27,7 @@ const CardOffer: React.FC<{
             height={96}
             src={offer.imgUrl || "/cursosYFormaciones.JPG"}
             alt={offer.title}
-            className="w-full h-full object-contain rounded-md"
+            className="w-full h-full object-contain"
           />
         </div>
         <div>

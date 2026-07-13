@@ -179,19 +179,19 @@ const JobDetail: React.FC = () => {
   </div>
 </div>
         {offer.description && (
-          <>
-            <h2 className="text-lg font-semibold text-verde-oscuro mt-4 mb-2">
-              Descripción de la oferta
-            </h2>
-            <p className="text-gray-700 mb-4 whitespace-pre-line">
-              {offer.description}
-            </p>
-          </>
-        )}
+  <div className="mt-8 bg-gray-50 border border-gray-200 rounded-2xl p-6">
+    <h2 className="flex items-center gap-2 text-xl font-bold text-[#1d5126] mb-4">
+      📄 Descripción de la oferta
+    </h2>
 
+    <p className="text-gray-700 leading-8 whitespace-pre-line">
+      {offer.description}
+    </p>
+  </div>
+)}
         {/* Requisitos */}
-        <h2 className="text-lg font-semibold text-verde-oscuro mt-4 mb-2">
-          Requisitos
+        <h2 className="flex items-center gap-2 text-xl font-bold text-[#1d5126] mt-8 mb-5">
+        ✅ Requisitos
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-gray-700">
           {offer.minExperience && (

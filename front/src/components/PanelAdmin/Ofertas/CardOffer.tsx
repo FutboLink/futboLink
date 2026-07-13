@@ -21,7 +21,7 @@ const CardOffer: React.FC<{
     <div className="flex flex-col bg-white border border-gray-200 rounded-2xl w-full min-h-[420px] shadow-sm overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#3e7b26]">
       {/* Encabezado */}
       <div className="flex items-center p-4 bg-gray-50 border-b border-gray-100">
-        <div className="w-14 h-14 flex-shrink-0 rounded-md overflow-hidden mr-3">
+        <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden mr-3">
           <Image
             width={56}
             height={56}

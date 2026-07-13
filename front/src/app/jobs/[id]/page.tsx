@@ -157,7 +157,7 @@ const JobDetail: React.FC = () => {
         </div>
 
         {offer.position && (
-          <h1 className="text-lg sm:text-xl font-semibold text-white p-1 rounded w-fit px-3 text-center bg-[#1d5126]">
+          className="inline-flex items-center px-4 py-2 rounded-full bg-green-100 text-[#1d5126] font-semibold text-sm"
             {offer.position}
           </h1>
         )}

@@ -375,7 +375,7 @@ const JobDetail: React.FC = () => {
           onClick={() => handleApplyClick(offer)}
           className="mt-2 w-full py-2 rounded-lg font-bold border-2 border-white bg-white text-gray-700 hover:bg-transparent hover:text-white transition"
         >
-          Aplicar a esta oferta
+          Enviar candidatura →
         </button>
 
         <Link href="/jobs">

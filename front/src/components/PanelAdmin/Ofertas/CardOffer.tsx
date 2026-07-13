@@ -18,7 +18,7 @@ const CardOffer: React.FC<{
   };
 
   return (
-    <div className="flex flex-col bg-white border border-gray-200 rounded-lg w-full min-h-[420px] shadow-md overflow-hidden transform transition-all duration-300 hover:scale-103 hover:shadow-lg hover:border-primary">
+    <div className="flex flex-col bg-white border border-gray-200 rounded-2xl w-full min-h-[420px] shadow-sm overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#3e7b26]">
       {/* Encabezado */}
       <div className="flex items-center p-3 border-b border-gray-200">
         <div className="w-14 h-14 flex-shrink-0 rounded-md overflow-hidden mr-3">

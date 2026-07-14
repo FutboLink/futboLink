@@ -6,6 +6,7 @@ import { useUserContext } from "@/hook/useUserContext";
 import type { IOfferCard } from "@/Interfaces/IOffer";
 import Notification from "./Notification";
 import { FaMoneyBillWave } from "react-icons/fa";
+import { LuSend } from "react-icons/lu";
 
 const CardOffer: React.FC<{
   offer: IOfferCard;
@@ -124,7 +125,15 @@ const CardOffer: React.FC<{
             onClick={handleApplyClick}
             className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#15803d] text-white font-semibold text-sm shadow-md hover:bg-[#166534] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
           >
-            {role === "RECRUITER" ? "Ofrecer Candidato" : "Aplicar ahora"}
+            <>
+  <LuSend size={16} />
+
+  <span>
+    {role === "RECRUITER"
+      ? "Ofrecer Candidato"
+      : "Aplicar ahora"}
+  </span>
+</>
           </button>
         </div>
       </div>

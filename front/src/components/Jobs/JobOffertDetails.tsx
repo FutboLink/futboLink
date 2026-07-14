@@ -285,9 +285,10 @@ const JobOfferDetails: React.FC<JobOfferDetailsProps> = ({ jobId }) => {
                 <span>Ver Postulantes</span>
               </button>
 
-              {/* Botón para reclutadores */}
+              {/* Botón para reclutadores y agencias */}
               {user &&
-                user.role === UserType.RECRUITER &&
+                (user.role === UserType.RECRUITER ||
+                  user.role === UserType.AGENCY) &&
                 jobOffer.recruiter &&
                 user.id !== jobOffer.recruiter.id && (
                   <button

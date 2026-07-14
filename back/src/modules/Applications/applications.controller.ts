@@ -19,6 +19,7 @@ import {
 
 import { CreateApplicationsDto } from './dto/applications.dto';
 import { RecruiterApplicationDto } from './dto/recruiter-application.dto';
+import { UpdateApplicationStatusDto } from './dto/update-status.dto';
 import { ApplicationService } from './applications.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { UserType } from '../user/roles.enum';
@@ -52,9 +53,14 @@ export class ApplicationController {
     @Body() recruiterApplicationDto: RecruiterApplicationDto,
     @Req() req: any,
   ) {
-    // Verificar que el usuario autenticado es un reclutador
-    if (req.user.role !== UserType.RECRUITER) {
-      throw new ForbiddenException('Solo los reclutadores pueden usar esta función');
+    // Verificar que el usuario autenticado es un reclutador o una agencia
+    if (
+      req.user.role !== UserType.RECRUITER &&
+      req.user.role !== UserType.AGENCY
+    ) {
+      throw new ForbiddenException(
+        'Solo los reclutadores y agencias pueden usar esta función',
+      );
     }
 
     const recruiterId = req.user.id;
@@ -106,6 +112,20 @@ export class ApplicationController {
     return this.applicationService.markProfileViewed(applicationId, req.user.id);
   }
 
+  @Patch('/profile-viewed/by-viewed-user/:viewedUserId')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Marcar "Perfil visto" en todas las postulaciones del usuario visto a ofertas del viewer (al abrir su perfil)' })
+  @ApiResponse({ status: 200, description: 'Postulaciones marcadas como perfil visto' })
+  async markProfileViewedByViewedUser(
+    @Param('viewedUserId') viewedUserId: string,
+    @Req() req: any,
+  ) {
+    return this.applicationService.markProfileViewedByViewedUser(
+      viewedUserId,
+      req.user.id,
+    );
+  }
+
   @Patch('/:id/interest')
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Botón "Me interesa" del ofertante sobre un candidato' })
@@ -115,13 +135,21 @@ export class ApplicationController {
   }
 
   @Patch('/:id/status')
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Actualizar el estado de una aplicación' })
   @ApiResponse({ status: 200, description: 'Estado actualizado exitosamente' })
+  @ApiResponse({ status: 400, description: 'Estado inválido' })
+  @ApiResponse({ status: 403, description: 'No sos el dueño de esta oferta' })
   async updateStatus(
     @Param('id') applicationId: string,
-    @Body('status') status: string,
+    @Body() updateStatusDto: UpdateApplicationStatusDto,
+    @Req() req: any,
   ) {
-    return this.applicationService.updateStatus(applicationId, status);
+    return this.applicationService.updateStatus(
+      applicationId,
+      updateStatusDto.status,
+      req.user.id,
+    );
   }
 
   @Post('/shortlist')

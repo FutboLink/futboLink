@@ -6,6 +6,7 @@ import { useUserContext } from "@/hook/useUserContext";
 import DashboardFutbolista from "@/components/Dashboard/DashboardFutbolista";
 import DashboardOfertante from "@/components/Dashboard/DashboardOfertante";
 import DashboardAgente from "@/components/Dashboard/DashboardAgente";
+import { isFootballer } from "@/helpers/userRole";
 
 type Decoded = { id?: string; role?: string; puesto?: string };
 
@@ -16,12 +17,6 @@ function decodeToken(token?: string | null): Decoded {
   } catch {
     return {};
   }
-}
-
-// "Jugador puro": role PLAYER sin puesto (o puesto === "jugador").
-function isFootballer(role?: string, puesto?: string): boolean {
-  const p = (puesto || "").toLowerCase();
-  return role === "PLAYER" && (p === "" || p === "jugador");
 }
 
 export default function DashboardPage() {

@@ -52,7 +52,7 @@ const LatestOffersCarousel = () => {
 
       <div className="p-5">
 
-        <h3 className="font-bold text-gray-900 text-lg line-clamp-2 min-h-[56px]">
+        className="font-bold text-gray-900 text-base leading-6 min-h-[72px]"
           {offer.title}
         </h3>
 
@@ -72,9 +72,11 @@ const LatestOffersCarousel = () => {
 
         </div>
 
-        <div className="mt-5 font-semibold text-[#1d5126]">
-          Ver oferta →
-        </div>
+        <div className="mt-6">
+        <span className="inline-flex items-center justify-center w-full rounded-xl border border-[#1d5126] py-2 text-sm font-semibold text-[#1d5126] hover:bg-[#1d5126] hover:text-white transition-all duration-300">
+         Ver oferta →
+    </span>
+  </div>
 
       </div>
     </Link>

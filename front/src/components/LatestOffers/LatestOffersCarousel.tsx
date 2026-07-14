@@ -3,6 +3,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
 import type { IOfferCard } from "@/Interfaces/IOffer";
+import {
+  FaMapMarkerAlt,
+  FaBriefcase,
+  FaMoneyBillWave,
+  FaArrowRight,
+} from "react-icons/fa";
 
 const LatestOffersCarousel = () => {
   const [offers, setOffers] = useState<IOfferCard[]>([]);
@@ -58,24 +64,30 @@ const LatestOffersCarousel = () => {
 
         <div className="mt-4 space-y-2 text-sm text-gray-600">
 
-          <p>
-            📍 {offer.location}
-          </p>
+          <div className="flex items-center gap-2">
+          <FaMapMarkerAlt className="text-[#3e7b26] text-sm" />
+          <span>{offer.location}</span>
+      </div>
 
-          <p>
-            💼 {offer.contractTypes}
-          </p>
+          <div className="flex items-center gap-2">
+          <FaBriefcase className="text-[#3e7b26] text-sm" />
+          <span>{offer.contractTypes}</span>
+      </div>
 
-          <p className="font-semibold text-[#1d5126]">
-            💶 {offer.currencyType} {offer.salary}
-          </p>
+          <div className="flex items-center gap-2 font-semibold text-[#1d5126]">
+          <FaMoneyBillWave className="text-sm" />
+       <span>
+          {offer.currencyType} {offer.salary}
+  </span>
+</div>
 
         </div>
 
         <div className="mt-6">
-        <span className="inline-flex items-center justify-center w-full rounded-xl border border-[#1d5126] py-2 text-sm font-semibold text-[#1d5126] hover:bg-[#1d5126] hover:text-white transition-all duration-300">
-         Ver oferta →
-    </span>
+        <span className="inline-flex items-center justify-center gap-2 w-full rounded-xl border border-[#1d5126] py-2 text-sm font-semibold text-[#1d5126] hover:bg-[#1d5126] hover:text-white transition-all duration-300">
+        Ver oferta ➜
+      <FaArrowRight className="text-xs" />
+     </span>
   </div>
 
       </div>

@@ -15,7 +15,7 @@ import {
   getUserProfile,
   markInterest,
   markJobInReview,
-  markProfileViewed,
+  promoteStatus,
   statusLabel,
   statusStyle,
 } from "./dashboardFetch";
@@ -31,15 +31,27 @@ import {
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
+// Aplica `fn` a cada candidato de todas las ofertas (map inmutable por jobId).
+function mapCands(
+  byJob: Record<string, DashboardApplication[]>,
+  fn: (c: DashboardApplication) => DashboardApplication,
+): Record<string, DashboardApplication[]> {
+  const next: Record<string, DashboardApplication[]> = {};
+  for (const [jobId, list] of Object.entries(byJob)) {
+    next[jobId] = list.map(fn);
+  }
+  return next;
+}
+
 // Fila de candidato con acción "Me interesa" y link al perfil.
 function CandidateRow({
   app,
-  token,
   onInterest,
+  onView,
 }: {
   app: DashboardApplication;
-  token: string;
-  onInterest: (id: string) => void;
+  onInterest: (appId: string) => void;
+  onView: (playerId: string) => void;
 }) {
   const p = app.player;
   const fullName = `${p?.name ?? ""} ${p?.lastname ?? ""}`.trim() || "Candidato";
@@ -64,7 +76,10 @@ function CandidateRow({
       {p?.id && (
         <Link
           href={`/user-viewer/${p.id}`}
-          onClick={() => markProfileViewed(app.id, token)}
+          // Solo refresco optimista local de la UI. El marcado real en el back
+          // lo hace el mount effect de /user-viewer (cubre clic izquierdo, clic
+          // central y nueva pestaña), así evitamos la doble llamada de red.
+          onClick={() => onView(p.id)}
           className="shrink-0 rounded border border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50"
         >
           Ver perfil
@@ -87,37 +102,32 @@ function CandidateRow({
 }
 
 // Tarjeta de una oferta publicada, expandible para ver/gestionar candidatos.
+// Controlada por el padre: los candidatos (`cands`) y su estado viven arriba
+// (fuente única de verdad) para que StatCards/banner y todas las cards del
+// mismo jugador queden sincronizados sin recargar.
 function OfferCard({
   job,
-  count,
-  token,
+  cands,
+  onOpen,
+  onInterest,
+  onView,
 }: {
   job: DashboardJob;
-  count: number;
-  token: string;
+  cands: DashboardApplication[];
+  onOpen: (jobId: string) => void;
+  onInterest: (appId: string) => void;
+  onView: (playerId: string) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [cands, setCands] = useState<DashboardApplication[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const [reviewed, setReviewed] = useState(false);
 
-  const toggle = async () => {
+  const toggle = () => {
     const next = !open;
     setOpen(next);
-    if (next && !loaded) {
-      // Al abrir la lista: marcamos "En revisión" y traemos los candidatos.
-      await markJobInReview(job.id, token);
-      const list = await getJobCandidates(job.id);
-      setCands(list);
-      setLoaded(true);
-    }
-  };
-
-  const onInterest = async (appId: string) => {
-    const ok = await markInterest(appId, token);
-    if (ok) {
-      setCands((prev) =>
-        prev.map((c) => (c.id === appId ? { ...c, status: "INTERESTED" } : c)),
-      );
+    // Al abrir por primera vez: el padre marca "En revisión" (back + optimista).
+    if (next && !reviewed) {
+      setReviewed(true);
+      onOpen(job.id);
     }
   };
 
@@ -136,21 +146,24 @@ function OfferCard({
         </div>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium text-gray-800">{job.title}</p>
-          <p className="text-xs text-gray-500">{count} candidatos</p>
+          <p className="text-xs text-gray-500">{cands.length} candidatos</p>
         </div>
         {open ? <FaChevronDown className="text-gray-400" /> : <FaChevronRight className="text-gray-400" />}
       </button>
       {open && (
         <div className="border-t border-gray-100 px-3 pb-2">
-          {!loaded ? (
-            <p className="py-3 text-sm text-gray-500">Cargando candidatos...</p>
-          ) : cands.length === 0 ? (
+          {cands.length === 0 ? (
             <p className="py-3 text-sm text-gray-500">
               Todavía no hay candidatos en esta oferta.
             </p>
           ) : (
             cands.map((c) => (
-              <CandidateRow key={c.id} app={c} token={token} onInterest={onInterest} />
+              <CandidateRow
+                key={c.id}
+                app={c}
+                onInterest={onInterest}
+                onView={onView}
+              />
             ))
           )}
         </div>
@@ -173,9 +186,11 @@ export default function DashboardOfertante({
   hideHeader?: boolean;
 }) {
   const [offers, setOffers] = useState<DashboardJob[]>([]);
-  const [counts, setCounts] = useState<Record<string, number>>({});
-  const [interested, setInterested] = useState(0);
-  const [sinRevisar, setSinRevisar] = useState(0);
+  // Fuente única de verdad: candidatos por oferta. StatCards, banner y las
+  // cards se derivan de acá, así los optimistic updates se reflejan sin reload.
+  const [candsByJob, setCandsByJob] = useState<
+    Record<string, DashboardApplication[]>
+  >({});
   const [notifs, setNotifs] = useState<DashNotification[]>([]);
   const [profile, setProfile] = useState<IProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -193,25 +208,16 @@ export default function DashboardOfertante({
       if (cancelled) return;
       setOffers(myOffers);
       setNotifs(n);
-      // Conteo de candidatos por oferta (GET sin efectos secundarios).
+      // Candidatos por oferta (GET sin efectos secundarios). Semilla del estado.
       const lists = await Promise.all(
         myOffers.map((o) => getJobCandidates(o.id)),
       );
       if (cancelled) return;
-      const c: Record<string, number> = {};
-      let totalInterested = 0;
-      let totalSinRevisar = 0;
+      const byJob: Record<string, DashboardApplication[]> = {};
       myOffers.forEach((o, i) => {
-        c[o.id] = lists[i].length;
-        totalInterested += lists[i].filter((a) => a.status === "INTERESTED").length;
-        // "Sin revisar" = postulaciones todavía en PENDING (o sin estado).
-        totalSinRevisar += lists[i].filter(
-          (a) => !a.status || a.status === "PENDING",
-        ).length;
+        byJob[o.id] = lists[i];
       });
-      setCounts(c);
-      setInterested(totalInterested);
-      setSinRevisar(totalSinRevisar);
+      setCandsByJob(byJob);
       setLoading(false);
     })();
     return () => {
@@ -219,7 +225,53 @@ export default function DashboardOfertante({
     };
   }, [token, userId]);
 
-  const totalCandidatos = Object.values(counts).reduce((a, b) => a + b, 0);
+  // Al abrir una oferta: optimista IN_REVIEW inmediato + PATCH al back + resync
+  // con la fuente de verdad (refetch de esa oferta).
+  const onOpenJob = async (jobId: string) => {
+    setCandsByJob((prev) => ({
+      ...prev,
+      [jobId]: (prev[jobId] ?? []).map((c) => ({
+        ...c,
+        status: promoteStatus(c.status, "IN_REVIEW"),
+      })),
+    }));
+    await markJobInReview(jobId, token);
+    const fresh = await getJobCandidates(jobId);
+    setCandsByJob((prev) => ({ ...prev, [jobId]: fresh }));
+  };
+
+  // "Me interesa": aplica el optimista solo si el PATCH devolvió OK.
+  const onInterest = async (appId: string) => {
+    const ok = await markInterest(appId, token);
+    if (!ok) return;
+    setCandsByJob((prev) =>
+      mapCands(prev, (c) =>
+        c.id === appId ? { ...c, status: "INTERESTED" } : c,
+      ),
+    );
+  };
+
+  // "Perfil visto": optimista local que promueve PROFILE_VIEWED en TODAS las
+  // postulaciones de ese jugador (puede estar en varias ofertas → todas las
+  // cards se sincronizan). El marcado real en el back lo hace el mount effect
+  // de /user-viewer. promoteStatus respeta la escalera (no pisa INTERESTED).
+  const onView = (playerId: string) => {
+    setCandsByJob((prev) =>
+      mapCands(prev, (c) =>
+        c.player?.id === playerId
+          ? { ...c, status: promoteStatus(c.status, "PROFILE_VIEWED") }
+          : c,
+      ),
+    );
+  };
+
+  // Conteos derivados de la fuente de verdad (se recalculan en cada render).
+  const allCands = Object.values(candsByJob).flat();
+  const totalCandidatos = allCands.length;
+  const interested = allCands.filter((a) => a.status === "INTERESTED").length;
+  const sinRevisar = allCands.filter(
+    (a) => !a.status || a.status === "PENDING",
+  ).length;
 
   return (
     <div>
@@ -267,7 +319,14 @@ export default function DashboardOfertante({
             ) : (
               <div className="space-y-2">
                 {offers.map((o) => (
-                  <OfferCard key={o.id} job={o} count={counts[o.id] ?? 0} token={token} />
+                  <OfferCard
+                    key={o.id}
+                    job={o}
+                    cands={candsByJob[o.id] ?? []}
+                    onOpen={onOpenJob}
+                    onInterest={onInterest}
+                    onView={onView}
+                  />
                 ))}
               </div>
             )}

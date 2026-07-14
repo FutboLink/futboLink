@@ -60,6 +60,8 @@ import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
 import { FaBriefcase } from "react-icons/fa6";
 import { FaUsers } from "react-icons/fa6";
 import { checkUserSubscription } from "@/services/SubscriptionService";
+import { markProfileViewedByViewedUser } from "@/components/Dashboard/dashboardFetch";
+import { isOfertante } from "@/helpers/userRole";
 
 // URL del backend (lee la env var para que el local apunte al back local)
 const API_URL =
@@ -752,6 +754,34 @@ export default function UserViewer() {
 
     fetchUserProfile();
   }, [id, token, notificationSent, user, role]);
+
+  // Al ABRIR el perfil de un candidato (link directo, nueva pestaña, clic
+  // central o "Ver postulantes") marcamos PROFILE_VIEWED en sus postulaciones a
+  // ofertas del viewer. No depende del onClick del panel (que no dispara con
+  // clic central) porque corre en el mount de la página. Fire-and-forget: el
+  // backend valida propiedad y es idempotente (no baja de INTERESTED, ni marca
+  // si el viewer no es dueño de ninguna oferta). Gate por "ofertante" (helper
+  // compartido con el dashboard) para cubrir TODAS las clases que ven
+  // candidatos —agencias/reclutadores/clubes y PLAYER de Cuerpo Técnico/
+  // Dirección—, no solo 3 roles. La autorización real vive en el backend.
+  useEffect(() => {
+    if (!id || typeof id !== "string" || !token) return;
+    // Identidad del viewer: user.id o, si falta (sesión legacy sin id en
+    // localStorage), la del payload del JWT. Mismo fallback que el effect de
+    // carga del perfil.
+    let viewerId = user?.id;
+    let viewerPuesto = user?.puesto;
+    if (!viewerId) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        viewerId = payload.id;
+        if (viewerPuesto === undefined) viewerPuesto = payload.puesto;
+      } catch {}
+    }
+    if (!viewerId || viewerId === id) return; // sin identidad o propio perfil
+    if (!isOfertante(role ?? undefined, viewerPuesto)) return;
+    markProfileViewedByViewedUser(id, token);
+  }, [id, token, user?.id, user?.puesto, role]);
 
   // Resolver el país del club del "último club" (card). La trayectoria solo
   // guarda el slug del club, no su país, así que lo fetcheamos de la
@@ -1954,7 +1984,7 @@ export default function UserViewer() {
                   Lista los primeros 5 jugadores representados y un link a la
                   tab portfolio si hay más. */}
               {canShowPortfolio && (
-                <div className="bg-white rounded-lg shadow-md border border-gray-200 mb-4">
+                <div className="bg-white rounded-lg shadow-md border border-gray-200 mb-4 mt-4">
                   <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-3 rounded-t-lg flex items-center gap-2">
                     <FaBriefcase
                       size={20}

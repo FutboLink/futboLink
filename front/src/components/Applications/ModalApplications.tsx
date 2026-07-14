@@ -351,8 +351,10 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
 
                 {/* Footer */}
                 <div className="p-5 border-t flex flex-col gap-3">
-                  {/* Mostrar opciones para reclutadores */}
-                  {user && user.role === UserType.RECRUITER && (
+                  {/* Mostrar opciones para reclutadores y agencias */}
+                  {user &&
+                    (user.role === UserType.RECRUITER ||
+                      user.role === UserType.AGENCY) && (
                     <div className="mb-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
                       <button
                         onClick={handleOpenRecruiterModal}
@@ -477,8 +479,10 @@ const ModalApplication: React.FC<ModalApplicationProps> = ({
 
                 {/* Footer */}
                 <div className="p-5 border-t flex flex-col gap-3">
-                  {/* Mostrar opciones para reclutadores */}
-                  {user && user.role === UserType.RECRUITER && (
+                  {/* Mostrar opciones para reclutadores y agencias */}
+                  {user &&
+                    (user.role === UserType.RECRUITER ||
+                      user.role === UserType.AGENCY) && (
                     <div className="mb-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
                       <button
                         onClick={handleOpenRecruiterModal}

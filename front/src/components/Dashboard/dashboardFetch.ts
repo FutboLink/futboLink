@@ -50,6 +50,31 @@ export const STATUS_STYLES: Record<string, string> = {
   REJECTED: "bg-gray-100 text-gray-500",
 };
 
+// Escalera del panel (misma que el backend `canPromote`). Solo avanza hacia
+// adelante; los estados legacy no están en la escalera.
+export const STATUS_LADDER = [
+  "PENDING",
+  "IN_REVIEW",
+  "PROFILE_VIEWED",
+  "INTERESTED",
+] as const;
+
+type LadderStatus = (typeof STATUS_LADDER)[number];
+
+// Estado tras intentar promover `current` -> `next` respetando la escalera.
+// Si `current` es legacy (fuera de la escalera) o ya está igual/más adelante,
+// devuelve el estado actual sin cambios (no pisa INTERESTED ni SHORTLISTED).
+export function promoteStatus(
+  current: string | undefined,
+  next: LadderStatus,
+): string {
+  const cur = current && current.length > 0 ? current : "PENDING";
+  const curIdx = STATUS_LADDER.indexOf(cur as LadderStatus);
+  const nextIdx = STATUS_LADDER.indexOf(next);
+  if (curIdx === -1 || nextIdx <= curIdx) return cur;
+  return next;
+}
+
 export function statusLabel(status?: string): string {
   if (!status) return STATUS_LABELS.PENDING;
   return STATUS_LABELS[status] ?? status;
@@ -220,6 +245,26 @@ export async function markProfileViewed(
       method: "PATCH",
       headers: { Authorization: `Bearer ${token}` },
     });
+  } catch {
+    /* best-effort */
+  }
+}
+
+// "Perfil visto" al ABRIR el perfil de un usuario: marca PROFILE_VIEWED en
+// todas sus postulaciones a ofertas del viewer (token). Fire-and-forget: el
+// backend valida propiedad y es idempotente (no baja de INTERESTED).
+export async function markProfileViewedByViewedUser(
+  viewedUserId: string,
+  token: string,
+): Promise<void> {
+  try {
+    await fetch(
+      `${API}/applications/profile-viewed/by-viewed-user/${viewedUserId}`,
+      {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
   } catch {
     /* best-effort */
   }

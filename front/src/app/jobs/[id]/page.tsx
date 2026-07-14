@@ -178,6 +178,7 @@ const JobDetail: React.FC = () => {
 
   </div>
 </div>
+        </div>
         {offer.description && (
   <div className="mt-8 bg-gray-50 border border-gray-200 rounded-2xl p-6">
     <h2 className="flex items-center gap-2 text-xl font-bold text-[#1d5126] mb-4">

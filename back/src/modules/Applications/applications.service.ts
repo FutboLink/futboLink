@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Application, ApplicationStatus } from './entities/applications.entity';
 import { User } from '../user/entities/user.entity';
 import { Job } from '../Jobs/entities/jobs.entity';
@@ -39,13 +39,27 @@ export class ApplicationService {
     ApplicationStatus.INTERESTED,
   ];
 
-  // ¿Se puede avanzar `current` -> `next`? Solo si current está en la escalera
-  // (vacío/null se trata como PENDING) y next está más adelante.
-  private canPromote(current: string | null | undefined, next: ApplicationStatus): boolean {
-    const cur = current && current.length > 0 ? current : ApplicationStatus.PENDING;
-    const curIdx = this.LADDER.indexOf(cur);
-    const nextIdx = this.LADDER.indexOf(next);
-    return curIdx !== -1 && nextIdx > curIdx;
+  // Estados de la escalera anteriores a `next` (los únicos desde los que se puede
+  // promover). Ej: promotableFrom(INTERESTED) -> [PENDING, IN_REVIEW, PROFILE_VIEWED].
+  private promotableFrom(next: ApplicationStatus): string[] {
+    return this.LADDER.slice(0, this.LADDER.indexOf(next));
+  }
+
+  // Promoción ATÓMICA a `next`: un único UPDATE condicional. Solo cambia la fila
+  // si su estado actual está más atrás en la escalera. Ante requests concurrentes
+  // el lock de fila garantiza que gane UNO solo (el resto ve affected === 0), lo
+  // que mata los races de doble notificación/email. Devuelve las filas afectadas.
+  private async promote(
+    applicationId: string,
+    next: ApplicationStatus,
+  ): Promise<number> {
+    const from = this.promotableFrom(next);
+    if (from.length === 0) return 0;
+    const result = await this.applicationRepository.update(
+      { id: String(applicationId), status: In(from) },
+      { status: next },
+    );
+    return result.affected ?? 0;
   }
 
   // Crea una notificación sin romper el flujo si falla (best-effort).
@@ -228,12 +242,21 @@ export class ApplicationService {
   @ApiOperation({ summary: 'Actualizar estado de una aplicación' })
   @ApiResponse({ status: 200, description: 'Estado actualizado correctamente.' })
   @ApiResponse({ status: 404, description: 'Aplicación no encontrada.' })
-  async updateStatus(applicationId: string, status: string): Promise<Application> {
-    const application = await this.applicationRepository.findOne({ 
+  async updateStatus(
+    applicationId: string,
+    status: ApplicationStatus,
+    ownerId: string,
+  ): Promise<Application> {
+    const application = await this.applicationRepository.findOne({
       where: { id: applicationId },
       relations: ['player', 'job', 'job.recruiter'],
     });
     if (!application) throw new NotFoundException('Aplicación no encontrada');
+
+    // Solo el dueño de la oferta puede cambiar el estado de una postulación.
+    if (application.job?.recruiter?.id !== ownerId) {
+      throw new ForbiddenException('No sos el dueño de esta oferta');
+    }
 
     const oldStatus = application.status;
     application.status = status;
@@ -330,12 +353,12 @@ export class ApplicationService {
   @ApiResponse({ status: 409, description: 'Aplicación duplicada.' })
   @ApiResponse({ status: 403, description: 'El jugador no está en la cartera del reclutador.' })
   async applyForPlayer(recruiterId: string, playerId: string, jobId: string, recruiterMessage: string, playerMessage?: string): Promise<Application> {
-    // Verificar que el reclutador existe
+    // Verificar que el reclutador o agencia existe
     const recruiter = await this.userRepository.findOne({
-      where: { id: recruiterId, role: UserType.RECRUITER },
+      where: { id: recruiterId, role: In([UserType.RECRUITER, UserType.AGENCY]) },
       relations: ['portfolioPlayers']
     });
-    
+
     if (!recruiter) {
       throw new NotFoundException('Reclutador no encontrado');
     }
@@ -485,9 +508,10 @@ export class ApplicationService {
 
     let updated = 0;
     for (const app of apps) {
-      if (!this.canPromote(app.status, ApplicationStatus.IN_REVIEW)) continue;
-      app.status = ApplicationStatus.IN_REVIEW;
-      await this.applicationRepository.save(app);
+      // Promoción atómica: si ya está IN_REVIEW (o más adelante) affected === 0,
+      // así re-expandir el acordeón NO vuelve a notificar (idempotente).
+      const affected = await this.promote(app.id, ApplicationStatus.IN_REVIEW);
+      if (affected !== 1) continue;
       updated++;
       if (app.player) {
         await this.safeNotify({
@@ -512,9 +536,12 @@ export class ApplicationService {
     if (app.job?.recruiter?.id !== ownerId) {
       throw new ForbiddenException('No sos el dueño de esta oferta');
     }
-    if (this.canPromote(app.status, ApplicationStatus.PROFILE_VIEWED)) {
+    // Promoción atómica: si otra request (ej. el bulk markProfileViewedByViewedUser)
+    // ya la avanzó, affected === 0 y NO volvemos a notificar → una sola notif por
+    // transición real.
+    const affected = await this.promote(app.id, ApplicationStatus.PROFILE_VIEWED);
+    if (affected === 1) {
       app.status = ApplicationStatus.PROFILE_VIEWED;
-      await this.applicationRepository.save(app);
       if (app.player) {
         await this.safeNotify({
           message: `Vieron tu perfil en la oferta "${app.job.title}".`,
@@ -528,6 +555,48 @@ export class ApplicationService {
     return app;
   }
 
+  // Cuando un ofertante ABRE el perfil de un usuario (link directo, nueva
+  // pestaña, clic central, "Ver postulantes", etc.) marcamos PROFILE_VIEWED en
+  // TODAS las postulaciones de ese usuario a ofertas cuyo dueño sea el viewer.
+  // Idempotente y tolerante: si el viewer no es su propio perfil, no es dueño de
+  // ninguna oferta a la que el usuario se postuló, o todas ya están más adelante
+  // en la escalera, devuelve { updated: 0 } sin tocar nada (no 403/500).
+  async markProfileViewedByViewedUser(
+    viewedUserId: string,
+    viewerId: string,
+  ): Promise<{ updated: number }> {
+    if (!viewedUserId || !viewerId || viewedUserId === viewerId) {
+      return { updated: 0 };
+    }
+
+    const apps = await this.applicationRepository.find({
+      where: {
+        player: { id: String(viewedUserId) },
+        job: { recruiter: { id: String(viewerId) } },
+      },
+      relations: ['player', 'job', 'job.recruiter'],
+    });
+
+    let updated = 0;
+    for (const app of apps) {
+      // Promoción atómica: idempotente frente al markProfileViewed puntual de la
+      // misma app (BUG 7) → la notif de perfil visto se emite una sola vez.
+      const affected = await this.promote(app.id, ApplicationStatus.PROFILE_VIEWED);
+      if (affected !== 1) continue;
+      updated++;
+      if (app.player) {
+        await this.safeNotify({
+          message: `Vieron tu perfil en la oferta "${app.job.title}".`,
+          type: NotificationType.APPLICATION_PROFILE_VIEWED,
+          userId: app.player.id,
+          sourceUserId: viewerId,
+          metadata: { jobId: app.job.id, jobTitle: app.job.title, jobImgUrl: app.job.imgUrl, applicationId: app.id },
+        });
+      }
+    }
+    return { updated };
+  }
+
   // Botón "Me interesa" del ofertante -> INTERESTED (acción explícita).
   async markInterest(applicationId: string, ownerId: string): Promise<Application> {
     const app = await this.applicationRepository.findOne({
@@ -538,9 +607,13 @@ export class ApplicationService {
     if (app.job?.recruiter?.id !== ownerId) {
       throw new ForbiddenException('No sos el dueño de esta oferta');
     }
-    if (app.status !== ApplicationStatus.INTERESTED) {
+    // Promoción atómica respetando la escalera (BUG 4: antes usaba `!== INTERESTED`,
+    // que dejaba saltar desde estados legacy REJECTED/SHORTLISTED/ACCEPTED). Con el
+    // UPDATE condicional solo promueve desde PENDING/IN_REVIEW/PROFILE_VIEWED y, ante
+    // requests concurrentes, gana uno solo → una sola notif + un solo email (BUG 2).
+    const affected = await this.promote(app.id, ApplicationStatus.INTERESTED);
+    if (affected === 1) {
       app.status = ApplicationStatus.INTERESTED;
-      await this.applicationRepository.save(app);
       if (app.player) {
         await this.safeNotify({
           message: `Mostraron interés en tu perfil para la oferta "${app.job.title}".`,

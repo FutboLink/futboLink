@@ -300,7 +300,6 @@ const JobDetail: React.FC = () => {
             </a>
           </div>
         </div>
-
         <p className="text-sm text-gray-600 mt-8 mb-2">
           *FutboLink no es responsable por las ofertas publicadas por terceros.
           Si notás algo fuera de lo normal o sospechoso, podés contactarnos para
@@ -327,34 +326,36 @@ const JobDetail: React.FC = () => {
         <p className="text-sm text-gray-500 mt-1 mb-6">
        Resumen de la oferta
      </p>
-       {offer.position && (
-          <p className="mb-1">
-            <strong>Puesto:</strong> {offer.position}
-          </p>
-        )}
-        {offer.location && (
-          <p className="mb-1">
-            <strong>Ubicación:</strong> {offer.location}
-          </p>
-        )}
-        {offer.contractTypes && (
-          <p className="mb-4">
-            <strong>Tipo de contrato:</strong> {offer.contractTypes}
-          </p>
-        )}
-        {offer.contractDurations && (
-          <p className="mb-4">
-            <strong>Tiempo de contrato:</strong> {offer.contractDurations}
-          </p>
-        )}
-        {offer.currencyType && (
-          <p className="mb-4">
-            <strong>Salario:</strong>{" "}
-            {`${offer.currencyType}
-             ${offer.salary}`}
-          </p>
-        )}
-
+<div className="space-y-3">
+  {offer.location && (
+    <div className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3">
+      <p className="text-xs text-gray-500">Ubicación</p>
+      <p className="font-semibold text-gray-900">{offer.location}</p>
+    </div>
+  )}
+  {offer.contractTypes && (
+    <div className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3">
+      <p className="text-xs text-gray-500">Contrato</p>
+      <p className="font-semibold text-gray-900">{offer.contractTypes}</p>
+    </div>
+  )}
+  {offer.contractDurations && (
+    <div className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3">
+      <p className="text-xs text-gray-500">Duración</p>
+      <p className="font-semibold text-gray-900">
+        {offer.contractDurations}
+      </p>
+    </div>
+  )}
+  {offer.currencyType && (
+    <div className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3">
+      <p className="text-xs text-gray-500">Salario</p>
+      <p className="font-semibold text-[#1d5126]">
+        {offer.currencyType} {offer.salary}
+      </p>
+    </div>
+  )}
+</div>
         {/* Subscription status information */}
         {token && (
           <div className="mb-4 text-sm">
@@ -407,13 +408,11 @@ const JobDetail: React.FC = () => {
         className="mt-3 w-full py-4 rounded-xl bg-white text-[#1d5126] font-bold text-base shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
   Enviar candidatura →
 </button>
-
         <Link href="/jobs">
           <button className="mt-3 w-full py-3 rounded-xl border border-white/40 text-white font-semibold hover:bg-white hover:text-[#1d5126] transition-all duration-300">
             Volver
           </button>
         </Link>
-
         {!token && (
           <div className="mt-4 text-center text-sm">
             <p className="opacity-80">

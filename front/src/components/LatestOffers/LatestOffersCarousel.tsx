@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { FaMapMarkerAlt, FaBriefcase, FaMoneyBillWave, FaArrowRight } from "react-icons/fa";
+import { FaMapMarkerAlt, FaBriefcase, FaMoneyBillWave } from "react-icons/fa";
 import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
 import type { IOfferCard } from "@/Interfaces/IOffer";
 
@@ -31,7 +31,7 @@ export default function LatestOffersCarousel() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
           {offers.map((offer)=>(
             <Link key={offer.id} href={`/jobs/${offer.id}`}
-              className="group bg-white rounded-3xl border border-gray-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+              className="group cursor-pointer bg-white border border-gray-200 rounded-3xl shadow-sm hover:shadow-2xl hover:border-[#3e7b26] hover:-translate-y-1 transition-all duration-300 overflow-hidden"
               <div className="relative">
                 <span className="absolute top-3 right-3 rounded-full bg-[#1d5126] text-white text-[10px] px-3 py-1 font-semibold">
                   {offer.contractTypes}
@@ -48,10 +48,6 @@ export default function LatestOffersCarousel() {
                   <div className="flex items-center gap-2"><FaMapMarkerAlt className="text-[#3e7b26]"/><span>{offer.location}</span></div>
                   <div className="flex items-center gap-2"><FaBriefcase className="text-[#3e7b26]"/><span>{offer.position}</span></div>
                   <div className="flex items-center gap-2 font-semibold text-[#1d5126]"><FaMoneyBillWave/><span>{offer.currencyType} {offer.salary}</span></div>
-                </div>
-
-                <div className="mt-6 bg-[#1d5126] text-white rounded-xl py-3 flex items-center justify-center gap-2 font-semibold group-hover:bg-[#16401d] transition-colors">
-                  Ver oferta <FaArrowRight className="text-xs"/>
                 </div>
               </div>
             </Link>

@@ -6,6 +6,7 @@ import { useUserContext } from "@/hook/useUserContext";
 import type { IOfferCard } from "@/Interfaces/IOffer";
 import Notification from "./Notification";
 import { FaMoneyBillWave } from "react-icons/fa";
+import { Send } from "lucide-react";
 
 const CardOffer: React.FC<{
   offer: IOfferCard;

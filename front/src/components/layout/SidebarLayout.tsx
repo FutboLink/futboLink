@@ -1,5 +1,6 @@
 "use client";
 
+import axios from "axios";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -109,13 +110,37 @@ const NavbarSidebarLayout = ({ children }: NavbarSidebarLayoutProps) => {
     setIsSidebarOpen(false);
   };
 
-  // Esto es para obtener la subcripcion si eres manager y quieres buscar jugoderes verifica la suscriptcion
+  // Valor inicial optimista desde el cache local (solo lo pobla el panel
+  // legacy de manager). Sirve para el primer render mientras llega el fetch.
   useEffect(() => {
     const stored = localStorage.getItem("managerSubscriptionInfo");
     if (stored) {
       setSubscriptionInfo(JSON.parse(stored));
     }
   }, []);
+
+  // Fuente de verdad: consultar el estado real de suscripción al backend.
+  // Las AGENCY ya no pasan por el panel legacy que poblaba
+  // localStorage.managerSubscriptionInfo, así que sin este fetch quedaban con
+  // el default "Gratuito"/false y el gate de "Buscar Jugadores" las bloqueaba
+  // pese a tener plan activo. Mismo patrón que navbarRoles.tsx.
+  useEffect(() => {
+    if (!isLogged || !user?.id || !token) return;
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/user/${user.id}/subscription`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        const { subscriptionType, isActive } = response.data;
+        setSubscriptionInfo({
+          subscriptionType: subscriptionType ?? "Gratuito",
+          hasActiveSubscription: Boolean(isActive),
+        });
+      })
+      .catch((error) => {
+        console.error("Error al verificar suscripción:", error);
+      });
+  }, [isLogged, user?.id, token]);
 
   const handlePlayerSearchClick = () => {
     const hasPaidSubscription =

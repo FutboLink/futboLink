@@ -34,6 +34,8 @@ export default function HomePage() {
 
       {/* Divider */}
       <HorizontalDiv />
+      
+   <LatestOffersCarousel />
 
       {/* What is Futbolink Section */}
       <div className="bg-white py-16">
@@ -80,7 +82,6 @@ export default function HomePage() {
         </div>
       </div>
 
-   <LatestOffersCarousel />
       <section data-aos="fade-right" data-aos-delay="200">
         <Notices />
       </section>

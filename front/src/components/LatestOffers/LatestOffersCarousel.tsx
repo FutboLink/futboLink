@@ -37,21 +37,49 @@ const LatestOffersCarousel = () => {
 
         <div className="space-y-4">
 
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
   {offers.map((offer) => (
     <Link
       key={offer.id}
       href={`/jobs/${offer.id}`}
-      className="block rounded-2xl border border-gray-200 p-4 hover:shadow-md transition"
+      className="bg-white border border-gray-200 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden"
     >
-      <h3 className="font-semibold text-lg">
-        {offer.title}
-      </h3>
+      <img
+        src={offer.imgUrl || "/cursosYFormaciones.JPG"}
+        alt={offer.title}
+        className="w-full h-40 object-contain p-6 bg-gray-50"
+      />
 
-      <p className="text-sm text-gray-500">
-        {offer.location}
-      </p>
+      <div className="p-5">
+
+        <h3 className="font-bold text-gray-900 text-lg line-clamp-2 min-h-[56px]">
+          {offer.title}
+        </h3>
+
+        <div className="mt-4 space-y-2 text-sm text-gray-600">
+
+          <p>
+            📍 {offer.location}
+          </p>
+
+          <p>
+            💼 {offer.contractTypes}
+          </p>
+
+          <p className="font-semibold text-[#1d5126]">
+            💶 {offer.currencyType} {offer.salary}
+          </p>
+
+        </div>
+
+        <div className="mt-5 font-semibold text-[#1d5126]">
+          Ver oferta →
+        </div>
+
+      </div>
     </Link>
   ))}
+</div>
 
 </div>
 

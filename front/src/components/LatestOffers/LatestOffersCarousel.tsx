@@ -13,7 +13,7 @@ export default function LatestOffersCarousel() {
   useEffect(() => {
     (async () => {
       const data = await getOfertas();
-      setOffers(data.slice(0,8));
+      setOffers(data.slice(0,4));
     })();
   }, []);
 

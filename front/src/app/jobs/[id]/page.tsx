@@ -321,12 +321,12 @@ const JobDetail: React.FC = () => {
       sticky
       top-24
       ">
-        <h2 className="text-lg font-bold text-gray-900">
-        Información de la oferta
-      </h2>
-      <p className="text-sm text-gray-500 mb-6">
-     Resumen rápido
-    </p>
+        <h2 className="text-xl font-bold text-gray-900">
+        Información
+     </h2>
+        <p className="text-sm text-gray-500 mt-1 mb-6">
+       Resumen de la oferta
+     </p>
        {offer.position && (
           <p className="mb-1">
             <strong>Puesto:</strong> {offer.position}

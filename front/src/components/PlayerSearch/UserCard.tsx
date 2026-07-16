@@ -161,13 +161,13 @@ const UserCard: React.FC<UserCardProps> = ({
   return (
     <div
       key={currentUser.id}
-      className={`bg-white relative flex flex-col border border-gray-100 rounded-3xl p-4 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${
+      className={`bg-white relative flex flex-col cursor-pointer border border-gray-100 rounded-3xl p-4 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${
         isSelected ? "ring-2 ring-green-500 border-green-500" : ""
       } ${isShortlisted ? "bg-green-50" : ""}`}
-      style={{
-         cursor: isSelectionMode ? "pointer" : "default",
-         minHeight: "160px",
-      }}
+    style={{
+      cursor: "pointer",
+      minHeight: "160px",
+    }}
       onClick={(e) => {
   if (isSelectionMode && onSelect) {
     e.preventDefault();

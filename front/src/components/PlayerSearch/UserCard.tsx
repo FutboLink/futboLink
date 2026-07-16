@@ -160,12 +160,12 @@ const UserCard: React.FC<UserCardProps> = ({
   return (
     <div
       key={currentUser.id}
-      className={`bg-white relative flex flex-col border border-gray-100 rounded-3xl p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${
+      className={`bg-white relative flex flex-col border border-gray-100 rounded-3xl p-4 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${
         isSelected ? "ring-2 ring-green-500 border-green-500" : ""
       } ${isShortlisted ? "bg-green-50" : ""}`}
       style={{
-        cursor: isSelectionMode ? "pointer" : "default",
-        minHeight: "180px",
+         cursor: isSelectionMode ? "pointer" : "default",
+         minHeight: "160px",
       }}
       onClick={(e) => {
         if (isSelectionMode && onSelect) {
@@ -178,7 +178,7 @@ const UserCard: React.FC<UserCardProps> = ({
       <div className="flex flex-col items-center text-center">
         {/* Foto */}
         <div className="flex-shrink-0 relative">
-          <div className="w-20 h-20 rounded-full border-4 border-white shadow-md overflow-hidden mx-auto">
+          <div className="w-20 h-20 rounded-full overflow-hidden mx-auto">
             <Image
               src={currentUser.imgUrl || getDefaultPlayerImage()}
               alt={`${currentUser.name} ${currentUser.lastname}`}
@@ -328,7 +328,7 @@ const UserCard: React.FC<UserCardProps> = ({
       {/* Botón que ocupa toda la card */}
       <Link
         href={`/user-viewer/${currentUser.id}`}
-        className="mt-3 w-full border border-blue-600 text-blue-600 text-xs font-medium py-2 px-3 rounded-lg text-center hover:bg-blue-50 transition"
+        className="mt-2 w-full border border-blue-600 text-blue-600 text-xs font-medium py-2 px-3 rounded-lg text-center hover:bg-blue-50 transition"
       >
         {t("viewProfile")}
       </Link>

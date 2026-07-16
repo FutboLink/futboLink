@@ -324,15 +324,7 @@ const UserCard: React.FC<UserCardProps> = ({
           )}
         </div>
       </div>
-
-      {/* Botón que ocupa toda la card */}
-      <Link
-        href={`/user-viewer/${currentUser.id}`}
-        className="mt-3 w-full border border-blue-600 text-blue-600 text-xs font-medium py-2 px-3 rounded-lg text-center hover:bg-blue-50 transition"
-      >
-        {t("viewProfile")}
-      </Link>
-
+    
       {showDropdown && (
         <button
           type="button"

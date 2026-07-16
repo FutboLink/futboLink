@@ -1183,24 +1183,34 @@ const loadMorePlayers = () => {
 
           {/* Botón para cargar más jugadores */}
           <div className="flex justify-center items-center gap-2 mt-8">
-  <button
-    type="button"
-    className="px-4 py-2 rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition disabled:opacity-40"
-    disabled={page === 0}
-  >
-    ← Anterior
-  </button>
+<button
+  type="button"
+  onClick={() => {
+    if (page > 0) {
+      setPlayers([]);
+      setPage((prev) => prev - 1);
+    }
+  }}
+  className="px-4 py-2 rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition disabled:opacity-40"
+  disabled={page === 0}
+>
+  ← Anterior
+</button>
 
   <span className="px-4 py-2 rounded-xl bg-[#3e7b26] text-white font-medium">
     {page + 1}
   </span>
 
   <button
-    type="button"
-    className="px-4 py-2 rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition"
-  >
-    Siguiente →
-  </button>
+  type="button"
+  onClick={() => {
+    setPlayers([]);
+    setPage((prev) => prev + 1);
+  }}
+  className="px-4 py-2 rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition"
+>
+  Siguiente →
+</button>
 </div>
           {(() => {
             const filteredPlayers = applyClientSideFilters(players);

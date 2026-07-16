@@ -175,7 +175,7 @@ const UserCard: React.FC<UserCardProps> = ({
       }}
     >
       {/* Fila superior: foto + info + dropdown */}
-      <div className="flex items-start">
+      <div className="flex flex-col items-center text-center">
         {/* Foto */}
         <div className="flex-shrink-0 relative">
           <div className="w-20 h-20 rounded-full border-4 border-white shadow-md overflow-hidden mx-auto">

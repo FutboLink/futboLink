@@ -162,7 +162,7 @@ const UserCard: React.FC<UserCardProps> = ({
   return (
     <div
       key={currentUser.id}
-      className={`bg-white relative flex flex-col cursor-pointer border border-gray-100 rounded-3xl p-4 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${
+      className={`group bg-white relative flex flex-col cursor-pointer border border-gray-100 rounded-3xl p-4 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${
         isSelected ? "ring-2 ring-green-500 border-green-500" : ""
       } ${isShortlisted ? "bg-green-50" : ""}`}
     style={{
@@ -286,7 +286,7 @@ const UserCard: React.FC<UserCardProps> = ({
         </div>
 
         {/* Dropdown */}
-         <div className="absolute top-4 right-4 z-10"> 
+          <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <button
             className="flex items-center justify-center w-8 h-8 rounded-xl border border-transparent text-gray-400 hover:text-gray-700 hover:bg-gray-100 hover:border-gray-200 transition-all duration-200"
             type="button"

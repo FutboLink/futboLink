@@ -160,9 +160,7 @@ const OfferList: React.FC = () => {
   </div>
 
   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mt-6 gap-6">
-
     <div>
-
       <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900">
 
         Encontrá tu próxima{" "}
@@ -172,78 +170,83 @@ const OfferList: React.FC = () => {
         </span>
 
       </h1>
-
       <p className="mt-3 text-gray-500 text-lg max-w-2xl">
-
         Explorá ofertas de clubes, agencias y academias de todo el mundo.
-
       </p>
-
     </div>
-
     <div className="bg-white border border-gray-100 rounded-2xl shadow-sm px-8 py-6 min-w-[180px]">
-
       <p className="text-3xl font-bold text-[#1d5126]">
-
         {sortedOffers.length}
-
+      
       </p>
-
       <p className="text-gray-500 text-sm">
-
         Ofertas publicadas
-
       </p>
-
     </div>
-
   </div>
-
 </div>
 
-      <div className="flex flex-col gap-4 justify-between w-full py-[1.2rem] max-w-[100rem] mx-auto md:flex-row">
-        {/* Filtros */}
-        <div className="flex flex-wrap justify-end gap-3 lg:flex-nowrap">
-          {/* Filtro por tipo de contrato */}
-          <select
-            value={contractTypeFilter}
-            onChange={(e) => setContractTypeFilter(e.target.value)}
-            className="w-full md:max-w-[15rem] md:min-w-[11rem] p-2 border border-gray-300 rounded-md text-gray-700 text-sm"
-          >
-            <option value="">Tipo de contrato</option>
-            {contractTypes.map((contractType) => (
-              <option key={contractType} value={contractType}>
-                {contractType}
-              </option>
-            ))}
-          </select>
+<div className="max-w-[100rem] mx-auto mb-10">
+  <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+    <div className="flex flex-col lg:flex-row gap-4 items-center">
 
-          {/* Filtro por posición */}
-          <select
-            value={positionFilter}
-            onChange={(e) => setPositionFilter(e.target.value)}
-            className="w-full md:max-w-[15rem] md:min-w-[11rem] p-2 border border-gray-300 rounded-md text-gray-700 text-sm"
-          >
-            <option value="">Posición</option>
-            {positions.map((position) => (
-              <option key={position} value={position}>
-                {position}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* Buscador */}
+      
+      <div className="flex-1 w-full">
 
-        {/* Barra de búsqueda */}
-        <div className="flex justify-center items-center w-full md:max-w-[20rem] sm:text-xs md:text-sm">
-          <input
-            type="text"
-            placeholder="Buscar oferta por título, posición o ubicación..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md text-gray-700 text-sm"
-          />
-        </div>
+        <input
+          type="text"
+          placeholder="🔍 Buscar por club, país, posición o palabra clave..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full h-14 rounded-2xl border border-gray-200 bg-gray-50 px-5 text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1d5126] transition-all"
+        />
+
       </div>
+
+      {/* Tipo */}
+
+      <select
+        value={contractTypeFilter}
+        onChange={(e) => setContractTypeFilter(e.target.value)}
+        className="h-14 min-w-[220px] rounded-2xl border border-gray-200 bg-white px-4 text-gray-700 focus:ring-2 focus:ring-[#1d5126]"
+      >
+        <option value="">Tipo de contrato</option>
+
+        {contractTypes.map((contractType) => (
+          <option key={contractType} value={contractType}>
+            {contractType}
+          </option>
+        ))}
+
+      </select>
+
+      {/* Posición */}
+
+      <select
+        value={positionFilter}
+        onChange={(e) => setPositionFilter(e.target.value)}
+        className="h-14 min-w-[220px] rounded-2xl border border-gray-200 bg-white px-4 text-gray-700 focus:ring-2 focus:ring-[#1d5126]"
+      >
+        <option value="">Posición</option>
+
+        {positions.map((position) => (
+          <option key={position} value={position}>
+            {position}
+          </option>
+        ))}
+
+      </select>
+
+      <button
+        className="h-14 px-8 rounded-2xl bg-[#1d5126] text-white font-semibold hover:bg-[#163d1e] transition-all shadow-sm hover:shadow-md"
+      >
+        Buscar
+      </button>
+
+    </div>
+  </div>
+</div>
 
       <div className="grid grid-cols-1 max-w-[100rem] mx-auto md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 py-4">
         {sortedOffers.length > 0 ? (

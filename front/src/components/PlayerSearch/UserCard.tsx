@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { BsCheckCircle } from "react-icons/bs";
@@ -75,6 +75,7 @@ const UserCard: React.FC<UserCardProps> = ({
 }) => {
   const { user, token } = useUserContext();
   const pathname = usePathname();
+  const router = useRouter();
   const [showDropdown, setShowDropdown] = useState(false);
   const [verificationStatus, setVerificationStatus] =
     useState<VerificationStatus>({ isVerified: false, columnExists: false });
@@ -168,11 +169,14 @@ const UserCard: React.FC<UserCardProps> = ({
          minHeight: "160px",
       }}
       onClick={(e) => {
-        if (isSelectionMode && onSelect) {
-          e.preventDefault();
-          onSelect();
-        }
-      }}
+  if (isSelectionMode && onSelect) {
+    e.preventDefault();
+    onSelect();
+    return;
+  }
+
+  router.push(`/user-viewer/${currentUser.id}`);
+}}
     >
       {/* Fila superior: foto + info + dropdown */}
       <div className="flex flex-col items-center text-center">
@@ -329,14 +333,6 @@ const UserCard: React.FC<UserCardProps> = ({
           )}
         </div>
       </div>
-
-      {/* Botón que ocupa toda la card */}
-      <Link
-        href={`/user-viewer/${currentUser.id}`}
-        className="mt-2 w-full border border-blue-600 text-blue-600 text-xs font-medium py-2 px-3 rounded-lg text-center hover:bg-blue-50 transition"
-      >
-        {t("viewProfile")}
-      </Link>
 
       {showDropdown && (
         <button

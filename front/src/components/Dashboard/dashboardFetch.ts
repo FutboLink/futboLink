@@ -207,6 +207,34 @@ export async function getMyOffers(token: string): Promise<DashboardJob[]> {
   }
 }
 
+// Panel del ofertante en UN solo request (consolida getMyOffers + N
+// getJobCandidates). El back arma todo con una sola query SQL (job -> applications
+// -> player), así el front deja de hacer N+1. El shape mapea directo a los dos
+// estados del dashboard: `offers` -> setOffers, `candidatesByJob` -> setCandsByJob.
+export interface DashboardData {
+  offers: DashboardJob[];
+  candidatesByJob: Record<string, DashboardApplication[]>;
+}
+
+export async function getMyDashboard(token: string): Promise<DashboardData> {
+  try {
+    const res = await fetch(`${API}/jobs/my/with-candidates`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return { offers: [], candidatesByJob: {} };
+    const data = await res.json();
+    return {
+      offers: Array.isArray(data?.offers) ? data.offers : [],
+      candidatesByJob:
+        data?.candidatesByJob && typeof data.candidatesByJob === "object"
+          ? data.candidatesByJob
+          : {},
+    };
+  } catch {
+    return { offers: [], candidatesByJob: {} };
+  }
+}
+
 // Candidatos de una oferta. Al traerlos, marca a los PENDING como "En revisión".
 export async function getJobCandidates(
   jobId: string,

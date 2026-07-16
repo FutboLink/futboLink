@@ -48,6 +48,16 @@ export class JobsController {
     return this.jobsService.findByRecruiter(req.user.id, parsedPage, parsedLimit);
   }
 
+  @Get('my/with-candidates')
+  @UseGuards(AuthGuard)
+  @ApiOperation({
+    summary:
+      'Panel del ofertante en un solo request: ofertas del recruiter + sus candidatos (postulacion + player) con estado',
+  })
+  async findMyDashboardWithCandidates(@Req() req: RequestWithUser) {
+    return this.jobsService.findMyDashboardWithCandidates(req.user.id);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Obtener un trabajo por ID' })
   async findOne(@Param('id') id: string) {

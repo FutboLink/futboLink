@@ -1,8 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { FaChevronDown, FaChevronRight, FaHeart, FaUsers } from "react-icons/fa";
+import { useEffect, useRef, useState } from "react";
+import {
+  FaChevronDown,
+  FaChevronRight,
+  FaHeart,
+  FaSync,
+  FaUsers,
+} from "react-icons/fa";
 import type { IProfileData } from "@/Interfaces/IUser";
 import ProfileProgressBar from "@/components/ProfileUser/ProfileProgressBar";
 import {
@@ -10,7 +16,7 @@ import {
   type DashboardJob,
   type DashNotification,
   getJobCandidates,
-  getMyOffers,
+  getMyDashboard,
   getNotifications,
   getUserProfile,
   markInterest,
@@ -30,6 +36,42 @@ import {
 } from "./DashboardShared";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
+
+// Igualdad "de UI" entre dos mapas de candidatos: mismas ofertas, mismos
+// candidatos (id) y mismo estado (lo único que muta y que la UI pinta). Sirve
+// para bailar el re-render en la revalidación silenciosa si nada cambió (evita
+// recargar avatares / flash). No compara nombre/foto (rara vez cambian).
+function sameCandsByJob(
+  a: Record<string, DashboardApplication[]>,
+  b: Record<string, DashboardApplication[]>,
+): boolean {
+  const aKeys = Object.keys(a);
+  if (aKeys.length !== Object.keys(b).length) return false;
+  for (const k of aKeys) {
+    const la = a[k];
+    const lb = b[k];
+    if (!lb || la.length !== lb.length) return false;
+    for (let i = 0; i < la.length; i++) {
+      if (la[i].id !== lb[i].id || la[i].status !== lb[i].status) return false;
+    }
+  }
+  return true;
+}
+
+// Igualdad de la lista de ofertas para el mismo bail-out (id/título/imagen).
+function sameOffers(a: DashboardJob[], b: DashboardJob[]): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (
+      a[i].id !== b[i].id ||
+      a[i].title !== b[i].title ||
+      a[i].imgUrl !== b[i].imgUrl
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
 
 // Aplica `fn` a cada candidato de todas las ofertas (map inmutable por jobId).
 function mapCands(
@@ -194,29 +236,47 @@ export default function DashboardOfertante({
   const [notifs, setNotifs] = useState<DashNotification[]>([]);
   const [profile, setProfile] = useState<IProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+  // Timestamp (ms) del último fetch de candidatos, para throttlear la
+  // revalidación por foco/visibilidad y no spamear el back.
+  const lastCandsFetchRef = useRef(0);
+  // Timestamp (ms) de la última mutación optimista (onView/onInterest/onOpen).
+  // Si es reciente, saltamos la revalidación para no pisar el optimista con
+  // data del back que quizás todavía no reflejó el cambio (ej. el marcado de
+  // "Visto" lo hace la pestaña del perfil y puede no haber llegado aún).
+  const lastMutationRef = useRef(0);
+  // Estado del botón manual "Actualizar": ícono girando + disabled mientras
+  // corre. NO blanquea la vista (la lista actual queda en pantalla).
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Trae ofertas + candidatos por oferta (GET sin efectos secundarios). Es la
+  // fuente de verdad y se reutiliza tanto en el mount como en la revalidación
+  // (visibilitychange/focus), sin duplicar la lógica de armado del mapa.
+  const fetchOffersAndCands = async (): Promise<{
+    offers: DashboardJob[];
+    byJob: Record<string, DashboardApplication[]>;
+  }> => {
+    // UN solo request al endpoint consolidado (antes: getMyOffers + N
+    // getJobCandidates). El back lo resuelve con una única query SQL.
+    const { offers, candidatesByJob } = await getMyDashboard(token);
+    lastCandsFetchRef.current = Date.now();
+    return { offers, byJob: candidatesByJob };
+  };
 
   useEffect(() => {
     if (!token) return;
     let cancelled = false;
     (async () => {
-      const [myOffers, n, pr] = await Promise.all([
-        getMyOffers(token),
+      const [n, pr] = await Promise.all([
         getNotifications(userId, token),
         getUserProfile(userId, token),
       ]);
-      if (!cancelled) setProfile(pr as IProfileData | null);
+      if (cancelled) return;
+      setProfile(pr as IProfileData | null);
+      setNotifs(n);
+      // Semilla del estado: ofertas + candidatos por oferta.
+      const { offers: myOffers, byJob } = await fetchOffersAndCands();
       if (cancelled) return;
       setOffers(myOffers);
-      setNotifs(n);
-      // Candidatos por oferta (GET sin efectos secundarios). Semilla del estado.
-      const lists = await Promise.all(
-        myOffers.map((o) => getJobCandidates(o.id)),
-      );
-      if (cancelled) return;
-      const byJob: Record<string, DashboardApplication[]> = {};
-      myOffers.forEach((o, i) => {
-        byJob[o.id] = lists[i];
-      });
       setCandsByJob(byJob);
       setLoading(false);
     })();
@@ -225,9 +285,41 @@ export default function DashboardOfertante({
     };
   }, [token, userId]);
 
+  // Revalidación al volver a la pestaña: cuando el ofertante abre un perfil en
+  // otra pestaña, el back marca "Visto" pero este dashboard quedaría con el
+  // estado viejo. Al recuperar visibilidad/foco refetcheamos los candidatos
+  // (fuente de verdad → StatCards, banner y badges se actualizan solos).
+  // Throttle de 12s para no refetchear si el usuario alterna pestañas rápido.
+  useEffect(() => {
+    if (!token) return;
+    const THROTTLE_MS = 12_000;
+    const MUTATION_GRACE_MS = 8_000;
+    const revalidate = async () => {
+      if (document.visibilityState !== "visible") return;
+      if (Date.now() - lastCandsFetchRef.current < THROTTLE_MS) return;
+      // No pisar un optimista recién aplicado con data que el back quizás aún
+      // no reflejó (evita revertir "Visto"/"Me interesa" y su flash).
+      if (Date.now() - lastMutationRef.current < MUTATION_GRACE_MS) return;
+      const { offers: myOffers, byJob } = await fetchOffersAndCands();
+      // Merge suave: si nada cambió, devolvemos el mismo ref → React bailea el
+      // re-render (sin recargar avatares ni tocar el DOM). Solo reemplazamos
+      // cuando de verdad cambió algo. El estado local de las OfferCards (open/
+      // reviewed) sobrevive porque la key es el jobId (no se remontan).
+      setOffers((prev) => (sameOffers(prev, myOffers) ? prev : myOffers));
+      setCandsByJob((prev) => (sameCandsByJob(prev, byJob) ? prev : byJob));
+    };
+    document.addEventListener("visibilitychange", revalidate);
+    window.addEventListener("focus", revalidate);
+    return () => {
+      document.removeEventListener("visibilitychange", revalidate);
+      window.removeEventListener("focus", revalidate);
+    };
+  }, [token, userId]);
+
   // Al abrir una oferta: optimista IN_REVIEW inmediato + PATCH al back + resync
   // con la fuente de verdad (refetch de esa oferta).
   const onOpenJob = async (jobId: string) => {
+    lastMutationRef.current = Date.now();
     setCandsByJob((prev) => ({
       ...prev,
       [jobId]: (prev[jobId] ?? []).map((c) => ({
@@ -244,6 +336,7 @@ export default function DashboardOfertante({
   const onInterest = async (appId: string) => {
     const ok = await markInterest(appId, token);
     if (!ok) return;
+    lastMutationRef.current = Date.now();
     setCandsByJob((prev) =>
       mapCands(prev, (c) =>
         c.id === appId ? { ...c, status: "INTERESTED" } : c,
@@ -256,6 +349,7 @@ export default function DashboardOfertante({
   // cards se sincronizan). El marcado real en el back lo hace el mount effect
   // de /user-viewer. promoteStatus respeta la escalera (no pisa INTERESTED).
   const onView = (playerId: string) => {
+    lastMutationRef.current = Date.now();
     setCandsByJob((prev) =>
       mapCands(prev, (c) =>
         c.player?.id === playerId
@@ -263,6 +357,25 @@ export default function DashboardOfertante({
           : c,
       ),
     );
+  };
+
+  // Botón manual "Actualizar": refetch inmediato del endpoint consolidado,
+  // IGNORANDO el throttle de 12s (el usuario lo aprieta a propósito). El
+  // `refreshing` hace de debounce contra doble-click. Reusa el mismo bail-out de
+  // igualdad que la auto-revalidación: si nada cambió, mismo ref → sin re-render
+  // (no recarga avatares ni resetea acordeones/scroll; la key jobId conserva el
+  // estado open/reviewed de cada OfferCard). El fetch trae el estado ya
+  // persistido en el back, así que no pisa optimistas previos.
+  const onRefresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      const { offers: myOffers, byJob } = await fetchOffersAndCands();
+      setOffers((prev) => (sameOffers(prev, myOffers) ? prev : myOffers));
+      setCandsByJob((prev) => (sameCandsByJob(prev, byJob) ? prev : byJob));
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   // Conteos derivados de la fuente de verdad (se recalculan en cada render).
@@ -302,12 +415,25 @@ export default function DashboardOfertante({
             title="Mis ofertas publicadas"
             scroll
             action={
-              <Link
-                href={`/user-viewer/${userId}?tab=createOffer`}
-                className="text-xs font-medium text-verde-oscuro hover:underline"
-              >
-                Crear oferta
-              </Link>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={onRefresh}
+                  disabled={refreshing || loading}
+                  className="flex items-center gap-1.5 text-xs font-medium text-verde-oscuro hover:underline disabled:opacity-60"
+                >
+                  <FaSync
+                    className={`h-3 w-3 ${refreshing ? "animate-spin" : ""}`}
+                  />
+                  Actualizar
+                </button>
+                <Link
+                  href={`/user-viewer/${userId}?tab=createOffer`}
+                  className="text-xs font-medium text-verde-oscuro hover:underline"
+                >
+                  Crear oferta
+                </Link>
+              </div>
             }
           >
             {loading ? (

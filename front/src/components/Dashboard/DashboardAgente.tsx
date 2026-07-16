@@ -7,10 +7,8 @@ import type { IProfileData } from "@/Interfaces/IUser";
 import ProfileProgressBar from "@/components/ProfileUser/ProfileProgressBar";
 import {
   type DashboardApplication,
-  type DashboardJob,
   type DashNotification,
-  getJobCandidates,
-  getMyOffers,
+  getMyDashboard,
   getNotifications,
   getPortfolio,
   getRecruiterApplications,
@@ -57,25 +55,28 @@ export default function DashboardAgente({
     if (!userId) return;
     let cancelled = false;
     (async () => {
-      const [a, p, offers, n, pr] = await Promise.all([
+      const [a, p, dash, n, pr] = await Promise.all([
         getRecruiterApplications(userId),
         getPortfolio(userId, token),
-        getMyOffers(token),
+        // UN solo request: ofertas + candidatos (antes: getMyOffers + N
+        // getJobCandidates solo para los conteos).
+        getMyDashboard(token),
         getNotifications(userId, token),
         getUserProfile(userId, token),
       ]);
       if (cancelled) return;
       setApps(a);
       setPortfolio(p);
-      setOffersCount(offers.length);
+      setOffersCount(dash.offers.length);
       setNotifs(n);
       setProfile(pr as IProfileData | null);
       // Conteo total de candidatos de las ofertas del agente.
-      const lists = await Promise.all(
-        offers.map((o: DashboardJob) => getJobCandidates(o.id)),
+      setCandidatesCount(
+        Object.values(dash.candidatesByJob).reduce(
+          (acc, l) => acc + l.length,
+          0,
+        ),
       );
-      if (cancelled) return;
-      setCandidatesCount(lists.reduce((acc, l) => acc + l.length, 0));
     })();
     return () => {
       cancelled = true;

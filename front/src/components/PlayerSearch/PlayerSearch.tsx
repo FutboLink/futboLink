@@ -867,7 +867,7 @@ const PlayerSearch: React.FC = () => {
 </div>
 
       {/* Formulario de búsqueda */}
-      <div className="mb-8 bg-gray-50 rounded-lg p-4 shadow-sm">
+      <div className="mb-10 rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col md:flex-row gap-4">
@@ -884,7 +884,7 @@ const PlayerSearch: React.FC = () => {
                   value={searchQuery}
                   onChange={handleSearchQueryChange}
                   placeholder={t("searchByName")}
-                  className="w-full p-2 border text-black border-gray-200 rounded text-base"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 placeholder:text-gray-400 focus:border-[#3e7b26] focus:ring-4 focus:ring-green-100 outline-none transition-all"
                 />
               </div>
               <div className="flex-1">
@@ -931,7 +931,7 @@ const PlayerSearch: React.FC = () => {
                   name="role"
                   value={filters.role || ""}
                   onChange={handleFilterChange}
-                  className="w-full p-2 text-black border border-gray-200 rounded text-base"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 focus:border-[#3e7b26] focus:ring-4 focus:ring-green-100 outline-none transition-all"
                 >
                   <option value="">Todos los tipos</option>
                   <option value="PLAYER">Solo jugadores</option>

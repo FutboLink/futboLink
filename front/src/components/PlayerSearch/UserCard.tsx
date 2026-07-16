@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BsCheckCircle } from "react-icons/bs";
 import {
   FaCheckCircle,
@@ -78,6 +78,7 @@ const UserCard: React.FC<UserCardProps> = ({
   const pathname = usePathname();
   const router = useRouter();
   const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const [verificationStatus, setVerificationStatus] =
     useState<VerificationStatus>({ isVerified: false, columnExists: false });
 
@@ -134,6 +135,22 @@ const UserCard: React.FC<UserCardProps> = ({
   useEffect(() => {
     if (currentUser.id) fetchVerificationStatus(currentUser.id);
   }, [currentUser.id]);
+  useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(event.target as Node)
+    ) {
+      setShowDropdown(false);
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
 
   if (!user) return null;
 
@@ -286,7 +303,12 @@ const UserCard: React.FC<UserCardProps> = ({
         </div>
 
         {/* Dropdown */}
-          <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <div
+  ref={dropdownRef}
+  className={`absolute top-4 right-4 z-10 transition-opacity duration-200 ${
+    showDropdown ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+  }`}
+>
           <button
             className="flex items-center justify-center w-8 h-8 rounded-xl border border-transparent text-gray-400 hover:text-gray-700 hover:bg-gray-100 hover:border-gray-200 transition-all duration-200"
             type="button"
@@ -339,15 +361,6 @@ const UserCard: React.FC<UserCardProps> = ({
           )}
         </div>
       </div>
-
-      {showDropdown && (
-        <button
-          type="button"
-          className="fixed inset-0 z-20 bg-transparent cursor-default"
-          onClick={() => setShowDropdown(false)}
-          aria-label="Cerrar menú"
-        />
-      )}
     </div>
   );
 };

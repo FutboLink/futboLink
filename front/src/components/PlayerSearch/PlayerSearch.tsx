@@ -853,7 +853,8 @@ const PlayerSearch: React.FC = () => {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto">
+  <div className="min-h-screen bg-slate-50">
+    <div className="p-6 md:p-8 max-w-7xl mx-auto">
       <h1 className="mb-6 text-blue-900 text-center">{t("playerSearch")}</h1>
 
       {/* Información sobre los tipos de usuario */}
@@ -1211,7 +1212,9 @@ const PlayerSearch: React.FC = () => {
         </>
       )}
     </div>
+  </div>
   );
 };
+
 
 export default PlayerSearch;

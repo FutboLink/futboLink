@@ -195,11 +195,11 @@ const UserCard: React.FC<UserCardProps> = ({
         </div>
 
         {/* Info */}
-        <div className="flex-grow ml-3 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="w-full flex flex-col items-center text-center">
+          <div className="flex flex-col items-center gap-1 mb-2">
             {currentUser.nationality &&
               renderCountryFlag(currentUser.nationality)}
-            <h3 className="text-gray-900 font-semibold text-sm truncate">
+            <h3 className="text-gray-900 font-semibold text-base leading-tight">
               {currentUser.name} {currentUser.lastname}
             </h3>
             {verificationStatus.isVerified && (
@@ -208,7 +208,7 @@ const UserCard: React.FC<UserCardProps> = ({
           </div>
 
           {/* Edad + Posiciones */}
-          <div className="flex items-center gap-2 text-xs mb-1">
+          <div className="flex justify-center items-center gap-2 text-xs text-gray-600 mb-2">
             {currentUser.age && (
               <>
                 <span className="text-gray-600 flex-shrink-0">
@@ -247,7 +247,7 @@ const UserCard: React.FC<UserCardProps> = ({
           </div>
 
           {/* Nivel/rol + Estado */}
-          <div className="flex items-center gap-2 text-xs">
+          <div className="flex justify-center items-center gap-2 text-xs">
             {isPlayer ? (
               <span
                 className={`text-white text-[10px] font-medium py-0.5 px-2 rounded-full ${

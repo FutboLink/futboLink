@@ -191,7 +191,7 @@ const OfferList: React.FC = () => {
 
       <p className="text-gray-500 text-sm">
 
-        Ofertas activas
+        Ofertas publicadas
 
       </p>
 

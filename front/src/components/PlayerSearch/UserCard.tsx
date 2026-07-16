@@ -182,7 +182,7 @@ const UserCard: React.FC<UserCardProps> = ({
       {/* Fila superior: foto + info + dropdown */}
       <div className="flex flex-col items-center text-center">
         {/* Foto */}
-        <div className="flex-shrink-0 relative mb-4">
+        <div className="flex-shrink-0 relative mb-2">
           <div className="w-24 h-24 rounded-full overflow-hidden mx-auto bg-gray-100 flex items-center justify-center">
   {currentUser.imgUrl ? (
     <Image
@@ -206,7 +206,8 @@ const UserCard: React.FC<UserCardProps> = ({
         {/* Info */}
           <div className="w-full flex flex-col items-center text-center">
           <div className="flex flex-col items-center mb-2">
-  <h3 className="text-gray-900 font-medium text-xl tracking-tight leading-tight">
+            
+  <h3 className="text-slate-900 font-semibold text-lg leading-tight">
     {currentUser.name} {currentUser.lastname}
   </h3>
 

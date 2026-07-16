@@ -288,7 +288,7 @@ const UserCard: React.FC<UserCardProps> = ({
         {/* Dropdown */}
          <div className="absolute top-4 right-4 z-10"> 
           <button
-            className="text-gray-400 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition"
+            className="flex items-center justify-center w-8 h-8 rounded-xl border border-transparent text-gray-400 hover:text-gray-700 hover:bg-gray-100 hover:border-gray-200 transition-all duration-200"
             type="button"
             onClick={(e) => {
               e.preventDefault();

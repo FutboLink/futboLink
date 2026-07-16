@@ -979,14 +979,14 @@ const PlayerSearch: React.FC = () => {
             <div className="flex justify-center gap-4">
               <button
                 type="submit"
-                className="bg-green-800 text-white border-none py-2 px-8 rounded font-medium hover:bg-green-700 transition-colors w-full md:w-auto"
+                className="inline-flex items-center justify-center rounded-xl bg-[#3e7b26] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#34671f] hover:shadow-md active:scale-[0.98] w-full md:w-auto"
               >
                 {t("search")}
               </button>
               <button
                 type="button"
                 onClick={clearFilters}
-                className="bg-gray-500 text-white border-none py-2 px-8 rounded font-medium hover:bg-gray-600 transition-colors w-full md:w-auto"
+                className="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 hover:border-gray-300 active:scale-[0.98] w-full md:w-auto"
               >
                 {t("clearFilters")}
               </button>

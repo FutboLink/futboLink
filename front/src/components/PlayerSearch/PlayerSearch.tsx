@@ -36,6 +36,7 @@ const PlayerSearch: React.FC = () => {
   const router = useRouter();
 
   // Referencia al timeout para búsqueda en tiempo real
+  const scrollPositionRef = useRef(0);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Función de traducción simple
@@ -673,6 +674,14 @@ const PlayerSearch: React.FC = () => {
       return () => {
         isMounted = false;
         abortController.abort();
+        if (page > 0) {
+  requestAnimationFrame(() => {
+    window.scrollTo({
+      top: scrollPositionRef.current,
+      behavior: "instant" as ScrollBehavior,
+    });
+  });
+}
       };
     }
   }, [page, user, token]);
@@ -765,9 +774,10 @@ const PlayerSearch: React.FC = () => {
   };
 
   // Función para cargar más jugadores
-  const loadMorePlayers = () => {
-    setPage((prevPage) => prevPage + 1);
-  };
+const loadMorePlayers = () => {
+  scrollPositionRef.current = window.scrollY;
+  setPage((prevPage) => prevPage + 1);
+};
 
   // Función para enviar solicitud de representación
   const handleAddToPortfolio = async (playerId: string) => {
@@ -1164,12 +1174,18 @@ const PlayerSearch: React.FC = () => {
               players.length < totalPlayers && (
                 <div className="flex justify-center mt-4 mb-6">
                   <button
-                    onClick={loadMorePlayers}
-                    className="bg-green-800 text-white border-none py-2 px-4 rounded transition-colors hover:bg-green-700"
-                    disabled={loading}
-                  >
-                    {loading ? t("loading") : t("loadMore")}
-                  </button>
+  onClick={loadMorePlayers}
+  disabled={loading}
+  className="group inline-flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-8 py-4 text-gray-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-[#3e7b26] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  <span className="text-xl transition-transform group-hover:translate-y-1">
+    ↓
+  </span>
+
+  <span className="font-medium">
+    {loading ? "Cargando perfiles..." : "Mostrar más perfiles"}
+  </span>
+</button>
                   {filters.subscriptionType && (
                     <p className="text-xs text-gray-500 ml-2 self-center">
                       Los nuevos resultados se filtrarán automáticamente

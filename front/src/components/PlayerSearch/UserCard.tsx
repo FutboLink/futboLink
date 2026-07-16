@@ -300,10 +300,10 @@ const UserCard: React.FC<UserCardProps> = ({
           </button>
 
           {showDropdown && (
-            <div className="absolute right-0 bottom-full mb-1 bg-white border border-gray-200 rounded-lg shadow-lg py-2 min-w-[180px] z-30">
+            <div className="absolute right-0 top-11 w-56 rounded-2xl border border-gray-100 bg-white p-2 shadow-xl z-30">
               <Link
                 href={`/user-viewer/${currentUser.id}`}
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
                 onClick={() => setShowDropdown(false)}
               >
                 <FaUserPlus className="inline mr-2" />
@@ -320,7 +320,7 @@ const UserCard: React.FC<UserCardProps> = ({
                     setShowDropdown(false);
                   }}
                   disabled={isBeingAddedToPortfolio}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
                 >
                   {isBeingAddedToPortfolio ? (
                     <>

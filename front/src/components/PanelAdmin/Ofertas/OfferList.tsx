@@ -147,9 +147,59 @@ const OfferList: React.FC = () => {
 
   return (
     <div className="min-h-[80vh] p-4 pt-[3.5rem] sm:p-5 sm:pt-[3.5rem] lg:p-10">
-      <h1 className="bg-gradient-to-r from-green-400 via-green-500 to-green-600 text-white text-[1.6rem] p-2 font-semibold text-center">
-        OFERTAS LABORALES
+<div className="max-w-[100rem] mx-auto mb-10">
+
+  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-50 border border-green-100">
+
+    <span className="w-2 h-2 rounded-full bg-[#1d5126]"></span>
+
+    <span className="text-sm font-medium text-[#1d5126]">
+      Oportunidades para profesionales del fútbol
+    </span>
+
+  </div>
+
+  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mt-6 gap-6">
+
+    <div>
+
+      <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900">
+
+        Encontrá tu próxima{" "}
+
+        <span className="text-[#1d5126]">
+          oportunidad
+        </span>
+
       </h1>
+
+      <p className="mt-3 text-gray-500 text-lg max-w-2xl">
+
+        Explorá ofertas de clubes, agencias y academias de todo el mundo.
+
+      </p>
+
+    </div>
+
+    <div className="bg-white border border-gray-100 rounded-2xl shadow-sm px-8 py-6 min-w-[180px]">
+
+      <p className="text-3xl font-bold text-[#1d5126]">
+
+        {sortedOffers.length}
+
+      </p>
+
+      <p className="text-gray-500 text-sm">
+
+        Ofertas activas
+
+      </p>
+
+    </div>
+
+  </div>
+
+</div>
 
       <div className="flex flex-col gap-4 justify-between w-full py-[1.2rem] max-w-[100rem] mx-auto md:flex-row">
         {/* Filtros */}

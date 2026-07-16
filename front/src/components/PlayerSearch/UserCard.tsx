@@ -178,7 +178,7 @@ const UserCard: React.FC<UserCardProps> = ({
       <div className="flex flex-col items-center text-center">
         {/* Foto */}
         <div className="flex-shrink-0 relative">
-          className="w-16 h-16 rounded-full overflow-hidden mx-auto bg-gray-100"
+          <div className="w-20 h-20 rounded-full border-4 border-white shadow-md overflow-hidden mx-auto">
             <Image
               src={currentUser.imgUrl || getDefaultPlayerImage()}
               alt={`${currentUser.name} ${currentUser.lastname}`}
@@ -324,7 +324,15 @@ const UserCard: React.FC<UserCardProps> = ({
           )}
         </div>
       </div>
-    
+
+      {/* Botón que ocupa toda la card */}
+      <Link
+        href={`/user-viewer/${currentUser.id}`}
+        className="mt-3 w-full border border-blue-600 text-blue-600 text-xs font-medium py-2 px-3 rounded-lg text-center hover:bg-blue-50 transition"
+      >
+        {t("viewProfile")}
+      </Link>
+
       {showDropdown && (
         <button
           type="button"

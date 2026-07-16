@@ -55,10 +55,27 @@ export class ApplicationService {
   ): Promise<number> {
     const from = this.promotableFrom(next);
     if (from.length === 0) return 0;
-    const result = await this.applicationRepository.update(
-      { id: String(applicationId), status: In(from) },
-      { status: next },
-    );
+    // Filas con `status IS NULL` = estado base (PENDING): las postulaciones viejas
+    // nacieron NULL (prod nunca aplicó el DEFAULT de la entity al schema) y en SQL
+    // `NULL IN (...)` NO matchea, así que se saltaban TODAS las promociones. Cuando el
+    // set promovible incluye PENDING (siempre, salvo next===PENDING que ya cortó arriba)
+    // tratamos NULL como PENDING → promueve solo hacia adelante, sin tocar la protección
+    // de no-retroceso de estados ya seteados (INTERESTED/legacy quedan fuera de `from`).
+    // Un único UPDATE condicional (atómico): el lock de fila garantiza que gane uno solo
+    // ante requests concurrentes (el resto ve affected === 0).
+    const includesBase = from.includes(ApplicationStatus.PENDING);
+    const result = await this.applicationRepository
+      .createQueryBuilder()
+      .update(Application)
+      .set({ status: next })
+      .where('id = :id', { id: String(applicationId) })
+      .andWhere(
+        includesBase
+          ? '(status IN (:...from) OR status IS NULL)'
+          : 'status IN (:...from)',
+        { from },
+      )
+      .execute();
     return result.affected ?? 0;
   }
 
@@ -144,7 +161,15 @@ export class ApplicationService {
     if (existingApplication) throw new ConflictException('Aplicación duplicada');
 
     // Create and save the application
-    const application = this.applicationRepository.create({ player, job, message });
+    // status explícito en PENDING: el DEFAULT de la entity solo vive en metadata
+    // TypeORM, nunca se aplicó al schema de prod → sin esto la fila nace NULL y la
+    // escalera de estados se la saltaba (NULL IN (...) no matchea).
+    const application = this.applicationRepository.create({
+      player,
+      job,
+      message,
+      status: ApplicationStatus.PENDING,
+    });
     const saved = await this.applicationRepository.save(application);
 
     // Confirmación al jugador de que su postulación se envió.
@@ -425,7 +450,8 @@ export class ApplicationService {
         message: playerMessage || `Aplicación enviada por mi representante: ${recruiter.name} ${recruiter.lastname}`,
         appliedByRecruiter: true,
         recruiter,
-        recruiterMessage
+        recruiterMessage,
+        status: ApplicationStatus.PENDING,
       });
       
       return await this.applicationRepository.save(application);
@@ -442,7 +468,8 @@ export class ApplicationService {
       const application = this.applicationRepository.create({
         player,
         job,
-        message
+        message,
+        status: ApplicationStatus.PENDING,
       });
       
       const savedApplication = await this.applicationRepository.save(application);

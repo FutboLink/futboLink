@@ -160,12 +160,12 @@ const UserCard: React.FC<UserCardProps> = ({
   return (
     <div
       key={currentUser.id}
-      className={`bg-white shadow-md hover:shadow-lg transition-all relative flex flex-col border border-gray-200 rounded-lg p-3 ${
+      className={`bg-white relative flex flex-col border border-gray-100 rounded-3xl p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${
         isSelected ? "ring-2 ring-green-500 border-green-500" : ""
       } ${isShortlisted ? "bg-green-50" : ""}`}
       style={{
         cursor: isSelectionMode ? "pointer" : "default",
-        minHeight: "120px",
+        minHeight: "250px",
       }}
       onClick={(e) => {
         if (isSelectionMode && onSelect) {
@@ -178,7 +178,7 @@ const UserCard: React.FC<UserCardProps> = ({
       <div className="flex items-start">
         {/* Foto */}
         <div className="flex-shrink-0 relative">
-          <div className="w-12 h-12 rounded-full border-2 border-green-500 overflow-hidden">
+          <div className="w-20 h-20 rounded-full border-4 border-white shadow-md overflow-hidden mx-auto">
             <Image
               src={currentUser.imgUrl || getDefaultPlayerImage()}
               alt={`${currentUser.name} ${currentUser.lastname}`}

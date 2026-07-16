@@ -472,7 +472,18 @@ const PlayerSearch: React.FC = () => {
         const nextBatch = allPlayersLoaded.slice(start, end);
 
         if (nextBatch.length > 0) {
-          setPlayers((prev) => [...prev, ...nextBatch]);
+          setPlayers((prev) => {
+  const updatedPlayers = [...prev, ...nextBatch];
+
+  requestAnimationFrame(() => {
+    window.scrollTo({
+      top: scrollPositionRef.current,
+      behavior: "auto",
+    });
+  });
+
+  return updatedPlayers;
+});
           return;
         }
       }
@@ -497,7 +508,18 @@ const PlayerSearch: React.FC = () => {
       const newUsers = response.data.users || [];
 
       // Añadir nuevos usuarios a la lista existente
-      setPlayers((prev) => [...prev, ...newUsers]);
+      setPlayers((prev) => {
+  const updatedPlayers = [...prev, ...newUsers];
+
+  requestAnimationFrame(() => {
+    window.scrollTo({
+      top: scrollPositionRef.current,
+      behavior: "auto",
+    });
+  });
+
+  return updatedPlayers;
+});
     } catch (error) {
       console.error("Error al cargar más perfiles:", error);
       throw error;
@@ -674,14 +696,6 @@ const PlayerSearch: React.FC = () => {
       return () => {
         isMounted = false;
         abortController.abort();
-        if (page > 0) {
-  requestAnimationFrame(() => {
-    window.scrollTo({
-      top: scrollPositionRef.current,
-      behavior: "instant" as ScrollBehavior,
-    });
-  });
-}
       };
     }
   }, [page, user, token]);

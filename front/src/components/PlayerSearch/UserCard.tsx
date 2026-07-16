@@ -196,16 +196,21 @@ const UserCard: React.FC<UserCardProps> = ({
 
         {/* Info */}
           <div className="w-full flex flex-col items-center text-center">
-          <div className="flex flex-col items-center gap-1 mb-2">
-            {currentUser.nationality &&
-              renderCountryFlag(currentUser.nationality)}
-            <h3 className="text-gray-900 font-semibold text-base leading-tight">
-              {currentUser.name} {currentUser.lastname}
-            </h3>
-            {verificationStatus.isVerified && (
-              <FaCheckCircle className="text-blue-500 text-sm flex-shrink-0" />
-            )}
-          </div>
+          <div className="flex flex-col items-center mb-2">
+  <h3 className="text-gray-900 font-semibold text-lg leading-tight">
+    {currentUser.name} {currentUser.lastname}
+  </h3>
+
+  {currentUser.nationality && (
+    <div className="mt-1">
+      {renderCountryFlag(currentUser.nationality)}
+    </div>
+  )}
+
+  {verificationStatus.isVerified && (
+    <FaCheckCircle className="text-blue-500 text-sm mt-1" />
+  )}
+</div>
 
           {/* Edad + Posiciones */}
           <div className="flex justify-center items-center gap-2 text-xs text-gray-600 mb-2">

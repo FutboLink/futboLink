@@ -9,6 +9,7 @@ import {
   FaEllipsisV,
   FaPaperPlane,
   FaSpinner,
+  FaUser,
   FaUserPlus,
 } from "react-icons/fa";
 import { getDefaultPlayerImage } from "@/helpers/imageUtils";
@@ -182,15 +183,19 @@ const UserCard: React.FC<UserCardProps> = ({
       <div className="flex flex-col items-center text-center">
         {/* Foto */}
         <div className="flex-shrink-0 relative">
-          <div className="w-20 h-20 rounded-full overflow-hidden mx-auto">
-            <Image
-              src={currentUser.imgUrl || getDefaultPlayerImage()}
-              alt={`${currentUser.name} ${currentUser.lastname}`}
-              width={80}
-              height={80}
-              className="object-cover w-full h-full"
-            />
-          </div>
+          <div className="w-24 h-24 rounded-full overflow-hidden mx-auto bg-gray-100 flex items-center justify-center">
+  {currentUser.imgUrl ? (
+    <Image
+      src={currentUser.imgUrl}
+      alt={`${currentUser.name} ${currentUser.lastname}`}
+      width={96}
+      height={96}
+      className="object-cover w-full h-full"
+    />
+  ) : (
+    <FaUser className="text-gray-300 text-4xl" />
+  )}
+</div>
           {verificationStatus.isVerified && (
             <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-0.5">
               <FaCheckCircle className="text-white text-xs" />

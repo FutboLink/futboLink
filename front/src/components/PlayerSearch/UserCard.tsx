@@ -276,9 +276,9 @@ const UserCard: React.FC<UserCardProps> = ({
         </div>
 
         {/* Dropdown */}
-        <div className="flex-shrink-0 ml-2 relative">
+         <div className="absolute top-4 right-4 z-10"> 
           <button
-            className="text-gray-400 hover:text-gray-600 p-1"
+            className="text-gray-400 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition"
             type="button"
             onClick={(e) => {
               e.preventDefault();

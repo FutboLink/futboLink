@@ -165,7 +165,7 @@ const UserCard: React.FC<UserCardProps> = ({
       } ${isShortlisted ? "bg-green-50" : ""}`}
       style={{
         cursor: isSelectionMode ? "pointer" : "default",
-        minHeight: "250px",
+        minHeight: "180px",
       }}
       onClick={(e) => {
         if (isSelectionMode && onSelect) {

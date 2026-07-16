@@ -855,46 +855,16 @@ const PlayerSearch: React.FC = () => {
   return (
   <div className="min-h-screen">
     <div className="p-6 md:p-8 max-w-7xl mx-auto">
-      <h1 className="mb-6 text-blue-900 text-center">{t("playerSearch")}</h1>
+<div className="mb-10">
+  <h1 className="text-4xl font-bold text-slate-900">
+    Mercado de profesionales.
+  </h1>
 
-      {/* Información sobre los tipos de usuario */}
-      <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
-        <p className="text-sm text-blue-800">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4 inline mr-1"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          Puedes buscar tanto <strong>jugadores</strong> como{" "}
-          <strong>reclutadores/agencias</strong>. Usa los filtros disponibles
-          para encontrar específicamente lo que buscas:
-        </p>
-        <ul className="text-xs text-blue-700 mt-2 ml-5 space-y-1">
-          <li>
-            • <strong>Tipo de usuario:</strong> Filtra entre jugadores y
-            agencias
-          </li>
-          <li>
-            • <strong>Tipo de suscripción:</strong> Encuentra jugadores
-            profesionales, semiprofesionales o amateur (detecta automáticamente
-            el tipo de suscripción)
-          </li>
-          <li>
-            • <strong>Posición:</strong> Busca jugadores por su posición en el
-            campo
-          </li>
-        </ul>
-      </div>
+  <p className="mt-3 max-w-3xl text-base text-slate-500">
+    Explorá jugadores, entrenadores, agencias y reclutadores utilizando filtros
+    avanzados para encontrar el perfil ideal.
+  </p>
+</div>
 
       {/* Formulario de búsqueda */}
       <div className="mb-8 bg-gray-50 rounded-lg p-4 shadow-sm">

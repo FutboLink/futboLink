@@ -879,7 +879,7 @@ const loadMorePlayers = () => {
   return (
   <div className="min-h-screen bg-white">
     <div className="px-6 py-10 md:px-8 md:py-12 max-w-[1440px] mx-auto">
-<div className="mb-10">
+<div className="mb-6">
   <h1 className="text-4xl font-bold text-slate-900">
     Mercado de profesionales.
   </h1>
@@ -891,8 +891,8 @@ const loadMorePlayers = () => {
 </div>
 
       {/* Formulario de búsqueda */}
-      <div className="mb-12 rounded-[32px] border border-gray-200 bg-white shadow-md overflow-hidden">
-        <div className="border-b border-gray-100 bg-gray-50 px-8 py-6">
+      <div className="mb-8 rounded-[32px] border border-gray-200 bg-white shadow-md overflow-hidden">
+        <div className="border-b border-gray-100 bg-gray-50 px-6 py-4">
   <h2 className="text-lg font-semibold text-slate-900">
     Buscar profesionales
   </h2>
@@ -903,14 +903,14 @@ const loadMorePlayers = () => {
 </div>
         <form
   onSubmit={handleSubmit}
-  className="p-8"
+  className="p-6"
 >
           <div className="flex flex-col gap-4">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
                 <label
                   htmlFor="searchQuery"
-                  className="block mb-2 font-medium text-gray-600"
+                  className="block mb-1 text-sm font-medium text-gray-600"
                 >
                   {t("nameOrLastname")}
                 </label>
@@ -926,7 +926,7 @@ const loadMorePlayers = () => {
               <div className="flex-1">
                 <label
                   htmlFor="positionFilter"
-                  className="block mb-2 font-medium text-gray-600"
+                  className="block mb-1 text-sm font-medium text-gray-600"
                 >
                   Filtrar por posición
                 </label>
@@ -936,7 +936,7 @@ const loadMorePlayers = () => {
                   value={filters.primaryPosition || ""}
                   onChange={handleFilterChange}
                   disabled={filters.role === "RECRUITER"}
-                  className={`w-full p-2 text-black border border-gray-200 rounded text-base ${
+                  className={`w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-900 ${
                     filters.role === "RECRUITER"
                       ? "opacity-50 cursor-not-allowed"
                       : ""
@@ -958,7 +958,7 @@ const loadMorePlayers = () => {
               <div className="flex-1">
                 <label
                   htmlFor="roleFilter"
-                  className="block mb-2 font-medium text-gray-600"
+                  className="block mb-1 text-sm font-medium text-gray-600"
                 >
                   Tipo de usuario
                 </label>
@@ -967,7 +967,7 @@ const loadMorePlayers = () => {
                   name="role"
                   value={filters.role || ""}
                   onChange={handleFilterChange}
-                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 focus:border-[#3e7b26] focus:ring-4 focus:ring-green-100 outline-none transition-all"
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-900 focus:border-[#3e7b26] focus:ring-4 focus:ring-green-100 outline-none transition-all"
                 >
                   <option value="">Todos los tipos</option>
                   <option value="PLAYER">Solo jugadores</option>
@@ -979,7 +979,7 @@ const loadMorePlayers = () => {
               <div className="flex-1">
                 <label
                   htmlFor="subscriptionFilter"
-                  className="block mb-2 font-medium text-gray-600"
+                  className="block mb-1 text-sm font-medium text-gray-600"
                 >
                   Tipo de suscripción
                 </label>
@@ -989,7 +989,7 @@ const loadMorePlayers = () => {
                   value={filters.subscriptionType || ""}
                   onChange={handleFilterChange}
                   disabled={filters.role === "RECRUITER"}
-                  className={`w-full p-2 text-black border border-gray-200 rounded text-base ${
+                  className={`w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-900 ${
                     filters.role === "RECRUITER"
                       ? "opacity-50 cursor-not-allowed"
                       : ""

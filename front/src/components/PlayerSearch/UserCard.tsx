@@ -309,8 +309,8 @@ const UserCard: React.FC<UserCardProps> = ({
     showDropdown ? "opacity-100" : "opacity-0 group-hover:opacity-100"
   }`}
 >
-            <button
-             className="flex items-center justify-center w-10 h-10 rounded-2xl border border-transparent text-gray-400 hover:text-gray-700 hover:bg-gray-50 hover:border-gray-200 transition-all duration-200">
+          <button
+            className="flex items-center justify-center w-8 h-8 rounded-xl border border-transparent text-gray-400 hover:text-gray-700 hover:bg-gray-50 hover:border-gray-200 transition-all duration-200"
             type="button"
             onClick={(e) => {
               e.preventDefault();
@@ -318,7 +318,7 @@ const UserCard: React.FC<UserCardProps> = ({
               setShowDropdown(!showDropdown);
             }}
           >
-            <FaEllipsisV className="text-base" />
+            <FaEllipsisV className="text-sm" />
           </button>
 
           {showDropdown && (

@@ -891,8 +891,20 @@ const loadMorePlayers = () => {
 </div>
 
       {/* Formulario de búsqueda */}
-      <div className="mb-10 rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">
-        <form onSubmit={handleSubmit}>
+      <div className="mb-12 rounded-[32px] border border-gray-200 bg-white shadow-md overflow-hidden">
+        <div className="border-b border-gray-100 bg-gray-50 px-8 py-6">
+  <h2 className="text-lg font-semibold text-slate-900">
+    Buscar profesionales
+  </h2>
+
+  <p className="mt-1 text-sm text-gray-500">
+    Utilizá los filtros para encontrar el perfil ideal.
+  </p>
+</div>
+        <form
+  onSubmit={handleSubmit}
+  className="p-8"
+>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
@@ -908,7 +920,7 @@ const loadMorePlayers = () => {
                   value={searchQuery}
                   onChange={handleSearchQueryChange}
                   placeholder={t("searchByName")}
-                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 placeholder:text-gray-400 focus:border-[#3e7b26] focus:ring-4 focus:ring-green-100 outline-none transition-all"
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-900 placeholder:text-gray-400 focus:border-[#3e7b26] focus:ring-4 focus:ring-green-100 outline-none transition-all"
                 />
               </div>
               <div className="flex-1">

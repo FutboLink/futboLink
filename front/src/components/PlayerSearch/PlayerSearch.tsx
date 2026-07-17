@@ -877,8 +877,8 @@ const loadMorePlayers = () => {
   };
 
   return (
-  <div className="min-h-screen">
-    <div className="p-6 md:p-8 max-w-7xl mx-auto">
+  <div className="min-h-screen bg-white">
+    <div className="px-6 py-10 md:px-8 md:py-12 max-w-[1440px] mx-auto">
 <div className="mb-10">
   <h1 className="text-4xl font-bold text-slate-900">
     Mercado de profesionales.

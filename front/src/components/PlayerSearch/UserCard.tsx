@@ -224,7 +224,7 @@ const UserCard: React.FC<UserCardProps> = ({
           <div className="w-full flex flex-col items-center text-center">
           <div className="flex flex-col items-center mb-2">
             
-  <h3 className="text-slate-900 font-semibold text-[1.15rem] leading-tight tracking-tight"
+  <h3 className="text-slate-900 font-semibold text-[1.15rem] leading-tight tracking-tight">
     {currentUser.name} {currentUser.lastname}
   </h3>
 

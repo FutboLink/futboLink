@@ -129,7 +129,7 @@ const CardOffer: React.FC<{
   <LuSend size={16} />
 
   <span>
-    {role === "RECRUITER"
+    {role === "RECRUITER" || role === "AGENCY"
       ? "Ofrecer Candidato"
       : "Aplicar ahora"}
   </span>

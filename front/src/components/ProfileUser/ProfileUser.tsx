@@ -132,6 +132,7 @@ const Profile = () => {
       {" "}
       {/* Reducir el margen superior */}
       <div className="max-w-7xl mx-auto px-4">
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-8 items-start">
         {" "}
         {/* Reducir el padding */}
         {userData && (

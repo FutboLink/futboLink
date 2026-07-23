@@ -537,6 +537,52 @@ export class EmailService {
     return this.sendHtmlEmail(to, `Tu página "${pageName}" fue rechazada — FutboLink`, html);
   }
 
+  /**
+   * Email de recordatorio de renovación (Fase 4 / Domain C). Se dispara desde
+   * `SubscriptionSchedulingService.handleRenewalReminders`, un único envío por
+   * usuario en la ventana exacta de 3 días antes del vencimiento.
+   */
+  async sendSubscriptionRenewalReminder(params: {
+    to: string;
+    name?: string;
+    plan: string;
+    expiresAt: Date;
+    renewUrl: string;
+  }): Promise<void> {
+    const { to, name, plan, expiresAt, renewUrl } = params;
+    const formattedDate = expiresAt.toLocaleDateString('es-ES', {
+      timeZone: 'UTC',
+    });
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 5px;">
+        <h2 style="color: #2c3e50; text-align: center;">Tu suscripción está por vencer</h2>
+        <div style="margin-top: 20px; line-height: 1.6; color: #34495e;">
+          <p>Hola ${name || ''},</p>
+          <p>Tu plan <strong>${plan}</strong> vence el <strong>${formattedDate}</strong>.</p>
+          <p>Para no perder el acceso a tus beneficios, renová tu suscripción antes de esa fecha.</p>
+        </div>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${renewUrl}"
+             style="display: inline-block; padding: 12px 20px; background-color: #27ae60; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Renovar suscripción
+          </a>
+        </div>
+        <div style="margin-top: 30px; text-align: center; color: #7f8c8d; border-top: 1px solid #ecf0f1; padding-top: 15px;">
+          <p>FutboLink - Conectando el mundo del fútbol</p>
+          <p>© ${new Date().getFullYear()} FutboLink. Todos los derechos reservados.</p>
+        </div>
+      </div>
+    `;
+
+    await this.sendWithResend({
+      to,
+      subject: `Tu plan ${plan} vence pronto — FutboLink`,
+      html,
+      from: this.getDefaultFrom('FutboLink'),
+    });
+  }
+
   async sendRepresentationRequestEmail(
     email: string,
     playerName: string,

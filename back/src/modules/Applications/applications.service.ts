@@ -10,6 +10,7 @@ import { StripeService } from '../../payments/services/stripe.service';
 import { UserService } from '../user/user.service';
 import { NotificationsService } from '../Notifications/notifications.service';
 import { NotificationType } from '../Notifications/entities/notification.entity';
+import { isSubscriptionActive } from '../user/subscription-status.util';
 
 @ApiTags('Applications')
 @Injectable()
@@ -124,14 +125,17 @@ export class ApplicationService {
     try {
       const subscriptionStatus = await this.userService.getUserSubscriptionByEmail(player.email);
       console.log(`Estado de suscripción desde UserService: ${JSON.stringify(subscriptionStatus)}`);
-      
-      // Verificar si el usuario tiene una suscripción Semiprofesional o Profesional
-      const validSubscriptionType = subscriptionStatus.subscriptionType === 'Semiprofesional' || 
-                                   subscriptionStatus.subscriptionType === 'Profesional';
-      
+
+      // D1: fuente única de verdad de "activo" — tier pago Y expiresAt futuro.
+      // Cierra la ventana <24h entre el vencimiento real y la corrida diaria del cron.
+      const canApply = isSubscriptionActive({
+        subscriptionType: subscriptionStatus.subscriptionType,
+        subscriptionExpiresAt: subscriptionStatus.expiresAt,
+      });
+
       // Verificar si el usuario puede aplicar
-      if (validSubscriptionType) {
-        console.log(`Usuario ${player.email} tiene suscripción ${subscriptionStatus.subscriptionType}. Permitiendo aplicar.`);
+      if (canApply) {
+        console.log(`Usuario ${player.email} tiene suscripción activa (${subscriptionStatus.subscriptionType}). Permitiendo aplicar.`);
       } else {
         console.log(`Suscripción tipo ${subscriptionStatus.subscriptionType || 'no definida'} para ${player.email}, no permitida para aplicar`);
         throw new ForbiddenException('Se requiere una suscripción activa Semiprofesional o Profesional para aplicar a trabajos. Por favor, suscríbete para continuar.');
@@ -428,10 +432,14 @@ export class ApplicationService {
     // Verificar la suscripción del jugador
     try {
       const subscriptionStatus = await this.userService.getUserSubscription(playerId);
-      const validSubscriptionType = subscriptionStatus.subscriptionType === 'Semiprofesional' || 
-                                   subscriptionStatus.subscriptionType === 'Profesional';
-      
-      if (!validSubscriptionType) {
+      // D1: misma fuente única de verdad que el gate de `apply()` — tier pago Y
+      // expiresAt futuro (cierra la ventana <24h entre vencimiento y corrida del cron).
+      const canApply = isSubscriptionActive({
+        subscriptionType: subscriptionStatus.subscriptionType,
+        subscriptionExpiresAt: subscriptionStatus.expiresAt,
+      });
+
+      if (!canApply) {
         throw new ForbiddenException('El jugador requiere una suscripción activa Semiprofesional o Profesional para aplicar a trabajos');
       }
     } catch (error) {

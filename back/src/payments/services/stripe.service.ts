@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { Payment, PaymentStatus, PaymentType, SubscriptionPlan } from '../entities/payment.entity';
 import { CreateOneTimePaymentDto, CreateSubscriptionDto } from '../dto';
 import { UserService } from '../../modules/user/user.service';
+import { resolvePlanByPriceId, QUARTERLY_PRICE_ENV } from '../config/subscription-plans.config';
 import * as https from 'https';
 
 @Injectable()
@@ -49,6 +50,28 @@ export class StripeService {
     });
     
     this.logger.log('Stripe service initialized with minimal configuration');
+  }
+
+  /**
+   * Config de priceIds trimestrales leída de env vars (D2). Si no están seteadas,
+   * resolvePlanByPriceId simplemente no las matchea (guard, no rompe mensual/anual).
+   */
+  private getQuarterlyPriceConfig(): { semipro?: string; pro?: string } {
+    return {
+      semipro: this.configService.get<string>(QUARTERLY_PRICE_ENV.semipro),
+      pro: this.configService.get<string>(QUARTERLY_PRICE_ENV.pro),
+    };
+  }
+
+  /**
+   * Resuelve un priceId de Stripe al SubscriptionPlan correspondiente, centralizando
+   * los 5 if/else que existían hardcodeados en este archivo (D2). Desconocido -> AMATEUR
+   * (comportamiento preservado).
+   */
+  private resolveSubscriptionTypeForPriceId(priceId: string | undefined): SubscriptionPlan {
+    return (
+      resolvePlanByPriceId(priceId, this.getQuarterlyPriceConfig())?.plan ?? SubscriptionPlan.AMATEUR
+    );
   }
 
   /**
@@ -138,17 +161,10 @@ export class StripeService {
         this.logger.log(`Usando producto específico: ${dto.productId}`);
       }
       
-      // Determine subscription type based on product and price IDs
-      let subscriptionType: SubscriptionPlan = SubscriptionPlan.AMATEUR;
-      
-      if (dto.priceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k' || 
-          dto.productId === 'prod_S1PExFzjXvaE7E') {
-        subscriptionType = SubscriptionPlan.SEMIPROFESIONAL;
-        this.logger.log('Creating Semiprofesional subscription');
-      } else if (dto.priceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo' || 
-                dto.productId === 'prod_S1PP1zfIAIwheC') {
-        subscriptionType = SubscriptionPlan.PROFESIONAL;
-        this.logger.log('Creating Profesional subscription');
+      // Determine subscription type based on the price ID (centralizado — D2)
+      const subscriptionType: SubscriptionPlan = this.resolveSubscriptionTypeForPriceId(dto.priceId);
+      if (subscriptionType !== SubscriptionPlan.AMATEUR) {
+        this.logger.log(`Creating ${subscriptionType} subscription`);
       }
       
       // Intentar obtener información del precio real desde Stripe
@@ -521,15 +537,9 @@ export class StripeService {
         const priceId = subscription.items.data[0].price.id;
         payment.stripePriceId = priceId;
         
-        // Set the subscription type based on price ID
-        if (priceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
-          payment.subscriptionType = SubscriptionPlan.SEMIPROFESIONAL;
-        } else if (priceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
-          payment.subscriptionType = SubscriptionPlan.PROFESIONAL;
-        } else {
-          payment.subscriptionType = SubscriptionPlan.AMATEUR;
-        }
-        
+        // Set the subscription type based on price ID (centralizado — D2)
+        payment.subscriptionType = this.resolveSubscriptionTypeForPriceId(priceId);
+
         this.logger.log(`Set subscription type to ${payment.subscriptionType} based on price ID ${priceId}`);
       }
 
@@ -570,16 +580,10 @@ export class StripeService {
         const priceId = subscription.items.data[0].price.id;
         payment.stripePriceId = priceId;
         
-        // If subscription type is not set, determine it based on price ID
+        // If subscription type is not set, determine it based on price ID (centralizado — D2)
         if (!payment.subscriptionType) {
-          if (priceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
-            payment.subscriptionType = SubscriptionPlan.SEMIPROFESIONAL;
-          } else if (priceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
-            payment.subscriptionType = SubscriptionPlan.PROFESIONAL;
-          } else {
-            payment.subscriptionType = SubscriptionPlan.AMATEUR;
-          }
-          
+          payment.subscriptionType = this.resolveSubscriptionTypeForPriceId(priceId);
+
           this.logger.log(`Set subscription type to ${payment.subscriptionType} based on price ID ${priceId}`);
         }
       }
@@ -742,15 +746,10 @@ export class StripeService {
         subscriptionType = payment.subscriptionType;
         this.logger.log(`Using explicit subscription type: ${subscriptionType}`);
       }
-      // Fallback to price ID mapping if subscriptionType is not set
+      // Fallback to price ID mapping if subscriptionType is not set (centralizado — D2)
       else if (payment.stripePriceId) {
-        // Map price IDs to subscription types
-        if (payment.stripePriceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
-          subscriptionType = 'Profesional';
-        } else if (payment.stripePriceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
-          subscriptionType = 'Semiprofesional';
-        }
-        
+        subscriptionType = this.resolveSubscriptionTypeForPriceId(payment.stripePriceId);
+
         this.logger.log(`Mapped price ID ${payment.stripePriceId} to subscription type: ${subscriptionType}`);
       }
       
@@ -979,14 +978,8 @@ export class StripeService {
               const priceId = subscription.items.data[0].price.id;
               payment.stripePriceId = priceId;
               
-              // Set the subscription type based on price ID
-              if (priceId === 'price_1R7MPlGbCHvHfqXFNjW8oj2k') {
-                payment.subscriptionType = SubscriptionPlan.SEMIPROFESIONAL;
-              } else if (priceId === 'price_1R7MaqGbCHvHfqXFimcCzvlo') {
-                payment.subscriptionType = SubscriptionPlan.PROFESIONAL;
-              } else {
-                payment.subscriptionType = SubscriptionPlan.AMATEUR;
-              }
+              // Set the subscription type based on price ID (centralizado — D2)
+              payment.subscriptionType = this.resolveSubscriptionTypeForPriceId(priceId);
             }
           } else if (subscription.status === 'past_due' || subscription.status === 'unpaid') {
             payment.status = PaymentStatus.PAYMENT_REQUIRED;

@@ -88,11 +88,19 @@ const UserCard: React.FC<UserCardProps> = ({ user, onDelete, onSubscriptionChang
         <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${
           subscriptionStatus === 'active'
             ? 'bg-green-100 text-green-700'
+            : subscriptionStatus === 'expiring'
+            ? 'bg-amber-100 text-amber-700'
             : subscriptionStatus === 'expired'
             ? 'bg-red-100 text-red-700'
             : 'bg-gray-100 text-gray-600'
         }`}>
-          {subscriptionStatus === 'active' ? 'Activa' : subscriptionStatus === 'expired' ? 'Vencida' : 'Amateur'}
+          {subscriptionStatus === 'active'
+            ? 'Activa'
+            : subscriptionStatus === 'expiring'
+            ? 'Por vencer'
+            : subscriptionStatus === 'expired'
+            ? 'Vencida'
+            : 'Amateur'}
         </span>
       </p>
 

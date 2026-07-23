@@ -11,7 +11,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository, EntityManager, In } from 'typeorm';
-import { isSubscriptionActive } from './subscription-status.util';
+import {
+  isSubscriptionActive,
+  buildSubscriptionStatusClause,
+  SubscriptionStatusFilter,
+} from './subscription-status.util';
 import { RegisterUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { join } from 'path';
@@ -24,7 +28,20 @@ import { EmailService } from '../Mailing/email.service';
 import { CreateRepresentationRequestDto, UpdateRepresentationRequestDto } from './dto/representation-request.dto';
 import { CreateVerificationRequestDto, UpdateVerificationRequestDto } from './dto/verification-request.dto';
 import { StripeService } from '../../payments/services/stripe.service';
+import { resolvePlanByPriceId, computeExpiryDate } from '../../payments/config/subscription-plans.config';
 import * as ExcelJS from 'exceljs';
+
+/**
+ * Traduce los valores del query param admin `subscriptionStatus` (Domain D,
+ * Fase 5) a los valores internos de `SubscriptionStatusFilter`. Valores
+ * desconocidos (incluido undefined/'') se ignoran sin lanzar error, para no
+ * romper el listado si el admin pasa un valor inválido.
+ */
+const SUBSCRIPTION_STATUS_QUERY_PARAM_MAP: Record<string, SubscriptionStatusFilter> = {
+  activo: 'active',
+  vencido: 'expired',
+  'por-vencer': 'expiring',
+};
 
 @Injectable()
 export class UserService {
@@ -438,6 +455,7 @@ export class UserService {
     emailFragment?: string,
     role?: string,
     nationality?: string,
+    subscriptionStatus?: string,
   ): Promise<{ data: User[]; total: number; page: number; limit: number; totalPages: number }> {
     const take = Math.min(limit, 500);
     const skip = (page - 1) * take;
@@ -470,6 +488,12 @@ export class UserService {
     const natTrim = nationality?.trim() ?? '';
     if (natTrim) {
       qb.andWhere('LOWER(user.nationality) LIKE LOWER(:nat)', { nat: `%${natTrim}%` });
+    }
+
+    const statusFilter = SUBSCRIPTION_STATUS_QUERY_PARAM_MAP[subscriptionStatus?.trim() ?? ''];
+    if (statusFilter) {
+      const { sql, params } = buildSubscriptionStatusClause(statusFilter);
+      qb.andWhere(sql, params);
     }
 
     qb.orderBy('user.createdAt', 'DESC').take(take).skip(skip);
@@ -527,6 +551,7 @@ export class UserService {
     emailFragment?: string,
     role?: string,
     nationality?: string,
+    subscriptionStatus?: string,
   ): Promise<Buffer> {
     const qb = this.userRepository
       .createQueryBuilder('user')
@@ -553,6 +578,12 @@ export class UserService {
     const natTrim = nationality?.trim() ?? '';
     if (natTrim) {
       qb.andWhere('LOWER(user.nationality) LIKE LOWER(:nat)', { nat: `%${natTrim}%` });
+    }
+
+    const statusFilter = SUBSCRIPTION_STATUS_QUERY_PARAM_MAP[subscriptionStatus?.trim() ?? ''];
+    if (statusFilter) {
+      const { sql, params } = buildSubscriptionStatusClause(statusFilter);
+      qb.andWhere(sql, params);
     }
 
     qb.orderBy('user.createdAt', 'DESC');
@@ -695,21 +726,24 @@ export class UserService {
    * @param subscriptionType Nuevo tipo de suscripción (Amateur, Semiprofesional, Profesional)
    * @returns Usuario actualizado
    */
-  async updateUserSubscription(userId: string, subscriptionType: string): Promise<User> {
+  async updateUserSubscription(
+    userId: string,
+    subscriptionType: string,
+    durationMonths: number = 1,
+  ): Promise<User> {
     const user = await this.findOne(userId);
-    
+
     if (!user) {
       throw new NotFoundException(`Usuario con ID ${userId} no encontrado`);
     }
-    
+
     // Actualizar el tipo de suscripción
     user.subscriptionType = subscriptionType;
-    
-    // Establecer la fecha de expiración (1 mes desde hoy)
-    const expirationDate = new Date();
-    expirationDate.setMonth(expirationDate.getMonth() + 1);
-    user.subscriptionExpiresAt = expirationDate;
-    
+
+    // Establecer la fecha de expiración según la duración del plan (D2 — ya no
+    // se trunca a 1 mes fijo). Default=1 preserva el comportamiento de PUT :id/subscription.
+    user.subscriptionExpiresAt = computeExpiryDate(new Date(), durationMonths);
+
     // Guardar los cambios
     const savedUser = await this.userRepository.save(user);
 
@@ -754,21 +788,24 @@ export class UserService {
    * @param subscriptionType Nuevo tipo de suscripción
    * @returns Usuario actualizado
    */
-  async updateUserSubscriptionByEmail(email: string, subscriptionType: string): Promise<User> {
+  async updateUserSubscriptionByEmail(
+    email: string,
+    subscriptionType: string,
+    durationMonths: number = 1,
+  ): Promise<User> {
     const user = await this.userRepository.findOne({ where: { email } });
-    
+
     if (!user) {
       throw new NotFoundException(`Usuario con email ${email} no encontrado`);
     }
-    
+
     // Actualizar el tipo de suscripción
     user.subscriptionType = subscriptionType;
-    
-    // Establecer la fecha de expiración (1 mes desde hoy)
-    const expirationDate = new Date();
-    expirationDate.setMonth(expirationDate.getMonth() + 1);
-    user.subscriptionExpiresAt = expirationDate;
-    
+
+    // Establecer la fecha de expiración según la duración del plan (D2 — ya no
+    // se trunca a 1 mes fijo). Default=1 preserva el comportamiento existente.
+    user.subscriptionExpiresAt = computeExpiryDate(new Date(), durationMonths);
+
     // Guardar los cambios
     const savedUser = await this.userRepository.save(user);
 
@@ -799,8 +836,13 @@ export class UserService {
     const email = payment.customerEmail;
     const plan = payment.subscriptionType ?? 'Semiprofesional';
 
+    // Deriva la duración del pago REAL (payment.stripePriceId), no de un dato del
+    // cliente. Trimestral fija +3, anual +12, mensual +1 — corrige el bug del
+    // +1 mes fijo (D2). priceId desconocido/ausente -> default seguro de 1 mes.
+    const durationMonths = resolvePlanByPriceId(payment.stripePriceId)?.durationMonths ?? 1;
+
     // 3. Update the user's subscription — does NOT touch isVerified (D1 rule)
-    return this.updateUserSubscriptionByEmail(email, plan);
+    return this.updateUserSubscriptionByEmail(email, plan, durationMonths);
   }
 
   /**

@@ -5,6 +5,8 @@ import { UserService } from './user.service';
 import { User } from './entities/user.entity';
 import { VerificationRequest } from './entities/verification-request.entity';
 import { EmailService } from '../Mailing/email.service';
+import { StripeService } from '../../payments/services/stripe.service';
+import { SubscriptionPlan } from '../../payments/entities/payment.entity';
 
 function makeUser(overrides: Partial<User> = {}): User {
   return {
@@ -594,6 +596,58 @@ describe('UserService - findAll role/nationality filtering', () => {
 });
 
 // ===========================================================================
+// Fase 5 (T5.1) — findAll subscriptionStatus filtering (Domain D)
+// ===========================================================================
+
+describe('UserService - findAll subscriptionStatus filtering (T5.1)', () => {
+  it('T5.1.a — no subscriptionStatus -> no extra andWhere call (comportamiento actual intacto)', async () => {
+    const qbStub = makeQueryBuilderStub([[], 0]);
+    const { service } = await buildServiceWithQb(qbStub);
+    await service.findAll(1, 300);
+    expect(qbStub.andWhere).not.toHaveBeenCalled();
+  });
+
+  it('T5.1.b — subscriptionStatus="activo" applies buildSubscriptionStatusClause("active")', async () => {
+    const qbStub = makeQueryBuilderStub([[], 0]);
+    const { service } = await buildServiceWithQb(qbStub);
+    await service.findAll(1, 300, undefined, undefined, undefined, 'activo');
+    expect(qbStub.andWhere).toHaveBeenCalledWith(
+      "user.subscriptionType != 'Amateur' AND user.subscriptionExpiresAt > :now",
+      expect.objectContaining({ now: expect.any(Date) }),
+    );
+  });
+
+  it('T5.1.c — subscriptionStatus="vencido" applies buildSubscriptionStatusClause("expired")', async () => {
+    const qbStub = makeQueryBuilderStub([[], 0]);
+    const { service } = await buildServiceWithQb(qbStub);
+    await service.findAll(1, 300, undefined, undefined, undefined, 'vencido');
+    expect(qbStub.andWhere).toHaveBeenCalledWith(
+      'user.subscriptionExpiresAt IS NOT NULL AND user.subscriptionExpiresAt <= :now',
+      expect.objectContaining({ now: expect.any(Date) }),
+    );
+  });
+
+  it('T5.1.d — subscriptionStatus="por-vencer" applies buildSubscriptionStatusClause("expiring") (rango completo de 3 dias, umbral inclusivo)', async () => {
+    const qbStub = makeQueryBuilderStub([[], 0]);
+    const { service } = await buildServiceWithQb(qbStub);
+    await service.findAll(1, 300, undefined, undefined, undefined, 'por-vencer');
+    expect(qbStub.andWhere).toHaveBeenCalledWith(
+      "user.subscriptionType != 'Amateur' AND user.subscriptionExpiresAt > :now AND user.subscriptionExpiresAt <= :nowPlus3d",
+      expect.objectContaining({ now: expect.any(Date), nowPlus3d: expect.any(Date) }),
+    );
+  });
+
+  it('T5.1.e — unknown subscriptionStatus value is ignored (no extra andWhere, no throw)', async () => {
+    const qbStub = makeQueryBuilderStub([[], 0]);
+    const { service } = await buildServiceWithQb(qbStub);
+    await expect(
+      service.findAll(1, 300, undefined, undefined, undefined, 'bogus'),
+    ).resolves.toBeDefined();
+    expect(qbStub.andWhere).not.toHaveBeenCalled();
+  });
+});
+
+// ===========================================================================
 // admin-user-filters-stats — Phase 2: getUserStats (RED)
 // ===========================================================================
 
@@ -761,5 +815,166 @@ describe('No-regresión A.4 y D.2 (Fase 1, Task 1.3)', () => {
       expect(Buffer.isBuffer(buffer)).toBe(true);
       expect(buffer.length).toBeGreaterThan(0);
     });
+
+    // Fase 5 (T5.2) — mismo filtro subscriptionStatus aplicado al query de export
+    it('T5.2 — subscriptionStatus="vencido" applies buildSubscriptionStatusClause("expired") to the export query', async () => {
+      const qbStub = makeQueryBuilderStub([[], 0]);
+      const { service } = await buildServiceWithQb(qbStub);
+
+      await service.exportUsersToExcel(undefined, undefined, undefined, 'vencido');
+
+      expect(qbStub.andWhere).toHaveBeenCalledWith(
+        'user.subscriptionExpiresAt IS NOT NULL AND user.subscriptionExpiresAt <= :now',
+        expect.objectContaining({ now: expect.any(Date) }),
+      );
+    });
+
+    it('T5.2.b — no subscriptionStatus -> export andWhere calls unchanged (no-regresion)', async () => {
+      const qbStub = makeQueryBuilderStub([[], 0]);
+      const { service } = await buildServiceWithQb(qbStub);
+
+      await service.exportUsersToExcel('john', 'PLAYER', 'argentina');
+
+      expect(qbStub.andWhere).toHaveBeenCalledTimes(3);
+    });
+  });
+});
+
+// ===========================================================================
+// Fase 1, T1.4 — durationMonths (fin del +1 mes fijo hardcodeado)
+// ===========================================================================
+
+function monthsAfter(base: Date, months: number): Date {
+  const d = new Date(base);
+  d.setMonth(d.getMonth() + months);
+  return d;
+}
+
+describe('updateUserSubscription / updateUserSubscriptionByEmail — durationMonths (T1.4)', () => {
+  it('T1.4.a: sin durationMonths (default=1) preserva el comportamiento actual de +1 mes', async () => {
+    const { service, userRepo } = await buildServiceWithSave();
+    const before = new Date();
+    const user = makeUser({ subscriptionType: 'Amateur' });
+    userRepo.findOne.mockResolvedValue(user);
+
+    const result = await service.updateUserSubscription(user.id, 'Semiprofesional');
+
+    const expected = monthsAfter(before, 1);
+    const diffMs = Math.abs((result.subscriptionExpiresAt as Date).getTime() - expected.getTime());
+    expect(diffMs).toBeLessThan(5000);
+  });
+
+  it('T1.4.b: durationMonths=3 (trimestral) fija subscriptionExpiresAt a +3 meses', async () => {
+    const { service, userRepo } = await buildServiceWithSave();
+    const before = new Date();
+    const user = makeUser({ subscriptionType: 'Amateur' });
+    userRepo.findOne.mockResolvedValue(user);
+
+    const result = await service.updateUserSubscription(user.id, 'Semiprofesional', 3);
+
+    const expected = monthsAfter(before, 3);
+    const diffMs = Math.abs((result.subscriptionExpiresAt as Date).getTime() - expected.getTime());
+    expect(diffMs).toBeLessThan(5000);
+  });
+
+  it('T1.4.c: updateUserSubscriptionByEmail con durationMonths=12 (anual) fija +12 meses — ya no se trunca a 1 mes', async () => {
+    const { service, userRepo } = await buildServiceWithSave();
+    const before = new Date();
+    const user = makeUser({ subscriptionType: 'Amateur', email: 'anual@example.com' });
+    userRepo.findOne.mockResolvedValue(user);
+
+    const result = await service.updateUserSubscriptionByEmail(user.email, 'Profesional', 12);
+
+    const expected = monthsAfter(before, 12);
+    const diffMs = Math.abs((result.subscriptionExpiresAt as Date).getTime() - expected.getTime());
+    expect(diffMs).toBeLessThan(5000);
+  });
+});
+
+// ===========================================================================
+// Fase 1, T1.5 — activateSubscription deriva la duración del Payment real
+// ===========================================================================
+
+const PRICE_PRO_YEARLY = 'price_1R7MbgGbCHvHfqXFYECGw8S9';
+const PRICE_SEMIPRO_MONTHLY = 'price_1R7MPlGbCHvHfqXFNjW8oj2k';
+
+async function buildServiceWithStripe(payment: Record<string, any>) {
+  const userRepo = {
+    ...makeUserRepoMock(),
+    findOne: jest.fn(),
+    save: jest.fn().mockImplementation(async (u: User) => u),
+  };
+  const verificationRepo = { findOne: jest.fn() };
+  const entityManager = { query: jest.fn().mockResolvedValue([]) } as unknown as EntityManager;
+  const emailService = { sendMail: jest.fn() } as unknown as EmailService;
+  const stripeService = {
+    validatePaidSession: jest.fn().mockResolvedValue({ paid: true, customerEmail: payment.customerEmail }),
+    getPaymentBySessionId: jest.fn().mockResolvedValue(payment),
+  };
+
+  const module: TestingModule = await Test.createTestingModule({
+    providers: [
+      UserService,
+      { provide: getRepositoryToken(User), useValue: userRepo },
+      { provide: getRepositoryToken(VerificationRequest), useValue: verificationRepo },
+      { provide: EntityManager, useValue: entityManager },
+      { provide: EmailService, useValue: emailService },
+      { provide: StripeService, useValue: stripeService },
+    ],
+  }).compile();
+
+  const service = module.get<UserService>(UserService);
+  return { service, userRepo, stripeService };
+}
+
+describe('activateSubscription — deriva durationMonths del Payment real (T1.5)', () => {
+  it('T1.5.a: priceId anual (Profesional) fija +12 meses, no +1 (bug de regresión conocido)', async () => {
+    const before = new Date();
+    const { service, userRepo } = await buildServiceWithStripe({
+      customerEmail: 'anual@example.com',
+      subscriptionType: SubscriptionPlan.PROFESIONAL,
+      stripePriceId: PRICE_PRO_YEARLY,
+    });
+    userRepo.findOne.mockResolvedValue(makeUser({ email: 'anual@example.com', subscriptionType: 'Amateur' }));
+
+    const result = await service.activateSubscription('cs_test_1');
+
+    expect(result.subscriptionType).toBe(SubscriptionPlan.PROFESIONAL);
+    const expected = monthsAfter(before, 12);
+    const diffMs = Math.abs((result.subscriptionExpiresAt as Date).getTime() - expected.getTime());
+    expect(diffMs).toBeLessThan(5000);
+  });
+
+  it('T1.5.b: priceId mensual (Semiprofesional) fija +1 mes (comportamiento preservado)', async () => {
+    const before = new Date();
+    const { service, userRepo } = await buildServiceWithStripe({
+      customerEmail: 'mensual@example.com',
+      subscriptionType: SubscriptionPlan.SEMIPROFESIONAL,
+      stripePriceId: PRICE_SEMIPRO_MONTHLY,
+    });
+    userRepo.findOne.mockResolvedValue(makeUser({ email: 'mensual@example.com', subscriptionType: 'Amateur' }));
+
+    const result = await service.activateSubscription('cs_test_2');
+
+    expect(result.subscriptionType).toBe(SubscriptionPlan.SEMIPROFESIONAL);
+    const expected = monthsAfter(before, 1);
+    const diffMs = Math.abs((result.subscriptionExpiresAt as Date).getTime() - expected.getTime());
+    expect(diffMs).toBeLessThan(5000);
+  });
+
+  it('T1.5.c: sin stripePriceId en el Payment, cae al default de 1 mes (safe fallback)', async () => {
+    const before = new Date();
+    const { service, userRepo } = await buildServiceWithStripe({
+      customerEmail: 'sinprice@example.com',
+      subscriptionType: SubscriptionPlan.SEMIPROFESIONAL,
+      stripePriceId: undefined,
+    });
+    userRepo.findOne.mockResolvedValue(makeUser({ email: 'sinprice@example.com', subscriptionType: 'Amateur' }));
+
+    const result = await service.activateSubscription('cs_test_3');
+
+    const expected = monthsAfter(before, 1);
+    const diffMs = Math.abs((result.subscriptionExpiresAt as Date).getTime() - expected.getTime());
+    expect(diffMs).toBeLessThan(5000);
   });
 });

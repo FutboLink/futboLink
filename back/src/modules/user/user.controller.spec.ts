@@ -63,7 +63,7 @@ describe('UserController — findAll', () => {
     const controller = module.get<UserController>(UserController);
     const mockUserService = module.get<UserService>(UserService) as any;
     await controller.findAll('1', '20', 'alice');
-    expect(mockUserService.findAll).toHaveBeenCalledWith(1, 20, 'alice', undefined, undefined);
+    expect(mockUserService.findAll).toHaveBeenCalledWith(1, 20, 'alice', undefined, undefined, undefined);
   });
 
   it('calls userService.findAll without email when param is omitted', async () => {
@@ -74,7 +74,7 @@ describe('UserController — findAll', () => {
     const controller = module.get<UserController>(UserController);
     const mockUserService = module.get<UserService>(UserService) as any;
     await controller.findAll('1', '20', undefined);
-    expect(mockUserService.findAll).toHaveBeenCalledWith(1, 20, undefined, undefined, undefined);
+    expect(mockUserService.findAll).toHaveBeenCalledWith(1, 20, undefined, undefined, undefined, undefined);
   });
 
   // T3.1 — GET /user?role=PLAYER forwards role to userService.findAll
@@ -86,7 +86,19 @@ describe('UserController — findAll', () => {
     const controller = module.get<UserController>(UserController);
     const mockUserService = module.get<UserService>(UserService) as any;
     await controller.findAll('1', '20', undefined, 'PLAYER', undefined);
-    expect(mockUserService.findAll).toHaveBeenCalledWith(1, 20, undefined, 'PLAYER', undefined);
+    expect(mockUserService.findAll).toHaveBeenCalledWith(1, 20, undefined, 'PLAYER', undefined, undefined);
+  });
+
+  // Fase 5 (T5.3) — GET /user?subscriptionStatus=vencido forwards to userService.findAll
+  it('T5.3.a — forwards subscriptionStatus query param to userService.findAll', async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [UserController],
+      providers: [{ provide: UserService, useValue: makeUserService() }],
+    }).compile();
+    const controller = module.get<UserController>(UserController);
+    const mockUserService = module.get<UserService>(UserService) as any;
+    await controller.findAll('1', '20', undefined, undefined, undefined, 'vencido');
+    expect(mockUserService.findAll).toHaveBeenCalledWith(1, 20, undefined, undefined, undefined, 'vencido');
   });
 });
 
@@ -336,7 +348,23 @@ describe('UserController — GET /user/export (admin guard)', () => {
 
     expect(res.headers['content-type']).toMatch(/spreadsheetml/);
     expect(res.headers['content-disposition']).toMatch(/attachment/);
-    expect(mockUserService.exportUsersToExcel).toHaveBeenCalledWith('john', 'PLAYER', 'argentina');
+    expect(mockUserService.exportUsersToExcel).toHaveBeenCalledWith('john', 'PLAYER', 'argentina', undefined);
+  });
+
+  // Fase 5 (T5.3.b) — GET /user/export?subscriptionStatus=por-vencer forwards to exportUsersToExcel
+  it('T5.3.b — admin export forwards subscriptionStatus to userService.exportUsersToExcel', async () => {
+    const token = makeToken({ id: 'admin-1', role: 'ADMIN' });
+    await supertest(app.getHttpServer())
+      .get('/user/export?subscriptionStatus=por-vencer')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(mockUserService.exportUsersToExcel).toHaveBeenCalledWith(
+      undefined,
+      undefined,
+      undefined,
+      'por-vencer',
+    );
   });
 });
 

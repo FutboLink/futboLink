@@ -4,6 +4,14 @@ interface SubscriptionFeature {
   highlight?: boolean;
 }
 
+/**
+ * PLACEHOLDER — precio del plan Trimestral aún NO definido (decisión de negocio pendiente).
+ * Se deja como constante única y fácil de encontrar/editar cuando el precio real se cierre.
+ * NO representa un precio real, no debe usarse para cobrar (el priceId de Stripe trimestral
+ * tampoco existe todavía — ver `priceId.quarterly: null` en los planes de abajo).
+ */
+export const QUARTERLY_PRICE_PLACEHOLDER = "A confirmar";
+
 export function Subscription() {
   return [
     {
@@ -24,7 +32,7 @@ export function Subscription() {
       textColor: "text-gray-800",
       borderColor: "border-gray-300",
       buttonColor: "bg-verde-oscuro",
-      priceId: { monthly: null, yearly: null }, 
+      priceId: { monthly: null, yearly: null, quarterly: null },
     },
     {
       title: "Semiprofesional",
@@ -39,7 +47,8 @@ features: [
 ],
       monthlyPrice: "€3,95",
       yearlyPrice: "€37,95 Anual (-20%)",
-      buttonLabel: "Contratar", 
+      quarterlyPrice: `${QUARTERLY_PRICE_PLACEHOLDER} Trimestral`,
+      buttonLabel: "Contratar",
       bgColor: "bg-white",
       textColor: "text-gray-800",
       borderColor: "border-verde-claro",
@@ -47,6 +56,10 @@ features: [
       priceId: {
         monthly: "price_1R7MPlGbCHvHfqXFNjW8oj2k",
         yearly: "price_1R7MPlGbCHvHfqXFapD8MeOw",
+        // Trimestral: priceId real pendiente de creación en Stripe (decisión de negocio abierta).
+        // null intencional — mismo criterio que el backend (resolvePlanByPriceId): sin priceId
+        // configurado, el plan trimestral queda inactivo sin romper mensual/anual.
+        quarterly: null,
       },
       productId: "prod_S1PExFzjXvaE7E",
     },
@@ -63,6 +76,7 @@ features: [
 ],
       monthlyPrice: "€7,95",
       yearlyPrice: "€75,95 Anual (-20%)",
+      quarterlyPrice: `${QUARTERLY_PRICE_PLACEHOLDER} Trimestral`,
       buttonLabel: "Contratar",
       bgColor: "bg-gradient-to-b from-[#255b2d] to-[#1d5126]",
       textColor: "text-white",
@@ -70,7 +84,9 @@ features: [
       buttonColor: "bg-white text-verde-oscuro hover:bg-gray-100",
       priceId: {
         monthly: "price_1R7MaqGbCHvHfqXFimcCzvlo",
-        yearly: "price_1R7MbgGbCHvHfqXFYECGw8S9" 
+        yearly: "price_1R7MbgGbCHvHfqXFYECGw8S9",
+        // Trimestral: priceId real pendiente de creación en Stripe (decisión de negocio abierta).
+        quarterly: null,
       },
       productId: "prod_S1PP1zfIAIwheC",
       recommended: true,
@@ -86,11 +102,12 @@ features: [
 export function getSubscriptionName(priceId: string): string {
   const subscriptions = Subscription();
   
-  // Check if the price ID matches any subscription
+  // Check if the price ID matches any subscription (incluye trimestral cuando se configure)
   for (const subscription of subscriptions) {
     if (
-      (subscription.priceId.monthly === priceId) || 
-      (subscription.priceId.yearly === priceId)
+      (subscription.priceId.monthly === priceId) ||
+      (subscription.priceId.yearly === priceId) ||
+      (subscription.priceId.quarterly === priceId)
     ) {
       return subscription.title;
     }

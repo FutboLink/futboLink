@@ -22,10 +22,11 @@ export interface UserStats {
 }
 
 // T6.2 — Función para obtener los usuarios (paginado), extendida con role y nationality
+// Fase 5 (T5.4) — extendida con subscriptionStatus (activo|vencido|por-vencer)
 export const getUsers = async (
   page: number = 1,
   limit: number = 300,
-  opts?: { email?: string; role?: string; nationality?: string },
+  opts?: { email?: string; role?: string; nationality?: string; subscriptionStatus?: string },
 ): Promise<PaginatedUsersResponse> => {
     try {
       let url = `${apiUrl}/user?page=${page}&limit=${limit}`;
@@ -37,6 +38,9 @@ export const getUsers = async (
       }
       if (opts?.nationality?.trim()) {
         url += `&nationality=${encodeURIComponent(opts.nationality)}`;
+      }
+      if (opts?.subscriptionStatus?.trim()) {
+        url += `&subscriptionStatus=${encodeURIComponent(opts.subscriptionStatus)}`;
       }
       const response = await fetch(url);
       if (!response.ok) {
@@ -60,15 +64,17 @@ export const getUserStats = async (token: string): Promise<UserStats> => {
 };
 
 // Exportar a Excel los usuarios que matchean los filtros activos (admin only)
+// Fase 5 (T5.4) — extendida con subscriptionStatus (activo|vencido|por-vencer)
 export const exportUsersToExcel = async (
   token: string,
-  opts?: { email?: string; role?: string; nationality?: string },
+  opts?: { email?: string; role?: string; nationality?: string; subscriptionStatus?: string },
 ): Promise<void> => {
   let url = `${apiUrl}/user/export?`;
   const params = new URLSearchParams();
   if (opts?.email?.trim()) params.set('email', opts.email);
   if (opts?.role?.trim()) params.set('role', opts.role);
   if (opts?.nationality?.trim()) params.set('nationality', opts.nationality);
+  if (opts?.subscriptionStatus?.trim()) params.set('subscriptionStatus', opts.subscriptionStatus);
   url += params.toString();
 
   const res = await fetch(url, {

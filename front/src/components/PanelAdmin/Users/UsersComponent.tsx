@@ -23,6 +23,8 @@ const UsersComponentWithContext = () => {
   const [emailFilter, setEmailFilter] = useState("");
   // T7.1 — separate nationality filter state
   const [nationalityFilter, setNationalityFilter] = useState("");
+  // Fase 5 (T5.4) — filtro por estado de suscripcion (activo|vencido|por-vencer)
+  const [subscriptionStatusFilter, setSubscriptionStatusFilter] = useState("");
 
   // T7.1 — server-fetched stats state
   const [stats, setStats] = useState<UserStats | null>(null);
@@ -41,9 +43,10 @@ const UsersComponentWithContext = () => {
   const [isPageLoading, setIsPageLoading] = useState(false);
 
   // T7.4 — fetchUsersPage forwards role, nationality, email opts
+  // Fase 5 (T5.4) — + subscriptionStatus
   const fetchUsersPage = useCallback(async (
     page: number,
-    opts?: { email?: string; role?: string; nationality?: string },
+    opts?: { email?: string; role?: string; nationality?: string; subscriptionStatus?: string },
   ) => {
       try {
       setIsPageLoading(true);
@@ -64,17 +67,18 @@ const UsersComponentWithContext = () => {
     fetchUsersPage(1);
   }, [fetchUsersPage]);
 
-  // T7.4 — debounced effect for all three filters
+  // T7.4 — debounced effect for all filters (Fase 5, T5.4: + subscriptionStatus)
   useEffect(() => {
     const id = setTimeout(() => {
       fetchUsersPage(1, {
         email: emailFilter || undefined,
         role: roleFilter || undefined,
         nationality: nationalityFilter || undefined,
+        subscriptionStatus: subscriptionStatusFilter || undefined,
       });
     }, 300);
     return () => clearTimeout(id);
-  }, [emailFilter, roleFilter, nationalityFilter, fetchUsersPage]);
+  }, [emailFilter, roleFilter, nationalityFilter, subscriptionStatusFilter, fetchUsersPage]);
 
   // T7.5 — mount-only stats fetch
   useEffect(() => {
@@ -84,7 +88,7 @@ const UsersComponentWithContext = () => {
       .catch(() => setStatsError(true));
   }, [token]);
 
-  // T7.4 — handlePageChange passes current filters
+  // T7.4 — handlePageChange passes current filters (Fase 5, T5.4: + subscriptionStatus)
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages || page === currentPage) return;
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -92,6 +96,7 @@ const UsersComponentWithContext = () => {
       email: emailFilter || undefined,
       role: roleFilter || undefined,
       nationality: nationalityFilter || undefined,
+      subscriptionStatus: subscriptionStatusFilter || undefined,
     });
   };
 
@@ -103,6 +108,7 @@ const UsersComponentWithContext = () => {
         email: emailFilter || undefined,
         role: roleFilter || undefined,
         nationality: nationalityFilter || undefined,
+        subscriptionStatus: subscriptionStatusFilter || undefined,
       });
     } catch (error) {
       console.error("Failed to export users:", error);
@@ -286,6 +292,21 @@ const UsersComponentWithContext = () => {
             value={nationalityFilter}
             onChange={(e) => setNationalityFilter(e.target.value)}
           />
+        </div>
+
+        {/* Fase 5 (T5.4) — Filtro por estado de suscripción */}
+        <div>
+          <label className="mr-2 font-bold text-gray-600">Suscripción:</label>
+          <select
+            className="border rounded p-2 text-gray-600 hover:cursor-pointer"
+            value={subscriptionStatusFilter}
+            onChange={(e) => setSubscriptionStatusFilter(e.target.value)}
+          >
+            <option value="">Todos</option>
+            <option value="activo">Activo</option>
+            <option value="vencido">Vencido</option>
+            <option value="por-vencer">Por vencer</option>
+          </select>
         </div>
 
         <div>

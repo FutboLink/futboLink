@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import typeormConfig from './modules/config/typeorm.config';
 import { UserModule } from './modules/user/user.module';
@@ -17,6 +18,7 @@ import { ContactModule } from './modules/Contact/contact.module';
 import { NotificationsModule } from './modules/Notifications/notifications.module';
 import { UploadModule } from './modules/Upload/upload.module';
 import { OrganizationPagesModule } from './modules/OrganizationPages/organization-pages.module';
+import { SubscriptionSchedulingModule } from './modules/subscription-scheduling/subscription-scheduling.module';
 
 @Module({
   imports: [
@@ -28,6 +30,7 @@ import { OrganizationPagesModule } from './modules/OrganizationPages/organizatio
       inject: [ConfigService],
       useFactory: (config: ConfigService) => config.get('typeorm'),
     }),
+    ScheduleModule.forRoot(),
     UserModule,
     AuthModule,
     JobsModule,
@@ -41,6 +44,7 @@ import { OrganizationPagesModule } from './modules/OrganizationPages/organizatio
     NotificationsModule,
     UploadModule,
     OrganizationPagesModule,
+    SubscriptionSchedulingModule,
   ],
   
   controllers: [AppController],

@@ -685,29 +685,34 @@ describe('UserService - getUserStats', () => {
   const byRoleRows = [{ role: 'PLAYER', count: '120' }, { role: 'AGENCY', count: '30' }];
   const byNatRows = [{ nationality: 'argentina', count: '45' }, { nationality: 'brasil', count: '20' }];
   const byPosRows = [{ position: 'delantero', count: '22' }];
+  const activeSubRows = [{ count: '87' }];
 
-  it('T2.1 — calls entityManager.query exactly 3 times with GROUP BY patterns', async () => {
+  it('T2.1 — calls entityManager.query exactly 4 times with GROUP BY / active-subscription patterns', async () => {
     const { service, entityManager } = await buildServiceWithEntityManagerMock([
       byRoleRows,
       byNatRows,
       byPosRows,
+      activeSubRows,
     ]);
     await service.getUserStats();
 
-    expect((entityManager.query as jest.Mock)).toHaveBeenCalledTimes(3);
+    expect((entityManager.query as jest.Mock)).toHaveBeenCalledTimes(4);
     const calls: string[] = (entityManager.query as jest.Mock).mock.calls.map((c: any[]) => c[0] as string);
     expect(calls[0]).toMatch(/GROUP BY role/i);
     expect(calls[1]).toMatch(/GROUP BY LOWER\(nationality\)/i);
     expect(calls[1]).toMatch(/LIMIT 10/i);
     expect(calls[2]).toMatch(/role\s*=\s*'PLAYER'/i);
     expect(calls[2]).toMatch(/GROUP BY LOWER\("primaryPosition"\)/i);
+    expect(calls[3]).toMatch(/"subscriptionType"\s*!=\s*'Amateur'/i);
+    expect(calls[3]).toMatch(/"subscriptionExpiresAt"\s*>\s*NOW\(\)/i);
   });
 
-  it('T2.2 — returned shape has byRole, byNationality, byPosition; counts are JS numbers', async () => {
+  it('T2.2 — returned shape has byRole, byNationality, byPosition, activeSubscriptions; counts are JS numbers', async () => {
     const { service } = await buildServiceWithEntityManagerMock([
       byRoleRows,
       byNatRows,
       byPosRows,
+      activeSubRows,
     ]);
     const result = await service.getUserStats();
 
@@ -719,6 +724,8 @@ describe('UserService - getUserStats', () => {
     expect(typeof result.byNationality[0].count).toBe('number');
     expect(result.byPosition[0].position).toBe('delantero');
     expect(result.byPosition[0].count).toBe(22);
+    expect(typeof result.activeSubscriptions).toBe('number');
+    expect(result.activeSubscriptions).toBe(87);
   });
 });
 

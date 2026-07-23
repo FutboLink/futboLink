@@ -513,6 +513,7 @@ export class UserService {
     byRole: { role: string; count: number }[];
     byNationality: { nationality: string; count: number }[];
     byPosition: { position: string; count: number }[];
+    activeSubscriptions: number;
   }> {
     const byRoleRaw = await this.entityManager.query(
       `SELECT role, COUNT(*)::int AS count FROM users GROUP BY role ORDER BY count DESC`,
@@ -532,6 +533,12 @@ export class UserService {
        GROUP BY LOWER("primaryPosition")
        ORDER BY count DESC`,
     );
+    // Fase 5+ — mismo criterio que isSubscriptionActive() / buildSubscriptionStatusClause('active')
+    const activeSubscriptionsRaw = await this.entityManager.query(
+      `SELECT COUNT(*)::int AS count
+       FROM users
+       WHERE "subscriptionType" != 'Amateur' AND "subscriptionExpiresAt" > NOW()`,
+    );
     return {
       byRole: byRoleRaw.map((r: any) => ({ role: r.role, count: Number(r.count) })),
       byNationality: byNationalityRaw.map((r: any) => ({
@@ -539,6 +546,7 @@ export class UserService {
         count: Number(r.count),
       })),
       byPosition: byPositionRaw.map((r: any) => ({ position: r.position, count: Number(r.count) })),
+      activeSubscriptions: Number(activeSubscriptionsRaw[0]?.count ?? 0),
     };
   }
 

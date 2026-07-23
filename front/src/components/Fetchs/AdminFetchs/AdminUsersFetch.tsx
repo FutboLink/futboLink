@@ -19,6 +19,7 @@ export interface UserStats {
   byRole: { role: string; count: number }[];
   byNationality: { nationality: string; count: number }[];
   byPosition: { position: string; count: number }[];
+  activeSubscriptions: number;
 }
 
 // T6.2 — Función para obtener los usuarios (paginado), extendida con role y nationality

@@ -185,6 +185,10 @@ const UsersComponentWithContext = () => {
                   <p className="text-sm text-gray-600">Total de usuarios</p>
                   <p className="text-2xl font-bold text-blue-700">{totalUsers}</p>
                 </div>
+                <div className="bg-emerald-50 rounded-lg p-3 flex-1 min-w-[120px] border border-emerald-200">
+                  <p className="text-sm text-gray-600">Suscripciones activas</p>
+                  <p className="text-2xl font-bold text-emerald-700">{stats.activeSubscriptions}</p>
+                </div>
                 {(stats.byRole ?? []).length === 0 ? (
                   <p className="text-sm text-gray-400">Sin datos de roles.</p>
                 ) : (

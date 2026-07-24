@@ -21,8 +21,17 @@ describe('isSubscriptionActive', () => {
     expect(isSubscriptionActive({ subscriptionType: 'Semiprofesional', subscriptionExpiresAt: past })).toBe(false);
   });
 
-  it('returns false for Semiprofesional with null expiresAt', () => {
-    expect(isSubscriptionActive({ subscriptionType: 'Semiprofesional', subscriptionExpiresAt: null })).toBe(false);
+  it('returns true for a paid tier with null expiresAt (legacy: el pago nunca escribió la columna)', () => {
+    expect(isSubscriptionActive({ subscriptionType: 'Semiprofesional', subscriptionExpiresAt: null })).toBe(true);
+    expect(isSubscriptionActive({ subscriptionType: 'Profesional', subscriptionExpiresAt: null })).toBe(true);
+  });
+
+  it('returns true for a paid tier with undefined expiresAt', () => {
+    expect(isSubscriptionActive({ subscriptionType: 'Profesional' })).toBe(true);
+  });
+
+  it('returns false for Amateur with null expiresAt', () => {
+    expect(isSubscriptionActive({ subscriptionType: 'Amateur', subscriptionExpiresAt: null })).toBe(false);
   });
 
   it('returns true for Profesional with a future expiresAt', () => {
@@ -125,9 +134,11 @@ describe('isSubscriptionExpiring', () => {
 });
 
 describe('buildSubscriptionStatusClause', () => {
-  it('"active" returns the paid-tier-and-not-expired SQL clause with a "now" param', () => {
+  it('"active" returns the paid-tier-and-not-expired SQL clause with a "now" param (NULL expiresAt cuenta como activo)', () => {
     const { sql, params } = buildSubscriptionStatusClause('active');
-    expect(sql).toBe("user.subscriptionType != 'Amateur' AND user.subscriptionExpiresAt > :now");
+    expect(sql).toBe(
+      "user.subscriptionType != 'Amateur' AND (user.subscriptionExpiresAt IS NULL OR user.subscriptionExpiresAt > :now)",
+    );
     expect(params.now).toBeInstanceOf(Date);
   });
 
@@ -149,7 +160,9 @@ describe('buildSubscriptionStatusClause', () => {
 
   it('honors a custom alias', () => {
     const { sql } = buildSubscriptionStatusClause('active', 'u');
-    expect(sql).toBe("u.subscriptionType != 'Amateur' AND u.subscriptionExpiresAt > :now");
+    expect(sql).toBe(
+      "u.subscriptionType != 'Amateur' AND (u.subscriptionExpiresAt IS NULL OR u.subscriptionExpiresAt > :now)",
+    );
   });
 
   it('defaults alias to "user" when not provided', () => {

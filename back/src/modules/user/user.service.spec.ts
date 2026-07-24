@@ -612,7 +612,7 @@ describe('UserService - findAll subscriptionStatus filtering (T5.1)', () => {
     const { service } = await buildServiceWithQb(qbStub);
     await service.findAll(1, 300, undefined, undefined, undefined, 'activo');
     expect(qbStub.andWhere).toHaveBeenCalledWith(
-      "user.subscriptionType != 'Amateur' AND user.subscriptionExpiresAt > :now",
+      "user.subscriptionType != 'Amateur' AND (user.subscriptionExpiresAt IS NULL OR user.subscriptionExpiresAt > :now)",
       expect.objectContaining({ now: expect.any(Date) }),
     );
   });

@@ -1,12 +1,16 @@
+/**
+ * Activo = tier pago Y no vencido. expiresAt NULL en un tier pago cuenta como
+ * activo: son usuarios legacy cuyo pago nunca escribió la columna (webhooks de
+ * Stripe fallaban en eso — mismo criterio que computeIsActive en user.service).
+ * El cron de degradación solo mira expiresAt no-null, así que nunca los toca.
+ */
 export function isSubscriptionActive(user: {
   subscriptionType?: string | null;
   subscriptionExpiresAt?: Date | string | null;
 }): boolean {
-  return (
-    user.subscriptionType !== 'Amateur' &&
-    !!user.subscriptionExpiresAt &&
-    new Date(user.subscriptionExpiresAt) > new Date()
-  );
+  if (user.subscriptionType === 'Amateur') return false;
+  if (!user.subscriptionExpiresAt) return true;
+  return new Date(user.subscriptionExpiresAt) > new Date();
 }
 
 /**
@@ -54,7 +58,7 @@ export function buildSubscriptionStatusClause(
 
   if (status === 'active') {
     return {
-      sql: `${alias}.subscriptionType != 'Amateur' AND ${alias}.subscriptionExpiresAt > :now`,
+      sql: `${alias}.subscriptionType != 'Amateur' AND (${alias}.subscriptionExpiresAt IS NULL OR ${alias}.subscriptionExpiresAt > :now)`,
       params: { now },
     };
   }

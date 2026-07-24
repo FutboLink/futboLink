@@ -537,7 +537,7 @@ export class UserService {
     const activeSubscriptionsRaw = await this.entityManager.query(
       `SELECT COUNT(*)::int AS count
        FROM users
-       WHERE "subscriptionType" != 'Amateur' AND "subscriptionExpiresAt" > NOW()`,
+       WHERE "subscriptionType" != 'Amateur' AND ("subscriptionExpiresAt" IS NULL OR "subscriptionExpiresAt" > NOW())`,
     );
     return {
       byRole: byRoleRaw.map((r: any) => ({ role: r.role, count: Number(r.count) })),

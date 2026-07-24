@@ -96,6 +96,18 @@ describe('ApplicationService.apply — subscription gate coherent with expiry (D
     await expect(service.apply('player-1', 'job-1', 'hola')).rejects.toThrow(ForbiddenException);
   });
 
+  it('allows a legacy paid-tier player whose expiresAt was never written (Profesional + expiresAt null)', async () => {
+    const player = makePlayer();
+    const { service, userRepository } = await buildService(() => ({
+      subscriptionType: 'Profesional',
+      isActive: true,
+      expiresAt: null,
+    }));
+    userRepository.findOne.mockResolvedValue(player);
+
+    await expect(service.apply('player-1', 'job-1', 'hola')).resolves.toBeDefined();
+  });
+
   it('rejects a player who never paid (subscriptionType Amateur, expiresAt null)', async () => {
     const player = makePlayer();
     const { service, userRepository } = await buildService(() => ({

@@ -126,8 +126,9 @@ export class ApplicationService {
       const subscriptionStatus = await this.userService.getUserSubscriptionByEmail(player.email);
       console.log(`Estado de suscripción desde UserService: ${JSON.stringify(subscriptionStatus)}`);
 
-      // D1: fuente única de verdad de "activo" — tier pago Y expiresAt futuro.
-      // Cierra la ventana <24h entre el vencimiento real y la corrida diaria del cron.
+      // D1: fuente única de verdad de "activo" — tier pago Y no vencido (expiresAt
+      // NULL = legacy sin columna escrita, cuenta como activo). Cierra la ventana
+      // <24h entre el vencimiento real y la corrida diaria del cron.
       const canApply = isSubscriptionActive({
         subscriptionType: subscriptionStatus.subscriptionType,
         subscriptionExpiresAt: subscriptionStatus.expiresAt,

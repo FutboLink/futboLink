@@ -169,6 +169,26 @@ export class PaymentsController {
     return this.stripeService.refreshSubscriptionTypes();
   }
 
+  @Post('subscription/reconcile')
+  @ApiOperation({ summary: 'Reconcile all active Stripe subscriptions into the users table' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Reconciliation stats',
+    schema: {
+      type: 'object',
+      properties: {
+        processed: { type: 'number', description: 'Active Stripe subscriptions scanned' },
+        updated: { type: 'number', description: 'Users updated (plan + expiresAt)' },
+        skipped: { type: 'number', description: 'Skipped (verification prices, unknown priceIds)' },
+        userNotFound: { type: 'array', items: { type: 'string' }, description: 'Emails/customers with no platform user' }
+      }
+    }
+  })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Error reconciling subscriptions' })
+  async reconcileSubscriptions() {
+    return this.stripeService.reconcileActiveSubscriptions();
+  }
+
   @Post('subscription/force-sync')
   @ApiOperation({ summary: 'Force synchronize subscription status with Stripe' })
   @ApiResponse({ 

@@ -519,9 +519,14 @@ export class StripeService {
    */
   private async handleSubscriptionCreated(subscription: Stripe.Subscription) {
     try {
+      // Sincroniza la tabla users ANTES del lookup del Payment: una re-suscripción
+      // con otro medio de pago crea un customer nuevo en Stripe y puede no tener
+      // Payment local, pero el user igual tiene que activarse.
+      await this.syncUserSubscriptionFromStripe(subscription);
+
       // Find the payment in our database by subscription ID
-      const payment = await this.paymentRepo.findOne({ 
-        where: { stripeSubscriptionId: subscription.id } 
+      const payment = await this.paymentRepo.findOne({
+        where: { stripeSubscriptionId: subscription.id }
       });
 
       if (!payment) {
@@ -562,9 +567,13 @@ export class StripeService {
    */
   private async handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     try {
+      // Las renovaciones llegan como subscription.updated (cambia current_period_end):
+      // sin este sync el user vence en la plataforma aunque siga pagando en Stripe.
+      await this.syncUserSubscriptionFromStripe(subscription);
+
       // Find the payment in our database by subscription ID
-      const payment = await this.paymentRepo.findOne({ 
-        where: { stripeSubscriptionId: subscription.id } 
+      const payment = await this.paymentRepo.findOne({
+        where: { stripeSubscriptionId: subscription.id }
       });
 
       if (!payment) {
@@ -606,6 +615,140 @@ export class StripeService {
   }
   
   /**
+   * Fuente de verdad Stripe -> tabla users: para una suscripción activa, setea
+   * subscriptionType (desde el priceId) y subscriptionExpiresAt (= current_period_end
+   * real de Stripe, no una duración calculada acá). Matchea al user por EMAIL y no
+   * por customer ID: cuando alguien re-suscribe con otro medio de pago Stripe crea
+   * un customer NUEVO, pero el email es el mismo.
+   * No degrada nunca (skip en canceled/desconocido/verificación): de degradar se
+   * encarga el cron por expiresAt vencido.
+   */
+  async syncUserSubscriptionFromStripe(
+    subscription: Stripe.Subscription,
+  ): Promise<'updated' | 'skipped' | 'user-not-found'> {
+    if (subscription.status !== 'active' && subscription.status !== 'trialing') {
+      return 'skipped';
+    }
+
+    const priceId = subscription.items?.data?.[0]?.price?.id;
+    if (!priceId || this.isVerificationSubscription(priceId)) {
+      return 'skipped';
+    }
+
+    const plan = this.resolveSubscriptionTypeForPriceId(priceId);
+    if (plan === SubscriptionPlan.AMATEUR) {
+      this.logger.warn(`Sync skipped: priceId desconocido ${priceId} (sub ${subscription.id})`);
+      return 'skipped';
+    }
+
+    if (!subscription.current_period_end) {
+      return 'skipped';
+    }
+
+    const email = await this.resolveSubscriptionEmail(subscription);
+    if (!email) {
+      this.logger.warn(`Sync: no pude resolver email para sub ${subscription.id}`);
+      return 'user-not-found';
+    }
+
+    const user = await this.userService.findOneByEmail(email);
+    if (!user) {
+      this.logger.warn(`Sync: suscripción activa en Stripe sin user en plataforma (${email})`);
+      return 'user-not-found';
+    }
+
+    const expiresAt = new Date(subscription.current_period_end * 1000);
+    await this.userService.updateUserSubscriptionWithExpiration(user.id, plan, expiresAt);
+    this.logger.log(`Sync user ${email}: ${plan} hasta ${expiresAt.toISOString()} (sub ${subscription.id})`);
+    return 'updated';
+  }
+
+  /**
+   * Resuelve el email del dueño de la suscripción en 3 pasos: customer expandido,
+   * Payment local por subscriptionId, y por último retrieve del customer en Stripe
+   * (único camino cuando la re-suscripción creó un customer nuevo sin Payment local).
+   */
+  private async resolveSubscriptionEmail(
+    subscription: Stripe.Subscription,
+  ): Promise<string | null> {
+    const customer = subscription.customer;
+
+    if (customer && typeof customer === 'object' && 'email' in customer && customer.email) {
+      return customer.email;
+    }
+
+    const payment = await this.paymentRepo.findOne({
+      where: { stripeSubscriptionId: subscription.id },
+    });
+    if (payment?.customerEmail) {
+      return payment.customerEmail;
+    }
+
+    if (typeof customer === 'string') {
+      try {
+        const stripeCustomer = await this.stripe.customers.retrieve(customer);
+        if (!('deleted' in stripeCustomer && stripeCustomer.deleted)) {
+          return (stripeCustomer as Stripe.Customer).email ?? null;
+        }
+      } catch (error) {
+        this.logger.error(`Error retrieving customer ${customer}: ${error.message}`);
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Backfill: recorre TODAS las suscripciones activas en Stripe y sincroniza la
+   * tabla users. Corrige el drift acumulado (users vencidos en la plataforma que
+   * siguen pagando en Stripe) sin esperar al próximo webhook de renovación.
+   */
+  async reconcileActiveSubscriptions(): Promise<{
+    processed: number;
+    updated: number;
+    skipped: number;
+    userNotFound: string[];
+  }> {
+    const stats = { processed: 0, updated: 0, skipped: 0, userNotFound: [] as string[] };
+    let startingAfter: string | undefined;
+    let hasMore = true;
+
+    while (hasMore) {
+      const page = await this.stripe.subscriptions.list({
+        status: 'active',
+        limit: 100,
+        expand: ['data.customer'],
+        ...(startingAfter ? { starting_after: startingAfter } : {}),
+      });
+
+      for (const subscription of page.data) {
+        stats.processed++;
+        const result = await this.syncUserSubscriptionFromStripe(subscription);
+        if (result === 'updated') {
+          stats.updated++;
+        } else if (result === 'user-not-found') {
+          const customer = subscription.customer;
+          const label =
+            (customer && typeof customer === 'object' && 'email' in customer && customer.email) ||
+            (typeof customer === 'string' ? customer : subscription.id);
+          stats.userNotFound.push(label as string);
+        } else {
+          stats.skipped++;
+        }
+      }
+
+      hasMore = page.has_more;
+      startingAfter = page.data.length ? page.data[page.data.length - 1].id : undefined;
+    }
+
+    this.logger.log(
+      `Reconciliación Stripe->users: ${stats.processed} procesadas, ${stats.updated} actualizadas, ` +
+        `${stats.skipped} salteadas, ${stats.userNotFound.length} sin user`,
+    );
+    return stats;
+  }
+
+  /**
    * Handles the customer.subscription.deleted event
    */
   private async handleSubscriptionDeleted(subscription: Stripe.Subscription) {
@@ -639,10 +782,21 @@ export class StripeService {
     try {
       // If there's a subscription, find the payment by subscription ID
       if (invoice.subscription) {
-        const payment = await this.paymentRepo.findOne({ 
-          where: { stripeSubscriptionId: invoice.subscription as string } 
+        // Renovación cobrada: extiende el expiresAt del user con el nuevo
+        // current_period_end, exista o no un Payment local para esta suscripción.
+        try {
+          const subscription = await this.stripe.subscriptions.retrieve(
+            invoice.subscription as string,
+          );
+          await this.syncUserSubscriptionFromStripe(subscription);
+        } catch (syncError) {
+          this.logger.error(`Error syncing user from invoice.paid: ${syncError.message}`);
+        }
+
+        const payment = await this.paymentRepo.findOne({
+          where: { stripeSubscriptionId: invoice.subscription as string }
         });
-  
+
         if (!payment) {
           this.logger.warn(`Payment not found for subscription ID: ${invoice.subscription}`);
           return;

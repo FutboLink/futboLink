@@ -29,7 +29,13 @@ async function buildService(envOverrides: Record<string, string> = {}) {
   const configService = {
     get: jest.fn((key: string) => env[key]),
   } as unknown as ConfigService;
-  const userService = {} as UserService;
+  const userService = {
+    findOneByEmail: jest.fn(),
+    updateUserSubscriptionWithExpiration: jest.fn(),
+  } as unknown as UserService & {
+    findOneByEmail: jest.Mock;
+    updateUserSubscriptionWithExpiration: jest.Mock;
+  };
 
   const module: TestingModule = await Test.createTestingModule({
     providers: [
@@ -41,7 +47,7 @@ async function buildService(envOverrides: Record<string, string> = {}) {
   }).compile();
 
   const service = module.get<StripeService>(StripeService);
-  return { service, paymentRepo };
+  return { service, paymentRepo, userService };
 }
 
 describe('StripeService — priceId to plan mapping centralizado (T1.3, D2)', () => {
@@ -205,6 +211,193 @@ describe('StripeService — priceId to plan mapping centralizado (T1.3, D2)', ()
       expect(paymentRepo.save).toHaveBeenCalledWith(
         expect.objectContaining({ subscriptionType: SubscriptionPlan.PROFESIONAL }),
       );
+    });
+  });
+});
+
+describe('StripeService — sync de users desde suscripciones de Stripe (fix drift 141 vs 283)', () => {
+  const periodEnd = Math.floor(Date.now() / 1000) + 30 * 24 * 3600;
+
+  function makeSub(overrides: Record<string, any> = {}) {
+    return {
+      id: 'sub_sync_1',
+      status: 'active',
+      current_period_end: periodEnd,
+      customer: 'cus_new_123',
+      items: { data: [{ price: { id: PRICE_PRO_MONTHLY } }] },
+      ...overrides,
+    };
+  }
+
+  describe('syncUserSubscriptionFromStripe', () => {
+    it('actualiza al user (plan + expiresAt=current_period_end) usando el email del customer expandido', async () => {
+      const { service, userService } = await buildService();
+      userService.findOneByEmail.mockResolvedValue({ id: 'user-1', email: 'diego@x.com' });
+
+      const result = await service.syncUserSubscriptionFromStripe(
+        makeSub({ customer: { id: 'cus_new_123', email: 'diego@x.com' } }) as any,
+      );
+
+      expect(result).toBe('updated');
+      expect(userService.updateUserSubscriptionWithExpiration).toHaveBeenCalledWith(
+        'user-1',
+        SubscriptionPlan.PROFESIONAL,
+        new Date(periodEnd * 1000),
+      );
+    });
+
+    it('resuelve el email desde el Payment local cuando el customer no viene expandido', async () => {
+      const { service, paymentRepo, userService } = await buildService();
+      paymentRepo.findOne.mockResolvedValue({ customerEmail: 'diego@x.com' } as Payment);
+      userService.findOneByEmail.mockResolvedValue({ id: 'user-1', email: 'diego@x.com' });
+
+      const result = await service.syncUserSubscriptionFromStripe(makeSub() as any);
+
+      expect(result).toBe('updated');
+      expect(userService.updateUserSubscriptionWithExpiration).toHaveBeenCalled();
+    });
+
+    it('customer NUEVO sin Payment local (re-suscripción con otro medio de pago): cae al retrieve del customer en Stripe', async () => {
+      const { service, paymentRepo, userService } = await buildService();
+      paymentRepo.findOne.mockResolvedValue(null);
+      userService.findOneByEmail.mockResolvedValue({ id: 'user-1', email: 'diego@x.com' });
+      (service as any).stripe = {
+        customers: {
+          retrieve: jest.fn().mockResolvedValue({ id: 'cus_new_123', email: 'diego@x.com' }),
+        },
+      };
+
+      const result = await service.syncUserSubscriptionFromStripe(makeSub() as any);
+
+      expect(result).toBe('updated');
+      expect((service as any).stripe.customers.retrieve).toHaveBeenCalledWith('cus_new_123');
+      expect(userService.updateUserSubscriptionWithExpiration).toHaveBeenCalledWith(
+        'user-1',
+        SubscriptionPlan.PROFESIONAL,
+        new Date(periodEnd * 1000),
+      );
+    });
+
+    it('no toca al user si la suscripción no está activa (canceled)', async () => {
+      const { service, userService } = await buildService();
+
+      const result = await service.syncUserSubscriptionFromStripe(
+        makeSub({ status: 'canceled' }) as any,
+      );
+
+      expect(result).toBe('skipped');
+      expect(userService.updateUserSubscriptionWithExpiration).not.toHaveBeenCalled();
+    });
+
+    it('no toca al user para priceIds de verificación (tilde azul, no plan)', async () => {
+      const { service, userService } = await buildService();
+
+      const result = await service.syncUserSubscriptionFromStripe(
+        makeSub({ items: { data: [{ price: { id: 'price_1S5Z3lGbCHvHfqXFd1Xkxf54' } }] } }) as any,
+      );
+
+      expect(result).toBe('skipped');
+      expect(userService.updateUserSubscriptionWithExpiration).not.toHaveBeenCalled();
+    });
+
+    it('no degrada por priceId desconocido (skip, no escribe Amateur)', async () => {
+      const { service, userService } = await buildService();
+
+      const result = await service.syncUserSubscriptionFromStripe(
+        makeSub({ items: { data: [{ price: { id: 'price_desconocido' } }] } }) as any,
+      );
+
+      expect(result).toBe('skipped');
+      expect(userService.updateUserSubscriptionWithExpiration).not.toHaveBeenCalled();
+    });
+
+    it('devuelve user-not-found si el email no matchea ningún user de la plataforma', async () => {
+      const { service, userService } = await buildService();
+      userService.findOneByEmail.mockResolvedValue(null);
+
+      const result = await service.syncUserSubscriptionFromStripe(
+        makeSub({ customer: { id: 'cus_new_123', email: 'fantasma@x.com' } }) as any,
+      );
+
+      expect(result).toBe('user-not-found');
+      expect(userService.updateUserSubscriptionWithExpiration).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('webhooks que disparan el sync', () => {
+    it('customer.subscription.updated sincroniza al user aunque NO exista Payment local (customer nuevo)', async () => {
+      const { service, paymentRepo, userService } = await buildService();
+      paymentRepo.findOne.mockResolvedValue(null);
+      userService.findOneByEmail.mockResolvedValue({ id: 'user-1', email: 'diego@x.com' });
+      (service as any).stripe = {
+        customers: {
+          retrieve: jest.fn().mockResolvedValue({ id: 'cus_new_123', email: 'diego@x.com' }),
+        },
+      };
+
+      await (service as any).handleSubscriptionUpdated(makeSub());
+
+      expect(userService.updateUserSubscriptionWithExpiration).toHaveBeenCalledWith(
+        'user-1',
+        SubscriptionPlan.PROFESIONAL,
+        new Date(periodEnd * 1000),
+      );
+    });
+
+    it('invoice.paid (renovación) recupera la suscripción de Stripe y extiende el expiresAt del user', async () => {
+      const { service, paymentRepo, userService } = await buildService();
+      paymentRepo.findOne.mockResolvedValue(null);
+      userService.findOneByEmail.mockResolvedValue({ id: 'user-1', email: 'diego@x.com' });
+      (service as any).stripe = {
+        subscriptions: {
+          retrieve: jest.fn().mockResolvedValue(
+            makeSub({ customer: { id: 'cus_new_123', email: 'diego@x.com' } }),
+          ),
+        },
+      };
+
+      await (service as any).handleInvoicePaid({ id: 'in_1', subscription: 'sub_sync_1' });
+
+      expect((service as any).stripe.subscriptions.retrieve).toHaveBeenCalledWith('sub_sync_1');
+      expect(userService.updateUserSubscriptionWithExpiration).toHaveBeenCalledWith(
+        'user-1',
+        SubscriptionPlan.PROFESIONAL,
+        new Date(periodEnd * 1000),
+      );
+    });
+  });
+
+  describe('reconcileActiveSubscriptions (backfill del drift existente)', () => {
+    it('pagina las suscripciones activas de Stripe y sincroniza cada una, reportando stats', async () => {
+      const { service, userService } = await buildService();
+      userService.findOneByEmail
+        .mockResolvedValueOnce({ id: 'user-1', email: 'a@x.com' })
+        .mockResolvedValueOnce(null);
+      (service as any).stripe = {
+        subscriptions: {
+          list: jest.fn().mockResolvedValue({
+            has_more: false,
+            data: [
+              makeSub({ id: 'sub_a', customer: { id: 'cus_a', email: 'a@x.com' } }),
+              makeSub({ id: 'sub_b', customer: { id: 'cus_b', email: 'b@x.com' } }),
+            ],
+          }),
+        },
+      };
+
+      const stats = await service.reconcileActiveSubscriptions();
+
+      expect((service as any).stripe.subscriptions.list).toHaveBeenCalledWith(
+        expect.objectContaining({ status: 'active', limit: 100, expand: ['data.customer'] }),
+      );
+      expect(stats).toEqual(
+        expect.objectContaining({
+          processed: 2,
+          updated: 1,
+          userNotFound: ['b@x.com'],
+        }),
+      );
+      expect(userService.updateUserSubscriptionWithExpiration).toHaveBeenCalledTimes(1);
     });
   });
 });

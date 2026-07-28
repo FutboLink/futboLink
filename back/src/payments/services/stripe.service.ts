@@ -710,8 +710,15 @@ export class StripeService {
     userNotFound: string[];
     distinctUsers: number;
     duplicatedEmails: { email: string; activeSubscriptions: number }[];
+    errors: { subscriptionId: string; error: string }[];
   }> {
-    const stats = { processed: 0, updated: 0, skipped: 0, userNotFound: [] as string[] };
+    const stats = {
+      processed: 0,
+      updated: 0,
+      skipped: 0,
+      userNotFound: [] as string[],
+      errors: [] as { subscriptionId: string; error: string }[],
+    };
     // Cuenta suscripciones activas por email: `updated` cuenta SUSCRIPCIONES, y un
     // mismo usuario puede tener más de una activa (re-suscripción sin cancelar la
     // anterior => se le cobra dos veces). Explica el hueco entre el total de Stripe
@@ -730,23 +737,32 @@ export class StripeService {
 
       for (const subscription of page.data) {
         stats.processed++;
-        const result = await this.syncUserSubscriptionFromStripe(subscription);
-        if (result === 'updated') {
-          stats.updated++;
-          // El customer viene expandido en esta paginación, así que resolver el
-          // email de nuevo no cuesta una llamada extra a Stripe.
-          const email = await this.resolveSubscriptionEmail(subscription);
-          if (email) {
-            subsByEmail.set(email, (subsByEmail.get(email) ?? 0) + 1);
+        // Aislado por suscripción: un fallo puntual (timeout de DB, dato raro) no
+        // puede tirar abajo el backfill completo de las ~300 restantes.
+        try {
+          const result = await this.syncUserSubscriptionFromStripe(subscription);
+          if (result === 'updated') {
+            stats.updated++;
+            // El customer viene expandido en esta paginación, así que resolver el
+            // email de nuevo no cuesta una llamada extra a Stripe.
+            const email = await this.resolveSubscriptionEmail(subscription);
+            if (email) {
+              subsByEmail.set(email, (subsByEmail.get(email) ?? 0) + 1);
+            }
+          } else if (result === 'user-not-found') {
+            const customer = subscription.customer;
+            const label =
+              (customer && typeof customer === 'object' && 'email' in customer && customer.email) ||
+              (typeof customer === 'string' ? customer : subscription.id);
+            stats.userNotFound.push(label as string);
+          } else {
+            stats.skipped++;
           }
-        } else if (result === 'user-not-found') {
-          const customer = subscription.customer;
-          const label =
-            (customer && typeof customer === 'object' && 'email' in customer && customer.email) ||
-            (typeof customer === 'string' ? customer : subscription.id);
-          stats.userNotFound.push(label as string);
-        } else {
-          stats.skipped++;
+        } catch (error) {
+          this.logger.error(
+            `Error sincronizando la suscripción ${subscription.id}: ${error.message}`,
+          );
+          stats.errors.push({ subscriptionId: subscription.id, error: error.message });
         }
       }
 
@@ -762,7 +778,8 @@ export class StripeService {
     this.logger.log(
       `Reconciliación Stripe->users: ${stats.processed} procesadas, ${stats.updated} actualizadas, ` +
         `${stats.skipped} salteadas, ${stats.userNotFound.length} sin user, ` +
-        `${subsByEmail.size} usuarios distintos, ${duplicatedEmails.length} con suscripción duplicada`,
+        `${subsByEmail.size} usuarios distintos, ${duplicatedEmails.length} con suscripción duplicada, ` +
+        `${stats.errors.length} con error`,
     );
 
     if (duplicatedEmails.length > 0) {

@@ -428,6 +428,36 @@ describe('StripeService — sync de users desde suscripciones de Stripe (fix dri
       expect(stats.duplicatedEmails).toEqual([{ email: 'diego@x.com', activeSubscriptions: 2 }]);
     });
 
+    it('una suscripción que falla NO aborta la corrida entera: se cuenta como error y sigue', async () => {
+      const { service, userService } = await buildService();
+      userService.findOneByEmail.mockImplementation(async (email: string) => ({
+        id: `user-${email}`,
+        email,
+      }));
+      userService.updateUserSubscriptionWithExpiration.mockImplementation(async (id: string) => {
+        if (id === 'user-rompe@x.com') throw new Error('DB timeout');
+        return {} as any;
+      });
+      (service as any).stripe = {
+        subscriptions: {
+          list: jest.fn().mockResolvedValue({
+            has_more: false,
+            data: [
+              makeSub({ id: 'sub_1', customer: { id: 'cus_a', email: 'ok1@x.com' } }),
+              makeSub({ id: 'sub_2', customer: { id: 'cus_b', email: 'rompe@x.com' } }),
+              makeSub({ id: 'sub_3', customer: { id: 'cus_c', email: 'ok2@x.com' } }),
+            ],
+          }),
+        },
+      };
+
+      const stats = await service.reconcileActiveSubscriptions();
+
+      expect(stats.processed).toBe(3);
+      expect(stats.updated).toBe(2);
+      expect(stats.errors).toEqual([{ subscriptionId: 'sub_2', error: 'DB timeout' }]);
+    });
+
     it('no reporta duplicados cuando cada usuario tiene una sola suscripción', async () => {
       const { service, userService } = await buildService();
       userService.findOneByEmail.mockImplementation(async (email: string) => ({

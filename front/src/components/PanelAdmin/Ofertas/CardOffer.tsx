@@ -52,7 +52,7 @@ const CardOffer: React.FC<{
           </p>
           <p>
             <span className="font-semibold text-gray-800">
-              Países donde aplica:
+              País:
             </span>{" "}
             {offer.countries ? offer.countries.join(", ") : offer.nationality}
           </p>

@@ -131,7 +131,7 @@ const Profile = () => {
     <div>
       {" "}
       {/* Reducir el margen superior */}
-      <div className="p-4 max-w-4xl mx-auto">
+      <div className="w-full p-0">
         {" "}
         {/* Reducir el padding */}
         {userData && (

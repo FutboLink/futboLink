@@ -448,7 +448,7 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
+    <div className="bg-white p-3 md:p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold mb-6 text-[#1d5126]">
         Información Profesional
       </h2>
@@ -468,7 +468,7 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
                   : "max-h-0 opacity-0 overflow-hidden"
               }`}
             >
-              <div className="p-6 bg-white border-t">
+              <div className="p-3 md:p-6 bg-white border-t">
                 {/* Componente de cancha de fútbol */}
                 <FootballField
                   primaryPosition={primaryPosition}
@@ -681,7 +681,7 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
               {experiences.map((exp, index) => (
                 <div
                   key={exp.id}
-                  className="mb-6 p-4 border border-gray-200 rounded-lg"
+                  className="mb-4 p-2 md:p-4 border border-gray-200 rounded-lg"
                 >
                   <div className="flex justify-between items-center mb-4">
                     <h4 className="text-lg text-verde-oscuro font-medium">

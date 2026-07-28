@@ -399,5 +399,57 @@ describe('StripeService — sync de users desde suscripciones de Stripe (fix dri
       );
       expect(userService.updateUserSubscriptionWithExpiration).toHaveBeenCalledTimes(1);
     });
+
+    it('reporta usuarios distintos y emails con MÁS DE UNA suscripción activa (posible doble cobro)', async () => {
+      const { service, userService } = await buildService();
+      userService.findOneByEmail.mockImplementation(async (email: string) => ({
+        id: `user-${email}`,
+        email,
+      }));
+      (service as any).stripe = {
+        subscriptions: {
+          list: jest.fn().mockResolvedValue({
+            has_more: false,
+            data: [
+              makeSub({ id: 'sub_1', customer: { id: 'cus_viejo', email: 'diego@x.com' } }),
+              makeSub({ id: 'sub_2', customer: { id: 'cus_nuevo', email: 'diego@x.com' } }),
+              makeSub({ id: 'sub_3', customer: { id: 'cus_c', email: 'otro@x.com' } }),
+            ],
+          }),
+        },
+      };
+
+      const stats = await service.reconcileActiveSubscriptions();
+
+      // 3 suscripciones activas, pero solo 2 usuarios: diego paga DOS veces.
+      expect(stats.processed).toBe(3);
+      expect(stats.updated).toBe(3);
+      expect(stats.distinctUsers).toBe(2);
+      expect(stats.duplicatedEmails).toEqual([{ email: 'diego@x.com', activeSubscriptions: 2 }]);
+    });
+
+    it('no reporta duplicados cuando cada usuario tiene una sola suscripción', async () => {
+      const { service, userService } = await buildService();
+      userService.findOneByEmail.mockImplementation(async (email: string) => ({
+        id: `user-${email}`,
+        email,
+      }));
+      (service as any).stripe = {
+        subscriptions: {
+          list: jest.fn().mockResolvedValue({
+            has_more: false,
+            data: [
+              makeSub({ id: 'sub_1', customer: { id: 'cus_a', email: 'a@x.com' } }),
+              makeSub({ id: 'sub_2', customer: { id: 'cus_b', email: 'b@x.com' } }),
+            ],
+          }),
+        },
+      };
+
+      const stats = await service.reconcileActiveSubscriptions();
+
+      expect(stats.distinctUsers).toBe(2);
+      expect(stats.duplicatedEmails).toEqual([]);
+    });
   });
 });

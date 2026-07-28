@@ -708,8 +708,15 @@ export class StripeService {
     updated: number;
     skipped: number;
     userNotFound: string[];
+    distinctUsers: number;
+    duplicatedEmails: { email: string; activeSubscriptions: number }[];
   }> {
     const stats = { processed: 0, updated: 0, skipped: 0, userNotFound: [] as string[] };
+    // Cuenta suscripciones activas por email: `updated` cuenta SUSCRIPCIONES, y un
+    // mismo usuario puede tener más de una activa (re-suscripción sin cancelar la
+    // anterior => se le cobra dos veces). Explica el hueco entre el total de Stripe
+    // y las suscripciones activas que muestra la plataforma.
+    const subsByEmail = new Map<string, number>();
     let startingAfter: string | undefined;
     let hasMore = true;
 
@@ -726,6 +733,12 @@ export class StripeService {
         const result = await this.syncUserSubscriptionFromStripe(subscription);
         if (result === 'updated') {
           stats.updated++;
+          // El customer viene expandido en esta paginación, así que resolver el
+          // email de nuevo no cuesta una llamada extra a Stripe.
+          const email = await this.resolveSubscriptionEmail(subscription);
+          if (email) {
+            subsByEmail.set(email, (subsByEmail.get(email) ?? 0) + 1);
+          }
         } else if (result === 'user-not-found') {
           const customer = subscription.customer;
           const label =
@@ -741,11 +754,24 @@ export class StripeService {
       startingAfter = page.data.length ? page.data[page.data.length - 1].id : undefined;
     }
 
+    const duplicatedEmails = [...subsByEmail.entries()]
+      .filter(([, count]) => count > 1)
+      .map(([email, count]) => ({ email, activeSubscriptions: count }))
+      .sort((a, b) => b.activeSubscriptions - a.activeSubscriptions);
+
     this.logger.log(
       `Reconciliación Stripe->users: ${stats.processed} procesadas, ${stats.updated} actualizadas, ` +
-        `${stats.skipped} salteadas, ${stats.userNotFound.length} sin user`,
+        `${stats.skipped} salteadas, ${stats.userNotFound.length} sin user, ` +
+        `${subsByEmail.size} usuarios distintos, ${duplicatedEmails.length} con suscripción duplicada`,
     );
-    return stats;
+
+    if (duplicatedEmails.length > 0) {
+      this.logger.warn(
+        `Usuarios con MÁS de una suscripción activa (posible doble cobro): ${JSON.stringify(duplicatedEmails)}`,
+      );
+    }
+
+    return { ...stats, distinctUsers: subsByEmail.size, duplicatedEmails };
   }
 
   /**

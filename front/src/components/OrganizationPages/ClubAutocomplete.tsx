@@ -233,7 +233,7 @@ const ClubAutocomplete: React.FC<Props> = ({
                 <img
                   src={s.logoUrl}
                   alt={s.name}
-                  className="w-7 h-7 rounded object-cover bg-gray-100"
+                  className="w-14 h-14 rounded object-cover bg-gray-100"
                 />
               ) : (
                 <div className="w-7 h-7 rounded bg-gray-100 flex items-center justify-center text-gray-400">

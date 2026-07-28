@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Payment } from './entities/payment.entity';
 import { StripeService } from './services/stripe.service';
 import { PaymentsController } from './controllers/payments.controller';
+import { StripeWebhookController } from './controllers/stripe-webhook.controller';
 import { UserModule } from '../modules/user/user.module';
 
 @Module({
@@ -12,7 +13,7 @@ import { UserModule } from '../modules/user/user.module';
     TypeOrmModule.forFeature([Payment]),
     forwardRef(() => UserModule),
   ],
-  controllers: [PaymentsController],
+  controllers: [StripeWebhookController, PaymentsController],
   providers: [StripeService],
   exports: [StripeService],
 })

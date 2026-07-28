@@ -3,7 +3,6 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { DataSource } from 'typeorm';
-import * as bodyParser from 'body-parser';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
@@ -118,8 +117,11 @@ async function bootstrap() {
   await ensureIsVerifiedColumn();
 
   // Create the application with logging
+  // rawBody: true conserva el cuerpo sin parsear en req.rawBody — condición
+  // necesaria para verificar la firma de los webhooks de Stripe.
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['error', 'warn', 'log', 'debug', 'verbose'],
+    rawBody: true,
   });
 
   // Serve local uploads (dev fallback when R2 is not configured).
@@ -240,14 +242,6 @@ async function bootstrap() {
     console.error('⚠️ Swagger documentation failed to generate:', error.message);
     console.error('The application will continue without Swagger documentation.');
   }
-
-  // Configure body parser for stripe webhooks
-  app.use(
-    '/stripe/webhook',
-    bodyParser.raw({ type: 'application/json' })
-  );
-
-  
 
   const port = configService.get<number>('PORT') || 3000;
 

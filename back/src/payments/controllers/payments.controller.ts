@@ -1,20 +1,14 @@
-import { 
-  Body, 
-  Controller, 
-  Get, 
-  Headers, 
-  HttpCode,
-  HttpStatus, 
-  Param, 
-  Post, 
-  RawBodyRequest, 
-  Req, 
-  Res,
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  Post,
   Query,
   BadRequestException
 } from '@nestjs/common';
-import { Request, Response } from 'express';
-import { ApiBody, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StripeService } from '../services/stripe.service';
 import { CreateOneTimePaymentDto, CreateSubscriptionDto } from '../dto';
 
@@ -63,29 +57,9 @@ export class PaymentsController {
     return this.stripeService.createSubscriptionSession(createSubscriptionDto);
   }
   
-  @Post('webhook')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Handle Stripe webhook events' })
-  @ApiHeader({ name: 'stripe-signature', required: true, description: 'Stripe webhook signature header' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Webhook processed successfully' })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid webhook signature' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Error processing webhook' })
-  async handleWebhook(
-    @Req() req: RawBodyRequest<Request>,
-    @Headers('stripe-signature') signature: string,
-    @Res() res: Response,
-  ) {
-    try {
-      const rawBody = req.rawBody.toString('utf8');
-      const result = await this.stripeService.handleWebhookEvent(rawBody, signature);
-      return res.status(HttpStatus.OK).json(result);
-    } catch (error) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        message: error.message,
-      });
-    }
-  }
-  
+  // El webhook vive en StripeWebhookController (montado en /payments/webhook y
+  // /stripe/webhook) porque necesita el rawBody sin parsear.
+
   @Get(':id')
   @ApiOperation({ summary: 'Get payment details by ID' })
   @ApiParam({ name: 'id', description: 'Payment ID' })

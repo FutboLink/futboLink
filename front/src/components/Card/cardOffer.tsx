@@ -11,7 +11,6 @@ const CardOffer: React.FC<{ offer: IOfferCard }> = ({ offer }) => {
         <h3 className="text-xl font-semibold text-gray-800 mb-2">
           {offer.title}
         </h3>
-        <p className="text-gray-600 text-sm mb-4">{offer.description}</p>
 
         {/* Información adicional */}
 

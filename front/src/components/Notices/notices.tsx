@@ -15,6 +15,8 @@ const NoticeSection = () => {
     const fetchNews = async () => {
       try {
         const response = await getNews();
+        
+        console.log(response);
 
         setNews(response);
         setLoading(false); 

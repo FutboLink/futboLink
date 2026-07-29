@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { Payment, PaymentStatus, PaymentType, SubscriptionPlan } from '../entities/payment.entity';
 import { CreateOneTimePaymentDto, CreateSubscriptionDto } from '../dto';
 import { UserService } from '../../modules/user/user.service';
+import type { UserServicePort } from '../contracts/user-service.port';
 import { resolvePlanByPriceId, QUARTERLY_PRICE_ENV } from '../config/subscription-plans.config';
 import * as https from 'https';
 
@@ -27,8 +28,11 @@ export class StripeService {
     @InjectRepository(Payment)
     private readonly paymentRepo: Repository<Payment>,
     private readonly configService: ConfigService,
+    // Tipado con UserServicePort (interfaz, sin valor en runtime) a propósito: si se
+    // tipa con la clase UserService, TS/SWC emiten una referencia eager en
+    // design:paramtypes y el require() circular deadlockea el boot. Ver el contrato.
     @Inject(forwardRef(() => UserService))
-    private readonly userService: UserService,
+    private readonly userService: UserServicePort,
   ) {
     const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
     this.frontendDomain = this.configService.get<string>('FRONTEND_DOMAIN') || 'http://localhost:3000';

@@ -31,6 +31,12 @@ jobs:
     - name: Build
       working-directory: back
       run: npm run build
+    # Carga el bundle compilado: las dependencias circulares entre providers
+    # (UserService <-> StripeService) NO las detectan ni el build ni los tests,
+    # solo revientan al arrancar en produccion. Ya bloquearon deploys dos veces.
+    - name: Smoke - carga de modulos
+      working-directory: back
+      run: npm run smoke:modules
     - name: Test
       working-directory: back
       run: npm test

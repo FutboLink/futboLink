@@ -14,13 +14,9 @@ const NoticeSection = () => {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const response = await getNews(); 
-        
-        // Ordenamos las noticias de más reciente a más antigua
-        // Simplemente invertimos el orden del array asumiendo que las más recientes vienen al final
-        const sortedNews = [...response].reverse();
-        
-        setNews(sortedNews);
+        const response = await getNews();
+
+        setNews(response);
         setLoading(false); 
       } catch  {
         setError("Error al obtener las noticias.");

@@ -7,6 +7,7 @@ import type { IOfferCard } from "@/Interfaces/IOffer";
 import Notification from "./Notification";
 import { FaMoneyBillWave } from "react-icons/fa";
 import { LuSend } from "react-icons/lu";
+import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
 
 const CardOffer: React.FC<{
   offer: IOfferCard;
@@ -50,12 +51,27 @@ const CardOffer: React.FC<{
             <span className="font-semibold text-gray-800">Ubicación:</span>{" "}
             {offer.location}
           </p>
-          <p>
-            <span className="font-semibold text-gray-800">
-              País:
-            </span>{" "}
-            {offer.countries ? offer.countries.join(", ") : offer.nationality}
-          </p>
+          <p className="flex items-center gap-1.5">
+  <span className="font-semibold text-gray-800">
+    País:
+  </span>
+
+  {offer.countries && offer.countries.length > 0 ? (
+    <span className="flex items-center gap-2 flex-wrap">
+      {offer.countries.map((country) => (
+        <span key={country} className="flex items-center gap-1">
+          {renderCountryFlag(country)}
+          <span>{country}</span>
+        </span>
+      ))}
+    </span>
+  ) : (
+    <span className="flex items-center gap-1">
+      {renderCountryFlag(offer.nationality)}
+      <span>{offer.nationality}</span>
+    </span>
+  )}
+</p>
           <p>
             <span className="font-semibold text-gray-800">Categoría:</span>{" "}
             {offer.category}

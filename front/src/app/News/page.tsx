@@ -23,10 +23,8 @@ const NoticeSection = () => {
       // Agregamos nuevas noticias al array existente, eliminamos duplicados y ordenamos
       setNews((prev) => {
         // Invertimos primero la respuesta para asegurar que las más recientes estén primero
-        const reversedResponse = [...response].reverse();
-
-        // Combinamos noticias previas y nuevas (ya invertidas)
-        const allNews = [...prev, ...reversedResponse];
+        // Combinamos noticias previas y nuevas
+        const allNews = [...prev, ...response];
 
         // Eliminamos duplicados usando un Map con id como clave
         const uniqueNewsMap = new Map();

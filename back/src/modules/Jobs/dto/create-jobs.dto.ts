@@ -87,7 +87,7 @@ export class CreateJobDto {
   competencies: string[];
 
   @ApiProperty({
-    description: 'Países donde aplica la oferta',
+    description: 'País:',
     example: ['España', 'Italia', 'Francia'],
   })
   @IsArray()

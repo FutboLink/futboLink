@@ -59,14 +59,14 @@ const CardOffer: React.FC<{
   {offer.countries && offer.countries.length > 0 ? (
     <span className="flex items-center gap-2 flex-wrap">
       {offer.countries.map((country) => (
-        <span key={country} className="flex items-center gap-1">
+        <span key={country} className="inline-flex items-center gap-1 leading-none">
           {renderCountryFlag(country)}
           <span>{country}</span>
         </span>
       ))}
     </span>
   ) : (
-    <span className="flex items-center gap-1">
+      <span className="inline-flex items-center gap-1 leading-none">
       {renderCountryFlag(offer.nationality)}
       <span>{offer.nationality}</span>
     </span>

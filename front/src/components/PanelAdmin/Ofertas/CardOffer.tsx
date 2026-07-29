@@ -20,7 +20,7 @@ const CardOffer: React.FC<{
   };
 
   return (
-    <div className="flex flex-col bg-white border border-gray-200 rounded-2xl w-full min-h-[420px] shadow-sm overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#3e7b26]">
+    <div className="flex flex-col bg-white border border-gray-200 rounded-2xl w-full min-h-[320px] shadow-sm overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#3e7b26]">
       {/* Encabezado */}
       <div className="flex items-center gap-4 p-5 border-b border-gray-100">
         <div className="w-20 h-20 flex-shrink-0 flex items-center justify-center">
@@ -87,16 +87,6 @@ const CardOffer: React.FC<{
             {offer.euPassport}
           </p>
         </div>
-      </div>
-
-      {/* Descripción con altura limitada y scroll */}
-      <div className="text-xs text-gray-600 px-3 pt-1 text-justify">
-        <div className="font-semibold text-xs text-gray-800 mb-1">
-          Descripción de la oferta:
-        </div>
-        <p className="text-xs whitespace-pre-line max-h-[80px] overflow-y-auto pr-1">
-          {offer.description}
-        </p>
       </div>
 
       {/* Salario + botones */}

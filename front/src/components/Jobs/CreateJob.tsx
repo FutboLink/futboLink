@@ -334,7 +334,7 @@ const FormComponent = () => {
         {/* Ubicación */}
         <div className="flex flex-col relative" ref={dropdownRef}>
           <label className="text-sm font-semibold mb-2 text-gray-700">
-            Países donde aplica la oferta
+            País:
           </label>
           <input
             type="text"

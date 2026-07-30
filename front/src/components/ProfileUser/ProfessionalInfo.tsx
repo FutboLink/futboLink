@@ -155,6 +155,7 @@ const [activeSection, setActiveSection] = useState<
 
   // State for experiences (trayectorias)
   const [experiences, setExperiences] = useState<Experience[]>([{ ...emptyExperience, id: Date.now().toString() }]);
+  const [expandedExperience, setExpandedExperience] = useState(0);
 
   // Lista de países para el selector de la trayectoria (País → Club → Liga).
   const { nationalities } = useNationalities();

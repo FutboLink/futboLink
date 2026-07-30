@@ -5,6 +5,7 @@ import { IOfferCard } from "@/Interfaces/IOffer";
 import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
 import { UserContext } from "@/components/Context/UserContext";
 import ModalApplication from "@/components/Applications/ModalApplications";
+import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
 
 const OfferList: React.FC = () => {
   const [offers, setOffers] = useState<IOfferCard[]>([]);
@@ -14,6 +15,7 @@ const OfferList: React.FC = () => {
   const [contractTypeFilter, setContractTypeFilter] = useState<string>("");
   const [positionFilter, setPositionFilter] = useState<string>("");
   const [countryFilter, setCountryFilter] = useState<string>("");
+  const [isCountryOpen, setIsCountryOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isToken, setIsTokene] = useState(false);
   const [isOffer, setIsOffer] = useState<IOfferCard>();
@@ -264,27 +266,83 @@ const sortedCountries = Object.entries(offersByCountry).sort(
             {position}
           </option>
         ))}
-
       </select>
-        {/* País */}
+      {/* País */}
 
-<select
-  value={countryFilter}
-  onChange={(e) => setCountryFilter(e.target.value)}
-  className="h-14 min-w-[220px] rounded-2xl border border-gray-200 bg-white px-4 text-gray-700 focus:ring-2 focus:ring-[#1d5126]"
->
-  <option value="">🌍 País</option>
+<div className="relative min-w-[220px] w-full lg:w-auto">
+  <button
+    type="button"
+    onClick={() => setIsCountryOpen(!isCountryOpen)}
+    className="w-full h-14 rounded-2xl border border-gray-200 bg-white px-4 flex items-center justify-between hover:border-[#1d5126] transition"
+  >
+    <div className="flex items-center gap-2">
+      {countryFilter ? (
+        <>
+          {renderCountryFlag(countryFilter)}
+          <span>{countryFilter}</span>
+        </>
+      ) : (
+        <>
+          <span>🌍</span>
+          <span>País</span>
+        </>
+      )}
+    </div>
 
-  {sortedCountries.map(([country, count]) => (
-    <option
-      key={country}
-      value={country}
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className={`w-4 h-4 transition-transform ${
+        isCountryOpen ? "rotate-180" : ""
+      }`}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
     >
-      {country} ({count})
-    </option>
-  ))}
-</select>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M19 9l-7 7-7-7"
+      />
+    </svg>
+  </button>
 
+  {isCountryOpen && (
+    <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-2xl shadow-xl max-h-80 overflow-y-auto">
+      <button
+        type="button"
+        onClick={() => {
+          setCountryFilter("");
+          setIsCountryOpen(false);
+        }}
+        className="w-full px-4 py-3 flex items-center gap-2 hover:bg-gray-50 text-left"
+      >
+        🌍 Todos los países
+      </button>
+
+      {sortedCountries.map(([country, count]) => (
+        <button
+          key={country}
+          type="button"
+          onClick={() => {
+            setCountryFilter(country);
+            setIsCountryOpen(false);
+          }}
+          className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50"
+        >
+          <div className="flex items-center gap-2">
+            {renderCountryFlag(country)}
+            <span>{country}</span>
+          </div>
+
+          <span className="text-sm text-gray-400">
+            {count}
+          </span>
+        </button>
+      ))}
+    </div>
+  )}
+</div>
 </div>
 </div>
 </div>

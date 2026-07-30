@@ -288,17 +288,6 @@ const sortedCountries = Object.entries(offersByCountry).sort(
         className="h-14 px-8 rounded-2xl bg-[#1d5126] text-white font-semibold hover:bg-[#163d1e] transition-all shadow-sm hover:shadow-md"
       >
         Buscar
-      </button>
-
-    </div>
-  </div>
-</div>
-    className="px-4 py-2 rounded-full text-sm font-medium border border-gray-200 bg-white hover:border-[#1d5126] transition-all"
-  >
-    {showAllCountries
-      ? "Mostrar menos ▲"
-      : `+${sortedCountries.length - 8} países ▼`}
-  </button>
 )}
   </div>
 </div>

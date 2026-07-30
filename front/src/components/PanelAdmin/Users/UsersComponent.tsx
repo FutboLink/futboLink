@@ -25,6 +25,8 @@ const UsersComponentWithContext = () => {
   const [nationalityFilter, setNationalityFilter] = useState("");
   // Fase 5 (T5.4) — filtro por estado de suscripcion (activo|vencido|por-vencer)
   const [subscriptionStatusFilter, setSubscriptionStatusFilter] = useState("");
+  // Filtro por puesto/posicion (primaryPosition): jugador, entrenador, preparador fisico, etc.
+  const [positionFilter, setPositionFilter] = useState("");
 
   // T7.1 — server-fetched stats state
   const [stats, setStats] = useState<UserStats | null>(null);
@@ -46,7 +48,13 @@ const UsersComponentWithContext = () => {
   // Fase 5 (T5.4) — + subscriptionStatus
   const fetchUsersPage = useCallback(async (
     page: number,
-    opts?: { email?: string; role?: string; nationality?: string; subscriptionStatus?: string },
+    opts?: {
+      email?: string;
+      role?: string;
+      nationality?: string;
+      subscriptionStatus?: string;
+      position?: string;
+    },
   ) => {
       try {
       setIsPageLoading(true);
@@ -75,10 +83,11 @@ const UsersComponentWithContext = () => {
         role: roleFilter || undefined,
         nationality: nationalityFilter || undefined,
         subscriptionStatus: subscriptionStatusFilter || undefined,
+        position: positionFilter || undefined,
       });
     }, 300);
     return () => clearTimeout(id);
-  }, [emailFilter, roleFilter, nationalityFilter, subscriptionStatusFilter, fetchUsersPage]);
+  }, [emailFilter, roleFilter, nationalityFilter, subscriptionStatusFilter, positionFilter, fetchUsersPage]);
 
   // T7.5 — mount-only stats fetch
   useEffect(() => {
@@ -97,6 +106,7 @@ const UsersComponentWithContext = () => {
       role: roleFilter || undefined,
       nationality: nationalityFilter || undefined,
       subscriptionStatus: subscriptionStatusFilter || undefined,
+      position: positionFilter || undefined,
     });
   };
 
@@ -109,6 +119,7 @@ const UsersComponentWithContext = () => {
         role: roleFilter || undefined,
         nationality: nationalityFilter || undefined,
         subscriptionStatus: subscriptionStatusFilter || undefined,
+        position: positionFilter || undefined,
       });
     } catch (error) {
       console.error("Failed to export users:", error);
@@ -141,6 +152,10 @@ const UsersComponentWithContext = () => {
 
   // T7.1 — role filtering is now server-side; no client-side filteredUsers needed
   const filteredUsers = users;
+
+  // Opciones del filtro de puesto: los valores distintos reales de primaryPosition,
+  // ya ordenados por cantidad desc por el backend.
+  const positionOptions = stats?.byPosition ?? [];
 
   if (isLoading || subscriptionLoading) {
     return <p className="text-center text-verde-oscuro mt-40">Cargando usuarios</p>;
@@ -271,6 +286,24 @@ const UsersComponentWithContext = () => {
             <option value="RECRUITER">Ofertante</option>
             <option value="CLUB">Club</option>
             <option value="USER">Usuario</option>
+          </select>
+        </div>
+
+        {/* Filtro por puesto — opciones dinamicas desde stats.byPosition (valores reales de la DB) */}
+        <div>
+          <label className="mr-2 font-bold text-gray-600">Puesto:</label>
+          <select
+            className="border rounded p-2 text-gray-600 hover:cursor-pointer capitalize disabled:opacity-50"
+            value={positionFilter}
+            onChange={(e) => setPositionFilter(e.target.value)}
+            disabled={positionOptions.length === 0}
+          >
+            <option value="">Todos</option>
+            {positionOptions.map(({ position, count }) => (
+              <option key={position} value={position} className="capitalize">
+                {position} ({count})
+              </option>
+            ))}
           </select>
         </div>
 

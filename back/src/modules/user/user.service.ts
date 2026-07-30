@@ -456,6 +456,7 @@ export class UserService {
     role?: string,
     nationality?: string,
     subscriptionStatus?: string,
+    position?: string,
   ): Promise<{ data: User[]; total: number; page: number; limit: number; totalPages: number }> {
     const take = Math.min(limit, 500);
     const skip = (page - 1) * take;
@@ -488,6 +489,14 @@ export class UserService {
     const natTrim = nationality?.trim() ?? '';
     if (natTrim) {
       qb.andWhere('LOWER(user.nationality) LIKE LOWER(:nat)', { nat: `%${natTrim}%` });
+    }
+
+    // Match exacto (case-insensitive): las opciones del dropdown salen de los valores
+    // distintos reales de la columna, y un LIKE haria que "defensor central" arrastre
+    // "defensor central derecho" e "izquierdo".
+    const posTrim = position?.trim() ?? '';
+    if (posTrim) {
+      qb.andWhere('LOWER(user.primaryPosition) = LOWER(:position)', { position: posTrim });
     }
 
     const statusFilter = SUBSCRIPTION_STATUS_QUERY_PARAM_MAP[subscriptionStatus?.trim() ?? ''];
@@ -552,14 +561,15 @@ export class UserService {
 
   /**
    * Genera un .xlsx con los usuarios que matchean los mismos filtros de findAll
-   * (email/role/nationality), sin paginar. Columnas: rol, posición, nacionalidad,
-   * teléfono, email.
+   * (email/role/nationality/subscriptionStatus/position), sin paginar. Columnas: rol,
+   * posición, nacionalidad, teléfono, email.
    */
   async exportUsersToExcel(
     emailFragment?: string,
     role?: string,
     nationality?: string,
     subscriptionStatus?: string,
+    position?: string,
   ): Promise<Buffer> {
     const qb = this.userRepository
       .createQueryBuilder('user')
@@ -586,6 +596,11 @@ export class UserService {
     const natTrim = nationality?.trim() ?? '';
     if (natTrim) {
       qb.andWhere('LOWER(user.nationality) LIKE LOWER(:nat)', { nat: `%${natTrim}%` });
+    }
+
+    const posTrim = position?.trim() ?? '';
+    if (posTrim) {
+      qb.andWhere('LOWER(user.primaryPosition) = LOWER(:position)', { position: posTrim });
     }
 
     const statusFilter = SUBSCRIPTION_STATUS_QUERY_PARAM_MAP[subscriptionStatus?.trim() ?? ''];

@@ -78,10 +78,11 @@ export class UserController {
     @Query('role') role?: string,
     @Query('nationality') nationality?: string,
     @Query('subscriptionStatus') subscriptionStatus?: string,
+    @Query('position') position?: string,
   ) {
     const pageNumber = page ? parseInt(page, 10) : 1;
     const limitNumber = limit ? parseInt(limit, 10) : 300;
-    return this.userService.findAll(pageNumber, limitNumber, email, role, nationality, subscriptionStatus);
+    return this.userService.findAll(pageNumber, limitNumber, email, role, nationality, subscriptionStatus, position);
   }
 
   @ApiOperation({ summary: 'Estadísticas agregadas de usuarios (admin only)' })
@@ -108,13 +109,14 @@ export class UserController {
     @Query('role') role: string,
     @Query('nationality') nationality: string,
     @Query('subscriptionStatus') subscriptionStatus: string,
+    @Query('position') position: string,
     @Req() req: any,
     @Res() res: Response,
   ) {
     if (req.user?.role !== 'ADMIN') {
       throw new ForbiddenException('Solo los administradores pueden exportar usuarios');
     }
-    const buffer = await this.userService.exportUsersToExcel(email, role, nationality, subscriptionStatus);
+    const buffer = await this.userService.exportUsersToExcel(email, role, nationality, subscriptionStatus, position);
     res.set({
       'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'Content-Disposition': 'attachment; filename="usuarios.xlsx"',

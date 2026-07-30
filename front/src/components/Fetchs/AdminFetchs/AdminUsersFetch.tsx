@@ -27,7 +27,13 @@ export interface UserStats {
 export const getUsers = async (
   page: number = 1,
   limit: number = 300,
-  opts?: { email?: string; role?: string; nationality?: string; subscriptionStatus?: string },
+  opts?: {
+    email?: string;
+    role?: string;
+    nationality?: string;
+    subscriptionStatus?: string;
+    position?: string;
+  },
 ): Promise<PaginatedUsersResponse> => {
     try {
       let url = `${apiUrl}/user?page=${page}&limit=${limit}`;
@@ -42,6 +48,9 @@ export const getUsers = async (
       }
       if (opts?.subscriptionStatus?.trim()) {
         url += `&subscriptionStatus=${encodeURIComponent(opts.subscriptionStatus)}`;
+      }
+      if (opts?.position?.trim()) {
+        url += `&position=${encodeURIComponent(opts.position)}`;
       }
       const response = await fetch(url);
       if (!response.ok) {
@@ -68,7 +77,13 @@ export const getUserStats = async (token: string): Promise<UserStats> => {
 // Fase 5 (T5.4) — extendida con subscriptionStatus (activo|vencido|por-vencer)
 export const exportUsersToExcel = async (
   token: string,
-  opts?: { email?: string; role?: string; nationality?: string; subscriptionStatus?: string },
+  opts?: {
+    email?: string;
+    role?: string;
+    nationality?: string;
+    subscriptionStatus?: string;
+    position?: string;
+  },
 ): Promise<void> => {
   let url = `${apiUrl}/user/export?`;
   const params = new URLSearchParams();
@@ -76,6 +91,7 @@ export const exportUsersToExcel = async (
   if (opts?.role?.trim()) params.set('role', opts.role);
   if (opts?.nationality?.trim()) params.set('nationality', opts.nationality);
   if (opts?.subscriptionStatus?.trim()) params.set('subscriptionStatus', opts.subscriptionStatus);
+  if (opts?.position?.trim()) params.set('position', opts.position);
   url += params.toString();
 
   const res = await fetch(url, {

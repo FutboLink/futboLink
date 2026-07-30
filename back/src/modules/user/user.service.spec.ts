@@ -596,6 +596,64 @@ describe('UserService - findAll role/nationality filtering', () => {
 });
 
 // ===========================================================================
+// admin-position-filter — findAll primaryPosition filtering
+// ===========================================================================
+
+describe('UserService - findAll primaryPosition filtering', () => {
+  it('P1.a — no position -> no extra andWhere call (comportamiento actual intacto)', async () => {
+    const qbStub = makeQueryBuilderStub([[], 0]);
+    const { service } = await buildServiceWithQb(qbStub);
+    await service.findAll(1, 300);
+    expect(qbStub.andWhere).not.toHaveBeenCalled();
+  });
+
+  it('P1.b — position="delantero centro" adds LOWER(user.primaryPosition) = LOWER(:position) (match exacto, no LIKE)', async () => {
+    const qbStub = makeQueryBuilderStub([[], 0]);
+    const { service } = await buildServiceWithQb(qbStub);
+    await service.findAll(1, 300, undefined, undefined, undefined, undefined, 'delantero centro');
+    expect(qbStub.andWhere).toHaveBeenCalledWith(
+      'LOWER(user.primaryPosition) = LOWER(:position)',
+      { position: 'delantero centro' },
+    );
+  });
+
+  it('P1.c — position se trimea y se ignora si queda vacio', async () => {
+    const qbStub = makeQueryBuilderStub([[], 0]);
+    const { service } = await buildServiceWithQb(qbStub);
+    await service.findAll(1, 300, undefined, undefined, undefined, undefined, '   ');
+    expect(qbStub.andWhere).not.toHaveBeenCalled();
+  });
+
+  it('P1.d — role=PLAYER + position=entrenador aplica AMBAS clausulas', async () => {
+    const qbStub = makeQueryBuilderStub([[], 0]);
+    const { service } = await buildServiceWithQb(qbStub);
+    await service.findAll(1, 300, undefined, 'PLAYER', undefined, undefined, 'entrenador');
+    expect(qbStub.andWhere).toHaveBeenCalledWith('user.role = :role', { role: 'PLAYER' });
+    expect(qbStub.andWhere).toHaveBeenCalledWith(
+      'LOWER(user.primaryPosition) = LOWER(:position)',
+      { position: 'entrenador' },
+    );
+  });
+
+  it('P1.e — position inexistente devuelve resultado vacio sin throw', async () => {
+    const qbStub = makeQueryBuilderStub([[], 0]);
+    const { service } = await buildServiceWithQb(qbStub);
+    const result = await service.findAll(
+      1,
+      300,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      'no-existe',
+    );
+    expect(result.data).toEqual([]);
+    expect(result.total).toBe(0);
+    expect(result.totalPages).toBe(0);
+  });
+});
+
+// ===========================================================================
 // Fase 5 (T5.1) — findAll subscriptionStatus filtering (Domain D)
 // ===========================================================================
 
@@ -833,6 +891,18 @@ describe('No-regresión A.4 y D.2 (Fase 1, Task 1.3)', () => {
       expect(qbStub.andWhere).toHaveBeenCalledWith(
         'user.subscriptionExpiresAt IS NOT NULL AND user.subscriptionExpiresAt <= :now',
         expect.objectContaining({ now: expect.any(Date) }),
+      );
+    });
+
+    it('P2 — position aplica la misma clausula exacta al query de export', async () => {
+      const qbStub = makeQueryBuilderStub([[], 0]);
+      const { service } = await buildServiceWithQb(qbStub);
+
+      await service.exportUsersToExcel(undefined, undefined, undefined, undefined, 'portero');
+
+      expect(qbStub.andWhere).toHaveBeenCalledWith(
+        'LOWER(user.primaryPosition) = LOWER(:position)',
+        { position: 'portero' },
       );
     });
 

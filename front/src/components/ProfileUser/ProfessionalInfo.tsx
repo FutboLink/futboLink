@@ -533,7 +533,8 @@ const SectionHeader: React.FC<{
                 </div>
               </div>
         )}
-</div>
+    </div>
+    )}
         {/* Sección de Datos Físicos */}
         {!isNonPlayerProfessional && (
           <div id="field-physicalData" className="border border-gray-200 rounded-lg overflow-hidden">
@@ -627,7 +628,6 @@ const SectionHeader: React.FC<{
               </div>
           </div>
         )}
-
         {/* Sección de CV */}
         <div id="field-cv" className="border border-gray-200 rounded-lg overflow-hidden">
           <SectionHeader 

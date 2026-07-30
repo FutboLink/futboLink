@@ -627,6 +627,7 @@ const SectionHeader: React.FC<{
                 </div>
               )}
           </div>
+         )}
         {/* Sección de CV */}
         <div id="field-cv" className="border border-gray-200 rounded-lg overflow-hidden">
           <SectionHeader 

@@ -459,6 +459,53 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
         Información Profesional
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+  <button
+    type="button"
+    className="rounded-2xl border border-gray-200 bg-white p-5 text-left shadow-sm hover:shadow-md transition-all"
+  >
+    <div className="text-3xl mb-3">⚽</div>
+    <h3 className="font-semibold text-gray-900">Posiciones</h3>
+    <p className="text-sm text-gray-500 mt-1">
+      Posición principal y secundaria
+    </p>
+  </button>
+
+  <button
+    type="button"
+    className="rounded-2xl border border-gray-200 bg-white p-5 text-left shadow-sm hover:shadow-md transition-all"
+  >
+    <div className="text-3xl mb-3">💪</div>
+    <h3 className="font-semibold text-gray-900">Datos físicos</h3>
+    <p className="text-sm text-gray-500 mt-1">
+      Altura, peso y perfil físico
+    </p>
+  </button>
+
+  <button
+    type="button"
+    className="rounded-2xl border border-gray-200 bg-white p-5 text-left shadow-sm hover:shadow-md transition-all"
+  >
+    <div className="text-3xl mb-3">📄</div>
+    <h3 className="font-semibold text-gray-900">CV</h3>
+    <p className="text-sm text-gray-500 mt-1">
+      Currículum profesional
+    </p>
+  </button>
+
+  <button
+    type="button"
+    className="rounded-2xl border border-gray-200 bg-white p-5 text-left shadow-sm hover:shadow-md transition-all"
+  >
+    <div className="text-3xl mb-3">🏆</div>
+    <h3 className="font-semibold text-gray-900">Trayectoria</h3>
+    <p className="text-sm text-gray-500 mt-1">
+      Experiencia deportiva
+    </p>
+  </button>
+
+</div>
         {/* Sección de Posiciones */}
         {!isNonPlayerProfessional && (
           <div id="field-primaryPosition" className="border border-gray-200 rounded-lg overflow-hidden">

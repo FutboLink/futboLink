@@ -577,14 +577,9 @@ const [activeSection, setActiveSection] = useState<
         {/* Sección de Datos Físicos */}
         {!isNonPlayerProfessional && (
           <div id="field-physicalData" className="border border-gray-200 rounded-lg overflow-hidden">
-            <SectionHeader
-              title="Datos Físicos"
-              section="physicalData"
-              icon="💪"
-            />
             <div
               className={`transition-all duration-300 ease-in-out ${
-                sectionsExpanded.physicalData
+                activeSection === "physicalData"
                   ? "max-h-[3000px] opacity-100"
                   : "max-h-0 opacity-0 overflow-hidden"
               }`}

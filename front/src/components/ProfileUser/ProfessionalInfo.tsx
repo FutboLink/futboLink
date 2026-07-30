@@ -184,7 +184,6 @@ const SectionHeader: React.FC<{
   <button
     type="button"
     onClick={() => toggleSection(section)}
-    className="
      className="
      relative
      w-full

@@ -98,7 +98,9 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
     cv: false,
     trajectory: false,
   });
-
+const [activeSection, setActiveSection] = useState<
+  "positions" | "physicalData" | "cv" | "trajectory"
+>("positions");
   // Initialize with an empty experience
   const emptyExperience = {
     id: "",
@@ -461,10 +463,15 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
-  <button
-    type="button"
-    className="rounded-2xl border border-gray-200 bg-white p-5 text-left shadow-sm hover:shadow-md transition-all"
-  >
+<button
+  type="button"
+  onClick={() => setActiveSection("positions")}
+  className={`rounded-2xl p-5 text-left transition-all ${
+    activeSection === "positions"
+      ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
+      : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
+  }`}
+>
     <div className="text-3xl mb-3">⚽</div>
     <h3 className="font-semibold text-gray-900">Posiciones</h3>
     <p className="text-sm text-gray-500 mt-1">
@@ -472,10 +479,15 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
     </p>
   </button>
 
-  <button
-    type="button"
-    className="rounded-2xl border border-gray-200 bg-white p-5 text-left shadow-sm hover:shadow-md transition-all"
-  >
+<button
+  type="button"
+  onClick={() => setActiveSection("physicalData")}
+  className={`rounded-2xl p-5 text-left transition-all ${
+    activeSection === "positions"
+      ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
+      : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
+  }`}
+>
     <div className="text-3xl mb-3">💪</div>
     <h3 className="font-semibold text-gray-900">Datos físicos</h3>
     <p className="text-sm text-gray-500 mt-1">
@@ -483,10 +495,15 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
     </p>
   </button>
 
-  <button
-    type="button"
-    className="rounded-2xl border border-gray-200 bg-white p-5 text-left shadow-sm hover:shadow-md transition-all"
-  >
+<button
+  type="button"
+  onClick={() => setActiveSection("cv")}
+  className={`rounded-2xl p-5 text-left transition-all ${
+    activeSection === "positions"
+      ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
+      : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
+  }`}
+>
     <div className="text-3xl mb-3">📄</div>
     <h3 className="font-semibold text-gray-900">CV</h3>
     <p className="text-sm text-gray-500 mt-1">
@@ -494,10 +511,15 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
     </p>
   </button>
 
-  <button
-    type="button"
-    className="rounded-2xl border border-gray-200 bg-white p-5 text-left shadow-sm hover:shadow-md transition-all"
-  >
+<button
+  type="button"
+  onClick={() => setActiveSection("trajectory")}
+  className={`rounded-2xl p-5 text-left transition-all ${
+    activeSection === "positions"
+      ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
+      : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
+  }`}
+>
     <div className="text-3xl mb-3">🏆</div>
     <h3 className="font-semibold text-gray-900">Trayectoria</h3>
     <p className="text-sm text-gray-500 mt-1">

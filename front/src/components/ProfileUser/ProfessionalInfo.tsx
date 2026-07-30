@@ -531,18 +531,13 @@ const [activeSection, setActiveSection] = useState<
         {/* Sección de Posiciones */}
         {!isNonPlayerProfessional && (
           <div id="field-primaryPosition" className="border border-gray-200 rounded-lg overflow-hidden">
-            <SectionHeader
-              title="Selección de Posiciones"
-              section="positions"
-              icon="⚽"
-            />
-            <div
-              className={`transition-all duration-300 ease-in-out ${
-                sectionsExpanded.positions
-                  ? "max-h-[3000px] opacity-100"
-                  : "max-h-0 opacity-0 overflow-hidden"
-              }`}
-            >
+<div
+  className={`transition-all duration-300 ease-in-out ${
+    activeSection === "positions"
+      ? "max-h-[3000px] opacity-100"
+      : "max-h-0 opacity-0 overflow-hidden"
+  }`}
+>
               <div className="p-3 md:p-6 bg-white border-t">
                 {/* Componente de cancha de fútbol */}
                 <FootballField

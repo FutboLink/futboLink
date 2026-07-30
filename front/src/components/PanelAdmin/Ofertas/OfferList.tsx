@@ -290,7 +290,7 @@ const sortedCountries = Object.entries(offersByCountry).sort(
       🌍 Todos ({offers.length})
     </button>
 
-    {sortedCountries.map(([country, count]) => (
+    {sortedCountries.slice(0, 8).map(([country, count]) => (
       <button
         key={country}
         onClick={() => setCountryFilter(country)}
@@ -303,7 +303,13 @@ const sortedCountries = Object.entries(offersByCountry).sort(
         {country} ({count})
       </button>
     ))}
-
+    {sortedCountries.length > 8 && (
+  <button
+    className="px-4 py-2 rounded-full text-sm font-medium border border-gray-200 bg-white hover:border-[#1d5126] transition-all"
+  >
+    +{sortedCountries.length - 8} países
+  </button>
+)}
   </div>
 </div>
       <div className="grid grid-cols-1 max-w-[100rem] mx-auto md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 py-4">

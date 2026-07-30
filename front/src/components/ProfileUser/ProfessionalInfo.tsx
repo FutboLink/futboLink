@@ -670,11 +670,10 @@ const [activeSection, setActiveSection] = useState<
         )}
 
         {/* Sección de CV */}
-        <div id="field-cv" className="border border-gray-200 rounded-lg overflow-hidden">
-          <SectionHeader title="Currículum Vitae" section="cv" icon="📄" />
+        <div id="field-cv" className="border border-gray-200 rounded-lg overflow-hidden">         
           <div
             className={`transition-all duration-300 ease-in-out ${
-              sectionsExpanded.cv
+              activeSection === "cv"
                 ? "max-h-full opacity-100"
                 : "max-h-0 opacity-0 overflow-hidden"
             }`}
@@ -734,10 +733,9 @@ const [activeSection, setActiveSection] = useState<
 
         {/* Sección de Trayectoria */}
         <div id="field-trayectorias" className="border border-gray-200 rounded-lg overflow-hidden">
-          <SectionHeader title="Trayectoria" section="trajectory" icon="🏆" />
           <div
             className={`transition-all duration-300 ease-in-out ${
-              sectionsExpanded.trajectory
+              activeSection === "trajectory"
                 ? "max-h-full opacity-100"
                 : "max-h-0 opacity-0 overflow-hidden"
             }`}

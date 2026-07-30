@@ -92,12 +92,9 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
   } | null>(profileData.cv ? { url: profileData.cv, filename: "CV" } : null);
 
   // Estados para controlar las secciones desplegables
-  const [sectionsExpanded, setSectionsExpanded] = useState({
-    positions: true, // Posiciones abiertas por defecto
-    physicalData: false,
-    cv: false,
-    trajectory: false,
-  });
+ const [activeSection, setActiveSection] = useState<
+  "positions" | "physicalData" | "cv" | "trajectory"
+>("positions");
 
   // Initialize with an empty experience
   const emptyExperience = {
@@ -167,23 +164,22 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
   const { nationalities } = useNationalities();
 
   // Función para togglear secciones
-  const toggleSection = (section: keyof typeof sectionsExpanded) => {
-    setSectionsExpanded((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
-  };
+  const changeSection = (
+  section: "positions" | "physicalData" | "cv" | "trajectory"
+) => {
+  setActiveSection(section);
+};
 
   // Componente para el header de sección
 const SectionHeader: React.FC<{
   title: string;
   description?: string;
-  section: keyof typeof sectionsExpanded;
+  section: "positions" | "physicalData" | "cv" | "trajectory";
   icon?: string;
 }> = ({ title, description, section, icon }) => (
   <button
     type="button"
-    onClick={() => toggleSection(section)}
+    onClick={() => changeSection(section)}
      className="
      relative
      w-full
@@ -228,11 +224,11 @@ const SectionHeader: React.FC<{
     </div>
 
     <div className="text-[#1d5126]">
-      {sectionsExpanded[section] ? (
-        <FaChevronDown size={18} />
-      ) : (
-        <FaChevronRight size={18} />
-      )}
+      {activeSection === section ? (
+       <FaChevronDown size={18} />
+   ) : (
+       <FaChevronRight size={18} />
+    )}
     </div>
 
   </button>
@@ -503,13 +499,7 @@ const SectionHeader: React.FC<{
               section="positions"
               icon="⚽"
               />
-            <div
-              className={`transition-all duration-300 ease-in-out ${
-                sectionsExpanded.positions
-                  ? "max-h-[3000px] opacity-100"
-                  : "max-h-0 opacity-0 overflow-hidden"
-              }`}
-            >
+            {activeSection === "positions" && (
               <div className="p-3 md:p-6 bg-white border-t">
                 {/* Componente de cancha de fútbol */}
                 <FootballField
@@ -542,8 +532,6 @@ const SectionHeader: React.FC<{
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
         )}
 
         {/* Sección de Datos Físicos */}
@@ -555,13 +543,8 @@ const SectionHeader: React.FC<{
               section="physicalData"
               icon="💪"
             />
-            <div
-              className={`transition-all duration-300 ease-in-out ${
-                sectionsExpanded.physicalData
-                  ? "max-h-[3000px] opacity-100"
-                  : "max-h-0 opacity-0 overflow-hidden"
-              }`}
-            >
+            {activeSection === "physicalData" && (
+            <div className="p-6 bg-white border-t">
               <div className="p-6 bg-white border-t">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="mb-4">
@@ -643,7 +626,6 @@ const SectionHeader: React.FC<{
                   </div>
                 </div>
               </div>
-            </div>
           </div>
         )}
 
@@ -654,13 +636,8 @@ const SectionHeader: React.FC<{
             description="Subí tu CV para mejorar tu perfil profesional."
             section="cv" 
             icon="📄" />
-          <div
-            className={`transition-all duration-300 ease-in-out ${
-              sectionsExpanded.cv
-                ? "max-h-full opacity-100"
-                : "max-h-0 opacity-0 overflow-hidden"
-            }`}
-          >
+          {activeSection === "cv" && (
+           <div className="p-6 bg-white border-t">   
             <div className="p-6 bg-white border-t">
               {cvInfo ? (
                 <div className="mb-4">
@@ -721,13 +698,8 @@ const SectionHeader: React.FC<{
             description="Agregá tu experiencia en clubes, ligas o instituciones."
             section="trajectory" 
             icon="🏆" />
-          <div
-            className={`transition-all duration-300 ease-in-out ${
-              sectionsExpanded.trajectory
-                ? "max-h-full opacity-100"
-                : "max-h-0 opacity-0 overflow-hidden"
-            }`}
-          >
+          {activeSection === "trajectory" && (
+           <div className="p-6 bg-white border-t">
             <div className="p-6 bg-white border-t">
               {experiences.map((exp, index) => (
                 <div

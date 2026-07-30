@@ -185,23 +185,29 @@ const SectionHeader: React.FC<{
     type="button"
     onClick={() => toggleSection(section)}
     className="
-      w-full
-      flex
-      items-center
-      justify-between
-      rounded-xl
-      border
-      border-gray-200
-      bg-white
-      px-6
-      py-5
-      shadow-sm
-      transition-all
-      duration-200
-      hover:border-[#1d5126]
-      hover:shadow-md
+     className="
+     relative
+     w-full
+     flex
+     items-center
+     justify-between
+     overflow-hidden
+     rounded-2xl
+     border
+     border-gray-200
+     bg-white
+     px-6
+     py-5
+     shadow-sm
+     transition-all
+     duration-200
+    hover:-translate-y-0.5
+    hover:border-[#1d5126]
+    hover:shadow-lg
     "
   >
+    <div className="absolute left-0 top-0 h-full w-1.5 bg-[#1d5126]" />
+
     <div className="flex items-center gap-4">
 
       <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 text-2xl">

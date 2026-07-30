@@ -183,11 +183,17 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
     <button
       type="button"
       onClick={() => toggleSection(section)}
-      className="w-full flex items-center justify-between p-4 bg-[#1d5126] text-white rounded-t-lg hover:bg-[#143a1b] transition-colors cursor-pointer"
+      className="w-full flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-6 py-5 shadow-sm hover:shadow-md transition-all"
     >
-      <div className="flex items-center gap-3">
-        {icon && <span className="text-xl">{icon}</span>}
-        <h3 className="text-xl font-medium">{title}</h3>
+      <div className="flex items-center gap-4">
+        {icon && (
+  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1d5126]/10 text-2xl">
+    {icon}
+  </div>
+)}
+        <h3 className="text-lg font-semibold text-gray-900">
+  {title}
+</h3>
       </div>
       {sectionsExpanded[section] ? (
         <FaChevronDown className="text-lg" />

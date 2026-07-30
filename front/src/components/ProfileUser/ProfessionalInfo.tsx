@@ -175,27 +175,63 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
   };
 
   // Componente para el header de sección
-  const SectionHeader: React.FC<{
-    title: string;
-    section: keyof typeof sectionsExpanded;
-    icon?: string;
-  }> = ({ title, section, icon }) => (
-    <button
-      type="button"
-      onClick={() => toggleSection(section)}
-      className="w-full flex items-center justify-between p-4 bg-[#1d5126] text-white rounded-t-lg hover:bg-[#143a1b] transition-colors cursor-pointer"
-    >
-      <div className="flex items-center gap-3">
-        {icon && <span className="text-xl">{icon}</span>}
-        <h3 className="text-xl font-medium">{title}</h3>
+const SectionHeader: React.FC<{
+  title: string;
+  description?: string;
+  section: keyof typeof sectionsExpanded;
+  icon?: string;
+}> = ({ title, description, section, icon }) => (
+  <button
+    type="button"
+    onClick={() => toggleSection(section)}
+    className="
+      w-full
+      flex
+      items-center
+      justify-between
+      rounded-xl
+      border
+      border-gray-200
+      bg-white
+      px-6
+      py-5
+      shadow-sm
+      transition-all
+      duration-200
+      hover:border-[#1d5126]
+      hover:shadow-md
+    "
+  >
+    <div className="flex items-center gap-4">
+
+      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 text-2xl">
+        {icon}
       </div>
+
+      <div className="text-left">
+      <h3 className="text-lg font-semibold text-gray-900">
+    {title}
+  </h3>
+
+  {description && (
+    <p className="text-sm text-gray-500 mt-1">
+      {description}
+    </p>
+  )}
+</div>
+
+    </div>
+
+    <div className="text-[#1d5126]">
       {sectionsExpanded[section] ? (
-        <FaChevronDown className="text-lg" />
+        <FaChevronDown size={18} />
       ) : (
-        <FaChevronRight className="text-lg" />
+        <FaChevronRight size={18} />
       )}
-    </button>
-  );
+    </div>
+
+  </button>
+);
 
   // Solo el Futbolista puro (PLAYER + puesto = Jugador, o legacy sin
   // puesto) muestra Posiciones y Datos Físicos. El Cuerpo Técnico
@@ -458,9 +494,10 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
           <div id="field-primaryPosition" className="border border-gray-200 rounded-lg overflow-hidden">
             <SectionHeader
               title="Selección de Posiciones"
+              description="Elegí tu posición principal y secundaria."
               section="positions"
               icon="⚽"
-            />
+              />
             <div
               className={`transition-all duration-300 ease-in-out ${
                 sectionsExpanded.positions
@@ -509,6 +546,7 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
           <div id="field-physicalData" className="border border-gray-200 rounded-lg overflow-hidden">
             <SectionHeader
               title="Datos Físicos"
+              description="Completá tu altura, peso y características físicas."
               section="physicalData"
               icon="💪"
             />
@@ -606,7 +644,11 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
 
         {/* Sección de CV */}
         <div id="field-cv" className="border border-gray-200 rounded-lg overflow-hidden">
-          <SectionHeader title="Currículum Vitae" section="cv" icon="📄" />
+          <SectionHeader 
+            title="Currículum Vitae" 
+            description="Subí tu CV para mejorar tu perfil profesional."
+            section="cv" 
+            icon="📄" />
           <div
             className={`transition-all duration-300 ease-in-out ${
               sectionsExpanded.cv
@@ -669,7 +711,11 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
 
         {/* Sección de Trayectoria */}
         <div id="field-trayectorias" className="border border-gray-200 rounded-lg overflow-hidden">
-          <SectionHeader title="Trayectoria" section="trajectory" icon="🏆" />
+          <SectionHeader 
+            title="Trayectoria" 
+            description="Agregá tu experiencia en clubes, ligas o instituciones."
+            section="trajectory" 
+            icon="🏆" />
           <div
             className={`transition-all duration-300 ease-in-out ${
               sectionsExpanded.trajectory

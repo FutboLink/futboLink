@@ -1,8 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import {
-  FaChevronDown,
-  FaChevronRight,
   FaDownload,
   FaFile,
   FaFilePdf,
@@ -160,35 +158,6 @@ const [activeSection, setActiveSection] = useState<
 
   // Lista de países para el selector de la trayectoria (País → Club → Liga).
   const { nationalities } = useNationalities();
-
-  // Componente para el header de sección
-  const SectionHeader: React.FC<{
-    title: string;
-    section: keyof typeof sectionsExpanded;
-    icon?: string;
-  }> = ({ title, section, icon }) => (
-    <button
-      type="button"
-      onClick={() => toggleSection(section)}
-      className="w-full flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-6 py-5 shadow-sm hover:shadow-md transition-all"
-    >
-      <div className="flex items-center gap-4">
-        {icon && (
-  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1d5126]/10 text-2xl">
-    {icon}
-  </div>
-)}
-        <h3 className="text-lg font-semibold text-gray-900">
-  {title}
-</h3>
-      </div>
-      {sectionsExpanded[section] ? (
-        <FaChevronDown className="text-lg" />
-      ) : (
-        <FaChevronRight className="text-lg" />
-      )}
-    </button>
-  );
 
   // Solo el Futbolista puro (PLAYER + puesto = Jugador, o legacy sin
   // puesto) muestra Posiciones y Datos Físicos. El Cuerpo Técnico

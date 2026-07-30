@@ -15,6 +15,7 @@ const OfferList: React.FC = () => {
   const [contractTypeFilter, setContractTypeFilter] = useState<string>("");
   const [positionFilter, setPositionFilter] = useState<string>("");
   const [countryFilter, setCountryFilter] = useState<string>("");
+  const [showAllCountries, setShowAllCountries] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isToken, setIsTokene] = useState(false);
   const [isOffer, setIsOffer] = useState<IOfferCard>();
@@ -291,7 +292,10 @@ const sortedCountries = Object.entries(offersByCountry).sort(
       🌍 Todos ({offers.length})
     </button>
 
-    {sortedCountries.slice(0, 8).map(([country, count]) => (
+    {(showAllCountries
+  ? sortedCountries
+  : sortedCountries.slice(0, 8)
+).map(([country, count]) => (
       <button
         key={country}
         onClick={() => setCountryFilter(country)}
@@ -310,9 +314,12 @@ const sortedCountries = Object.entries(offersByCountry).sort(
     ))}
     {sortedCountries.length > 8 && (
   <button
+    onClick={() => setShowAllCountries(!showAllCountries)}
     className="px-4 py-2 rounded-full text-sm font-medium border border-gray-200 bg-white hover:border-[#1d5126] transition-all"
   >
-    +{sortedCountries.length - 8} países
+    {showAllCountries
+      ? "Mostrar menos ▲"
+      : `+${sortedCountries.length - 8} países ▼`}
   </button>
 )}
   </div>

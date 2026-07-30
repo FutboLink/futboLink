@@ -492,7 +492,7 @@ const [activeSection, setActiveSection] = useState<
       : "max-h-0 opacity-0 overflow-hidden"
   }`}
 >
-              <div className="p-3 md:p-6 bg-white border-t">
+              <div className="p-3 md:p-6 bg-white">
                 {/* Componente de cancha de fútbol */}
                 <FootballField
                   primaryPosition={primaryPosition}
@@ -538,7 +538,7 @@ const [activeSection, setActiveSection] = useState<
                   : "max-h-0 opacity-0 overflow-hidden"
               }`}
             >
-              <div className="p-6 bg-white border-t">
+              <div className="p-6 bg-white">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="mb-4">
                     <label
@@ -632,7 +632,7 @@ const [activeSection, setActiveSection] = useState<
                 : "max-h-0 opacity-0 overflow-hidden"
             }`}
           >
-            <div className="p-6 bg-white border-t">
+            <div className="p-6 bg-white">
               {cvInfo ? (
                 <div className="mb-4">
                   <div className="flex items-center p-3 bg-gray-50 rounded-lg">
@@ -694,7 +694,7 @@ const [activeSection, setActiveSection] = useState<
                 : "max-h-0 opacity-0 overflow-hidden"
             }`}
           >
-            <div className="p-6 bg-white border-t">
+            <div className="p-6 bg-white">
               {experiences.map((exp, index) => (
                 <div
                   key={exp.id}

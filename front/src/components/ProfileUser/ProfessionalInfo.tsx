@@ -533,7 +533,7 @@ const SectionHeader: React.FC<{
                 </div>
               </div>
         )}
-
+</div>
         {/* Sección de Datos Físicos */}
         {!isNonPlayerProfessional && (
           <div id="field-physicalData" className="border border-gray-200 rounded-lg overflow-hidden">
@@ -545,7 +545,6 @@ const SectionHeader: React.FC<{
             />
             {activeSection === "physicalData" && (
             <div className="p-6 bg-white border-t">
-              <div className="p-6 bg-white border-t">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="mb-4">
                     <label
@@ -638,7 +637,6 @@ const SectionHeader: React.FC<{
             icon="📄" />
           {activeSection === "cv" && (
            <div className="p-6 bg-white border-t">   
-            <div className="p-6 bg-white border-t">
               {cvInfo ? (
                 <div className="mb-4">
                   <div className="flex items-center p-3 bg-gray-50 rounded-lg">
@@ -688,7 +686,7 @@ const SectionHeader: React.FC<{
                 </div>
               )}
             </div>
-          </div>
+           )}
         </div>
 
         {/* Sección de Trayectoria */}
@@ -700,7 +698,6 @@ const SectionHeader: React.FC<{
             icon="🏆" />
           {activeSection === "trajectory" && (
            <div className="p-6 bg-white border-t">
-            <div className="p-6 bg-white border-t">
               {experiences.map((exp, index) => (
                 <div
                   key={exp.id}
@@ -928,7 +925,7 @@ const SectionHeader: React.FC<{
                 <FaPlus /> Agregar Experiencia
               </button>
             </div>
-          </div>
+           )}
         </div>
 
         <div className="flex justify-end pt-4">

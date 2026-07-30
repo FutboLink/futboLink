@@ -90,14 +90,7 @@ const ProfessionalInfo: React.FC<ProfessionalInfoProps> = ({
     url: string;
     filename: string;
   } | null>(profileData.cv ? { url: profileData.cv, filename: "CV" } : null);
-
-  // Estados para controlar las secciones desplegables
-  const [sectionsExpanded, setSectionsExpanded] = useState({
-    positions: true, // Posiciones abiertas por defecto
-    physicalData: false,
-    cv: false,
-    trajectory: false,
-  });
+  
 const [activeSection, setActiveSection] = useState<
   "positions" | "physicalData" | "cv" | "trajectory"
 >("positions");
@@ -167,14 +160,6 @@ const [activeSection, setActiveSection] = useState<
 
   // Lista de países para el selector de la trayectoria (País → Club → Liga).
   const { nationalities } = useNationalities();
-
-  // Función para togglear secciones
-  const toggleSection = (section: keyof typeof sectionsExpanded) => {
-    setSectionsExpanded((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
-  };
 
   // Componente para el header de sección
   const SectionHeader: React.FC<{
@@ -483,7 +468,7 @@ const [activeSection, setActiveSection] = useState<
   type="button"
   onClick={() => setActiveSection("physicalData")}
   className={`rounded-2xl p-5 text-left transition-all ${
-    activeSection === "positions"
+    activeSection === "physicalData"
       ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
       : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
   }`}
@@ -499,7 +484,7 @@ const [activeSection, setActiveSection] = useState<
   type="button"
   onClick={() => setActiveSection("cv")}
   className={`rounded-2xl p-5 text-left transition-all ${
-    activeSection === "positions"
+    activeSection === "cv"
       ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
       : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
   }`}
@@ -515,7 +500,7 @@ const [activeSection, setActiveSection] = useState<
   type="button"
   onClick={() => setActiveSection("trajectory")}
   className={`rounded-2xl p-5 text-left transition-all ${
-    activeSection === "positions"
+    activeSection === "trajectory"
       ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
       : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
   }`}

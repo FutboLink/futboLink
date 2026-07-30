@@ -13,6 +13,7 @@ const OfferList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [contractTypeFilter, setContractTypeFilter] = useState<string>("");
   const [positionFilter, setPositionFilter] = useState<string>("");
+  const [countryFilter, setCountryFilter] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isToken, setIsTokene] = useState(false);
   const [isOffer, setIsOffer] = useState<IOfferCard>();
@@ -107,6 +108,16 @@ const OfferList: React.FC = () => {
         offer.position?.includes(positionFilter)
       );
     }
+    // Filtro por país
+if (countryFilter) {
+  filtered = filtered.filter((offer) => {
+    if (offer.countries && offer.countries.length > 0) {
+      return offer.countries.includes(countryFilter);
+    }
+
+    return offer.nationality === countryFilter;
+  });
+}
 
     // Filtro por términos de búsqueda
     if (searchTerm) {
@@ -122,11 +133,29 @@ const OfferList: React.FC = () => {
     }
 
     setFilteredOffers(filtered);
-  }, [searchTerm, contractTypeFilter, positionFilter, offers]);
+  }, [searchTerm, contractTypeFilter, positionFilter, countryFilter, offers]);
 
   const sortedOffers = filteredOffers.slice().sort((a, b) => {
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
+  const offersByCountry = offers.reduce((acc, offer) => {
+  const countries =
+    offer.countries && offer.countries.length > 0
+      ? offer.countries
+      : offer.nationality
+      ? [offer.nationality]
+      : [];
+
+  countries.forEach((country) => {
+    acc[country] = (acc[country] || 0) + 1;
+  });
+
+  return acc;
+}, {} as Record<string, number>);
+
+const sortedCountries = Object.entries(offersByCountry).sort(
+  (a, b) => b[1] - a[1]
+);
 
   const handleApplyClick = (offer: string | undefined) => {
     const findOffer = sortedOffers.find((el) => el.id === offer);
@@ -247,7 +276,36 @@ const OfferList: React.FC = () => {
     </div>
   </div>
 </div>
+<div className="max-w-[100rem] mx-auto mb-8">
+  <div className="flex flex-wrap items-center gap-3">
 
+    <button
+      onClick={() => setCountryFilter("")}
+      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+        countryFilter === ""
+          ? "bg-[#1d5126] text-white"
+          : "bg-white border border-gray-200 hover:border-[#1d5126]"
+      }`}
+    >
+      🌍 Todos ({offers.length})
+    </button>
+
+    {sortedCountries.map(([country, count]) => (
+      <button
+        key={country}
+        onClick={() => setCountryFilter(country)}
+        className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+          countryFilter === country
+            ? "bg-[#1d5126] text-white"
+            : "bg-white border border-gray-200 hover:border-[#1d5126]"
+        }`}
+      >
+        {country} ({count})
+      </button>
+    ))}
+
+  </div>
+</div>
       <div className="grid grid-cols-1 max-w-[100rem] mx-auto md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 py-4">
         {sortedOffers.length > 0 ? (
           sortedOffers.map((offer) => (

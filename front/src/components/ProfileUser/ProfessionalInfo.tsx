@@ -715,15 +715,40 @@ const [activeSection, setActiveSection] = useState<
       </div>
     )}
 
-    <div>
-      <h4 className="text-lg font-semibold text-[#1d5126]">
-        {exp.club || `Experiencia ${index + 1}`}
-      </h4>
+<div>
+  <h4 className="text-lg font-semibold text-[#1d5126]">
+    {exp.club || `Experiencia ${index + 1}`}
+  </h4>
 
-      <p className="text-sm text-gray-500">
-        {exp.nacionalidadTrayectoria || "Sin país"}
-      </p>
-    </div>
+  <p className="text-sm text-gray-500">
+    🌍 {exp.nacionalidadTrayectoria || "Sin país"}
+  </p>
+
+  {(exp.fechaInicio || exp.fechaFinalizacion) && (
+    <p className="text-sm text-gray-500">
+      📅{" "}
+      {exp.fechaInicio
+        ? new Date(exp.fechaInicio).toLocaleDateString("es-ES", {
+            month: "long",
+            year: "numeric",
+          })
+        : "—"}
+      {" - "}
+      {exp.fechaFinalizacion
+        ? new Date(exp.fechaFinalizacion).toLocaleDateString("es-ES", {
+            month: "long",
+            year: "numeric",
+          })
+        : "Actualidad"}
+    </p>
+  )}
+
+  {exp.categoriaEquipo && (
+    <p className="text-sm text-gray-500">
+      🏆 {exp.categoriaEquipo}
+    </p>
+  )}
+</div>
 
   </div>
 

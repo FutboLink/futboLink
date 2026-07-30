@@ -625,7 +625,7 @@ const SectionHeader: React.FC<{
                     />
                   </div>
                 </div>
-              </div>
+              )}
           </div>
         )}
         {/* Sección de CV */}

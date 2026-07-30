@@ -284,9 +284,6 @@ const sortedCountries = Object.entries(offersByCountry).sort(
     </option>
   ))}
 </select>
-      <button
-        className="h-14 px-8 rounded-2xl bg-[#1d5126] text-white font-semibold hover:bg-[#163d1e] transition-all shadow-sm hover:shadow-md"
-      >
 </div>
 </div>
       <div className="grid grid-cols-1 max-w-[100rem] mx-auto md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 py-4">

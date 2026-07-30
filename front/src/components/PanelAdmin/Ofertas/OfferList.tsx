@@ -5,6 +5,7 @@ import { IOfferCard } from "@/Interfaces/IOffer";
 import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
 import { UserContext } from "@/components/Context/UserContext";
 import ModalApplication from "@/components/Applications/ModalApplications";
+import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
 
 const OfferList: React.FC = () => {
   const [offers, setOffers] = useState<IOfferCard[]>([]);
@@ -299,8 +300,12 @@ const sortedCountries = Object.entries(offersByCountry).sort(
             ? "bg-[#1d5126] text-white"
             : "bg-white border border-gray-200 hover:border-[#1d5126]"
         }`}
-      >
-        {country} ({count})
+          title={`${country} - ${count} ofertas`}
+         >
+           <div className="flex items-center gap-2">
+            {renderCountryFlag(country)}
+             <span className="font-semibold">{count}</span>
+         </div>
       </button>
     ))}
     {sortedCountries.length > 8 && (

@@ -700,19 +700,42 @@ const [activeSection, setActiveSection] = useState<
                   key={exp.id}
                   className="mb-4 p-2 md:p-4 border border-gray-200 rounded-lg"
                 >
-                  <div className="flex justify-between items-center mb-4">
-                    <h4 className="text-lg text-verde-oscuro font-medium">
-                      Experiencia {index + 1}
-                    </h4>
-                    <button
-                      type="button"
-                      onClick={() => removeExperience(index)}
-                      className="text-red-500 hover:text-red-700"
-                      disabled={experiences.length === 1}
-                    >
-                      {experiences.length > 1 && <FaTrash />}
-                    </button>
-                  </div>
+<div className="flex justify-between items-center mb-4">
+  <div className="flex items-center gap-4">
+
+    {exp.clubPageLogo ? (
+      <img
+        src={exp.clubPageLogo}
+        alt={exp.club}
+        className="w-14 h-14 rounded-lg object-contain border bg-white p-1"
+      />
+    ) : (
+      <div className="w-14 h-14 rounded-lg border bg-gray-100 flex items-center justify-center text-2xl">
+        🛡️
+      </div>
+    )}
+
+    <div>
+      <h4 className="text-lg font-semibold text-[#1d5126]">
+        {exp.club || `Experiencia ${index + 1}`}
+      </h4>
+
+      <p className="text-sm text-gray-500">
+        {exp.nacionalidadTrayectoria || "Sin país"}
+      </p>
+    </div>
+
+  </div>
+
+  <button
+    type="button"
+    onClick={() => removeExperience(index)}
+    className="text-red-500 hover:text-red-700"
+    disabled={experiences.length === 1}
+  >
+    {experiences.length > 1 && <FaTrash />}
+  </button>
+</div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* 1) País — filtra los clubes y ligas que se ofrecen */}

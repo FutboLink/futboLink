@@ -5,7 +5,6 @@ import { IOfferCard } from "@/Interfaces/IOffer";
 import { getOfertas } from "@/components/Fetchs/OfertasFetch/OfertasAdminFetch";
 import { UserContext } from "@/components/Context/UserContext";
 import ModalApplication from "@/components/Applications/ModalApplications";
-import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
 
 const OfferList: React.FC = () => {
   const [offers, setOffers] = useState<IOfferCard[]>([]);
@@ -15,7 +14,6 @@ const OfferList: React.FC = () => {
   const [contractTypeFilter, setContractTypeFilter] = useState<string>("");
   const [positionFilter, setPositionFilter] = useState<string>("");
   const [countryFilter, setCountryFilter] = useState<string>("");
-  const [showAllCountries, setShowAllCountries] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isToken, setIsTokene] = useState(false);
   const [isOffer, setIsOffer] = useState<IOfferCard>();
@@ -253,7 +251,7 @@ const sortedCountries = Object.entries(offersByCountry).sort(
       </select>
 
       {/* Posición */}
-
+      
       <select
         value={positionFilter}
         onChange={(e) => setPositionFilter(e.target.value)}
@@ -268,7 +266,24 @@ const sortedCountries = Object.entries(offersByCountry).sort(
         ))}
 
       </select>
+        {/* País */}
 
+<select
+  value={countryFilter}
+  onChange={(e) => setCountryFilter(e.target.value)}
+  className="h-14 min-w-[220px] rounded-2xl border border-gray-200 bg-white px-4 text-gray-700 focus:ring-2 focus:ring-[#1d5126]"
+>
+  <option value="">🌍 País</option>
+
+  {sortedCountries.map(([country, count]) => (
+    <option
+      key={country}
+      value={country}
+    >
+      {country} ({count})
+    </option>
+  ))}
+</select>
       <button
         className="h-14 px-8 rounded-2xl bg-[#1d5126] text-white font-semibold hover:bg-[#163d1e] transition-all shadow-sm hover:shadow-md"
       >
@@ -278,43 +293,6 @@ const sortedCountries = Object.entries(offersByCountry).sort(
     </div>
   </div>
 </div>
-<div className="max-w-[100rem] mx-auto mb-8">
-  <div className="flex flex-wrap items-center gap-3">
-
-    <button
-      onClick={() => setCountryFilter("")}
-      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-        countryFilter === ""
-          ? "bg-[#1d5126] text-white"
-          : "bg-white border border-gray-200 hover:border-[#1d5126]"
-      }`}
-    >
-      🌍 Todos ({offers.length})
-    </button>
-
-    {(showAllCountries
-  ? sortedCountries
-  : sortedCountries.slice(0, 8)
-).map(([country, count]) => (
-      <button
-        key={country}
-        onClick={() => setCountryFilter(country)}
-        className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-          countryFilter === country
-            ? "bg-[#1d5126] text-white"
-            : "bg-white border border-gray-200 hover:border-[#1d5126]"
-        }`}
-          title={`${country} - ${count} ofertas`}
-         >
-           <div className="flex items-center gap-2">
-            {renderCountryFlag(country)}
-             <span className="font-semibold">{count}</span>
-         </div>
-      </button>
-    ))}
-    {sortedCountries.length > 8 && (
-  <button
-    onClick={() => setShowAllCountries(!showAllCountries)}
     className="px-4 py-2 rounded-full text-sm font-medium border border-gray-200 bg-white hover:border-[#1d5126] transition-all"
   >
     {showAllCountries

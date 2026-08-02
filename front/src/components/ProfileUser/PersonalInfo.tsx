@@ -379,8 +379,9 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
           {/* ============================================================
                                       PERFIL
            ============================================================ */}
-          {activeSection === "profile" && (
-          {/* Imagen de perfil (URL) */}
+         {activeSection === "profile" && (
+          <>
+           {/* Imagen de perfil (URL) */}
           <div
             id="field-imgUrl"
             className="sm:col-span-2 flex flex-col items-center rounded-lg p-1 transition-shadow"
@@ -435,7 +436,8 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
               className="w-full p-1.5 border rounded mt-2 text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
             />
           </div>
-       )}
+         </>
+        )} 
         {/* ============================================================
                              INFORMACIÓN PERSONAL
          ============================================================ */}

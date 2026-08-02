@@ -757,7 +757,7 @@ const [activeSection, setActiveSection] = useState<
            </p>
          )}
       </div>
-   < /div>
+   </div>
 <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
 
 <button

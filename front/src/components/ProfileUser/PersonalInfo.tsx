@@ -46,6 +46,9 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
   const [showErrorNotification, setShowErrorNotification] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showSocials, setShowSocials] = useState(true);
+  const [activeSection, setActiveSection] = useState<
+  "profile" | "personal" | "contact" | "social"
+  >("profile");
   const [hasSecondNationality, setHasSecondNationality] = useState(false);
   // Normaliza valores de redes para evitar URLs pre-cargadas
   const normalizeSocialValue = (key: string, value: string): string => {

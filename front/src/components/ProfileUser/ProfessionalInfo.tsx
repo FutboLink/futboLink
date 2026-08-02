@@ -416,6 +416,9 @@ const [activeSection, setActiveSection] = useState<
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+         
+        {!isNonPlayerProfessional && (
+     <>
 
 <button
   type="button"
@@ -432,7 +435,8 @@ const [activeSection, setActiveSection] = useState<
       Posición principal y secundaria
     </p>
   </button>
-
+    </>
+  )}
 <button
   type="button"
   onClick={() => setActiveSection("physicalData")}

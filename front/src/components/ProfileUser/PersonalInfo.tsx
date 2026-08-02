@@ -46,9 +46,6 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
   const [showErrorNotification, setShowErrorNotification] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showSocials, setShowSocials] = useState(true);
-  const [activeSection, setActiveSection] = useState<
-  "profile" | "personal" | "contact" | "social"
-  >("profile");
   const [hasSecondNationality, setHasSecondNationality] = useState(false);
   // Normaliza valores de redes para evitar URLs pre-cargadas
   const normalizeSocialValue = (key: string, value: string): string => {
@@ -303,37 +300,6 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
       <h2 className="text-sm font-semibold mt-2 text-center p-2 bg-gray-100 text-gray-700">
         {getText("Información Personal", "personalInformation")}
       </h2>
-      <div className="border border-gray-200 rounded-xl overflow-hidden mb-4">
-
-  <button
-    type="button"
-    onClick={() => setActiveSection("profile")}
-    className="w-full flex items-center justify-between px-5 py-4 bg-white hover:bg-gray-50 transition"
-  >
-
-    <div className="text-left">
-
-      <h3 className="font-semibold text-gray-800">
-        👤 Perfil
-      </h3>
-
-      <p className="text-sm text-gray-500">
-        Foto, nombre y correo electrónico
-      </p>
-
-    </div>
-
-    <span
-      className={`transition-transform duration-300 ${
-        activeSection === "profile" ? "rotate-180" : ""
-      }`}
-    >
-      ▼
-    </span>
-
-  </button>
-
-</div>
       {loading ? (
         <p>{getText("Cargando los datos...", "loadingData")}</p>
       ) : error ? (

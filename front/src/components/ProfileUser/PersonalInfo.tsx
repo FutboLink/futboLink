@@ -301,7 +301,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
   return (
 <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
 
-  <h2 className="text-4xl font-bold text-[#1d5126] mb-6">
+  <h2 className="text-2xl font-bold text-[#1d5126] mb-6">
     {getText("Información Personal", "personalInformation")}
   </h2>
    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

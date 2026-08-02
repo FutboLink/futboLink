@@ -321,7 +321,6 @@ activeSection === "profile"
     <p className="text-sm text-gray-500 mt-1">
       Foto y datos básicos
       </p>
-    </div>
   </button>
 
   <button
@@ -337,11 +336,9 @@ activeSection === "profile"
     <h3 className="font-semibold text-gray-900">
     Información
     </h3>
-    </div>
     <p className="text-sm text-gray-500 mt-1">
     Datos personales
     </p> 
-    </div>
   </button>
 
   <button
@@ -357,11 +354,9 @@ activeSection === "profile"
     <h3 className="font-semibold text-gray-900">
     Contacto
     </h3>
-    </div>
     <p className="text-sm text-gray-500 mt-1">
     Teléfono y redes
       </p>  
-    </div>
   </button>
 
   <button
@@ -377,11 +372,9 @@ activeSection === "profile"
     <h3 className="font-semibold text-gray-900">
       Multimedia
       </h3>
-      </div>
     <p className="text-sm text-gray-500 mt-1">
       Videos y fotos
       </p>
-    </div>
   </button>
 
 </div>   

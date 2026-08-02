@@ -315,9 +315,12 @@ activeSection === "profile"
     }`}
   >
     <div className="text-3xl mb-3">👤</div>
-    <h3 className="font-semibold text-gray-900">Perfil</h3>
-    <p className="text-sm text-gray-500 mt-1"></p>
+    <h3 className="font-semibold text-gray-900">
+      Perfil
+    </h3>
+    <p className="text-sm text-gray-500 mt-1">
       Foto y datos básicos
+      </p>
     </div>
   </button>
 
@@ -330,10 +333,14 @@ activeSection === "profile"
         : "border-gray-200 bg-white hover:shadow"
     }`}
   >
-    <div className="text-2xl mb-1">🌍</div>
-    <div className="font-semibold">Información</div>
-    <div className="text-xs text-gray-500">
-      Datos personales
+    <div className="text-3xl mb-3">🌍</div>
+    <h3 className="font-semibold text-gray-900">
+    Información
+    </h3>
+    </div>
+    <p className="text-sm text-gray-500 mt-1">
+    Datos personales
+    </p> 
     </div>
   </button>
 
@@ -342,14 +349,18 @@ activeSection === "profile"
     onClick={() => setActiveSection("contact")}
     className={`rounded-xl border p-4 text-left transition-all ${
       activeSection === "contact"
-        ? "border-[#1d5126] bg-green-50 shadow"
-        : "border-gray-200 bg-white hover:shadow"
+        ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
+        : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
     }`}
   >
-    <div className="text-2xl mb-1">📞</div>
-    <div className="font-semibold">Contacto</div>
-    <div className="text-xs text-gray-500">
-      Teléfono y redes
+    <div className="text-3xl mb-3">📞</div>
+    <h3 className="font-semibold text-gray-900">
+    Contacto
+    </h3>
+    </div>
+    <p className="text-sm text-gray-500 mt-1">
+    Teléfono y redes
+      </p>  
     </div>
   </button>
 
@@ -358,14 +369,18 @@ activeSection === "profile"
     onClick={() => setActiveSection("multimedia")}
     className={`rounded-xl border p-4 text-left transition-all ${
       activeSection === "multimedia"
-        ? "border-[#1d5126] bg-green-50 shadow"
-        : "border-gray-200 bg-white hover:shadow"
+        ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
+        : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
     }`}
   >
-    <div className="text-2xl mb-1">🎥</div>
-    <div className="font-semibold">Multimedia</div>
-    <div className="text-xs text-gray-500">
+    <div className="text-3xl mb-3">🎥</div>
+    <h3 className="font-semibold text-gray-900">
+      Multimedia
+      </h3>
+      </div>
+    <p className="text-sm text-gray-500 mt-1">
       Videos y fotos
+      </p>
     </div>
   </button>
 

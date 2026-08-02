@@ -41,6 +41,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fetchedProfileData, setFetchedProfileData] =
+  const [activeSection, setActiveSection] = useState("profile");
     useState<IProfileData | null>(null);
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");

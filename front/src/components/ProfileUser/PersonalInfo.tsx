@@ -441,6 +441,8 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
         {/* ============================================================
                              INFORMACIÓN PERSONAL
          ============================================================ */}
+          {activeSection === "personal" && (
+            <>
           {/* Nationality Selector - Fixed version */}
           <div
             id="field-nationality"
@@ -576,6 +578,8 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
               {getText("Tengo Pasaporte UE", "hasEuPassport")}
             </label>
           </div>
+         </>
+        )}
          {/* ============================================================
                                      CONTACTO
           ============================================================ */}

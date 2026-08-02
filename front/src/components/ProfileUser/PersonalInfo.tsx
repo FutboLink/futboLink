@@ -310,6 +310,9 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
         <p className="text-red-600">{error}</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+          {/* ============================================================
+                                      PERFIL
+           ============================================================ */}
           {/* Imagen de perfil (URL) */}
           <div
             id="field-imgUrl"
@@ -365,7 +368,9 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
               className="w-full p-1.5 border rounded mt-2 text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
             />
           </div>
-
+        {/* ============================================================
+                             INFORMACIÓN PERSONAL
+         ============================================================ */}
           {/* Nationality Selector - Fixed version */}
           <div
             id="field-nationality"
@@ -501,7 +506,9 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
               {getText("Tengo Pasaporte UE", "hasEuPassport")}
             </label>
           </div>
-
+         {/* ============================================================
+                                     CONTACTO
+          ============================================================ */}
           {/* Phone */}
           <div id="field-phone" className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-2 rounded-lg p-1 transition-shadow">
             <PhoneNumberInput
@@ -741,7 +748,9 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
               </div>
             </div>
           )}
-
+{/* ============================================================
+                      MULTIMEDIA
+============================================================ */}
           {/* Videos (hasta 3) */}
           <div id="field-videoUrl" className="sm:col-span-2 flex flex-col gap-2 mt-2 rounded-lg p-1 transition-shadow">
             <span className="text-gray-700 font-semibold text-sm">

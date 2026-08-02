@@ -13,6 +13,7 @@ import {
 import { useUserContext } from "@/hook/useUserContext";
 import { PasaporteUe, UserType, type IProfileData } from "@/Interfaces/IUser";
 import ImageUploadwithCrop from "../Cloudinary/ImageUploadWithCrop";
+import ProfileSection from "./ProfileSection";
 import {
   fetchUserData,
   updateUserData,
@@ -300,6 +301,9 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
       <h2 className="text-sm font-semibold mt-2 text-center p-2 bg-gray-100 text-gray-700">
         {getText("Información Personal", "personalInformation")}
       </h2>
+      
+      <ProfileSection />
+      
       {loading ? (
         <p>{getText("Cargando los datos...", "loadingData")}</p>
       ) : error ? (

@@ -756,14 +756,26 @@ const [activeSection, setActiveSection] = useState<
 
   </div>
 
+<div className="flex items-center gap-2">
+
   <button
     type="button"
-    onClick={() => removeExperience(index)}
-    className="text-red-500 hover:text-red-700"
-    disabled={experiences.length === 1}
+    className="px-4 py-2 rounded-lg bg-[#1d5126] text-white text-sm hover:bg-[#143a1b]"
   >
-    {experiences.length > 1 && <FaTrash />}
+    ✏️ Editar
   </button>
+
+  {experiences.length > 1 && (
+    <button
+      type="button"
+      onClick={() => removeExperience(index)}
+      className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
+    >
+      <FaTrash />
+    </button>
+  )}
+
+</div>
 </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

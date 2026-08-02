@@ -435,8 +435,7 @@ const [activeSection, setActiveSection] = useState<
       Posición principal y secundaria
     </p>
   </button>
-    </>
-  )}
+       
 <button
   type="button"
   onClick={() => setActiveSection("physicalData")}
@@ -452,7 +451,8 @@ const [activeSection, setActiveSection] = useState<
       Altura, peso y perfil físico
     </p>
   </button>
-
+    </>
+  )}
 <button
   type="button"
   onClick={() => setActiveSection("cv")}

@@ -46,9 +46,6 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
   const [showErrorNotification, setShowErrorNotification] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showSocials, setShowSocials] = useState(true);
-  const [activeSection, setActiveSection] = useState<
-  "profile" | "personal" | "contact" | "multimedia"
->("profile");
   const [hasSecondNationality, setHasSecondNationality] = useState(false);
   // Normaliza valores de redes para evitar URLs pre-cargadas
   const normalizeSocialValue = (key: string, value: string): string => {
@@ -303,90 +300,11 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
       <h2 className="text-sm font-semibold mt-2 text-center p-2 bg-gray-100 text-gray-700">
         {getText("Información Personal", "personalInformation")}
       </h2>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-5 mb-6">
-
-  <button
-    type="button"
-    onClick={() => setActiveSection("profile")}
-    className={`text-left rounded-2xl border p-5 transition-all ${
-      activeSection === "profile"
-        ? "border-[#1d5126] bg-green-50 shadow-md"
-        : "border-gray-200 bg-white hover:shadow-md"
-    }`}
-  >
-    <div className="text-4xl mb-3">👤</div>
-    <h3 className="font-bold text-xl">Perfil</h3>
-    <p className="text-gray-500 mt-2">
-      Foto, nombre y email
-    </p>
-  </button>
-
-  <button
-    type="button"
-    onClick={() => setActiveSection("personal")}
-    className={`text-left rounded-2xl border p-5 transition-all ${
-      activeSection === "personal"
-        ? "border-[#1d5126] bg-green-50 shadow-md"
-        : "border-gray-200 bg-white hover:shadow-md"
-    }`}
-  >
-    <div className="text-4xl mb-3">📋</div>
-    <h3 className="font-bold text-xl">
-      Información
-    </h3>
-    <p className="text-gray-500 mt-2">
-      Datos personales
-    </p>
-  </button>
-
-  <button
-    type="button"
-    onClick={() => setActiveSection("contact")}
-    className={`text-left rounded-2xl border p-5 transition-all ${
-      activeSection === "contact"
-        ? "border-[#1d5126] bg-green-50 shadow-md"
-        : "border-gray-200 bg-white hover:shadow-md"
-    }`}
-  >
-    <div className="text-4xl mb-3">📞</div>
-    <h3 className="font-bold text-xl">
-      Contacto
-    </h3>
-    <p className="text-gray-500 mt-2">
-      Teléfono y representante
-    </p>
-  </button>
-
-  <button
-    type="button"
-    onClick={() => setActiveSection("multimedia")}
-    className={`text-left rounded-2xl border p-5 transition-all ${
-      activeSection === "multimedia"
-        ? "border-[#1d5126] bg-green-50 shadow-md"
-        : "border-gray-200 bg-white hover:shadow-md"
-    }`}
-  >
-    <div className="text-4xl mb-3">🎥</div>
-    <h3 className="font-bold text-xl">
-      Multimedia
-    </h3>
-    <p className="text-gray-500 mt-2">
-      Videos y galería
-    </p>
-  </button>
-
-</div>
-
-{loading ? (
-  <p>{getText("Cargando los datos...", "loadingData")}</p>
-) : error ? (
-  <p className="text-red-600">{error}</p>
-) : activeSection === "profile" ? (
+      {loading ? (
         <p>{getText("Cargando los datos...", "loadingData")}</p>
       ) : error ? (
         <p className="text-red-600">{error}</p>
       ) : (
-  {activeSection === "profile" && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
           {/* Imagen de perfil (URL) */}
           <div

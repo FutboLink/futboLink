@@ -376,7 +376,12 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
   </button>
 
 </div>
-      {loading ? (
+
+{loading ? (
+  <p>{getText("Cargando los datos...", "loadingData")}</p>
+) : error ? (
+  <p className="text-red-600">{error}</p>
+) : activeSection === "profile" ? (
         <p>{getText("Cargando los datos...", "loadingData")}</p>
       ) : error ? (
         <p className="text-red-600">{error}</p>

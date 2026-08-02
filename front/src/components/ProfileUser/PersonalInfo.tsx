@@ -308,15 +308,15 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
   <button
     type="button"
     onClick={() => setActiveSection("profile")}
-    className={`rounded-xl border p-4 text-left transition-all ${
-      activeSection === "profile"
-        ? "border-[#1d5126] bg-green-50 shadow"
-        : "border-gray-200 bg-white hover:shadow"
+    className={`rounded-2xl p-5 text-left transition-all ${
+activeSection === "profile"
+  ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
+  : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
     }`}
   >
-    <div className="text-2xl mb-1">👤</div>
-    <div className="font-semibold">Perfil</div>
-    <div className="text-xs text-gray-500">
+    <div className="text-3xl mb-3">👤</div>
+    <h3 className="font-semibold text-gray-900">Perfil</h3>
+    <p className="text-sm text-gray-500 mt-1"></p>
       Foto y datos básicos
     </div>
   </button>

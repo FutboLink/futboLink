@@ -984,9 +984,9 @@ const [activeSection, setActiveSection] = useState<
                       </select>
                     </div>
                   </div>
+                 )}
                 </div>
               ))}
-             )}
               <button
                 type="button"
                 onClick={addExperience}

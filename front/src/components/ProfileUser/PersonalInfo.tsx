@@ -386,6 +386,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
       ) : error ? (
         <p className="text-red-600">{error}</p>
       ) : (
+  {activeSection === "profile" && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
           {/* Imagen de perfil (URL) */}
           <div

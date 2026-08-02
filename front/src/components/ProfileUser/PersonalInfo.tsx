@@ -329,8 +329,8 @@ activeSection === "profile"
     onClick={() => setActiveSection("personal")}
     className={`rounded-2xl p-5 text-left transition-all ${
       activeSection === "personal"
-        ? "border-[#1d5126] bg-green-50 shadow"
-        : "border-gray-200 bg-white hover:shadow"
+        ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
+        : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
     }`}
   >
     <div className="text-3xl mb-3">🌍</div>

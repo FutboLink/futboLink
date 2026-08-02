@@ -299,10 +299,11 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
   };
 
   return (
-    <div className="p-2 border border-gray-300 shadow-sm rounded-lg">
-      <h2 className="text-sm font-semibold mt-2 text-center p-2 bg-gray-100 text-gray-700">
-        {getText("Información Personal", "personalInformation")}
-      </h2>
+<div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
+
+  <h2 className="text-4xl font-bold text-[#1d5126] mb-6">
+    {getText("Información Personal", "personalInformation")}
+  </h2>
    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
   <button

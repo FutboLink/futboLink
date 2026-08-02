@@ -709,8 +709,8 @@ const [activeSection, setActiveSection] = useState<
                   className="mb-4 p-2 md:p-4 border border-gray-200 rounded-lg"
                 >
 <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-4">
-<div className="flex items-start gap-3 flex-1 min-w-0">
-
+<div className="flex items-start justify-between w-full gap-4">
+<div className="flex items-start gap-3">
     {exp.clubPageLogo ? (
       <img
         src={exp.clubPageLogo}
@@ -751,15 +751,13 @@ const [activeSection, setActiveSection] = useState<
     </p>
   )}
 
-  {exp.categoriaEquipo && (
-    <p className="text-sm text-gray-500">
+      {exp.categoriaEquipo && (
+      <p className="text-sm text-gray-500">
       🏆 {exp.categoriaEquipo}
-    </p>
-  )}
-</div>
-
-  </div>
-
+           </p>
+         )}
+      </div>
+   < /div>
 <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
 
 <button

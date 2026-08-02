@@ -301,9 +301,73 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
       <h2 className="text-sm font-semibold mt-2 text-center p-2 bg-gray-100 text-gray-700">
         {getText("Información Personal", "personalInformation")}
       </h2>
-      
-      <ProfileSection />
-      
+   <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4 mb-5">
+
+  <button
+    type="button"
+    onClick={() => setActiveSection("profile")}
+    className={`rounded-xl border p-4 text-left transition-all ${
+      activeSection === "profile"
+        ? "border-[#1d5126] bg-green-50 shadow"
+        : "border-gray-200 bg-white hover:shadow"
+    }`}
+  >
+    <div className="text-2xl mb-1">👤</div>
+    <div className="font-semibold">Perfil</div>
+    <div className="text-xs text-gray-500">
+      Foto y datos básicos
+    </div>
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setActiveSection("personal")}
+    className={`rounded-xl border p-4 text-left transition-all ${
+      activeSection === "personal"
+        ? "border-[#1d5126] bg-green-50 shadow"
+        : "border-gray-200 bg-white hover:shadow"
+    }`}
+  >
+    <div className="text-2xl mb-1">🌍</div>
+    <div className="font-semibold">Información</div>
+    <div className="text-xs text-gray-500">
+      Datos personales
+    </div>
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setActiveSection("contact")}
+    className={`rounded-xl border p-4 text-left transition-all ${
+      activeSection === "contact"
+        ? "border-[#1d5126] bg-green-50 shadow"
+        : "border-gray-200 bg-white hover:shadow"
+    }`}
+  >
+    <div className="text-2xl mb-1">📞</div>
+    <div className="font-semibold">Contacto</div>
+    <div className="text-xs text-gray-500">
+      Teléfono y redes
+    </div>
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setActiveSection("multimedia")}
+    className={`rounded-xl border p-4 text-left transition-all ${
+      activeSection === "multimedia"
+        ? "border-[#1d5126] bg-green-50 shadow"
+        : "border-gray-200 bg-white hover:shadow"
+    }`}
+  >
+    <div className="text-2xl mb-1">🎥</div>
+    <div className="font-semibold">Multimedia</div>
+    <div className="text-xs text-gray-500">
+      Videos y fotos
+    </div>
+  </button>
+
+</div>   
       {loading ? (
         <p>{getText("Cargando los datos...", "loadingData")}</p>
       ) : error ? (

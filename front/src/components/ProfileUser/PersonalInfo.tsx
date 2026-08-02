@@ -583,6 +583,8 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
          {/* ============================================================
                                      CONTACTO
           ============================================================ */}
+          {activeSection === "contact" && (
+           <>
           {/* Phone */}
           <div id="field-phone" className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-2 rounded-lg p-1 transition-shadow">
             <PhoneNumberInput
@@ -822,6 +824,8 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
               </div>
             </div>
           )}
+        </>
+      )}
 {/* ============================================================
                       MULTIMEDIA
 ============================================================ */}

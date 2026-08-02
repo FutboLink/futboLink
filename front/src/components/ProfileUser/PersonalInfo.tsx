@@ -303,7 +303,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
       <h2 className="text-sm font-semibold mt-2 text-center p-2 bg-gray-100 text-gray-700">
         {getText("Información Personal", "personalInformation")}
       </h2>
-   <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4 mb-5">
+   <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
   <button
     type="button"
@@ -326,7 +326,7 @@ activeSection === "profile"
   <button
     type="button"
     onClick={() => setActiveSection("personal")}
-    className={`rounded-xl border p-4 text-left transition-all ${
+    className={`rounded-2xl p-5 text-left transition-all ${
       activeSection === "personal"
         ? "border-[#1d5126] bg-green-50 shadow"
         : "border-gray-200 bg-white hover:shadow"
@@ -344,7 +344,7 @@ activeSection === "profile"
   <button
     type="button"
     onClick={() => setActiveSection("contact")}
-    className={`rounded-xl border p-4 text-left transition-all ${
+    className={`rounded-2xl p-5 text-left transition-all ${
       activeSection === "contact"
         ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
         : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
@@ -362,7 +362,7 @@ activeSection === "profile"
   <button
     type="button"
     onClick={() => setActiveSection("multimedia")}
-    className={`rounded-xl border p-4 text-left transition-all ${
+    className={`rounded-2xl p-5 text-left transition-all ${
       activeSection === "multimedia"
         ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
         : "border border-gray-200 bg-white shadow-sm hover:shadow-md"

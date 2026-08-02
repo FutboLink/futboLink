@@ -378,14 +378,11 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
 </div>
 
 {loading ? (
-  <p>{getText("Cargando los datos...", "loadingData")}</p>
-) : error ? (
+<p>{getText("Cargando los datos...", "loadingData")}</p>
+  ) : error ? (
   <p className="text-red-600">{error}</p>
-) : activeSection === "profile" ? (
-        <p>{getText("Cargando los datos...", "loadingData")}</p>
-      ) : error ? (
-        <p className="text-red-600">{error}</p>
-      ) : (
+  ) :
+  
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
           {/* Imagen de perfil (URL) */}
           <div

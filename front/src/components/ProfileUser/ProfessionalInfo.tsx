@@ -154,7 +154,11 @@ const [activeSection, setActiveSection] = useState<
   }
 
   // State for experiences (trayectorias)
-  const [experiences, setExperiences] = useState<Experience[]>([{ ...emptyExperience, id: Date.now().toString() }]);
+  const [experiences, setExperiences] = useState<Experience[]>([
+   { ...emptyExperience, id: Date.now().toString() }
+  ]);
+  
+  const [editingExperience, setEditingExperience] = useState<number | null>(null);
 
   // Lista de países para el selector de la trayectoria (País → Club → Liga).
   const { nationalities } = useNationalities();
@@ -758,12 +762,17 @@ const [activeSection, setActiveSection] = useState<
 
 <div className="flex items-center gap-2">
 
-  <button
-    type="button"
-    className="px-4 py-2 rounded-lg bg-[#1d5126] text-white text-sm hover:bg-[#143a1b]"
-  >
-    ✏️ Editar
-  </button>
+<button
+  type="button"
+  onClick={() =>
+    setEditingExperience(
+      editingExperience === index ? null : index
+    )
+  }
+  className="px-4 py-2 rounded-lg bg-[#1d5126] text-white text-sm hover:bg-[#143a1b]"
+>
+  {editingExperience === index ? "✖ Cerrar" : "✏️ Editar"}
+</button>
 
   {experiences.length > 1 && (
     <button

@@ -829,6 +829,8 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
 {/* ============================================================
                       MULTIMEDIA
 ============================================================ */}
+          {activeSection === "multimedia" && (
+            <>
           {/* Videos (hasta 3) */}
           <div id="field-videoUrl" className="sm:col-span-2 flex flex-col gap-2 mt-2 rounded-lg p-1 transition-shadow">
             <span className="text-gray-700 font-semibold text-sm">
@@ -941,6 +943,8 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
               })}
             </div>
           </div>
+        </>
+      )}
         </div>
       )}
       {/* Save Button */}

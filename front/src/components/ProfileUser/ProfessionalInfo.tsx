@@ -708,8 +708,8 @@ const [activeSection, setActiveSection] = useState<
                   key={exp.id}
                   className="mb-4 p-2 md:p-4 border border-gray-200 rounded-lg"
                 >
-<div className="flex justify-between items-center mb-4">
-  <div className="flex items-center gap-4">
+<div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-4">
+<div className="flex items-start gap-3 flex-1 min-w-0">
 
     {exp.clubPageLogo ? (
       <img
@@ -760,7 +760,7 @@ const [activeSection, setActiveSection] = useState<
 
   </div>
 
-<div className="flex items-center gap-2">
+<div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
 
 <button
   type="button"
@@ -769,7 +769,7 @@ const [activeSection, setActiveSection] = useState<
       editingExperience === index ? null : index
     )
   }
-  className="px-4 py-2 rounded-lg bg-[#1d5126] text-white text-sm hover:bg-[#143a1b]"
+  className="w-full md:w-auto px-4 py-2 rounded-lg bg-[#1d5126] text-white text-sm hover:bg-[#143a1b]"
 >
   {editingExperience === index ? "✖ Cerrar" : "✏️ Editar"}
 </button>
@@ -778,7 +778,7 @@ const [activeSection, setActiveSection] = useState<
     <button
       type="button"
       onClick={() => removeExperience(index)}
-      className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
+      className="w-full md:w-auto px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
     >
       <FaTrash />
     </button>

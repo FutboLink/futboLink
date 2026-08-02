@@ -786,7 +786,7 @@ const [activeSection, setActiveSection] = useState<
 
 </div>
 </div>
-
+                  {editingExperience === index && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* 1) País — filtra los clubes y ligas que se ofrecen */}
                     <div className="mb-4">
@@ -986,7 +986,7 @@ const [activeSection, setActiveSection] = useState<
                   </div>
                 </div>
               ))}
-
+             )}
               <button
                 type="button"
                 onClick={addExperience}

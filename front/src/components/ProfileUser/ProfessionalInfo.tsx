@@ -505,8 +505,7 @@ const [activeSection, setActiveSection] = useState<
         {/* Sección de Posiciones */}
         
         {!isNonPlayerProfessional &&
-          activeSection === "positions" && (
-     {activeSection === "positions" && (     
+          activeSection === "positions" && ( 
 <div
   id="field-primaryPosition"
   className="border border-gray-200 rounded-lg overflow-hidden"

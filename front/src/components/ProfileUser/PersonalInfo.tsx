@@ -544,7 +544,7 @@ activeSection === "profile"
   </h3>
 
   <p className="text-sm text-gray-500 mt-1">
-    Ciudadanía y documentación del jugador.
+    Ciudadanía y documentación.
   </p>
 
   <div className="mt-4 border-b border-gray-200"></div>
@@ -980,7 +980,7 @@ activeSection === "profile"
   </h3>
 
   <p className="text-sm text-gray-500 mt-1">
-    Información básica del jugador.
+    Información básica.
   </p>
 
   <div className="mt-4 border-b border-gray-200"></div>

@@ -678,7 +678,7 @@ activeSection === "profile"
         getCountryCode(fetchedProfileData.ubicacionActual) && (
           <CountryFlag
             svg
-            countryCode={getCountryCode(fetchedProfileData.nationality)!}
+            countryCode={getCountryCode(fetchedProfileData.ubicacionActual)!}
             style={{ width: "22px", height: "22px" }}
           />
       )}
@@ -899,7 +899,7 @@ activeSection === "profile"
           getCountryCode(fetchedProfileData.secondNationality) && (
           <CountryFlag
             svg
-            countryCode={getCountryCode(fetchedProfileData.nationality)!}
+            countryCode={getCountryCode(fetchedProfileData.secondNationality)!}
             style={{ width: "22px", height: "22px" }}
           />
       )}

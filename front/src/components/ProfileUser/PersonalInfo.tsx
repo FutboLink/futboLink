@@ -622,25 +622,6 @@ activeSection === "profile"
   </button>
 
 </div>
-            {hasSecondNationality && (
-              <select
-                name="secondNationality"
-                value={fetchedProfileData?.secondNationality || ""}
-                onChange={handleChange}
-                className="w-full p-2 border mt-1 rounded text-gray-700 focus:outline-none"
-              >
-                <option value="">
-                  {getText("Seleccione su nacionalidad", "selectNationality")}
-                </option>
-                {nationalities &&
-                  nationalities.length > 0 &&
-                  nationalities.map((nat) => (
-                    <option key={nat.value} value={nat.label}>
-                      {nat.label}
-                    </option>
-                  ))}
-              </select>
-            )}
           </div>
 
   {/* Pasaporte UE — pregunta independiente. Aplica a quien tenga ciudadanía
@@ -708,6 +689,25 @@ activeSection === "profile"
     </div>
   </button>
 </div>
+                          {hasSecondNationality && (
+              <select
+                name="secondNationality"
+                value={fetchedProfileData?.secondNationality || ""}
+                onChange={handleChange}
+                className="w-full p-2 border mt-1 rounded text-gray-700 focus:outline-none"
+              >
+                <option value="">
+                  {getText("Seleccione su nacionalidad", "selectNationality")}
+                </option>
+                {nationalities &&
+                  nationalities.length > 0 &&
+                  nationalities.map((nat) => (
+                    <option key={nat.value} value={nat.label}>
+                      {nat.label}
+                    </option>
+                  ))}
+              </select>
+            )}
               <div className="sm:col-span-2 mt-8 mb-3">
   <h3 className="text-lg font-semibold text-gray-900">
     Datos personales

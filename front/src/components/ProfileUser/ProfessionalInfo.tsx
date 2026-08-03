@@ -423,7 +423,7 @@ const [activeSection, setActiveSection] = useState<
         Información Profesional
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
          
         {!isNonPlayerProfessional && (
      <>
@@ -733,7 +733,7 @@ const [activeSection, setActiveSection] = useState<
                 : "max-h-0 opacity-0 overflow-hidden"
             }`}
           >
-            <div className="p-6 bg-white">
+            <div className="p-4 bg-white">
               {experiences.map((exp, index) => (
                 <div
                   key={exp.id}

@@ -633,12 +633,12 @@ activeSection === "profile"
 
   <button
     type="button"
-    onClick={() => setNationalityOpen(!nationalityOpen)}
+    onClick={() => setCountryOpen(!countryOpen)}
     className="w-full h-12 px-4 rounded-xl border border-[#dbead4] bg-white shadow-sm flex items-center justify-between hover:border-[#3d7a26] transition-all"
   >
     <div className="flex items-center gap-3">
 
-      {fetchedProfileData?.nationality &&
+      {fetchedProfileData?.ubicacionActual &&
         getCountryCode(fetchedProfileData.nationality) && (
           <CountryFlag
             svg
@@ -654,23 +654,23 @@ activeSection === "profile"
 
     </div>
 
-    {nationalityOpen ? <FaChevronUp /> : <FaChevronDown />}
+    {countryOpen ? <FaChevronUp /> : <FaChevronDown />}
   </button>
 
-  {nationalityOpen && (
+  {countryOpen && (
     <div className="absolute z-50 mt-2 w-full rounded-xl border border-[#dbead4] bg-white shadow-xl">
 
       <input
         type="text"
-        value={nationalitySearch}
-        onChange={(e) => setNationalitySearch(e.target.value)}
+        value={countrySearch}
+        onChange={(e) => setCountrySearch (e.target.value)}
         placeholder="Buscar país..."
         className="w-full p-3 border-b outline-none"
       />
 
       <div className="max-h-64 overflow-y-auto">
 
-        {filteredNationalities.map((country) => (
+        {filteredCountries.map((country) => (
           <button
             key={country.value}
             type="button"
@@ -678,13 +678,13 @@ activeSection === "profile"
 
               handleChange({
                 target: {
-                  name: "nationality",
+                  name: "ubicacionActual",
                   value: country.label,
                 },
               } as React.ChangeEvent<HTMLSelectElement>);
 
-              setNationalityOpen(false);
-              setNationalitySearch("");
+              setCountryOpen(false);
+              setCountrySearch("");
 
             }}
             className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#f2f8ef] transition-all text-left"

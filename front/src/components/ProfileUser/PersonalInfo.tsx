@@ -614,29 +614,71 @@ activeSection === "profile"
             )}
           </div>
 
-          {/* Pasaporte UE — pregunta independiente. Aplica a quien tenga ciudadanía
-              de un país UE (sea por 1ra o 2da nacionalidad). */}
-          <div className="sm:col-span-2 flex flex-col gap-1 rounded-lg p-1 transition-shadow">
-            <label className="inline-flex items-center gap-2 text-sm text-gray-700">
-              <input
-                type="checkbox"
-                checked={fetchedProfileData?.pasaporteUe === PasaporteUe.SI}
-                onChange={(e) =>
-                  setFetchedProfileData((prev) =>
-                    prev
-                      ? {
-                          ...prev,
-                          pasaporteUe: e.target.checked
-                            ? PasaporteUe.SI
-                            : PasaporteUe.NO,
-                        }
-                      : prev,
-                  )
-                }
-              />
-              {getText("Tengo Pasaporte UE", "hasEuPassport")}
-            </label>
-          </div>
+  {/* Pasaporte UE — pregunta independiente. Aplica a quien tenga ciudadanía
+    de un país UE (sea por 1ra o 2da nacionalidad). */}
+<div className="sm:col-span-2">
+  <button
+    type="button"
+    onClick={() =>
+      setFetchedProfileData((prev) =>
+        prev
+          ? {
+              ...prev,
+              pasaporteUe:
+                prev.pasaporteUe === PasaporteUe.SI
+                  ? PasaporteUe.NO
+                  : PasaporteUe.SI,
+            }
+          : prev
+      )
+    }
+    className={`w-full rounded-2xl border p-5 transition-all duration-200 ${
+      fetchedProfileData?.pasaporteUe === PasaporteUe.SI
+        ? "border-[#1d5126] bg-[#f5faf6] shadow-md"
+        : "border-gray-200 hover:border-[#1d5126] hover:shadow-sm"
+    }`}
+  >
+    <div className="flex items-center justify-between">
+
+      <div className="flex items-center gap-4">
+
+        <div
+          className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold ${
+            fetchedProfileData?.pasaporteUe === PasaporteUe.SI
+              ? "bg-[#1d5126] text-white"
+              : "bg-gray-100 text-gray-500"
+          }`}
+        >
+          EU
+        </div>
+
+        <div className="text-left">
+          <p className="font-semibold text-gray-900">
+            {getText("Pasaporte UE", "hasEuPassport")}
+          </p>
+
+          <p className="text-sm text-gray-500">
+            Ciudadanía de un país de la Unión Europea
+          </p>
+        </div>
+
+      </div>
+
+      <div
+        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+          fetchedProfileData?.pasaporteUe === PasaporteUe.SI
+            ? "border-[#1d5126] bg-[#1d5126]"
+            : "border-gray-300"
+        }`}
+      >
+        {fetchedProfileData?.pasaporteUe === PasaporteUe.SI && (
+          <div className="w-2.5 h-2.5 rounded-full bg-white" />
+        )}
+      </div>
+
+    </div>
+  </button>
+</div>
                {/* Gender */}
 <div className="flex flex-col sm:col-span-2">
   <label className="text-gray-700 font-semibold text-sm mb-3">

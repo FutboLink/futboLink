@@ -180,15 +180,18 @@ const FootballField: React.FC<FootballFieldProps> = ({
                 {/* Fondo de la cancha */}
                 <div
   className="absolute inset-2 border-[3px] border-white rounded-xl overflow-hidden shadow-inner"
-  style={{
-    background:
-      "linear-gradient(180deg, #3dbb5a 0%, #2d9444 100%)",
-    backgroundImage: `
-      linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px)
-    `,
-    backgroundSize: "18px 18px",
-  }}
+ style={{
+  backgroundImage: `
+    linear-gradient(180deg, #3dbb5a 0%, #2d9444 100%),
+    linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px)
+  `,
+  backgroundSize: `
+    100% 100%,
+    18px 18px,
+    18px 18px
+  `,
+}}
 >
                   {/* Líneas del campo vertical */}
                   {/* Línea central horizontal */}

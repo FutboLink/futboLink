@@ -10,6 +10,7 @@ import { UserContext } from "../Context/UserContext";
 import { fetchUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { useI18nMode } from "../Context/I18nModeContext";
 import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
+import { UserRound, Trophy } from "lucide-react";
 import type { ProfileFieldStatus } from "@/lib/profileCompleteness";
 
 const Profile = () => {
@@ -143,16 +144,35 @@ const Profile = () => {
           </div>
         )}
         {/* Pestañas */}
-        <div className="flex space-x-3 border-b pb-1 mt-2 mb-3 text-gray-700">
+        <div className="flex gap-3 mt-4 mb-6">
           {" "}
           {/* Reducir el espacio y márgenes */}
-          {[
-            { key: "Personal", label: getText("Personal", "personal") },
-            { key: "Profesional", label: getText("Profesional", "professional") }
-          ].map((tab) => (
+          {
+[
+  {
+    key: "Personal",
+    label: getText("Personal", "personal"),
+    icon: UserRound,
+  },
+  {
+    key: "Profesional",
+    label: getText("Profesional", "professional"),
+    icon: Trophy,
+  },
+]
+            .map((tab) => (
             <button
-              key={tab.key}
-              className={`py-1.5 px-3 mt-6 ${
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`flex items-center gap-2 px-5 py-3 mt-6 rounded-xl transition-all duration-200 ${
+             activeTab === tab.key
+               ? "bg-[#1d5126] text-white shadow-md"
+               : "bg-white border border-gray-200 text-gray-700 hover:bg-green-50 hover:border-[#1d5126]"
+           }`}
+         >
+          <tab.icon size={18} />
+         <span className="font-medium">{tab.label}</span>
+        </button>
                 activeTab === tab.key
                   ? "bg-green-300 shadow-md font-semibold"
                   : "text-gray-600"

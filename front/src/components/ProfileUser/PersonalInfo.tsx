@@ -491,7 +491,7 @@ activeSection === "profile"
                 name="nationality"
                 value={fetchedProfileData?.nationality || ""}
                 onChange={handleChange}
-                className="w-full p-2 border mt-2 rounded text-gray-700 focus:outline-none"
+                className="w-full mt-2 h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#1d5126]/20 focus:border-[#1d5126]"
               >
                 <option value="">{getText("Seleccione su nacionalidad", "selectNationality")}</option>
                 {nationalities &&
@@ -520,7 +520,7 @@ activeSection === "profile"
               value={fetchedProfileData?.ubicacionActual || ""}
               onChange={handleChange}
               placeholder={getText("País de Residencia", "countryOfResidence")}
-              className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
+              className="w-full mt-2 h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#1d5126]/20 focus:border-[#1d5126]"
             />
           </div>
 
@@ -803,7 +803,7 @@ activeSection === "profile"
                 value={fetchedProfileData?.birthday || ""}
                 max={new Date().toISOString().split("T")[0]} // No permite fechas futuras
                 onChange={handleChange}
-                className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
+                className="w-full mt-2 h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#1d5126]/20 focus:border-[#1d5126]"
               />
             </div>
 

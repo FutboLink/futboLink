@@ -552,7 +552,7 @@ const [activeSection, setActiveSection] = useState<
   id="field-physicalData"
   className={`overflow-hidden transition-all duration-300 ${
     activeSection === "physicalData"
-      ? "border border-gray-200 rounded-lg"
+      ? ""
       : ""
   }`}
 >
@@ -563,7 +563,7 @@ const [activeSection, setActiveSection] = useState<
                   : "max-h-0 opacity-0 overflow-hidden"
               }`}
             >
-              <div className="p-6 bg-white">
+              <div className="bg-transparent p-0 md:p-2">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="mb-4">
                     <label

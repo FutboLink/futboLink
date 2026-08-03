@@ -418,12 +418,12 @@ const [activeSection, setActiveSection] = useState<
   };
 
   return (
-    <div className="bg-white p-3 md:p-6 rounded-lg shadow-md">
+    <div className="w-full">
       <h2 className="text-2xl font-semibold mb-6 text-[#1d5126]">
         Información Profesional
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4 mb-4">
          
         {!isNonPlayerProfessional && (
      <>
@@ -431,7 +431,7 @@ const [activeSection, setActiveSection] = useState<
 <button
   type="button"
   onClick={() => setActiveSection("positions")}
-  className={`rounded-2xl p-5 text-left transition-all ${
+  className={`rounded-2xl p-3 md:p-5 text-left transition-all ${
     activeSection === "positions"
       ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
       : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
@@ -449,7 +449,7 @@ const [activeSection, setActiveSection] = useState<
 <button
   type="button"
   onClick={() => setActiveSection("physicalData")}
-  className={`rounded-2xl p-5 text-left transition-all ${
+  className={`rounded-2xl p-3 md:p-5 text-left transition-all ${
     activeSection === "physicalData"
       ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
       : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
@@ -468,7 +468,7 @@ const [activeSection, setActiveSection] = useState<
 <button
   type="button"
   onClick={() => setActiveSection("cv")}
-  className={`rounded-2xl p-5 text-left transition-all ${
+  className={`rounded-2xl p-3 md:p-5 text-left transition-all ${
     activeSection === "cv"
       ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
       : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
@@ -486,7 +486,7 @@ const [activeSection, setActiveSection] = useState<
 <button
   type="button"
   onClick={() => setActiveSection("trajectory")}
-  className={`rounded-2xl p-5 text-left transition-all ${
+  className={`rounded-2xl p-3 md:p-5 text-left transition-all ${
     activeSection === "trajectory"
       ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
       : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
@@ -508,9 +508,9 @@ const [activeSection, setActiveSection] = useState<
           activeSection === "positions" && ( 
 <div
   id="field-primaryPosition"
-  className="border border-gray-200 rounded-lg overflow-hidden"
+  className="overflow-visible"
 >
-    <div className="p-3 md:p-6 bg-white">
+    <div className="bg-transparent p-0">
       
                 {/* Componente de cancha de fútbol */}
                 <FootballField

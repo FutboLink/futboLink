@@ -13,6 +13,9 @@ import {
   FaGlobeAmericas,
   FaPhoneAlt,
   FaPhotoVideo,
+  FaMale,
+  FaFemale,
+  FaUserAlt,
 } from "react-icons/fa";
 import { useUserContext } from "@/hook/useUserContext";
 import { PasaporteUe, UserType, type IProfileData } from "@/Interfaces/IUser";
@@ -601,26 +604,111 @@ activeSection === "profile"
             </label>
           </div>
                {/* Gender */}
-          <div className="flex flex-col">
-            <label
-              htmlFor="genreProfile"
-              className="text-gray-700 font-semibold text-sm"
-            >
-              {getText("Género", "gender")}:
-            </label>
-            <select
-              id="genreProfile"
-              name="genre"
-              value={fetchedProfileData?.genre || ""}
-              onChange={handleChange}
-              className="w-full p-1.5 border mt-2 rounded text-gray-700 focus:outline-none"
-            >
-              <option value="">{getText("Seleccione su género (opcional)", "selectGender")}</option>
-              <option value="Masculino">{getText("Masculino", "male")}</option>
-              <option value="Femenino">{getText("Femenino", "female")}</option>
-              <option value="Otro">{getText("Otro", "other")}</option>
-            </select>
-          </div>
+<div className="flex flex-col sm:col-span-2">
+  <label className="text-gray-700 font-semibold text-sm mb-3">
+    {getText("Género", "gender")}:
+  </label>
+
+  <div className="grid grid-cols-3 gap-3">
+
+    <button
+      type="button"
+      onClick={() =>
+        handleChange({
+          target: {
+            name: "genre",
+            value: "Masculino",
+          },
+        } as React.ChangeEvent<HTMLSelectElement>)
+      }
+      className={`rounded-2xl border p-4 transition-all duration-200 ${
+        fetchedProfileData?.genre === "Masculino"
+          ? "border-[#1d5126] bg-[#f5faf6] shadow-md"
+          : "border-gray-200 hover:border-[#1d5126] hover:shadow-sm"
+      }`}
+    >
+      <div className="flex flex-col items-center gap-2">
+        <FaMale
+          size={28}
+          className={
+            fetchedProfileData?.genre === "Masculino"
+              ? "text-[#1d5126]"
+              : "text-gray-500"
+          }
+        />
+
+        <span className="font-medium">
+          {getText("Masculino", "male")}
+        </span>
+      </div>
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        handleChange({
+          target: {
+            name: "genre",
+            value: "Femenino",
+          },
+        } as React.ChangeEvent<HTMLSelectElement>)
+      }
+      className={`rounded-2xl border p-4 transition-all duration-200 ${
+        fetchedProfileData?.genre === "Femenino"
+          ? "border-[#1d5126] bg-[#f5faf6] shadow-md"
+          : "border-gray-200 hover:border-[#1d5126] hover:shadow-sm"
+      }`}
+    >
+      <div className="flex flex-col items-center gap-2">
+        <FaFemale
+          size={28}
+          className={
+            fetchedProfileData?.genre === "Femenino"
+              ? "text-[#1d5126]"
+              : "text-gray-500"
+          }
+        />
+
+        <span className="font-medium">
+          {getText("Femenino", "female")}
+        </span>
+      </div>
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        handleChange({
+          target: {
+            name: "genre",
+            value: "Otro",
+          },
+        } as React.ChangeEvent<HTMLSelectElement>)
+      }
+      className={`rounded-2xl border p-4 transition-all duration-200 ${
+        fetchedProfileData?.genre === "Otro"
+          ? "border-[#1d5126] bg-[#f5faf6] shadow-md"
+          : "border-gray-200 hover:border-[#1d5126] hover:shadow-sm"
+      }`}
+    >
+      <div className="flex flex-col items-center gap-2">
+        <FaUserAlt
+          size={28}
+          className={
+            fetchedProfileData?.genre === "Otro"
+              ? "text-[#1d5126]"
+              : "text-gray-500"
+          }
+        />
+
+        <span className="font-medium">
+          {getText("Otro", "other")}
+        </span>
+      </div>
+    </button>
+
+  </div>
+</div>
           
 {/* Birthdate */}
           <div id="field-birthday" 

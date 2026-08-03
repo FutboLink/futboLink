@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { FaFutbol, FaRegDotCircle } from "react-icons/fa";
 
 interface FootballFieldProps {
   primaryPosition?: string;
@@ -119,7 +120,10 @@ const FootballField: React.FC<FootballFieldProps> = ({
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                <span>Posición Principal</span>
+                <>
+  <FaFutbol size={18} />
+  <span>Elegir posición principal</span>
+</>
               </button>
               <button
                 onClick={() => setSelectionMode("secondary")}
@@ -129,7 +133,10 @@ const FootballField: React.FC<FootballFieldProps> = ({
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                <span>Posición Secundaria</span>
+                <>
+  <FaRegDotCircle size={18} />
+  <span>Elegir posición secundaria</span>
+</>
               </button>
             </div>
 

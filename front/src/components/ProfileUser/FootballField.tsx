@@ -68,8 +68,8 @@ const FootballField: React.FC<FootballFieldProps> = ({
           isPrimary || isSecondary
           ? "translate(-50%, -55%) scale(1.15)"
           : "translate(-50%, -50%) scale(1)",
-      width: "clamp(28px, 3vw, 32px)",
-      height: "clamp(28px, 3vw, 32px)",
+      width: "clamp(34px, 3.5vw, 38px)",
+      height: "clamp(34px, 3.5vw, 38px)",
       borderRadius: "50%",
       border: "2px solid",
       borderColor: isPrimary ? "#22c55e" : isSecondary ? "#3b82f6" : "#6b7280",
@@ -221,13 +221,19 @@ const FootballField: React.FC<FootballFieldProps> = ({
                     ([positionName, positionData]) => (
                       <React.Fragment key={positionName}>
                         <div
-                          style={getPositionStyle(positionName)}
-                          onClick={() => handlePositionClick(positionName)}
-                          title={positionName}
-                          className="hover:scale-110 active:scale-95 transition-transform"
-                        >
-                          {positionData.abbr}
-                        </div>
+  style={getPositionStyle(positionName)}
+  onClick={() => handlePositionClick(positionName)}
+  title={positionName}
+  className="group"
+>
+  {(primaryPosition === positionName || secondaryPosition === positionName) && (
+    <div className="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-black/80 px-2 py-1 text-[10px] text-white shadow-lg">
+      {positionName}
+    </div>
+  )}
+
+  {positionData.abbr}
+</div>
                         {/* Zona de toque ampliada para móviles */}
                         <div
                           className="absolute cursor-pointer rounded-full sm:hidden"

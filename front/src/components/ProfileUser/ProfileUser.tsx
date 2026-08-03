@@ -10,7 +10,8 @@ import { UserContext } from "../Context/UserContext";
 import { fetchUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { useI18nMode } from "../Context/I18nModeContext";
 import { useNextIntlTranslations } from "@/hooks/useNextIntlTranslations";
-import { UserRound, Trophy } from "lucide-react";
+import { FaUser } from "react-icons/fa";
+import { FaTrophy } from "react-icons/fa";
 import type { ProfileFieldStatus } from "@/lib/profileCompleteness";
 
 const Profile = () => {
@@ -152,12 +153,12 @@ const Profile = () => {
   {
     key: "Personal",
     label: getText("Personal", "personal"),
-    icon: UserRound,
+    icon: FaUser,
   },
   {
     key: "Profesional",
     label: getText("Profesional", "professional"),
-    icon: Trophy,
+    icon: FaTrophy,
   },
 ]
             .map((tab) => (

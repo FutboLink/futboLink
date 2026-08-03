@@ -468,6 +468,17 @@ activeSection === "profile"
          ============================================================ */}
           {activeSection === "personal" && (
             <>
+              <div className="sm:col-span-2 mb-3">
+  <h3 className="text-lg font-semibold text-gray-900">
+    Identidad
+  </h3>
+
+  <p className="text-sm text-gray-500 mt-1">
+    Ciudadanía y documentación del jugador.
+  </p>
+
+  <div className="mt-4 border-b border-gray-200"></div>
+</div>
           {/* Nationality Selector - Fixed version */}
           <div
             id="field-nationality"
@@ -696,6 +707,17 @@ activeSection === "profile"
 
     </div>
   </button>
+</div>
+              <div className="sm:col-span-2 mt-8 mb-3">
+  <h3 className="text-lg font-semibold text-gray-900">
+    Datos personales
+  </h3>
+
+  <p className="text-sm text-gray-500 mt-1">
+    Información básica del jugador.
+  </p>
+
+  <div className="mt-4 border-b border-gray-200"></div>
 </div>
                {/* Gender */}
 <div className="flex flex-col sm:col-span-2">

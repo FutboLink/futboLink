@@ -1064,7 +1064,8 @@ activeSection === "profile"
           {activeSection === "multimedia" && (
             <>
           {/* Videos (hasta 3) */}
-          <div id="field-videoUrl" className="sm:col-span-2 flex flex-col gap-2 mt-2 rounded-lg p-1 transition-shadow">
+          <div id="field-videoUrl" 
+          className="sm:col-span-2 bg-[#fafcf9] border border-[#dbead4] rounded-2xl p-6 shadow-sm flex flex-col gap-3">
             <span className="text-gray-700 font-semibold text-sm">
               {getText("Videos de YouTube (hasta 3)", "videosTitle")}
             </span>
@@ -1106,7 +1107,7 @@ activeSection === "profile"
                         });
                       }}
                       placeholder={`https://youtu.be/... (${idx + 1})`}
-                      className={`w-full p-1.5 border rounded text-gray-700 focus:outline-none ${
+                      className={`w-full h-12 px-4 rounded-xl border border-[#dbead4] bg-white text-gray-700 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3d7a26]/20 focus:border-[#3d7a26] focus:outline-none ${
                         dup
                           ? "border-red-500 bg-red-50 focus:ring-2 focus:ring-red-200"
                           : ""
@@ -1128,7 +1129,7 @@ activeSection === "profile"
           </div>
 
           {/* Fotos (hasta 3) */}
-          <div id="field-photoUrls" className="sm:col-span-2 flex flex-col gap-2 mt-2 rounded-lg p-1 transition-shadow">
+          <div id="field-photoUrls" className="sm:col-span-2 bg-[#fafcf9] border border-[#dbead4] rounded-2xl p-6 shadow-sm flex flex-col gap-3">
             <span className="text-gray-700 font-semibold text-sm">
               {getText("Fotos extra (hasta 3)", "photosTitle")}
             </span>
@@ -1144,7 +1145,7 @@ activeSection === "profile"
                 return (
                   <div
                     key={`photo-${idx}`}
-                    className="border border-dashed border-gray-300 rounded-lg p-2 flex flex-col items-center"
+                    className="border-2 border-dashed border-[#dbead4] rounded-2xl p-4 bg-white shadow-sm hover:shadow-md transition-all duration-200 flex flex-col items-center"
                   >
                     <ImageUploadwithCrop
                       initialImage={url || undefined}

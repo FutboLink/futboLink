@@ -7,6 +7,10 @@ import {
   FaFileWord,
   FaPlus,
   FaTrash,
+  FaFutbol,
+  FaRunning,
+  FaFileAlt,
+  FaTrophy,
 } from "react-icons/fa";
 import { useUserContext } from "@/hook/useUserContext";
 import { type IProfileData, PasaporteUe, UserType } from "@/Interfaces/IUser";
@@ -433,7 +437,9 @@ const [activeSection, setActiveSection] = useState<
       : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
   }`}
 >
-    <div className="text-3xl mb-3">⚽</div>
+    <div className="text-[#1d5126] mb-3">
+  <FaFutbol size={34} />
+</div>
     <h3 className="font-semibold text-gray-900">Posiciones</h3>
     <p className="text-sm text-gray-500 mt-1">
       Posición principal y secundaria
@@ -449,7 +455,9 @@ const [activeSection, setActiveSection] = useState<
       : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
   }`}
 >
-    <div className="text-3xl mb-3">💪</div>
+    <div className="text-[#1d5126] mb-3">
+  <FaRunning size={34} />
+</div>
     <h3 className="font-semibold text-gray-900">Datos físicos</h3>
     <p className="text-sm text-gray-500 mt-1">
       Altura, peso y perfil físico
@@ -466,7 +474,9 @@ const [activeSection, setActiveSection] = useState<
       : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
   }`}
 >
-    <div className="text-3xl mb-3">📄</div>
+    <div className="text-[#1d5126] mb-3">
+  <FaFileAlt size={34} />
+</div>
     <h3 className="font-semibold text-gray-900">CV</h3>
     <p className="text-sm text-gray-500 mt-1">
       Currículum profesional
@@ -482,7 +492,9 @@ const [activeSection, setActiveSection] = useState<
       : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
   }`}
 >
-    <div className="text-3xl mb-3">🏆</div>
+    <div className="text-[#1d5126] mb-3">
+  <FaTrophy size={34} />
+</div>
     <h3 className="font-semibold text-gray-900">Trayectoria</h3>
     <p className="text-sm text-gray-500 mt-1">
       Experiencia deportiva

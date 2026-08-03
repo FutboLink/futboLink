@@ -68,8 +68,8 @@ const FootballField: React.FC<FootballFieldProps> = ({
           isPrimary || isSecondary
           ? "translate(-50%, -55%) scale(1.15)"
           : "translate(-50%, -50%) scale(1)",
-      width: "clamp(34px, 3.5vw, 38px)",
-      height: "clamp(34px, 3.5vw, 38px)",
+      width: "clamp(40px, 4.5vw, 46px)",
+      height: "clamp(40px, 4.5vw, 46px)",
       borderRadius: "50%",
       border: "2px solid",
       borderColor: isPrimary ? "#22c55e" : isSecondary ? "#3b82f6" : "#6b7280",
@@ -89,7 +89,7 @@ const FootballField: React.FC<FootballFieldProps> = ({
          ? "#ffffff"
          : "#374151",
       transition: "all .25s cubic-bezier(.2,.8,.2,1)",
-      zIndex: 10,
+      zIndex: isPrimary || isSecondary ? 30 : 10,
       boxShadow: isPrimary
          ? "0 10px 22px rgba(34,197,94,.45)"
          : isSecondary
@@ -227,7 +227,7 @@ const FootballField: React.FC<FootballFieldProps> = ({
   className="group"
 >
   {(primaryPosition === positionName || secondaryPosition === positionName) && (
-    <div className="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-black/80 px-2 py-1 text-[10px] text-white shadow-lg">
+    <div className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-black/90 px-3 py-1 text-xs text-white shadow-xl z-50"
       {positionName}
     </div>
   )}

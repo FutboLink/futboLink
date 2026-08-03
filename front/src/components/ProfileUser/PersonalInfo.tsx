@@ -77,6 +77,8 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
 
   const [nationalitySearch, setNationalitySearch] = useState("");
   const [countrySearch, setCountrySearch] = useState("");
+  const [secondNationalityOpen, setSecondNationalityOpen] = useState(false);
+  const [secondNationalitySearch, setSecondNationalitySearch] = useState("");
   // Normaliza valores de redes para evitar URLs pre-cargadas
   const normalizeSocialValue = (key: string, value: string): string => {
     const v = (value || "").trim();
@@ -127,6 +129,9 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
 );
 
 const filteredCountries = nationalities.filter((n) =>
+  const filteredSecondNationalities = nationalities.filter((n) =>
+  n.label.toLowerCase().includes(secondNationalitySearch.toLowerCase())
+);
   n.label.toLowerCase().includes(countrySearch.toLowerCase())
 );
 
@@ -623,29 +628,89 @@ activeSection === "profile"
     {getText("País de Residencia", "countryOfResidence")}:
   </label>
 
-  <select
-    id="countryProfile"
-    name="ubicacionActual"
-    value={fetchedProfileData?.ubicacionActual || ""}
-    onChange={handleChange}
-    className="w-full mt-2 h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3d7a26]/20 focus:border-[#3d7a26]"
-  >
-    <option value="">
-      {getText(
-        "Seleccione su país de residencia",
-        "countryOfResidence"
-      )}
-    </option>
+  <div className="relative mt-2">
 
-    {nationalities?.map((country) => (
-      <option
-        key={country.value}
-        value={country.label}
-      >
-        {country.label}
-      </option>
-    ))}
-  </select>
+  <button
+    type="button"
+    onClick={() => setNationalityOpen(!nationalityOpen)}
+    className="w-full h-12 px-4 rounded-xl border border-[#dbead4] bg-white shadow-sm flex items-center justify-between hover:border-[#3d7a26] transition-all"
+  >
+    <div className="flex items-center gap-3">
+
+      {fetchedProfileData?.nationality &&
+        getCountryCode(fetchedProfileData.nationality) && (
+          <CountryFlag
+            svg
+            countryCode={getCountryCode(fetchedProfileData.nationality)!}
+            style={{ width: "22px", height: "22px" }}
+          />
+      )}
+
+      <span className="text-gray-700">
+        {fetchedProfileData?.nationality ||
+          getText("Seleccione su nacionalidad", "selectNationality")}
+      </span>
+
+    </div>
+
+    {nationalityOpen ? <FaChevronUp /> : <FaChevronDown />}
+  </button>
+
+  {nationalityOpen && (
+    <div className="absolute z-50 mt-2 w-full rounded-xl border border-[#dbead4] bg-white shadow-xl">
+
+      <input
+        type="text"
+        value={nationalitySearch}
+        onChange={(e) => setNationalitySearch(e.target.value)}
+        placeholder="Buscar país..."
+        className="w-full p-3 border-b outline-none"
+      />
+
+      <div className="max-h-64 overflow-y-auto">
+
+        {filteredNationalities.map((country) => (
+          <button
+            key={country.value}
+            type="button"
+            onClick={() => {
+
+              handleChange({
+                target: {
+                  name: "nationality",
+                  value: country.label,
+                },
+              } as React.ChangeEvent<HTMLSelectElement>);
+
+              setNationalityOpen(false);
+              setNationalitySearch("");
+
+            }}
+            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#f2f8ef] transition-all text-left"
+          >
+
+            {getCountryCode(country.label) && (
+              <CountryFlag
+                svg
+                countryCode={getCountryCode(country.label)!}
+                style={{
+                  width: "22px",
+                  height: "22px",
+                }}
+              />
+            )}
+
+            <span>{country.label}</span>
+
+          </button>
+        ))}
+
+      </div>
+
+    </div>
+  )}
+
+</div>
 </div>
 
           {/* Segunda nacionalidad + Pasaporte UE */}
@@ -784,25 +849,89 @@ activeSection === "profile"
           {getText("Segunda nacionalidad", "secondNationality")}
         </label>
 
-        <select
-          name="secondNationality"
-          value={fetchedProfileData?.secondNationality || ""}
-          onChange={handleChange}
-          className="w-full mt-2 h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3d7a26]/20 focus:border-[#3d7a26]"
-        >
-          <option value="">
-            {getText("Seleccione su nacionalidad", "selectNationality")}
-          </option>
+        <div className="relative mt-2">
 
-          {nationalities?.map((nat) => (
-            <option
-              key={nat.value}
-              value={nat.label}
-            >
-              {nat.label}
-            </option>
-          ))}
-        </select>
+  <button
+    type="button"
+    onClick={() => setNationalityOpen(!nationalityOpen)}
+    className="w-full h-12 px-4 rounded-xl border border-[#dbead4] bg-white shadow-sm flex items-center justify-between hover:border-[#3d7a26] transition-all"
+  >
+    <div className="flex items-center gap-3">
+
+      {fetchedProfileData?.nationality &&
+        getCountryCode(fetchedProfileData.nationality) && (
+          <CountryFlag
+            svg
+            countryCode={getCountryCode(fetchedProfileData.nationality)!}
+            style={{ width: "22px", height: "22px" }}
+          />
+      )}
+
+      <span className="text-gray-700">
+        {fetchedProfileData?.nationality ||
+          getText("Seleccione su nacionalidad", "selectNationality")}
+      </span>
+
+    </div>
+
+    {nationalityOpen ? <FaChevronUp /> : <FaChevronDown />}
+  </button>
+
+  {nationalityOpen && (
+    <div className="absolute z-50 mt-2 w-full rounded-xl border border-[#dbead4] bg-white shadow-xl">
+
+      <input
+        type="text"
+        value={nationalitySearch}
+        onChange={(e) => setNationalitySearch(e.target.value)}
+        placeholder="Buscar país..."
+        className="w-full p-3 border-b outline-none"
+      />
+
+      <div className="max-h-64 overflow-y-auto">
+
+        {filteredNationalities.map((country) => (
+          <button
+            key={country.value}
+            type="button"
+            onClick={() => {
+
+              handleChange({
+                target: {
+                  name: "nationality",
+                  value: country.label,
+                },
+              } as React.ChangeEvent<HTMLSelectElement>);
+
+              setNationalityOpen(false);
+              setNationalitySearch("");
+
+            }}
+            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#f2f8ef] transition-all text-left"
+          >
+
+            {getCountryCode(country.label) && (
+              <CountryFlag
+                svg
+                countryCode={getCountryCode(country.label)!}
+                style={{
+                  width: "22px",
+                  height: "22px",
+                }}
+              />
+            )}
+
+            <span>{country.label}</span>
+
+          </button>
+        ))}
+
+      </div>
+
+    </div>
+  )}
+
+</div>
       </>
     )}
   </div>

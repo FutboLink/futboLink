@@ -431,13 +431,13 @@ const [activeSection, setActiveSection] = useState<
 <button
   type="button"
   onClick={() => setActiveSection("positions")}
-  className={`rounded-2xl p-3 md:p-5 text-left transition-all ${
+  className={`rounded-2xl p-5 text-left transition-all ${
     activeSection === "positions"
-      ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
+        ? "border-2 border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
       : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
   }`}
 >
-    <div className="text-[#1d5126] mb-3">
+    <div className="text-[#3d7a26] mb-3">
   <FaFutbol size={34} />
 </div>
     <h3 className="font-semibold text-gray-900">Posiciones</h3>
@@ -449,13 +449,13 @@ const [activeSection, setActiveSection] = useState<
 <button
   type="button"
   onClick={() => setActiveSection("physicalData")}
-  className={`rounded-2xl p-3 md:p-5 text-left transition-all ${
+  className={`rounded-2xl p-5 text-left transition-all ${
     activeSection === "physicalData"
-      ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
+        ? "border-2 border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
       : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
   }`}
 >
-    <div className="text-[#1d5126] mb-3">
+    <div className="text-[#3d7a26] mb-3">
   <FaRunning size={34} />
 </div>
     <h3 className="font-semibold text-gray-900">Datos físicos</h3>
@@ -468,13 +468,13 @@ const [activeSection, setActiveSection] = useState<
 <button
   type="button"
   onClick={() => setActiveSection("cv")}
-  className={`rounded-2xl p-3 md:p-5 text-left transition-all ${
+  className={`rounded-2xl p-5 text-left transition-all ${
     activeSection === "cv"
-      ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
+        ? "border-2 border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
       : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
   }`}
 >
-    <div className="text-[#1d5126] mb-3">
+    <div className="text-[#3d7a26] mb-3">
   <FaFileAlt size={34} />
 </div>
     <h3 className="font-semibold text-gray-900">CV</h3>
@@ -486,13 +486,13 @@ const [activeSection, setActiveSection] = useState<
 <button
   type="button"
   onClick={() => setActiveSection("trajectory")}
-  className={`rounded-2xl p-3 md:p-5 text-left transition-all ${
+  className={`rounded-2xl p-5 text-left transition-all ${
     activeSection === "trajectory"
-      ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
+        ? "border-2 border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
       : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
   }`}
 >
-    <div className="text-[#1d5126] mb-3">
+    <div className="text-[#3d7a26] mb-3">
   <FaTrophy size={34} />
 </div>
     <h3 className="font-semibold text-gray-900">Trayectoria</h3>

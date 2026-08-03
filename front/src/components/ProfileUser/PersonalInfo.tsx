@@ -374,8 +374,8 @@ const filteredSecondNationalities = nationalities.filter((n) =>
     }
   };
 
-  return (
-<div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 md:p-8">
+return (
+<div className="w-full">
 
   <h2 className="text-2xl font-bold text-[#3d7a26] mb-6">
     {getText("Información Personal", "personalInformation")}
@@ -468,8 +468,8 @@ activeSection === "profile"
       ) : error ? (
         <p className="text-red-600">{error}</p>
       ) : (
-  <div className="md:border md:border-gray-200 md:rounded-lg overflow-hidden">
-    <div className="bg-white p-0 md:p-6">
+  <div className="overflow-visible">
+    <div className="bg-transparent p-0">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {/* ============================================================
                                       PERFIL

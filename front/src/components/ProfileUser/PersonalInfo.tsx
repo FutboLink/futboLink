@@ -529,36 +529,70 @@ activeSection === "profile"
             <span className="text-gray-700 font-semibold text-sm">
               {getText("¿Tenés segunda nacionalidad?", "hasSecondNationality")}
             </span>
-            <div className="flex gap-4 text-sm text-gray-700">
-              <label className="inline-flex items-center gap-1.5">
-                <input
-                  type="radio"
-                  name="hasSecondNationality"
-                  checked={hasSecondNationality}
-                  onChange={() => setHasSecondNationality(true)}
-                />
-                {getText("Sí", "yes")}
-              </label>
-              <label className="inline-flex items-center gap-1.5">
-                <input
-                  type="radio"
-                  name="hasSecondNationality"
-                  checked={!hasSecondNationality}
-                  onChange={() => {
-                    setHasSecondNationality(false);
-                    setFetchedProfileData((prev) =>
-                      prev
-                        ? {
-                            ...prev,
-                            secondNationality: "",
-                          }
-                        : prev,
-                    );
-                  }}
-                />
-                {getText("No", "no")}
-              </label>
-            </div>
+            <div className="grid grid-cols-2 gap-3">
+
+  <button
+    type="button"
+    onClick={() => setHasSecondNationality(true)}
+    className={`rounded-2xl border p-4 transition-all duration-200 ${
+      hasSecondNationality
+        ? "border-[#1d5126] bg-[#f5faf6] shadow-md"
+        : "border-gray-200 hover:border-[#1d5126] hover:shadow-sm"
+    }`}
+  >
+    <div className="flex flex-col items-center gap-2">
+      <FaUser
+        size={26}
+        className={
+          hasSecondNationality
+            ? "text-[#1d5126]"
+            : "text-gray-500"
+        }
+      />
+
+      <span className="font-medium">
+        {getText("Sí", "yes")}
+      </span>
+    </div>
+  </button>
+
+  <button
+    type="button"
+    onClick={() => {
+      setHasSecondNationality(false);
+
+      setFetchedProfileData((prev) =>
+        prev
+          ? {
+              ...prev,
+              secondNationality: "",
+            }
+          : prev
+      );
+    }}
+    className={`rounded-2xl border p-4 transition-all duration-200 ${
+      !hasSecondNationality
+        ? "border-[#1d5126] bg-[#f5faf6] shadow-md"
+        : "border-gray-200 hover:border-[#1d5126] hover:shadow-sm"
+    }`}
+  >
+    <div className="flex flex-col items-center gap-2">
+      <FaUserAlt
+        size={26}
+        className={
+          !hasSecondNationality
+            ? "text-[#1d5126]"
+            : "text-gray-500"
+        }
+      />
+
+      <span className="font-medium">
+        {getText("No", "no")}
+      </span>
+    </div>
+  </button>
+
+</div>
             {hasSecondNationality && (
               <select
                 name="secondNationality"

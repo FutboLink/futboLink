@@ -409,7 +409,7 @@ activeSection === "profile"
            {/* Imagen de perfil (URL) */}
           <div
             id="field-imgUrl"
-            className="sm:col-span-2 flex flex-col items-center rounded-lg p-1 transition-shadow"
+            className="sm:col-span-2 flex flex-col items-center bg-[#fafcf9] border border-[#dbead4] rounded-2xl p-8 shadow-sm"
           >
             <ImageUploadwithCrop
               initialImage={fetchedProfileData?.imgUrl}
@@ -430,7 +430,7 @@ activeSection === "profile"
             value={fetchedProfileData?.name || ""}
             onChange={handleChange}
             placeholder={getText("Nombre", "name")}
-            className="w-full p-1.5 border rounded text-gray-700 focus:outline-none"
+            className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3d7a26]/20 focus:border-[#3d7a26]"
           />
 
           {/* Last name */}
@@ -440,7 +440,7 @@ activeSection === "profile"
             value={fetchedProfileData?.lastname || ""}
             onChange={handleChange}
             placeholder={getText("Apellido", "lastname")}
-            className="w-full p-1.5 border rounded text-gray-700 focus:outline-none"
+            className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3d7a26]/20 focus:border-[#3d7a26]"
           />
 
           {/* Email */}
@@ -458,7 +458,7 @@ activeSection === "profile"
               value={fetchedProfileData?.email || ""}
               readOnly
               placeholder={getText("Email", "email")}
-              className="w-full p-1.5 border rounded mt-2 text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
+              className="w-full mt-2 h-12 px-4 rounded-xl border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
             />
           </div>
          </>
@@ -866,7 +866,7 @@ activeSection === "profile"
                 type="text"
                 value={fetchedProfileData?.age || ""}
                 readOnly
-                className="w-full p-1.5 border rounded mt-2 text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
+                className="w-full mt-2 h-12 px-4 rounded-xl border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
               />
             </div>
           </div>

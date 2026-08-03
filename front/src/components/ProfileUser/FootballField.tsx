@@ -171,23 +171,25 @@ const FootballField: React.FC<FootballFieldProps> = ({
           <div className="flex-1 flex flex-col items-center">
             <div className="w-full max-w-[320px] mx-auto">
               <div
-                className="relative bg-gray-100 rounded-xl p-2 w-full"
-                style={{
-                  aspectRatio: "2/3",
-                  maxHeight: "400px",
-                }}
-              >
+  className="relative bg-white rounded-2xl border border-gray-200 shadow-md p-3 w-full"
+  style={{
+    aspectRatio: "2/3",
+    maxHeight: "420px",
+  }}
+>
                 {/* Fondo de la cancha */}
                 <div
-                  className="absolute inset-2 bg-green-500 border-4 border-white rounded-lg shadow-lg overflow-hidden"
-                  style={{
-                    backgroundImage: `
-                      linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px),
-                      linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px)
-                    `,
-                    backgroundSize: "15px 15px",
-                  }}
-                >
+  className="absolute inset-2 border-[3px] border-white rounded-xl overflow-hidden shadow-inner"
+  style={{
+    background:
+      "linear-gradient(180deg, #3dbb5a 0%, #2d9444 100%)",
+    backgroundImage: `
+      linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px)
+    `,
+    backgroundSize: "18px 18px",
+  }}
+>
                   {/* Líneas del campo vertical */}
                   {/* Línea central horizontal */}
                   <div className="absolute left-0 right-0 top-1/2 h-0.5 bg-white transform -translate-y-0.5"></div>

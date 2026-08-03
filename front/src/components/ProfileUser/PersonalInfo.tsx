@@ -553,161 +553,166 @@ activeSection === "profile"
   </select>
 </div>
 
-          {/* Segunda nacionalidad (toggle + select + UE) */}
-          <div id="field-secondNationality" className="flex flex-col gap-2 rounded-lg p-1 transition-shadow flex flex-col gap-2 rounded-lg p-1 transition-shadow">
-            <span className="text-gray-700 font-semibold text-sm">
-              {getText("¿Tenés segunda nacionalidad?", "hasSecondNationality")}
-            </span>
-            <div className="grid grid-cols-2 gap-3">
+          {/* Segunda nacionalidad + Pasaporte UE */}
+<div className="sm:col-span-2 grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
 
-  <button
-    type="button"
-    onClick={() => setHasSecondNationality(true)}
-    className={`rounded-2xl border p-4 transition-all duration-200 ${
-      hasSecondNationality
-        ? "border-[#1d5126] bg-[#f5faf6] shadow-md"
-        : "border-gray-200 hover:border-[#1d5126] hover:shadow-sm"
-    }`}
-  >
-    <div className="flex flex-col items-center gap-2">
-      <FaUser
-        size={26}
-        className={
+  {/* Segunda nacionalidad */}
+  <div className="flex flex-col gap-2 rounded-lg p-1 transition-shadow">
+    <span className="text-gray-700 font-semibold text-sm">
+      {getText("¿Tenés segunda nacionalidad?", "hasSecondNationality")}
+    </span>
+
+    <div className="grid grid-cols-2 gap-3">
+
+      <button
+        type="button"
+        onClick={() => setHasSecondNationality(true)}
+        className={`rounded-2xl border p-4 transition-all duration-200 ${
           hasSecondNationality
-            ? "text-[#1d5126]"
-            : "text-gray-500"
-        }
-      />
-
-      <span className="font-medium">
-        {getText("Sí", "yes")}
-      </span>
-    </div>
-  </button>
-
-  <button
-    type="button"
-    onClick={() => {
-      setHasSecondNationality(false);
-
-      setFetchedProfileData((prev) =>
-        prev
-          ? {
-              ...prev,
-              secondNationality: "",
-            }
-          : prev
-      );
-    }}
-    className={`rounded-2xl border p-4 transition-all duration-200 ${
-      !hasSecondNationality
-        ? "border-[#1d5126] bg-[#f5faf6] shadow-md"
-        : "border-gray-200 hover:border-[#1d5126] hover:shadow-sm"
-    }`}
-  >
-    <div className="flex flex-col items-center gap-2">
-      <FaUserAlt
-        size={26}
-        className={
-          !hasSecondNationality
-            ? "text-[#1d5126]"
-            : "text-gray-500"
-        }
-      />
-
-      <span className="font-medium">
-        {getText("No", "no")}
-      </span>
-    </div>
-  </button>
-
-</div>
-          </div>
-
-  {/* Pasaporte UE — pregunta independiente. Aplica a quien tenga ciudadanía
-    de un país UE (sea por 1ra o 2da nacionalidad). */}
-<div>
-  <button
-    type="button"
-    onClick={() =>
-      setFetchedProfileData((prev) =>
-        prev
-          ? {
-              ...prev,
-              pasaporteUe:
-                prev.pasaporteUe === PasaporteUe.SI
-                  ? PasaporteUe.NO
-                  : PasaporteUe.SI,
-            }
-          : prev
-      )
-    }
-    className={`w-full rounded-2xl border p-5 transition-all duration-200 ${
-      fetchedProfileData?.pasaporteUe === PasaporteUe.SI
-        ? "border-[#1d5126] bg-[#f5faf6] shadow-md"
-        : "border-gray-200 hover:border-[#1d5126] hover:shadow-sm"
-    }`}
-  >
-    <div className="flex items-center justify-between">
-
-      <div className="flex items-center gap-4">
-
-        <div
-          className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold ${
-            fetchedProfileData?.pasaporteUe === PasaporteUe.SI
-              ? "bg-[#1d5126] text-white"
-              : "bg-gray-100 text-gray-500"
-          }`}
-        >
-          EU
-        </div>
-
-        <div className="text-left">
-          <p className="font-semibold text-gray-900">
-            {getText("Pasaporte UE", "hasEuPassport")}
-          </p>
-
-          <p className="text-sm text-gray-500">
-            Ciudadanía de un país de la Unión Europea
-          </p>
-        </div>
-
-      </div>
-
-      <div
-        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-          fetchedProfileData?.pasaporteUe === PasaporteUe.SI
-            ? "border-[#1d5126] bg-[#1d5126]"
-            : "border-gray-300"
+            ? "border-[#1d5126] bg-[#f5faf6] shadow-md"
+            : "border-gray-200 hover:border-[#1d5126] hover:shadow-sm"
         }`}
       >
-        {fetchedProfileData?.pasaporteUe === PasaporteUe.SI && (
-          <div className="w-2.5 h-2.5 rounded-full bg-white" />
-        )}
-      </div>
+        <div className="flex flex-col items-center gap-2">
+          <FaUser
+            size={24}
+            className={
+              hasSecondNationality
+                ? "text-[#1d5126]"
+                : "text-gray-500"
+            }
+          />
+
+          <span className="font-medium">
+            {getText("Sí", "yes")}
+          </span>
+        </div>
+      </button>
+
+      <button
+        type="button"
+        onClick={() => {
+          setHasSecondNationality(false);
+
+          setFetchedProfileData((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  secondNationality: "",
+                }
+              : prev
+          );
+        }}
+        className={`rounded-2xl border p-4 transition-all duration-200 ${
+          !hasSecondNationality
+            ? "border-[#1d5126] bg-[#f5faf6] shadow-md"
+            : "border-gray-200 hover:border-[#1d5126] hover:shadow-sm"
+        }`}
+      >
+        <div className="flex flex-col items-center gap-2">
+          <FaUserAlt
+            size={24}
+            className={
+              !hasSecondNationality
+                ? "text-[#1d5126]"
+                : "text-gray-500"
+            }
+          />
+
+          <span className="font-medium">
+            {getText("No", "no")}
+          </span>
+        </div>
+      </button>
 
     </div>
-  </button>
+  </div>
+
+  {/* Pasaporte UE */}
+  <div>
+    <button
+      type="button"
+      onClick={() =>
+        setFetchedProfileData((prev) =>
+          prev
+            ? {
+                ...prev,
+                pasaporteUe:
+                  prev.pasaporteUe === PasaporteUe.SI
+                    ? PasaporteUe.NO
+                    : PasaporteUe.SI,
+              }
+            : prev
+        )
+      }
+      className={`w-full rounded-2xl border p-5 transition-all duration-200 ${
+        fetchedProfileData?.pasaporteUe === PasaporteUe.SI
+          ? "border-[#1d5126] bg-[#f5faf6] shadow-md"
+          : "border-gray-200 hover:border-[#1d5126] hover:shadow-sm"
+      }`}
+    >
+      <div className="flex items-center justify-between">
+
+        <div className="flex items-center gap-4">
+
+          <div
+            className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold ${
+              fetchedProfileData?.pasaporteUe === PasaporteUe.SI
+                ? "bg-[#1d5126] text-white"
+                : "bg-gray-100 text-gray-500"
+            }`}
+          >
+            EU
+          </div>
+
+          <div className="text-left">
+            <p className="font-semibold text-gray-900">
+              {getText("Pasaporte UE", "hasEuPassport")}
+            </p>
+
+            <p className="text-sm text-gray-500">
+              Ciudadanía UE
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </button>
+  </div>
+
+  {/* Selector */}
+  <div>
+    {hasSecondNationality && (
+      <>
+        <label className="text-gray-700 font-semibold text-sm">
+          {getText("Segunda nacionalidad", "secondNationality")}
+        </label>
+
+        <select
+          name="secondNationality"
+          value={fetchedProfileData?.secondNationality || ""}
+          onChange={handleChange}
+          className="w-full mt-2 h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#1d5126]/20 focus:border-[#1d5126]"
+        >
+          <option value="">
+            {getText("Seleccione su nacionalidad", "selectNationality")}
+          </option>
+
+          {nationalities?.map((nat) => (
+            <option
+              key={nat.value}
+              value={nat.label}
+            >
+              {nat.label}
+            </option>
+          ))}
+        </select>
+      </>
+    )}
+  </div>
+
 </div>
-                          {hasSecondNationality && (
-              <select
-                name="secondNationality"
-                value={fetchedProfileData?.secondNationality || ""}
-                onChange={handleChange}
-                className="w-full p-2 border mt-1 rounded text-gray-700 focus:outline-none"
-              >
-                <option value="">
-                  {getText("Seleccione su nacionalidad", "selectNationality")}
-                </option>
-                {nationalities &&
-                  nationalities.length > 0 &&
-                  nationalities.map((nat) => (
-                    <option key={nat.value} value={nat.label}>
-                      {nat.label}
-                    </option>
-                  ))}
-              </select>
-            )}
               <div className="sm:col-span-2 mt-8 mb-3">
   <h3 className="text-lg font-semibold text-gray-900">
     Datos personales

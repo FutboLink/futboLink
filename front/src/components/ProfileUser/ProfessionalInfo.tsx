@@ -530,7 +530,7 @@ const [activeSection, setActiveSection] = useState<
                     </label>
                     <select
                       id="pasaporteUE"
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3d7a26]/20 focus:border-[#3d7a26]"
                       value={pasaporteUE}
                       onChange={(e) => setPasaporteUE(e.target.value)}
                     >
@@ -574,7 +574,7 @@ const [activeSection, setActiveSection] = useState<
                     </label>
                     <select
                       id="estructuraCorp"
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3d7a26]/20 focus:border-[#3d7a26]"
                       value={estructuraCorporal}
                       onChange={(e) => setEstructuraCorporal(e.target.value)}
                     >
@@ -594,7 +594,7 @@ const [activeSection, setActiveSection] = useState<
                       Pie Hábil
                     </label>
                     <select
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3d7a26]/20 focus:border-[#3d7a26]"
                       value={pieHabil}
                       id="pieHabil"
                       onChange={(e) => setPieHabil(e.target.value)}
@@ -617,7 +617,7 @@ const [activeSection, setActiveSection] = useState<
                     <input
                       id="altura"
                       type="number"
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3d7a26]/20 focus:border-[#3d7a26]"
                       value={altura}
                       min="0"
                       max="250"
@@ -635,7 +635,7 @@ const [activeSection, setActiveSection] = useState<
                     <input
                       id="peso"
                       type="number"
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3d7a26]/20 focus:border-[#3d7a26]"
                       value={peso}
                       min="0"
                       max="150"
@@ -821,7 +821,7 @@ const [activeSection, setActiveSection] = useState<
                       </label>
                       <select
                         id={`pais-${index}`}
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3d7a26]/20 focus:border-[#3d7a26]"
                         value={exp.nacionalidadTrayectoria}
                         onChange={(e) => {
                           const pais = e.target.value;
@@ -939,7 +939,7 @@ const [activeSection, setActiveSection] = useState<
                       <input
                         id="fechaInicio"
                         type="month"
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3d7a26]/20 focus:border-[#3d7a26]"
                         value={
                           exp.fechaInicio ? exp.fechaInicio.slice(0, 7) : ""
                         }
@@ -963,7 +963,7 @@ const [activeSection, setActiveSection] = useState<
                       <input
                         id="fechaFinalizacion"
                         type="month"
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3d7a26]/20 focus:border-[#3d7a26]"
                         value={
                           exp.fechaFinalizacion
                             ? exp.fechaFinalizacion.slice(0, 7)
@@ -988,7 +988,7 @@ const [activeSection, setActiveSection] = useState<
                         Categoría del Equipo
                       </label>
                       <select
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3d7a26]/20 focus:border-[#3d7a26]"
                         value={exp.categoriaEquipo}
                         id="categoriaEqui"
                         onChange={(e) =>

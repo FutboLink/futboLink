@@ -504,7 +504,14 @@ const [activeSection, setActiveSection] = useState<
 </div>
         {/* Sección de Posiciones */}
         {!isNonPlayerProfessional && (
-          <div id="field-primaryPosition" className="border border-gray-200 rounded-lg overflow-hidden">
+          <div
+  id="field-primaryPosition"
+  className={`overflow-hidden transition-all duration-300 ${
+    activeSection === "positions"
+      ? "border border-gray-200 rounded-lg"
+      : ""
+  }`}
+>
 <div
   className={`transition-all duration-300 ease-in-out ${
     activeSection === "positions"
@@ -550,7 +557,14 @@ const [activeSection, setActiveSection] = useState<
 
         {/* Sección de Datos Físicos */}
         {!isNonPlayerProfessional && (
-          <div id="field-physicalData" className="border border-gray-200 rounded-lg overflow-hidden">
+          <div
+  id="field-physicalData"
+  className={`overflow-hidden transition-all duration-300 ${
+    activeSection === "physicalData"
+      ? "border border-gray-200 rounded-lg"
+      : ""
+  }`}
+>
             <div
               className={`transition-all duration-300 ease-in-out ${
                 activeSection === "physicalData"
@@ -644,7 +658,14 @@ const [activeSection, setActiveSection] = useState<
         )}
 
         {/* Sección de CV */}
-        <div id="field-cv" className="border border-gray-200 rounded-lg overflow-hidden">         
+        <div
+  id="field-cv"
+  className={`overflow-hidden transition-all duration-300 ${
+    activeSection === "cv"
+      ? "border border-gray-200 rounded-lg"
+      : ""
+  }`}
+>         
           <div
             className={`transition-all duration-300 ease-in-out ${
               activeSection === "cv"
@@ -706,7 +727,14 @@ const [activeSection, setActiveSection] = useState<
         </div>
 
         {/* Sección de Trayectoria */}
-        <div id="field-trayectorias" className="border border-gray-200 rounded-lg overflow-hidden">
+        <div
+  id="field-trayectorias"
+  className={`overflow-hidden transition-all duration-300 ${
+    activeSection === "trajectory"
+      ? "border border-gray-200 rounded-lg"
+      : ""
+  }`}
+>
           <div
             className={`transition-all duration-300 ease-in-out ${
               activeSection === "trajectory"

@@ -318,7 +318,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
     className={`rounded-2xl p-5 text-left transition-all ${
 activeSection === "profile"
   ? "border-2 border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
-  : "border border-gray-200 bg-white shadow-sm hover:shadow-sm"
+  : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
     }`}
   >
     <div className="text-[#3d7a26] mb-3">
@@ -338,7 +338,7 @@ activeSection === "profile"
     className={`rounded-2xl p-5 text-left transition-all ${
       activeSection === "personal"
         ? "border-2 border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
-        : "border border-gray-200 bg-white shadow-sm hover:shadow-sm"
+        : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
     }`}
   >
     <div className="text-[#3d7a26] mb-3">
@@ -358,7 +358,7 @@ activeSection === "profile"
     className={`rounded-2xl p-5 text-left transition-all ${
       activeSection === "contact"
         ? "border-2 border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
-        : "border border-gray-200 bg-white shadow-sm hover:shadow-sm"
+        : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
     }`}
   >
     <div className="text-[#3d7a26] mb-3">
@@ -378,7 +378,7 @@ activeSection === "profile"
     className={`rounded-2xl p-5 text-left transition-all ${
       activeSection === "multimedia"
         ? "border-2 border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
-        : "border border-gray-200 bg-white shadow-sm hover:shadow-sm"
+        : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
     }`}
   >
     <div className="text-[#3d7a26] mb-3">
@@ -570,7 +570,7 @@ activeSection === "profile"
         className={`rounded-2xl border p-4 transition-all duration-200 ${
           hasSecondNationality
             ? "border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
-            : "border-gray-200 hover:border-[#3d7a26] hover:shadow-sm"
+            : "border-gray-200 hover:border-[#3d7a26] hover:shadow-md"
         }`}
       >
         <div className="flex flex-col items-center gap-2">
@@ -606,7 +606,7 @@ activeSection === "profile"
         className={`rounded-2xl border p-4 transition-all duration-200 ${
           !hasSecondNationality
             ? "border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
-            : "border-gray-200 hover:border-[#3d7a26] hover:shadow-sm"
+            : "border-gray-200 hover:border-[#3d7a26] hover:shadow-md"
         }`}
       >
         <div className="flex flex-col items-center gap-2">
@@ -648,7 +648,7 @@ activeSection === "profile"
       className={`w-full rounded-2xl border p-5 transition-all duration-200 ${
         fetchedProfileData?.pasaporteUe === PasaporteUe.SI
           ? "border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
-          : "border-gray-200 hover:border-[#3d7a26] hover:shadow-sm"
+          : "border-gray-200 hover:border-[#3d7a26] hover:shadow-md"
       }`}
     >
       <div className="flex items-center justify-between">
@@ -745,7 +745,7 @@ activeSection === "profile"
       className={`rounded-2xl border p-4 transition-all duration-200 ${
         fetchedProfileData?.genre === "Masculino"
           ? "border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
-          : "border-gray-200 hover:border-[#3d7a26] hover:shadow-sm"
+          : "border-gray-200 hover:border-[#3d7a26] hover:shadow-md"
       }`}
     >
       <div className="flex flex-col items-center gap-2">
@@ -777,7 +777,7 @@ activeSection === "profile"
       className={`rounded-2xl border p-4 transition-all duration-200 ${
         fetchedProfileData?.genre === "Femenino"
           ? "border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
-          : "border-gray-200 hover:border-[#3d7a26] hover:shadow-sm"
+          : "border-gray-200 hover:border-[#3d7a26] hover:shadow-md"
       }`}
     >
       <div className="flex flex-col items-center gap-2">
@@ -809,7 +809,7 @@ activeSection === "profile"
       className={`rounded-2xl border p-4 transition-all duration-200 ${
         fetchedProfileData?.genre === "Otro"
           ? "border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
-          : "border-gray-200 hover:border-[#3d7a26] hover:shadow-sm"
+          : "border-gray-200 hover:border-[#3d7a26] hover:shadow-md"
       }`}
     >
       <div className="flex flex-col items-center gap-2">

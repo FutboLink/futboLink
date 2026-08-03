@@ -504,21 +504,11 @@ const [activeSection, setActiveSection] = useState<
 </div>
         {/* Sección de Posiciones */}
         {!isNonPlayerProfessional && (
-          <div
+     {activeSection === "positions" && (     
+<div className="p-6 bg-white">
   id="field-primaryPosition"
-  className={`overflow-hidden transition-all duration-300 ${
-    activeSection === "positions"
-      ? "border border-gray-200 rounded-lg"
-      : ""
-  }`}
->
-<div
-  className={`transition-all duration-300 ease-in-out ${
-    activeSection === "positions"
-      ? "max-h-[3000px] opacity-100"
-      : "max-h-0 opacity-0 overflow-hidden"
-  }`}
->
+className="border border-gray-200 rounded-lg overflow-hidden">
+<div className="p-6 bg-white">
               <div className="p-3 md:p-6 bg-white">
                 {/* Componente de cancha de fútbol */}
                 <FootballField
@@ -552,7 +542,6 @@ const [activeSection, setActiveSection] = useState<
                 </div>
               </div>
             </div>
-          </div>
         )}
 
         {/* Sección de Datos Físicos */}

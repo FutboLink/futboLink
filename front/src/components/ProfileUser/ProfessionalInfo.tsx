@@ -503,13 +503,16 @@ const [activeSection, setActiveSection] = useState<
 
 </div>
         {/* Sección de Posiciones */}
-        {!isNonPlayerProfessional && (
+        
+        {!isNonPlayerProfessional &&
+          activeSection === "positions" && (
      {activeSection === "positions" && (     
-<div className="p-6 bg-white">
+<div
   id="field-primaryPosition"
-className="border border-gray-200 rounded-lg overflow-hidden">
-<div className="p-6 bg-white">
-              <div className="p-3 md:p-6 bg-white">
+  className="border border-gray-200 rounded-lg overflow-hidden"
+>
+    <div className="p-3 md:p-6 bg-white">
+      
                 {/* Componente de cancha de fútbol */}
                 <FootballField
                   primaryPosition={primaryPosition}

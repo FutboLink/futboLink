@@ -64,29 +64,37 @@ const FootballField: React.FC<FootballFieldProps> = ({
       position: "absolute" as const,
       left: `${pos.x}%`,
       top: `${pos.y}%`,
-      transform: "translate(-50%, -50%)",
+      transform:
+          isPrimary || isSecondary
+          ? "translate(-50%, -55%) scale(1.15)"
+          : "translate(-50%, -50%) scale(1)",
       width: "clamp(28px, 3vw, 32px)",
       height: "clamp(28px, 3vw, 32px)",
       borderRadius: "50%",
       border: "2px solid",
       borderColor: isPrimary ? "#22c55e" : isSecondary ? "#3b82f6" : "#6b7280",
       backgroundColor: isPrimary
-        ? "#f0fdf4"
-        : isSecondary
-        ? "#93c5fd"
-        : "#f3f4f6",
+          ? "#22c55e"
+          : isSecondary
+          ? "#3b82f6"
+          : "#f3f4f6",
       cursor: "pointer",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       fontWeight: "bold",
-      color: isPrimary ? "#7f1d1d" : isSecondary ? "#1e3a8a" : "#374151",
-      transition: "all 0.2s ease",
+      color: isPrimary
+         ? "#ffffff"
+         : isSecondary
+         ? "#ffffff"
+         : "#374151",
+      transition: "all .25s cubic-bezier(.2,.8,.2,1)",
       zIndex: 10,
-      boxShadow:
-        isPrimary || isSecondary
-          ? "0 4px 8px rgba(0,0,0,0.2)"
-          : "0 2px 4px rgba(0,0,0,0.1)",
+      boxShadow: isPrimary
+         ? "0 10px 22px rgba(34,197,94,.45)"
+         : isSecondary
+         ? "0 10px 22px rgba(59,130,246,.45)"
+         : "0 2px 5px rgba(0,0,0,.15)",
       fontSize: "clamp(10px, 1.5vw, 12px)",
     };
   };

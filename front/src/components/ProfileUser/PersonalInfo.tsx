@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   FaChevronDown,
   FaChevronUp,
@@ -79,6 +79,9 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
   const [countrySearch, setCountrySearch] = useState("");
   const [secondNationalityOpen, setSecondNationalityOpen] = useState(false);
   const [secondNationalitySearch, setSecondNationalitySearch] = useState("");
+  const nationalityRef = useRef<HTMLDivElement>(null);
+  const countryRef = useRef<HTMLDivElement>(null);
+  const secondNationalityRef = useRef<HTMLDivElement>(null);
   // Normaliza valores de redes para evitar URLs pre-cargadas
   const normalizeSocialValue = (key: string, value: string): string => {
     const v = (value || "").trim();
@@ -199,6 +202,39 @@ const filteredSecondNationalities = nationalities.filter((n) =>
       );
     }
   }, [fetchedProfileData?.birthday]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+        const target = event.target as Node;
+
+        if (
+            nationalityRef.current &&
+            !nationalityRef.current.contains(target)
+        ) {
+            setNationalityOpen(false);
+        }
+
+        if (
+            countryRef.current &&
+            !countryRef.current.contains(target)
+        ) {
+            setCountryOpen(false);
+        }
+
+        if (
+            secondNationalityRef.current &&
+            !secondNationalityRef.current.contains(target)
+        ) {
+            setSecondNationalityOpen(false);
+        }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+    };
+}, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -531,7 +567,7 @@ activeSection === "profile"
             ) : nationalitiesError ? (
               <p className="text-sm text-red-500">{nationalitiesError}</p>
             ) : (
-              <div className="relative mt-2">
+              <div ref={nationalityRef} className="relative mt-2">
 
   <button
     type="button"
@@ -629,7 +665,7 @@ activeSection === "profile"
     {getText("País de Residencia", "countryOfResidence")}:
   </label>
 
-  <div className="relative mt-2">
+  <div ref={countryRef} className="relative mt-2">
 
   <button
     type="button"
@@ -850,7 +886,7 @@ activeSection === "profile"
           {getText("Segunda nacionalidad", "secondNationality")}
         </label>
 
-        <div className="relative mt-2">
+        <div ref={countryRef} className="relative mt-2">
 
   <button
     type="button"

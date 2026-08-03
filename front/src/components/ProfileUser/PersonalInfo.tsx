@@ -384,7 +384,9 @@ activeSection === "profile"
       ) : error ? (
         <p className="text-red-600">{error}</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+  <div className="border border-gray-200 rounded-lg overflow-hidden">
+    <div className="p-6 bg-white">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {/* ============================================================
                                       PERFIL
            ============================================================ */}
@@ -954,8 +956,10 @@ activeSection === "profile"
           </div>
         </>
       )}
+          </div>
         </div>
-      )}
+      </div>
+    )}
       {/* Save Button */}
       <button
         onClick={handleSubmit}

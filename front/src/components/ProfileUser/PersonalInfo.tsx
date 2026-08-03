@@ -482,7 +482,7 @@ activeSection === "profile"
           {/* Nationality Selector - Fixed version */}
           <div
             id="field-nationality"
-            className="flex flex-col sm:col-span-2 rounded-lg p-1 transition-shadow"
+            className="flex flex-col rounded-lg p-1 transition-shadow"
           >
             <label
               htmlFor="nationalitiesProfile"
@@ -554,7 +554,7 @@ activeSection === "profile"
 </div>
 
           {/* Segunda nacionalidad (toggle + select + UE) */}
-          <div id="field-secondNationality" className="sm:col-span-2 flex flex-col gap-2 rounded-lg p-1 transition-shadow">
+          <div id="field-secondNationality" className="flex flex-col gap-2 rounded-lg p-1 transition-shadow flex flex-col gap-2 rounded-lg p-1 transition-shadow">
             <span className="text-gray-700 font-semibold text-sm">
               {getText("¿Tenés segunda nacionalidad?", "hasSecondNationality")}
             </span>
@@ -645,7 +645,7 @@ activeSection === "profile"
 
   {/* Pasaporte UE — pregunta independiente. Aplica a quien tenga ciudadanía
     de un país UE (sea por 1ra o 2da nacionalidad). */}
-<div className="sm:col-span-2">
+<div>
   <button
     type="button"
     onClick={() =>

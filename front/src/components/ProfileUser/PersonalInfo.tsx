@@ -9,6 +9,10 @@ import {
   FaInstagram,
   FaFacebook,
   FaTiktok,
+  FaUser,
+  FaGlobeAmericas,
+  FaPhoneAlt,
+  FaPhotoVideo,
 } from "react-icons/fa";
 import { useUserContext } from "@/hook/useUserContext";
 import { PasaporteUe, UserType, type IProfileData } from "@/Interfaces/IUser";
@@ -315,7 +319,9 @@ activeSection === "profile"
   : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
     }`}
   >
-    <div className="text-3xl mb-3">👤</div>
+    <div className="text-[#1d5126] mb-3">
+  <FaUser size={34} />
+</div>
     <h3 className="font-semibold text-gray-900">
       Perfil
     </h3>
@@ -333,7 +339,9 @@ activeSection === "profile"
         : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
     }`}
   >
-    <div className="text-3xl mb-3">🌍</div>
+    <div className="text-[#1d5126] mb-3">
+  <FaGlobeAmericas size={34} />
+</div>
     <h3 className="font-semibold text-gray-900">
     Información
     </h3>
@@ -351,7 +359,9 @@ activeSection === "profile"
         : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
     }`}
   >
-    <div className="text-3xl mb-3">📞</div>
+    <div className="text-[#1d5126] mb-3">
+  <FaPhoneAlt size={34} />
+</div>
     <h3 className="font-semibold text-gray-900">
     Contacto
     </h3>
@@ -369,7 +379,9 @@ activeSection === "profile"
         : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
     }`}
   >
-    <div className="text-3xl mb-3">🎥</div>
+    <div className="text-[#1d5126] mb-3">
+  <FaPhotoVideo size={34} />
+</div>
     <h3 className="font-semibold text-gray-900">
       Multimedia
       </h3>

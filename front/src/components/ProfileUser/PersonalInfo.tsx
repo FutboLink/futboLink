@@ -129,10 +129,11 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
 );
 
 const filteredCountries = nationalities.filter((n) =>
-  const filteredSecondNationalities = nationalities.filter((n) =>
-  n.label.toLowerCase().includes(secondNationalitySearch.toLowerCase())
-);
   n.label.toLowerCase().includes(countrySearch.toLowerCase())
+);
+
+const filteredSecondNationalities = nationalities.filter((n) =>
+  n.label.toLowerCase().includes(secondNationalitySearch.toLowerCase())
 );
 
   // Debug nationalities

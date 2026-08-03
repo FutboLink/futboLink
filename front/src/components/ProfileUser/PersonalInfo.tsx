@@ -307,7 +307,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
   return (
 <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
 
-  <h2 className="text-2xl font-bold text-[#1d5126] mb-6">
+  <h2 className="text-2xl font-bold text-[#3d7a26] mb-6">
     {getText("Información Personal", "personalInformation")}
   </h2>
    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -317,11 +317,11 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
     onClick={() => setActiveSection("profile")}
     className={`rounded-2xl p-5 text-left transition-all ${
 activeSection === "profile"
-  ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
+  ? "border-2 border-[#3d7a26] bg-[#f5faf6] shadow-md"
   : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
     }`}
   >
-    <div className="text-[#1d5126] mb-3">
+    <div className="text-[#3d7a26] mb-3">
   <FaUser size={34} />
 </div>
     <h3 className="font-semibold text-gray-900">
@@ -337,11 +337,11 @@ activeSection === "profile"
     onClick={() => setActiveSection("personal")}
     className={`rounded-2xl p-5 text-left transition-all ${
       activeSection === "personal"
-        ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
+        ? "border-2 border-[#3d7a26] bg-[#f5faf6] shadow-md"
         : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
     }`}
   >
-    <div className="text-[#1d5126] mb-3">
+    <div className="text-[#3d7a26] mb-3">
   <FaGlobeAmericas size={34} />
 </div>
     <h3 className="font-semibold text-gray-900">
@@ -357,11 +357,11 @@ activeSection === "profile"
     onClick={() => setActiveSection("contact")}
     className={`rounded-2xl p-5 text-left transition-all ${
       activeSection === "contact"
-        ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
+        ? "border-2 border-[#3d7a26] bg-[#f5faf6] shadow-md"
         : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
     }`}
   >
-    <div className="text-[#1d5126] mb-3">
+    <div className="text-[#3d7a26] mb-3">
   <FaPhoneAlt size={34} />
 </div>
     <h3 className="font-semibold text-gray-900">
@@ -377,11 +377,11 @@ activeSection === "profile"
     onClick={() => setActiveSection("multimedia")}
     className={`rounded-2xl p-5 text-left transition-all ${
       activeSection === "multimedia"
-        ? "border-2 border-[#1d5126] bg-[#f5faf6] shadow-md"
+        ? "border-2 border-[#3d7a26] bg-[#f5faf6] shadow-md"
         : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
     }`}
   >
-    <div className="text-[#1d5126] mb-3">
+    <div className="text-[#3d7a26] mb-3">
   <FaPhotoVideo size={34} />
 </div>
     <h3 className="font-semibold text-gray-900">
@@ -502,7 +502,7 @@ activeSection === "profile"
                 name="nationality"
                 value={fetchedProfileData?.nationality || ""}
                 onChange={handleChange}
-                className="w-full mt-2 h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#1d5126]/20 focus:border-[#1d5126]"
+                className="w-full mt-2 h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3d7a26]/20 focus:border-[#3d7a26]"
               >
                 <option value="">{getText("Seleccione su nacionalidad", "selectNationality")}</option>
                 {nationalities &&
@@ -533,7 +533,7 @@ activeSection === "profile"
     name="ubicacionActual"
     value={fetchedProfileData?.ubicacionActual || ""}
     onChange={handleChange}
-    className="w-full mt-2 h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#1d5126]/20 focus:border-[#1d5126]"
+    className="w-full mt-2 h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3d7a26]/20 focus:border-[#3d7a26]"
   >
     <option value="">
       {getText(
@@ -569,8 +569,8 @@ activeSection === "profile"
         onClick={() => setHasSecondNationality(true)}
         className={`rounded-2xl border p-4 transition-all duration-200 ${
           hasSecondNationality
-            ? "border-[#1d5126] bg-[#f5faf6] shadow-md"
-            : "border-gray-200 hover:border-[#1d5126] hover:shadow-sm"
+            ? "border-[#3d7a26] bg-[#f5faf6] shadow-md"
+            : "border-gray-200 hover:border-[#3d7a26] hover:shadow-sm"
         }`}
       >
         <div className="flex flex-col items-center gap-2">
@@ -578,7 +578,7 @@ activeSection === "profile"
             size={24}
             className={
               hasSecondNationality
-                ? "text-[#1d5126]"
+                ? "text-[#3d7a26]"
                 : "text-gray-500"
             }
           />
@@ -605,8 +605,8 @@ activeSection === "profile"
         }}
         className={`rounded-2xl border p-4 transition-all duration-200 ${
           !hasSecondNationality
-            ? "border-[#1d5126] bg-[#f5faf6] shadow-md"
-            : "border-gray-200 hover:border-[#1d5126] hover:shadow-sm"
+            ? "border-[#3d7a26] bg-[#f5faf6] shadow-md"
+            : "border-gray-200 hover:border-[#3d7a26] hover:shadow-sm"
         }`}
       >
         <div className="flex flex-col items-center gap-2">
@@ -614,7 +614,7 @@ activeSection === "profile"
             size={24}
             className={
               !hasSecondNationality
-                ? "text-[#1d5126]"
+                ? "text-[#3d7a26]"
                 : "text-gray-500"
             }
           />
@@ -647,8 +647,8 @@ activeSection === "profile"
       }
       className={`w-full rounded-2xl border p-5 transition-all duration-200 ${
         fetchedProfileData?.pasaporteUe === PasaporteUe.SI
-          ? "border-[#1d5126] bg-[#f5faf6] shadow-md"
-          : "border-gray-200 hover:border-[#1d5126] hover:shadow-sm"
+          ? "border-[#3d7a26] bg-[#f5faf6] shadow-md"
+          : "border-gray-200 hover:border-[#3d7a26] hover:shadow-sm"
       }`}
     >
       <div className="flex items-center justify-between">
@@ -658,7 +658,7 @@ activeSection === "profile"
           <div
             className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold ${
               fetchedProfileData?.pasaporteUe === PasaporteUe.SI
-                ? "bg-[#1d5126] text-white"
+                ? "bg-[#3d7a26] text-white"
                 : "bg-gray-100 text-gray-500"
             }`}
           >
@@ -693,7 +693,7 @@ activeSection === "profile"
           name="secondNationality"
           value={fetchedProfileData?.secondNationality || ""}
           onChange={handleChange}
-          className="w-full mt-2 h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#1d5126]/20 focus:border-[#1d5126]"
+          className="w-full mt-2 h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3d7a26]/20 focus:border-[#3d7a26]"
         >
           <option value="">
             {getText("Seleccione su nacionalidad", "selectNationality")}
@@ -744,8 +744,8 @@ activeSection === "profile"
       }
       className={`rounded-2xl border p-4 transition-all duration-200 ${
         fetchedProfileData?.genre === "Masculino"
-          ? "border-[#1d5126] bg-[#f5faf6] shadow-md"
-          : "border-gray-200 hover:border-[#1d5126] hover:shadow-sm"
+          ? "border-[#3d7a26] bg-[#f5faf6] shadow-md"
+          : "border-gray-200 hover:border-[#3d7a26] hover:shadow-sm"
       }`}
     >
       <div className="flex flex-col items-center gap-2">
@@ -753,7 +753,7 @@ activeSection === "profile"
           size={28}
           className={
             fetchedProfileData?.genre === "Masculino"
-              ? "text-[#1d5126]"
+              ? "text-[#3d7a26]"
               : "text-gray-500"
           }
         />
@@ -776,8 +776,8 @@ activeSection === "profile"
       }
       className={`rounded-2xl border p-4 transition-all duration-200 ${
         fetchedProfileData?.genre === "Femenino"
-          ? "border-[#1d5126] bg-[#f5faf6] shadow-md"
-          : "border-gray-200 hover:border-[#1d5126] hover:shadow-sm"
+          ? "border-[#3d7a26] bg-[#f5faf6] shadow-md"
+          : "border-gray-200 hover:border-[#3d7a26] hover:shadow-sm"
       }`}
     >
       <div className="flex flex-col items-center gap-2">
@@ -785,7 +785,7 @@ activeSection === "profile"
           size={28}
           className={
             fetchedProfileData?.genre === "Femenino"
-              ? "text-[#1d5126]"
+              ? "text-[#3d7a26]"
               : "text-gray-500"
           }
         />
@@ -808,8 +808,8 @@ activeSection === "profile"
       }
       className={`rounded-2xl border p-4 transition-all duration-200 ${
         fetchedProfileData?.genre === "Otro"
-          ? "border-[#1d5126] bg-[#f5faf6] shadow-md"
-          : "border-gray-200 hover:border-[#1d5126] hover:shadow-sm"
+          ? "border-[#3d7a26] bg-[#f5faf6] shadow-md"
+          : "border-gray-200 hover:border-[#3d7a26] hover:shadow-sm"
       }`}
     >
       <div className="flex flex-col items-center gap-2">
@@ -817,7 +817,7 @@ activeSection === "profile"
           size={28}
           className={
             fetchedProfileData?.genre === "Otro"
-              ? "text-[#1d5126]"
+              ? "text-[#3d7a26]"
               : "text-gray-500"
           }
         />
@@ -848,7 +848,7 @@ activeSection === "profile"
                 value={fetchedProfileData?.birthday || ""}
                 max={new Date().toISOString().split("T")[0]} // No permite fechas futuras
                 onChange={handleChange}
-                className="w-full mt-2 h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#1d5126]/20 focus:border-[#1d5126]"
+                className="w-full mt-2 h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3d7a26]/20 focus:border-[#3d7a26]"
               />
             </div>
 

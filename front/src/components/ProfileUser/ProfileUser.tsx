@@ -164,7 +164,7 @@ const Profile = () => {
             <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex items-center gap-2 px-5 py-3 mt-6 rounded-xl transition-all duration-200 ${
+            className={`flex items-center gap-2 px-5 py-3 rounded-xl transition-all duration-200 ${
              activeTab === tab.key
                ? "bg-[#1d5126] text-white shadow-md"
                : "bg-white border border-gray-200 text-gray-700 hover:bg-green-50 hover:border-[#1d5126]"
@@ -173,14 +173,6 @@ const Profile = () => {
           <tab.icon size={18} />
          <span className="font-medium">{tab.label}</span>
         </button>
-                activeTab === tab.key
-                  ? "bg-green-300 shadow-md font-semibold"
-                  : "text-gray-600"
-              }`} // Reducir el tamaño del padding y la altura
-              onClick={() => setActiveTab(tab.key)}
-            >
-              {tab.label}
-            </button>
           ))}
         </div>
         {/* Contenido de cada pestaña */}

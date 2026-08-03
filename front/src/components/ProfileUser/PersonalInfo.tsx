@@ -885,7 +885,7 @@ activeSection === "profile"
               label={getText("Teléfono", "phone") + ":"}
               value={fetchedProfileData?.phone}
               onChange={handleChange}
-              className="p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
+              className="mt-2 h-12 px-4 rounded-xl border border-[#dbead4] bg-white text-gray-700 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3d7a26]/20 focus:border-[#3d7a26]"
             />
             {/* Agente o Representante */}
             {fetchedProfileData?.role === UserType.PLAYER && (
@@ -903,7 +903,7 @@ activeSection === "profile"
                   value={fetchedProfileData?.nameAgency || ""}
                   onChange={handleChange}
                   placeholder={getText("Nombre del agente o representante", "agentName")}
-                  className="p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
+                  className="mt-2 h-12 px-4 rounded-xl border border-[#dbead4] bg-white text-gray-700 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3d7a26]/20 focus:border-[#3d7a26]"
                 />
               </div>
             )}
@@ -943,7 +943,7 @@ activeSection === "profile"
           </div>
 
           {showSocials && (
-            <div className="sm:col-span-2 bg-verde-claro/10 border border-verde-claro p-3 rounded shadow-inner transition-all duration-300 ease-in-out">
+            <div className="sm:col-span-2 bg-[#fafcf9] border border-[#dbead4] rounded-2xl p-6 shadow-sm transition-all duration-300">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {/* Transfermarkt */}
                 <div className="flex flex-col">

@@ -600,6 +600,68 @@ activeSection === "profile"
               {getText("Tengo Pasaporte UE", "hasEuPassport")}
             </label>
           </div>
+               {/* Gender */}
+          <div className="flex flex-col">
+            <label
+              htmlFor="genreProfile"
+              className="text-gray-700 font-semibold text-sm"
+            >
+              {getText("Género", "gender")}:
+            </label>
+            <select
+              id="genreProfile"
+              name="genre"
+              value={fetchedProfileData?.genre || ""}
+              onChange={handleChange}
+              className="w-full p-1.5 border mt-2 rounded text-gray-700 focus:outline-none"
+            >
+              <option value="">{getText("Seleccione su género (opcional)", "selectGender")}</option>
+              <option value="Masculino">{getText("Masculino", "male")}</option>
+              <option value="Femenino">{getText("Femenino", "female")}</option>
+              <option value="Otro">{getText("Otro", "other")}</option>
+            </select>
+          </div>
+       </div>
+          
+{/* Birthdate */}
+          <div id="field-birthday" 
+            className="flex flex-col sm:flex-row sm:gap-4 sm:col-span-2 rounded-lg p-1 transition-shadow">
+            <div className="flex flex-col w-full sm:w-1/2">
+              <label
+                htmlFor="birthdayProfile"
+                className="text-gray-700 font-semibold text-sm"
+              >
+                {getText("Fecha de nacimiento", "birthdate")}:
+              </label>
+              <input
+                id="birthdayProfile"
+                name="birthday"
+                type="date"
+                value={fetchedProfileData?.birthday || ""}
+                max={new Date().toISOString().split("T")[0]} // No permite fechas futuras
+                onChange={handleChange}
+                className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
+              />
+            </div>
+
+            {/* Age (calculada automáticamente) */}
+            <div className="flex flex-col w-full sm:w-1/2 mt-2 sm:mt-0">
+              <label
+                htmlFor="ageProfile"
+                className="text-gray-700 font-semibold text-sm"
+              >
+                {getText("Edad", "age")}:
+              </label>
+              <input
+                id="ageProfile"
+                name="age"
+                type="text"
+                value={fetchedProfileData?.age || ""}
+                readOnly
+                className="w-full p-1.5 border rounded mt-2 text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
+              />
+            </div>
+          </div>
          </>
         )}
          {/* ============================================================
@@ -638,67 +700,7 @@ activeSection === "profile"
               </div>
             )}
           </div>
-          {/* Gender */}
-          <div className="flex flex-col">
-            <label
-              htmlFor="genreProfile"
-              className="text-gray-700 font-semibold text-sm"
-            >
-              {getText("Género", "gender")}:
-            </label>
-            <select
-              id="genreProfile"
-              name="genre"
-              value={fetchedProfileData?.genre || ""}
-              onChange={handleChange}
-              className="w-full p-1.5 border mt-2 rounded text-gray-700 focus:outline-none"
-            >
-              <option value="">{getText("Seleccione su género (opcional)", "selectGender")}</option>
-              <option value="Masculino">{getText("Masculino", "male")}</option>
-              <option value="Femenino">{getText("Femenino", "female")}</option>
-              <option value="Otro">{getText("Otro", "other")}</option>
-            </select>
-          </div>
-
-          {/* Birthdate */}
-          <div id="field-birthday" className="flex flex-col sm:flex-row sm:gap-4 sm:col-span-2 rounded-lg p-1 transition-shadow">
-            <div className="flex flex-col w-full sm:w-1/2">
-              <label
-                htmlFor="birthdayProfile"
-                className="text-gray-700 font-semibold text-sm"
-              >
-                {getText("Fecha de nacimiento", "birthdate")}:
-              </label>
-              <input
-                id="birthdayProfile"
-                name="birthday"
-                type="date"
-                value={fetchedProfileData?.birthday || ""}
-                max={new Date().toISOString().split("T")[0]} // No permite fechas futuras
-                onChange={handleChange}
-                className="w-full p-1.5 border rounded mt-2 text-gray-700 focus:outline-none"
-              />
-            </div>
-
-            {/* Age (calculada automáticamente) */}
-            <div className="flex flex-col w-full sm:w-1/2 mt-2 sm:mt-0">
-              <label
-                htmlFor="ageProfile"
-                className="text-gray-700 font-semibold text-sm"
-              >
-                {getText("Edad", "age")}:
-              </label>
-              <input
-                id="ageProfile"
-                name="age"
-                type="text"
-                value={fetchedProfileData?.age || ""}
-                readOnly
-                className="w-full p-1.5 border rounded mt-2 text-gray-700 bg-gray-100 cursor-not-allowed focus:outline-none"
-              />
-            </div>
-          </div>
-
+             
           {/* Header redes sociales — título + descripción + toggle sutil */}
           <div id="field-socialMedia" className="sm:col-span-2 rounded-lg p-1 transition-shadow">
             <div className="flex items-start justify-between gap-3 mb-2">

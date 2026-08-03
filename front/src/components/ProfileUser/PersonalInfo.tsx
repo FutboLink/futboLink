@@ -450,7 +450,7 @@ activeSection === "profile"
          </>
         )} 
         {/* ============================================================
-                             INFORMACIÓN PERSONAL
+                             INFORMACIÓN PERSONALL
          ============================================================ */}
           {activeSection === "personal" && (
             <>

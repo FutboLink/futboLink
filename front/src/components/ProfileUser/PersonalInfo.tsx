@@ -554,7 +554,7 @@ activeSection === "profile"
 </div>
 
           {/* Segunda nacionalidad + Pasaporte UE */}
-<div className="sm:col-span-2 grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+<div className="sm:col-span-2 grid grid-cols-1 lg:grid-cols-3 gap-4 items-end">
 
   {/* Segunda nacionalidad */}
   <div className="flex flex-col gap-2 rounded-lg p-1 transition-shadow">
@@ -629,7 +629,7 @@ activeSection === "profile"
   </div>
 
   {/* Pasaporte UE */}
-  <div>
+  <div className="pt-8">
     <button
       type="button"
       onClick={() =>

@@ -649,14 +649,10 @@ const [activeSection, setActiveSection] = useState<
         )}
 
         {/* Sección de CV */}
-        <div
+<div
   id="field-cv"
-  className={`overflow-hidden transition-all duration-300 ${
-    activeSection === "cv"
-      ? "border border-gray-200 rounded-lg"
-      : ""
-  }`}
->         
+  className="overflow-hidden transition-all duration-300"
+>
           <div
             className={`transition-all duration-300 ease-in-out ${
               activeSection === "cv"
@@ -664,7 +660,7 @@ const [activeSection, setActiveSection] = useState<
                 : "max-h-0 opacity-0 overflow-hidden"
             }`}
           >
-            <div className="p-6 bg-white">
+            <div className="bg-transparent p-0 md:p-2">
               {cvInfo ? (
                 <div className="mb-4">
                   <div className="flex items-center p-3 bg-gray-50 rounded-lg">

@@ -227,7 +227,9 @@ const FootballField: React.FC<FootballFieldProps> = ({
   className="group"
 >
   {(primaryPosition === positionName || secondaryPosition === positionName) && (
-    <div className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-black/90 px-3 py-1 text-xs text-white shadow-xl z-50"
+  <div
+    className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-black/90 px-3 py-1 text-xs text-white shadow-xl z-50"
+      >
       {positionName}
     </div>
   )}

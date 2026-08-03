@@ -170,14 +170,10 @@ const FootballField: React.FC<FootballFieldProps> = ({
 
           {/* Cancha de fútbol - Contenedor responsivo */}
           <div className="flex-1 flex flex-col items-center">
-            <div className="w-full max-w-[360px] mx-auto">
+            <div className="w-full max-w-[380px] mx-auto">
               <div
-  className="relative bg-white rounded-2xl border border-gray-200 shadow-md p-3 w-full"
-  style={{
-    aspectRatio: "2/3",
-    maxHeight: "420px",
-  }}
->
+                className="relative bg-white rounded-2xl border border-gray-200 shadow-md p-3 w-full h-[520px] lg:h-[620px]"
+              >
                 {/* Fondo de la cancha */}
                 <div
   className="absolute inset-2 border-[3px] border-white rounded-xl overflow-hidden shadow-inner"

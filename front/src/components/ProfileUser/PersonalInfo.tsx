@@ -17,7 +17,6 @@ import {
 import { useUserContext } from "@/hook/useUserContext";
 import { PasaporteUe, UserType, type IProfileData } from "@/Interfaces/IUser";
 import ImageUploadwithCrop from "../Cloudinary/ImageUploadWithCrop";
-import ProfileSection from "./ProfileSection";
 import {
   fetchUserData,
   updateUserData,

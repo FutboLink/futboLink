@@ -675,7 +675,7 @@ activeSection === "profile"
     <div className="flex items-center gap-3">
 
       {fetchedProfileData?.ubicacionActual &&
-        getCountryCode(fetchedProfileData.nationality) && (
+        getCountryCode(fetchedProfileData.ubicacionActual) && (
           <CountryFlag
             svg
             countryCode={getCountryCode(fetchedProfileData.nationality)!}
@@ -684,8 +684,8 @@ activeSection === "profile"
       )}
 
       <span className="text-gray-700">
-        {fetchedProfileData?.nationality ||
-          getText("Seleccione su nacionalidad", "selectNationality")}
+        {fetchedProfileData?.ubicacionActual ||
+           getText("Seleccione su país", "selectCountry")}
       </span>
 
     </div>
@@ -886,7 +886,7 @@ activeSection === "profile"
           {getText("Segunda nacionalidad", "secondNationality")}
         </label>
 
-        <div ref={countryRef} className="relative mt-2">
+        <div ref={secondNationalityRef} className="relative mt-2">
 
   <button
     type="button"
@@ -895,8 +895,8 @@ activeSection === "profile"
   >
     <div className="flex items-center gap-3">
 
-      {fetchedProfileData?.nationality &&
-        getCountryCode(fetchedProfileData.nationality) && (
+      {fetchedProfileData?.secondNationality &&
+          getCountryCode(fetchedProfileData.secondNationality) && (
           <CountryFlag
             svg
             countryCode={getCountryCode(fetchedProfileData.nationality)!}
@@ -905,8 +905,8 @@ activeSection === "profile"
       )}
 
       <span className="text-gray-700">
-        {fetchedProfileData?.nationality ||
-          getText("Seleccione su nacionalidad", "selectNationality")}
+        {fetchedProfileData?.secondNationality ||
+           "Seleccione segunda nacionalidad"}
       </span>
 
     </div>

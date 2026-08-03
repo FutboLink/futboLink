@@ -317,8 +317,8 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ onProfileChange }) => {
     onClick={() => setActiveSection("profile")}
     className={`rounded-2xl p-5 text-left transition-all ${
 activeSection === "profile"
-  ? "border-2 border-[#3d7a26] bg-[#f2f8ef] shadow-md"
-  : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
+  ? "border-2 border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
+  : "border border-gray-200 bg-white shadow-sm hover:shadow-sm"
     }`}
   >
     <div className="text-[#3d7a26] mb-3">
@@ -337,8 +337,8 @@ activeSection === "profile"
     onClick={() => setActiveSection("personal")}
     className={`rounded-2xl p-5 text-left transition-all ${
       activeSection === "personal"
-        ? "border-2 border-[#3d7a26] bg-[#f2f8ef] shadow-md"
-        : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
+        ? "border-2 border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
+        : "border border-gray-200 bg-white shadow-sm hover:shadow-sm"
     }`}
   >
     <div className="text-[#3d7a26] mb-3">
@@ -357,8 +357,8 @@ activeSection === "profile"
     onClick={() => setActiveSection("contact")}
     className={`rounded-2xl p-5 text-left transition-all ${
       activeSection === "contact"
-        ? "border-2 border-[#3d7a26] bg-[#f2f8ef] shadow-md"
-        : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
+        ? "border-2 border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
+        : "border border-gray-200 bg-white shadow-sm hover:shadow-sm"
     }`}
   >
     <div className="text-[#3d7a26] mb-3">
@@ -377,8 +377,8 @@ activeSection === "profile"
     onClick={() => setActiveSection("multimedia")}
     className={`rounded-2xl p-5 text-left transition-all ${
       activeSection === "multimedia"
-        ? "border-2 border-[#3d7a26] bg-[#f2f8ef] shadow-md"
-        : "border border-gray-200 bg-white shadow-sm hover:shadow-md"
+        ? "border-2 border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
+        : "border border-gray-200 bg-white shadow-sm hover:shadow-sm"
     }`}
   >
     <div className="text-[#3d7a26] mb-3">
@@ -569,7 +569,7 @@ activeSection === "profile"
         onClick={() => setHasSecondNationality(true)}
         className={`rounded-2xl border p-4 transition-all duration-200 ${
           hasSecondNationality
-            ? "border-[#3d7a26] bg-[#f2f8ef] shadow-md"
+            ? "border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
             : "border-gray-200 hover:border-[#3d7a26] hover:shadow-sm"
         }`}
       >
@@ -605,7 +605,7 @@ activeSection === "profile"
         }}
         className={`rounded-2xl border p-4 transition-all duration-200 ${
           !hasSecondNationality
-            ? "border-[#3d7a26] bg-[#f2f8ef] shadow-md"
+            ? "border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
             : "border-gray-200 hover:border-[#3d7a26] hover:shadow-sm"
         }`}
       >
@@ -647,7 +647,7 @@ activeSection === "profile"
       }
       className={`w-full rounded-2xl border p-5 transition-all duration-200 ${
         fetchedProfileData?.pasaporteUe === PasaporteUe.SI
-          ? "border-[#3d7a26] bg-[#f2f8ef] shadow-md"
+          ? "border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
           : "border-gray-200 hover:border-[#3d7a26] hover:shadow-sm"
       }`}
     >
@@ -744,7 +744,7 @@ activeSection === "profile"
       }
       className={`rounded-2xl border p-4 transition-all duration-200 ${
         fetchedProfileData?.genre === "Masculino"
-          ? "border-[#3d7a26] bg-[#f2f8ef] shadow-md"
+          ? "border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
           : "border-gray-200 hover:border-[#3d7a26] hover:shadow-sm"
       }`}
     >
@@ -776,7 +776,7 @@ activeSection === "profile"
       }
       className={`rounded-2xl border p-4 transition-all duration-200 ${
         fetchedProfileData?.genre === "Femenino"
-          ? "border-[#3d7a26] bg-[#f2f8ef] shadow-md"
+          ? "border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
           : "border-gray-200 hover:border-[#3d7a26] hover:shadow-sm"
       }`}
     >
@@ -808,7 +808,7 @@ activeSection === "profile"
       }
       className={`rounded-2xl border p-4 transition-all duration-200 ${
         fetchedProfileData?.genre === "Otro"
-          ? "border-[#3d7a26] bg-[#f2f8ef] shadow-md"
+          ? "border-[#3d7a26] bg-[#f2f8ef] shadow-sm"
           : "border-gray-200 hover:border-[#3d7a26] hover:shadow-sm"
       }`}
     >

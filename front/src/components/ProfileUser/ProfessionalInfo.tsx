@@ -714,13 +714,9 @@ const [activeSection, setActiveSection] = useState<
         </div>
 
         {/* Sección de Trayectoria */}
-        <div
+<div
   id="field-trayectorias"
-  className={`overflow-hidden transition-all duration-300 ${
-    activeSection === "trajectory"
-      ? "border border-gray-200 rounded-lg"
-      : ""
-  }`}
+  className="overflow-hidden transition-all duration-300"
 >
           <div
             className={`transition-all duration-300 ease-in-out ${
@@ -729,13 +725,13 @@ const [activeSection, setActiveSection] = useState<
                 : "max-h-0 opacity-0 overflow-hidden"
             }`}
           >
-            <div className="p-4 bg-white">
+            <div className="bg-transparent p-0 md:p-2">
               {experiences.map((exp, index) => (
                 <div
                   key={exp.id}
-                  className="mb-4 p-2 md:p-4 border border-gray-200 rounded-lg"
+                  className="mb-3 p-2 md:p-4 border border-[#dbead4] rounded-2xl bg-white shadow-sm"
                 >
-<div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-4">
+<div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3 mb-3">
 <div className="flex items-start gap-3 flex-1 min-w-0">
 
     {exp.clubPageLogo ? (
@@ -796,7 +792,7 @@ const [activeSection, setActiveSection] = useState<
       editingExperience === index ? null : index
     )
   }
-  className="w-full md:w-auto px-4 py-2 rounded-lg bg-[#1d5126] text-white text-sm hover:bg-[#143a1b]"
+  className="w-full md:w-auto px-4 py-2 rounded-xl bg-[#3d7a26] hover:bg-[#2f651f] transition-colors"
 >
   {editingExperience === index ? "✖ Cerrar" : "✏️ Editar"}
 </button>
@@ -805,7 +801,7 @@ const [activeSection, setActiveSection] = useState<
     <button
       type="button"
       onClick={() => removeExperience(index)}
-      className="w-full md:w-auto px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
+      className="w-full md:w-auto px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 transition-colors"
     >
       <FaTrash />
     </button>

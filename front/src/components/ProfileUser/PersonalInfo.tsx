@@ -621,7 +621,6 @@ activeSection === "profile"
               <option value="Otro">{getText("Otro", "other")}</option>
             </select>
           </div>
-       </div>
           
 {/* Birthdate */}
           <div id="field-birthday" 

@@ -71,7 +71,8 @@ const FootballField: React.FC<FootballFieldProps> = ({
       width: "clamp(40px, 4.5vw, 46px)",
       height: "clamp(40px, 4.5vw, 46px)",
       borderRadius: "50%",
-      border: "2px solid",
+      border: "3px solid white",
+      outline: "2px solid rgba(0,0,0,.08)",
       borderColor: isPrimary ? "#22c55e" : isSecondary ? "#3b82f6" : "#6b7280",
       backgroundColor: isPrimary
           ? "#22c55e"
@@ -169,7 +170,7 @@ const FootballField: React.FC<FootballFieldProps> = ({
 
           {/* Cancha de fútbol - Contenedor responsivo */}
           <div className="flex-1 flex flex-col items-center">
-            <div className="w-full max-w-[320px] mx-auto">
+            <div className="w-full max-w-[360px] mx-auto">
               <div
   className="relative bg-white rounded-2xl border border-gray-200 shadow-md p-3 w-full"
   style={{
@@ -198,19 +199,19 @@ const FootballField: React.FC<FootballFieldProps> = ({
                   <div className="absolute left-0 right-0 top-1/2 h-0.5 bg-white transform -translate-y-0.5"></div>
 
                   {/* Círculo central */}
-                  <div className="absolute left-1/2 top-1/2 w-12 h-12 sm:w-16 sm:h-16 border-2 border-white rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+                  <div className="absolute left-1/2 top-1/2 w-12 h-12 sm:w-16 sm:h-16 border-[1.5px] border-white/90 rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
 
                   {/* Área grande superior (portería visitante) - ahora es el área de ataque */}
-                  <div className="absolute top-0 left-1/2 h-16 w-24 sm:h-20 sm:w-32 border-2 border-white border-t-0 transform -translate-x-1/2"></div>
+                  <div className="absolute top-0 left-1/2 h-16 w-24 sm:h-20 sm:w-32 border-[1.5px] border-white/90 border-t-0 transform -translate-x-1/2"></div>
 
                   {/* Área pequeña superior */}
-                  <div className="absolute top-0 left-1/2 h-8 w-16 sm:h-10 sm:w-20 border-2 border-white border-t-0 transform -translate-x-1/2"></div>
+                  <div className="absolute top-0 left-1/2 h-8 w-16 sm:h-10 sm:w-20 border-[1.5px] border-white/90 border-t-0 transform -translate-x-1/2"></div>
 
                   {/* Área grande inferior (portería local) - ahora es el área defensiva */}
-                  <div className="absolute bottom-0 left-1/2 h-16 w-24 sm:h-20 sm:w-32 border-2 border-white border-b-0 transform -translate-x-1/2"></div>
+                  <div className="absolute bottom-0 left-1/2 h-16 w-24 sm:h-20 sm:w-32 border-[1.5px] border-white/90 border-b-0 transform -translate-x-1/2"></div>
 
                   {/* Área pequeña inferior */}
-                  <div className="absolute bottom-0 left-1/2 h-8 w-16 sm:h-10 sm:w-20 border-2 border-white border-b-0 transform -translate-x-1/2"></div>
+                  <div className="absolute bottom-0 left-1/2 h-8 w-16 sm:h-10 sm:w-20 border-[1.5px] border-white/90 border-b-0 transform -translate-x-1/2"></div>
 
                   {/* Arcos */}
                   <div className="absolute top-0 left-1/2 h-1 w-8 sm:h-2 sm:w-12 bg-white transform -translate-x-1/2"></div>
@@ -226,14 +227,6 @@ const FootballField: React.FC<FootballFieldProps> = ({
   title={positionName}
   className="group"
 >
-  {(primaryPosition === positionName || secondaryPosition === positionName) && (
-  <div
-    className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-black/90 px-3 py-1 text-xs text-white shadow-xl z-50"
-      >
-      {positionName}
-    </div>
-  )}
-
   {positionData.abbr}
 </div>
                         {/* Zona de toque ampliada para móviles */}

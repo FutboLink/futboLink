@@ -506,23 +506,41 @@ activeSection === "profile"
           </div>
 
           {/* País de residencia */}
-          <div id="field-ubicacionActual" className="flex flex-col rounded-lg p-1 transition-shadow">
-            <label
-              htmlFor="paisProfile"
-              className="text-gray-700 font-semibold text-sm"
-            >
-              {getText("País de Residencia", "countryOfResidence")}:
-            </label>
-            <input
-              id="paisProfile"
-              name="ubicacionActual"
-              type="text"
-              value={fetchedProfileData?.ubicacionActual || ""}
-              onChange={handleChange}
-              placeholder={getText("País de Residencia", "countryOfResidence")}
-              className="w-full mt-2 h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#1d5126]/20 focus:border-[#1d5126]"
-            />
-          </div>
+<div
+  id="field-ubicacionActual"
+  className="flex flex-col rounded-lg p-1 transition-shadow"
+>
+  <label
+    htmlFor="countryProfile"
+    className="text-gray-700 font-semibold text-sm"
+  >
+    {getText("País de Residencia", "countryOfResidence")}:
+  </label>
+
+  <select
+    id="countryProfile"
+    name="ubicacionActual"
+    value={fetchedProfileData?.ubicacionActual || ""}
+    onChange={handleChange}
+    className="w-full mt-2 h-12 px-4 rounded-xl border border-gray-300 bg-white text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#1d5126]/20 focus:border-[#1d5126]"
+  >
+    <option value="">
+      {getText(
+        "Seleccione su país de residencia",
+        "countryOfResidence"
+      )}
+    </option>
+
+    {nationalities?.map((country) => (
+      <option
+        key={country.value}
+        value={country.label}
+      >
+        {country.label}
+      </option>
+    ))}
+  </select>
+</div>
 
           {/* Segunda nacionalidad (toggle + select + UE) */}
           <div id="field-secondNationality" className="sm:col-span-2 flex flex-col gap-2 rounded-lg p-1 transition-shadow">

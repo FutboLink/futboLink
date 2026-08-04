@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { FaCheckCircle, FaExclamationCircle, FaTimes } from "react-icons/fa";
 
 export interface INotificationProps {
   message: string;
@@ -26,10 +27,21 @@ export const NotificationsForms: React.FC<INotificationProps> = ({
     }
   };
 
-  const bgColor = isError ? "bg-[#ffebeb8f]" : "bg-[#ffffff8f]";
-  const textColor = isError ? "text-red-800" : "text-green-800";
-  const borderColor = isError ? "border-red-800" : "border-green-800";
-  const hoverColor = isError ? "hover:text-red-600" : "hover:text-green-600";
+const bgColor = isError ? "bg-white" : "bg-white";
+
+const textColor = isError ? "text-red-700" : "text-[#2f6e22]";
+
+const borderColor = isError
+  ? "border-red-200"
+  : "border-[#dbead4]";
+
+const iconBg = isError
+  ? "bg-red-100"
+  : "bg-[#eef7ea]";
+
+const iconColor = isError
+  ? "text-red-600"
+  : "text-[#3d7a26]";
 
   return (
     isVisible && (

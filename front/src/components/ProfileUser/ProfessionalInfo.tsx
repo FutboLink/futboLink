@@ -11,6 +11,11 @@ import {
   FaRunning,
   FaFileAlt,
   FaTrophy,
+  FaCalendarAlt,
+  FaGlobeAmericas,
+  FaMedal,
+  FaPen,
+  FaTrashAlt,
 } from "react-icons/fa";
 import { useUserContext } from "@/hook/useUserContext";
 import { type IProfileData, PasaporteUe, UserType } from "@/Interfaces/IUser";
@@ -742,7 +747,7 @@ const [activeSection, setActiveSection] = useState<
       />
     ) : (
       <div className="w-14 h-14 rounded-lg border bg-gray-100 flex items-center justify-center text-2xl">
-        🛡️
+        <FaTrophy className="text-gray-400 text-2xl" />
       </div>
     )}
 
@@ -752,12 +757,12 @@ const [activeSection, setActiveSection] = useState<
   </h4>
 
   <p className="text-sm text-gray-500">
-    🌍 {exp.nacionalidadTrayectoria || "Sin país"}
+    <FaGlobeAmericas className="inline mr-2 text-[#3d7a26]" /> {exp.nacionalidadTrayectoria || "Sin país"}
   </p>
 
   {(exp.fechaInicio || exp.fechaFinalizacion) && (
     <p className="text-sm text-gray-500">
-      📅{" "}
+      <FaCalendarAlt className="inline mr-2 text-[#3d7a26]" /> {" "}
       {exp.fechaInicio
         ? new Date(exp.fechaInicio).toLocaleDateString("es-ES", {
             month: "long",
@@ -776,7 +781,7 @@ const [activeSection, setActiveSection] = useState<
 
   {exp.categoriaEquipo && (
     <p className="text-sm text-gray-500">
-      🏆 {exp.categoriaEquipo}
+      <FaMedal className="inline mr-2 text-[#d4a017]" /> {exp.categoriaEquipo}
     </p>
   )}
 </div>

@@ -442,7 +442,7 @@ const [activeSection, setActiveSection] = useState<
 </div>
     <h3 className="font-semibold text-gray-900">Posiciones</h3>
     <p className="text-sm text-gray-500 mt-1">
-      Posición principal y secundaria
+      Posición en campo
     </p>
   </button>
        
@@ -460,7 +460,7 @@ const [activeSection, setActiveSection] = useState<
 </div>
     <h3 className="font-semibold text-gray-900">Datos físicos</h3>
     <p className="text-sm text-gray-500 mt-1">
-      Altura, peso y perfil físico
+      Perfil físico
     </p>
   </button>
     </>
@@ -479,7 +479,7 @@ const [activeSection, setActiveSection] = useState<
 </div>
     <h3 className="font-semibold text-gray-900">CV</h3>
     <p className="text-sm text-gray-500 mt-1">
-      Currículum profesional
+      Currículum 
     </p>
   </button>
 
@@ -497,7 +497,7 @@ const [activeSection, setActiveSection] = useState<
 </div>
     <h3 className="font-semibold text-gray-900">Trayectoria</h3>
     <p className="text-sm text-gray-500 mt-1">
-      Experiencia deportivaa
+      Experiencia 
     </p>
   </button>
 

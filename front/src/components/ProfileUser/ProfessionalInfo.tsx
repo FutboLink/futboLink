@@ -1131,53 +1131,6 @@ onClick={() => {
   </div>
 )}
     </div>
-    {showEditModal && editingIndex !== null && (
-  <div
-    className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
-    onClick={() => {
-      setShowEditModal(false);
-      setEditingIndex(null);
-      setEditingExperience(null);
-    }}
-  >
-    <div
-      className="bg-white rounded-2xl shadow-2xl w-[95%] max-w-5xl max-h-[90vh] overflow-y-auto p-6"
-      onClick={(e) => e.stopPropagation()}
-    >
-
-      <div className="flex items-center justify-between mb-6">
-
-        <div>
-          <h2 className="text-2xl font-bold text-[#1d5126]">
-            Editar experiencia
-          </h2>
-
-          <p className="text-gray-500 mt-1">
-            Modificá la información de esta trayectoria.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => {
-            setShowEditModal(false);
-            setEditingIndex(null);
-            setEditingExperience(null);
-          }}
-          className="w-11 h-11 rounded-xl bg-gray-100 hover:bg-gray-200 transition-all flex items-center justify-center"
-        >
-          <FaTimes />
-        </button>
-
-      </div>
-
-      <div id="experience-modal-content">
-
-      </div>
-
-    </div>
-  </div>
-)}
   );
 };
 

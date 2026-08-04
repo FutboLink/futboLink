@@ -363,6 +363,7 @@ const [activeSection, setActiveSection] = useState<
         ...(exp.clubPageLogo ? { clubPageLogo: exp.clubPageLogo } : {}),
         ...(exp.ligaPageId ? { ligaPageId: exp.ligaPageId } : {}),
         ...(exp.ligaPageSlug ? { ligaPageSlug: exp.ligaPageSlug } : {}),
+        ...(exp.ligaPageLogo ? { ligaPageLogo: exp.ligaPageLogo } : {}),
       }));
 
       // Base updated data (always allowed)
@@ -826,9 +827,21 @@ const [activeSection, setActiveSection] = useState<
 <button
   type="button"
 onClick={() => {
-  setEditingExperience(index);
-  setEditingIndex(index);
-  setShowEditModal(true);
+
+    if (editingExperience === index) {
+
+        setEditingExperience(null);
+        setEditingIndex(null);
+        setShowEditModal(false);
+
+    } else {
+
+        setEditingExperience(index);
+        setEditingIndex(index);
+        setShowEditModal(true);
+
+    }
+
 }}
   title={editingExperience === index ? "Cerrar" : "Editar"}
   className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 ${

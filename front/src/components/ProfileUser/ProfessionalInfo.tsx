@@ -173,6 +173,9 @@ const [activeSection, setActiveSection] = useState<
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [experienceToDelete, setExperienceToDelete] = useState<number | null>(null);
 
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
   // Lista de países para el selector de la trayectoria (País → Club → Liga).
   const { nationalities } = useNationalities();
 
@@ -800,11 +803,11 @@ const [activeSection, setActiveSection] = useState<
 
 <button
   type="button"
-  onClick={() =>
-    setEditingExperience(
-      editingExperience === index ? null : index
-    )
-  }
+onClick={() => {
+  setEditingExperience(index);
+  setEditingIndex(index);
+  setShowEditModal(true);
+}}
   title={editingExperience === index ? "Cerrar" : "Editar"}
   className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 ${
     editingExperience === index

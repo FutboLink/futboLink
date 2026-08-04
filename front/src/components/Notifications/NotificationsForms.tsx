@@ -43,25 +43,73 @@ const iconColor = isError
   ? "text-red-600"
   : "text-[#3d7a26]";
 
-  return (
-    isVisible && (
-      <div
-        role="alert"
-        className={`fixed top-24 right-8 rounded-xl border ${borderColor} ${bgColor} ${textColor} p-4 shadow-lg z-50`}
-      >
-        <div className="flex items-center gap-4">
-          <div className="flex-1">
-            <p className={`text-sm font-bold ${textColor}`}>{message}</p>
-          </div>
+return (
+  isVisible && (
+    <div
+      role="alert"
+      className="fixed top-6 right-6 z-[9999] w-[430px] max-w-[92vw] overflow-hidden rounded-2xl border border-[#dbead4] bg-white shadow-2xl animate-in slide-in-from-right duration-300"
+    >
+      <div className="flex items-start gap-4 p-5">
 
-          <button
-            onClick={handleClose}
-            className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-all"
-          >
-            <FaTimes className="text-gray-500" />
-          </button>
+        <div
+          className={`flex h-14 w-14 items-center justify-center rounded-2xl ${
+            isError ? "bg-red-100" : "bg-[#eef7ea]"
+          }`}
+        >
+          {isError ? (
+            <FaExclamationCircle className="text-2xl text-red-600" />
+          ) : (
+            <FaCheckCircle className="text-2xl text-[#3d7a26]" />
+          )}
         </div>
+
+        <div className="flex-1">
+
+          <h3
+            className={`text-base font-semibold ${
+              isError ? "text-red-700" : "text-[#2f6e22]"
+            }`}
+          >
+            {isError ? "Ha ocurrido un error" : "Cambios guardados"}
+          </h3>
+
+          <p className="mt-1 text-sm leading-6 text-gray-500">
+            {message}
+          </p>
+
+        </div>
+
+        <button
+          onClick={handleClose}
+          className="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 transition-all hover:bg-gray-100 hover:text-gray-700"
+        >
+          <FaTimes />
+        </button>
+
       </div>
-    )
-  );
-};
+
+      <div className="h-1 w-full bg-[#eef7ea]">
+        <div
+          className={`h-full ${
+            isError ? "bg-red-500" : "bg-[#3d7a26]"
+          }`}
+          style={{
+            width: "100%",
+            animation: "notificationProgress 4s linear forwards",
+          }}
+        />
+      </div>
+
+      <style jsx>{`
+        @keyframes notificationProgress {
+          from {
+            width: 100%;
+          }
+          to {
+            width: 0%;
+          }
+        }
+      `}</style>
+    </div>
+  )
+);

@@ -118,6 +118,7 @@ const [activeSection, setActiveSection] = useState<
     liga: "",
     ligaPageId: undefined as string | undefined,
     ligaPageSlug: undefined as string | undefined,
+    ligaPageLogo: undefined as string | undefined,
   };
 
   // Información general del perfil
@@ -161,6 +162,7 @@ const [activeSection, setActiveSection] = useState<
     liga: string;
     ligaPageId?: string;
     ligaPageSlug?: string;
+    ligaPageLogo?: string;
   }
 
   // State for experiences (trayectorias)
@@ -268,6 +270,7 @@ const [activeSection, setActiveSection] = useState<
           liga: exp.liga || "",
           ligaPageId: exp.ligaPageId,
           ligaPageSlug: exp.ligaPageSlug,
+          ligaPageLogo: (exp as any).ligaPageLogo,
         }));
 
         setExperiences(updatedExperiences);
@@ -948,10 +951,11 @@ onClick={() => {
                           setExperiences((prev) => {
                             const copy = [...prev];
                             copy[index] = {
-                              ...copy[index],
-                              liga: next.club,
-                              ligaPageId: next.clubPageId,
-                              ligaPageSlug: next.clubPageSlug,
+                            ...copy[index],
+                            liga: next.club,
+                            ligaPageId: next.clubPageId,
+                            ligaPageSlug: next.clubPageSlug,
+                            ligaPageLogo: next.clubPageLogo,
                             };
                             return copy;
                           });

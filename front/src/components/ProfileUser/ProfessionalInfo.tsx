@@ -1065,6 +1065,59 @@ const [activeSection, setActiveSection] = useState<
       {showErrorNotification && (
         <NotificationsForms message={errorMessage} isError={true} />
       )}
+      {showDeleteModal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div className="bg-white rounded-2xl shadow-2xl w-[92%] max-w-md p-6 animate-in fade-in zoom-in-95 duration-200">
+
+      <div className="flex items-center justify-center w-14 h-14 mx-auto rounded-full bg-red-100">
+        <FaTrashAlt className="text-red-600 text-xl" />
+      </div>
+
+      <h3 className="mt-5 text-xl font-semibold text-center text-gray-900">
+        Eliminar experiencia
+      </h3>
+
+      <p className="mt-3 text-center text-gray-500">
+        ¿Estás seguro de que querés eliminar esta experiencia?
+      </p>
+
+      <p className="mt-1 text-sm text-center text-gray-400">
+        Esta acción no se puede deshacer.
+      </p>
+
+      <div className="flex gap-3 mt-8">
+
+        <button
+          type="button"
+          onClick={() => {
+            setShowDeleteModal(false);
+            setExperienceToDelete(null);
+          }}
+          className="flex-1 h-11 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-all"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            if (experienceToDelete !== null) {
+              removeExperience(experienceToDelete);
+            }
+
+            setShowDeleteModal(false);
+            setExperienceToDelete(null);
+          }}
+          className="flex-1 h-11 rounded-xl bg-red-600 text-white hover:bg-red-700 transition-all"
+        >
+          Eliminar
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+)}
     </div>
   );
 };

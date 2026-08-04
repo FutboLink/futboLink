@@ -899,6 +899,10 @@ onClick={() => {
 </div>
 </div>
                   {editingExperience === index && (
+                 <>
+                  <p className="text-red-600 font-bold">
+                  Editando índice {index}
+                  </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 pt-2 md:pt-4 mt-2 md:mt-4">
                     {/* 1) País — filtra los clubes y ligas que se ofrecen */}
                     <div className="mb-4">

@@ -441,7 +441,7 @@ const [activeSection, setActiveSection] = useState<
         Información Profesional
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-4">
          
         {!isNonPlayerProfessional && (
      <>
@@ -743,17 +743,17 @@ const [activeSection, setActiveSection] = useState<
                 : "max-h-0 opacity-0 overflow-hidden"
             }`}
           >
-            <div className="bg-transparent p-0 grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-transparent p-0 grid grid-cols-1 lg:grid-cols-2 gap-4">
               {experiences.map((exp, index) => (
                 <div
                   key={exp.id}
-                  className={`h-full p-5 border rounded-2xl bg-white transition-all duration-300 ${
+                  className={`h-full px-5 pt-5 pb-7 border rounded-2xl bg-white transition-all duration-300 ${
   editingExperience === index
-    ? "border-[#3d7a26] shadow-xl scale-[1.01]"
+    ? "border-[#3d7a26] shadow-lg ring-2 ring-[#3d7a26]/15"
     : "border-[#dbead4] shadow-sm hover:shadow-lg hover:-translate-y-1"
 }`}
                 >
-<div className="flex items-start gap-3 flex-1 min-w-0">
+<div className="flex items-start gap-4 flex-1 min-w-0">
 <div className="flex items-start gap-2 md:gap-3 flex-1 min-w-0">
 
     {exp.clubPageLogo ? (
@@ -899,7 +899,7 @@ onClick={() => {
 </div>
 </div>
                   {editingExperience === index && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 pt-2 md:pt-4 mt-2 md:mt-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 pt-6 border-t border-[#eef2ea]">
                     {/* 1) País — filtra los clubes y ligas que se ofrecen */}
                     <div className="mb-4">
                       <label
@@ -1103,7 +1103,7 @@ onClick={() => {
 <button
   type="button"
   onClick={addExperience}
-  className="w-full border-2 border-dashed border-[#cfe6c6] rounded-2xl py-8 flex flex-col items-center justify-center bg-[#fbfef9] hover:bg-[#f2f8ef] hover:border-[#3d7a26] transition-all duration-300 group"
+  className="h-full min-h-[220px] border-2 border-dashed border-[#cfe6c6] rounded-2xl flex flex-col items-center justify-center bg-[#fbfef9] hover:bg-[#f2f8ef] hover:border-[#3d7a26] transition-all duration-300 group"
 >
 
   <div className="w-14 h-14 rounded-2xl bg-[#eef7ea] flex items-center justify-center mb-4 group-hover:scale-110 transition-all">

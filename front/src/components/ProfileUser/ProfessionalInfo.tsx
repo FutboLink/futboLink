@@ -423,7 +423,7 @@ const [activeSection, setActiveSection] = useState<
         Información Profesional
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4 mb-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
          
         {!isNonPlayerProfessional && (
      <>

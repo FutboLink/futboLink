@@ -735,7 +735,11 @@ const [activeSection, setActiveSection] = useState<
               {experiences.map((exp, index) => (
                 <div
                   key={exp.id}
-                  className="mb-3 p-2 md:p-4 border border-[#dbead4] rounded-2xl bg-white shadow-sm"
+                  className={`mb-3 p-2 md:p-4 border rounded-2xl bg-white transition-all duration-300 ${
+  editingExperience === index
+    ? "border-[#3d7a26] shadow-xl scale-[1.01]"
+    : "border-[#dbead4] shadow-sm hover:shadow-lg hover:-translate-y-1"
+}`}
                 >
 <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3 mb-3">
 <div className="flex items-start gap-3 flex-1 min-w-0">
@@ -744,11 +748,11 @@ const [activeSection, setActiveSection] = useState<
       <img
         src={exp.clubPageLogo}
         alt={exp.club}
-        className="w-14 h-14 rounded-lg object-contain border bg-white p-1"
+        className="w-20 h-20 rounded-xl object-contain border border-[#dbead4] bg-white p-2 shadow-sm"
       />
     ) : (
-      <div className="w-14 h-14 rounded-lg border bg-gray-100 flex items-center justify-center text-2xl">
-        <FaTrophy className="text-gray-400 text-2xl" />
+      <div className="w-20 h-20 rounded-xl border border-[#dbead4] bg-[#f8fbf6] flex items-center justify-center shadow-sm">
+        <FaTrophy className="text-[#3d7a26] text-3xl opacity-50" />
       </div>
     )}
 
@@ -826,7 +830,7 @@ const [activeSection, setActiveSection] = useState<
 </div>
 </div>
                   {editingExperience === index && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-5 border-t border-[#e8efe5] mt-5">
                     {/* 1) País — filtra los clubes y ligas que se ofrecen */}
                     <div className="mb-4">
                       <label

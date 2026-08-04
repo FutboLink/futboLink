@@ -419,7 +419,7 @@ const [activeSection, setActiveSection] = useState<
 
   return (
     <div className="w-full">
-      <h2 className="text-2xl font-semibold mb-6 text-[#1d5126]">
+      <h2 className="text-2xl font-bold mb-6 text-[#2f6e22]">
         Información Profesional
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -524,7 +524,7 @@ const [activeSection, setActiveSection] = useState<
                   <div className="mb-4">
                     <label
                       htmlFor="pasaporteUE"
-                      className="block text-gray-700 text-sm font-bold mb-2"
+                      className="text-gray-700 font-semibold text-sm mb-2"
                     >
                       Pasaporte UE
                     </label>
@@ -568,7 +568,7 @@ const [activeSection, setActiveSection] = useState<
                   <div className="mb-4">
                     <label
                       htmlFor="estructuraCorp"
-                      className="block text-gray-700 text-sm font-bold mb-2"
+                      className="text-gray-700 font-semibold text-sm mb-2"
                     >
                       Estructura Corporal
                     </label>
@@ -589,7 +589,7 @@ const [activeSection, setActiveSection] = useState<
                   <div className="mb-4">
                     <label
                       htmlFor="pieHabil"
-                      className="block text-gray-700 text-sm font-bold mb-2"
+                      className="text-gray-700 font-semibold text-sm mb-2"
                     >
                       Pie Hábil
                     </label>
@@ -610,7 +610,7 @@ const [activeSection, setActiveSection] = useState<
                   <div className="mb-4">
                     <label
                       htmlFor="altura"
-                      className="block text-gray-700 text-sm font-bold mb-2"
+                      className="text-gray-700 font-semibold text-sm mb-2"
                     >
                       Altura (cm)
                     </label>
@@ -628,7 +628,7 @@ const [activeSection, setActiveSection] = useState<
                   <div className="mb-4">
                     <label
                       htmlFor="peso"
-                      className="block text-gray-700 text-sm font-bold mb-2"
+                      className="text-gray-700 font-semibold text-sm mb-2"
                     >
                       Peso (kg)
                     </label>
@@ -815,7 +815,7 @@ const [activeSection, setActiveSection] = useState<
                     <div className="mb-4">
                       <label
                         htmlFor={`pais-${index}`}
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="text-gray-700 font-semibold text-sm mb-2"
                       >
                         País
                       </label>
@@ -857,7 +857,7 @@ const [activeSection, setActiveSection] = useState<
                     <div className="mb-4">
                       <label
                         htmlFor={`club-${index}`}
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="text-gray-700 font-semibold text-sm mb-2"
                       >
                         Club/Institución
                       </label>
@@ -896,7 +896,7 @@ const [activeSection, setActiveSection] = useState<
                     <div className="mb-4">
                       <label
                         htmlFor={`liga-${index}`}
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="text-gray-700 font-semibold text-sm mb-2"
                       >
                         Liga
                       </label>
@@ -932,7 +932,7 @@ const [activeSection, setActiveSection] = useState<
                     <div className="mb-4">
                       <label
                         htmlFor=""
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="text-gray-700 font-semibold text-sm mb-2"
                       >
                         Fecha de Inicio
                       </label>
@@ -956,7 +956,7 @@ const [activeSection, setActiveSection] = useState<
                     <div className="mb-4">
                       <label
                         htmlFor="fechaFinalizacion"
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="text-gray-700 font-semibold text-sm mb-2"
                       >
                         Fecha de Finalización
                       </label>
@@ -983,7 +983,7 @@ const [activeSection, setActiveSection] = useState<
                     <div className="mb-4">
                       <label
                         htmlFor="categoriaEqui"
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="text-gray-700 font-semibold text-sm mb-2"
                       >
                         Categoría del Equipo
                       </label>
@@ -1013,7 +1013,7 @@ const [activeSection, setActiveSection] = useState<
               <button
                 type="button"
                 onClick={addExperience}
-                className="flex items-center gap-2 bg-[#1d5126] text-white py-2 px-4 rounded hover:bg-[#143a1b] transition-colors"
+                className="flex items-center gap-2 bg-[#3d7a26] text-white py-3 px-5 rounded-xl hover:bg-[#2f651f] transition-all shadow-sm"
               >
                 <FaPlus /> Agregar Experiencia
               </button>
@@ -1024,7 +1024,7 @@ const [activeSection, setActiveSection] = useState<
         <div className="flex justify-end pt-4">
           <button
             type="submit"
-            className="bg-[#1d5126] text-white py-3 px-8 rounded-lg hover:bg-[#143a1b] transition-colors font-medium"
+            className="bg-[#3d7a26] text-white py-3 px-8 rounded-xl hover:bg-[#2f651f] transition-all shadow-sm font-medium"
             disabled={loading}
           >
             {loading ? "Guardando..." : "Guardar Cambios"}

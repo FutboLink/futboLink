@@ -16,6 +16,7 @@ import {
   FaMedal,
   FaPen,
   FaTrashAlt,
+  FaTimes,
 } from "react-icons/fa";
 import { useUserContext } from "@/hook/useUserContext";
 import { type IProfileData, PasaporteUe, UserType } from "@/Interfaces/IUser";
@@ -788,7 +789,7 @@ const [activeSection, setActiveSection] = useState<
 
   </div>
 
-<div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+<div className="flex items-center gap-2">
 
 <button
   type="button"
@@ -797,20 +798,30 @@ const [activeSection, setActiveSection] = useState<
       editingExperience === index ? null : index
     )
   }
-  className="w-full md:w-auto px-4 py-2 rounded-xl bg-[#3d7a26] hover:bg-[#2f651f] transition-colors"
+  title={editingExperience === index ? "Cerrar" : "Editar"}
+  className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 ${
+    editingExperience === index
+      ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
+      : "bg-[#eef7ea] text-[#3d7a26] hover:bg-[#dff0d8]"
+  }`}
 >
-  {editingExperience === index ? "✖ Cerrar" : "✏️ Editar"}
+  {editingExperience === index ? (
+    <FaTimes size={16} />
+  ) : (
+    <FaPen size={16} />
+  )}
 </button>
 
-  {experiences.length > 1 && (
-    <button
-      type="button"
-      onClick={() => removeExperience(index)}
-      className="w-full md:w-auto px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 transition-colors"
-    >
-      <FaTrash />
-    </button>
-  )}
+{experiences.length > 1 && (
+  <button
+    type="button"
+    onClick={() => removeExperience(index)}
+    title="Eliminar experiencia"
+    className="w-11 h-11 rounded-xl flex items-center justify-center bg-red-50 text-red-600 hover:bg-red-100 transition-all duration-200"
+  >
+    <FaTrashAlt size={16} />
+  </button>
+)}
 
 </div>
 </div>

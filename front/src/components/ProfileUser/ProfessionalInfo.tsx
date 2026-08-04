@@ -26,7 +26,8 @@ import FileUpload from "../Cloudinary/FileUpload";
 import { updateUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
 import FootballField from "./FootballField";
-import CountryFlag, { CountryToCode } from "../countryFlag/countryFlag";
+import CountryFlag from "react-country-flag";
+import { CountryToCode } from "../countryFlag/countryFlag";
 
 // Define options for the dropdown fields
 const CATEGORIAS_OPTIONS = [
@@ -742,7 +743,7 @@ const [activeSection, setActiveSection] = useState<
                 : "max-h-0 opacity-0 overflow-hidden"
             }`}
           >
-            <div className="bg-transparent p-0">
+            <div className="bg-transparent p-0 grid grid-cols-1 lg:grid-cols-2 gap-6">
               {experiences.map((exp, index) => (
                 <div
                   key={exp.id}
@@ -800,13 +801,19 @@ const [activeSection, setActiveSection] = useState<
 <p className="flex items-center gap-2 text-sm text-gray-600">
   {exp.nacionalidadTrayectoria ? (
     <>
-      <CountryFlag
-        countryCode={
-          CountryToCode[
-            exp.nacionalidadTrayectoria as keyof typeof CountryToCode
-          ]
-        }
-      />
+<CountryFlag
+  svg
+  countryCode={
+    CountryToCode[
+      exp.nacionalidadTrayectoria as keyof typeof CountryToCode
+    ] || ""
+  }
+  style={{
+    width: "18px",
+    height: "18px",
+    borderRadius: "3px",
+  }}
+/>
 
       <span>{exp.nacionalidadTrayectoria}</span>
     </>

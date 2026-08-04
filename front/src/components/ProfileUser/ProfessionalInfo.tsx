@@ -26,6 +26,7 @@ import FileUpload from "../Cloudinary/FileUpload";
 import { updateUserData } from "../Fetchs/UsersFetchs/UserFetchs";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
 import FootballField from "./FootballField";
+import CountryFlag, { CountryToCode } from "../countryFlag/countryFlag";
 
 // Define options for the dropdown fields
 const CATEGORIAS_OPTIONS = [
@@ -758,10 +759,10 @@ const [activeSection, setActiveSection] = useState<
       <img
         src={exp.clubPageLogo}
         alt={exp.club}
-        className="w-20 h-20 rounded-xl object-contain border border-[#dbead4] bg-white p-2 shadow-sm"
+        className="w-24 h-24 rounded-xl object-contain border border-[#dbead4] bg-white p-2 shadow-sm"
       />
     ) : (
-      <div className="w-20 h-20 rounded-xl border border-[#dbead4] bg-[#f8fbf6] flex items-center justify-center shadow-sm">
+      <div className="w-24 h-24 rounded-xl border border-[#dbead4] bg-[#f8fbf6] flex items-center justify-center shadow-sm">
         <FaTrophy className="text-[#3d7a26] text-3xl opacity-50" />
       </div>
     )}
@@ -797,7 +798,24 @@ const [activeSection, setActiveSection] = useState<
 )}
 
 <p className="flex items-center gap-2 text-sm text-gray-600">
-  🌍 {exp.nacionalidadTrayectoria || "Sin país"}
+  {exp.nacionalidadTrayectoria ? (
+    <>
+      <CountryFlag
+        countryCode={
+          CountryToCode[
+            exp.nacionalidadTrayectoria as keyof typeof CountryToCode
+          ]
+        }
+      />
+
+      <span>{exp.nacionalidadTrayectoria}</span>
+    </>
+  ) : (
+    <>
+      <FaGlobeAmericas className="text-[#3d7a26]" />
+      <span>Sin país</span>
+    </>
+  )}
 </p>
 
 {(exp.fechaInicio || exp.fechaFinalizacion) && (

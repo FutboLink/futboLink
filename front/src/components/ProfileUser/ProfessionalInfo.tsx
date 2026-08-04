@@ -170,6 +170,9 @@ const [activeSection, setActiveSection] = useState<
   
   const [editingExperience, setEditingExperience] = useState<number | null>(null);
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [experienceToDelete, setExperienceToDelete] = useState<number | null>(null);
+
   // Lista de países para el selector de la trayectoria (País → Club → Liga).
   const { nationalities } = useNationalities();
 
@@ -819,7 +822,10 @@ const [activeSection, setActiveSection] = useState<
 {experiences.length > 1 && (
   <button
     type="button"
-    onClick={() => removeExperience(index)}
+    onClick={() => {
+       setExperienceToDelete(index);
+       setShowDeleteModal(true);
+    }}
     title="Eliminar experiencia"
     className="w-11 h-11 rounded-xl flex items-center justify-center bg-red-50 text-red-600 hover:bg-red-100 transition-all duration-200"
   >

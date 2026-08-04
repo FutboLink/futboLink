@@ -1066,8 +1066,17 @@ const [activeSection, setActiveSection] = useState<
         <NotificationsForms message={errorMessage} isError={true} />
       )}
       {showDeleteModal && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-    <div className="bg-white rounded-2xl shadow-2xl w-[92%] max-w-md p-6 animate-in fade-in zoom-in-95 duration-200">
+  <div
+  className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+  onClick={() => {
+    setShowDeleteModal(false);
+    setExperienceToDelete(null);
+  }}
+>
+    <div
+  className="bg-white rounded-2xl shadow-2xl w-[92%] max-w-md p-6 animate-in fade-in zoom-in-95 duration-200"
+  onClick={(e) => e.stopPropagation()}
+>
 
       <div className="flex items-center justify-center w-14 h-14 mx-auto rounded-full bg-red-100">
         <FaTrashAlt className="text-red-600 text-xl" />

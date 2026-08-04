@@ -769,7 +769,25 @@ const [activeSection, setActiveSection] = useState<
   <h4 className="text-lg font-semibold text-[#1d5126]">
     {exp.club || `Experiencia ${index + 1}`}
   </h4>
+{exp.liga && (
+  <div className="flex items-center gap-2 mt-1 mb-2">
 
+    {exp.ligaPageLogo ? (
+      <img
+        src={exp.ligaPageLogo}
+        alt={exp.liga}
+        className="w-5 h-5 object-contain rounded-sm"
+      />
+    ) : (
+      <FaTrophy className="text-[#3d7a26] text-xs opacity-70" />
+    )}
+
+    <span className="text-sm font-medium text-gray-600">
+      {exp.liga}
+    </span>
+
+  </div>
+)}
 {exp.categoriaEquipo && (
   <p className="flex items-center gap-2 text-sm text-gray-600">
     <FaFutbol className="text-[#3d7a26]" />

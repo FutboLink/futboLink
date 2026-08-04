@@ -16,9 +16,19 @@ export const NotificationsForms: React.FC<INotificationProps> = ({
   const [isVisible, setIsVisible] = useState(true);
 
   // Reset visibility when message changes (new notification)
-  useEffect(() => {
-    setIsVisible(true);
-  }, [message]);
+useEffect(() => {
+  setIsVisible(true);
+
+  const timer = setTimeout(() => {
+    setIsVisible(false);
+
+    if (onClose) {
+      onClose();
+    }
+  }, 4000);
+
+  return () => clearTimeout(timer);
+}, [message, onClose]);
 
   const handleClose = () => {
     setIsVisible(false);

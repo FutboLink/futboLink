@@ -56,22 +56,9 @@ const iconColor = isError
 
           <button
             onClick={handleClose}
-            className={`${textColor} transition ${hoverColor}`}
+            className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-all"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="size-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <FaTimes className="text-gray-500" />
           </button>
         </div>
       </div>

@@ -747,13 +747,13 @@ const [activeSection, setActiveSection] = useState<
               {experiences.map((exp, index) => (
                 <div
                   key={exp.id}
-                  className={`mb-3 p-1 md:p-4 border rounded-2xl bg-white transition-all duration-300 ${
+                  className={`h-full p-5 border rounded-2xl bg-white transition-all duration-300 ${
   editingExperience === index
     ? "border-[#3d7a26] shadow-xl scale-[1.01]"
     : "border-[#dbead4] shadow-sm hover:shadow-lg hover:-translate-y-1"
 }`}
                 >
-<div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3 mb-3">
+<div className="flex items-start gap-3 flex-1 min-w-0">
 <div className="flex items-start gap-2 md:gap-3 flex-1 min-w-0">
 
     {exp.clubPageLogo ? (
@@ -769,7 +769,7 @@ const [activeSection, setActiveSection] = useState<
     )}
 
 <div>
-  <h4 className="text-lg font-semibold text-[#1d5126]">
+  <h4 className="text-xl font-bold text-[#1d5126] leading-tight">
     {exp.club || `Experiencia ${index + 1}`}
   </h4>
 {exp.liga && (

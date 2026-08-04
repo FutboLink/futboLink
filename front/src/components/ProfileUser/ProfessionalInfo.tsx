@@ -767,34 +767,35 @@ const [activeSection, setActiveSection] = useState<
     {exp.club || `Experiencia ${index + 1}`}
   </h4>
 
-  <p className="text-sm text-gray-500">
-    <FaGlobeAmericas className="inline mr-2 text-[#3d7a26]" /> {exp.nacionalidadTrayectoria || "Sin país"}
+{exp.categoriaEquipo && (
+  <p className="flex items-center gap-2 text-sm text-gray-600">
+    <FaFutbol className="text-[#3d7a26]" />
+    {exp.categoriaEquipo}
   </p>
+)}
 
-  {(exp.fechaInicio || exp.fechaFinalizacion) && (
-    <p className="text-sm text-gray-500">
-      <FaCalendarAlt className="inline mr-2 text-[#3d7a26]" /> {" "}
-      {exp.fechaInicio
-        ? new Date(exp.fechaInicio).toLocaleDateString("es-ES", {
-            month: "long",
-            year: "numeric",
-          })
-        : "—"}
-      {" - "}
-      {exp.fechaFinalizacion
-        ? new Date(exp.fechaFinalizacion).toLocaleDateString("es-ES", {
-            month: "long",
-            year: "numeric",
-          })
-        : "Actualidad"}
-    </p>
-  )}
+<p className="flex items-center gap-2 text-sm text-gray-600">
+  🌍 {exp.nacionalidadTrayectoria || "Sin país"}
+</p>
 
-  {exp.categoriaEquipo && (
-    <p className="text-sm text-gray-500">
-      <FaMedal className="inline mr-2 text-[#d4a017]" /> {exp.categoriaEquipo}
-    </p>
-  )}
+{(exp.fechaInicio || exp.fechaFinalizacion) && (
+  <p className="flex items-center gap-2 text-sm text-gray-600">
+    <FaCalendarAlt className="text-[#3d7a26]" />
+    {exp.fechaInicio
+      ? new Date(exp.fechaInicio).toLocaleDateString("es-ES", {
+          month: "long",
+          year: "numeric",
+        })
+      : "—"}
+    {" - "}
+    {exp.fechaFinalizacion
+      ? new Date(exp.fechaFinalizacion).toLocaleDateString("es-ES", {
+          month: "long",
+          year: "numeric",
+        })
+      : "Actualidad"}
+  </p>
+)}
 </div>
 
   </div>
@@ -839,7 +840,7 @@ onClick={() => {
 </div>
 </div>
                   {editingExperience === index && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 pt-4 md:pt-5 border-t border-[#e8efe5] mt-4 md:mt-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 pt-2 md:pt-4 mt-2 md:mt-4">
                     {/* 1) País — filtra los clubes y ligas que se ofrecen */}
                     <div className="mb-4">
                       <label

@@ -1075,13 +1075,27 @@ onClick={() => {
                  )}
                 </div>
               ))}
-              <button
-                type="button"
-                onClick={addExperience}
-                className="flex items-center gap-2 bg-[#3d7a26] text-white py-3 px-5 rounded-xl hover:bg-[#2f651f] transition-all shadow-sm"
-              >
-                <FaPlus /> Agregar Experiencia
-              </button>
+<button
+  type="button"
+  onClick={addExperience}
+  className="w-full border-2 border-dashed border-[#cfe6c6] rounded-2xl py-8 flex flex-col items-center justify-center bg-[#fbfef9] hover:bg-[#f2f8ef] hover:border-[#3d7a26] transition-all duration-300 group"
+>
+
+  <div className="w-14 h-14 rounded-2xl bg-[#eef7ea] flex items-center justify-center mb-4 group-hover:scale-110 transition-all">
+
+    <FaPlus className="text-[#3d7a26] text-xl"/>
+
+  </div>
+
+  <h3 className="font-semibold text-[#1d5126]">
+    Agregar experiencia
+  </h3>
+
+  <p className="text-sm text-gray-500 mt-1">
+    Añadí otro club a tu trayectoria deportiva
+  </p>
+
+</button>
             </div>
           </div>
         </div>

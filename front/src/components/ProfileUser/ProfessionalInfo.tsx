@@ -734,18 +734,18 @@ const [activeSection, setActiveSection] = useState<
                 : "max-h-0 opacity-0 overflow-hidden"
             }`}
           >
-            <div className="bg-transparent p-0 md:p-2">
+            <div className="bg-transparent p-0">
               {experiences.map((exp, index) => (
                 <div
                   key={exp.id}
-                  className={`mb-3 p-2 md:p-4 border rounded-2xl bg-white transition-all duration-300 ${
+                  className={`mb-3 p-1 md:p-4 border rounded-2xl bg-white transition-all duration-300 ${
   editingExperience === index
     ? "border-[#3d7a26] shadow-xl scale-[1.01]"
     : "border-[#dbead4] shadow-sm hover:shadow-lg hover:-translate-y-1"
 }`}
                 >
 <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3 mb-3">
-<div className="flex items-start gap-3 flex-1 min-w-0">
+<div className="flex items-start gap-2 md:gap-3 flex-1 min-w-0">
 
     {exp.clubPageLogo ? (
       <img
@@ -836,7 +836,7 @@ const [activeSection, setActiveSection] = useState<
 </div>
 </div>
                   {editingExperience === index && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-5 border-t border-[#e8efe5] mt-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 pt-4 md:pt-5 border-t border-[#e8efe5] mt-4 md:mt-5">
                     {/* 1) País — filtra los clubes y ligas que se ofrecen */}
                     <div className="mb-4">
                       <label

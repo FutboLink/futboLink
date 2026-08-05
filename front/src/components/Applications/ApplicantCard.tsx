@@ -202,11 +202,16 @@ const ApplicantCard: React.FC<UserCardProps> = ({
       cursor: "pointer",
       minHeight: "78px",
     }}
-      onClick={(e) => {
+onClick={async (e) => {
   if (isSelectionMode && onSelect) {
     e.preventDefault();
     onSelect();
     return;
+  }
+
+  if (token) {
+    await markProfileViewed(application.id, token);
+    onStatusChange?.("PROFILE_VIEWED");
   }
 
   router.push(`/user-viewer/${currentUser.id}`);
@@ -312,10 +317,16 @@ const ApplicantCard: React.FC<UserCardProps> = ({
       hover:scale-105
       active:scale-95
     "
-    onClick={(e) => {
-      e.stopPropagation();
-      router.push(`/user-viewer/${currentUser.id}`);
-    }}
+onClick={async (e) => {
+  e.stopPropagation();
+
+  if (token) {
+    await markProfileViewed(application.id, token);
+    onStatusChange?.("PROFILE_VIEWED");
+  }
+
+  router.push(`/user-viewer/${currentUser.id}`);
+}}
   >
     <FaEye className="text-lg" />
   </button>

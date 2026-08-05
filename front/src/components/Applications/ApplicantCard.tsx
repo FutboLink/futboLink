@@ -370,11 +370,52 @@ const ApplicantCard: React.FC<UserCardProps> = ({
               setShowDropdown(!showDropdown);
             }}
           >
-            <FaEllipsisV className="text-sm" />
+            <button
+  type="button"
+  title="Más acciones"
+  onClick={(e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowDropdown(!showDropdown);
+  }}
+  className="
+    flex items-center justify-center
+    w-11 h-11
+    rounded-xl
+    border border-gray-200
+    bg-white
+    text-gray-600
+    shadow-sm
+    transition-all duration-200
+    hover:bg-gray-50
+    hover:shadow-md
+    hover:scale-105
+    active:scale-95
+  "
+>
+  <FaEllipsisV className="text-lg" />
+</button>
           </button>
 
           {showDropdown && (
-            <div className="absolute right-0 top-11 w-56 rounded-2xl border border-gray-200 bg-white p-2 shadow-lg z-30">
+            <div
+  className="
+    absolute
+    right-0
+    top-14
+    w-64
+    rounded-2xl
+    border
+    border-gray-200
+    bg-white
+    p-2
+    shadow-2xl
+    z-30
+    animate-in
+    fade-in
+    zoom-in-95
+  "
+>
               <Link
                 href={`/user-viewer/${currentUser.id}`}
                 className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"

@@ -12,7 +12,7 @@ import {
   FaUser,
   FaUserPlus,
   FaEye,
-  FaHandPaper,
+  FaThumbsUp,
 } from "react-icons/fa";
 import { getDefaultPlayerImage } from "@/helpers/imageUtils";
 import { useUserContext } from "@/hook/useUserContext";
@@ -348,7 +348,7 @@ const ApplicantCard: React.FC<UserCardProps> = ({
       }
     }}
   >
-    <FaHandPaper className="text-lg" />
+    <FaThumbsUp className="text-lg" />
   </button>
 
     </div>

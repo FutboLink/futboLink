@@ -221,86 +221,52 @@ const ApplicantCard: React.FC<UserCardProps> = ({
         </div>
 
         {/* Información */}
-          <div className="flex-1 grid grid-cols-6 items-center gap-4 pl-6">
-          <div className="text-left">
-            
-  <h3 className="text-slate-900 font-semibold text-base">
-    {currentUser.name} {currentUser.lastname}
-  </h3>
+<div className="flex-1 grid grid-cols-[2.5fr_80px_1.5fr_1.5fr_120px] items-center gap-6 pl-6">
 
-  {currentUser.nationality && (
-    <div className="mt-1 flex">
-      {renderCountryFlag(currentUser.nationality)}
-    </div>
-  )}
+  {/* Nombre */}
+  <div>
+    <h3 className="font-semibold text-gray-900">
+      {currentUser.name} {currentUser.lastname}
+    </h3>
 
-  {verificationStatus.isVerified && (
-    <FaCheckCircle className="text-blue-500 text-sm mt-1" />
-  )}
+    {verificationStatus.isVerified && (
+      <FaCheckCircle className="text-blue-500 text-sm mt-1" />
+    )}
+  </div>
+
+  {/* Edad */}
+  <div className="text-sm text-gray-700 text-center">
+    {currentUser.age || "-"}
+  </div>
+
+  {/* Posición */}
+  <div className="text-sm text-gray-700">
+    {isPlayer
+      ? `${currentUser.primaryPosition
+          ? abbreviatePosition(currentUser.primaryPosition)
+          : "-"}${
+          currentUser.secondaryPosition
+            ? ` / ${abbreviatePosition(currentUser.secondaryPosition)}`
+            : ""
+        }`
+      : getRoleName(currentUser.role || "")}
+  </div>
+
+  {/* País */}
+  <div>
+    {currentUser.nationality
+      ? renderCountryFlag(currentUser.nationality)
+      : "-"}
+  </div>
+
+  {/* Estado */}
+  <div>
+    <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
+      {getStatus()}
+    </span>
+  </div>
+
 </div>
-
-          {/* Edad + Posiciones */}
-          <div className="flex justify-center items-center gap-2 text-xs text-gray-600 mb-2">
-            {currentUser.age && (
-              <>
-                <span className="text-gray-600 flex-shrink-0">
-                  {currentUser.age}
-                </span>
-                {(currentUser.primaryPosition ||
-                  currentUser.secondaryPosition) && (
-                  <span className="text-gray-400">|</span>
-                )}
-              </>
-            )}
-
-            {currentUser.puesto && currentUser.skillfulFoot === "" && (
-              <>
-                {currentUser.age && <span className="text-gray-400">|</span>}
-                <span className="text-gray-600 flex-shrink-0">
-                  {currentUser.puesto}
-                </span>
-                {(currentUser.primaryPosition ||
-                  currentUser.secondaryPosition) && (
-                  <span className="text-gray-400">|</span>
-                )}
-              </>
-            )}
-
-            {isPlayer &&
-              (currentUser.primaryPosition ||
-                currentUser.secondaryPosition) && (
-                <span className="text-gray-600">
-                  {currentUser.primaryPosition &&
-                    abbreviatePosition(currentUser.primaryPosition)}
-                  {currentUser.secondaryPosition &&
-                    ` / ${abbreviatePosition(currentUser.secondaryPosition)}`}
-                </span>
-              )}
-          </div>
-
-          {/* Nivel/rol + Estado */}
-          <div className="flex justify-center items-center gap-2 text-xs">
-            {isPlayer ? (
-              <span
-                className={`text-white text-[10px] font-medium py-0.5 px-2 rounded-full ${
-                  subscriptionType === "professional"
-                    ? "bg-green-600"
-                    : subscriptionType === "semi"
-                    ? "bg-blue-600"
-                    : "bg-gray-400"
-                }`}
-              >
-                {levelText}
-              </span>
-            ) : (
-              <span className="text-gray-900 font-medium">
-                {getRoleName(currentUser.role || "")}
-              </span>
-            )}
-            <span className="text-gray-400">|</span>
-            <span className="text-gray-600">{getStatus()}</span>
-          </div>
-        </div>
 
         {/* Dropdown */}
           <div

@@ -237,7 +237,7 @@ const ApplicantCard: React.FC<UserCardProps> = ({
         </div>
 
         {/* Información */}
-<div className="flex-1 grid grid-cols-[3.5fr_220px_170px_170px] items-center gap-4">
+<div className="flex-1 grid grid-cols-[2.8fr_240px_180px_210px] items-center gap-4">
 
 {/* Candidato */}
 <div>
@@ -267,7 +267,7 @@ const ApplicantCard: React.FC<UserCardProps> = ({
 </div>
 
 {/* País */}
-<div className="flex items-center justify-center gap-2 text-sm text-gray-700">
+<div className="flex items-center gap-2 text-sm text-gray-700">
 
   {currentUser.nationality ? (
     <>

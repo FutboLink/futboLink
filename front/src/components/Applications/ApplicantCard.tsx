@@ -221,7 +221,7 @@ const ApplicantCard: React.FC<UserCardProps> = ({
         </div>
 
         {/* Información */}
-<div className="flex-1 grid grid-cols-[2.5fr_80px_1.5fr_1.5fr_120px] items-center gap-6 pl-6">
+<div className="flex-1 grid grid-cols-[2.5fr_80px_1.5fr_1.5fr_120px_60px] items-center gap-6 pl-6">
 
   {/* Nombre */}
   <div>
@@ -266,12 +266,27 @@ const ApplicantCard: React.FC<UserCardProps> = ({
     </span>
   </div>
 
+  {/* Acciones */}
+<div className="flex justify-center">
+  <button
+    className="flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50"
+    type="button"
+    onClick={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setShowDropdown(!showDropdown);
+    }}
+  >
+    <FaEllipsisV className="text-sm" />
+  </button>
+</div>
+
 </div>
 
         {/* Dropdown */}
           <div
   ref={dropdownRef}
-  className={`absolute top-4 right-4 z-10 transition-opacity duration-200 ${
+  className="relative flex justify-center"
     showDropdown ? "opacity-100" : "opacity-0 group-hover:opacity-100"
   }`}
 >

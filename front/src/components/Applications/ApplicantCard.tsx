@@ -355,14 +355,25 @@ const ApplicantCard: React.FC<UserCardProps> = ({
   </div>
 
         {/* Dropdown */}
-          <div
+<div
   ref={dropdownRef}
-  className={`absolute top-4 right-4 z-10 transition-opacity duration-200 ${
-    showDropdown ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-  }`}
+  className="absolute top-4 right-4 z-10"
 >
           <button
-            className="flex items-center justify-center w-8 h-8 rounded-xl border border-transparent text-gray-400 hover:text-gray-700 hover:bg-gray-50 hover:border-gray-200 transition-all duration-200"
+            className="
+flex items-center justify-center
+w-11 h-11
+rounded-xl
+border border-gray-200
+bg-white
+text-gray-600
+shadow-sm
+transition-all duration-200
+hover:bg-gray-50
+hover:shadow-md
+hover:scale-105
+active:scale-95
+"
             type="button"
             onClick={(e) => {
               e.preventDefault();
@@ -393,7 +404,7 @@ const ApplicantCard: React.FC<UserCardProps> = ({
     active:scale-95
   "
 >
-  <FaEllipsisV className="text-lg" />
+  <FaEllipsisV className="text-sm" />
 </button>
           </button>
 

@@ -4,7 +4,7 @@ import { ApplicationStatus, IJobApplication } from "@/Interfaces/IOffer";
 import React, { useEffect, useState } from "react";
 import { fetchApplicationsByJobId } from "../Fetchs/OfertasFetch/OfertasFetchs";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
-import ApplicantCard from "./ApplicantCard";
+import ApplicantCard from "../Applications/ApplicantCard";
 
 interface JobApplicationsProps {
   jobId: string;

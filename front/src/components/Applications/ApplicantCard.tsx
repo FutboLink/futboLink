@@ -179,9 +179,9 @@ const ApplicantCard: React.FC<UserCardProps> = ({
   return (
     <div
       key={currentUser.id}
-      className={`group bg-white relative flex flex-col cursor-pointer border border-gray-200 rounded-3xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ${
+      className={`group bg-white relative flex items-center border border-gray-200 rounded-xl px-6 py-4 shadow-sm hover:shadow-md transition-all duration-200 ${
         isSelected ? "ring-2 ring-green-500 border-green-500" : ""
-      } ${isShortlisted ? "bg-green-50" : ""}`}
+       } ${isShortlisted ? "bg-green-50" : ""}`}
     style={{
       cursor: "pointer",
       minHeight: "160px",
@@ -197,7 +197,7 @@ const ApplicantCard: React.FC<UserCardProps> = ({
 }}
     >
       {/* Fila superior: foto + info + dropdown */}
-      <div className="flex flex-col items-center text-center">
+      <div className="flex items-center w-full">
         {/* Foto */}
         <div className="flex-shrink-0 relative mb-2">
           <div className="w-20 h-20 rounded-full overflow-hidden mx-auto bg-gray-100 ring-1 ring-gray-200 flex items-center justify-center">

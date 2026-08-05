@@ -280,31 +280,27 @@ const ApplicantCard: React.FC<UserCardProps> = ({
 </div>
 
 {/* Acciones */}
-<div className="flex justify-center">
-<button
-  className="px-3 py-1.5 text-sm rounded-lg border border-[#3d7a26] text-[#3d7a26] hover:bg-[#eef7ea] transition"
-onClick={async (e) => {
-  e.preventDefault();
-  e.stopPropagation();
+<div className="flex justify-center gap-2">
 
-  if (token) {
-    const previousStatus = application.status;
+  <button
+    className="px-3 py-1.5 text-sm rounded-lg border border-[#3d7a26] text-[#3d7a26] hover:bg-[#eef7ea] transition"
+    onClick={(e) => {
+      e.stopPropagation();
+      router.push(`/user-viewer/${currentUser.id}`);
+    }}
+  >
+    Ver perfil
+  </button>
 
-    await markProfileViewed(application.id, token);
+  <button
+    className="px-3 py-1.5 text-sm rounded-lg bg-[#3d7a26] text-white hover:bg-[#2f601d] transition"
+    onClick={(e) => {
+      e.stopPropagation();
+    }}
+  >
+    ❤ Me interesa
+  </button>
 
-if (
-  previousStatus === ApplicationStatus.PENDING ||
-  previousStatus === ApplicationStatus.IN_REVIEW
-) {
-  onStatusChange?.(ApplicationStatus.PROFILE_VIEWED);
-}
-  }
-
-  router.push(`/user-viewer/${currentUser.id}`);
-}}
->
-  Ver perfil
-</button>
 </div>
 </div>
 

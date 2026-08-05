@@ -265,10 +265,20 @@ const ApplicantCard: React.FC<UserCardProps> = ({
 </div>
 
 {/* País */}
-<div className="text-sm">
-  {currentUser.nationality
-    ? renderCountryFlag(currentUser.nationality)
-    : "-"}
+<div className="flex items-center gap-2 text-sm text-gray-700">
+
+  {currentUser.nationality ? (
+    <>
+      <span>{renderCountryFlag(currentUser.nationality)}</span>
+
+      <span className="font-medium">
+        {currentUser.nationality}
+      </span>
+    </>
+  ) : (
+    "-"
+  )}
+
 </div>
 
 {/* Estado */}

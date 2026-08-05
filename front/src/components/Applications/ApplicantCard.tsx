@@ -332,13 +332,22 @@ const ApplicantCard: React.FC<UserCardProps> = ({
       hover:shadow-lg
       active:scale-95
     "
-    onClick={(e) => {
-      e.stopPropagation();
-    }}
+    onClick={async (e) => {
+  e.stopPropagation();
+
+  if (!token) return;
+
+  const ok = await markInterest(application.id, token);
+
+  if (ok) {
+    onStatusChange?.("INTERESTED");
+  }
+}}
   >
     ❤ Me interesa
   </button>
 
+  </div>
 </div>
 
         {/* Dropdown */}

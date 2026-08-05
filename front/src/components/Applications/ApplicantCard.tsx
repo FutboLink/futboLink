@@ -18,7 +18,11 @@ import type { User } from "@/Interfaces/IUser";
 import { renderCountryFlag } from "../countryFlag/countryFlag";
 import { ApplicationStatus } from "@/Interfaces/IOffer";
 import type { IJobApplication } from "@/Interfaces/IOffer";
-import { statusLabel, statusStyle } from "@/components/Dashboard/dashboardFetch";
+import {
+  statusLabel,
+  statusStyle,
+  markProfileViewed,
+} from "@/components/Dashboard/dashboardFetch";
 
 interface UserCardProps {
   application: IJobApplication;
@@ -275,15 +279,21 @@ const ApplicantCard: React.FC<UserCardProps> = ({
 
 {/* Acciones */}
 <div className="flex justify-center">
-  <button
-    className="px-3 py-1.5 text-sm rounded-lg border border-[#3d7a26] text-[#3d7a26] hover:bg-[#eef7ea] transition"
-    onClick={(e) => {
-      e.stopPropagation();
-      router.push(`/user-viewer/${currentUser.id}`);
-    }}
-  >
-    Ver perfil
-  </button>
+<button
+  className="px-3 py-1.5 text-sm rounded-lg border border-[#3d7a26] text-[#3d7a26] hover:bg-[#eef7ea] transition"
+  onClick={async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (token) {
+      await markProfileViewed(application.id, token);
+    }
+
+    router.push(`/user-viewer/${currentUser.id}`);
+  }}
+>
+  Ver perfil
+</button>
 </div>
 </div>
 

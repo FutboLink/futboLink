@@ -202,12 +202,12 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
 
 <div>Candidato</div>
 
-<div className="flex justify-center">
-  <span>País</span>
+<div className="pl-2">
+  País
 </div>
 
-<div className="flex justify-center">
-  <span>Estado</span>
+<div className="pl-2">
+  Estado
 </div>
 
 <div className="flex justify-center">

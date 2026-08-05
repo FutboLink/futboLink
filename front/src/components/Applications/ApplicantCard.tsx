@@ -182,12 +182,12 @@ const ApplicantCard: React.FC<UserCardProps> = ({
   return (
     <div
       key={currentUser.id}
-      className={`group bg-white relative flex items-center border border-gray-200 rounded-xl px-6 py-4 shadow-sm hover:shadow-md transition-all duration-200 ${
-        isSelected ? "ring-2 ring-green-500 border-green-500" : ""
+      className={`group relative flex items-center px-6 py-3 border-b border-gray-200 transition-colors duration-150 hover:bg-gray-50 ${
+       isSelected ? "bg-green-50" : ""
        } ${isShortlisted ? "bg-green-50" : ""}`}
     style={{
       cursor: "pointer",
-      minHeight: "160px",
+      minHeight: "78px",
     }}
       onClick={(e) => {
   if (isSelectionMode && onSelect) {
@@ -202,8 +202,8 @@ const ApplicantCard: React.FC<UserCardProps> = ({
       {/* Fila superior: foto + info + dropdown */}
       <div className="flex items-center w-full">
         {/* Foto */}
-        <div className="flex-shrink-0 relative w-[120px] flex justify-center">
-          <div className="w-16 h-16 rounded-full overflow-hidden mx-auto bg-gray-100 ring-1 ring-gray-200 flex items-center justify-center">
+        <div className="w-[90px] flex justify-center relative">
+          <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-100 ring-1 ring-gray-200 flex items-center justify-center">
   {currentUser.imgUrl ? (
     <Image
       src={currentUser.imgUrl}
@@ -224,7 +224,7 @@ const ApplicantCard: React.FC<UserCardProps> = ({
         </div>
 
         {/* Información */}
-<div className="flex-1 grid grid-cols-[2.5fr_80px_1.5fr_1.5fr_120px] items-center gap-6">
+<div className="flex-1 grid grid-cols-[2.8fr_80px_140px_140px_120px] items-center gap-4">
 
   {/* Nombre */}
   <div>

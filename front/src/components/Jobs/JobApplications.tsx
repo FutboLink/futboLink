@@ -133,7 +133,74 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
           />
         </div>
       )}
-     <div className="flex flex-wrap gap-4 mt-8 mb-8">
+      <div className="md:hidden mb-5">
+
+  <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+
+    {[
+      {
+        key: "ALL",
+        label: "Todos",
+        count: applications.length,
+      },
+      {
+        key: "PENDING",
+        label: "Postulados",
+        count: applications.filter(a => a.status === "PENDING").length,
+      },
+      {
+        key: "IN_REVIEW",
+        label: "Revisión",
+        count: applications.filter(a => a.status === "IN_REVIEW").length,
+      },
+      {
+        key: "PROFILE_VIEWED",
+        label: "Vistos",
+        count: applications.filter(a => a.status === "PROFILE_VIEWED").length,
+      },
+      {
+        key: "INTERESTED",
+        label: "Interés",
+        count: applications.filter(a => a.status === "INTERESTED").length,
+      },
+    ].map((filter) => (
+
+      <button
+        key={filter.key}
+        onClick={() => setStatusFilter(filter.key)}
+        className={`
+          flex
+          items-center
+          gap-2
+          whitespace-nowrap
+          px-4
+          h-9
+          rounded-full
+          transition-all
+          ${
+            statusFilter === filter.key
+              ? "bg-[#3d7a26] text-white"
+              : "bg-white border border-gray-200 text-gray-700"
+          }
+        `}
+      >
+
+        <span className="font-medium text-xs">
+          {filter.label}
+        </span>
+
+        <span className="font-bold text-xs">
+          {filter.count}
+        </span>
+
+      </button>
+
+    ))}
+
+  </div>
+
+</div>
+     <div className="hidden md:flex flex-wrap gap-4 mt-8 mb-8">
 
   {[
     {

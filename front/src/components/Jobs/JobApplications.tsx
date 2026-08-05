@@ -184,8 +184,9 @@ ${
   statusFilter === filter.key
     ? "bg-[#3d7a26] text-white border-[#3d7a26]"
     : "bg-white border-gray-200 text-gray-700"
-}
+  }
 `}
+>
 
 <div className="text-2xl font-bold">
   {filter.count}

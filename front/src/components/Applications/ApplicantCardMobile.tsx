@@ -198,8 +198,7 @@ const ApplicantCardMobile: React.FC<Props> = ({
     </div>
 
   </div>
-
-</div>
+  
               {/* Bottom Sheet */}
 {showDropdown && (
   <>
@@ -291,6 +290,6 @@ hover:bg-gray-50
 </div>
 
   );
-};
+  };
 
 export default ApplicantCardMobile;

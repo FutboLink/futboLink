@@ -33,6 +33,10 @@ currentUser: User;
 t: (key:string)=>string;
 isAddingToPortfolio:string|null;
 handleAddToPortfolio:(id:string)=>void;
+isSelectionMode?: boolean;
+isSelected?: boolean;
+onSelect?: () => void;
+isShortlisted?: boolean;
 applicationStatus?:ApplicationStatus;
 onStatusChange?:(status:string)=>void;
 }
@@ -42,6 +46,10 @@ const ApplicantCardMobile: React.FC<Props> = ({
   t,
   isAddingToPortfolio,
   handleAddToPortfolio,
+  isSelectionMode,
+  isSelected,
+  onSelect,
+  isShortlisted,
   applicationStatus,
   onStatusChange,
 }) => {

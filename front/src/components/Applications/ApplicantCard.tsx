@@ -292,12 +292,12 @@ onClick={async (e) => {
 
     await markProfileViewed(application.id, token);
 
-    if (
-      previousStatus === "PENDING" ||
-      previousStatus === "IN_REVIEW"
-    ) {
-      onStatusChange?.("PROFILE_VIEWED");
-    }
+if (
+  previousStatus === ApplicationStatus.PENDING ||
+  previousStatus === ApplicationStatus.IN_REVIEW
+) {
+  onStatusChange?.(ApplicationStatus.PROFILE_VIEWED);
+}
   }
 
   router.push(`/user-viewer/${currentUser.id}`);

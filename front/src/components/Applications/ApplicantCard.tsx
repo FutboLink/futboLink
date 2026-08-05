@@ -17,8 +17,10 @@ import { useUserContext } from "@/hook/useUserContext";
 import type { User } from "@/Interfaces/IUser";
 import { renderCountryFlag } from "../countryFlag/countryFlag";
 import { ApplicationStatus } from "@/Interfaces/IOffer";
+import type { IJobApplication } from "@/Interfaces/IOffer";
 
 interface UserCardProps {
+  application: IJobApplication;
   currentUser: User;
   t: (key: string, params?: Record<string, any>) => string;
   isAddingToPortfolio: string | null;
@@ -67,6 +69,7 @@ const abbreviatePosition = (position: string): string => {
 };
 
 const ApplicantCard: React.FC<UserCardProps> = ({
+  application,
   currentUser,
   t,
   isAddingToPortfolio,

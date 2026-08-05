@@ -18,6 +18,7 @@ import type { User } from "@/Interfaces/IUser";
 import { renderCountryFlag } from "../countryFlag/countryFlag";
 import { ApplicationStatus } from "@/Interfaces/IOffer";
 import type { IJobApplication } from "@/Interfaces/IOffer";
+import { statusLabel, statusStyle } from "@/components/dashboard/dashboardFetch";
 
 interface UserCardProps {
   application: IJobApplication;
@@ -265,8 +266,10 @@ const ApplicantCard: React.FC<UserCardProps> = ({
 
 {/* Estado */}
 <div>
-  <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
-    {getStatus()}
+  <span
+    className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${statusStyle(application.status)}`}
+  >
+    {statusLabel(application.status)}
   </span>
 </div>
 

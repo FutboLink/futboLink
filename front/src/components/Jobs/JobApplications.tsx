@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { fetchApplicationsByJobId } from "../Fetchs/OfertasFetch/OfertasFetchs";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
 import ApplicantCard from "../Applications/ApplicantCard";
+import ApplicantCardMobile from "../Applications/ApplicantCardMobile";
 
 interface JobApplicationsProps {
   jobId: string;
@@ -231,31 +232,55 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
           const isShortlisted = app.status === ApplicationStatus.SHORTLISTED;
           const applicationStatus = app.status;
 
-          return (
-             <ApplicantCard
-                key={app.id}
-                application={app}
-                currentUser={currentUser}
-                t={(key: string) => key}
-                isAddingToPortfolio={null}
-                handleAddToPortfolio={() => {}}
-                isSelectionMode={isSelectionMode}
-                isSelected={selectedCandidates.includes(app.id)}
-                onSelect={() => toggleCandidateSelection(app.id)}
-                isShortlisted={isShortlisted}
-                applicationStatus={applicationStatus}
-                onStatusChange={(newStatus) => {
-                setApplications((prev) =>
-                  prev.map((a) =>
-                   a.id === app.id
-                   ? { ...a, status: newStatus as ApplicationStatus }
-                     : a
-                )
-              );
-           }}
-         />
-            
+return (
+  <>
+    <div className="hidden lg:block">
+      <ApplicantCard
+        key={app.id}
+        application={app}
+        currentUser={currentUser}
+        t={(key: string) => key}
+        isAddingToPortfolio={null}
+        handleAddToPortfolio={() => {}}
+        isSelectionMode={isSelectionMode}
+        isSelected={selectedCandidates.includes(app.id)}
+        onSelect={() => toggleCandidateSelection(app.id)}
+        isShortlisted={isShortlisted}
+        applicationStatus={applicationStatus}
+        onStatusChange={(newStatus) => {
+          setApplications((prev) =>
+            prev.map((a) =>
+              a.id === app.id
+                ? { ...a, status: newStatus as ApplicationStatus }
+                : a
+            )
           );
+        }}
+      />
+    </div>
+
+    <div className="lg:hidden">
+      <ApplicantCardMobile
+        application={app}
+        currentUser={currentUser}
+        t={(key: string) => key}
+        isAddingToPortfolio={null}
+        handleAddToPortfolio={() => {}}
+        isShortlisted={isShortlisted}
+        applicationStatus={applicationStatus}
+        onStatusChange={(newStatus) => {
+          setApplications((prev) =>
+            prev.map((a) =>
+              a.id === app.id
+                ? { ...a, status: newStatus as ApplicationStatus }
+                : a
+            )
+          );
+        }}
+      />
+    </div>
+  </>
+);
         })}
       </div>
 

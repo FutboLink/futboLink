@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
-import ExperienceTab from "@/components/UserViewer/ExperienceTab";
+import ExperienceTab from "@/components/ProfileUser/ExperienceTab";
 import {
   FaArrowLeft,
   FaChevronDown,

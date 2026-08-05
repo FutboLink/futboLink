@@ -283,16 +283,25 @@ const ApplicantCard: React.FC<UserCardProps> = ({
 <div className="flex justify-center">
 <button
   className="px-3 py-1.5 text-sm rounded-lg border border-[#3d7a26] text-[#3d7a26] hover:bg-[#eef7ea] transition"
-  onClick={async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+onClick={async (e) => {
+  e.preventDefault();
+  e.stopPropagation();
 
-    if (token) {
-      await markProfileViewed(application.id, token);
+  if (token) {
+    const previousStatus = application.status;
+
+    await markProfileViewed(application.id, token);
+
+    if (
+      previousStatus === "PENDING" ||
+      previousStatus === "IN_REVIEW"
+    ) {
+      onStatusChange?.("PROFILE_VIEWED");
     }
+  }
 
-    router.push(`/user-viewer/${currentUser.id}`);
-  }}
+  router.push(`/user-viewer/${currentUser.id}`);
+}}
 >
   Ver perfil
 </button>

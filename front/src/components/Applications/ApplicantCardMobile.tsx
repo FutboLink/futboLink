@@ -151,6 +151,10 @@ const ApplicantCardMobile: React.FC<Props> = ({
 
       <button
         onClick={async () => {
+          
+    console.log("TOKEN:", token);
+    console.log("APPLICATION:", application.id);
+          
   if (token) {
     await markProfileViewed(application.id, token);
     onStatusChange?.("PROFILE_VIEWED");

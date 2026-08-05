@@ -220,16 +220,16 @@ const ApplicantCard: React.FC<UserCardProps> = ({
           )}
         </div>
 
-        {/* Info */}
-          <div className="w-full flex flex-col items-center text-center">
-          <div className="flex flex-col items-center mb-2">
+        {/* Información */}
+          <div className="flex-1 grid grid-cols-6 items-center gap-4 pl-6">
+          <div className="text-left">
             
-  <h3 className="text-slate-900 font-semibold text-[1.15rem] leading-tight tracking-tight">
+  <h3 className="text-slate-900 font-semibold text-base">
     {currentUser.name} {currentUser.lastname}
   </h3>
 
   {currentUser.nationality && (
-    <div className="mt-1">
+    <div className="mt-1 flex">
       {renderCountryFlag(currentUser.nationality)}
     </div>
   )}

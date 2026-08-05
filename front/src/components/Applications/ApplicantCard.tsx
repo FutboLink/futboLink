@@ -35,6 +35,7 @@ interface UserCardProps {
   onSelect?: () => void;
   isShortlisted?: boolean;
   applicationStatus?: ApplicationStatus;
+  onStatusChange?: (newStatus: string) => void;
 }
 
 interface VerificationStatus {
@@ -84,6 +85,7 @@ const ApplicantCard: React.FC<UserCardProps> = ({
   onSelect,
   isShortlisted = false,
   applicationStatus,
+  onStatusChange,
 }) => {
   const { user, token } = useUserContext();
   const pathname = usePathname();

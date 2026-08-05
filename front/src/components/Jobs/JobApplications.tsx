@@ -164,15 +164,11 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
       </div>
       
 <div className="bg-gray-50 border border-gray-200 rounded-t-xl">
-  <div className="grid grid-cols-[90px_2.8fr_80px_140px_140px_120px_60px] items-center px-6 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
+  <div className="grid grid-cols-[90px_3fr_180px_160px_120px] items-center px-6 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
 
     <div>Foto</div>
 
     <div>Candidato</div>
-
-    <div className="text-center">Edad</div>
-
-    <div>Posición</div>
 
     <div>País</div>
 

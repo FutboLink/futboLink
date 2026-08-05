@@ -295,65 +295,63 @@ const ApplicantCard: React.FC<UserCardProps> = ({
 {/* Acciones */}
 <div className="flex items-center justify-center gap-3">
 
-<button
-  className="
-    flex items-center justify-center gap-2
-    h-11
-    min-w-[145px]
-    rounded-xl
-    border border-[#3d7a26]
-    bg-white
-    text-[#3d7a26]
-    font-semibold
-    shadow-sm
-    transition-all duration-200
-    hover:bg-[#eef7ea]
-    hover:shadow-md
-    hover:-translate-y-0.5
-    active:scale-95
-  "
-  onClick={(e) => {
-    e.stopPropagation();
-    router.push(`/user-viewer/${currentUser.id}`);
-  }}
->
-  <span className="text-base">👁️</span>
-  <span>Ver perfil</span>
-</button>
-
+  {/* Ver perfil */}
   <button
+    title="Ver perfil"
     className="
       flex items-center justify-center
-      h-10
-      min-w-[130px]
+      w-11 h-11
+      rounded-xl
+      border border-gray-200
+      bg-white
+      text-[#3d7a26]
+      shadow-sm
+      transition-all duration-200
+      hover:bg-[#eef7ea]
+      hover:shadow-md
+      hover:scale-105
+      active:scale-95
+    "
+    onClick={(e) => {
+      e.stopPropagation();
+      router.push(`/user-viewer/${currentUser.id}`);
+    }}
+  >
+    <FaEye className="text-lg" />
+  </button>
+
+  {/* Me interesa */}
+  <button
+    title="Me interesa"
+    className="
+      flex items-center justify-center
+      w-11 h-11
       rounded-xl
       bg-[#3d7a26]
       text-white
-      font-semibold
       shadow-sm
       transition-all duration-200
       hover:bg-[#2f601d]
       hover:shadow-lg
+      hover:scale-105
       active:scale-95
     "
     onClick={async (e) => {
-  e.stopPropagation();
+      e.stopPropagation();
 
-  if (!token) return;
+      if (!token) return;
 
-  const ok = await markInterest(application.id, token);
+      const ok = await markInterest(application.id, token);
 
-  if (ok) {
-    onStatusChange?.("INTERESTED");
-  }
-}}
+      if (ok) {
+        onStatusChange?.("INTERESTED");
+      }
+    }}
   >
-    ❤ Me interesa
+    <FaHandPaper className="text-lg" />
   </button>
 
-  </div>
 </div>
-
         {/* Dropdown */}
           <div
   ref={dropdownRef}

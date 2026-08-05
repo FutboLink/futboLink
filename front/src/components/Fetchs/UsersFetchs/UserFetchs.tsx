@@ -170,6 +170,7 @@ export const updateUserData = async (
           ...(exp.liga ? { liga: String(exp.liga) } : {}),
           ...(exp.ligaPageId ? { ligaPageId: exp.ligaPageId } : {}),
           ...(exp.ligaPageSlug ? { ligaPageSlug: exp.ligaPageSlug } : {}),
+          ...(exp.ligaPageLogo ? { ligaPageLogo: exp.ligaPageLogo } : {}),
         }));
 
       // Asignamos las trayectorias formateadas de vuelta al objeto

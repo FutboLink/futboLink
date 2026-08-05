@@ -58,6 +58,7 @@ export interface IProfileData {
     liga?: string;
     ligaPageId?: string;
     ligaPageSlug?: string;
+    ligaPageLogo?: string;
   }[];
   pasaporteUe?: PasaporteUe;
   skillfulFoot: string;

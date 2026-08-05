@@ -340,33 +340,6 @@ const ApplicantCard: React.FC<UserCardProps> = ({
   </button>
 
 </div>
-    onClick={(e) => {
-      e.stopPropagation();
-      router.push(`/user-viewer/${currentUser.id}`);
-    }}
-  >
-    Ver perfil
-  </button>
-
- <button
-  className="px-3 py-1.5 text-sm rounded-lg bg-[#3d7a26] text-white hover:bg-[#2f601d] transition"
-  onClick={async (e) => {
-    e.stopPropagation();
-
-    if (!token) return;
-
-    const ok = await markInterest(application.id, token);
-
-    if (ok) {
-      onStatusChange?.("INTERESTED");
-    }
-  }}
->
-  ❤ Me interesa
-</button>
-
-</div>
-</div>
 
         {/* Dropdown */}
           <div

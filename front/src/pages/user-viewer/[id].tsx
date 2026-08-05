@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
+import ExperienceTab from "@/components/UserViewer/ExperienceTab";
 import {
   FaArrowLeft,
   FaChevronDown,
@@ -2685,14 +2686,9 @@ export default function UserViewer() {
                   </div>
                 )}
                 {activeTab === "stats" && (
-                  <div className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
-                    <h3 className="text-lg font-medium mb-3 text-gray-800">
-                      Estadísticas
-                    </h3>
-                    <p className="text-gray-600">
-                      No hay estadísticas disponibles para este jugador.
-                    </p>
-                  </div>
+                   <ExperienceTab
+                     trayectorias={profile.trayectorias ?? []}
+                   />
                 )}
 
                 {activeTab === "career" && (

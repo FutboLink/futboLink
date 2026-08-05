@@ -213,7 +213,7 @@ const ApplicantCard: React.FC<UserCardProps> = ({
       {/* Fila superior: foto + info + dropdown */}
       <div className="flex items-center w-full">
         {/* Foto */}
-        <div className="w-[90px] flex justify-center relative">
+        <div className="w-16 flex justify-start relative">
           <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-100 ring-1 ring-gray-200 flex items-center justify-center">
   {currentUser.imgUrl ? (
     <Image
@@ -235,7 +235,7 @@ const ApplicantCard: React.FC<UserCardProps> = ({
         </div>
 
         {/* Información */}
-<div className="flex-1 grid grid-cols-[3fr_180px_160px_120px] items-center gap-4">
+<div className="flex-1 grid grid-cols-[4fr_220px_180px_260px] items-center gap-6">
 
 {/* Candidato */}
 <div>

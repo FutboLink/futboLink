@@ -201,7 +201,17 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
                 onSelect={() => toggleCandidateSelection(app.id)}
                 isShortlisted={isShortlisted}
                 applicationStatus={applicationStatus}
-             />
+                onStatusChange={(newStatus) => {
+                setApplications((prev) =>
+                  prev.map((a) =>
+                   a.id === app.id
+                   ? { ...a, status: newStatus as ApplicationStatus }
+                     : a
+                )
+              );
+           }}
+         />
+            
           );
         })}
       </div>

@@ -191,6 +191,7 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
           return (
              <ApplicantCard
                 key={app.id}
+                application={app}
                 currentUser={currentUser}
                 t={(key: string) => key}
                 isAddingToPortfolio={null}

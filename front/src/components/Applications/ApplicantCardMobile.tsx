@@ -94,115 +94,111 @@ const ApplicantCardMobile: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* INFORMACIÓN */}
-        <div className="flex-1 min-w-0">
+{/* INFORMACIÓN */}
+<div className="flex-1 min-w-0">
 
-          <div className="flex items-start justify-between">
+  {/* Cabecera */}
+  <div className="flex justify-between items-start">
 
-            <div className="flex-1 min-w-0">
+    <div className="min-w-0 flex-1">
 
-              <div className="flex items-center gap-2">
+      <h3 className="text-[17px] font-semibold text-gray-900 truncate">
+        {currentUser.name} {currentUser.lastname}
+      </h3>
 
-  <h3 className="font-semibold text-[18px] leading-5 text-gray-900 truncate">
-    {currentUser.name} {currentUser.lastname}
-  </h3>
-</div>
-              <p className="text-sm text-gray-500 mt-1">
-                {currentUser.primaryPosition || "-"}
-                {currentUser.age && ` • ${currentUser.age} años`}
-              </p>
+      <p className="mt-1 text-[13px] text-gray-500">
+        {currentUser.primaryPosition || "-"}
+        {currentUser.age && ` • ${currentUser.age} años`}
+      </p>
 
-              {currentUser.nationality && (
-                <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
-                  <span>{renderCountryFlag(currentUser.nationality ?? "")}</span>
-                  <span>{currentUser.nationality}</span>
-                </div>
-              )}
+      {currentUser.nationality && (
+        <div className="flex items-center gap-2 mt-1 text-[13px] text-gray-600">
+          <span>{renderCountryFlag(currentUser.nationality ?? "")}</span>
+          <span>{currentUser.nationality}</span>
+        </div>
+      )}
 
-            </div>
+      <div className="mt-3">
+        <span
+          className={`inline-flex px-3 py-1 rounded-full text-[11px] font-semibold ${statusStyle(application.status)}`}
+        >
+          {statusLabel(application.status)}
+        </span>
+      </div>
 
-            <button
-              onClick={() => setShowDropdown(!showDropdown)}
-              className="
-w-12
-h-12
-rounded-xl
-border
-border-gray-200
-bg-white
-flex
-items-center
-justify-center
-shadow-sm
-transition-all
-hover:bg-gray-50
-hover:shadow-md
-active:scale-95
-"
-            >
-              <FaEllipsisV className="text-lg text-gray-500" />
-            </button>
+    </div>
 
-          </div>
+    <div className="flex flex-col items-center gap-2 ml-4">
 
-<div className="flex justify-between items-end mt-5">
+      <button
+        onClick={() => setShowDropdown(!showDropdown)}
+        className="
+        w-10
+        h-10
+        rounded-xl
+        border
+        border-gray-200
+        bg-white
+        flex
+        items-center
+        justify-center
+        shadow-sm
+        active:scale-95
+        "
+      >
+        <FaEllipsisV className="text-gray-500" />
+      </button>
 
-  {/* Botones */}
-  <div className="flex gap-3">
+      <button
+        onClick={() => router.push(`/user-viewer/${currentUser.id}`)}
+        className="
+        w-10
+        h-10
+        rounded-xl
+        border
+        border-gray-200
+        bg-white
+        flex
+        items-center
+        justify-center
+        shadow-sm
+        active:scale-95
+        "
+      >
+        <FaEye className="text-[#3d7a26]" />
+      </button>
 
-    <button
-      onClick={() => router.push(`/user-viewer/${currentUser.id}`)}
-      className="
-      w-12
-      h-12
-      rounded-2xl
-      border
-      border-gray-200
-      bg-white
-      flex
-      items-center
-      justify-center
-      shadow-sm
-      active:scale-95
-      "
-    >
-      <FaEye className="text-[#3d7a26] text-lg" />
-    </button>
+      <button
+        onClick={async () => {
 
-    <button
-      onClick={async () => {
-        if (!token) return;
+          if (!token) return;
 
-        const ok = await markInterest(application.id, token);
+          const ok = await markInterest(application.id, token);
 
-        if (ok) {
-          onStatusChange?.("INTERESTED");
-        }
-      }}
-      className="
-      w-12
-      h-12
-      rounded-2xl
-      bg-[#3d7a26]
-      text-white
-      flex
-      items-center
-      justify-center
-      shadow-md
-      active:scale-95
-      "
-    >
-      <FaThumbsUp className="text-lg" />
-    </button>
+          if (ok) {
+            onStatusChange?.("INTERESTED");
+          }
+
+        }}
+        className="
+        w-10
+        h-10
+        rounded-xl
+        bg-[#3d7a26]
+        text-white
+        flex
+        items-center
+        justify-center
+        shadow-md
+        active:scale-95
+        "
+      >
+        <FaThumbsUp />
+      </button>
+
+    </div>
 
   </div>
-
-  {/* Estado */}
-  <span
-    className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap ${statusStyle(application.status)}`}
-  >
-    {statusLabel(application.status)}
-  </span>
 
 </div>
               {/* Bottom Sheet */}

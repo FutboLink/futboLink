@@ -18,7 +18,7 @@ import type { User } from "@/Interfaces/IUser";
 import { renderCountryFlag } from "../countryFlag/countryFlag";
 import { ApplicationStatus } from "@/Interfaces/IOffer";
 import type { IJobApplication } from "@/Interfaces/IOffer";
-import { statusLabel, statusStyle } from "@/components/dashboard/dashboardFetch";
+import { statusLabel, statusStyle } from "@/components/Dashboard/dashboardFetch";
 
 interface UserCardProps {
   application: IJobApplication;

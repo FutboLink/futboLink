@@ -237,7 +237,7 @@ const ApplicantCard: React.FC<UserCardProps> = ({
         </div>
 
         {/* Información */}
-<div className="flex-1 grid grid-cols-[4fr_220px_180px_260px] items-center gap-6">
+<div className="flex-1 grid grid-cols-[3.5fr_220px_170px_300px] items-center gap-4">
 
 {/* Candidato */}
 <div>

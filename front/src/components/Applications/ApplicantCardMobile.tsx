@@ -62,8 +62,8 @@ const ApplicantCardMobile: React.FC<Props> = ({
     <div
   className="
     bg-white
-    px-5
-    py-4
+    px-4
+    py-3
     border-b
     border-gray-100
     active:bg-gray-50
@@ -75,14 +75,14 @@ const ApplicantCardMobile: React.FC<Props> = ({
 
         {/* FOTO */}
         <div className="mr-3 flex-shrink-0">
-          <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 shadow-sm">
+          <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-100">
 
             {currentUser.imgUrl ? (
               <Image
                 src={currentUser.imgUrl}
                 alt={`${currentUser.name ?? ""} ${currentUser.lastname ?? ""}`}
-                width={72}
-                height={72}
+                width={56}
+                height={56}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -103,17 +103,17 @@ const ApplicantCardMobile: React.FC<Props> = ({
 
               <div className="flex items-center gap-2">
 
-  <h3 className="font-bold text-[22px] leading-6 text-gray-900 truncate">
+  <h3 className="font-semibold text-[18px] leading-5 text-gray-900 truncate">
     {currentUser.name} {currentUser.lastname}
   </h3>
 </div>
-              <p className="text-[16px] text-gray-500 mt-2">
+              <p className="text-sm text-gray-500 mt-1">
                 {currentUser.primaryPosition || "-"}
                 {currentUser.age && ` • ${currentUser.age} años`}
               </p>
 
               {currentUser.nationality && (
-                <div className="flex items-center gap-2 mt-3 text-[15px] text-gray-600">
+                <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
                   <span>{renderCountryFlag(currentUser.nationality ?? "")}</span>
                   <span>{currentUser.nationality}</span>
                 </div>

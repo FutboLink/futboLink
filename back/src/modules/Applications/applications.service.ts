@@ -214,14 +214,22 @@ export class ApplicationService {
           status: true,
           appliedAt: true,
           shortlistedAt: true,
-          player: {
-            id: true,
-            name: true,
-            lastname: true,
-            email: true,
-            role: true,
-            imgUrl: true,
-          }
+        player: {
+          id: true,
+          name: true,
+          lastname: true,
+          email: true,
+          role: true,
+          imgUrl: true,
+
+          nationality: true,
+          age: true,
+
+          primaryPosition: true,
+          secondaryPosition: true,
+
+          subscriptionType: true,
+        }
         },
         take: limit,
         order: { appliedAt: 'DESC' }
@@ -232,9 +240,20 @@ export class ApplicationService {
       // Si falla, usar una consulta SQL directa optimizada con límite
       const rawApplications = await this.applicationRepository.query(`
         SELECT 
-          a.id, a.message, a.status, a."appliedAt", a."shortlistedAt", a."playerId", a."jobId",
-          u.id as player_id, u.name as player_name, u.lastname as player_lastname, 
-          u.email as player_email, u.role as player_role, u."imgUrl" as player_imgUrl
+          u.id as player_id,
+          u.name as player_name,
+          u.lastname as player_lastname,
+          u.email as player_email,
+          u.role as player_role,
+          u."imgUrl" as player_imgUrl,
+
+          u.nationality as player_nationality,
+          u.age as player_age,
+
+          u."primaryPosition" as player_primaryPosition,
+          u."secondaryPosition" as player_secondaryPosition,
+
+          u."subscriptionType" as player_subscriptionType
         FROM application a
         LEFT JOIN users u ON u.id = a."playerId"
         WHERE a."jobId" = $1
@@ -260,6 +279,13 @@ export class ApplicationService {
           player.email = raw.player_email;
           player.role = raw.player_role;
           player.imgUrl = raw.player_imgUrl;
+          player.nationality = raw.player_nationality;
+          player.age = raw.player_age;
+
+          player.primaryPosition = raw.player_primaryPosition;
+          player.secondaryPosition = raw.player_secondaryPosition;
+
+          player.subscriptionType = raw.player_subscriptionType;
           
           app.player = player;
         }

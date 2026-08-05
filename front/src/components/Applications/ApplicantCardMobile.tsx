@@ -107,7 +107,9 @@ const ApplicantCardMobile: React.FC<Props> = ({
     {currentUser.name} {currentUser.lastname}
   </h3>
 
-  <FaCheckCircle className="text-blue-500 text-xs shrink-0" />
+  {currentUser.isVerified && (
+  <FaCheckCircle className="text-blue-500 text-sm shrink-0" />
+)}
 
 </div>
 
@@ -149,15 +151,66 @@ active:scale-95
 
           </div>
 
-          <div className="flex items-center justify-between mt-3">
+          <div className="flex items-center justify-between mt-5">
 
-            <span
-              className={`px-3 py-1 rounded-full text-[11px] font-medium ${statusStyle(application.status)}`}
-            >
-              {statusLabel(application.status)}
-            </span>
+  {/* Botones */}
+  <div className="flex gap-3">
 
-            <div className="flex gap-2">
+    <button
+      onClick={() => router.push(`/user-viewer/${currentUser.id}`)}
+      className="
+        w-12
+        h-12
+        rounded-2xl
+        border
+        border-gray-200
+        bg-white
+        flex
+        items-center
+        justify-center
+        shadow-sm
+        active:scale-95
+      "
+    >
+      <FaEye className="text-[#3d7a26] text-lg" />
+    </button>
+
+    <button
+      onClick={async () => {
+        if (!token) return;
+
+        const ok = await markInterest(application.id, token);
+
+        if (ok) {
+          onStatusChange?.("INTERESTED");
+        }
+      }}
+      className="
+        w-12
+        h-12
+        rounded-2xl
+        bg-[#3d7a26]
+        text-white
+        flex
+        items-center
+        justify-center
+        shadow-md
+        active:scale-95
+      "
+    >
+      <FaThumbsUp className="text-lg" />
+    </button>
+
+  </div>
+
+  {/* Estado */}
+  <span
+    className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap ${statusStyle(application.status)}`}
+  >
+    {statusLabel(application.status)}
+  </span>
+
+</div>
 
               <button
                 onClick={() => router.push(`/user-viewer/${currentUser.id}`)}
@@ -217,7 +270,20 @@ active:scale-95
     />
 
     {/* Panel */}
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl p-5 shadow-2xl">
+    <div className="
+fixed
+bottom-0
+left-0
+right-0
+z-50
+bg-white
+rounded-t-[32px]
+px-6
+pt-4
+pb-8
+shadow-2xl
+animate-[slideUp_.25s_ease]
+">
 
       <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-6" />
 
@@ -226,19 +292,41 @@ active:scale-95
           router.push(`/user-viewer/${currentUser.id}`);
           setShowDropdown(false);
         }}
-        className="w-full flex items-center gap-4 py-4 text-left"
+        className="
+w-full
+flex
+items-center
+gap-4
+rounded-2xl
+px-3
+py-4
+text-left
+transition
+hover:bg-gray-50
+"
       >
         <FaEye className="text-[#3d7a26] text-xl" />
         <span className="font-medium">Ver perfil completo</span>
       </button>
-
+<div className="h-px bg-gray-100 my-2" />
       <button
         onClick={() => {
           handleAddToPortfolio(currentUser.id);
           setShowDropdown(false);
         }}
         disabled={isAddingToPortfolio === currentUser.id}
-        className="w-full flex items-center gap-4 py-4 text-left"
+        className="
+w-full
+flex
+items-center
+gap-4
+rounded-2xl
+px-3
+py-4
+text-left
+transition
+hover:bg-gray-50
+"
       >
         {isAddingToPortfolio === currentUser.id ? (
           <>

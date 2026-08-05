@@ -197,37 +197,6 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
 
 </div>
 
-      <div className="flex justify-end mb-4 mt-4">
-        {isSelectionMode ? (
-          <div className="flex gap-2">
-            <button
-              onClick={shortlistCandidates}
-              disabled={selectedCandidates.length === 0}
-              className={`px-4 py-2 text-white rounded-md ${
-                selectedCandidates.length > 0
-                  ? "bg-green-600 hover:bg-green-700"
-                  : "bg-gray-400 cursor-not-allowed"
-              }`}
-            >
-              Seleccionar {selectedCandidates.length} candidato(s)
-            </button>
-            <button
-              onClick={toggleSelectionMode}
-              className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-            >
-              Cancelar
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={toggleSelectionMode}
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-          >
-            Seleccionar candidatos
-          </button>
-        )}
-      </div>
-      
 <div className="bg-gray-50 border border-gray-200 rounded-t-xl">
   <div className="grid grid-cols-[4fr_220px_180px_260px] items-center px-4 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
 

@@ -4,7 +4,7 @@ import { ApplicationStatus, IJobApplication } from "@/Interfaces/IOffer";
 import React, { useEffect, useState } from "react";
 import { fetchApplicationsByJobId } from "../Fetchs/OfertasFetch/OfertasFetchs";
 import { NotificationsForms } from "../Notifications/NotificationsForms";
-import UserCard from "../PlayerSearch/UserCard";
+import ApplicantCard from "./ApplicantCard";
 
 interface JobApplicationsProps {
   jobId: string;
@@ -172,18 +172,17 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
           const isShortlisted = app.status === ApplicationStatus.SHORTLISTED;
 
           return (
-            <UserCard
-              key={app.id}
-              currentUser={currentUser}
-              t={(key: string) => key}
-              isAddingToPortfolio={null}
-              handleAddToPortfolio={() => {}}
-              // Nuevas props para manejar selección
-              isSelectionMode={isSelectionMode}
-              isSelected={selectedCandidates.includes(app.id)}
-              onSelect={() => toggleCandidateSelection(app.id)}
-              isShortlisted={isShortlisted}
-            />
+             <ApplicantCard
+                key={app.id}
+                currentUser={currentUser}
+                t={(key: string) => key}
+                isAddingToPortfolio={null}
+                handleAddToPortfolio={() => {}}
+                isSelectionMode={isSelectionMode}
+                isSelected={selectedCandidates.includes(app.id)}
+                onSelect={() => toggleCandidateSelection(app.id)}
+                isShortlisted={isShortlisted}
+             />
           );
         })}
       </div>

@@ -19,9 +19,10 @@ import type { User } from "@/Interfaces/IUser";
 import type { IJobApplication, ApplicationStatus } from "@/Interfaces/IOffer";
 
 import {
-statusLabel,
-statusStyle,
-markInterest,
+  statusLabel,
+  statusStyle,
+  markInterest,
+  markProfileViewed,
 } from "@/components/Dashboard/dashboardFetch";
 
 import { renderCountryFlag } from "../countryFlag/countryFlag";
@@ -149,7 +150,14 @@ const ApplicantCardMobile: React.FC<Props> = ({
       </button>
 
       <button
-        onClick={() => router.push(`/user-viewer/${currentUser.id}`)}
+        onClick={async () => {
+  if (token) {
+    await markProfileViewed(application.id, token);
+    onStatusChange?.("PROFILE_VIEWED");
+  }
+
+  router.push(`/user-viewer/${currentUser.id}`);
+}}
         className="
         w-10
         h-10

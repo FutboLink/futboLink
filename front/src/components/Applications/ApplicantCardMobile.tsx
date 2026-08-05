@@ -120,7 +120,7 @@ const ApplicantCardMobile: React.FC<Props> = ({
 
               {currentUser.nationality && (
                 <div className="flex items-center gap-2 mt-3 text-[15px] text-gray-600">
-                  <span>{renderCountryFlag(currentUser.nationality)}</span>
+                  <span>{renderCountryFlag(currentUser.nationality ?? "")}</span>
                   <span>{currentUser.nationality}</span>
                 </div>
               )}

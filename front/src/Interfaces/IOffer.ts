@@ -69,6 +69,9 @@ export interface ICreateJobOffer {
 
 export enum ApplicationStatus {
   PENDING = "PENDING",
+  IN_REVIEW = "IN_REVIEW",
+  PROFILE_VIEWED = "PROFILE_VIEWED",
+  INTERESTED = "INTERESTED",
   SHORTLISTED = "SHORTLISTED",
   ACCEPTED = "ACCEPTED",
   REJECTED = "REJECTED",

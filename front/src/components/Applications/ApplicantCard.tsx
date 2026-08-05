@@ -359,29 +359,7 @@ const ApplicantCard: React.FC<UserCardProps> = ({
   ref={dropdownRef}
   className="relative"
 >
-          <button
-            className="
-flex items-center justify-center
-w-11 h-11
-rounded-xl
-border border-gray-200
-bg-white
-text-gray-600
-shadow-sm
-transition-all duration-200
-hover:bg-gray-50
-hover:shadow-md
-hover:scale-105
-active:scale-95
-"
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowDropdown(!showDropdown);
-            }}
-          >
-            <button
+<button
   type="button"
   title="Más acciones"
   onClick={(e) => {
@@ -404,7 +382,7 @@ active:scale-95
     active:scale-95
   "
 >
-  <FaEllipsisV className="text-sm" />
+  <FaEllipsisV className="text-base" />
 </button>
           </button>
 

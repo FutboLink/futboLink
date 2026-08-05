@@ -203,6 +203,7 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
                 isSelected={selectedCandidates.includes(app.id)}
                 onSelect={() => toggleCandidateSelection(app.id)}
                 isShortlisted={isShortlisted}
+                applicationStatus={applicationStatus}
              />
           );
         })}

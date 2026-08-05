@@ -212,7 +212,6 @@ active:scale-95
 
 </div>
 
-              <button
               {/* Bottom Sheet */}
 {showDropdown && (
   <>

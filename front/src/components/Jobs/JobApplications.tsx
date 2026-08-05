@@ -227,9 +227,7 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
       </div>
       
 <div className="bg-gray-50 border border-gray-200 rounded-t-xl">
-  <div className="grid grid-cols-[90px_3fr_180px_160px_120px] items-center px-6 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
-
-    <div>Foto</div>
+  <div className="grid grid-cols-[4fr_220px_180px_260px] items-center px-4 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
 
     <div>Candidato</div>
 

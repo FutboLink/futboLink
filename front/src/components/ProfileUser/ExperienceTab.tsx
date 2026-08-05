@@ -19,7 +19,22 @@ export default function ExperienceTab({
           l.ligaPageSlug === league.ligaPageSlug
       )
   );
+const uniqueCountries = [
+  ...new Set(
+    trayectorias
+      .map((t) => t.nacionalidadTrayectoria)
+      .filter(Boolean)
+  ),
+];
 
+const uniqueClubs = [
+  ...new Set(
+    trayectorias
+      .map((t) => t.clubPageId || t.club)
+      .filter(Boolean)
+  ),
+];
+  
   if (!uniqueLeagues.length) {
     return (
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-10 text-center">
@@ -64,6 +79,45 @@ export default function ExperienceTab({
         </div>
 
       </div>
+      <div className="grid grid-cols-3 gap-3 mb-6">
+
+  <div className="rounded-xl border border-gray-200 bg-white p-4 text-center shadow-sm">
+
+    <div className="text-2xl font-bold text-[#3d7a26]">
+      {uniqueLeagues.length}
+    </div>
+
+    <div className="mt-1 text-xs font-medium uppercase tracking-wide text-gray-500">
+      Ligas
+    </div>
+
+  </div>
+
+  <div className="rounded-xl border border-gray-200 bg-white p-4 text-center shadow-sm">
+
+    <div className="text-2xl font-bold text-[#3d7a26]">
+      {uniqueCountries.length}
+    </div>
+
+    <div className="mt-1 text-xs font-medium uppercase tracking-wide text-gray-500">
+      Países
+    </div>
+
+  </div>
+
+  <div className="rounded-xl border border-gray-200 bg-white p-4 text-center shadow-sm">
+
+    <div className="text-2xl font-bold text-[#3d7a26]">
+      {uniqueClubs.length}
+    </div>
+
+    <div className="mt-1 text-xs font-medium uppercase tracking-wide text-gray-500">
+      Clubes
+    </div>
+
+  </div>
+
+</div>
 
       <div className="space-y-3">
 

@@ -145,7 +145,7 @@ active:scale-95
 
           </div>
 
-          <div className="flex items-center justify-between mt-5">
+<div className="flex justify-between items-end mt-5">
 
   {/* Botones */}
   <div className="flex gap-3">
@@ -153,17 +153,17 @@ active:scale-95
     <button
       onClick={() => router.push(`/user-viewer/${currentUser.id}`)}
       className="
-        w-12
-        h-12
-        rounded-2xl
-        border
-        border-gray-200
-        bg-white
-        flex
-        items-center
-        justify-center
-        shadow-sm
-        active:scale-95
+      w-12
+      h-12
+      rounded-2xl
+      border
+      border-gray-200
+      bg-white
+      flex
+      items-center
+      justify-center
+      shadow-sm
+      active:scale-95
       "
     >
       <FaEye className="text-[#3d7a26] text-lg" />
@@ -180,16 +180,16 @@ active:scale-95
         }
       }}
       className="
-        w-12
-        h-12
-        rounded-2xl
-        bg-[#3d7a26]
-        text-white
-        flex
-        items-center
-        justify-center
-        shadow-md
-        active:scale-95
+      w-12
+      h-12
+      rounded-2xl
+      bg-[#3d7a26]
+      text-white
+      flex
+      items-center
+      justify-center
+      shadow-md
+      active:scale-95
       "
     >
       <FaThumbsUp className="text-lg" />
@@ -205,7 +205,6 @@ active:scale-95
   </span>
 
 </div>
-
               {/* Bottom Sheet */}
 {showDropdown && (
   <>

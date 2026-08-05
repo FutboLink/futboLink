@@ -59,20 +59,30 @@ const ApplicantCardMobile: React.FC<Props> = ({
   const [showDropdown, setShowDropdown] = useState(false);
 
   return (
-    <div className="bg-white border-b border-gray-100 px-4 py-4">
+    <div
+  className="
+    bg-white
+    px-5
+    py-4
+    border-b
+    border-gray-100
+    active:bg-gray-50
+    transition-all
+  "
+>
 
-      <div className="flex items-start">
+  <div className="flex items-start gap-4">
 
         {/* FOTO */}
         <div className="mr-3 flex-shrink-0">
-          <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-100">
+          <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 shadow-sm">
 
             {currentUser.imgUrl ? (
               <Image
                 src={currentUser.imgUrl}
                 alt={`${currentUser.name ?? ""} ${currentUser.lastname ?? ""}`}
-                width={60}
-                height={60}
+                width={72}
+                height={72}
                 className="w-full h-full object-cover"
               />
             ) : (

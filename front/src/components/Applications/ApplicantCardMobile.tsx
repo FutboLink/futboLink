@@ -284,11 +284,11 @@ hover:bg-gray-50
     </div>
   </>
 )}
-      </div>   {/* fin INFORMACIÓN */}
+        </div>
 
-    </div>     {/* fin flex items-start */}
+    </div>
 
-  </div>       {/* fin card */}
+</div>
 
   );
 };

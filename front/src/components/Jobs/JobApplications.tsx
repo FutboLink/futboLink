@@ -163,22 +163,34 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
         )}
       </div>
       
-<div className="grid grid-cols-[120px_2.5fr_80px_1.5fr_1.5fr_120px] gap-6 px-6 py-3 mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 border-b border-gray-200">
-  <div>Foto</div>
-  <div>Nombre</div>
-  <div className="text-center">Edad</div>
-  <div>Posición</div>
-  <div>País</div>
-  <div>Estado</div>
+<div className="bg-gray-50 border border-gray-200 rounded-t-xl">
+  <div className="grid grid-cols-[90px_2.8fr_80px_140px_140px_120px_60px] items-center px-6 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
+
+    <div>Foto</div>
+
+    <div>Candidato</div>
+
+    <div className="text-center">Edad</div>
+
+    <div>Posición</div>
+
+    <div>País</div>
+
+    <div>Estado</div>
+
+    <div className="text-center">Acciones</div>
+
+  </div>
 </div>
       
-      <div className="flex flex-col gap-4 mb-8">
+      <div className="bg-white border-x border-b border-gray-200 rounded-b-xl overflow-hidden mb-8">
         {applications.map((app) => {
           const currentUser = app.player;
 
           if (!currentUser) return null;
 
           const isShortlisted = app.status === ApplicationStatus.SHORTLISTED;
+          const applicationStatus = app.status;
 
           return (
              <ApplicantCard

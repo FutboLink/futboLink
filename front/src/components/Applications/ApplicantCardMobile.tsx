@@ -59,7 +59,7 @@ const ApplicantCardMobile: React.FC<Props> = ({
   const [showDropdown, setShowDropdown] = useState(false);
 
   return (
-    <div className="mx-3 mt-3 rounded-2xl bg-white border border-gray-200 shadow-sm p-4">
+    <div className="bg-white border-b border-gray-100 px-4 py-4">
 
       <div className="flex items-start">
 

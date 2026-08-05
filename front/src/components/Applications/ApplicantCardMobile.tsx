@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -285,11 +284,13 @@ hover:bg-gray-50
     </div>
   </>
 )}
-          </div>
+      </div>   {/* fin INFORMACIÓN */}
 
-        </div>
+    </div>     {/* fin flex items-start */}
 
-    </div>
+  </div>       {/* fin card */}
+
   );
 };
+
 export default ApplicantCardMobile;

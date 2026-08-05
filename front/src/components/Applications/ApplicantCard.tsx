@@ -281,10 +281,55 @@ const ApplicantCard: React.FC<UserCardProps> = ({
 </div>
 
 {/* Acciones */}
-<div className="flex justify-center gap-2">
+<div className="flex items-center justify-center gap-3">
 
   <button
-    className="px-3 py-1.5 text-sm rounded-lg border border-[#3d7a26] text-[#3d7a26] hover:bg-[#eef7ea] transition"
+    className="
+      flex items-center justify-center
+      h-10
+      min-w-[110px]
+      rounded-xl
+      border border-[#3d7a26]
+      bg-white
+      text-[#3d7a26]
+      font-medium
+      shadow-sm
+      transition-all duration-200
+      hover:bg-[#eef7ea]
+      hover:shadow-md
+      active:scale-95
+    "
+    onClick={(e) => {
+      e.stopPropagation();
+      router.push(`/user-viewer/${currentUser.id}`);
+    }}
+  >
+    👁 Ver perfil
+  </button>
+
+  <button
+    className="
+      flex items-center justify-center
+      h-10
+      min-w-[130px]
+      rounded-xl
+      bg-[#3d7a26]
+      text-white
+      font-semibold
+      shadow-sm
+      transition-all duration-200
+      hover:bg-[#2f601d]
+      hover:shadow-lg
+      active:scale-95
+    "
+    onClick={(e) => {
+      e.stopPropagation();
+    }}
+  >
+    ❤ Me interesa
+  </button>
+
+</div>
     onClick={(e) => {
       e.stopPropagation();
       router.push(`/user-viewer/${currentUser.id}`);

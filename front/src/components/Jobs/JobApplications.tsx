@@ -135,8 +135,7 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
       )}
       <div className="md:hidden mb-5">
 
-  <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-
+<div className="grid grid-cols-3 gap-3">
     {[
       {
         key: "ALL",
@@ -169,29 +168,32 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
         key={filter.key}
         onClick={() => setStatusFilter(filter.key)}
         className={`
-          flex
-          items-center
-          gap-2
-          whitespace-nowrap
-          px-4
-          h-9
-          rounded-full
-          transition-all
-          ${
-            statusFilter === filter.key
-              ? "bg-[#3d7a26] text-white"
-              : "bg-white border border-gray-200 text-gray-700"
-          }
-        `}
-      >
+w-full
+h-20
+rounded-2xl
+border
+flex
+flex-col
+items-center
+justify-center
+transition-all
+duration-200
+shadow-sm
+active:scale-95
+${
+  statusFilter === filter.key
+    ? "bg-[#3d7a26] text-white border-[#3d7a26]"
+    : "bg-white border-gray-200 text-gray-700"
+}
+`}
 
-        <span className="font-medium text-xs">
-          {filter.label}
-        </span>
+<div className="text-2xl font-bold">
+  {filter.count}
+</div>
 
-        <span className="font-bold text-xs">
-          {filter.count}
-        </span>
+<div className="mt-1 text-[11px] font-medium text-center leading-tight">
+  {filter.label}
+</div>
 
       </button>
 

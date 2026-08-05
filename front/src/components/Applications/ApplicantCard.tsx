@@ -351,7 +351,9 @@ const ApplicantCard: React.FC<UserCardProps> = ({
     <FaHandPaper className="text-lg" />
   </button>
 
-</div>
+    </div>
+  </div>
+
         {/* Dropdown */}
           <div
   ref={dropdownRef}

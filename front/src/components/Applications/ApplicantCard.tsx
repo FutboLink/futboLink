@@ -384,7 +384,6 @@ const ApplicantCard: React.FC<UserCardProps> = ({
 >
   <FaEllipsisV className="text-base" />
 </button>
-          </button>
 
           {showDropdown && (
             <div

@@ -132,7 +132,7 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
           />
         </div>
       )}
-     <div className="flex flex-wrap gap-4 mb-8">
+     <div className="flex flex-wrap gap-4 mt-8 mb-8">
 
   {[
     {

@@ -62,7 +62,7 @@ const ApplicantCardMobile: React.FC<Props> = ({
             {currentUser.imgUrl ? (
               <Image
                 src={currentUser.imgUrl}
-                alt={currentUser.name}
+                alt={`${currentUser.name ?? ""} ${currentUser.lastname ?? ""}`}
                 width={60}
                 height={60}
                 className="w-full h-full object-cover"

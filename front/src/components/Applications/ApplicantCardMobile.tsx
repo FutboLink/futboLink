@@ -213,53 +213,6 @@ active:scale-95
 </div>
 
               <button
-                onClick={() => router.push(`/user-viewer/${currentUser.id}`)}
-                className="
-w-11
-h-11
-rounded-xl
-border
-border-gray-200
-bg-white
-flex
-items-center
-justify-center
-shadow-sm
-transition-all
-hover:shadow-md
-active:scale-95
-"
-              >
-                <FaEye />
-              </button>
-
-              <button
-                onClick={async () => {
-                  if (!token) return;
-
-                  const ok = await markInterest(application.id, token);
-
-                  if (ok) {
-                    onStatusChange?.("INTERESTED");
-                  }
-                }}
-                className="
-w-11
-h-11
-rounded-xl
-bg-[#3d7a26]
-text-white
-flex
-items-center
-justify-center
-shadow-md
-transition-all
-hover:bg-[#2f601d]
-active:scale-95
-"
-              >
-                <FaThumbsUp />
-              </button>
               {/* Bottom Sheet */}
 {showDropdown && (
   <>

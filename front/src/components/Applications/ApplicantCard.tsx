@@ -16,6 +16,7 @@ import { getDefaultPlayerImage } from "@/helpers/imageUtils";
 import { useUserContext } from "@/hook/useUserContext";
 import type { User } from "@/Interfaces/IUser";
 import { renderCountryFlag } from "../countryFlag/countryFlag";
+import { ApplicationStatus } from "@/Interfaces/IOffer";
 
 interface UserCardProps {
   currentUser: User;
@@ -26,6 +27,7 @@ interface UserCardProps {
   isSelected?: boolean;
   onSelect?: () => void;
   isShortlisted?: boolean;
+  applicationStatus?: ApplicationStatus;
 }
 
 interface VerificationStatus {
@@ -73,6 +75,7 @@ const ApplicantCard: React.FC<UserCardProps> = ({
   isSelected = false,
   onSelect,
   isShortlisted = false,
+  applicationStatus,
 }) => {
   const { user, token } = useUserContext();
   const pathname = usePathname();

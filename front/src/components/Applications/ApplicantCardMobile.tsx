@@ -106,13 +106,7 @@ const ApplicantCardMobile: React.FC<Props> = ({
   <h3 className="font-bold text-[22px] leading-6 text-gray-900 truncate">
     {currentUser.name} {currentUser.lastname}
   </h3>
-
-  {currentUser.isVerified && (
-  <FaCheckCircle className="text-blue-500 text-sm shrink-0" />
-)}
-
 </div>
-
               <p className="text-[16px] text-gray-500 mt-2">
                 {currentUser.primaryPosition || "-"}
                 {currentUser.age && ` • ${currentUser.age} años`}

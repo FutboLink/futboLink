@@ -22,12 +22,12 @@ export default function ExperienceTab({
 
   if (!uniqueLeagues.length) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-10 text-center">
-        <h2 className="text-2xl font-bold text-gray-800">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-10 text-center">
+        <h2 className="text-xl font-bold text-gray-800">
           Experiencia
         </h2>
 
-        <p className="mt-3 text-gray-500">
+        <p className="mt-2 text-gray-500">
           Este jugador todavía no registró competiciones.
         </p>
       </div>
@@ -37,22 +37,35 @@ export default function ExperienceTab({
   return (
     <div>
 
-      <div className="mb-7">
+      <div className="flex items-center justify-between mb-6">
 
-        <h2 className="text-2xl font-bold text-gray-800">
-          Experiencia
-        </h2>
+        <div>
 
-        <p className="text-gray-500 mt-1">
-          {uniqueLeagues.length}{" "}
-          {uniqueLeagues.length === 1
-            ? "competición registrada"
-            : "competiciones registradas"}
-        </p>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Experiencia
+          </h2>
+
+          <p className="text-gray-500 mt-1">
+            Ha competido en{" "}
+            <span className="font-semibold text-[#3d7a26]">
+              {uniqueLeagues.length}
+            </span>{" "}
+            {uniqueLeagues.length === 1
+              ? "liga"
+              : "ligas"}
+          </p>
+
+        </div>
+
+        <div className="hidden md:flex px-3 py-1 rounded-full bg-[#eef7ea] text-[#3d7a26] text-sm font-semibold">
+
+          {uniqueLeagues.length} {uniqueLeagues.length === 1 ? "liga" : "ligas"}
+
+        </div>
 
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
 
         {uniqueLeagues.map((liga, index) => (
 
@@ -62,38 +75,42 @@ export default function ExperienceTab({
             className="group block"
           >
 
-            <div className="bg-white border border-[#dbead4] rounded-2xl shadow-sm hover:shadow-lg hover:border-[#3d7a26] transition-all duration-300 p-5">
+            <article className="rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-300 p-4">
 
               <div className="flex items-center justify-between">
 
-                <div className="flex items-center gap-5">
+                <div className="flex items-center gap-4">
 
-                  <div className="w-20 h-20 rounded-xl border border-[#dbead4] bg-white flex items-center justify-center overflow-hidden">
+                  <div className="w-12 h-12 shrink-0 rounded-full bg-white border border-gray-200 flex items-center justify-center overflow-hidden">
 
                     {liga.ligaPageLogo ? (
+
                       <img
                         src={liga.ligaPageLogo}
                         alt={liga.liga}
-                        className="w-16 h-16 object-contain transition-transform duration-300 group-hover:scale-105"
+                        className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                       />
+
                     ) : (
+
                       <FaTrophy
-                        className="text-[#3d7a26]"
-                        size={30}
+                        className="text-gray-400"
+                        size={20}
                       />
+
                     )}
 
                   </div>
 
                   <div>
 
-                    <h3 className="text-2xl font-bold text-[#1f4d25] group-hover:text-[#3d7a26] transition-colors">
+                    <h3 className="font-bold text-gray-800 group-hover:text-green-700 transition-colors">
 
                       {liga.liga}
 
                     </h3>
 
-                    <div className="flex items-center gap-2 mt-2 text-gray-600">
+                    <div className="mt-1 flex items-center gap-2 text-sm text-gray-600">
 
                       {liga.nacionalidadTrayectoria &&
                         renderCountryFlag(
@@ -106,21 +123,24 @@ export default function ExperienceTab({
 
                     </div>
 
+                    <p className="mt-1 text-xs text-gray-500">
+
+                      Competición oficial
+
+                    </p>
+
                   </div>
 
                 </div>
 
-                <div className="hidden md:flex items-center gap-2 text-[#3d7a26] font-semibold group-hover:gap-3 transition-all">
-
-                  Ver competición
-
-                  <FaArrowRight size={13} />
-
-                </div>
+                <FaArrowRight
+                  size={15}
+                  className="text-gray-400 transition-all duration-300 group-hover:text-[#3d7a26] group-hover:translate-x-1"
+                />
 
               </div>
 
-            </div>
+            </article>
 
           </Link>
 

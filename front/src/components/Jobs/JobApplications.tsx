@@ -243,7 +243,12 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
 </div>
       
       <div className="bg-white border-x border-b border-gray-200 rounded-b-xl overflow-hidden mb-8">
-        {applications.map((app) => {
+        {applications
+  .filter((app) => {
+    if (statusFilter === "ALL") return true;
+    return app.status === statusFilter;
+  })
+  .map((app) => {
           const currentUser = app.player;
 
           if (!currentUser) return null;

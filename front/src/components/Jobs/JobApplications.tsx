@@ -268,27 +268,27 @@ ${
 
 </div>
 
-<div className="bg-gray-50 border border-gray-200 rounded-t-xl">
+<div className="hidden lg:block bg-gray-50 border border-gray-200 rounded-t-xl">
   <div className="grid grid-cols-[2.8fr_240px_180px_210px] items-center gap-4 px-6 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
 
-<div>Candidato</div>
+    <div>Candidato</div>
 
-<div className="pl-2">
-  País
-</div>
+    <div className="pl-2">
+      País
+    </div>
 
-<div className="pl-2">
-  Estado
-</div>
+    <div className="pl-2">
+      Estado
+    </div>
 
-<div className="flex justify-center">
-  <span>Acciones</span>
-</div>
+    <div className="flex justify-center">
+      <span>Acciones</span>
+    </div>
 
   </div>
 </div>
       
-      <div className="bg-white border-x border-b border-gray-200 rounded-b-xl overflow-hidden mb-8">
+      <div className="bg-white lg:border-x lg:border-b lg:border-gray-200 lg:rounded-b-xl overflow-hidden mb-8">
         {applications
   .filter((app) => {
     if (statusFilter === "ALL") return true;

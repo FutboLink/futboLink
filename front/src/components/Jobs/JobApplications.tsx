@@ -132,66 +132,68 @@ const JobApplications: React.FC<JobApplicationsProps> = ({ jobId }) => {
           />
         </div>
       )}
-      <div className="flex flex-wrap gap-2 mb-5">
+     <div className="flex flex-wrap gap-4 mb-8">
 
-  <button
-    onClick={() => setStatusFilter("ALL")}
-    className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-      statusFilter === "ALL"
-        ? "bg-[#3d7a26] text-white"
-        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-    }`}
-  >
-    Todos ({applications.length})
-  </button>
+  {[
+    {
+      key: "ALL",
+      label: "Todos",
+      count: applications.length,
+    },
+    {
+      key: "PENDING",
+      label: "Postulados",
+      count: applications.filter(a => a.status === "PENDING").length,
+    },
+    {
+      key: "IN_REVIEW",
+      label: "En revisión",
+      count: applications.filter(a => a.status === "IN_REVIEW").length,
+    },
+    {
+      key: "PROFILE_VIEWED",
+      label: "Perfil visto",
+      count: applications.filter(a => a.status === "PROFILE_VIEWED").length,
+    },
+    {
+      key: "INTERESTED",
+      label: "Interés",
+      count: applications.filter(a => a.status === "INTERESTED").length,
+    },
+  ].map((filter) => (
 
-  <button
-    onClick={() => setStatusFilter("PENDING")}
-    className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-      statusFilter === "PENDING"
-        ? "bg-blue-600 text-white"
-        : "bg-blue-100 text-blue-700"
-    }`}
-  >
-    Postulación enviada (
-    {applications.filter(a => a.status === "PENDING").length})
-  </button>
+    <button
+      key={filter.key}
+      onClick={() => setStatusFilter(filter.key)}
+      className={`
+        w-36
+        rounded-2xl
+        border
+        p-4
+        text-center
+        transition-all
+        duration-200
+        shadow-sm
+        hover:shadow-md
+        hover:-translate-y-1
+        ${
+          statusFilter === filter.key
+            ? "bg-[#3d7a26] text-white border-[#3d7a26]"
+            : "bg-white border-gray-200 text-gray-700"
+        }
+      `}
+    >
+      <div className="text-3xl font-bold">
+        {filter.count}
+      </div>
 
-  <button
-    onClick={() => setStatusFilter("IN_REVIEW")}
-    className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-      statusFilter === "IN_REVIEW"
-        ? "bg-amber-600 text-white"
-        : "bg-amber-100 text-amber-700"
-    }`}
-  >
-    En revisión (
-    {applications.filter(a => a.status === "IN_REVIEW").length})
-  </button>
+      <div className="mt-1 text-sm font-medium">
+        {filter.label}
+      </div>
 
-  <button
-    onClick={() => setStatusFilter("PROFILE_VIEWED")}
-    className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-      statusFilter === "PROFILE_VIEWED"
-        ? "bg-indigo-600 text-white"
-        : "bg-indigo-100 text-indigo-700"
-    }`}
-  >
-    Perfil visto (
-    {applications.filter(a => a.status === "PROFILE_VIEWED").length})
-  </button>
+    </button>
 
-  <button
-    onClick={() => setStatusFilter("INTERESTED")}
-    className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-      statusFilter === "INTERESTED"
-        ? "bg-emerald-600 text-white"
-        : "bg-emerald-100 text-emerald-700"
-    }`}
-  >
-    Interés (
-    {applications.filter(a => a.status === "INTERESTED").length})
-  </button>
+  ))}
 
 </div>
 

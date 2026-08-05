@@ -282,65 +282,6 @@ const ApplicantCard: React.FC<UserCardProps> = ({
 </div>
 
 </div>
-
-        {/* Dropdown */}
-          <div
-  ref={dropdownRef}
-  className="relative flex justify-center"
-    showDropdown ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-  }`}
->
-          <button
-            className="flex items-center justify-center w-8 h-8 rounded-xl border border-transparent text-gray-400 hover:text-gray-700 hover:bg-gray-50 hover:border-gray-200 transition-all duration-200"
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowDropdown(!showDropdown);
-            }}
-          >
-            <FaEllipsisV className="text-sm" />
-          </button>
-
-          {showDropdown && (
-            <div className="absolute right-0 top-11 w-56 rounded-2xl border border-gray-200 bg-white p-2 shadow-lg z-30">
-              <Link
-                href={`/user-viewer/${currentUser.id}`}
-                className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-                onClick={() => setShowDropdown(false)}
-              >
-                <FaUserPlus className="inline mr-2" />
-                {t("viewProfile")}
-              </Link>
-
-              {user && (user.role === "RECRUITER" || user.role === "AGENCY") && isPlayer && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleAddToPortfolio(currentUser.id);
-                    setShowDropdown(false);
-                  }}
-                  disabled={isBeingAddedToPortfolio}
-                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
-                >
-                  {isBeingAddedToPortfolio ? (
-                    <>
-                      <FaSpinner className="inline mr-2 animate-spin" />
-                      {t("Enviando...")}
-                    </>
-                  ) : (
-                    <>
-                      <FaPaperPlane className="inline mr-2" />
-                      {t("Solicitar representación")}
-                    </>
-                  )}
-                </button>
-              )}
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

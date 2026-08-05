@@ -11,6 +11,8 @@ import {
   FaSpinner,
   FaUser,
   FaUserPlus,
+  FaEye,
+  FaHandPaper,
 } from "react-icons/fa";
 import { getDefaultPlayerImage } from "@/helpers/imageUtils";
 import { useUserContext } from "@/hook/useUserContext";
@@ -293,29 +295,31 @@ const ApplicantCard: React.FC<UserCardProps> = ({
 {/* Acciones */}
 <div className="flex items-center justify-center gap-3">
 
-  <button
-    className="
-      flex items-center justify-center
-      h-10
-      min-w-[110px]
-      rounded-xl
-      border border-[#3d7a26]
-      bg-white
-      text-[#3d7a26]
-      font-medium
-      shadow-sm
-      transition-all duration-200
-      hover:bg-[#eef7ea]
-      hover:shadow-md
-      active:scale-95
-    "
-    onClick={(e) => {
-      e.stopPropagation();
-      router.push(`/user-viewer/${currentUser.id}`);
-    }}
-  >
-    👁 Ver perfil
-  </button>
+<button
+  className="
+    flex items-center justify-center gap-2
+    h-11
+    min-w-[145px]
+    rounded-xl
+    border border-[#3d7a26]
+    bg-white
+    text-[#3d7a26]
+    font-semibold
+    shadow-sm
+    transition-all duration-200
+    hover:bg-[#eef7ea]
+    hover:shadow-md
+    hover:-translate-y-0.5
+    active:scale-95
+  "
+  onClick={(e) => {
+    e.stopPropagation();
+    router.push(`/user-viewer/${currentUser.id}`);
+  }}
+>
+  <span className="text-base">👁️</span>
+  <span>Ver perfil</span>
+</button>
 
   <button
     className="

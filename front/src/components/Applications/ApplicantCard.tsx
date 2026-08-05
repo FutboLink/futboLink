@@ -224,26 +224,21 @@ const ApplicantCard: React.FC<UserCardProps> = ({
         </div>
 
         {/* Información */}
-<div className="flex-1 grid grid-cols-[2.8fr_80px_140px_140px_120px] items-center gap-4">
+<div className="flex-1 grid grid-cols-[3fr_180px_160px_120px] items-center gap-4">
 
-  {/* Nombre */}
-  <div>
+{/* Candidato */}
+<div>
+  <div className="flex items-center gap-2">
     <h3 className="font-semibold text-gray-900">
       {currentUser.name} {currentUser.lastname}
     </h3>
 
     {verificationStatus.isVerified && (
-      <FaCheckCircle className="text-blue-500 text-sm mt-1" />
+      <FaCheckCircle className="text-blue-500 text-sm" />
     )}
   </div>
 
-  {/* Edad */}
-  <div className="text-sm text-gray-700 text-center">
-    {currentUser.age || "-"}
-  </div>
-
-  {/* Posición */}
-  <div className="text-sm text-gray-700">
+  <p className="text-sm text-gray-500 mt-1">
     {isPlayer
       ? `${currentUser.primaryPosition
           ? abbreviatePosition(currentUser.primaryPosition)
@@ -251,24 +246,39 @@ const ApplicantCard: React.FC<UserCardProps> = ({
           currentUser.secondaryPosition
             ? ` / ${abbreviatePosition(currentUser.secondaryPosition)}`
             : ""
+        }${
+          currentUser.age ? ` • ${currentUser.age} años` : ""
         }`
       : getRoleName(currentUser.role || "")}
-  </div>
+  </p>
+</div>
 
-  {/* País */}
-  <div>
-    {currentUser.nationality
-      ? renderCountryFlag(currentUser.nationality)
-      : "-"}
-  </div>
+{/* País */}
+<div className="text-sm">
+  {currentUser.nationality
+    ? renderCountryFlag(currentUser.nationality)
+    : "-"}
+</div>
 
-  {/* Estado */}
-  <div>
-    <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
-      {getStatus()}
-    </span>
-  </div>
+{/* Estado */}
+<div>
+  <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
+    {getStatus()}
+  </span>
+</div>
 
+{/* Acciones */}
+<div className="flex justify-center">
+  <button
+    className="px-3 py-1.5 text-sm rounded-lg border border-[#3d7a26] text-[#3d7a26] hover:bg-[#eef7ea] transition"
+    onClick={(e) => {
+      e.stopPropagation();
+      router.push(`/user-viewer/${currentUser.id}`);
+    }}
+  >
+    Ver perfil
+  </button>
+</div>
 </div>
 
         {/* Dropdown */}

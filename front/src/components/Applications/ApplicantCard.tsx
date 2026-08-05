@@ -221,7 +221,7 @@ const ApplicantCard: React.FC<UserCardProps> = ({
         </div>
 
         {/* Información */}
-<div className="flex-1 grid grid-cols-[2.5fr_80px_1.5fr_1.5fr_120px_60px] items-center gap-6 pl-6">
+<div className="flex-1 grid grid-cols-[2.5fr_80px_1.5fr_1.5fr_120px] items-center gap-6 pl-6">
 
   {/* Nombre */}
   <div>
@@ -266,22 +266,66 @@ const ApplicantCard: React.FC<UserCardProps> = ({
     </span>
   </div>
 
-  {/* Acciones */}
-<div className="flex justify-center">
-  <button
-    className="flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50"
-    type="button"
-    onClick={(e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setShowDropdown(!showDropdown);
-    }}
-  >
-    <FaEllipsisV className="text-sm" />
-  </button>
 </div>
 
-</div>
+        {/* Dropdown */}
+          <div
+  ref={dropdownRef}
+  className={`absolute top-4 right-4 z-10 transition-opacity duration-200 ${
+    showDropdown ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+  }`}
+>
+          <button
+            className="flex items-center justify-center w-8 h-8 rounded-xl border border-transparent text-gray-400 hover:text-gray-700 hover:bg-gray-50 hover:border-gray-200 transition-all duration-200"
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowDropdown(!showDropdown);
+            }}
+          >
+            <FaEllipsisV className="text-sm" />
+          </button>
+
+          {showDropdown && (
+            <div className="absolute right-0 top-11 w-56 rounded-2xl border border-gray-200 bg-white p-2 shadow-lg z-30">
+              <Link
+                href={`/user-viewer/${currentUser.id}`}
+                className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                onClick={() => setShowDropdown(false)}
+              >
+                <FaUserPlus className="inline mr-2" />
+                {t("viewProfile")}
+              </Link>
+
+              {user && (user.role === "RECRUITER" || user.role === "AGENCY") && isPlayer && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleAddToPortfolio(currentUser.id);
+                    setShowDropdown(false);
+                  }}
+                  disabled={isBeingAddedToPortfolio}
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
+                >
+                  {isBeingAddedToPortfolio ? (
+                    <>
+                      <FaSpinner className="inline mr-2 animate-spin" />
+                      {t("Enviando...")}
+                    </>
+                  ) : (
+                    <>
+                      <FaPaperPlane className="inline mr-2" />
+                      {t("Solicitar representación")}
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -268,6 +268,75 @@ const uniqueClubs = trayectorias.filter(
   ))
 
 )}
+        {activeView === "clubs" && (
+
+  uniqueClubs.map((club, index) => (
+
+    <Link
+      key={club.clubPageId || index}
+      href={club.clubPageSlug ? `/pages/${club.clubPageSlug}` : "#"}
+      className="group block"
+    >
+
+      <article className="rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-300 p-4">
+
+        <div className="flex items-center justify-between">
+
+          <div className="flex items-center gap-4">
+
+            <div className="w-12 h-12 shrink-0 rounded-full bg-white border border-gray-200 flex items-center justify-center overflow-hidden">
+
+              {club.clubPageLogo ? (
+
+                <img
+                  src={club.clubPageLogo}
+                  alt={club.club}
+                  className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                />
+
+              ) : (
+
+                <FaTrophy
+                  className="text-gray-400"
+                  size={20}
+                />
+
+              )}
+
+            </div>
+
+            <div>
+
+              <h3 className="font-bold text-gray-800 group-hover:text-green-700 transition-colors">
+
+                {club.club}
+
+              </h3>
+
+              <p className="mt-1 text-xs text-gray-500">
+
+                Club
+
+              </p>
+
+            </div>
+
+          </div>
+
+          <FaArrowRight
+            size={15}
+            className="text-gray-400 transition-all duration-300 group-hover:text-[#3d7a26] group-hover:translate-x-1"
+          />
+
+        </div>
+
+      </article>
+
+    </Link>
+
+  ))
+
+)}
 
        </div>
      

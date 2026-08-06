@@ -146,13 +146,7 @@ const uniqueClubs = trayectorias.filter(
 
 </div>
 
-      <div
-  className={
-    activeView === "leagues"
-      ? "space-y-3"
-      : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"
-  }
->
+      <div className="space-y-3">
         {activeView === "leagues" && (
          uniqueLeagues.map((liga, index) => (
 
@@ -238,74 +232,38 @@ const uniqueClubs = trayectorias.filter(
 
   uniqueCountries.map((country, index) => (
 
-<button
-  key={index}
-  className="rounded-xl border border-gray-200 bg-white hover:border-[#3d7a26] hover:shadow-md transition-all duration-200 p-5"
->
-
-  <div className="flex flex-col items-center justify-center">
-
-    <div className="text-3xl mb-2">
-      {renderCountryFlag(country)}
-    </div>
-
-    <div className="font-semibold text-gray-800 text-center">
-      {country}
-    </div>
-
-  </div>
-
-</button>
-
-  ))
-
-)}
-        {activeView === "clubs" && (
-
-  uniqueClubs.map((club, index) => (
-
-    <Link
-      key={club.clubPageId || index}
-      href={club.clubPageSlug ? `/pages/${club.clubPageSlug}` : "#"}
-      className="block"
+    <article
+      key={index}
+      className="rounded-xl bg-white border border-gray-200 shadow-sm p-4"
     >
 
-      <div className="rounded-xl border border-gray-200 bg-white hover:border-[#3d7a26] hover:shadow-md transition-all duration-200 p-5">
+      <div className="flex items-center gap-4">
 
-        <div className="flex flex-col items-center justify-center">
+        <div className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-2xl bg-white">
 
-          <div className="w-14 h-14 rounded-full border border-gray-200 bg-white overflow-hidden flex items-center justify-center mb-3">
+          {renderCountryFlag(country)}
 
-            {club.clubPageLogo ? (
+        </div>
 
-              <img
-                src={club.clubPageLogo}
-                alt={club.club}
-                className="w-full h-full object-contain"
-              />
+        <div>
 
-            ) : (
+          <h3 className="font-bold text-gray-800">
 
-              <FaTrophy
-                size={24}
-                className="text-gray-400"
-              />
+            {country}
 
-            )}
+          </h3>
 
-          </div>
+          <p className="mt-1 text-xs text-gray-500">
 
-          <div className="font-semibold text-gray-800 text-center text-sm">
+            País donde compitió
 
-            {club.club}
-
-          </div>
+          </p>
 
         </div>
 
       </div>
 
-    </Link>
+    </article>
 
   ))
 

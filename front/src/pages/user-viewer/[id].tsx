@@ -2665,7 +2665,7 @@ export default function UserViewer() {
                            
                           </Swiper>
                           {photos.length > 0 && (
-  <div className="grid grid-cols-3 gap-2 mt-4">
+  <div className="grid grid-cols-3 gap-2 mt-3 max-w-[260px]">
     {photos.map((src, i) => (
       <button
         key={i}

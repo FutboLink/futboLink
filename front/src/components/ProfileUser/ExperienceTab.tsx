@@ -147,8 +147,8 @@ const uniqueClubs = trayectorias.filter(
 </div>
 
       <div className="space-y-3">
-
-        {uniqueLeagues.map((liga, index) => (
+        {activeView === "leagues" && (
+         {uniqueLeagues.map((liga, index) => (
 
           <Link
             key={liga.ligaPageId || index}
@@ -225,9 +225,51 @@ const uniqueClubs = trayectorias.filter(
 
           </Link>
 
-        ))}
+                ))
+
+             )}
+        {activeView === "countries" && (
+
+  uniqueCountries.map((country, index) => (
+
+    <article
+      key={index}
+      className="rounded-xl bg-white border border-gray-200 shadow-sm p-4"
+    >
+
+      <div className="flex items-center gap-4">
+
+        <div className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-2xl bg-white">
+
+          {renderCountryFlag(country)}
+
+        </div>
+
+        <div>
+
+          <h3 className="font-bold text-gray-800">
+
+            {country}
+
+          </h3>
+
+          <p className="mt-1 text-xs text-gray-500">
+
+            País donde compitió
+
+          </p>
+
+        </div>
 
       </div>
+
+    </article>
+
+  ))
+
+)}
+
+       </div>
      
     </div>
   );

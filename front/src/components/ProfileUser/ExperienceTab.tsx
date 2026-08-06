@@ -105,12 +105,14 @@ const uniqueClubs = trayectorias.filter(
   </div>
 
 </button>
+
+<button
   onClick={() => setActiveView("countries")}
   className={`rounded-xl border p-4 text-center shadow-sm transition-all duration-200 ${
-  activeView === "countries"
-    ? "border-[#3d7a26] bg-[#eef7ea]"
-    : "border-gray-200 bg-white hover:shadow-md"
-}`}
+    activeView === "countries"
+      ? "border-[#3d7a26] bg-[#eef7ea]"
+      : "border-gray-200 bg-white hover:shadow-md"
+  }`}
 >
 
   <div className="text-2xl font-bold text-[#3d7a26]">

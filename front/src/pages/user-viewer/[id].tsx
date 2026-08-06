@@ -3220,7 +3220,25 @@ export default function UserViewer() {
                     e.stopPropagation();
                     setLightboxIndex(null);
                   }}
-                  className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white text-2xl flex items-center justify-center transition-colors"
+                  className="
+                     absolute
+                     top-5
+                     right-5
+                     z-50
+                     w-14
+                     h-14
+                     rounded-full
+                     bg-black/60
+                     hover:bg-black/80
+                     text-white
+                     text-4xl
+                     flex
+                     items-center
+                     justify-center
+                     transition-all
+                     duration-200
+                     active:scale-95
+                    "
                   aria-label="Cerrar"
                 >
                   ×
@@ -3234,7 +3252,7 @@ export default function UserViewer() {
                         e.stopPropagation();
                         goPrev();
                       }}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white text-2xl flex items-center justify-center transition-colors"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white text-4xl flex items-center justify-center transition-colors"
                       aria-label="Foto anterior"
                     >
                       ‹
@@ -3245,7 +3263,7 @@ export default function UserViewer() {
                         e.stopPropagation();
                         goNext();
                       }}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white text-2xl flex items-center justify-center transition-colors"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white text-4xl flex items-center justify-center transition-colors"
                       aria-label="Foto siguiente"
                     >
                       ›

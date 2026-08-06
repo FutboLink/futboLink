@@ -2662,24 +2662,27 @@ export default function UserViewer() {
                                 </div>
                               </SwiperSlide>
                             ))}
-                            {photos.map((src, i) => (
-                              <SwiperSlide key={`p-${i}`}>
-                                <button
-                                  type="button"
-                                  onClick={() => setLightboxIndex(i)}
-                                  className="block w-full relative pt-[56.25%] rounded-lg overflow-hidden bg-gray-900 cursor-zoom-in group"
-                                  aria-label={`Abrir foto ${i + 1} en pantalla completa`}
-                                >
-                                  <Image
-                                    src={src}
-                                    alt={`Foto ${i + 1}`}
-                                    fill
-                                    className="object-contain transition-transform duration-300 group-hover:scale-[1.02]"
-                                  />
-                                </button>
-                              </SwiperSlide>
-                            ))}
+                           
                           </Swiper>
+                          {photos.length > 0 && (
+  <div className="grid grid-cols-3 gap-2 mt-4">
+    {photos.map((src, i) => (
+      <button
+        key={i}
+        type="button"
+        onClick={() => setLightboxIndex(i)}
+        className="relative aspect-square rounded-lg overflow-hidden bg-gray-100"
+      >
+        <Image
+          src={src}
+          alt={`Foto ${i + 1}`}
+          fill
+          className="object-cover hover:scale-105 transition"
+        />
+      </button>
+    ))}
+  </div>
+)}
                         </div>
                       );
                     })()}

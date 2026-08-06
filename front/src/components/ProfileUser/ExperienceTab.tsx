@@ -148,7 +148,7 @@ const uniqueClubs = trayectorias.filter(
 
       <div className="space-y-3">
         {activeView === "leagues" && (
-         {uniqueLeagues.map((liga, index) => (
+         uniqueLeagues.map((liga, index) => (
 
           <Link
             key={liga.ligaPageId || index}

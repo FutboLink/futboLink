@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useState } from "react";
 import { FaArrowRight, FaTrophy } from "react-icons/fa";
 import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
 
@@ -9,6 +10,9 @@ interface ExperienceTabProps {
 export default function ExperienceTab({
   trayectorias,
 }: ExperienceTabProps) {
+  const [openModal, setOpenModal] = useState<
+  "countries" | "clubs" | null
+>(null);
 
   const uniqueLeagues = trayectorias.filter(
     (league, index, self) =>
@@ -27,13 +31,15 @@ const uniqueCountries = [
   ),
 ];
 
-const uniqueClubs = [
-  ...new Set(
-    trayectorias
-      .map((t) => t.clubPageId || t.club)
-      .filter(Boolean)
-  ),
-];
+const uniqueClubs = trayectorias.filter(
+  (club, index, self) =>
+    index ===
+    self.findIndex(
+      (c) =>
+        (c.clubPageId || c.club) ===
+        (club.clubPageId || club.club)
+    )
+);
   
   if (!uniqueLeagues.length) {
     return (
@@ -93,29 +99,35 @@ const uniqueClubs = [
 
   </div>
 
-  <div className="rounded-xl border border-gray-200 bg-white p-4 text-center shadow-sm">
+ <button
+  onClick={() => setOpenModal("countries")}
+  className="rounded-xl border border-gray-200 bg-white p-4 text-center shadow-sm hover:shadow-md transition-all duration-200"
+>
 
-    <div className="text-2xl font-bold text-[#3d7a26]">
-      {uniqueCountries.length}
-    </div>
-
-    <div className="mt-1 text-xs font-medium uppercase tracking-wide text-gray-500">
-      Países
-    </div>
-
+  <div className="text-2xl font-bold text-[#3d7a26]">
+    {uniqueCountries.length}
   </div>
 
-  <div className="rounded-xl border border-gray-200 bg-white p-4 text-center shadow-sm">
-
-    <div className="text-2xl font-bold text-[#3d7a26]">
-      {uniqueClubs.length}
-    </div>
-
-    <div className="mt-1 text-xs font-medium uppercase tracking-wide text-gray-500">
-      Clubes
-    </div>
-
+  <div className="mt-1 text-xs font-medium uppercase tracking-wide text-gray-500">
+    Países
   </div>
+
+</button>
+
+<button
+  onClick={() => setOpenModal("clubs")}
+  className="rounded-xl border border-gray-200 bg-white p-4 text-center shadow-sm hover:shadow-md transition-all duration-200"
+>
+
+  <div className="text-2xl font-bold text-[#3d7a26]">
+    {uniqueClubs.length}
+  </div>
+
+  <div className="mt-1 text-xs font-medium uppercase tracking-wide text-gray-500">
+    Clubes
+  </div>
+
+</button>
 
 </div>
 
@@ -201,6 +213,43 @@ const uniqueClubs = [
         ))}
 
       </div>
+      {openModal && (
+  <>
+    <div
+      className="fixed inset-0 bg-black/40 z-40"
+      onClick={() => setOpenModal(null)}
+    />
+
+    <div
+      className="
+fixed
+bottom-0
+left-0
+right-0
+z-50
+bg-white
+rounded-t-[28px]
+p-6
+max-h-[70vh]
+overflow-y-auto
+shadow-2xl
+"
+    >
+
+      <div className="w-12 h-1.5 rounded-full bg-gray-300 mx-auto mb-5" />
+
+      <h3 className="text-xl font-bold mb-5">
+
+        {openModal === "countries"
+          ? "Países"
+          : "Clubes"}
+
+      </h3>
+
+    </div>
+
+  </>
+)}
 
     </div>
   );

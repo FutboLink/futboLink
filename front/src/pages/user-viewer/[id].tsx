@@ -3221,9 +3221,9 @@ export default function UserViewer() {
                     setLightboxIndex(null);
                   }}
                   className="
-                     absolute
-                     top-5
-                     right-5
+                     fixed
+                     top-4
+                     right-4
                      z-50
                      w-14
                      h-14
@@ -3252,7 +3252,22 @@ export default function UserViewer() {
                         e.stopPropagation();
                         goPrev();
                       }}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white text-4xl flex items-center justify-center transition-colors"
+                      className="
+                        fixed
+                        left-3
+                        top-1/2
+                        -ztranslate-y-1/2
+                        z-[120]
+                        w-14
+                        h-14
+                        rounded-full
+                        bg-black/70
+                        text-white
+                        text-4xl
+                        flex
+                        items-center
+                        justify-center
+                      "
                       aria-label="Foto anterior"
                     >
                       ‹
@@ -3272,7 +3287,17 @@ export default function UserViewer() {
                 )}
 
                 <div
-                  className="relative w-full max-w-5xl h-[85vh] flex items-center justify-center"
+className="
+relative
+z-50
+w-full
+max-w-5xl
+h-[70vh]
+flex
+items-center
+justify-center
+px-10
+"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Image

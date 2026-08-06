@@ -118,24 +118,54 @@ export default function MediaCarousel({
             </div>
           </SwiperSlide>
         ))}
-        {cleanPhotos.map((src, i) => (
-          <SwiperSlide key={`p-${i}`}>
-            <button
-              type="button"
-              onClick={() => setLightboxIndex(i)}
-              className="block w-full relative pt-[56.25%] rounded-lg overflow-hidden bg-gray-900 cursor-zoom-in group"
-              aria-label={`Abrir foto ${i + 1} en pantalla completa`}
-            >
-              <Image
-                src={src}
-                alt={`Foto ${i + 1}`}
-                fill
-                className="object-contain transition-transform duration-300 group-hover:scale-[1.02]"
-              />
-            </button>
-          </SwiperSlide>
-        ))}
+        
       </Swiper>
+      {cleanPhotos.length > 0 && (
+  <div className="mt-6">
+
+    <h4 className="text-sm font-semibold text-gray-600 mb-3">
+      Fotos
+    </h4>
+
+    <div className="grid grid-cols-3 gap-3">
+
+      {cleanPhotos.map((src, i) => (
+
+        <button
+          key={i}
+          type="button"
+          onClick={() => setLightboxIndex(i)}
+          className="
+            relative
+            aspect-square
+            overflow-hidden
+            rounded-2xl
+            border
+            border-gray-200
+            shadow-sm
+            transition-all
+            duration-200
+            hover:scale-105
+            hover:shadow-lg
+            active:scale-95
+          "
+        >
+
+          <Image
+            src={src}
+            alt={`Foto ${i + 1}`}
+            fill
+            className="object-cover"
+          />
+
+        </button>
+
+      ))}
+
+    </div>
+
+  </div>
+)}
 
       {/* Lightbox: se abre al clickear una foto. Cierra con click afuera o ×;
           navega con flechas cuando hay más de una foto. */}

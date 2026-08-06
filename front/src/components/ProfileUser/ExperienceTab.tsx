@@ -10,9 +10,9 @@ interface ExperienceTabProps {
 export default function ExperienceTab({
   trayectorias,
 }: ExperienceTabProps) {
-  const [openModal, setOpenModal] = useState<
-  "countries" | "clubs" | null
->(null);
+const [activeView, setActiveView] = useState<
+  "leagues" | "countries" | "clubs"
+>("leagues");
 
   const uniqueLeagues = trayectorias.filter(
     (league, index, self) =>
@@ -87,21 +87,30 @@ const uniqueClubs = trayectorias.filter(
       </div>
       <div className="grid grid-cols-3 gap-3 mb-6">
 
-  <div className="rounded-xl border border-gray-200 bg-white p-4 text-center shadow-sm">
+<button
+  onClick={() => setActiveView("leagues")}
+  className={`rounded-xl border p-4 text-center shadow-sm transition-all duration-200 ${
+    activeView === "leagues"
+      ? "border-[#3d7a26] bg-[#eef7ea]"
+      : "border-gray-200 bg-white hover:shadow-md"
+  }`}
+>
 
-    <div className="text-2xl font-bold text-[#3d7a26]">
-      {uniqueLeagues.length}
-    </div>
-
-    <div className="mt-1 text-xs font-medium uppercase tracking-wide text-gray-500">
-      Ligas
-    </div>
-
+  <div className="text-2xl font-bold text-[#3d7a26]">
+    {uniqueLeagues.length}
   </div>
 
- <button
-  onClick={() => setOpenModal("countries")}
-  className="rounded-xl border border-gray-200 bg-white p-4 text-center shadow-sm hover:shadow-md transition-all duration-200"
+  <div className="mt-1 text-xs font-medium uppercase tracking-wide text-gray-500">
+    Ligas
+  </div>
+
+</button>
+  onClick={() => setActiveView("countries")}
+  className={`rounded-xl border p-4 text-center shadow-sm transition-all duration-200 ${
+  activeView === "countries"
+    ? "border-[#3d7a26] bg-[#eef7ea]"
+    : "border-gray-200 bg-white hover:shadow-md"
+}`}
 >
 
   <div className="text-2xl font-bold text-[#3d7a26]">
@@ -115,8 +124,12 @@ const uniqueClubs = trayectorias.filter(
 </button>
 
 <button
-  onClick={() => setOpenModal("clubs")}
-  className="rounded-xl border border-gray-200 bg-white p-4 text-center shadow-sm hover:shadow-md transition-all duration-200"
+  onClick={() => setActiveView("clubs")}
+  className={`rounded-xl border p-4 text-center shadow-sm transition-all duration-200 ${
+  activeView === "clubs"
+    ? "border-[#3d7a26] bg-[#eef7ea]"
+    : "border-gray-200 bg-white hover:shadow-md"
+}`}
 >
 
   <div className="text-2xl font-bold text-[#3d7a26]">
@@ -213,44 +226,7 @@ const uniqueClubs = trayectorias.filter(
         ))}
 
       </div>
-      {openModal && (
-  <>
-    <div
-      className="fixed inset-0 bg-black/40 z-40"
-      onClick={() => setOpenModal(null)}
-    />
-
-    <div
-      className="
-fixed
-bottom-0
-left-0
-right-0
-z-50
-bg-white
-rounded-t-[28px]
-p-6
-max-h-[70vh]
-overflow-y-auto
-shadow-2xl
-"
-    >
-
-      <div className="w-12 h-1.5 rounded-full bg-gray-300 mx-auto mb-5" />
-
-      <h3 className="text-xl font-bold mb-5">
-
-        {openModal === "countries"
-          ? "Países"
-          : "Clubes"}
-
-      </h3>
-
-    </div>
-
-  </>
-)}
-
+     
     </div>
   );
 }

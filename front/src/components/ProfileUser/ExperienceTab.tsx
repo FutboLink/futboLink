@@ -339,6 +339,77 @@ const uniqueClubs = trayectorias.filter(
 )}
 
        </div>
+      {/* Career Verified */}
+
+<div className="mt-8 rounded-2xl border border-[#3d7a26]/20 bg-gradient-to-r from-[#3d7a26] to-[#4c8f30] p-6 text-white shadow-lg">
+
+  <div className="flex items-start justify-between">
+
+    <div>
+
+      <p className="text-xs uppercase tracking-widest text-green-100">
+        FUTBOLINK
+      </p>
+
+      <h3 className="text-2xl font-bold mt-1">
+        🏆 Career Verified
+      </h3>
+
+      <p className="mt-3 text-green-100 max-w-xl">
+        Convierte tu trayectoria en un perfil mucho más profesional
+        con escudos oficiales, ligas verificadas, enlaces oficiales
+        y estadísticas organizadas.
+      </p>
+
+    </div>
+
+    <div className="hidden md:block text-6xl opacity-20">
+
+      🏆
+
+    </div>
+
+  </div>
+
+  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-6 text-sm">
+
+    <div>✅ Escudos oficiales</div>
+
+    <div>✅ Logos de ligas</div>
+
+    <div>✅ Países con banderas</div>
+
+    <div>✅ Enlaces a clubes</div>
+
+    <div>✅ Enlaces a ligas</div>
+
+    <div>✅ Estadísticas Premium</div>
+
+  </div>
+
+  <div className="flex items-center justify-between mt-8">
+
+    <div>
+
+      <p className="text-green-100 text-sm">
+        Pago único
+      </p>
+
+      <p className="text-3xl font-bold">
+        €6,95
+      </p>
+
+    </div>
+
+    <button
+      className="px-6 py-3 rounded-xl bg-white text-[#3d7a26] font-bold hover:scale-105 transition-all"
+    >
+      Ver un ejemplo
+    </button>
+
+  </div>
+
+</div>
      
     </div>
   );

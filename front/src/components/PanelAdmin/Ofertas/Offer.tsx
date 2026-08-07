@@ -59,6 +59,8 @@ return (
       {activeTab === "stats" && <OfferStats />}
       {activeTab === "manage" && <ManageOffers />}
       {activeTab === "analytics" && <OfferAnalytics />}
-    </div>
-  </div>
+</div>
+
+</div>
 );
+}

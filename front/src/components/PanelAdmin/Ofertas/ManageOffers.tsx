@@ -81,12 +81,6 @@ const ManageOffers: React.FC = () => {
   };
 
   const handleDeleteOffer = (offer: IOfferCard) => {
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth",
-  });
-
   setOfferToDelete(offer);
   setShowDeleteModal(true);
 };

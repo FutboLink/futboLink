@@ -157,7 +157,7 @@ const ManageOffers: React.FC = () => {
           {/* Tabla de ofertas */}
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="w-full table-fixed divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -193,7 +193,7 @@ const ManageOffers: React.FC = () => {
                             />
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium text-gray-900 break-words">
                            {offer.title} 
                              </div> 
                             <div className="text-sm text-gray-500">
@@ -205,13 +205,13 @@ const ManageOffers: React.FC = () => {
                            {offer.recruiter?.name} {offer.recruiter?.lastname}
                          </span>
                         </div>
-                            <div className="text-xs text-gray-400">
-                         {offer.recruiter?.email}
-                           </div>
+                            <div className="text-xs text-gray-400 break-all">
+                                {offer.recruiter?.email}
+                          </div>
                        </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="w-[420px] px-6 py-4">
                         <div className="text-sm text-gray-900">{offer.location}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">

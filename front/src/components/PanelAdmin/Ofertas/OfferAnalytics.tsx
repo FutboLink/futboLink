@@ -77,23 +77,7 @@ export default function OfferAnalytics() {
           </p>
           
         </div>
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-
-  <h3 className="text-xl font-bold text-gray-800 mb-5">
-    🏆 Top 20 Recruiters
-  </h3>
-
-  <div className="space-y-3">
-
-    {topRecruiters.map((recruiter, index) => (
-
-      <div
-        key={recruiter.id}
-        className="flex items-center justify-between border-b border-gray-100 pb-3"
-      >
-
-        <div>
-
+        
           <p className="font-semibold text-gray-800">
 
             #{index + 1} {recruiter.name}
@@ -149,6 +133,22 @@ export default function OfferAnalytics() {
             -
           </p>
         </div>
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+
+  <h3 className="text-xl font-bold text-gray-800 mb-5">
+    🏆 Top 20 Recruiters
+  </h3>
+
+  <div className="space-y-3">
+
+    {topRecruiters.map((recruiter, index) => (
+
+      <div
+        key={recruiter.id}
+        className="flex items-center justify-between border-b border-gray-100 pb-3"
+      >
+
+        <div>
       </div>
     </div>
   );

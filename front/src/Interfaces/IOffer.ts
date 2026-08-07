@@ -43,9 +43,12 @@ export interface IOfferCard {
   type: string;
   countries?: string[];
   recruiter: {
-    id: string;
-    role: "RECRUITER" | "AGENCY"; // roles posibles para el reclutador
-  };
+  id: string;
+  role?: "RECRUITER" | "AGENCY"; // roles posibles para el reclutador 
+  name?: string;
+  lastname?: string;
+  email?: string;
+};
 }
 
 export interface IApplication {

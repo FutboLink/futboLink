@@ -279,7 +279,7 @@ const PanelAdmin = () => {
 
         {/* Sección de Estadísticas de Ofertas */}
         {activeSection === "appliedOffers" && (
-          <div className="bg-white p-6 rounded-xl shadow-lg" data-aos="fade-up">
+          <div className="bg-white p-6 rounded-xl shadow-lg">
             <Offer />
           </div>
         )}

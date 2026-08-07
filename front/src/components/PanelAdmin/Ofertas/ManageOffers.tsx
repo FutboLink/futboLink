@@ -81,9 +81,15 @@ const ManageOffers: React.FC = () => {
   };
 
   const handleDeleteOffer = (offer: IOfferCard) => {
-    setOfferToDelete(offer);
-    setShowDeleteModal(true);
-  };
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+
+  setOfferToDelete(offer);
+  setShowDeleteModal(true);
+};
 
   const confirmDelete = async () => {
     if (!offerToDelete || !token) return;
@@ -226,29 +232,33 @@ const ManageOffers: React.FC = () => {
                         {new Date(offer.createdAt).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex space-x-2">
-                          <Link
-                            href={`/jobs/${offer.id}`}
-                            className="text-blue-600 hover:text-blue-900"
-                            title="Ver detalles"
+                        <div className="flex items-center justify-center gap-2">
+
+                             <Link
+                        href={`/jobs/${offer.id}`}
+                     title="Ver"
+                         className="w-10 h-10 rounded-lg bg-blue-100 hover:bg-blue-600 text-blue-600 hover:text-white flex items-center justify-center transition-all duration-200"
+                        >
+                          <FaEye size={18} />
+                        </Link>
+
+                       <button
+                          onClick={() => handleEditOffer(offer)}
+                           title="Editar"
+                           className="w-10 h-10 rounded-lg bg-green-100 hover:bg-green-600 text-green-600 hover:text-white flex items-center justify-center transition-all duration-200"
+                        >
+                          <FaEdit size={18} />
+                         </button>
+
+                         <button
+                          onClick={() => handleDeleteOffer(offer)}
+                          title="Eliminar"
+                          className="w-10 h-10 rounded-lg bg-red-100 hover:bg-red-600 text-red-600 hover:text-white flex items-center justify-center transition-all duration-200"
                           >
-                            <FaEye />
-                          </Link>
-                          <button
-                            onClick={() => handleEditOffer(offer)}
-                            className="text-indigo-600 hover:text-indigo-900"
-                            title="Editar"
-                          >
-                            <FaEdit />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteOffer(offer)}
-                            className="text-red-600 hover:text-red-900"
-                            title="Eliminar"
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
+                          <FaTrash size={18} />
+                            </button>
+
+                         </div>
                       </td>
                     </tr>
                   ))}
@@ -267,7 +277,7 @@ const ManageOffers: React.FC = () => {
 
       {/* Modal de confirmación para eliminar */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               Confirmar eliminación

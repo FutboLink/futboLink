@@ -194,12 +194,21 @@ const ManageOffers: React.FC = () => {
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">
-                              {offer.title}
-                            </div>
+                           {offer.title} 
+                             </div> 
                             <div className="text-sm text-gray-500">
-                              {offer.position}
+                            {offer.position}
                             </div>
-                          </div>
+                           <div className="text-xs text-gray-400 mt-1">
+                            Publicó:
+                        <span className="font-medium ml-1">
+                           {offer.recruiter?.name} {offer.recruiter?.lastname}
+                         </span>
+                        </div>
+                            <div className="text-xs text-gray-400">
+                         {offer.recruiter?.email}
+                           </div>
+                       </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">

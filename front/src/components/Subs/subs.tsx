@@ -253,7 +253,7 @@ function Subs() {
 
       {/* Career Verified */}
 
-      <div className="mt-10 mb-10 rounded-2xl border border-[#3d7a26]/20 bg-gradient-to-br from-[#3d7a26] to-[#2f641f] p-6 sm:p-8 text-white shadow-lg">
+      <div className="mt-24 mb-10 rounded-2xl border border-[#3d7a26]/20 bg-gradient-to-br from-[#3d7a26] to-[#2f641f] p-6 sm:p-8 text-white shadow-lg">
 
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-7">
 

@@ -84,6 +84,8 @@
   height: 430px;
   top: 0;
   left: 0;
+  background: linear-gradient(135deg, #79d12d 0%, #1f9a3d 100%);
+
   backface-visibility: hidden;
   border-radius: 22px;
 

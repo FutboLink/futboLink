@@ -2691,6 +2691,7 @@ export default function UserViewer() {
                 {activeTab === "stats" && (
                    <ExperienceTab
                      trayectorias={profile.trayectorias ?? []}
+                     isPlayer={user?.role === UserType.PLAYER}
                    />
                 )}
 

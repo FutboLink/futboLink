@@ -1,6 +1,14 @@
 "use client";
 
-import React, { useEffect, useState, useContext } from "react";
+import {
+  FaUsers,
+  FaSearch,
+  FaStar,
+  FaTrophy,
+  FaShieldAlt,
+  FaGlobeEurope,
+  FaChartBar,
+} from "react-icons/fa";
 import { Subscription } from "../../helpers/helpersSubs";
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -244,7 +252,124 @@ function Subs() {
 
           </div>
         ))}
+            </div>
+
+      {/* Career Verified */}
+
+      <div className="mt-10 mb-10 rounded-2xl border border-[#3d7a26]/20 bg-gradient-to-br from-[#3d7a26] to-[#2f641f] p-6 sm:p-8 text-white shadow-lg">
+
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-7">
+
+          {/* Información */}
+
+          <div className="flex-1">
+
+            <div className="flex items-center gap-3 mb-3">
+
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
+                <FaTrophy className="text-green-100" />
+              </div>
+
+              <span className="text-xs font-bold uppercase tracking-widest text-green-100">
+                Career Verified by Futbolink
+              </span>
+
+            </div>
+
+            <h2 className="text-2xl sm:text-3xl font-bold leading-tight">
+              Hacé que tu trayectoria destaque
+            </h2>
+
+            <p className="mt-2 max-w-2xl text-sm sm:text-base text-green-50">
+              Presentá tus clubes, ligas y experiencia de una forma más
+              profesional para destacar ante los reclutadores.
+            </p>
+
+            {/* Beneficios */}
+
+            <div className="flex flex-wrap gap-x-6 gap-y-3 mt-5 text-sm text-green-50">
+
+              <div className="flex items-center gap-2">
+                <FaShieldAlt className="text-green-100" />
+                <span>Clubes</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <FaTrophy className="text-green-100" />
+                <span>Ligas</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <FaGlobeEurope className="text-green-100" />
+                <span>Países</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <FaChartBar className="text-green-100" />
+                <span>Estadísticas</span>
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* Precio + botones */}
+
+          <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-center gap-4 lg:min-w-[310px]">
+
+            <div className="text-center sm:text-left lg:text-center xl:text-left">
+
+              <p className="text-xs text-green-100">
+                Pago único
+              </p>
+
+              <p className="text-3xl font-bold">
+                €7,95
+              </p>
+
+            </div>
+
+            <div className="flex flex-col gap-2 w-full sm:w-auto">
+
+              <button
+                type="button"
+                onClick={() =>
+                  window.open(
+                    "https://buy.stripe.com/4gM00j70fgHBfIF35Qgbm02",
+                    "_blank"
+                  )
+                }
+                className="px-6 py-3 rounded-xl bg-white text-[#3d7a26] font-bold text-sm shadow-md hover:shadow-lg hover:scale-[1.02] transition-all whitespace-nowrap"
+              >
+                ✨ Mejorar mi perfil
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  window.open(
+                    "/profile?tab=Profesional",
+                    "_self"
+                  )
+                }
+                className="px-6 py-2.5 rounded-xl border border-white/40 text-white font-semibold text-sm hover:bg-white/10 transition-all whitespace-nowrap"
+              >
+                Ver cómo funciona
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <p className="mt-5 text-[11px] text-green-100/80">
+          Incluye enlaces a las páginas oficiales de clubes y ligas.
+        </p>
+
       </div>
+
+      <div className={styles.benefits}>
 
 <div className={styles.benefits}>
 

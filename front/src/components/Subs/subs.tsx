@@ -371,15 +371,13 @@ function Subs() {
 
       <div className={styles.benefits}>
 
-<div className={styles.benefits}>
+         <div className={styles.benefit}>
 
-<div className={styles.benefit}>
+           <div className={styles.benefitHeader}>
 
-  <div className={styles.benefitHeader}>
-
-    <div className={styles.iconCircle}>
-      <FaUsers />
-    </div>
+              <div className={styles.iconCircle}>
+            <FaUsers />
+           </div>
 
     <h3>10.000+ usuarios</h3>
 

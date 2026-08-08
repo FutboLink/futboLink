@@ -387,7 +387,7 @@ const uniqueClubs = trayectorias.filter(
             </p>
 
             <p className="text-3xl font-bold">
-              €6,95
+              €7,95
             </p>
           </div>
 

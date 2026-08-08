@@ -416,18 +416,19 @@ const uniqueClubs = trayectorias.filter(
 
           <div className="flex flex-col gap-2">
 
-            <button
-              type="button"
-              onClick={() =>
-                window.open(
-                  "https://buy.stripe.com/4gM00j70fgHBfIF35Qgbm02",
-                  "_blank"
-                )
-              }
-              className="px-5 py-3 rounded-xl bg-white text-[#3d7a26] font-bold text-sm shadow-md hover:shadow-lg hover:scale-[1.02] transition-all whitespace-nowrap"
-            >
-              ✨ Mejorar mi perfil
-            </button>
+           <button
+  type="button"
+  onClick={() =>
+    window.open(
+      "https://buy.stripe.com/4gM00j70fgHBfIF35Qgbm02",
+      "_blank"
+    )
+  }
+  className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white text-[#3d7a26] font-bold text-sm shadow-md hover:shadow-lg hover:scale-[1.02] transition-all whitespace-nowrap"
+>
+  Mejorar mi perfil
+  <FaArrowRight size={14} />
+</button>
 
             <button
               type="button"
@@ -516,17 +517,18 @@ const uniqueClubs = trayectorias.filter(
               </div>
 
               <button
-                type="button"
-                onClick={() =>
-                  window.open(
-                    "https://buy.stripe.com/4gM00j70fgHBfIF35Qgbm02",
-                    "_blank"
-                  )
-                }
-                className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-[#3d7a26] text-white font-bold shadow-md hover:bg-[#326520] hover:shadow-lg hover:scale-[1.02] transition-all"
-              >
-                ✨ Mejorar mi perfil
-              </button>
+  type="button"
+  onClick={() =>
+    window.open(
+      "https://buy.stripe.com/4gM00j70fgHBfIF35Qgbm02",
+      "_blank"
+    )
+  }
+  className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white text-[#3d7a26] font-bold text-sm shadow-md hover:shadow-lg hover:scale-[1.02] transition-all whitespace-nowrap"
+>
+  Mejorar mi perfil
+  <FaArrowRight size={14} />
+</button>
 
             </div>
 

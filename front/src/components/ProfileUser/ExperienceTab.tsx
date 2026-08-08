@@ -5,8 +5,8 @@ import {
   FaShieldAlt,
   FaGlobeEurope,
   FaChartBar,
+  FaArrowRight,
 } from "react-icons/fa";
-import { FaArrowRight, FaTrophy } from "react-icons/fa";
 import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
 
 interface ExperienceTabProps {

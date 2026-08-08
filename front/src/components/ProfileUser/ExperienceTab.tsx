@@ -413,8 +413,10 @@ const uniqueClubs = trayectorias.filter(
 
   </div>
 
-</div>
-     
-    </div>
+  </div>
+
+  )}
+
+  </div>
   );
 }

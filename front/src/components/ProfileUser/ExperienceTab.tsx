@@ -15,6 +15,8 @@ export default function ExperienceTab({
 const [activeView, setActiveView] = useState<
   "leagues" | "countries" | "clubs"
 >("leagues");
+  
+const [showCareerModal, setShowCareerModal] = useState(false);
 
   const uniqueLeagues = trayectorias.filter(
     (league, index, self) =>
@@ -341,81 +343,183 @@ const uniqueClubs = trayectorias.filter(
 )}
 
        </div>
-      {/* Career Verified */}
-      
-      {isPlayer && (
+{/* Career Verified */}
 
-<div className="mt-8 rounded-2xl border border-[#3d7a26]/20 bg-gradient-to-r from-[#3d7a26] to-[#4c8f30] p-6 text-white shadow-lg">
+{isPlayer && (
+  <>
+    <div className="mt-8 rounded-2xl border border-[#3d7a26]/20 bg-gradient-to-br from-[#3d7a26] to-[#2f641f] p-5 sm:p-6 text-white shadow-lg">
 
-  <div className="flex items-start justify-between">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
 
-    <div>
+        <div className="flex-1">
 
-      <p className="text-xs uppercase tracking-widest text-green-100">
-        FUTBOLINK
-      </p>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-lg">🏆</span>
 
-      <h3 className="text-2xl font-bold mt-1">
-        🏆 Career Verified
-      </h3>
+            <span className="text-xs font-bold uppercase tracking-widest text-green-100">
+              Career Verified by Futbolink
+            </span>
+          </div>
 
-      <p className="mt-3 text-green-100 max-w-xl">
-        Convierte tu trayectoria en un perfil mucho más profesional
-        con escudos oficiales, ligas verificadas, enlaces oficiales
-        y estadísticas organizadas.
+          <h3 className="text-2xl sm:text-3xl font-bold leading-tight">
+            Hacé que tu trayectoria destaque
+          </h3>
+
+          <p className="mt-2 text-sm sm:text-base text-green-50 max-w-xl">
+            Presentá tus clubes, ligas y experiencia de una forma más
+            profesional para destacar ante los reclutadores.
+          </p>
+
+          <div className="flex flex-wrap gap-x-5 gap-y-2 mt-4 text-sm text-green-50">
+            <span>🛡 Clubes</span>
+            <span>🏆 Ligas</span>
+            <span>🌍 Países</span>
+            <span>📊 Estadísticas</span>
+          </div>
+
+        </div>
+
+        <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row items-stretch sm:items-center md:items-stretch lg:items-center gap-3 md:min-w-[250px]">
+
+          <div className="text-center sm:text-left md:text-center lg:text-left">
+            <p className="text-xs text-green-100">
+              Pago único
+            </p>
+
+            <p className="text-3xl font-bold">
+              €6,95
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2">
+
+            <button
+              type="button"
+              onClick={() =>
+                window.open(
+                  "https://buy.stripe.com/4gM00j70fgHBfIF35Qgbm02",
+                  "_blank"
+                )
+              }
+              className="px-5 py-3 rounded-xl bg-white text-[#3d7a26] font-bold text-sm shadow-md hover:shadow-lg hover:scale-[1.02] transition-all whitespace-nowrap"
+            >
+              ✨ Mejorar mi perfil
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowCareerModal(true)}
+              className="px-5 py-2.5 rounded-xl border border-white/40 text-white font-semibold text-sm hover:bg-white/10 transition-all"
+            >
+              Ver ejemplo
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <p className="mt-4 text-[11px] text-green-100/80">
+        Incluye enlaces a las páginas oficiales de clubes y ligas.
       </p>
 
     </div>
 
-    <div className="hidden md:block text-6xl opacity-20">
+    {/* Modal */}
 
-      🏆
+    {showCareerModal && (
+      <div
+        className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 p-4"
+        onClick={() => setShowCareerModal(false)}
+      >
 
-    </div>
+        <div
+          className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
+        >
 
-  </div>
+          <button
+            type="button"
+            onClick={() => setShowCareerModal(false)}
+            className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-xl font-bold text-gray-700 shadow-md hover:bg-gray-100 transition"
+            aria-label="Cerrar"
+          >
+            ×
+          </button>
 
-  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-6 text-sm">
+          <div className="p-5 sm:p-7">
 
-    <div>✅ Escudos oficiales</div>
+            <div className="text-center mb-5">
 
-    <div>✅ Logos de ligas</div>
+              <p className="text-xs font-bold uppercase tracking-widest text-[#3d7a26]">
+                Career Verified by Futbolink
+              </p>
 
-    <div>✅ Países con banderas</div>
+              <h3 className="mt-1 text-2xl sm:text-3xl font-bold text-gray-900">
+                Así puede verse tu perfil
+              </h3>
 
-    <div>✅ Enlaces a clubes</div>
+              <p className="mt-2 text-sm text-gray-500">
+                Una presentación más profesional de tu trayectoria para
+                destacar tu experiencia ante los reclutadores.
+              </p>
 
-    <div>✅ Enlaces a ligas</div>
+            </div>
 
-    <div>✅ Estadísticas Premium</div>
+            <div className="rounded-xl border border-gray-200 bg-gray-50 p-2 sm:p-3">
+              <img
+                src="/career-verified-example.png"
+                alt="Ejemplo de perfil Career Verified de Futbolink"
+                className="w-full h-auto rounded-lg shadow-sm"
+              />
+            </div>
 
-  </div>
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-100 pt-5">
 
-  <div className="flex items-center justify-between mt-8">
+              <div className="text-center sm:text-left">
 
-    <div>
+                <p className="text-sm text-gray-500">
+                  Career Verified
+                </p>
 
-      <p className="text-green-100 text-sm">
-        Pago único
-      </p>
+                <p className="text-2xl font-bold text-gray-900">
+                  €6,95
+                  <span className="ml-2 text-sm font-normal text-gray-500">
+                    · Pago único
+                  </span>
+                </p>
 
-      <p className="text-3xl font-bold">
-        €6,95
-      </p>
+              </div>
 
-    </div>
+              <button
+                type="button"
+                onClick={() =>
+                  window.open(
+                    "https://buy.stripe.com/4gM00j70fgHBfIF35Qgbm02",
+                    "_blank"
+                  )
+                }
+                className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-[#3d7a26] text-white font-bold shadow-md hover:bg-[#326520] hover:shadow-lg hover:scale-[1.02] transition-all"
+              >
+                ✨ Mejorar mi perfil
+              </button>
 
-    <button
-      className="px-6 py-3 rounded-xl bg-white text-[#3d7a26] font-bold hover:scale-105 transition-all"
-    >
-      Ver un ejemplo
-    </button>
+            </div>
 
-  </div>
+            <p className="mt-3 text-center text-xs text-gray-400">
+              Incluye enlaces a las páginas oficiales de clubes y ligas.
+            </p>
 
-  </div>
+          </div>
 
-  )}
+        </div>
+
+      </div>
+    )}
+
+  </>
+)}
 
   </div>
   );

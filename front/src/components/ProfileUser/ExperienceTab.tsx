@@ -1,5 +1,11 @@
 import Link from "next/link";
 import { useState } from "react";
+import {
+  FaTrophy,
+  FaShieldAlt,
+  FaGlobeEurope,
+  FaChartBar,
+} from "react-icons/fa";
 import { FaArrowRight, FaTrophy } from "react-icons/fa";
 import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
 
@@ -354,7 +360,9 @@ const uniqueClubs = trayectorias.filter(
         <div className="flex-1">
 
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-lg">🏆</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
+  <FaTrophy className="text-green-100" />
+</div>
 
             <span className="text-xs font-bold uppercase tracking-widest text-green-100">
               Career Verified by Futbolink
@@ -371,10 +379,25 @@ const uniqueClubs = trayectorias.filter(
           </p>
 
           <div className="flex flex-wrap gap-x-5 gap-y-2 mt-4 text-sm text-green-50">
-            <span>🛡 Clubes</span>
-            <span>🏆 Ligas</span>
-            <span>🌍 Países</span>
-            <span>📊 Estadísticas</span>
+            <div className="flex items-center gap-2">
+  <FaShieldAlt className="text-green-100" />
+  <span>Clubes</span>
+</div>
+
+<div className="flex items-center gap-2">
+  <FaTrophy className="text-green-100" />
+  <span>Ligas</span>
+</div>
+
+<div className="flex items-center gap-2">
+  <FaGlobeEurope className="text-green-100" />
+  <span>Países</span>
+</div>
+
+<div className="flex items-center gap-2">
+  <FaChartBar className="text-green-100" />
+  <span>Estadísticas</span>
+</div>
           </div>
 
         </div>

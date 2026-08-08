@@ -211,7 +211,7 @@ function Subs() {
     </select>
 
     <Link href="/OptionUsers">
-      <button className={`${styles.button} m-4`}>
+      <button className={styles.button}>
         Registrarse
       </button>
     </Link>
@@ -237,7 +237,7 @@ function Subs() {
       </select>
 
       <button
-        className={`${styles.button} m-4`}
+       className={styles.button}
         onClick={() => handleSubscribe(index, selectedPlans[index])}
         disabled={isLoading[index]}
       >

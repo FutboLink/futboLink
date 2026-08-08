@@ -484,7 +484,7 @@ const uniqueClubs = trayectorias.filter(
                 </p>
 
                 <p className="text-2xl font-bold text-gray-900">
-                  €6,95
+                  €7,95
                   <span className="ml-2 text-sm font-normal text-gray-500">
                     · Pago único
                   </span>

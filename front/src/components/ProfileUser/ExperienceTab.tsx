@@ -5,10 +5,12 @@ import { renderCountryFlag } from "@/components/countryFlag/countryFlag";
 
 interface ExperienceTabProps {
   trayectorias: any[];
+  isPlayer: boolean;
 }
 
 export default function ExperienceTab({
   trayectorias,
+  isPlayer,
 }: ExperienceTabProps) {
 const [activeView, setActiveView] = useState<
   "leagues" | "countries" | "clubs"
@@ -340,8 +342,8 @@ const uniqueClubs = trayectorias.filter(
 
        </div>
       {/* Career Verified */}
-
-{userRole === UserType.PLAYER && (
+      
+      {isPlayer && (
 
 <div className="mt-8 rounded-2xl border border-[#3d7a26]/20 bg-gradient-to-r from-[#3d7a26] to-[#4c8f30] p-6 text-white shadow-lg">
 

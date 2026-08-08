@@ -341,6 +341,8 @@ const uniqueClubs = trayectorias.filter(
        </div>
       {/* Career Verified */}
 
+{userRole === UserType.PLAYER && (
+
 <div className="mt-8 rounded-2xl border border-[#3d7a26]/20 bg-gradient-to-r from-[#3d7a26] to-[#4c8f30] p-6 text-white shadow-lg">
 
   <div className="flex items-start justify-between">
